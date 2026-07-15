@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Voyage One — Private Travel Atelier</title>
+<style> html, body, #root { height: 100%; margin: 0; background: #FBFAF6; } </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.383.0?deps=react@18.2.0"
+  }
+}
+</script>
+<script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-type="module" data-presets="react">
+import React, { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  Plane, Car, TrainFront, MapPin, Plus, Minus, ArrowRight, ArrowLeft,
+  Check, X, Users, Calendar, BedDouble, Utensils, Compass, Flower2, Route, ChevronUp, Pencil, Home, ScrollText,
+} from "lucide-react";
+
+const t = {
+  paper: "#FBFAF6", ink: "#221D19", inkSoft: "#5C544B", inkFaint: "#8B8177",
+  pine: "#20463F", pineSoft: "#3C635B", brass: "#A9884F", brassLight: "#C9AF7E",
+  line: "#E4DDD0", card: "#F3EEE4", mist: "#EDE9E0", white: "#FFFFFF",
+};
+const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
+const LEVELS = ["UltraLux", "Luxury", "Refined", "Essential"];
+const CABINS = ["Economy", "Premium", "Business", "First"];
+const ARRIVE = [
+  { key: "Flight", label: "Fly", Icon: Plane }, { key: "Train", label: "Rail", Icon: TrainFront },
+  { key: "Chauffeur", label: "Chauffeur", Icon: Car }, { key: "Self-drive", label: "Self-drive", Icon: Car },
+];
+const MODES = [
+  { key: "full", label: "Plan it all" }, { key: "flights", label: "Flights only" },
+  { key: "open", label: "Explore — choose stops later" },
+];
+const CITIES = [
+  "New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Miami","Seattle","Newark",
+  "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Douro Valley","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Dublin","Edinburgh","Athens","Istanbul","Nice","Dubrovnik","Reykjavik",
+  "Dubai","Marrakech","Tokyo","Kyoto","Singapore","Hong Kong","Bangkok","Sydney","Cape Town","Mexico City","Toronto","Vancouver",
+  "Portugal","Tuscany","Andalusia","Sicily","Provence","Scottish Highlands",
+];
+const AIR_POOL = ["Delta","United","American","JetBlue","TAP Air Portugal","Iberia","ITA Airways","Lufthansa","British Airways","Air France","KLM","Swiss","Turkish Airlines","Emirates","Aer Lingus"];
+
+const HOTELS = {
+  "New York City": { UltraLux: [["Aman New York", 2400, "Serene tower sanctuary above Fifth Avenue with a three-floor spa and jazz club."], ["The Mark", 1400, "Bold uptown design steps from the Met and Central Park."], ["The Carlyle", 1200, "Old-world Manhattan glamour and legendary Bemelmans Bar."]], Luxury: [["The St. Regis New York", 1050, "Beaux-Arts landmark with butler service and the King Cole Bar."], ["Baccarat Hotel", 1000, "Crystal-clad jewel opposite MoMA."], ["The Plaza", 900, "The storied Fifth Avenue grande dame on Central Park."]], Refined: [["The Beekman", 560, "Dramatic Victorian atrium in the Financial District."], ["Refinery Hotel", 440, "Millinery-loft style with a lively Midtown rooftop."]], Essential: [["Arlo Midtown", 280, "Design-smart compact rooms near Hudson Yards."], ["Pod Times Square", 210, "Clever micro-rooms and a rooftop bar in the thick of it."]] },
+  "Florence": { UltraLux: [["Belmond Villa San Michele", 1650, "15th-century monastery on a Fiesole hill with an infinity pool over the city."], ["Four Seasons Hotel Firenze", 1500, "Renaissance palazzo wrapped around Florence's largest private garden."], ["The St. Regis Florence", 1350, "Riverside opulence on the Arno with signature butler service."], ["Portrait Firenze", 1250, "Sleek Ferragamo suites a few feet from the Ponte Vecchio."]], Luxury: [["Hotel Savoy, Rocco Forte", 780, "Bright, contemporary luxury right on Piazza della Repubblica."], ["Villa Cora", 760, "19th-century villa in a park with a garden pool near the Boboli."], ["Helvetia & Bristol", 720, "Belle-époque rooms and an underground spa in the centro storico."], ["The Westin Excelsior", 700, "Grand Arno-front palace with a rooftop restaurant."]], Refined: [["Hotel Lungarno", 460, "Riverside chic with a private art collection by the Ponte Vecchio."], ["Grand Hotel Minerva", 420, "Rooftop-pool classic overlooking Santa Maria Novella."], ["NH Collection Porta Rossa", 380, "Reputedly Italy's oldest hotel, with a 13th-century tower."]], Essential: [["Hotel L'Orologio", 240, "Watch-themed boutique on the Santa Maria Novella square."], ["Bernini Palace", 230, "Historic address near the Uffizi with a frescoed hall."], ["c-hotels Ambasciatori", 190, "Straightforward comfort steps from the station."]] },
+  "Palermo": { UltraLux: [["Rocco Forte Villa Igiea", 850, "Art-nouveau seaside villa with tiered gardens over the Tyrrhenian."]], Luxury: [["Grand Hotel et Des Palmes", 360, "Belle-époque landmark of faded Sicilian grandeur in the center."], ["Grand Hotel Wagner", 300, "Ornate 19th-century palazzo near the Politeama theatre."], ["Grand Hotel Piazza Borsa", 280, "Former monastery around a courtyard by the old town."]], Refined: [["Palazzo Natoli Boutique", 200, "Intimate restored palazzo in the historic heart."], ["NH Palermo", 180, "Reliable modern rooms near the port and center."]], Essential: [["Hotel Politeama", 145, "Central, unfussy base by the theatre district."], ["Palazzo Sitano", 150, "Contemporary rooms with a rooftop near the Cala marina."]] },
+  "Lisbon": { UltraLux: [["Four Seasons Hotel Ritz Lisbon", 900, "Mid-century icon with a rooftop running track and museum-grade art."], ["Olissippo Lapa Palace", 650, "Aristocratic hillside palace with gardens and Tagus views."]], Luxury: [["Bairro Alto Hotel", 520, "Chic Chiado boutique with a celebrated rooftop terrace."], ["Tivoli Avenida Liberdade", 480, "Grande dame on the leafy Avenida since 1933."], ["The One Palácio da Anunciada", 450, "16th-century palace with a walled garden in Baixa."], ["Corinthia Lisbon", 420, "Polished modern comfort with a large spa near the park."]], Refined: [["Valverde Lisboa", 340, "Townhouse-style Relais & Châteaux with a courtyard pool."], ["The Lumiares", 320, "18th-century palace turned design suites in Bairro Alto."], ["Pousada de Lisboa", 300, "Landmark on Praça do Comércio steps from the river."], ["Hotel Avenida Palace", 300, "Neoclassical 1892 landmark by Rossio station."]], Essential: [["Lisboa Pessoa Hotel", 160, "Bright literary-themed rooms with a small rooftop pool."], ["Hotel Mundial", 150, "Central classic with a panoramic terrace over the castle."], ["My Story Hotel Ouro", 140, "Simple modern comfort in the Baixa grid."]] },
+  "Porto": { UltraLux: [["The Yeatman", 750, "Wine-themed luxury above Gaia with Michelin dining and a Caudalie spa."], ["Maison Albar Le Monumental Palace", 500, "Restored 1920s palace on the Avenida dos Aliados."]], Luxury: [["The Rebello", 450, "Stone-warehouse conversion on the Douro's Gaia bank."], ["Vila Foz Hotel & Spa", 430, "Seaside 19th-century manor in Foz do Douro."], ["InterContinental Porto – Palácio das Cardosas", 420, "Grand 18th-century palace on Liberdade square."], ["Torel Avantgarde", 400, "Art-inspired hillside suites with river views."]], Refined: [["Infante Sagres", 330, "Old-world elegance in the heart of downtown."], ["PortoBay Flores", 320, "16th-century palace with a garden on Rua das Flores."], ["Pestana Vintage Porto", 300, "Colourful Ribeira houses right on the riverfront."]], Essential: [["Hotel Carris Porto Ribeira", 170, "Connected townhouses in the UNESCO old town."], ["Descobertas Boutique Hotel", 160, "Explorer-themed rooms near the river."]] },
+  "Madrid": { UltraLux: [["Mandarin Oriental Ritz Madrid", 1100, "Belle-époque icon by the Prado, restored to jewel-box splendour."], ["Four Seasons Hotel Madrid", 950, "Seven historic buildings reborn with a rooftop pool near Sol."], ["Rosewood Villa Magna", 900, "Sleek Golden-Mile glamour on the Castellana."]], Luxury: [["The Madrid EDITION", 600, "Cool marble-and-green design with a rooftop scene near Sol."], ["BLESS Hotel Madrid", 520, "Fashion-forward Salamanca stay with a rooftop pool."], ["The Palace, a Luxury Collection", 520, "Belle-époque grande dame under a stained-glass dome."], ["Gran Meliá Fénix", 500, "Classic luxury by Plaza de Colón."]], Refined: [["Hotel Único Madrid", 360, "Intimate Salamanca townhouse with a garden and Michelin dining."], ["The Principal Madrid", 350, "Rooftop-view boutique atop Gran Vía."], ["URSO Hotel & Spa", 340, "Palatial townhouse with a Natura Bissé spa."], ["Only YOU Boutique", 330, "Design-led social hub in Chueca."]], Essential: [["Hotel Preciados", 170, "Comfortable classic steps from Sol."], ["Catalonia Puerta del Sol", 160, "Restored building with a plunge pool near the center."]] },
+  "Sintra": { UltraLux: [["Tivoli Palácio de Seteais", 600, "18th-century palace with frescoed halls and formal garden views."]], Luxury: [["Penha Longa Resort", 450, "Sprawling estate with golf, a big spa and Michelin dining."]], Refined: [["Sintra Boutique Hotel", 220, "Central boutique steps from the historic core."]], Essential: [["Chalet Saudade", 140, "Romantic guesthouse near the train station."]] },
+  "Cascais": { Luxury: [["Hotel Cascais Miragem", 420, "Glossy sea-view landmark on the bay."], ["The Oitavos", 400, "Modern design hotel over dunes and Atlantic."], ["Farol Hotel", 380, "Clifftop design hotel with a sea-deck pool."]], Refined: [["Pergola Boutique Hotel", 200, "Charming garden villa in town."]], Essential: [["Casa Vela Guest House", 130, "Simple comfort near the marina."]] },
+  "Óbidos": { Luxury: [["Pousada Castelo de Óbidos", 350, "Sleep inside the medieval castle walls."]], Refined: [["The Literary Man", 170, "Book-filled boutique in a former convent."]], Essential: [["Casa das Senhoras Rainhas", 150, "Cozy inn within the town walls."]] },
+  "Comporta": { UltraLux: [["Sublime Comporta", 700, "Pine-and-paddy hideaway of barefoot luxury."]], Luxury: [["Quinta da Comporta", 450, "Wellness retreat amid the rice fields."]], Refined: [["Casa da Comporta", 250, "Laid-back rooms near the beach."]] },
+  "Évora": { Luxury: [["Convento do Espinheiro", 350, "15th-century convent with a spa just outside town."], ["M'AR De AR Aqueduto", 300, "Sleek hotel beside the Roman aqueduct."]], Refined: [["Vitória Stone Hotel", 160, "Contemporary comfort in the old town."]] },
+  "Douro Valley": { UltraLux: [["Six Senses Douro Valley", 700, "Hilltop wellness estate over the terraced river."]], Luxury: [["Quinta do Vallado", 400, "Working wine estate with river-view rooms."], ["The Vintage House", 350, "Riverbank classic in Pinhão."]], Refined: [["Quinta Nova", 300, "Vineyard manor with sweeping valley views."]] },
+  "Algarve": { Luxury: [["Bela Vista Hotel & Spa", 420, "Belle-époque palace above a Portimão beach."], ["Cascade Wellness Resort", 350, "Clifftop resort near Lagos with a large spa."]], Refined: [["Tivoli Carvoeiro", 280, "Modern cliffside hotel over the coves."]], Essential: [["Marina Club Lagos", 150, "Bright rooms by the Lagos marina."]] },
+};
+const EATS = {
+  "New York City": { UltraLux: [["Per Se", 400, "Thomas Keller's tasting-menu temple over Columbus Circle."], ["Le Bernardin", 260, "Peerless seafood, a New York fine-dining institution."]], Luxury: [["The Modern", 180, "Michelin dining overlooking MoMA's sculpture garden."], ["Gramercy Tavern", 150, "Seasonal American warmth, a perennial favourite."]], Refined: [["Carbone", 120, "Theatrical red-sauce Italian-American, hard to book."], ["Balthazar", 80, "Bustling SoHo brasserie, morning to night."]], Essential: [["Katz's Delicatessen", 30, "The legendary pastrami-on-rye counter."], ["Joe's Pizza", 12, "The classic Greenwich Village slice."]] },
+  "Florence": { UltraLux: [["Enoteca Pinchiorri", 350, "Three-Michelin-star grande dame with a fabled cellar."], ["Il Palagio", 180, "Michelin-starred Tuscan dining at the Four Seasons."]], Luxury: [["Winter Garden by Caino", 160, "Elegant tasting menus under the St. Regis glass roof."], ["Borgo San Jacopo", 140, "Michelin river-view cooking by the Ponte Vecchio."], ["La Bottega del Buon Caffè", 130, "Farm-to-table Michelin dining on the Arno."]], Refined: [["Ora d'Aria", 90, "Modern Tuscan flair near the Uffizi."], ["Trattoria Cammillo", 70, "Beloved old-school trattoria in the Oltrarno."], ["Buca dell'Orafo", 65, "Tiny historic cellar for Florentine classics."]], Essential: [["Il Latini", 45, "Convivial, hams-hanging Tuscan feasting."], ["Trattoria Mario", 35, "Lunch-only institution for bistecca and ribollita."], ["All'Antico Vinaio", 20, "Famous stacked schiacciata sandwiches."]] },
+  "Palermo": { UltraLux: [["I Pupi (Bagheria)", 150, "Michelin-starred refinement just outside Palermo."], ["Gagini Social Restaurant", 110, "Creative Sicilian tasting in a stone-vaulted space."]], Luxury: [["Bye Bye Blues", 90, "Michelin-starred coastal cooking at Mondello."], ["Osteria dei Vespri", 85, "Refined Sicilian in a historic palazzo courtyard."]], Refined: [["Ferro", 55, "Modern Sicilian by a rising local chef."], ["Trattoria Ai Cascinari", 40, "Bustling neighbourhood plates loved by locals."]], Essential: [["Antica Focacceria San Francesco", 20, "Historic spot for pane con la milza."], ["Ballarò market food", 15, "Grazing the raucous street-food stalls."]] },
+  "Lisbon": { UltraLux: [["Belcanto", 250, "José Avillez's two-Michelin-star Portuguese artistry."], ["Alma", 200, "Two-Michelin-star modern Portuguese in Chiado."]], Luxury: [["Eleven", 140, "Michelin dining with hilltop park views."], ["JNcQUOI Avenida", 120, "Glamorous brasserie under a giant dinosaur."]], Refined: [["Cervejaria Ramiro", 60, "Lisbon's temple of garlicky seafood."], ["A Cevicheria", 55, "Peruvian-Portuguese ceviche under a giant octopus."]], Essential: [["Time Out Market", 30, "Top chefs under one buzzing food-hall roof."], ["Pastéis de Belém", 10, "The original custard tarts, still warm."]] },
+  "Porto": { UltraLux: [["The Yeatman Restaurant", 220, "Two-Michelin-star tasting with sweeping river views."], ["Antiqvvm", 180, "Michelin-starred creativity in a riverside mansion."]], Luxury: [["DOP by Rui Paula", 110, "Contemporary Portuguese in a downtown palace."], ["Cantinho do Avillez", 90, "Relaxed, inventive plates from Portugal's star chef."]], Refined: [["Tapabento", 55, "Petiscos and wine by São Bento station."], ["Cantina 32", 50, "Industrial-chic small plates on Rua das Flores."]], Essential: [["Café Santiago", 20, "The city's definitive francesinha."], ["Casa Guedes", 12, "Legendary roast-pork sandwiches."]] },
+  "Madrid": { UltraLux: [["DiverXO", 400, "Dabiz Muñoz's wild three-Michelin-star spectacle."], ["DSTAgE", 250, "Two-Michelin-star, boundary-pushing tasting."]], Luxury: [["Ramón Freixa", 180, "Refined Michelin cooking in a Salamanca courtyard."], ["StreetXO", 120, "Punkish Asian-fusion small plates."]], Refined: [["Casa Lucio", 80, "Old-Madrid classic famed for eggs and Rioja."], ["Sobrino de Botín", 75, "The world's oldest restaurant, roast suckling pig."]], Essential: [["Mercado de San Miguel", 30, "Iron-and-glass market of gourmet tapas."], ["Chocolatería San Ginés", 12, "Churros con chocolate since 1894."]] },
+  "Sintra": { Luxury: [["Incomum by Luís Santos", 55, "Refined bistro near the station."]], Refined: [["Tascantiga", 45, "Petiscos on a sunny terrace."]], Essential: [["Nau Palatina", 35, "Cozy tapas den in the old town."]] },
+  "Cascais": { Luxury: [["Furnas do Guincho", 70, "Cliffside fish by Guincho beach."]], Refined: [["Mar do Inferno", 55, "Seafood over the crashing coast."]] },
+  "Óbidos": { Refined: [["A Nova Casa de Ramiro", 55, "Regional cooking in a stone house."]], Essential: [["Petrarum Domus", 35, "Tavern within the walls."]] },
+  "Comporta": { Luxury: [["Sal", 70, "Beach-club seafood right on the sand."]], Refined: [["Cavalariça", 60, "Creative plates in a former stable."]] },
+  "Évora": { Luxury: [["Fialho", 60, "Alentejo classics served since 1945."]], Refined: [["Origens", 50, "Modern regional tasting menu."]] },
+  "Douro Valley": { UltraLux: [["DOC by Rui Paula", 130, "Riverside fine dining on the Douro."]], Luxury: [["The Vintage House Restaurant", 80, "Terraced views and regional wine."]] },
+  "Algarve": { UltraLux: [["Bon Bon", 150, "Michelin-starred coastal cuisine near Carvoeiro."]], Essential: [["A Casa do Petisco", 40, "Local petiscos near the marina."]] },
+};
+const TOURS = {
+  "New York City": [["Broadway show & premium seats", 260, "A current hit with prime orchestra seats arranged."], ["The Met private highlights", 190, "Two hours of masterpieces with an art historian."], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air."], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
+  "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
+  "Palermo": [["Ballarò & Vucciria street food", 95, "Graze Palermo's raucous markets with a local guide."], ["Monreale golden mosaics", 150, "Private visit to the dazzling Norman cathedral above the city."], ["Baroque Palermo & Cappella Palatina", 140, "Palaces, oratories and the glittering royal chapel."], ["Cefalù seaside day trip", 260, "Medieval lanes and a golden beach an hour east."]],
+  "Lisbon": [["Sintra palaces, private driver", 300, "Pena Palace and Quinta da Regaleira, door to door."], ["Alfama fado & tram evening", 150, "Old-quarter wandering ending with live fado and dinner."], ["Belém: pastéis & Jerónimos", 120, "Manueline monastery, monument and the original custard tarts."], ["Óbidos & wine country day", 280, "A walled medieval town and cellar tastings north of the city."]],
+  "Porto": [["Douro Valley vineyards & cruise", 340, "Terraced vineyards, quinta tastings and a scenic boat leg."], ["Port cellars of Gaia", 130, "Tour and tasting flights across historic port lodges."], ["Ribeira & Livraria Lello walk", 110, "Riverfront lanes, azulejos and the storied bookshop."], ["Francesinha food crawl", 150, "Master Porto's legendary sandwich and taste around town."]],
+  "Madrid": [["Prado & Reina Sofía art walk", 220, "Velázquez, Goya and Picasso's Guernica with an expert."], ["La Latina tapas crawl", 120, "Hop the classic taverns with wine and jamón."], ["Toledo day trip", 280, "Imperial city of three cultures, an hour south."], ["Flamenco in an intimate tablao", 110, "Front-row passion at a storied Madrid stage."]],
+};
+const SPAS = {
+  "New York City": [["Aman Spa half-day", 400, "Three floors of calm with a signature spa journey."], ["The Peninsula spa ritual", 260, "Sky-high sanctuary above Fifth Avenue."], ["Express city reset", 150, "A restorative 60-minute massage between plans."]],
+  "Florence": [["Four Seasons garden spa ritual", 260, "Tuscan olive-and-wine treatment beside the private garden."], ["Helvetia & Bristol hammam", 180, "Underground marble spa in the centro storico."], ["Couples signature ritual", 320, "Side-by-side treatment with a glass of Chianti."]],
+  "Palermo": [["Villa Igiea seaside spa", 200, "Sea-view rituals in Rocco Forte's art-nouveau villa."], ["Sicilian citrus body ritual", 140, "Local orange-and-almond scrub and massage."]],
+  "Lisbon": [["Four Seasons Ritz spa", 220, "Marble sanctuary with a signature Portuguese ritual."], ["Hammam & Vichy at The Lumiares", 160, "Steam, scrub and warm-shower ritual in Bairro Alto."], ["Couples escape", 260, "A two-hour ritual for two with downtime."]],
+  "Porto": [["Caudalie Vinothérapie, The Yeatman", 240, "Grape-and-wine treatments with valley views."], ["Riverside relaxation ritual", 150, "Warm-stone massage after a day on the Douro."]],
+  "Madrid": [["Mandarin Oriental Ritz spa", 260, "Opulent thermal circuit and signature massage."], ["Natura Bissé ritual at URSO", 180, "Cult Spanish skincare in a townhouse spa."], ["Couples ritual & thermal", 300, "Two treatments plus thermal-suite time."]],
+};
+const REGION_STOPS = {
+  "Portugal": [
+    ["Sintra", "40 min from Lisbon", "Fairytale palaces and misty forest — Pena Palace and Quinta da Regaleira."],
+    ["Cascais", "40 min from Lisbon", "Chic seaside resort with a marina and easy Atlantic beaches."],
+    ["Óbidos", "1 hr from Lisbon", "A perfectly preserved walled medieval village, famous for cherry liqueur."],
+    ["Comporta", "1 hr 30 from Lisbon", "Bohemian-chic beaches, rice paddies and low-key luxury."],
+    ["Évora", "1 hr 30 from Lisbon", "UNESCO Alentejo city — Roman temple, bone chapel and bold reds."],
+    ["Algarve", "2 hr 45 from Lisbon", "Golden cliffs, sea grottoes and beach coves in the sunny south."],
+    ["Douro Valley", "3 hr 30 from Lisbon", "Terraced vineyards and port quintas along a dramatic river."],
+    ["Porto", "3 hr from Lisbon", "Riverfront city of port lodges, azulejos and iron bridges."],
+  ],
+};
+
+function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function seeded(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+function round5(n) { return Math.round(n / 5) * 5; }
+const fmt = (n) => "$" + Math.round(n || 0).toLocaleString();
+function lookup(map, city) { if (!city) return null; if (map[city]) return map[city]; const k = Object.keys(map).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? map[k] : null; }
+function regionStops(region) { if (!region) return []; const r = region.trim().toLowerCase(); const k = Object.keys(REGION_STOPS).find((x) => r.includes(x.toLowerCase()) || x.toLowerCase().includes(r)); return k ? REGION_STOPS[k] : []; }
+function sameCity(a, b) { return a && b && a.trim().toLowerCase() === b.trim().toLowerCase(); }
+function isUS(city) { const us = ["new york","miami","los angeles","san francisco","chicago","boston","washington","seattle","newark","atlanta","dallas","houston","denver","miami beach","orlando"]; if (!city) return false; const c = city.trim().toLowerCase(); return us.some((u) => c.includes(u)); }
+function airlinesFor(from, to, cabin) {
+  if (!from || !to || !cabin) return [];
+  const baseEco = round5(360 + seeded(hashStr(from + ">" + to)) * 820);
+  const mult = { Economy: 1, Premium: 1.95, Business: 3.9, First: 6.3 }[cabin] || 1;
+  let s = hashStr(from + ">" + to + cabin); const pool = [...AIR_POOL]; const out = [];
+  for (let i = 0; i < 5 && pool.length; i++) { s = hashStr("" + s); const air = pool.splice(s % pool.length, 1)[0]; const f = 0.88 + seeded(s) * 0.4; out.push({ id: air + cabin, airline: air, cabin, stops: seeded(s + 1) > 0.6 ? "1 stop" : "Nonstop", price: round5(baseEco * mult * f) }); }
+  return out.sort((a, b) => a.price - b.price);
+}
+function stayBands(city) { const seed = hashStr("stay" + (city || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
+function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
+function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
+function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
+function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
+function groundOption(mode, from, to) { const seed = hashStr(mode + (from || "") + (to || "")); const r = { Train: [70, 200], Chauffeur: [260, 720], "Self-drive": [90, 260] }[mode] || [80, 200]; return { mode, price: round5(r[0] + seeded(seed) * (r[1] - r[0])) }; }
+function destNights(d) { return d.mode === "open" ? d.days : d.nights; }
+function destCost(d, from) {
+  const p = d.pick || {}; let total = 0; const items = [];
+  if (d.arriveBy === "Flight") { if (p.flight) { total += p.flight.price; items.push([`${p.flight.airline} · ${p.flight.cabin}`, p.flight.price]); } }
+  else if (p.ground) { total += p.ground.price; items.push([`${d.arriveBy} → ${d.city || "next"}`, p.ground.price]); }
+  if (d.mode === "open") {
+    const days = d.days;
+    if (p.exploreMode === "base") {
+      if (p.stay) { const c = p.stay.nightly * days; total += c; items.push([`${p.stay.name || p.stay.level} · ${days}n`, c]); }
+      (p.dines || []).forEach((x) => { total += x.price; items.push([x.name || "Dining", x.price]); });
+    } else if (p.exploreMode === "roam") {
+      (p.stops || []).forEach((st) => {
+        const n = st.nights || 1;
+        if (st.stay) { const c = st.stay.nightly * n; total += c; items.push([`${st.name}: ${st.stay.name || st.stay.level} · ${n}n`, c]); }
+        (st.dines || []).forEach((x) => { total += x.price; items.push([`${st.name}: ${x.name || "dining"}`, x.price]); });
+      });
+    }
+    return { total, items };
+  }
+  const nights = destNights(d);
+  if (p.stay) { const c = p.stay.nightly * nights; total += c; items.push([`${p.stay.name || p.stay.level} · ${nights}n`, c]); }
+  (p.dines || []).forEach((x) => { total += x.price; items.push([x.name || `Dining · ${x.level}`, x.price]); });
+  (p.spas || []).forEach((x) => { total += x.price; items.push([x.name, x.price]); });
+  (p.tours || []).forEach((x) => { total += x.price; items.push([x.name, x.price]); });
+  return { total, items };
+}
+function returnCost(p) {
+  const rp = p.returnPick || {}; let total = 0; const items = [];
+  const lastCity = p.dests.length ? p.dests[p.dests.length - 1].city : "";
+  const needLeg = p.returnFrom && !sameCity(p.returnFrom, lastCity) && p.returnMode && p.returnMode !== "Flight";
+  if (needLeg && rp.ground) { total += rp.ground.price; items.push([`${p.returnMode} → ${p.returnFrom}`, rp.ground.price]); }
+  if (rp.flight) { total += rp.flight.price; items.push([`Fly ${p.returnFrom || ""} → ${p.homeCity || "home"}`, rp.flight.price]); }
+  return { total, items, needLeg };
+}
+function fmtRange(a, b) {
+  const opt = { month: "short", day: "numeric" };
+  try {
+    if (!a && !b) return "Dates to be confirmed";
+    const da = a ? new Date(a + "T00:00:00") : null; const db = b ? new Date(b + "T00:00:00") : null;
+    const sa = da ? da.toLocaleDateString("en-US", opt) : "—"; const sb = db ? db.toLocaleDateString("en-US", opt) : "—";
+    const yr = db ? db.getFullYear() : (da ? da.getFullYear() : "");
+    return `${sa} – ${sb}${yr ? ", " + yr : ""}`;
+  } catch (e) { return ""; }
+}
+function nameLine(travelers) {
+  const list = (travelers || []).filter((x) => (x.first || x.last));
+  if (list.length === 0) return "your journey";
+  if (list.length === 2 && list[0].last && sameCity(list[0].last, list[1].last)) return `${list[0].first} & ${list[1].first} ${list[0].last}`.trim();
+  const names = list.map((x) => `${x.first || ""} ${x.last || ""}`.trim());
+  if (names.length === 1) return names[0];
+  return names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+}
+
+function FontStyles() {
+  return (<style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap');
+    * { box-sizing: border-box; } button { font-family: inherit; cursor: pointer; } input { font-family: inherit; }
+    .vo-fade { animation: voFade .5s ease both; } @keyframes voFade { from {opacity:0; transform:translateY(6px);} to {opacity:1; transform:none;} }
+    @media (prefers-reduced-motion: reduce){ .vo-fade{ animation:none; } }
+    .vo-build{ display:grid; grid-template-columns:1fr; gap:26px; align-items:start; }
+    @media (min-width:900px){ .vo-build{ grid-template-columns:1fr 300px; } .vo-main{ order:1; } .vo-side{ order:2; } }
+    @media (max-width:899px){ .vo-side{ display:none; } }
+    .vo-sidecard{ position:sticky; top:84px; }
+    .vo-mobtotal{ position:fixed; left:0; right:0; bottom:0; z-index:40; }
+    @media (min-width:900px){ .vo-mobtotal{ display:none; } }
+    @media print { .vo-noprint{ display:none !important; } }
+  `}</style>);
+}
+function Eyebrow({ children, color = t.brass }) { return <div style={{ fontFamily: font.ui, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color, fontWeight: 500 }}>{children}</div>; }
+function Rule({ w = 44 }) { return <div style={{ width: w, height: 1, background: t.brass, opacity: 0.7 }} />; }
+const chip = (on) => ({ padding: "9px 15px", borderRadius: 999, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : t.white, color: on ? t.paper : t.inkSoft, fontSize: 13 });
+function Stepper({ value, onChange, min = 1, max = 30, unit = "night" }) {
+  const b = { width: 34, height: 34, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, display: "grid", placeItems: "center" };
+  return (<div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+    <button style={b} onClick={() => onChange(Math.max(min, value - 1))}><Minus size={15} /></button>
+    <div style={{ fontFamily: font.display, fontSize: 22, minWidth: 66, textAlign: "center" }}>{value} <span style={{ fontSize: 13, fontFamily: font.ui, color: t.inkFaint }}>{value === 1 ? unit : unit + "s"}</span></div>
+    <button style={b} onClick={() => onChange(Math.min(max, value + 1))}><Plus size={15} /></button>
+  </div>);
+}
+function CityBox({ value, onChange, placeholder, inputStyle }) {
+  const [open, setOpen] = useState(false);
+  const q = (value || "").trim().toLowerCase();
+  const matches = q ? CITIES.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q).slice(0, 6) : [];
+  return (<div style={{ position: "relative" }}>
+    <input value={value} placeholder={placeholder} onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 120)} style={inputStyle} />
+    {open && matches.length > 0 && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 30, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, marginTop: 6, overflow: "hidden", boxShadow: "0 10px 28px rgba(0,0,0,.10)" }}>
+      {matches.map((c) => <button key={c} onMouseDown={(e) => { e.preventDefault(); onChange(c); setOpen(false); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>{c}</button>)}
+    </div>)}
+  </div>);
+}
+function LabeledCity({ label, value, onChange, placeholder, big = true }) {
+  return (<label style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+    <span style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>{label}</span>
+    <CityBox value={value} onChange={onChange} placeholder={placeholder} inputStyle={{ fontFamily: big ? font.display : font.ui, fontSize: big ? 22 : 16, color: t.ink, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", outline: "none", width: "100%" }} />
+  </label>);
+}
+function Field({ label, value, onChange, placeholder, big = true }) {
+  return (<label style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+    <span style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>{label}</span>
+    <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} style={{ fontFamily: big ? font.display : font.ui, fontSize: big ? 22 : 16, color: t.ink, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", outline: "none", width: "100%" }} />
+  </label>);
+}
+function Chips({ options, value, onChange, prefix }) {
+  return (<div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+    {prefix && <span style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginRight: 4 }}>{prefix}</span>}
+    {options.map((o) => { const key = o.key || o; const label = o.label || o; const Icon = o.Icon; const on = value === key; return (<button key={key} onClick={() => onChange(key)} style={{ display: "flex", alignItems: "center", gap: 7, ...chip(on) }}>{Icon && <Icon size={14} />}{label}</button>); })}
+  </div>);
+}
+function SectionHead({ eyebrow, title, sub }) {
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 12, margin: "8px 0 28px" }}>
+    <Eyebrow>{eyebrow}</Eyebrow>
+    <h2 style={{ fontFamily: font.display, fontWeight: 400, fontSize: "clamp(30px,5vw,44px)", margin: 0, lineHeight: 1.05 }}>{title}</h2>
+    {sub && <p style={{ margin: 0, color: t.inkSoft, fontSize: 15.5, lineHeight: 1.6, maxWidth: 580 }}>{sub}</p>}
+  </div>);
+}
+function Panel({ icon: Icon, title, right, children }) {
+  return (<div style={{ borderTop: `1px solid ${t.line}`, paddingTop: 16, marginTop: 16 }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>{Icon && <Icon size={14} />}{title}</span>
+      {right}
+    </div>{children}
+  </div>);
+}
+function OptionRow({ selected, onClick, title, desc, sub, price }) {
+  return (<button onClick={onClick} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, width: "100%", textAlign: "left", padding: "13px 15px", borderRadius: 12, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.mist : t.white, marginBottom: 8 }}>
+    <span style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+      <span style={{ width: 18, height: 18, marginTop: 2, borderRadius: 999, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.pine : t.white, display: "grid", placeItems: "center", flexShrink: 0 }}>{selected && <Check size={12} color={t.paper} />}</span>
+      <span>
+        <span style={{ fontSize: 15, color: t.ink, fontWeight: 500 }}>{title}</span>
+        {desc && <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 3, lineHeight: 1.45 }}>{desc}</span>}
+        {sub && <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 3 }}>{sub}</span>}
+      </span>
+    </span>
+    <span style={{ fontFamily: font.display, fontSize: 20, whiteSpace: "nowrap" }}>{price}</span>
+  </button>);
+}
+function Photo({ query, h = 180, radius = 0 }) {
+  const [ok, setOk] = useState(true);
+  const src = `https://loremflickr.com/900/500/${encodeURIComponent((query || "travel").trim())}`;
+  if (!ok || !query) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
+  return <img src={src} alt={query} onError={() => setOk(false)} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
+}
+function CityHero({ query, index, title, label, right, h = 180 }) {
+  return (<div style={{ position: "relative", height: h, borderRadius: 16, overflow: "hidden", marginBottom: 6 }}>
+    <Photo query={query} h={h} radius={0} />
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(34,29,25,.74), rgba(34,29,25,.06) 58%)" }} />
+    {right && <div style={{ position: "absolute", top: 12, right: 12 }}>{right}</div>}
+    <div style={{ position: "absolute", left: 18, right: 18, bottom: 14, color: t.paper }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+        {index != null && <span style={{ fontSize: 12, opacity: 0.85 }}>{index}</span>}
+        <span style={{ fontFamily: font.display, fontSize: 30, color: t.paper }}>{title}</span>
+      </div>
+      {label && <div style={{ fontSize: 12.5, opacity: 0.88, marginTop: 2 }}>{label}</div>}
+    </div>
+  </div>);
+}
+
+function VoyageOne() {
+  const [screen, setScreen] = useState("landing");
+  const [step, setStep] = useState(0);
+  const [dates, setDates] = useState({ depart: "", ret: "" });
+  const [travelers, setTravelers] = useState([{ first: "", last: "" }]);
+  const [fromCity, setFromCity] = useState("");
+  const [homeCity, setHomeCity] = useState("");
+  const [dests, setDests] = useState([]);
+  const [returnFrom, setReturnFrom] = useState("");
+  const [returnMode, setReturnMode] = useState("");
+  const [returnPick, setReturnPick] = useState({});
+  const [hydrated, setHydrated] = useState(false);
+  const [saved, setSaved] = useState(null);
+
+  useEffect(() => {
+    try { const raw = localStorage.getItem("voyage-one-trip"); if (raw) { const s = JSON.parse(raw);
+      if (s.dates) setDates(s.dates); if (Array.isArray(s.travelers) && s.travelers.length) setTravelers(s.travelers); if (s.fromCity != null) setFromCity(s.fromCity); if (s.homeCity != null) setHomeCity(s.homeCity);
+      if (Array.isArray(s.dests)) setDests(s.dests); if (s.returnFrom != null) setReturnFrom(s.returnFrom); if (s.returnMode != null) setReturnMode(s.returnMode); if (s.returnPick) setReturnPick(s.returnPick);
+    } } catch (e) {} setHydrated(true);
+  }, []);
+  useEffect(() => { if (!hydrated) return;
+    const data = { dates, travelers, fromCity, homeCity, dests, returnFrom, returnMode, returnPick };
+    const id = setTimeout(() => { try { localStorage.setItem("voyage-one-trip", JSON.stringify(data)); setSaved(Date.now()); } catch (e) {} }, 500);
+    return () => clearTimeout(id);
+  }, [hydrated, dates, travelers, fromCity, homeCity, dests, returnFrom, returnMode, returnPick]);
+
+  const setDest = (i, patch) => setDests((d) => d.map((x, k) => (k === i ? { ...x, ...patch } : x)));
+  const addDest = () => setDests((d) => [...d, { city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
+  const removeDest = (i) => setDests((d) => d.filter((_, k) => k !== i));
+  const shared = { step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, dests, setDest, addDest, removeDest, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
+
+  return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
+    <FontStyles />
+    {screen === "landing" && <Landing onBegin={() => { setScreen("plan"); setStep(0); }} saved={saved} />}
+    {screen === "plan" && <Planner {...shared} />}
+    {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
+  </div>);
+}
+
+function Landing({ onBegin, saved }) {
+  return (<div className="vo-fade" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "26px clamp(24px,5vw,64px)" }}>
+      <div style={{ fontFamily: font.display, fontSize: 22 }}>Voyage<span style={{ color: t.brass }}> One</span></div>
+      <Eyebrow color={t.inkFaint}>Private Travel Atelier</Eyebrow>
+    </header>
+    <main style={{ flex: 1, display: "grid", placeItems: "center", padding: "0 clamp(24px,5vw,64px)" }}>
+      <div style={{ maxWidth: 720, textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 26, paddingBottom: 60 }}>
+        <Eyebrow>Voyage One</Eyebrow>
+        <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(44px,8vw,88px)", lineHeight: 1.02 }}>Let’s plan<br />your journey.</h1>
+        <Rule w={64} />
+        <button onClick={onBegin} style={{ marginTop: 4, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "16px 38px", fontSize: 15, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{saved ? "Continue your journey" : "Begin your journey"} <ArrowRight size={17} /></button>
+      </div>
+    </main>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}</footer>
+  </div>);
+}
+
+function Planner(p) {
+  useEffect(() => { if (typeof window !== "undefined") window.scrollTo(0, 0); }, [p.step]);
+  const steps = ["Basics", "Departure", "Destinations", "Build"];
+  const wrap = { maxWidth: p.step === 3 ? 1120 : 920, margin: "0 auto", padding: p.step === 3 ? "28px clamp(20px,5vw,48px) 150px" : "28px clamp(20px,5vw,48px) 120px" };
+  return (<div className="vo-fade">
+    <header style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,48px)" }}>
+      <button onClick={p.onHome} style={{ background: "none", border: "none", fontFamily: font.display, fontSize: 20, color: t.ink }}>Voyage<span style={{ color: t.brass }}> One</span></button>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        {p.saved && <span style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.pineSoft, display: "flex", alignItems: "center", gap: 5 }}><Check size={13} /> Saved</span>}
+        <span style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>{steps[p.step]}</span>
+        <div style={{ display: "flex", gap: 6 }}>{steps.map((s, i) => <span key={s} style={{ width: i === p.step ? 22 : 8, height: 8, borderRadius: 999, background: i <= p.step ? t.pine : t.line, transition: "all .25s" }} />)}</div>
+      </div>
+    </header>
+    <div style={wrap}>
+      {p.step === 0 && <StepBasics {...p} />}
+      {p.step === 1 && <StepDeparture {...p} />}
+      {p.step === 2 && <StepDestinations {...p} />}
+      {p.step === 3 && <StepBuild {...p} />}
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 44 }}>
+        <button onClick={() => p.setStep(Math.max(0, p.step - 1))} style={{ visibility: p.step === 0 ? "hidden" : "visible", background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "13px 24px", color: t.ink, display: "flex", alignItems: "center", gap: 8 }}><ArrowLeft size={16} /> Back</button>
+        {p.step < 3 && <button onClick={() => p.setStep(p.step + 1)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "13px 30px", display: "flex", alignItems: "center", gap: 8 }}>{p.step === 2 ? "Start building" : "Continue"} <ArrowRight size={16} /></button>}
+      </div>
+    </div>
+  </div>);
+}
+
+function StepBasics(p) {
+  const setTrav = (i, patch) => p.setTravelers(p.travelers.map((x, k) => (k === i ? { ...x, ...patch } : x)));
+  const addTrav = () => p.setTravelers([...p.travelers, { first: "", last: "" }]);
+  const removeTrav = (i) => p.setTravelers(p.travelers.filter((_, k) => k !== i));
+  return (<div><SectionHead eyebrow="First" title="The essentials" sub="Your dates and who’s traveling. Your names will head up the finished itinerary." />
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 40, maxWidth: 560 }}>
+      {[["Leaving home", "depart"], ["Home again", "ret"]].map(([lab, key]) => (<div key={key} style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: 7 }}>
+        <span style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, display: "flex", alignItems: "center", gap: 7 }}><Calendar size={13} /> {lab}</span>
+        <input type="date" value={p.dates[key]} onChange={(e) => p.setDates({ ...p.dates, [key]: e.target.value })} style={{ fontFamily: font.display, fontSize: 22, color: t.ink, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", outline: "none" }} />
+      </div>))}
+    </div>
+    <div style={{ marginTop: 40 }}>
+      <Eyebrow>Who’s traveling</Eyebrow>
+      <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 16, maxWidth: 560 }}>
+        {p.travelers.map((tr, i) => (<div key={i} style={{ display: "flex", gap: 18, alignItems: "flex-end" }}>
+          <div style={{ flex: 1 }}><Field label={i === 0 ? "First name" : `Passenger ${i + 1} · first`} value={tr.first} onChange={(v) => setTrav(i, { first: v })} placeholder="First" big={false} /></div>
+          <div style={{ flex: 1 }}><Field label="Last name" value={tr.last} onChange={(v) => setTrav(i, { last: v })} placeholder="Last" big={false} /></div>
+          {i > 0 && <button onClick={() => removeTrav(i)} style={{ background: "none", border: "none", color: t.inkFaint, paddingBottom: 8 }}><X size={18} /></button>}
+        </div>))}
+      </div>
+      <button onClick={addTrav} style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8, background: "none", border: `1px dashed ${t.brassLight}`, borderRadius: 12, padding: "12px 18px", color: t.pine, fontSize: 13.5 }}><Plus size={15} /> Add a passenger</button>
+      {nameLine(p.travelers) !== "your journey" && <div style={{ marginTop: 18, fontFamily: font.display, fontSize: 20, color: t.pine }}>Curated for {nameLine(p.travelers)}</div>}
+    </div>
+  </div>);
+}
+function StepDeparture(p) {
+  return (<div><SectionHead eyebrow="Next" title="Where are you departing from?" sub="The city you fly out of. You’ll set your landing-home city near the end — it can be different." />
+    <div style={{ maxWidth: 440 }}><LabeledCity label="Departure city" value={p.fromCity} onChange={p.setFromCity} placeholder="Start typing a city" /></div></div>);
+}
+function StepDestinations(p) {
+  return (<div><SectionHead eyebrow="Your itinerary" title={p.dests.length ? "Where to next?" : "Your first destination"} sub="Add each place in order and how you’ll get there. Pick “Explore” for an open leg like a road trip — you’ll choose the stops when building." />
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>{p.dests.map((d, i) => <DestCard key={i} d={d} i={i} p={p} />)}</div>
+    <button onClick={p.addDest} style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 9, background: "none", border: `1px dashed ${t.brassLight}`, borderRadius: 14, padding: "16px 20px", color: t.pine, width: "100%", justifyContent: "center", fontSize: 14 }}><Plus size={16} /> {p.dests.length ? "Add another destination" : "Add your first destination"}</button>
+    {p.dests.length > 0 && (<div style={{ marginTop: 34, background: t.card, borderRadius: 16, padding: "24px 22px" }}>
+      <Eyebrow>Heading home</Eyebrow>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 8, maxWidth: 520, lineHeight: 1.5 }}>If you fly home from the same city as your last stop, just set where you land. If you first travel on to another airport city — say driving to Madrid — name it and how you get there.</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "22px 40px", alignItems: "flex-end", marginTop: 16 }}>
+        <div style={{ minWidth: 200, flex: "1 1 200px" }}><LabeledCity label="Fly home from" value={p.returnFrom} onChange={p.setReturnFrom} placeholder="Departure airport city" /></div>
+        <Chips prefix="Get there by" options={ARRIVE} value={p.returnMode} onChange={p.setReturnMode} />
+      </div>
+      <div style={{ marginTop: 22, maxWidth: 320 }}><LabeledCity label="Land back home in" value={p.homeCity} onChange={p.setHomeCity} placeholder="Can differ from departure" /></div>
+    </div>)}
+  </div>);
+}
+function DestCard({ d, i, p }) {
+  return (<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, padding: "22px" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+        <span style={{ fontSize: 12, color: t.inkFaint, minWidth: 20 }}>{String(i + 1).padStart(2, "0")}</span>
+        <MapPin size={18} color={t.pine} />
+        <div style={{ flex: 1 }}><CityBox value={d.city} onChange={(v) => p.setDest(i, { city: v })} placeholder={d.mode === "open" ? "Region or country (e.g. Portugal)" : "City"} inputStyle={{ fontFamily: font.display, fontSize: 26, color: t.ink, background: "none", border: "none", outline: "none", width: "100%" }} /></div>
+      </div>
+      <button onClick={() => p.removeDest(i)} style={{ background: "none", border: "none", color: t.inkFaint }}><X size={18} /></button>
+    </div>
+    <div style={{ marginTop: 16 }}><Chips options={MODES} value={d.mode} onChange={(m) => p.setDest(i, { mode: m })} /></div>
+    {d.mode === "full" && <div style={{ marginTop: 18 }}><Stepper value={d.nights} onChange={(v) => p.setDest(i, { nights: v })} unit="night" /></div>}
+    {d.mode === "open" && <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}><Stepper value={d.days} onChange={(v) => p.setDest(i, { days: v })} unit="day" max={21} /><span style={{ fontSize: 13.5, color: t.inkSoft, maxWidth: 340 }}>When you build this leg, I’ll ask whether to stay put or roam — then suggest real stops.</span></div>}
+    {d.mode === "flights" && <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: "16px 32px", alignItems: "center" }}><Stepper value={d.nights} onChange={(v) => p.setDest(i, { nights: v })} unit="night" /><span style={{ fontSize: 13, color: t.inkSoft, display: "flex", alignItems: "center", gap: 7 }}><Users size={15} color={t.pine} /> Flights in & out only</span></div>}
+    <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>
+  </div>);
+}
+
+function Breakdown({ grand, lines, rItems, rT, depart }) {
+  return (<>
+    <Eyebrow color={t.brassLight}>Running total</Eyebrow>
+    <div style={{ fontFamily: font.display, fontSize: 40, marginTop: 6, lineHeight: 1 }}>{fmt(grand)}</div>
+    <div style={{ fontSize: 11.5, color: "rgba(251,250,246,.6)", marginTop: 4 }}>indicative · {depart || "dates TBC"}</div>
+    <div style={{ height: 1, background: "rgba(251,250,246,.18)", margin: "16px 0" }} />
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, maxHeight: 340, overflowY: "auto" }}>
+      {lines.map((c, i) => (<div key={i}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5 }}><span style={{ fontFamily: font.display, fontSize: 18 }}>{c.city}</span><span>{fmt(c.total)}</span></div>
+        {c.items.map(([lab, val], k) => <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, color: "rgba(251,250,246,.65)", marginTop: 3 }}><span style={{ paddingRight: 8 }}>{lab}</span><span>{fmt(val)}</span></div>)}
+      </div>))}
+      {rItems.length > 0 && (<div><div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5 }}><span style={{ fontFamily: font.display, fontSize: 18 }}>Home</span><span>{fmt(rT)}</span></div>
+        {rItems.map(([lab, val], k) => <div key={k} style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, color: "rgba(251,250,246,.65)", marginTop: 3 }}><span style={{ paddingRight: 8 }}>{lab}</span><span>{fmt(val)}</span></div>)}
+      </div>)}
+      {grand === 0 && <div style={{ fontSize: 12.5, color: "rgba(251,250,246,.6)" }}>Make a choice and it appears here.</div>}
+    </div>
+  </>);
+}
+function TotalBar({ grand, lines, rItems, rT, depart }) {
+  const [open, setOpen] = useState(false);
+  return (<div className="vo-mobtotal">
+    {open && <div style={{ background: t.ink, color: t.paper, padding: "20px 20px 14px", maxHeight: "56vh", overflowY: "auto", borderTop: `1px solid rgba(251,250,246,.15)` }}><Breakdown grand={grand} lines={lines} rItems={rItems} rT={rT} depart={depart} /></div>}
+    <button onClick={() => setOpen((o) => !o)} style={{ width: "100%", background: t.ink, color: t.paper, border: "none", borderTop: `1px solid rgba(251,250,246,.15)`, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <span style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brassLight }}>Running total</span>
+      <span style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontFamily: font.display, fontSize: 26 }}>{fmt(grand)}</span><ChevronUp size={18} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} /></span>
+    </button>
+  </div>);
+}
+
+function StepBuild(p) {
+  let grand = 0;
+  const lines = p.dests.map((d, i) => { const from = i === 0 ? p.fromCity : p.dests[i - 1].city; const { total, items } = destCost(d, from); grand += total; return { city: d.city || `Stop ${i + 1}`, total, items }; });
+  const rc = returnCost(p); grand += rc.total;
+  return (<div>
+    <SectionHead eyebrow="Build your trip" title="Decide as you go" sub="Move down the journey one city at a time. Every price feeds the running total — pinned right on a wide screen, along the bottom on your iPad — so you can adjust the moment it feels like too much, or when you’re willing to spend more." />
+    <div className="vo-build">
+      <div className="vo-main" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+        {p.dests.length === 0 && <div style={{ color: t.inkFaint, padding: "30px 0" }}>Go back and add at least one destination to start pricing.</div>}
+        {p.dests.map((d, i) => <CitySection key={i} d={d} i={i} p={p} from={i === 0 ? p.fromCity : p.dests[i - 1].city} />)}
+        {p.dests.length > 0 && <ReturnSection p={p} rc={rc} />}
+        {p.dests.length > 0 && <button onClick={p.onItinerary} style={{ marginTop: 6, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "15px 30px", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15 }}><ScrollText size={17} /> View full itinerary</button>}
+      </div>
+      <div className="vo-side">
+        <div className="vo-sidecard" style={{ background: t.ink, color: t.paper, borderRadius: 18, padding: "22px 20px" }}>
+          <Breakdown grand={grand} lines={lines} rItems={rc.items} rT={rc.total} depart={p.dates.depart} />
+        </div>
+      </div>
+    </div>
+    <TotalBar grand={grand} lines={lines} rItems={rc.items} rT={rc.total} depart={p.dates.depart} />
+  </div>);
+}
+
+function FlightPicker({ from, to, pick, upd }) {
+  const [cabin, setCabin] = useState(pick.flight ? pick.flight.cabin : "");
+  const list = airlinesFor(from, to, cabin);
+  return (<>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>{CABINS.map((c) => <button key={c} onClick={() => setCabin(c)} style={chip(cabin === c)}>{c}</button>)}</div>
+    {!cabin && <div style={{ fontSize: 13, color: t.inkFaint }}>Choose a cabin to see airlines & fares — switch cabins any time to go up or down.</div>}
+    {cabin && list.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint }}>Enter this city and the one before to see fares.</div>}
+    {list.map((f) => <OptionRow key={f.id} selected={pick.flight && pick.flight.id === f.id} onClick={() => upd({ flight: f })} title={f.airline} sub={`${f.cabin} · ${f.stops}`} price={fmt(f.price)} />)}
+    {pick.flight && <div style={{ marginTop: 6, maxWidth: 340 }}><Field label={`Frequent flyer # · ${pick.flight.airline}`} value={pick.ff} onChange={(v) => upd({ ff: v })} placeholder="Optional" big={false} /></div>}
+  </>);
+}
+function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel }) {
+  const grounds = ["Train", "Chauffeur", "Self-drive"];
+  const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
+  const o = arriveBy !== "Flight" ? (pick.ground && pick.ground.mode === arriveBy ? pick.ground : groundOption(arriveBy, from, to)) : null;
+  return (<Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
+    <div style={{ marginBottom: 12 }}><Chips options={ARRIVE} value={arriveBy} onChange={chooseMode} /></div>
+    {arriveBy === "Flight" ? <FlightPicker from={from} to={to} pick={pick} upd={upd} />
+      : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={grounds.includes(arriveBy) ? "estimated, door to door" : ""} price={fmt(o.price)} />}
+  </Panel>);
+}
+function HotelPicker({ city, nights, pick, upd }) {
+  const [level, setLevel] = useState(pick.stay ? pick.stay.level : "");
+  const curated = !!lookup(HOTELS, city);
+  const rows = level ? (stayData(city)[level] || []) : [];
+  return (<>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>{LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}</div>
+    {!level && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a level above to see the hotels — switch levels to compare up or down.</div>}
+    {level && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>Named hotels for {city || "this city"} aren’t loaded yet — showing an indicative rate. Ask me to add {city || "it"} and I’ll drop in the real properties.</div>}
+    {rows.map(([name, nightly, desc], k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === name; return <OptionRow key={k} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name, nightly } })} title={name || `${level} — indicative rate`} desc={desc} sub={`${fmt(nightly)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt(nightly * nights)} />; })}
+  </>);
+}
+function DinePicker({ city, pick, upd }) {
+  const [level, setLevel] = useState("");
+  const rows = level ? (dineData(city)[level] || []) : [];
+  const dines = pick.dines || [];
+  const keyOf = (name, lvl) => (name || lvl);
+  return (<>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>{LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}</div>
+    {!level && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a level to see restaurants — add as many as you like.</div>}
+    {level && rows.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint }}>No {level} table curated here yet — try another level, or ask me to add one.</div>}
+    {rows.map(([name, price, desc], k) => { const sel = dines.some((x) => keyOf(x.name, x.level) === keyOf(name, level)); return <OptionRow key={k} selected={sel} onClick={() => upd({ dines: sel ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(name, level)) : [...dines, { name, price, level }] })} title={name || `${level} dining`} desc={desc} sub={name ? "per person" : "per day"} price={fmt(price)} />; })}
+  </>);
+}
+function ListPicker({ rows, chosen, onToggle }) {
+  return (<>{rows.map(([name, price, desc], k) => { const sel = chosen.some((x) => x.name === name); return <OptionRow key={k} selected={sel} onClick={() => onToggle(name, price, sel)} title={name} desc={desc} price={fmt(price)} />; })}</>);
+}
+
+function StopCard({ stop, idx, stops, setStops }) {
+  const s = stops[idx];
+  const set = (patch) => setStops(stops.map((x, k) => (k === idx ? { ...x, ...patch } : x)));
+  const remove = () => setStops(stops.filter((_, k) => k !== idx));
+  return (<div style={{ background: t.white, border: `1px solid ${t.pine}`, borderRadius: 14, padding: "12px 12px 18px", marginBottom: 12, overflow: "hidden" }}>
+    <CityHero query={stop.name} title={stop.name} label={stop.drive} h={150} right={<button onClick={remove} style={{ width: 30, height: 30, borderRadius: 999, border: "none", background: "rgba(34,29,25,.55)", color: t.paper, display: "grid", placeItems: "center" }}><X size={16} /></button>} />
+    {stop.why && <div style={{ fontSize: 12.5, color: t.inkSoft, margin: "8px 6px 0", lineHeight: 1.45 }}>{stop.why}</div>}
+    <div style={{ marginTop: 14, padding: "0 6px" }}><Stepper value={s.nights || 1} onChange={(v) => set({ nights: v })} unit="night" max={10} /></div>
+    <Panel icon={BedDouble} title="Where to stay"><HotelPicker city={stop.name} nights={s.nights || 1} pick={{ stay: s.stay }} upd={(patch) => set(patch)} /></Panel>
+    <Panel icon={Utensils} title="Dining"><DinePicker city={stop.name} pick={{ dines: s.dines || [] }} upd={(patch) => set(patch)} /></Panel>
+  </div>);
+}
+function ExploreSection({ d, i, p, from }) {
+  const pick = d.pick || {};
+  const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
+  const region = d.city || "";
+  const anchor = from || "your last city";
+  const mode = pick.exploreMode || "";
+  const suggestions = regionStops(region);
+  const stops = pick.stops || [];
+  const setStops = (next) => upd({ stops: next });
+  const chosenNames = stops.map((s) => s.name);
+  const available = suggestions.filter((s) => !chosenNames.includes(s[0]));
+  const knownRegions = Object.keys(REGION_STOPS);
+  return (<div style={{ borderTop: `1px solid ${t.line}`, paddingTop: 18, marginTop: 16 }}>
+    <div style={{ background: t.card, borderRadius: 14, padding: "18px 18px 20px" }}>
+      <Eyebrow>{region || "Open leg"}</Eyebrow>
+      <div style={{ fontFamily: font.display, fontSize: 22, margin: "6px 0 4px" }}>Stay put, or roam?</div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5, maxWidth: 480 }}>You’ve set aside {d.days} {d.days === 1 ? "day" : "days"} here. Confirm the region below, add a day or two if you like, then choose whether to settle in {anchor} or take a road trip.</div>
+      <div style={{ marginTop: 16, maxWidth: 320 }}><LabeledCity label="Region to explore" value={region} onChange={(v) => p.setDest(i, { city: v })} placeholder="e.g. Portugal" big={false} /></div>
+      <div style={{ marginTop: 12 }}><Chips prefix="Quick pick" options={knownRegions} value={region} onChange={(v) => p.setDest(i, { city: v })} /></div>
+      <div style={{ marginTop: 16 }}><Stepper value={d.days} onChange={(v) => p.setDest(i, { days: v })} unit="day" max={21} /></div>
+      <div style={{ marginTop: 16 }}><Chips options={[{ key: "base", label: `Stay in ${anchor}` }, { key: "roam", label: "Travel around" }]} value={mode} onChange={(m) => upd({ exploreMode: m })} /></div>
+    </div>
+
+    {mode === "base" && (<div style={{ marginTop: 4 }}>
+      <Panel icon={BedDouble} title={`Where to stay in ${anchor}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={anchor} nights={d.days} pick={pick} upd={upd} /></Panel>
+      <Panel icon={Utensils} title="Dining"><DinePicker city={anchor} pick={pick} upd={upd} /></Panel>
+    </div>)}
+
+    {mode === "roam" && suggestions.length === 0 && (<div style={{ marginTop: 18, background: t.mist, borderRadius: 14, padding: "18px" }}>
+      <div style={{ fontFamily: font.display, fontSize: 20, marginBottom: 4 }}>Which region are you roaming?</div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5, maxWidth: 460 }}>Tap a region and the stops — with hotels, drive times and reasons to go — appear right below. I have {knownRegions.join(", ")} ready now; name another and I’ll build it.</div>
+      <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", gap: 10 }}>{knownRegions.map((rg) => <button key={rg} onClick={() => p.setDest(i, { city: rg })} style={{ padding: "12px 22px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.pine, color: t.paper, fontSize: 14 }}>{rg}</button>)}</div>
+    </div>)}
+    {mode === "roam" && suggestions.length > 0 && (<div style={{ marginTop: 18 }}>
+      {stops.length > 0 && <div style={{ marginBottom: 8, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>Your stops</div>}
+      {stops.map((s, k) => { const meta = suggestions.find((x) => x[0] === s.name); return <StopCard key={s.name} stop={{ name: s.name, drive: meta ? meta[1] : "", why: meta ? meta[2] : "" }} idx={k} stops={stops} setStops={setStops} />; })}
+      {suggestions.length > 0 && available.length > 0 && (<>
+        <div style={{ margin: "6px 0 12px", fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>{stops.length ? "Add more stops" : "Suggested stops"}</div>
+        {available.map(([name, drive, why]) => (<div key={name} style={{ border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 16px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: font.display, fontSize: 22 }}>{name}</div>
+            <div style={{ fontSize: 12, color: t.brass, display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}><Route size={13} /> {drive}</div>
+            <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 5, lineHeight: 1.45, maxWidth: 440 }}>{why}</div>
+          </div>
+          <button onClick={() => setStops([...stops, { name, nights: 1, stay: null, dines: [] }])} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "9px 16px", display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}><Plus size={15} /> Add</button>
+        </div>))}
+      </>)}
+    </div>)}
+  </div>);
+}
+
+function CitySection({ d, i, p, from }) {
+  const pick = d.pick || {};
+  const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
+  const nights = destNights(d);
+  const tours = pick.tours || []; const spas = pick.spas || [];
+  const label = d.mode === "open" ? `${d.days}-day explore` : d.mode === "flights" ? `${nights}n · flights only` : `${nights} ${nights === 1 ? "night" : "nights"}`;
+  return (<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 18, padding: "14px 14px 22px", overflow: "hidden" }}>
+    <CityHero query={d.city} index={String(i + 1).padStart(2, "0")} title={d.city || "Untitled leg"} label={label} />
+    <div style={{ padding: "0 8px" }}>
+    <ArrivalPanel from={from} to={d.city} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} firstLabel={`Getting here from ${from || "start"}`} />
+    {d.mode === "open" ? <ExploreSection d={d} i={i} p={p} from={from} /> : <>
+      {d.mode !== "flights" && <Panel icon={BedDouble} title="Where to stay" right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} /></Panel>}
+      <Panel icon={Utensils} title="Dining"><DinePicker city={d.city} pick={pick} upd={upd} /></Panel>
+      <Panel icon={Flower2} title="Spa"><ListPicker rows={spasData(d.city)} chosen={spas} onToggle={(name, price, sel) => upd({ spas: sel ? spas.filter((x) => x.name !== name) : [...spas, { name, price }] })} /></Panel>
+      <Panel icon={Compass} title="Day trips & private tours"><ListPicker rows={toursData(d.city)} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price }] })} /></Panel>
+    </>}
+    </div>
+  </div>);
+}
+function ReturnSection({ p, rc }) {
+  const rp = p.returnPick || {}; const upd = (patch) => p.setReturnPick({ ...rp, ...patch });
+  const homeGround = groundOption(p.returnMode, "", p.returnFrom);
+  return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 18, padding: "22px" }}>
+    <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>Heading home</span><span style={{ fontSize: 13, color: t.inkFaint }}>{p.returnFrom || "final city"} → {p.homeCity || "home"}</span></div>
+    {rc.needLeg && <Panel icon={Car} title={`Getting to ${p.returnFrom} · ${p.returnMode}`}><OptionRow selected onClick={() => upd({ ground: homeGround })} title={`${p.returnMode} → ${p.returnFrom}`} sub="estimated, door to door" price={fmt(homeGround.price)} /></Panel>}
+    <Panel icon={Plane} title={`Flight home to ${p.homeCity || "home"}`}><FlightPicker from={p.returnFrom} to={p.homeCity} pick={{ flight: rp.flight, ff: rp.ff || "" }} upd={(patch) => upd(patch)} /></Panel>
+  </div>);
+}
+
+/* ---------- Itinerary ---------- */
+function ItinLine({ label, sub, price }) {
+  return (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "7px 0" }}>
+    <span><span style={{ fontSize: 14.5, color: t.ink }}>{label}</span>{sub && <span style={{ fontSize: 12.5, color: t.inkFaint, marginLeft: 8 }}>{sub}</span>}</span>
+    {price != null && <span style={{ fontFamily: font.display, fontSize: 18, whiteSpace: "nowrap", color: t.inkSoft }}>{fmt(price)}</span>}
+  </div>);
+}
+function ItinLeg({ n, title, meta, children }) {
+  return (<div style={{ display: "flex", gap: 18 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div style={{ width: 34, height: 34, borderRadius: 999, border: `1px solid ${t.brass}`, color: t.brass, display: "grid", placeItems: "center", fontFamily: font.display, fontSize: 17, flexShrink: 0 }}>{n}</div>
+      <div style={{ flex: 1, width: 1, background: `repeating-linear-gradient(${t.brassLight} 0 4px, transparent 4px 9px)`, marginTop: 6 }} />
+    </div>
+    <div style={{ flex: 1, paddingBottom: 28 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>{title}</span>{meta && <span style={{ fontSize: 12.5, color: t.inkFaint, letterSpacing: "0.04em" }}>{meta}</span>}</div>
+      <div style={{ marginTop: 8 }}>{children}</div>
+    </div>
+  </div>);
+}
+function ItineraryView(p) {
+  let grand = 0;
+  const legEls = p.dests.map((d, i) => {
+    const from = i === 0 ? p.fromCity : p.dests[i - 1].city;
+    const { total } = destCost(d, from); grand += total;
+    const pk = d.pick || {};
+    const rows = [];
+    if (d.arriveBy === "Flight" && pk.flight) rows.push(<ItinLine key="f" label={`Fly · ${pk.flight.airline}`} sub={pk.flight.cabin} price={pk.flight.price} />);
+    else if (pk.ground) rows.push(<ItinLine key="g" label={`${d.arriveBy} from ${from || "start"}`} price={pk.ground.price} />);
+    if (d.mode === "open") {
+      if (pk.exploreMode === "base") {
+        if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={`${d.days} nights · ${pk.stay.level}`} price={pk.stay.nightly * d.days} />);
+        (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub="dining" price={x.price} />));
+      } else if (pk.exploreMode === "roam") {
+        (pk.stops || []).forEach((st, k) => {
+          rows.push(<div key={"st" + k} style={{ marginTop: k ? 10 : 0 }}><div style={{ fontFamily: font.display, fontSize: 19, color: t.pine }}>{st.name}</div></div>);
+          if (st.stay) rows.push(<ItinLine key={"ss" + k} label={st.stay.name || st.stay.level} sub={`${st.nights || 1} nights · ${st.stay.level}`} price={st.stay.nightly * (st.nights || 1)} />);
+          (st.dines || []).forEach((x, j) => rows.push(<ItinLine key={"sd" + k + j} label={x.name || "Dining"} sub="dining" price={x.price} />));
+        });
+      } else rows.push(<div key="none" style={{ fontSize: 13, color: t.inkFaint }}>Not yet decided.</div>);
+    } else {
+      if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={`${destNights(d)} nights · ${pk.stay.level}`} price={pk.stay.nightly * destNights(d)} />);
+      (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub="dining" price={x.price} />));
+      (pk.spas || []).forEach((x, k) => rows.push(<ItinLine key={"sp" + k} label={x.name} sub="spa" price={x.price} />));
+      (pk.tours || []).forEach((x, k) => rows.push(<ItinLine key={"tr" + k} label={x.name} sub="tour" price={x.price} />));
+    }
+    const meta = d.mode === "open" ? `${d.days}-day explore` : d.mode === "flights" ? `${destNights(d)} nights · flights only` : `${destNights(d)} nights`;
+    return <ItinLeg key={i} n={i + 1} title={d.city || `Stop ${i + 1}`} meta={meta}>{rows.length ? rows : <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing selected yet.</div>}</ItinLeg>;
+  });
+  const rc = returnCost(p); grand += rc.total;
+  const route = [p.fromCity, ...p.dests.map((d) => d.city), p.homeCity].filter(Boolean).join("  ·  ");
+  return (<div className="vo-fade" style={{ minHeight: "100vh" }}>
+    <header className="vo-noprint" style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,48px)" }}>
+      <button onClick={p.onEdit} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, display: "flex", alignItems: "center", gap: 8, fontSize: 13.5 }}><Pencil size={15} /> Edit</button>
+      <div style={{ display: "flex", gap: 10 }}>
+        <button onClick={() => { if (typeof window !== "undefined") window.print(); }} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, fontSize: 13.5 }}>Print / Save PDF</button>
+        <button onClick={p.onHome} style={{ background: "none", border: "none", color: t.inkFaint, display: "flex", alignItems: "center", gap: 6, fontSize: 13.5 }}><Home size={15} /> Home</button>
+      </div>
+    </header>
+    <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 clamp(22px,5vw,56px) 100px" }}>
+      <div style={{ position: "relative", height: 240, borderRadius: 18, overflow: "hidden", marginTop: 24 }}>
+        <Photo query={(p.dests[0] && p.dests[0].city) || p.fromCity} h={240} radius={0} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(34,29,25,.55), rgba(34,29,25,.15))" }} />
+      </div>
+      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "40px 0", borderBottom: `1px solid ${t.line}` }}>
+        <Eyebrow>Voyage One · Private Itinerary</Eyebrow>
+        <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(34px,6vw,58px)", lineHeight: 1.05 }}>Curated for<br />{nameLine(p.travelers)}</h1>
+        <Rule w={56} />
+        <div style={{ fontSize: 14, letterSpacing: "0.06em", color: t.inkSoft }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
+        {route && <div style={{ fontSize: 12.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, maxWidth: 560, lineHeight: 1.8 }}>{route}</div>}
+      </div>
+      <div style={{ marginTop: 40 }}>
+        {legEls}
+        {(rc.items.length > 0 || p.homeCity) && (<ItinLeg n={<Home size={15} />} title="Heading home" meta={p.homeCity ? `to ${p.homeCity}` : ""}>
+          {rc.needLeg && p.returnPick.ground && <ItinLine label={`${p.returnMode} to ${p.returnFrom}`} price={p.returnPick.ground.price} />}
+          {p.returnPick.flight && <ItinLine label={`Fly · ${p.returnPick.flight.airline}`} sub={p.returnPick.flight.cabin} price={p.returnPick.flight.price} />}
+          {rc.items.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint }}>Flight home not yet chosen.</div>}
+        </ItinLeg>)}
+      </div>
+      <div style={{ marginTop: 20, background: t.ink, color: t.paper, borderRadius: 18, padding: "26px 26px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div><Eyebrow color={t.brassLight}>Estimated total</Eyebrow><div style={{ fontSize: 12, color: "rgba(251,250,246,.6)", marginTop: 6 }}>Indicative — final on booking</div></div>
+        <div style={{ fontFamily: font.display, fontSize: 46, lineHeight: 1 }}>{fmt(grand)}</div>
+      </div>
+      <div style={{ textAlign: "center", marginTop: 26, fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>Voyage One · Private Travel Atelier</div>
+    </div>
+  </div>);
+}
+
+
+createRoot(document.getElementById("root")).render(<VoyageOne />);
+
+</script>
+</body>
+</html>
