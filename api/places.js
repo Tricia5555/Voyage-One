@@ -4,46 +4,20 @@
 // GOOGLE_PLACES_KEY lives here and is never sent to a user. If this file ever ends up
 // in the front end, the key leaks and anyone can spend Tricia's money.
 //
-// Returns real names, real photos, real editorial descriptions and real ratings.
-// It does NOT return real nightly rates — Google does not sell those. Prices are marked
-// indicative and must stay marked until a booking API replaces them.
+// Returns real names, real photos, real editorial descriptions, real ratings, and Google's
+// real price BAND ($ to $$$$). It does NOT invent a nightly rate — Google does not sell
+// those, so we show the honest band and say "rates on request" until a booking API
+// (Travelpayouts / Booking.com) is connected to supply true prices and availability.
 
-const LEVEL_BY_PRICE = {
-  PRICE_LEVEL_VERY_EXPENSIVE: "UltraLux",
-  PRICE_LEVEL_EXPENSIVE: "Luxury",
-  PRICE_LEVEL_MODERATE: "Refined",
-  PRICE_LEVEL_INEXPENSIVE: "Essential",
-  PRICE_LEVEL_FREE: "Essential",
+const PRICE_TIER = {
+  PRICE_LEVEL_VERY_EXPENSIVE: { band: "$$$$", note: "Top of the market" },
+  PRICE_LEVEL_EXPENSIVE: { band: "$$$", note: "Upper tier" },
+  PRICE_LEVEL_MODERATE: { band: "$$", note: "Mid-range" },
+  PRICE_LEVEL_INEXPENSIVE: { band: "$", note: "Value" },
+  PRICE_LEVEL_FREE: { band: "$", note: "Value" },
 };
 
-// Indicative nightly rates by tier. Deliberately coarse — these are placeholders with a
-// label, not a quote. Seeded off the place id so a hotel shows the same figure every time.
-const BANDS = {
-  hotels: { UltraLux: [700, 1600], Luxury: [380, 700], Refined: [200, 380], Essential: [110, 200] },
-  restaurants: { UltraLux: [160, 280], Luxury: [90, 160], Refined: [50, 90], Essential: [28, 50] },
-};
 
-function hash(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
-}
-function indicative(kind, level, id) {
-  const band = (BANDS[kind] || BANDS.hotels)[level] || [200, 400];
-  const t = (hash(id) % 1000) / 1000;
-  return Math.round((band[0] + t * (band[1] - band[0])) / 5) * 5;
-}
-
-// Rating and review count together are a better tier signal than price level alone,
-// which Google leaves blank surprisingly often.
-function inferLevel(p, kind) {
-  if (p.priceLevel && LEVEL_BY_PRICE[p.priceLevel]) return LEVEL_BY_PRICE[p.priceLevel];
-  const r = p.rating || 0;
-  const n = p.userRatingCount || 0;
-  if (r >= 4.7 && n > 300) return "Luxury";
-  if (r >= 4.4) return "Refined";
-  return "Essential";
-}
 
 export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
@@ -83,20 +57,45 @@ export default async function handler(req, res) {
     }
 
     const data = await r.json();
-    const places = data.places || [];
+    const places = (data.places || []).filter((p) => p.displayName && p.displayName.text);
+
+    // UltraLux is a GLOBAL standard — Villa d'Este, San Pietro — not "priciest in town".
+    // So we tier on absolute class, never on local rank. A very good hotel in a second-tier
+    // city lands in Luxury or Refined, and that is correct. UltraLux may come back empty,
+    // and an empty UltraLux is the honest answer for a city that has no such property.
+    //
+    // Google's price levels are coarse and often blank, so:
+    //   VERY_EXPENSIVE + strong reviews  → UltraLux   (the only road to the top tier)
+    //   VERY_EXPENSIVE                   → Luxury
+    //   EXPENSIVE                        → Luxury / Refined by rating
+    //   MODERATE                         → Refined
+    //   INEXPENSIVE / FREE / unknown     → Refined / Essential by rating
+    // A hotel can NEVER reach UltraLux without an explicit very-expensive signal from Google.
+    function classify(p) {
+      const pl = p.priceLevel;
+      const rating = p.rating || 0;
+      const reviews = p.userRatingCount || 0;
+      const acclaimed = rating >= 4.6 && reviews >= 150;
+      if (pl === "PRICE_LEVEL_VERY_EXPENSIVE") return acclaimed ? "UltraLux" : "Luxury";
+      if (pl === "PRICE_LEVEL_EXPENSIVE") return rating >= 4.5 ? "Luxury" : "Refined";
+      if (pl === "PRICE_LEVEL_MODERATE") return "Refined";
+      if (pl === "PRICE_LEVEL_INEXPENSIVE" || pl === "PRICE_LEVEL_FREE") return "Essential";
+      // No price signal from Google: rating decides, but the top tier stays locked.
+      if (rating >= 4.6 && reviews >= 300) return "Luxury";
+      if (rating >= 4.3) return "Refined";
+      return "Essential";
+    }
 
     const grouped = { UltraLux: [], Luxury: [], Refined: [], Essential: [] };
-    for (const p of places) {
-      const name = p.displayName && p.displayName.text;
-      if (!name) continue;
-      const level = inferLevel(p, kind);
+    places.forEach((p) => {
+      const level = classify(p);
       const photo = p.photos && p.photos[0] ? p.photos[0].name : null;
       grouped[level].push({
         id: p.id,
-        name,
+        name: p.displayName.text,
         level,
-        price: indicative(kind, level, p.id || name),
-        // Google's own one-liner. If it has none, we say nothing rather than invent one.
+        band: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].band : null,
+        bandNote: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].note : null,
         desc: (p.editorialSummary && p.editorialSummary.text) || "",
         rating: p.rating || null,
         reviews: p.userRatingCount || null,
@@ -104,12 +103,11 @@ export default async function handler(req, res) {
         site: p.websiteUri || null,
         maps: p.googleMapsUri || null,
       });
-    }
-
-    // Best first within each tier, and keep it to a shortlist — this is an atelier, not a list.
+    });
+    // Best-reviewed first within each tier; a curated shortlist, not the whole list.
     for (const k of Object.keys(grouped)) {
       grouped[k].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      grouped[k] = grouped[k].slice(0, 5);
+      grouped[k] = grouped[k].slice(0, 6);
     }
 
     // Google's terms require attribution wherever this is shown, and forbid holding
