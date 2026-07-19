@@ -739,6 +739,28 @@ function useRemote(kind, city) {
   }, [kind, city]);
   return state;
 }
+// Real routing from Google — named stations, real trains, real drive times, or nothing.
+const ROUTE_CACHE = {};
+function useRoute(from, to) {
+  const [state, setState] = useState({ loading: false, modes: null, tried: false });
+  useEffect(() => {
+    let dead = false;
+    if (!from || !to || from.trim().toLowerCase() === to.trim().toLowerCase()) { setState({ loading: false, modes: null, tried: false }); return; }
+    const key = from.toLowerCase() + "|" + to.toLowerCase();
+    if (ROUTE_CACHE[key] !== undefined) { setState({ loading: false, modes: ROUTE_CACHE[key], tried: true }); return; }
+    setState({ loading: true, modes: null, tried: false });
+    fetch(`/api/route?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const modes = j && j.ok ? j.modes || [] : null;
+        ROUTE_CACHE[key] = modes;
+        if (!dead) setState({ loading: false, modes, tried: true });
+      })
+      .catch(() => { ROUTE_CACHE[key] = null; if (!dead) setState({ loading: false, modes: null, tried: true }); });
+    return () => { dead = true; };
+  }, [from, to]);
+  return state;
+}
 function LiveBadge({ live }) {
   return (<span style={{ fontSize: 9.5, letterSpacing: "0.14em", textTransform: "uppercase", padding: "3px 8px", borderRadius: 999, background: live ? t.mist : "transparent", color: live ? t.pine : t.inkFaint, border: `1px solid ${live ? t.pineSoft : t.line}` }}>{live ? "Live · Google" : "Curated"}</span>);
 }
@@ -1530,6 +1552,50 @@ function HubPanel({ from, city, pick, upd }) {
     </div>)}
   </div>);
 }
+function LiveRoute({ from, to, fallbackKnown }) {
+  const r = useRoute(from, to);
+  if (r.loading) return (<div style={{ fontSize: 12.5, color: t.inkFaint, margin: "14px 0 0" }}>Finding real routes from {from} to {to}…</div>);
+  // Live modes came back with something real to show.
+  if (r.modes && r.modes.length) {
+    const transit = r.modes.find((m) => m.mode === "Transit");
+    const drive = r.modes.find((m) => m.mode === "Drive");
+    return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px", margin: "14px 0 0" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 10.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>How to get there</span>
+        <span style={{ marginLeft: "auto" }}><LiveBadge live={true} /></span>
+      </div>
+      {transit && (<div style={{ marginBottom: drive ? 12 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
+          {/RAIL|TRAIN|SUBWAY|METRO|HIGH_SPEED|HEAVY/i.test(transit.vehicle) ? <TrainFront size={15} color={t.pine} /> : /FERRY/i.test(transit.vehicle) ? <Ship size={15} color={t.pine} /> : <Route size={15} color={t.pine} />}
+          <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink }}>{transit.label}{transit.summary ? ` · ${transit.summary}` : ""}</span>
+        </div>
+        {transit.legs.slice(0, 3).map((l, k) => (l.from || l.to) && (<div key={k} style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, paddingLeft: 22 }}>
+          {l.line ? <strong style={{ color: t.ink }}>{l.line}</strong> : l.vehicle}{l.from ? ` from ${l.from}` : ""}{l.depart ? ` at ${l.depart}` : ""}{l.to ? ` → ${l.to}` : ""}{l.arrive ? ` (${l.arrive})` : ""}
+        </div>))}
+      </div>)}
+      {drive && (<div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <Car size={15} color={t.inkSoft} />
+        <span style={{ fontSize: 14, color: t.inkSoft }}>Drive · {drive.label}{drive.km ? ` · ${drive.km} km` : ""}</span>
+      </div>)}
+      <div style={{ fontSize: 10, color: t.inkFaint, letterSpacing: "0.08em", marginTop: 8 }}>Powered by Google · live routing</div>
+    </div>);
+  }
+  // Live returned nothing (or no backend). If we also lack curated data, be honest.
+  if (r.tried && (!r.modes || !r.modes.length)) {
+    return (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
+      <Compass size={15} color={t.inkFaint} style={{ marginTop: 2, flexShrink: 0 }} />
+      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>No direct ground route between {from} and {to} — this is likely a flight, or a sea crossing. We'd rather say so than invent a train.</div>
+    </div>);
+  }
+  // No backend at all (GitHub Pages) and no curated data: quiet honest note.
+  if (!fallbackKnown) {
+    return (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
+      <Compass size={15} color={t.inkFaint} style={{ marginTop: 2, flexShrink: 0 }} />
+      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>Verified routing for {to} is coming. Hotels here are live and real.</div>
+    </div>);
+  }
+  return null;
+}
 function CitySection({ d, i, p, from, legSched }) {
   const pick = d.pick || {};
   const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
@@ -1554,10 +1620,7 @@ function CitySection({ d, i, p, from, legSched }) {
   return (<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 18, padding: "14px 14px 22px", overflow: "hidden" }}>
     <CityHero query={d.city} index={String(i + 1).padStart(2, "0")} title={d.city || "Untitled leg"} label={label} />
     <div style={{ padding: "0 8px" }}>
-    {from && surfaceTarget && !sameCity(from, surfaceTarget) && (!known(from) || !known(surfaceTarget)) && (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
-      <Compass size={15} color={t.inkFaint} style={{ marginTop: 2, flexShrink: 0 }} />
-      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>We don't yet have verified train, ferry and drive times for {known(from) ? d.city : from}. Hotels here are live and real — routing for this region is coming. We'd rather leave it blank than guess.</div>
-    </div>)}
+    {from && surfaceTarget && !sameCity(from, surfaceTarget) && <LiveRoute from={from} to={surfaceTarget} fallbackKnown={known(from) && known(surfaceTarget)} />}
     {surface && d.arriveBy === "Flight" && (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
       {surface.mode === "Ferry" ? <Ship size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} /> : <Route size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} />}
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
