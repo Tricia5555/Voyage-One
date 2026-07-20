@@ -760,6 +760,31 @@ function useRemote(kind, city) {
 }
 // Real routing from Google — named stations, real trains, real drive times, or nothing.
 const ROUTE_CACHE = {};
+// Real flight fares from Duffel. Falls back silently to the estimate if unavailable.
+const FARE_CACHE = {};
+function useLiveFare(from, to, date, cabin) {
+  const [state, setState] = useState({ loading: false, fare: null, airline: null, tried: false });
+  useEffect(() => {
+    let dead = false;
+    if (!from || !to || !cabin) { setState({ loading: false, fare: null, airline: null, tried: false }); return; }
+    const dc = { Economy: "economy", Premium: "premium_economy", Business: "business", First: "first" }[cabin] || "economy";
+    const key = `${from}|${to}|${date || ""}|${dc}`.toLowerCase();
+    if (FARE_CACHE[key] !== undefined) { const c = FARE_CACHE[key]; setState({ loading: false, fare: c && c.fare, airline: c && c.airline, tried: true }); return; }
+    setState({ loading: true, fare: null, airline: null, tried: false });
+    const qs = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&cabin=${dc}${date ? "&date=" + encodeURIComponent(date) : ""}`;
+    fetch(`/api/flights?${qs}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        let out = null;
+        if (j && j.ok && j.cheapest && j.cheapest.price != null) out = { fare: j.cheapest.price, airline: j.cheapest.airline || null };
+        FARE_CACHE[key] = out;
+        if (!dead) setState({ loading: false, fare: out && out.fare, airline: out && out.airline, tried: true });
+      })
+      .catch(() => { FARE_CACHE[key] = null; if (!dead) setState({ loading: false, fare: null, airline: null, tried: true }); });
+    return () => { dead = true; };
+  }, [from, to, date, cabin]);
+  return state;
+}
 function useRoute(from, to) {
   const [state, setState] = useState({ loading: false, modes: null, tried: false });
   useEffect(() => {
@@ -1230,8 +1255,16 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const fc = iataFor(from), tc = iataFor(to);
   const cabin = (f && f.cabin) || "";
   const est = cabin ? fareEstimate(from, to, cabin) : null;
-  // Choosing a cabin sets an estimated fare. If you later type the real fare, that wins.
-  const chooseCabin = (c) => { const e = fareEstimate(from, to, c); upd({ flight: { ...(f || {}), cabin: c, price: (f && f.actual) ? f.price : e, estimated: !(f && f.actual) } }); };
+  const live = useLiveFare(from, to, date, cabin);
+  // When a real Duffel fare lands and the user hasn't typed their own, use the real number.
+  useEffect(() => {
+    if (!cabin) return;
+    if (live.fare != null && !(f && f.actual)) {
+      upd({ flight: { ...(f || {}), cabin, price: live.fare, real: true, estimated: false, airline: (f && f.airline) || live.airline || "" } });
+    }
+  }, [live.fare]);
+  // Choosing a cabin sets an estimated fare immediately; the live fare replaces it when it lands.
+  const chooseCabin = (c) => { const e = fareEstimate(from, to, c); upd({ flight: { ...(f || {}), cabin: c, price: (f && f.actual) ? f.price : e, estimated: !(f && f.actual), real: false } }); };
   const setActual = (v) => { const n = parseInt(("" + v).replace(/[^0-9]/g, ""), 10); upd({ flight: { ...(f || {}), price: isNaN(n) ? (est || 0) : n, actual: !isNaN(n), estimated: isNaN(n) } }); };
   const setAirline = (v) => upd({ flight: { ...(f || {}), airline: v } });
   if (!from || !to) return <div style={{ fontSize: 13, color: t.inkFaint }}>Name both cities and the route appears here.</div>;
@@ -1250,7 +1283,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
     {cabin && (<div style={{ marginTop: 14, border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 }}>
         <span style={{ fontFamily: font.display, fontSize: 22 }}>{fmt(f && f.price != null ? f.price : est)}</span>
-        <span style={{ fontSize: 11.5, color: (f && f.actual) ? t.pine : t.inkFaint, letterSpacing: "0.06em" }}>{(f && f.actual) ? "your fare" : "estimated · one way"}</span>
+        <span style={{ fontSize: 11.5, color: (f && (f.actual || f.real)) ? t.pine : t.inkFaint, letterSpacing: "0.06em" }}>{live.loading ? "finding real fares…" : (f && f.actual) ? "your fare" : (f && f.real) ? `live fare${live.airline ? " · " + live.airline : ""} · one way` : "estimated · one way"}</span>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "flex-end" }}>
         <label style={{ flex: "1 1 150px" }}><span style={{ display: "block", fontSize: 12, color: t.inkSoft, marginBottom: 4 }}>Airline (optional)</span>
