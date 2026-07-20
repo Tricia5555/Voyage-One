@@ -85,18 +85,34 @@ export default async function handler(req, res) {
     const offers = (data.data && data.data.offers) || [];
     if (!offers.length) return res.status(200).json({ ok: true, from: origin, to: destination, date: dep, cabin: cabinClass, offers: [], note: "no-offers" });
 
-    // Cheapest first; return a handful with the airline name.
-    const parsed = offers.map((o) => ({
-      price: o.total_amount ? Math.round(parseFloat(o.total_amount)) : null,
-      currency: o.total_currency || "USD",
-      airline: (o.owner && o.owner.name) || "Airline",
-      offerId: o.id,
-    })).filter((o) => o.price != null).sort((a, b) => a.price - b.price);
+    // Cheapest first; return a handful with airline, times, and stops for a real picker.
+    const parsed = offers.map((o) => {
+      const slice = (o.slices && o.slices[0]) || {};
+      const segs = slice.segments || [];
+      const first = segs[0] || {};
+      const last = segs[segs.length - 1] || {};
+      const timeOf = (iso) => {
+        if (!iso) return null;
+        // Duffel gives local ISO like "2026-09-01T11:15:00". Take the HH:MM.
+        const m = /T(\d{2}:\d{2})/.exec(iso);
+        return m ? m[1] : null;
+      };
+      return {
+        price: o.total_amount ? Math.round(parseFloat(o.total_amount)) : null,
+        currency: o.total_currency || "USD",
+        airline: (o.owner && o.owner.name) || "Airline",
+        depart: timeOf(first.departing_at),
+        arrive: timeOf(last.arriving_at),
+        stops: segs.length > 0 ? segs.length - 1 : 0,
+        flightNo: (first.operating_carrier_flight_number || first.marketing_carrier_flight_number) ? `${(first.marketing_carrier && first.marketing_carrier.iata_code) || ""}${first.marketing_carrier_flight_number || ""}` : null,
+        offerId: o.id,
+      };
+    }).filter((o) => o.price != null).sort((a, b) => a.price - b.price);
 
     const cheapest = parsed[0] || null;
 
     res.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=43200");
-    return res.status(200).json({ ok: true, from: origin, to: destination, date: dep, cabin: cabinClass, cheapest, offers: parsed.slice(0, 5), source: "Duffel" });
+    return res.status(200).json({ ok: true, from: origin, to: destination, date: dep, cabin: cabinClass, cheapest, offers: parsed.slice(0, 8), source: "Duffel" });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch-failed", detail: String(e).slice(0, 200) });
   }
