@@ -16,6 +16,19 @@ const PRICE_TIER = {
   PRICE_LEVEL_INEXPENSIVE: { band: "$", note: "Value" },
   PRICE_LEVEL_FREE: { band: "$", note: "Value" },
 };
+// An ESTIMATED nightly rate so every hotel carries a number and the total means something.
+// Driven by our own tier (which already blends price + rating), nudged by Google's band.
+// Clearly labelled "est." in the UI — a real rate replaces it when booking is connected.
+const NIGHTLY_EST = { UltraLux: 1100, Luxury: 550, Refined: 300, Essential: 160 };
+const PERSON_EST = { UltraLux: 180, Luxury: 110, Refined: 65, Essential: 38 };
+function estRate(kind, level, band) {
+  const baseTable = kind === "restaurants" ? PERSON_EST : NIGHTLY_EST;
+  let v = baseTable[level] || baseTable.Refined;
+  // A $$$$ band in a Luxury tier nudges up; a $ band nudges down — keeps it believable.
+  if (band === "$$$$") v = Math.round(v * 1.15);
+  else if (band === "$") v = Math.round(v * 0.8);
+  return Math.round(v / 5) * 5;
+}
 
 
 
@@ -90,12 +103,15 @@ export default async function handler(req, res) {
     places.forEach((p) => {
       const level = classify(p);
       const photo = p.photos && p.photos[0] ? p.photos[0].name : null;
+      const band = p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].band : null;
       grouped[level].push({
         id: p.id,
         name: p.displayName.text,
         level,
-        band: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].band : null,
+        stars: { UltraLux: 5, Luxury: 5, Refined: 4, Essential: 3 }[level],
+        band,
         bandNote: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].note : null,
+        estRate: estRate(kind, level, band),
         desc: (p.editorialSummary && p.editorialSummary.text) || "",
         rating: p.rating || null,
         reviews: p.userRatingCount || null,
