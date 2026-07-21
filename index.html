@@ -897,11 +897,24 @@ function OptionRow({ selected, onClick, title, desc, sub, price }) {
     <span style={{ fontFamily: font.display, fontSize: 20, whiteSpace: "nowrap" }}>{price}</span>
   </button>);
 }
+const CITY_PHOTO_CACHE = {};
 function Photo({ query, h = 180, radius = 0 }) {
-  const [ok, setOk] = useState(true);
-  const src = `https://loremflickr.com/900/500/${encodeURIComponent((query || "travel").trim())}`;
-  if (!ok || !query) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
-  return <img src={src} alt={query} onError={() => setOk(false)} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
+  const [src, setSrc] = useState(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let dead = false;
+    const city = (query || "").trim();
+    if (!city) { setSrc(null); return; }
+    if (CITY_PHOTO_CACHE[city] !== undefined) { setSrc(CITY_PHOTO_CACHE[city]); return; }
+    fetch(`/api/cityphoto?city=${encodeURIComponent(city)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const u = j && j.ok ? j.url : null; CITY_PHOTO_CACHE[city] = u; if (!dead) setSrc(u); })
+      .catch(() => { CITY_PHOTO_CACHE[city] = null; if (!dead) setSrc(null); });
+    return () => { dead = true; };
+  }, [query]);
+  // Elegant gradient placeholder while loading or if no real photo exists — never a random image.
+  if (!src || failed || !query) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
+  return <img src={src} alt={query} onError={() => setFailed(true)} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
 }
 function CityHero({ query, index, title, label, right, h = 180 }) {
   return (<div style={{ position: "relative", height: h, borderRadius: 16, overflow: "hidden", marginBottom: 6 }}>
