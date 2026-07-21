@@ -121,11 +121,12 @@ export default async function handler(req, res) {
     ];
     const rank = (name) => { const i = PREFERRED.findIndex((p) => (name || "").toLowerCase().includes(p.toLowerCase())); return i === -1 ? 999 : i; };
     parsed.sort((a, b) => {
-      // Nonstop gets a quality "boost" so it can outrank a slightly-better airline's connection.
-      const sa = rank(a.airline) + (a.stops > 0 ? 6 : 0);
-      const sb = rank(b.airline) + (b.stops > 0 ? 6 : 0);
+      // Nonstop almost always wins on convenience — a connection has to come from a
+      // dramatically better airline to compete. Big penalty per stop keeps a via-Istanbul
+      // Turkish flight from beating a nonstop Air France/Virgin on a transatlantic hop.
+      const sa = rank(a.airline) + a.stops * 40;
+      const sb = rank(b.airline) + b.stops * 40;
       if (sa !== sb) return sa - sb;
-      if (a.stops !== b.stops) return a.stops - b.stops;
       return a.price - b.price;
     });
 
