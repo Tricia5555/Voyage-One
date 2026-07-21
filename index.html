@@ -494,7 +494,10 @@ function connection(a, b) {
   return null;
 }
 // Drivable means: same landmass AND close enough to cover in a day.
-const DRIVE_LIMIT_KM = 700;
+// Above roughly 300 km (about 3 hours), a short flight beats the drive even after airport
+// time — so we only call something "drivable instead of flying" under that. 700 km was far
+// too high: it wrongly told people to drive Madrid→Lisbon (6+ hours) rather than fly 80 min.
+const DRIVE_LIMIT_KM = 300;
 function drivable(a, b) {
   // Unknown place? We cannot claim a road exists. Better honest "no" than an invented drive.
   if (!known(a) || !known(b)) return ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN ? true : false;
@@ -1855,9 +1858,17 @@ function minsBetweenClock(a, b) { const [ah, am] = a.split(":").map(Number); con
 function routeMinutes(seq) {
   let total = 0;
   for (let i = 1; i < seq.length; i++) {
-    const link = connection(seq[i - 1], seq[i]);
-    if (!link) return null; // a flight in the middle of a road trip: not comparable
-    total += link.mins || (link.km ? (link.km / 72) * 60 : 0);
+    const a = seq[i - 1], b = seq[i];
+    const link = connection(a, b);
+    if (link) {
+      total += link.mins || (link.km ? (link.km / 72) * 60 : 0);
+    } else {
+      // No drive/ferry (it's a flight leg). For ordering we still need a comparable
+      // number, so estimate from straight-line distance: roughly airport time + air time.
+      const km = distanceKm(a, b);
+      if (km == null) return null; // truly unknown place — can't compare
+      total += 180 + (km / 750) * 60; // ~3 hr airport overhead + air time at ~750 km/h
+    }
   }
   return Math.round(total);
 }
