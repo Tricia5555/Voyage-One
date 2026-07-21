@@ -109,21 +109,24 @@ export default async function handler(req, res) {
       };
     }).filter((o) => o.price != null);
 
-    // A luxury planner should lead with the airlines travelers actually want — the great
-    // full-service carriers — not the cheapest obscure fare. We rank by airline prestige and
-    // nonstop convenience, NOT by lowest price. Price is shown; it just isn't the sort key.
+    // Rank by world airline quality (Skytrax 2025/26 order), then reward nonstop so a
+    // top-ranked carrier that only offers an absurd detour doesn't beat a great nonstop.
+    // Quality leads; sensible routing keeps it honest; price is only the final tiebreak.
     const PREFERRED = [
-      "British Airways", "American Airlines", "United Airlines", "Delta", "Air France",
-      "KLM", "Lufthansa", "Swiss", "Iberia", "Qatar Airways", "Emirates", "Singapore Airlines",
-      "Cathay Pacific", "Qantas", "Virgin Atlantic", "ITA Airways", "Alitalia", "Finnair",
-      "Austrian", "Turkish Airlines", "Air Canada", "Japan Airlines", "All Nippon",
+      "Qatar Airways", "Singapore Airlines", "Cathay Pacific", "Emirates", "ANA", "All Nippon",
+      "Turkish Airlines", "EVA Air", "Korean Air", "Air France", "Swiss", "Japan Airlines",
+      "Hainan", "Lufthansa", "British Airways", "Qantas", "Virgin Atlantic", "KLM",
+      "Iberia", "Etihad", "Air Canada", "Finnair", "Austrian", "Brussels", "ITA Airways",
+      "Alitalia", "Delta", "United", "American Airlines",
     ];
     const rank = (name) => { const i = PREFERRED.findIndex((p) => (name || "").toLowerCase().includes(p.toLowerCase())); return i === -1 ? 999 : i; };
     parsed.sort((a, b) => {
-      const ra = rank(a.airline), rb = rank(b.airline);
-      if (ra !== rb) return ra - rb;               // preferred carriers first
-      if (a.stops !== b.stops) return a.stops - b.stops; // then nonstop over connections
-      return a.price - b.price;                    // only then, cheaper first as a tiebreak
+      // Nonstop gets a quality "boost" so it can outrank a slightly-better airline's connection.
+      const sa = rank(a.airline) + (a.stops > 0 ? 6 : 0);
+      const sb = rank(b.airline) + (b.stops > 0 ? 6 : 0);
+      if (sa !== sb) return sa - sb;
+      if (a.stops !== b.stops) return a.stops - b.stops;
+      return a.price - b.price;
     });
 
     // Lead card: the best preferred, nonstop option — not merely the cheapest.
