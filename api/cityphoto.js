@@ -6,8 +6,6 @@
 //
 // Uses the same GOOGLE_PLACES_KEY and the same photo proxy pattern as hotels.
 
-const CACHE = {};
-
 export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
   const city = (req.query.city || "").toString().trim();
@@ -15,8 +13,6 @@ export default async function handler(req, res) {
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
 
   try {
-    // Ask for a well-known landmark/attraction in the city so the photo is iconic,
-    // not a random storefront. "<city> landmark" biases toward the recognizable.
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: {
@@ -32,14 +28,15 @@ export default async function handler(req, res) {
     }
     const data = await r.json();
     const places = data.places || [];
-    // Find the first result that actually has a photo.
     let photoName = null;
     for (const p of places) {
       if (p.photos && p.photos[0] && p.photos[0].name) { photoName = p.photos[0].name; break; }
     }
     if (!photoName) return res.status(200).json({ ok: true, city, url: null, note: "no-photo" });
 
-    const url = `/api/photo?name=${encodeURIComponent(photoName)}&h=600`;
+    // Keep the slashes in the photo name literal — the proxy validates places/ID/photos/ID
+    // exactly. Encoding them as %2F makes the proxy reject it and the image comes back blank.
+    const url = `/api/photo?name=${photoName}&h=600`;
     res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=2592000");
     return res.status(200).json({ ok: true, city, url });
   } catch (e) {
