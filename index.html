@@ -899,20 +899,20 @@ function OptionRow({ selected, onClick, title, desc, sub, price }) {
 }
 const CITY_PHOTO_CACHE = {};
 function Photo({ query, h = 180, radius = 0 }) {
-  const [src, setSrc] = useState(null);
+  const [src, setSrc] = useState(() => CITY_PHOTO_CACHE[(query || "").trim()] || null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let dead = false;
     const city = (query || "").trim();
+    setFailed(false);
     if (!city) { setSrc(null); return; }
     if (CITY_PHOTO_CACHE[city] !== undefined) { setSrc(CITY_PHOTO_CACHE[city]); return; }
     fetch(`/api/cityphoto?city=${encodeURIComponent(city)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const u = j && j.ok ? j.url : null; CITY_PHOTO_CACHE[city] = u; if (!dead) setSrc(u); })
+      .then((j) => { const u = j && j.ok && j.url ? j.url : null; CITY_PHOTO_CACHE[city] = u; if (!dead) setSrc(u); })
       .catch(() => { CITY_PHOTO_CACHE[city] = null; if (!dead) setSrc(null); });
     return () => { dead = true; };
   }, [query]);
-  // Elegant gradient placeholder while loading or if no real photo exists — never a random image.
   if (!src || failed || !query) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
   return <img src={src} alt={query} onError={() => setFailed(true)} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
 }
@@ -988,7 +988,18 @@ function VoyageOne() {
     try { localStorage.setItem("voyage-one-trip", JSON.stringify({ v: SCHEMA })); } catch (e) {}
   };
 
-  const setDest = (i, patch) => setDests((d) => d.map((x, k) => (k === i ? { ...x, ...patch } : x)));
+  const setDest = (i, patch) => setDests((d) => d.map((x, k) => {
+    if (k !== i) return x;
+    // If the city itself is changing to a different place, the old hotel, dining, tours and
+    // inbound flight belonged to the previous city — clear them so the new city starts fresh.
+    // (Renaming to the same place, or editing other fields, leaves picks alone.)
+    const changingCity = Object.prototype.hasOwnProperty.call(patch, "city") &&
+      (patch.city || "").trim().toLowerCase() !== (x.city || "").trim().toLowerCase();
+    if (changingCity) {
+      return { ...x, ...patch, pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
+    }
+    return { ...x, ...patch };
+  }));
   const addDest = () => setDests((d) => [...d, { id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
   const addIdeas = () => setDests((d) => [...d, { id: newId(), city: "", mode: "ideas", nights: 2, days: 5, arriveBy: "Flight", ideaSel: { set: [], act: [], w: [] }, pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
   const removeDest = (i) => {
@@ -2216,7 +2227,7 @@ function ItineraryView(p) {
         {legEls}
         {(rc.items.length > 0 || p.homeCity) && (<ItinLeg n={<Home size={15} />} title="Heading home" meta={p.homeCity ? `to ${p.homeCity}` : ""}>
           {rc.needLeg && p.returnPick.ground && <ItinLine label={`${p.returnMode} to ${p.returnFrom}`} price={p.returnPick.ground.price} />}
-          {p.returnPick.flight && <ItinLine label={`Fly · ${p.returnPick.flight.airline}`} sub={p.returnPick.flight.cabin} price={p.returnPick.flight.price} />}
+          {p.returnPick.flight && <ItinLine label={`Fly · ${p.returnPick.flight.airline || "airline TBC"}${p.returnPick.flight.flightNo ? " " + p.returnPick.flight.flightNo : ""}`} sub={`${p.returnPick.flight.cabin || "cabin TBC"}${p.returnPick.flight.depart ? " · departs " + p.returnPick.flight.depart : ""}`} price={p.returnPick.flight.price != null ? p.returnPick.flight.price : null} />}
           {rc.items.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint }}>Flight home not yet chosen.</div>}
         </ItinLeg>)}
       </div>
@@ -2224,7 +2235,7 @@ function ItineraryView(p) {
         return (<div style={{ marginTop: 22, background: t.card, borderRadius: 16, padding: "18px 20px" }}>
           <div style={{ fontSize: 10.5, letterSpacing: "0.18em", textTransform: "uppercase", color: t.inkFaint }}>Home</div>
           <div style={{ fontFamily: font.display, fontSize: 22, marginTop: 4 }}>{p.returnFrom} → {p.homeCity}</div>
-          <div style={{ fontSize: 13, color: t.inkSoft, marginTop: 3 }}>{end ? fmtDay(end) : "date TBC"}{dt ? ` · departs about ${dt.time}` : ""}{rp && rp.flight ? ` · ${rp.flight.airline}, ${rp.flight.cabin}` : " · flight not chosen"}</div>
+          <div style={{ fontSize: 13, color: t.inkSoft, marginTop: 3 }}>{end ? fmtDay(end) : "date TBC"}{dt ? ` · departs about ${dt.time}` : ""}{rp && rp.flight && rp.flight.airline ? ` · ${rp.flight.airline}, ${rp.flight.cabin || "cabin TBC"}` : " · flight not chosen"}</div>
           {dt && <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5, lineHeight: 1.5 }}>{dt.note}</div>}
         </div>); })()}
       <PrepPanel p={p} />
