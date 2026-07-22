@@ -34,9 +34,10 @@ export default async function handler(req, res) {
     }
     if (!photoName) return res.status(200).json({ ok: true, city, url: null, note: "no-photo" });
 
-    // Keep the slashes in the photo name literal — the proxy validates places/ID/photos/ID
-    // exactly. Encoding them as %2F makes the proxy reject it and the image comes back blank.
-    const url = `/api/photo?name=${photoName}&h=600`;
+    // Build the proxy URL EXACTLY like the working hotel photos do (places.js): encode the
+    // name. The server decodes it before the regex check, and encoding protects any special
+    // characters in Google's long photo IDs. This mirrors the proven hotel path.
+    const url = `/api/photo?name=${encodeURIComponent(photoName)}&h=600`;
     res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=2592000");
     return res.status(200).json({ ok: true, city, url });
   } catch (e) {
