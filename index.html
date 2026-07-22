@@ -1289,7 +1289,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const chosen = f && f.chosen ? f : null;
   return (<>
     <div style={{ background: t.card, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
-      <div style={{ fontFamily: font.display, fontSize: 21 }}>{from} {fc ? `(${fc})` : ""} \u2192 {to} {tc ? `(${tc})` : ""}</div>
+      <div style={{ fontFamily: font.display, fontSize: 21 }}>{from} {fc ? `(${fc})` : ""} → {to} {tc ? `(${tc})` : ""}</div>
       {dt && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{dt.note}</div>}
     </div>
     <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Cabin</div>
@@ -1300,18 +1300,18 @@ function FlightPicker({ from, to, pick, upd, date }) {
         </button>; })}
     </div>
     {cabin && (<div style={{ marginTop: 14 }}>
-      {live.loading && <div style={{ fontSize: 13, color: t.inkFaint, padding: "10px 2px" }}>Finding real {cabin} flights\u2026</div>}
+      {live.loading && <div style={{ fontSize: 13, color: t.inkFaint, padding: "10px 2px" }}>Finding real {cabin} flights…</div>}
       {!live.loading && live.offers && live.offers.length > 0 && (<>
-        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight \u00b7 <span style={{ color: t.pine }}>live \u00b7 Duffel</span></div>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live · Duffel</span></div>
         {live.offers.map((o, k) => { const sel = chosen && chosen.offerId === o.offerId;
           return <button key={o.offerId || k} onClick={() => chooseFlight(o)} style={{ width: "100%", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, marginBottom: 8, border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white }}>
             <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: 15, color: t.ink }}>{o.airline}{o.flightNo ? ` \u00b7 ${o.flightNo}` : ""}</span>
-              <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{o.depart ? `Departs ${o.depart}` : "Time at booking"}{o.arrive ? ` \u2192 ${o.arrive}` : ""}{o.stops === 0 ? " \u00b7 nonstop" : o.stops > 0 ? ` \u00b7 ${o.stops} stop${o.stops > 1 ? "s" : ""}` : ""}</span>
+              <span style={{ display: "block", fontSize: 15, color: t.ink }}>{o.airline}{o.flightNo ? ` · ${o.flightNo}` : ""}</span>
+              <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{o.depart ? `Departs ${o.depart}` : "Time at booking"}{o.arrive ? ` → ${o.arrive}` : ""}{o.stops === 0 ? " · nonstop" : o.stops > 0 ? ` · ${o.stops} stop${o.stops > 1 ? "s" : ""}` : ""}</span>
             </span>
             <span style={{ fontFamily: font.display, fontSize: 19, whiteSpace: "nowrap" }}>{fmt(o.price)}</span>
           </button>; })}
-        <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel \u00b7 one way \u00b7 tap to add to your plan</div>
+        <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel · one way · tap to add to your plan</div>
       </>)}
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>No live {cabin} fares came back for this route and date. Estimated ~{fmt(est)} one way. {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google \u2197</a> : null}</div>
