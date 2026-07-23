@@ -765,26 +765,30 @@ function useRemote(kind, city) {
 const ROUTE_CACHE = {};
 // Real flights from Duffel — a list you can pick from, each with airline, time and price.
 const FARE_CACHE = {};
-function useLiveFlights(from, to, date, cabin) {
-  const [state, setState] = useState({ loading: false, offers: null, tried: false });
+function useLiveFlights(from, to, date, cabin, stops, when) {
+  const [state, setState] = useState({ loading: false, offers: null, tried: false, meta: null });
   useEffect(() => {
     let dead = false;
-    if (!from || !to || !cabin) { setState({ loading: false, offers: null, tried: false }); return; }
+    if (!from || !to || !cabin) { setState({ loading: false, offers: null, tried: false, meta: null }); return; }
     const dc = { Economy: "economy", Premium: "premium_economy", Business: "business", First: "first" }[cabin] || "economy";
-    const key = `${from}|${to}|${date || ""}|${dc}`.toLowerCase();
-    if (FARE_CACHE[key] !== undefined) { setState({ loading: false, offers: FARE_CACHE[key], tried: true }); return; }
-    setState({ loading: true, offers: null, tried: false });
-    const qs = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&cabin=${dc}${date ? "&date=" + encodeURIComponent(date) : ""}`;
+    const key = `${from}|${to}|${date || ""}|${dc}|${stops || ""}|${when || ""}`.toLowerCase();
+    if (FARE_CACHE[key] !== undefined) { const c = FARE_CACHE[key]; setState({ loading: false, offers: c && c.offers, tried: true, meta: c && c.meta }); return; }
+    setState({ loading: true, offers: null, tried: false, meta: null });
+    const qs = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&cabin=${dc}`
+      + (date ? "&date=" + encodeURIComponent(date) : "")
+      + (stops ? "&stops=" + encodeURIComponent(stops) : "")
+      + (when ? "&when=" + encodeURIComponent(when) : "");
     fetch(`/api/flights?${qs}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         const offers = j && j.ok && j.offers && j.offers.length ? j.offers : null;
-        FARE_CACHE[key] = offers;
-        if (!dead) setState({ loading: false, offers, tried: true });
+        const meta = j && j.ok ? { totalFound: j.totalFound, nonstopCount: j.nonstopCount, narrowedToNothing: j.narrowedToNothing } : null;
+        FARE_CACHE[key] = { offers, meta };
+        if (!dead) setState({ loading: false, offers, tried: true, meta });
       })
-      .catch(() => { FARE_CACHE[key] = null; if (!dead) setState({ loading: false, offers: null, tried: true }); });
+      .catch(() => { FARE_CACHE[key] = { offers: null, meta: null }; if (!dead) setState({ loading: false, offers: null, tried: true, meta: null }); });
     return () => { dead = true; };
-  }, [from, to, date, cabin]);
+  }, [from, to, date, cabin, stops, when]);
   return state;
 }
 function useRoute(from, to) {
@@ -940,6 +944,7 @@ function VoyageOne() {
   const [travelers, setTravelers] = useState([{ first: "", last: "" }]);
   const [fromCity, setFromCity] = useState("");
   const [homeCity, setHomeCity] = useState("");
+  const [tripName, setTripName] = useState("");
   const [dests, setDests] = useState([]);
   const [returnFrom, setReturnFrom] = useState("");
   const [returnMode, setReturnMode] = useState("");
@@ -956,17 +961,17 @@ function VoyageOne() {
       // A trip saved by an older version has a different shape. Loading it produces
       // nonsense — duplicated cities, lost order. Better to start clean than corrupt.
       if (s.v === SCHEMA) {
-        if (s.dates) setDates(s.dates); if (Array.isArray(s.travelers) && s.travelers.length) setTravelers(s.travelers); if (s.fromCity != null) setFromCity(s.fromCity); if (s.homeCity != null) setHomeCity(s.homeCity);
+        if (s.dates) setDates(s.dates); if (Array.isArray(s.travelers) && s.travelers.length) setTravelers(s.travelers); if (s.fromCity != null) setFromCity(s.fromCity); if (s.homeCity != null) setHomeCity(s.homeCity); if (s.tripName != null) setTripName(s.tripName);
         if (Array.isArray(s.dests)) setDests(s.dests.map((d) => (d.id ? d : { ...d, id: newId() })));
         if (s.returnFrom != null) setReturnFrom(s.returnFrom); if (s.returnMode != null) setReturnMode(s.returnMode); if (s.returnPick) setReturnPick(s.returnPick);
       } else if (s.v !== undefined || s.dests) { setStale(true); }
     } } catch (e) {} setHydrated(true);
   }, []);
   useEffect(() => { if (!hydrated) return;
-    const data = { v: SCHEMA, dates, travelers, fromCity, homeCity, dests, returnFrom, returnMode, returnPick };
+    const data = { v: SCHEMA, dates, travelers, fromCity, homeCity, tripName, dests, returnFrom, returnMode, returnPick };
     const id = setTimeout(() => { try { localStorage.setItem("voyage-one-trip", JSON.stringify(data)); setSaved(Date.now()); } catch (e) {} }, 500);
     return () => clearTimeout(id);
-  }, [hydrated, dates, travelers, fromCity, homeCity, dests, returnFrom, returnMode, returnPick]);
+  }, [hydrated, dates, travelers, fromCity, homeCity, tripName, dests, returnFrom, returnMode, returnPick]);
   // Sensible defaults: fly home from your last stop, back to where you started.
   // But a suggestion must never fight the user — if it refills the moment the box is
   // cleared, it cannot be changed. So: only ever overwrite our OWN last guess.
@@ -985,7 +990,7 @@ function VoyageOne() {
     if (untouched && homeCity !== fromCity) { autoHome.current = fromCity; setHomeCity(fromCity); }
   }, [hydrated, fromCity]);
   const startOver = async () => {
-    setDates({ depart: "", ret: "" }); setTravelers([{ first: "", last: "" }]); setFromCity(""); setHomeCity("");
+    setDates({ depart: "", ret: "" }); setTravelers([{ first: "", last: "" }]); setFromCity(""); setHomeCity(""); setTripName("");
     setDests([]); setReturnFrom(""); setReturnMode(""); setReturnPick({}); setStale(false); setStep(0);
     try { localStorage.setItem("voyage-one-trip", JSON.stringify({ v: SCHEMA })); } catch (e) {}
   };
@@ -1013,7 +1018,7 @@ function VoyageOne() {
   // Lift one city out and make it the finale — used when you fly home from a city that is
   // already on the itinerary, so you end where your flight leaves from instead of doubling back.
   const moveDestToEnd = (i) => setDests((d) => { if (i < 0 || i >= d.length) return d; const n = [...d]; const [x] = n.splice(i, 1); n.push(x); return n; });
-  const shared = { step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, dests, setDest, addDest, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
+  const shared = { step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
@@ -1050,7 +1055,7 @@ function Planner(p) {
       <button onClick={p.onHome} style={{ background: "none", border: "none", fontFamily: font.display, fontSize: 20, color: t.ink }}>Voyage<span style={{ color: t.brass }}> One</span></button>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         {p.saved && <span style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.pineSoft, display: "flex", alignItems: "center", gap: 5 }}><Check size={13} /> Auto-saved here</span>}
-        <button onClick={() => { if (typeof window === "undefined" || window.confirm("Clear this trip and start a blank one? The current trip will be lost — we don't yet keep past journeys, so only do this if you're done with it.")) p.startOver(); }} style={{ background: t.white, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "7px 15px", color: t.pine, fontSize: 12, letterSpacing: "0.06em", fontWeight: 500 }}>Start over</button>
+        <button onClick={() => { if (typeof window === "undefined" || window.confirm("Clear this trip and start a blank one? The current trip will be lost — we don't yet keep past journeys, so only do this if you're done with it.")) p.startOver(); }} style={{ background: t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "11px 22px", color: t.white, fontSize: 14, letterSpacing: "0.06em", fontWeight: 600, fontFamily: font.ui }}>Start over</button>
         <span style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>{steps[p.step]}</span>
         <div style={{ display: "flex", gap: 6 }}>{steps.map((s, i) => <span key={s} style={{ width: i === p.step ? 22 : 8, height: 8, borderRadius: 999, background: i <= p.step ? t.pine : t.line, transition: "all .25s" }} />)}</div>
       </div>
@@ -1237,6 +1242,11 @@ function StepBuild(p) {
   const rc = returnCost(p); grand += rc.total;
   return (<div>
     <SectionHead eyebrow="Build your trip" title="Decide as you go" sub="Move down the journey one city at a time. Dates fill in as you set nights, so every table and tour can be booked for a real day." />
+    <div style={{ maxWidth: 520, margin: "0 0 26px" }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Name this trip</div>
+      <TripName p={p} />
+      <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5 }}>Named from your route unless you type your own.</div>
+    </div>
     {sch.valid && sch.allowed != null && sch.nights !== sch.allowed && (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: sch.nights > sch.allowed ? "#FBEEE9" : t.card, border: `1px solid ${sch.nights > sch.allowed ? "#D9A08B" : t.line}`, borderRadius: 14, padding: "14px 16px", marginBottom: 18 }}>
       <AlertTriangle size={16} color={sch.nights > sch.allowed ? "#B0563A" : t.brass} style={{ marginTop: 2, flexShrink: 0 }} />
       <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5 }}>
@@ -1283,7 +1293,9 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const fc = iataFor(from), tc = iataFor(to);
   const cabin = (f && f.cabin) || "";
   const est = cabin ? fareEstimate(from, to, cabin) : null;
-  const live = useLiveFlights(from, to, date, cabin);
+  const [stopsFilter, setStopsFilter] = useState("0");
+  const [whenFilter, setWhenFilter] = useState("");
+  const live = useLiveFlights(from, to, date, cabin, stopsFilter, whenFilter);
   // Choosing a cabin keeps the selection but clears any specific chosen flight until you pick one.
   const chooseCabin = (c) => { upd({ flight: { cabin: c, price: null, chosen: false } }); };
   // Tap a real flight to lock it into the plan with its price, airline and time.
@@ -1303,6 +1315,20 @@ function FlightPicker({ from, to, pick, upd, date }) {
         </button>; })}
     </div>
     {cabin && (<div style={{ marginTop: 14 }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Narrow it down</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 6 }}>
+        {[["0", "Nonstop"], ["1", "Up to 1 stop"], ["", "Any routing"]].map(([v, lab]) => (
+          <button key={"s" + v} onClick={() => setStopsFilter(v)} style={{ padding: "7px 13px", borderRadius: 999, fontSize: 12.5, border: `1px solid ${stopsFilter === v ? t.pine : t.line}`, background: stopsFilter === v ? t.mist : t.white, color: t.ink }}>{lab}</button>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+        {[["", "Any time"], ["morning", "Morning"], ["afternoon", "Afternoon"], ["evening", "Evening"]].map(([v, lab]) => (
+          <button key={"w" + v} onClick={() => setWhenFilter(v)} style={{ padding: "7px 13px", borderRadius: 999, fontSize: 12.5, border: `1px solid ${whenFilter === v ? t.pine : t.line}`, background: whenFilter === v ? t.mist : t.white, color: t.ink }}>{lab}</button>
+        ))}
+      </div>
+      <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Loosen these to see more.{live.meta && live.meta.totalFound ? ` ${live.meta.nonstopCount} nonstop of ${live.meta.totalFound} flights on this route.` : ""}</div>
+      {live.meta && live.meta.narrowedToNothing && <div style={{ fontSize: 12.5, color: "#B0563A", marginTop: 7, lineHeight: 1.5 }}>Nothing matched those filters, so every flight is shown below.</div>}
+      <div style={{ height: 14 }} />
       {live.loading && <div style={{ fontSize: 13, color: t.inkFaint, padding: "10px 2px" }}>Finding real {cabin} flights…</div>}
       {!live.loading && live.offers && live.offers.length > 0 && (<>
         <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live · Duffel</span></div>
@@ -1795,7 +1821,17 @@ function JourneyMap({ points }) {
   if (pts.length < 2) return null;
   if (failed) return <TripMap points={points} note="Order of travel · schematic, not to scale" />;
   const q = pts.map((x) => `${x.c[0].toFixed(4)},${x.c[1].toFixed(4)}`).join("|");
-  const legend = pts.map((x, i) => `${i + 1} ${x.name}`).join("  ·  ");
+  // Match the map's own labelling: 1-9 then letters, and one entry for a point visited twice.
+  const labelFor = (i) => (i < 9 ? String(i + 1) : String.fromCharCode(65 + (i - 9)));
+  const legendSeen = new Map();
+  pts.forEach((x, i) => {
+    const k = `${x.c[0].toFixed(4)},${x.c[1].toFixed(4)}`;
+    if (legendSeen.has(k)) legendSeen.get(k).again = true;
+    else legendSeen.set(k, { label: labelFor(i), name: x.name, again: false });
+  });
+  const legend = Array.from(legendSeen.values())
+    .map((e) => `${e.label} ${e.name}${e.again ? " (start & return)" : ""}`)
+    .join("   ");
   return (<div style={{ background: t.mist, borderRadius: 16, padding: 10 }}>
     <img
       src={`/api/staticmap?pts=${encodeURIComponent(q)}&w=640&h=360`}
@@ -1808,6 +1844,27 @@ function JourneyMap({ points }) {
       {pts[0].name} to {pts[pts.length - 1].name} · in order of travel
     </div>
   </div>);
+}
+// A trip names itself from where it goes — "London to Rome", or the full run of cities when
+// there are only a few. You can always type your own over the top.
+function autoTripName(p) {
+  const cities = (p.dests || []).map((d) => (d.city || "").trim()).filter(Boolean);
+  if (!cities.length) return p.fromCity ? `Trip from ${p.fromCity}` : "";
+  if (cities.length === 1) return cities[0];
+  if (cities.length <= 3) return cities.join(" · ");
+  return `${cities[0]} to ${cities[cities.length - 1]}`;
+}
+function TripName({ p, align = "left" }) {
+  const auto = autoTripName(p);
+  const shown = p.tripName || auto;
+  if (!shown) return null;
+  return (<input
+    value={p.tripName}
+    onChange={(e) => p.setTripName(e.target.value)}
+    placeholder={auto}
+    aria-label="Name this trip"
+    style={{ width: "100%", background: "transparent", border: "none", borderBottom: `1px solid ${t.line}`, outline: "none", fontFamily: font.display, fontSize: 26, color: t.ink, padding: "2px 0 6px", textAlign: align }}
+  />);
 }
 function TripMap({ points, height = 300, note }) {
   const seen = new Set();
@@ -2262,6 +2319,7 @@ function ItineraryView(p) {
       </div>
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "40px 0", borderBottom: `1px solid ${t.line}` }}>
         <Eyebrow>Voyage One · Private Itinerary</Eyebrow>
+        {(p.tripName || autoTripName(p)) && <div style={{ fontFamily: font.display, fontSize: 22, color: t.brass, letterSpacing: "0.02em" }}>{p.tripName || autoTripName(p)}</div>}
         <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(34px,6vw,58px)", lineHeight: 1.05 }}>Curated for<br />{nameLine(p.travelers)}</h1>
         <Rule w={56} />
         <div style={{ fontSize: 14, letterSpacing: "0.06em", color: t.inkSoft }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
@@ -2273,9 +2331,13 @@ function ItineraryView(p) {
         // both. Hiding a far-away origin was why the map had no real beginning or end.
         const start = p.fromCity && coordsFor(p.fromCity)
           ? [{ name: p.fromCity, when: p.dates.depart ? fmtShort(new Date(p.dates.depart + "T00:00:00")) : "start" }] : [];
-        const backHome = p.homeCity && coordsFor(p.homeCity) && !sameCity(p.homeCity, mapPoints[mapPoints.length - 1].name)
+        const lastNamed = mapPoints[mapPoints.length - 1].name;
+        // If you travel to a different airport city to fly out, that is part of the journey too.
+        const exitLeg = p.returnFrom && coordsFor(p.returnFrom) && !sameCity(p.returnFrom, lastNamed)
+          ? [{ name: p.returnFrom, when: "fly out" }] : [];
+        const backHome = p.homeCity && coordsFor(p.homeCity)
           ? [{ name: p.homeCity, when: "home" }] : [];
-        const pts = [...start, ...mapPoints, ...backHome];
+        const pts = [...start, ...mapPoints, ...exitLeg, ...backHome];
         return <div style={{ marginTop: 30 }}><JourneyMap points={pts} /></div>;
       })()}
       <div style={{ marginTop: 40 }}>
