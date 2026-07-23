@@ -414,7 +414,7 @@ const COORDS = {
   "Sydney": [-33.87,151.21], "Queenstown": [-45.03,168.66], "Cape Town": [-33.92,18.42], "Kruger": [-24.01,31.49],
   "Serengeti": [-2.33,34.83], "Kilimanjaro": [-3.43,37.07],
 };
-function coordsFor(place) { if (!place) return null; const k = Object.keys(COORDS).find((x) => x.toLowerCase() === place.trim().toLowerCase()); return k ? COORDS[k] : null; }
+function coordsFor(place) { if (!place) return null; const bare = String(place).replace(/\s*\([A-Z]{3}\)\s*$/, "").trim(); const k = Object.keys(COORDS).find((x) => x.toLowerCase() === bare.toLowerCase()); return k ? COORDS[k] : null; }
 function distanceKm(a, b) {
   const A = coordsFor(a), B = coordsFor(b); if (!A || !B) return null;
   const R = 6371, rad = (x) => (x * Math.PI) / 180;
@@ -748,7 +748,7 @@ function useRemote(kind, city) {
     const key = kind + "|" + city.toLowerCase();
     if (REMOTE_CACHE[key] !== undefined) { setState({ loading: false, items: REMOTE_CACHE[key], tried: true }); return; }
     setState({ loading: true, items: null, tried: false });
-    fetch(`/api/places?kind=${kind}&city=${encodeURIComponent(city)}`)
+    fetch(`/api/places?kind=${kind}&city=${encodeURIComponent(bareCity(city))}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         const items = j && j.ok && j.items ? j.items : null;
@@ -845,16 +845,57 @@ function Stepper({ value, onChange, min = 1, max = 30, unit = "night", onRemove,
     {atMin && onRemove && <span style={{ fontSize: 11.5, color: t.inkFaint }}>{removeLabel || "one more minus removes this stop"}</span>}
   </div>);
 }
+// A picked city carries its airport code so there is no guessing later: "Birmingham (BHM)"
+// is a different place from "Birmingham (BHX)". Display and hotel lookups use the bare name.
+function bareCity(s) { return (s || "").replace(/\s*\([A-Z]{3}\)\s*$/, "").trim(); }
+function codeOf(s) { const m = /\(([A-Z]{3})\)\s*$/.exec(s || ""); return m ? m[1] : null; }
+
+const CITY_SUGGEST_CACHE = {};
 function CityBox({ value, onChange, placeholder, inputStyle }) {
   const [open, setOpen] = useState(false);
-  const q = (value || "").trim().toLowerCase();
-  const matches = q ? CITIES.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q).slice(0, 6) : [];
-  const known = q && CITIES.some((c) => c.toLowerCase() === q);
+  const [live, setLive] = useState([]);
+  const raw = value || "";
+  const q = bareCity(raw).toLowerCase();
+  const matches = q ? CITIES.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q).slice(0, 5) : [];
+
+  useEffect(() => {
+    let dead = false;
+    const term = bareCity(raw).trim();
+    if (term.length < 2 || codeOf(raw)) { setLive([]); return; }
+    if (CITY_SUGGEST_CACHE[term.toLowerCase()]) { setLive(CITY_SUGGEST_CACHE[term.toLowerCase()]); return; }
+    const timer = setTimeout(() => {
+      fetch(`/api/citysearch?q=${encodeURIComponent(term)}`)
+        .then((r) => r.json())
+        .then((j) => {
+          const rs = j && j.ok && j.results ? j.results : [];
+          CITY_SUGGEST_CACHE[term.toLowerCase()] = rs;
+          if (!dead) setLive(rs);
+        })
+        .catch(() => { if (!dead) setLive([]); });
+    }, 280); // wait for a pause in typing rather than firing on every keystroke
+    return () => { dead = true; clearTimeout(timer); };
+  }, [raw]);
+
+  const choose = (label) => { onChange(label); setOpen(false); };
+  const showAny = open && (matches.length > 0 || live.length > 0);
+
   return (<div style={{ position: "relative" }}>
-    <input value={value} placeholder={placeholder} onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 120)} style={inputStyle} />
-    {open && (matches.length > 0 || (q.length > 2 && !known)) && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 30, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, marginTop: 6, overflow: "hidden", boxShadow: "0 10px 28px rgba(0,0,0,.10)" }}>
-      {matches.map((c) => <button key={c} onMouseDown={(e) => { e.preventDefault(); onChange(c); setOpen(false); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>{c}</button>)}
-      {q.length > 2 && !known && matches.every((c) => c.toLowerCase() !== q) && (<div style={{ padding: "10px 14px", fontSize: 12.5, color: t.inkFaint, borderTop: matches.length ? `1px solid ${t.line}` : "none", lineHeight: 1.5 }}>Any city works — keep typing “{value}” and we’ll pull its real hotels.</div>)}
+    <input value={value} placeholder={placeholder} onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 160)} style={inputStyle} />
+    {showAny && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 30, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, marginTop: 6, overflow: "hidden", boxShadow: "0 10px 28px rgba(0,0,0,.10)", maxHeight: 320, overflowY: "auto" }}>
+      {matches.map((c) => (
+        <button key={"c" + c} onMouseDown={(e) => { e.preventDefault(); choose(c); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>{c}</button>
+      ))}
+      {live.length > 0 && matches.length > 0 && <div style={{ height: 1, background: t.line }} />}
+      {live.map((r, i) => {
+        const label = `${r.city} (${r.code})`;
+        return (<button key={"l" + r.code + i} onMouseDown={(e) => { e.preventDefault(); choose(label); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
+          <span style={{ minWidth: 0 }}>
+            <span>{r.city}</span>
+            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
+          </span>
+          <span style={{ color: t.brass, fontSize: 12.5, letterSpacing: "0.08em", flexShrink: 0 }}>{r.code}</span>
+        </button>);
+      })}
     </div>)}
   </div>);
 }
@@ -906,7 +947,7 @@ function OptionRow({ selected, onClick, title, desc, sub, price }) {
 }
 const CITY_PHOTO_CACHE = {};
 function Photo({ query, h = 180, radius = 0 }) {
-  const city = (query || "").trim();
+  const city = bareCity(query);
   const [src, setSrc] = useState(null);
   useEffect(() => {
     let alive = true;
@@ -1343,7 +1384,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
         <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel · one way · tap to add to your plan</div>
       </>)}
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
-        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>No live {cabin} fares came back for this route and date. Estimated ~{fmt(est)} one way. {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google \u2197</a> : null}</div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</div>
       </div>)}
     </div>)}
   </>);
