@@ -190,7 +190,47 @@ export default async function handler(req, res) {
       return a.price - b.price;
     });
 
-    return res.status(200).json({ ok: true, from: origin, to: destination, date: dep, cabin: cabinClass, cheapest: distinct[0] || cheapest, offers: distinct.slice(0, 20), source: "Duffel" });
+    // Optional narrowing, chosen by the traveller. Applied before the airline cap so the
+    // spread is drawn from what they actually asked for.
+    const wantStops = (req.query.stops || "").toString();       // "0" | "1" | "" (any)
+    const wantWhen = (req.query.when || "").toString();          // morning | afternoon | evening
+    const hourOf = (hhmm) => (hhmm && /^\d{2}/.test(hhmm) ? parseInt(hhmm.slice(0, 2), 10) : null);
+    const inWindow = (o) => {
+      const hr = hourOf(o.depart);
+      if (hr == null || !wantWhen) return true;
+      if (wantWhen === "morning") return hr >= 5 && hr < 12;
+      if (wantWhen === "afternoon") return hr >= 12 && hr < 18;
+      if (wantWhen === "evening") return hr >= 18 || hr < 5;
+      return true;
+    };
+    let filtered = distinct;
+    if (wantStops === "0") filtered = filtered.filter((o) => o.stops === 0);
+    else if (wantStops === "1") filtered = filtered.filter((o) => o.stops <= 1);
+    if (wantWhen) filtered = filtered.filter(inWindow);
+    // If a filter leaves nothing, fall back to everything rather than an empty screen.
+    const narrowedToNothing = filtered.length === 0 && distinct.length > 0;
+    if (narrowedToNothing) filtered = distinct;
+
+    // One airline should not fill the page. Cap each carrier so the traveller sees a real
+    // choice — a wall of Lufthansa connections is not a choice.
+    const PER_AIRLINE = 3;
+    const count = {};
+    const spread = [];
+    for (const o of filtered) {
+      const a = o.airline || "?";
+      count[a] = (count[a] || 0) + 1;
+      if (count[a] <= PER_AIRLINE) spread.push(o);
+    }
+
+    return res.status(200).json({
+      ok: true, from: origin, to: destination, date: dep, cabin: cabinClass,
+      cheapest: spread[0] || distinct[0] || cheapest,
+      offers: spread.slice(0, 20),
+      totalFound: distinct.length,
+      nonstopCount: distinct.filter((o) => o.stops === 0).length,
+      narrowedToNothing,
+      source: "Duffel",
+    });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch-failed", detail: String(e).slice(0, 200) });
   }
