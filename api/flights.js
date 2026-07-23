@@ -171,7 +171,26 @@ export default async function handler(req, res) {
     const cheapest = parsed[0] || null;
 
     res.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=43200");
-    return res.status(200).json({ ok: true, from: origin, to: destination, date: dep, cabin: cabinClass, cheapest, offers: parsed.slice(0, 8), source: "Duffel" });
+    // Duffel returns the SAME physical flight many times over — one entry per fare brand.
+    // Left alone, eight slots fill with five copies of one departure and the traveller never
+    // sees the 8am they actually wanted. Collapse to one row per real flight (airline +
+    // flight number + departure), keeping the lowest fare found for it.
+    const seen = new Map();
+    for (const o of parsed) {
+      const k = `${o.airline}|${o.flightNo || ""}|${o.depart || ""}`;
+      const prev = seen.get(k);
+      if (!prev || (o.price != null && o.price < prev.price)) seen.set(k, o);
+    }
+    const distinct = Array.from(seen.values());
+    // Re-apply the ranking, since the map lost the original order.
+    distinct.sort((a, b) => {
+      const sa = rank(a.airline) + a.stops * 40;
+      const sb = rank(b.airline) + b.stops * 40;
+      if (sa !== sb) return sa - sb;
+      return a.price - b.price;
+    });
+
+    return res.status(200).json({ ok: true, from: origin, to: destination, date: dep, cabin: cabinClass, cheapest: distinct[0] || cheapest, offers: distinct.slice(0, 20), source: "Duffel" });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch-failed", detail: String(e).slice(0, 200) });
   }
