@@ -1010,7 +1010,10 @@ function VoyageOne() {
     setDests((d) => d.filter((_, k) => k !== i));
   };
   const moveDest = (i, dir) => setDests((d) => { const j = i + dir; if (j < 0 || j >= d.length) return d; const n = [...d]; const tmp = n[i]; n[i] = n[j]; n[j] = tmp; return n; });
-  const shared = { step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, dests, setDest, addDest, addIdeas, removeDest, moveDest, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
+  // Lift one city out and make it the finale — used when you fly home from a city that is
+  // already on the itinerary, so you end where your flight leaves from instead of doubling back.
+  const moveDestToEnd = (i) => setDests((d) => { if (i < 0 || i >= d.length) return d; const n = [...d]; const [x] = n.splice(i, 1); n.push(x); return n; });
+  const shared = { step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, dests, setDest, addDest, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
@@ -1735,6 +1738,23 @@ function ReturnSection({ p, rc, blocked }) {
       <div style={{ minWidth: 190, flex: "1 1 190px" }}><LabeledCity label="Fly home from" value={p.returnFrom} onChange={p.setReturnFrom} placeholder={lastCity || "Airport city"} big={false} /></div>
       <div style={{ minWidth: 190, flex: "1 1 190px" }}><LabeledCity label="Land back home in" value={p.homeCity} onChange={p.setHomeCity} placeholder="Can differ from departure" big={false} /></div>
     </div>
+    {(() => {
+      // If you fly home from a city that is already on the itinerary but is not the last
+      // stop, the obvious move is to end there — no doubling back on the final day.
+      if (!p.returnFrom || sameCity(p.returnFrom, lastCity)) return null;
+      const at = p.dests.findIndex((d) => d.city && sameCity(d.city, p.returnFrom));
+      if (at === -1 || at === p.dests.length - 1) return null;
+      const finale = p.dests[p.dests.length - 1].city || "your last stop";
+      return (<div style={{ marginTop: 18, background: t.mist, border: `1px solid ${t.pineSoft}`, borderRadius: 14, padding: "15px 17px" }}>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.pine, marginBottom: 6 }}>A better order</div>
+        <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.55 }}>
+          You fly home from <strong>{p.returnFrom}</strong>, but it sits at stop {at + 1} of {p.dests.length} — so the trip ends in {finale} and you double back on the last day. Visit {p.returnFrom} last and you leave from where you already are.
+        </div>
+        <button onClick={() => p.moveDestToEnd(at)} style={{ marginTop: 12, padding: "9px 16px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.pine, color: t.white, fontSize: 13, fontFamily: font.ui }}>
+          Make {p.returnFrom} the finale
+        </button>
+      </div>);
+    })()}
     {p.returnFrom && !sameCity(p.returnFrom, lastCity) && <div style={{ marginTop: 18 }}><Chips prefix={`Get to ${p.returnFrom} by`} options={ARRIVE} value={p.returnMode} onChange={p.setReturnMode} /></div>}
     {rc.needLeg && <Panel icon={Car} title={`Getting to ${p.returnFrom} · ${p.returnMode}`}><OptionRow selected onClick={() => upd({ ground: homeGround })} title={`${p.returnMode} → ${p.returnFrom}`} sub="estimated, door to door" price={fmt(homeGround.price)} /></Panel>}
     {p.returnFrom && p.homeCity && departTime(p.returnFrom, p.homeCity) && <div style={{ fontSize: 12.5, color: t.brass, display: "flex", gap: 7, alignItems: "flex-start", marginTop: 14, lineHeight: 1.5 }}><Plane size={13} style={{ marginTop: 2, flexShrink: 0 }} /> Departs about {departTime(p.returnFrom, p.homeCity).time}. {departTime(p.returnFrom, p.homeCity).note}</div>}
@@ -1763,6 +1783,29 @@ function ItinLeg({ n, title, meta, children }) {
     <div style={{ flex: 1, paddingBottom: 28 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>{title}</span>{meta && <span style={{ fontSize: 12.5, color: t.inkFaint, letterSpacing: "0.04em" }}>{meta}</span>}</div>
       <div style={{ marginTop: 8 }}>{children}</div>
+    </div>
+  </div>);
+}
+// A real map of the journey — actual coastlines and countries, numbered in travel order.
+// If the map image cannot be drawn (for example the Static Maps API is not switched on),
+// it falls back to the schematic rather than showing a broken box.
+function JourneyMap({ points }) {
+  const [failed, setFailed] = useState(false);
+  const pts = (points || []).map((x) => ({ ...x, c: coordsFor(x.name) })).filter((x) => x.c);
+  if (pts.length < 2) return null;
+  if (failed) return <TripMap points={points} note="Order of travel · schematic, not to scale" />;
+  const q = pts.map((x) => `${x.c[0].toFixed(4)},${x.c[1].toFixed(4)}`).join("|");
+  const legend = pts.map((x, i) => `${i + 1} ${x.name}`).join("  ·  ");
+  return (<div style={{ background: t.mist, borderRadius: 16, padding: 10 }}>
+    <img
+      src={`/api/staticmap?pts=${encodeURIComponent(q)}&w=640&h=360`}
+      alt={`Map of the journey: ${pts.map((x) => x.name).join(" to ")}`}
+      onError={() => setFailed(true)}
+      style={{ width: "100%", height: "auto", display: "block", borderRadius: 10 }}
+    />
+    <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.7, marginTop: 10, textAlign: "center" }}>{legend}</div>
+    <div style={{ textAlign: "center", fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 4 }}>
+      {pts[0].name} to {pts[pts.length - 1].name} · in order of travel
     </div>
   </div>);
 }
@@ -2226,12 +2269,14 @@ function ItineraryView(p) {
       </div>
       <ExpertPanel p={p} sch={sch} />
       {mapPoints.length > 0 && (() => {
-        const firstZone = zoneOf(mapPoints[0].name);
-        const originNear = p.fromCity && zoneOf(p.fromCity) && firstZone && zoneOf(p.fromCity) === firstZone;
-        const homeNear = p.homeCity && !sameCity(p.homeCity, p.fromCity) && zoneOf(p.homeCity) === zoneOf(mapPoints[mapPoints.length - 1].name);
-        const pts = [...(originNear ? [{ name: p.fromCity, when: p.dates.depart ? fmtShort(new Date(p.dates.depart + "T00:00:00")) : "start" }] : []), ...mapPoints, ...(homeNear ? [{ name: p.homeCity, when: "home" }] : [])];
-        const note = originNear ? "Order of travel · schematic, not to scale" : `From ${p.fromCity || "home"}, and back again · schematic, not to scale`;
-        return <div style={{ marginTop: 30 }}><TripMap points={pts} note={note} /></div>;
+        // The journey starts where you leave from and ends where you land — always show
+        // both. Hiding a far-away origin was why the map had no real beginning or end.
+        const start = p.fromCity && coordsFor(p.fromCity)
+          ? [{ name: p.fromCity, when: p.dates.depart ? fmtShort(new Date(p.dates.depart + "T00:00:00")) : "start" }] : [];
+        const backHome = p.homeCity && coordsFor(p.homeCity) && !sameCity(p.homeCity, mapPoints[mapPoints.length - 1].name)
+          ? [{ name: p.homeCity, when: "home" }] : [];
+        const pts = [...start, ...mapPoints, ...backHome];
+        return <div style={{ marginTop: 30 }}><JourneyMap points={pts} /></div>;
       })()}
       <div style={{ marginTop: 40 }}>
         {legEls}
