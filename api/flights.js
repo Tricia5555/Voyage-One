@@ -24,6 +24,19 @@ const AIRPORTS = {
   "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Salt Lake City": { code: "SLC", scale: "intercontinental" },
   "Portland": { code: "PDX", scale: "intercontinental" }, "Tampa": { code: "TPA", scale: "intercontinental" },
   "Fort Lauderdale": { code: "FLL", scale: "intercontinental" }, "Honolulu": { code: "HNL", scale: "intercontinental" },
+  "Birmingham AL": { code: "BHM", scale: "regional" }, "Birmingham, AL": { code: "BHM", scale: "regional" },
+  "Nashville TN": { code: "BNA", scale: "regional" }, "Charleston": { code: "CHS", scale: "regional" },
+  "Savannah": { code: "SAV", scale: "regional" }, "Jacksonville": { code: "JAX", scale: "regional" },
+  "Raleigh": { code: "RDU", scale: "regional" }, "Richmond": { code: "RIC", scale: "regional" },
+  "Pittsburgh": { code: "PIT", scale: "regional" }, "Cleveland": { code: "CLE", scale: "regional" },
+  "Cincinnati": { code: "CVG", scale: "regional" }, "Indianapolis": { code: "IND", scale: "regional" },
+  "Kansas City": { code: "MCI", scale: "regional" }, "St Louis": { code: "STL", scale: "regional" },
+  "Memphis": { code: "MEM", scale: "regional" }, "Louisville": { code: "SDF", scale: "regional" },
+  "Columbus": { code: "CMH", scale: "regional" }, "Milwaukee": { code: "MKE", scale: "regional" },
+  "Sacramento": { code: "SMF", scale: "regional" }, "San Jose": { code: "SJC", scale: "regional" },
+  "Palm Beach": { code: "PBI", scale: "regional" }, "West Palm Beach": { code: "PBI", scale: "regional" },
+  "Naples FL": { code: "RSW", scale: "regional" }, "Fort Myers": { code: "RSW", scale: "regional" },
+  "Sarasota": { code: "SRQ", scale: "regional" }, "Key West": { code: "EYW", scale: "regional" },
   "London": { code: "LHR", scale: "intercontinental" }, "Paris": { code: "CDG", scale: "intercontinental" },
   "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" },
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
@@ -82,31 +95,53 @@ function iataFor(city) {
 // support. Anything it does not know — Birmingham AL, Bilbao, Charleston — gets looked up
 // live against Duffel's place suggestions, so any real airport city can start or end a trip.
 const LOOKUP_CACHE = new Map();
+// US state abbreviations, so "Birmingham AL" finds Alabama rather than failing outright
+// (and is not quietly handed to Birmingham, England).
+const US_STATES = new Set(["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"]);
+
+async function suggest(query, token) {
+  try {
+    const r = await fetch(`https://api.duffel.com/places/suggestions?query=${encodeURIComponent(query)}`, {
+      headers: { "Accept": "application/json", "Duffel-Version": "v2", "Authorization": `Bearer ${token}` },
+    });
+    if (!r.ok) return [];
+    const data = await r.json();
+    return data.data || [];
+  } catch (e) { return []; }
+}
+
 async function resolveCity(city, token) {
+  // If the traveller picked from the suggestion list, the code came with it — "Birmingham
+  // (BHM)" — and there is nothing left to guess.
+  const picked = /\(([A-Z]{3})\)\s*$/.exec(city || "");
+  if (picked) return picked[1];
   const fast = iataFor(city);
   if (fast) return fast;
-  const q = (city || "").trim();
+  let q = (city || "").trim();
   if (!q) return null;
   if (q.length === 3 && /^[A-Za-z]{3}$/.test(q)) return q.toUpperCase();
   const ck = q.toLowerCase();
   if (LOOKUP_CACHE.has(ck)) return LOOKUP_CACHE.get(ck);
-  try {
-    const r = await fetch(`https://api.duffel.com/places/suggestions?query=${encodeURIComponent(q)}`, {
-      headers: { "Accept": "application/json", "Duffel-Version": "v2", "Authorization": `Bearer ${token}` },
-    });
-    if (!r.ok) { LOOKUP_CACHE.set(ck, null); return null; }
-    const data = await r.json();
-    const places = data.data || [];
-    // Prefer a city (covers all its airports) over a single airport; fall back to the first hit.
-    const cityHit = places.find((p) => p.type === "city" && p.iata_code);
-    const airportHit = places.find((p) => p.type === "airport" && p.iata_code);
-    const code = (cityHit && cityHit.iata_code) || (airportHit && airportHit.iata_code) || null;
-    LOOKUP_CACHE.set(ck, code);
-    return code;
-  } catch (e) {
-    LOOKUP_CACHE.set(ck, null);
-    return null;
-  }
+
+  // "Birmingham, AL" / "Birmingham AL" — remember the state, then search the bare city name.
+  let wantCountry = null;
+  const m = /^(.*?)[,\s]+([A-Za-z]{2})$/.exec(q);
+  if (m && US_STATES.has(m[2].toUpperCase())) { q = m[1].trim(); wantCountry = "US"; }
+
+  let places = await suggest(q, token);
+  if (!places.length) places = await suggest(city.trim(), token);
+
+  const pick = (arr) => {
+    // A city entry covers all its airports, so prefer it; otherwise take an airport.
+    const inCountry = wantCountry ? arr.filter((p) => p.iata_country_code === wantCountry) : arr;
+    const pool = inCountry.length ? inCountry : (wantCountry ? [] : arr);
+    return (pool.find((p) => p.type === "city" && p.iata_code)
+      || pool.find((p) => p.type === "airport" && p.iata_code) || null);
+  };
+  const hit = pick(places);
+  const code = hit ? hit.iata_code : null;
+  LOOKUP_CACHE.set(ck, code);
+  return code;
 }
 
 export default async function handler(req, res) {
