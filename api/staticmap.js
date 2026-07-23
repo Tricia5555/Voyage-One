@@ -9,16 +9,22 @@
 // Styled to match the paper/pine/brass palette: muted land, quiet water, no clutter.
 
 const STYLE = [
-  "feature:all|element:labels|visibility:simplified",
-  "feature:all|element:labels.icon|visibility:off",
+  // No country or region names — they clutter the picture and label the wrong things
+  // (Cuba shouting over Miami). Cities stay, because those are the trip.
+  "feature:administrative.country|element:labels|visibility:off",
+  "feature:administrative.province|element:labels|visibility:off",
+  "feature:administrative.land_parcel|visibility:off",
+  "feature:administrative.neighborhood|visibility:off",
   "feature:administrative|element:geometry|visibility:off",
   "feature:administrative.country|element:geometry.stroke|visibility:on|color:0xd9d3c4",
+  "feature:administrative.locality|element:labels.text.fill|color:0x6b6257",
+  "feature:administrative.locality|element:labels.icon|visibility:off",
   "feature:landscape|element:geometry|color:0xf3efe4",
   "feature:water|element:geometry|color:0xdfe4e0",
+  "feature:water|element:labels|visibility:off",
   "feature:poi|visibility:off",
   "feature:road|visibility:off",
   "feature:transit|visibility:off",
-  "feature:administrative.land_parcel|visibility:off",
 ];
 
 export default async function handler(req, res) {
@@ -38,6 +44,15 @@ export default async function handler(req, res) {
   const w = Math.min(parseInt(req.query.w || "640", 10) || 640, 640);
   const h = Math.min(parseInt(req.query.h || "360", 10) || 360, 640);
 
+  // Google allows exactly one character per marker label. Stops 1-9 are numbered; beyond
+  // that we continue with letters rather than dropping the label entirely.
+  const labelFor = (i) => (i < 9 ? String(i + 1) : String.fromCharCode(65 + (i - 9)));
+
+  // A trip that starts and ends in the same city would stack two pins on one spot and you
+  // would only ever see the top one. Draw such a point once, labelled with its first number.
+  const drawn = new Map();
+  pairs.forEach((p, i) => { if (!drawn.has(p)) drawn.set(p, labelFor(i)); });
+
   const params = [
     `size=${w}x${h}`,
     "scale=2",
@@ -46,7 +61,7 @@ export default async function handler(req, res) {
     // The route line, in brass.
     `path=${encodeURIComponent("color:0xA9884Fcc|weight:3|" + pairs.join("|"))}`,
     // Numbered stops in pine, so the order of travel is unmistakable.
-    ...pairs.map((p, i) => `markers=${encodeURIComponent(`color:0x20463F|label:${i + 1}|${p}`)}`),
+    ...Array.from(drawn.entries()).map(([p, lab]) => `markers=${encodeURIComponent(`color:0x20463F|label:${lab}|${p}`)}`),
     `key=${key}`,
   ].join("&");
 
