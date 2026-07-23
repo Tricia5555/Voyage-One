@@ -78,6 +78,37 @@ function iataFor(city) {
   return key ? AIRPORTS[key].code : null;
 }
 
+// The hand-written list above is a fast path for common cities, not the limit of what we
+// support. Anything it does not know — Birmingham AL, Bilbao, Charleston — gets looked up
+// live against Duffel's place suggestions, so any real airport city can start or end a trip.
+const LOOKUP_CACHE = new Map();
+async function resolveCity(city, token) {
+  const fast = iataFor(city);
+  if (fast) return fast;
+  const q = (city || "").trim();
+  if (!q) return null;
+  if (q.length === 3 && /^[A-Za-z]{3}$/.test(q)) return q.toUpperCase();
+  const ck = q.toLowerCase();
+  if (LOOKUP_CACHE.has(ck)) return LOOKUP_CACHE.get(ck);
+  try {
+    const r = await fetch(`https://api.duffel.com/places/suggestions?query=${encodeURIComponent(q)}`, {
+      headers: { "Accept": "application/json", "Duffel-Version": "v2", "Authorization": `Bearer ${token}` },
+    });
+    if (!r.ok) { LOOKUP_CACHE.set(ck, null); return null; }
+    const data = await r.json();
+    const places = data.data || [];
+    // Prefer a city (covers all its airports) over a single airport; fall back to the first hit.
+    const cityHit = places.find((p) => p.type === "city" && p.iata_code);
+    const airportHit = places.find((p) => p.type === "airport" && p.iata_code);
+    const code = (cityHit && cityHit.iata_code) || (airportHit && airportHit.iata_code) || null;
+    LOOKUP_CACHE.set(ck, code);
+    return code;
+  } catch (e) {
+    LOOKUP_CACHE.set(ck, null);
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   const token = process.env.DUFFEL_TOKEN;
   const from = (req.query.from || "").toString().trim();
@@ -87,9 +118,9 @@ export default async function handler(req, res) {
 
   if (!token) return res.status(200).json({ ok: false, reason: "no-token" });
 
-  const origin = iataFor(from) || (from.length === 3 ? from.toUpperCase() : null);
-  const destination = iataFor(to) || (to.length === 3 ? to.toUpperCase() : null);
-  if (!origin || !destination) return res.status(200).json({ ok: false, reason: "unknown-airport", from, to });
+  const origin = await resolveCity(from, token);
+  const destination = await resolveCity(to, token);
+  if (!origin || !destination) return res.status(200).json({ ok: false, reason: "unknown-airport", from, to, unresolved: !origin ? from : to });
 
   // Default to ~60 days out if no date given.
   let dep = date;
