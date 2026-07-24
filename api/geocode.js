@@ -6,9 +6,16 @@
 
 export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
-  const city = (req.query.city || "").toString().trim();
+  const raw = (req.query.city || "").toString().trim();
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
-  if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
+  if (!raw) return res.status(200).json({ ok: false, reason: "no-city" });
+
+  // "Birmingham (BHM)" and "Birmingham (BHX)" are different places. When a code came with
+  // the name, search on the airport itself so the right one is found — asking Google for
+  // plain "Birmingham" reliably returns England and quietly ruins the rest of the trip.
+  const codeMatch = /\(([A-Z]{3})\)\s*$/.exec(raw);
+  const bare = raw.replace(/\s*\([A-Z]{3}\)\s*$/, "").trim();
+  const query = codeMatch ? `${codeMatch[1]} airport ${bare}` : bare;
 
   try {
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
@@ -16,9 +23,9 @@ export default async function handler(req, res) {
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": key,
-        "X-Goog-FieldMask": "places.location,places.displayName",
+        "X-Goog-FieldMask": "places.location,places.displayName,places.formattedAddress",
       },
-      body: JSON.stringify({ textQuery: city, maxResultCount: 1 }),
+      body: JSON.stringify({ textQuery: query, maxResultCount: 1 }),
     });
     if (!r.ok) {
       const detail = await r.text();
@@ -26,13 +33,14 @@ export default async function handler(req, res) {
     }
     const data = await r.json();
     const p = (data.places || [])[0];
-    if (!p || !p.location) return res.status(200).json({ ok: true, city, lat: null, lng: null, note: "not-found" });
+    if (!p || !p.location) return res.status(200).json({ ok: true, city: raw, lat: null, lng: null, note: "not-found" });
 
     res.setHeader("Cache-Control", "s-maxage=2592000, stale-while-revalidate=31536000");
     return res.status(200).json({
       ok: true,
-      city,
-      name: (p.displayName && p.displayName.text) || city,
+      city: raw,
+      name: (p.displayName && p.displayName.text) || bare,
+      where: p.formattedAddress || "",
       lat: p.location.latitude,
       lng: p.location.longitude,
     });
