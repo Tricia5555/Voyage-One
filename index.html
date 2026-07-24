@@ -1063,13 +1063,13 @@ function VoyageOne() {
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
-    {screen === "landing" && <Landing onBegin={() => { setScreen("plan"); setStep(0); }} saved={saved} />}
+    {screen === "landing" && <Landing onBegin={() => { setScreen("plan"); setStep(0); }} onFresh={() => { if (typeof window === "undefined" || window.confirm("Start a new trip? The journey in progress will be cleared.")) { startOver(); setScreen("plan"); setStep(0); } }} saved={saved} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
   </div>);
 }
 
-function Landing({ onBegin, saved }) {
+function Landing({ onBegin, onFresh, saved }) {
   return (<div className="vo-fade" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "26px clamp(24px,5vw,64px)" }}>
       <div style={{ fontFamily: font.display, fontSize: 22 }}>Voyage<span style={{ color: t.brass }}> One</span></div>
@@ -1080,7 +1080,11 @@ function Landing({ onBegin, saved }) {
         <Eyebrow>Voyage One</Eyebrow>
         <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(44px,8vw,88px)", lineHeight: 1.02 }}>Let’s plan<br />your journey.</h1>
         <Rule w={64} />
-        <button onClick={onBegin} style={{ marginTop: 4, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "16px 38px", fontSize: 15, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{saved ? "Continue your journey" : "Begin your journey"} <ArrowRight size={17} /></button>
+        <div style={{ marginTop: 4, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+          <button onClick={onBegin} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "16px 38px", fontSize: 15, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{saved ? "Continue your journey" : "Begin your journey"} <ArrowRight size={17} /></button>
+          {saved && <button onClick={onFresh} style={{ background: t.white, color: t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "16px 32px", fontSize: 15, letterSpacing: "0.04em" }}>Start a new trip</button>}
+        </div>
+        {saved && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, lineHeight: 1.5 }}>Starting a new trip clears the one in progress.</div>}
       </div>
     </main>
     <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}</footer>
