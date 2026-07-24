@@ -56,6 +56,7 @@ function fareEstimate(from, to, cabin) {
 const CABINS = ["Economy", "Premium", "Business", "First"];
 const ARRIVE = [
   { key: "Flight", label: "Fly", Icon: Plane }, { key: "Train", label: "Rail", Icon: TrainFront },
+  { key: "Ferry", label: "Ferry", Icon: Ship },
   { key: "Chauffeur", label: "Chauffeur", Icon: Car }, { key: "Self-drive", label: "Self-drive", Icon: Car },
 ];
 const MODES = [
@@ -531,7 +532,7 @@ function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const
 function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
 function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
 function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
-function groundOption(mode, from, to) { const seed = hashStr(mode + (from || "") + (to || "")); const r = { Train: [70, 200], Chauffeur: [260, 720], "Self-drive": [90, 260] }[mode] || [80, 200]; return { mode, price: round5(r[0] + seeded(seed) * (r[1] - r[0])) }; }
+function groundOption(mode, from, to) { const seed = hashStr(mode + (from || "") + (to || "")); const r = { Train: [70, 200], Chauffeur: [260, 720], "Self-drive": [90, 260], Ferry: [25, 120] }[mode] || [80, 200]; return { mode, price: round5(r[0] + seeded(seed) * (r[1] - r[0])) }; }
 function exitPoint(d) {
   if (!d) return "";
   if (d.mode === "open") {
@@ -1393,12 +1394,49 @@ function FlightPicker({ from, to, pick, upd, date }) {
     </div>)}
   </>);
 }
+// What is genuinely possible between two places, answered by Google rather than by a table
+// I typed. Drives the travel-mode buttons so an island never offers a hire car.
+const GROUND_CACHE = {};
+function useGround(from, to) {
+  const [state, setState] = useState(null);
+  const a = bareCity(from), b = bareCity(to);
+  const locate = (n) => coordsFor(n) || GEO_CACHE[bareCity(n).toLowerCase()] || null;
+  useEffect(() => {
+    let dead = false;
+    if (!a || !b || sameCity(a, b)) { setState(null); return; }
+    const key = `${a}|${b}`.toLowerCase();
+    if (GROUND_CACHE[key] !== undefined) { setState(GROUND_CACHE[key]); return; }
+    const ca = locate(a), cb = locate(b);
+    const coords = ca && cb ? `&flat=${ca[0]}&flng=${ca[1]}&tlat=${cb[0]}&tlng=${cb[1]}` : "";
+    fetch(`/api/ground?from=${encodeURIComponent(a)}&to=${encodeURIComponent(b)}${coords}`)
+      .then((r) => r.json())
+      .then((j) => { const v = j && j.ok ? j : null; GROUND_CACHE[key] = v; if (!dead) setState(v); })
+      .catch(() => { GROUND_CACHE[key] = null; if (!dead) setState(null); });
+    return () => { dead = true; };
+  }, [a, b]);
+  return state;
+}
+// Map our button names onto the verdict's mode flags.
+const MODE_KEY = { Flight: "fly", Train: "rail", Chauffeur: "chauffeur", "Self-drive": "drive", Ferry: "ferry" };
+function feasibleModes(ground) {
+  if (!ground || !ground.modes) return null;           // unknown — show everything
+  const on = ARRIVE.filter((m) => ground.modes[MODE_KEY[m.key]]);
+  return on.length ? on : null;                         // never leave the traveller with nothing
+}
 function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate }) {
   const grounds = ["Train", "Chauffeur", "Self-drive"];
+  const ground = useGround(from, to);
+  const allowed = feasibleModes(ground);
+  const options = allowed || ARRIVE;
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
+  // If the current choice turns out to be impossible for this leg, move to a sensible one.
+  useEffect(() => {
+    if (allowed && arriveBy && !allowed.some((m) => m.key === arriveBy)) chooseMode(allowed[0].key);
+  }, [allowed && allowed.map((m) => m.key).join(","), arriveBy]);
   const o = arriveBy !== "Flight" ? (pick.ground && pick.ground.mode === arriveBy ? pick.ground : groundOption(arriveBy, from, to)) : null;
   return (<Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
-    <div style={{ marginBottom: 12 }}><Chips options={ARRIVE} value={arriveBy} onChange={chooseMode} /></div>
+    <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>
+    {ground && ground.note && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} />)
