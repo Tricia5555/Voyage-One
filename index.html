@@ -1853,12 +1853,35 @@ function ItinLeg({ n, title, meta, children }) {
     </div>
   </div>);
 }
+// Coordinates we were not born knowing. The curated list stays the fast path; anything else
+// is looked up once from Google so no city is silently dropped off the map.
+const GEO_CACHE = {};
+function useGeocoded(points) {
+  const [extra, setExtra] = useState({});
+  const names = (points || []).map((x) => bareCity(x.name)).filter((n) => n && !coordsFor(n));
+  const keyList = names.join("|");
+  useEffect(() => {
+    let dead = false;
+    const missing = keyList ? keyList.split("|") : [];
+    const todo = missing.filter((n) => GEO_CACHE[n.toLowerCase()] === undefined);
+    if (!todo.length) { if (missing.length) setExtra({ ...GEO_CACHE }); return; }
+    Promise.all(todo.map((n) => fetch(`/api/geocode?city=${encodeURIComponent(n)}`)
+      .then((r) => r.json())
+      .then((j) => { GEO_CACHE[n.toLowerCase()] = (j && j.ok && j.lat != null) ? [j.lat, j.lng] : null; })
+      .catch(() => { GEO_CACHE[n.toLowerCase()] = null; })))
+      .then(() => { if (!dead) setExtra({ ...GEO_CACHE }); });
+    return () => { dead = true; };
+  }, [keyList]);
+  return (name) => coordsFor(name) || GEO_CACHE[bareCity(name).toLowerCase()] || null;
+}
+
 // A real map of the journey — actual coastlines and countries, numbered in travel order.
 // If the map image cannot be drawn (for example the Static Maps API is not switched on),
 // it falls back to the schematic rather than showing a broken box.
 function JourneyMap({ points }) {
   const [failed, setFailed] = useState(false);
-  const pts = (points || []).map((x) => ({ ...x, c: coordsFor(x.name) })).filter((x) => x.c);
+  const locate = useGeocoded(points);
+  const pts = (points || []).map((x) => ({ ...x, c: locate(x.name) })).filter((x) => x.c);
   if (pts.length < 2) return null;
   if (failed) return <TripMap points={points} note="Order of travel · schematic, not to scale" />;
   const q = pts.map((x) => `${x.c[0].toFixed(4)},${x.c[1].toFixed(4)}`).join("|");
@@ -2370,13 +2393,13 @@ function ItineraryView(p) {
       {mapPoints.length > 0 && (() => {
         // The journey starts where you leave from and ends where you land — always show
         // both. Hiding a far-away origin was why the map had no real beginning or end.
-        const start = p.fromCity && coordsFor(p.fromCity)
+        const start = p.fromCity
           ? [{ name: p.fromCity, when: p.dates.depart ? fmtShort(new Date(p.dates.depart + "T00:00:00")) : "start" }] : [];
         const lastNamed = mapPoints[mapPoints.length - 1].name;
         // If you travel to a different airport city to fly out, that is part of the journey too.
-        const exitLeg = p.returnFrom && coordsFor(p.returnFrom) && !sameCity(p.returnFrom, lastNamed)
+        const exitLeg = p.returnFrom && !sameCity(p.returnFrom, lastNamed)
           ? [{ name: p.returnFrom, when: "fly out" }] : [];
-        const backHome = p.homeCity && coordsFor(p.homeCity)
+        const backHome = p.homeCity
           ? [{ name: p.homeCity, when: "home" }] : [];
         const pts = [...start, ...mapPoints, ...exitLeg, ...backHome];
         return <div style={{ marginTop: 30 }}><JourneyMap points={pts} /></div>;
