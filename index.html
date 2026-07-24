@@ -1399,8 +1399,8 @@ function FlightPicker({ from, to, pick, upd, date }) {
 const GROUND_CACHE = {};
 function useGround(from, to) {
   const [state, setState] = useState(null);
-  const a = bareCity(from), b = bareCity(to);
-  const locate = (n) => coordsFor(n) || GEO_CACHE[bareCity(n).toLowerCase()] || null;
+  const a = (from || "").trim(), b = (to || "").trim();
+  const locate = (n) => coordsFor(n) || GEO_CACHE[(n || "").trim().toLowerCase()] || null;
   useEffect(() => {
     let dead = false;
     if (!a || !b || sameCity(a, b)) { setState(null); return; }
@@ -1408,7 +1408,7 @@ function useGround(from, to) {
     if (GROUND_CACHE[key] !== undefined) { setState(GROUND_CACHE[key]); return; }
     const ca = locate(a), cb = locate(b);
     const coords = ca && cb ? `&flat=${ca[0]}&flng=${ca[1]}&tlat=${cb[0]}&tlng=${cb[1]}` : "";
-    fetch(`/api/ground?from=${encodeURIComponent(a)}&to=${encodeURIComponent(b)}${coords}`)
+    fetch(`/api/ground?from=${encodeURIComponent(bareCity(a))}&to=${encodeURIComponent(bareCity(b))}${coords}`)
       .then((r) => r.json())
       .then((j) => { const v = j && j.ok ? j : null; GROUND_CACHE[key] = v; if (!dead) setState(v); })
       .catch(() => { GROUND_CACHE[key] = null; if (!dead) setState(null); });
@@ -1900,7 +1900,7 @@ function ItinLeg({ n, title, meta, children }) {
 const GEO_CACHE = {};
 function useGeocoded(points) {
   const [extra, setExtra] = useState({});
-  const names = (points || []).map((x) => bareCity(x.name)).filter((n) => n && !coordsFor(n));
+  const names = (points || []).map((x) => (x.name || "").trim()).filter((n) => n && !coordsFor(n));
   const keyList = names.join("|");
   useEffect(() => {
     let dead = false;
@@ -1914,7 +1914,7 @@ function useGeocoded(points) {
       .then(() => { if (!dead) setExtra({ ...GEO_CACHE }); });
     return () => { dead = true; };
   }, [keyList]);
-  return (name) => coordsFor(name) || GEO_CACHE[bareCity(name).toLowerCase()] || null;
+  return (name) => coordsFor(name) || GEO_CACHE[(name || "").trim().toLowerCase()] || null;
 }
 
 // A real map of the journey — actual coastlines and countries, numbered in travel order.
