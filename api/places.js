@@ -84,20 +84,39 @@ export default async function handler(req, res) {
     //   MODERATE                         → Refined
     //   INEXPENSIVE / FREE / unknown     → Refined / Essential by rating
     // A hotel can NEVER reach UltraLux without an explicit very-expensive signal from Google.
-    function classify(p) {
+    // Google's Places API does not expose a true hotel star class (that lives in a separate
+    // Google Hotels product). We have two real signals: a coarse price band, often blank,
+    // and a review rating. We map them to an approximate star class, then to a tier, so a
+    // genuine five-star property lands in UltraLux rather than getting stuck in Luxury.
+    //
+    // Approximate star class:
+    //   VERY_EXPENSIVE                          → 5-star  → UltraLux
+    //   EXPENSIVE + well reviewed               → 5-star  → UltraLux
+    //   EXPENSIVE                               → 4-star  → Luxury
+    //   MODERATE                                → 3-star  → Refined
+    //   INEXPENSIVE / FREE                      → 2-star  → Essential
+    //   no band, but acclaimed (high rating,
+    //     lots of reviews)                      → 5-star  → UltraLux
+    //   no band, strong rating                  → 4-star  → Luxury
+    // Hotels with no price band and a merely good rating stay Refined/Essential.
+    function starClass(p) {
       const pl = p.priceLevel;
       const rating = p.rating || 0;
       const reviews = p.userRatingCount || 0;
-      const acclaimed = rating >= 4.6 && reviews >= 150;
-      if (pl === "PRICE_LEVEL_VERY_EXPENSIVE") return acclaimed ? "UltraLux" : "Luxury";
-      if (pl === "PRICE_LEVEL_EXPENSIVE") return rating >= 4.5 ? "Luxury" : "Refined";
-      if (pl === "PRICE_LEVEL_MODERATE") return "Refined";
-      if (pl === "PRICE_LEVEL_INEXPENSIVE" || pl === "PRICE_LEVEL_FREE") return "Essential";
-      // No price signal from Google: rating decides, but the top tier stays locked.
-      if (rating >= 4.6 && reviews >= 300) return "Luxury";
-      if (rating >= 4.3) return "Refined";
-      return "Essential";
+      const wellReviewed = rating >= 4.4 && reviews >= 150;
+      const acclaimed = rating >= 4.6 && reviews >= 250;
+      if (pl === "PRICE_LEVEL_VERY_EXPENSIVE") return 5;
+      if (pl === "PRICE_LEVEL_EXPENSIVE") return wellReviewed ? 5 : 4;
+      if (pl === "PRICE_LEVEL_MODERATE") return 3;
+      if (pl === "PRICE_LEVEL_INEXPENSIVE" || pl === "PRICE_LEVEL_FREE") return 2;
+      // No band at all — lean on reputation.
+      if (acclaimed) return 5;
+      if (rating >= 4.4 && reviews >= 150) return 4;
+      if (rating >= 4.2) return 3;
+      return 2;
     }
+    const STAR_TIER = { 5: "UltraLux", 4: "Luxury", 3: "Refined", 2: "Essential", 1: "Essential" };
+    function classify(p) { return STAR_TIER[starClass(p)]; }
 
     const grouped = { UltraLux: [], Luxury: [], Refined: [], Essential: [] };
     places.forEach((p) => {
@@ -108,7 +127,7 @@ export default async function handler(req, res) {
         id: p.id,
         name: p.displayName.text,
         level,
-        stars: { UltraLux: 5, Luxury: 5, Refined: 4, Essential: 3 }[level],
+        stars: starClass(p),
         band,
         bandNote: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].note : null,
         estRate: estRate(kind, level, band),
@@ -123,7 +142,7 @@ export default async function handler(req, res) {
     // Best-reviewed first within each tier; a curated shortlist, not the whole list.
     for (const k of Object.keys(grouped)) {
       grouped[k].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      grouped[k] = grouped[k].slice(0, 6);
+      grouped[k] = grouped[k].slice(0, 10);
     }
 
     // Google's terms require attribution wherever this is shown, and forbid holding
