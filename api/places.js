@@ -116,7 +116,34 @@ export default async function handler(req, res) {
       return 2;
     }
     const STAR_TIER = { 5: "UltraLux", 4: "Luxury", 3: "Refined", 2: "Essential", 1: "Essential" };
-    function classify(p) { return STAR_TIER[starClass(p)]; }
+    function classify(p) {
+      if (kind === "restaurants") return classifyDining(p);
+      return STAR_TIER[starClass(p)];
+    }
+
+    // Restaurants need the OPPOSITE tuning from hotels. Google gives dining an even coarser
+    // price signal — often just $$$$ with nothing finer — so if we treated any pricey, well-
+    // reviewed place as top-tier, UltraLux would swallow every good restaurant and Luxury
+    // would stand empty. That is the bug. So for dining, UltraLux is deliberately RARE: it is
+    // the city's icon (the Le Bernardin, the three-star temple), signalled by the very top
+    // price band AND a destination-level review count. Everything else excellent is Luxury —
+    // which is where a lovely fine-dining bistro belongs.
+    function classifyDining(p) {
+      const pl = p.priceLevel;
+      const rating = p.rating || 0;
+      const reviews = p.userRatingCount || 0;
+      const iconic = rating >= 4.6 && reviews >= 2000;     // a true destination restaurant
+      const notable = rating >= 4.4 && reviews >= 600;
+      if (pl === "PRICE_LEVEL_VERY_EXPENSIVE") return iconic ? "UltraLux" : "Luxury";
+      if (pl === "PRICE_LEVEL_EXPENSIVE") return (rating >= 4.5 || notable) ? "Luxury" : "Refined";
+      if (pl === "PRICE_LEVEL_MODERATE") return rating >= 4.5 ? "Refined" : "Refined";
+      if (pl === "PRICE_LEVEL_INEXPENSIVE" || pl === "PRICE_LEVEL_FREE") return "Essential";
+      // No price band from Google — reputation decides, and the top stays hard to reach.
+      if (iconic) return "UltraLux";
+      if (rating >= 4.5 && reviews >= 600) return "Luxury";
+      if (rating >= 4.2) return "Refined";
+      return "Essential";
+    }
 
     const grouped = { UltraLux: [], Luxury: [], Refined: [], Essential: [] };
     places.forEach((p) => {
@@ -127,7 +154,7 @@ export default async function handler(req, res) {
         id: p.id,
         name: p.displayName.text,
         level,
-        stars: starClass(p),
+        stars: kind === "hotels" ? starClass(p) : null,
         band,
         bandNote: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].note : null,
         estRate: estRate(kind, level, band),
