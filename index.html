@@ -351,9 +351,9 @@ const DAYTRIPS = {
 function transferOptions(from, to) {
   const seed = hashStr("tr" + (from || "") + (to || ""));
   return [
-    { mode: "Private transfer", why: `Met at arrivals, door to door — the easy answer after a long flight.`, price: round5(190 + seeded(seed) * 90) },
-    { mode: "Ferry", why: `Seasonal and scenic, with a taxi at each end.`, price: round5(70 + seeded(seed + 1) * 50) },
-    { mode: "Hire car", why: `Freedom, though the coast road and parking are a test.`, price: round5(110 + seeded(seed + 2) * 70) },
+    { mode: "Private transfer", why: `Met at arrivals, door to door — the easy answer after a long flight.`, price: null },
+    { mode: "Ferry", why: `Seasonal and scenic, with a taxi at each end.`, price: null },
+    { mode: "Hire car", why: `Freedom, though the coast road and parking are a test.`, price: null },
   ];
 }
 function dayTripsFor(region) { if (!region) return []; const r = region.trim().toLowerCase(); const k = Object.keys(DAYTRIPS).find((x) => x.toLowerCase() === r); return k ? DAYTRIPS[k] : []; }
@@ -532,7 +532,7 @@ function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const
 function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
 function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
 function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
-function groundOption(mode, from, to) { const seed = hashStr(mode + (from || "") + (to || "")); const r = { Train: [70, 200], Chauffeur: [260, 720], "Self-drive": [90, 260], Ferry: [25, 120] }[mode] || [80, 200]; return { mode, price: round5(r[0] + seeded(seed) * (r[1] - r[0])) }; }
+function groundOption(mode, from, to) { return { mode, price: null }; }
 function exitPoint(d) {
   if (!d) return "";
   if (d.mode === "open") {
@@ -625,6 +625,22 @@ const TRAITS = {
   "New York City": ["city-walking"], "Paris": ["city-walking","cobbles"], "London": ["city-walking","rain"], "Kyoto": ["city-walking"],
 };
 function traitsFor(city) { if (!city) return []; const k = Object.keys(TRAITS).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? TRAITS[k] : []; }
+
+// A few genuinely specific notes for signature cities — the kind of thing a good advisor
+// tells you, not a checklist. Keyed to the real place, so they only appear when relevant.
+const INSIDER = {
+  "Positano": ["The town is a staircase to the sea", "There are no cars in the centre — you arrive at the top and walk down, and everything comes back up on foot or by the little orange bus. Pack light for the room; a porter helps, but the steps are the town."],
+  "Capri": ["Do the Blue Grotto early or skip it", "By mid-morning the queue of boats is an hour in the sun. Go at opening or trade it for a quiet swim off Marina Piccola — the island rewards the unhurried."],
+  "Venice": ["Everything moves by water or on foot", "There are no taxis but the water ones. Learn which vaporetto line serves your hotel before you arrive, and travel with a bag you can carry over bridges — there are a great many, all with steps."],
+  "Florence": ["Book the Uffizi and Accademia before you leave", "Walk-up waits run to hours in season. Timed entry, reserved weeks ahead, turns the day from a queue into a pleasure — and see the David first thing, before the groups."],
+  "Rome": ["The Vatican and Galleria Borghese must be booked", "Borghese admits a fixed number every two hours and sells out well ahead; the Vatican rewards an early slot. Both are non-negotiable reservations, not walk-ups."],
+  "Kyoto": ["The famous temples belong to the early morning", "Fushimi Inari and Arashiyama are transformed at dawn — luminous and nearly empty — and overwhelmed by ten. Build the day backwards from a sunrise start."],
+  "Barcelona": ["Every Gaudí site is timed-entry now", "Sagrada Família, Park Güell, Casa Batlló — all reserved-slot, all sell out in summer. Book the set before you fly, and give the Sagrada an interior slot when the windows are lit."],
+  "London": ["The best tables and shows book out weeks ahead", "A great dinner or a hit in the West End is a reservation made from home, not on the day. Decide the two or three things that matter and lock them before you leave."],
+  "Marrakech": ["Arrange a riad pickup for the first night", "The medina's lanes defeat taxis and GPS alike, and arriving after dark with luggage is no way to begin. Have the riad send someone to the nearest gate."],
+  "Santorini": ["Sunset in Oia is worth it, and mobbed", "The crowd for it is real. A table booked in advance, or a small chartered boat off the caldera, buys you the same sky without the crush."],
+};
+function insiderFor(city) { if (!city) return null; const k = Object.keys(INSIDER).find((x) => x.toLowerCase() === (city || "").trim().toLowerCase()); return k ? INSIDER[k] : null; }
 function fmtList(arr) {
   const a = [...new Set(arr)];
   if (!a.length) return "";
@@ -682,9 +698,12 @@ function buildPrep(p) {
   if (longHaul) before.push(["Expect the new biometric border", "Europe's Entry/Exit System has been live since April 2026 — fingerprints and a face scan on arrival. No fee, nothing to apply for, but allow extra time at passport control."]);
   if (longHaul && etias) before.push(["Watch for ETIAS", "The EU's travel authorisation launches in the last quarter of 2026 — €20, online, valid three years. It is not open yet, so any site taking applications today is a scam. Check the official EU site before you fly."]);
   if (drives) before.push(["An International Driving Permit", "Most of Europe requires one alongside your license, and rental desks increasingly ask. AAA issues them in person, same day, for a few dollars — you cannot get one once you have left."]);
-  if (longHaul) before.push(["A plan for the first day", `An overnight flight puts you in ${places[0] || "Europe"} mid-morning with no sleep. Book the room from the night before, or accept the day is a write-off.`]);
+  if (longHaul) before.push(["A plan for the first day", `The eastbound redeye lands you in ${places[0] || "Europe"} in the morning, tired. Hold the room from the night before so you can drop bags and go — or treat the first day gently and let the trip properly begin on day two.`]);
   before.push(["Tell your bank and check the cards", `A frozen card in ${places[0] || "a small town"} is a bad afternoon. Confirm no foreign-transaction fees while you are at it.`]);
-  return { pack, before };
+  // Curated, place-specific advice — the advisor's voice, only for cities we truly know.
+  const insider = [];
+  places.forEach((n) => { const note = insiderFor(n); if (note) insider.push(note); });
+  return { pack, before, insider };
 }
 function addDays(date, n) { const d = new Date(date.getTime()); d.setDate(d.getDate() + n); return d; }
 function fmtShort(d) { return d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""; }
@@ -828,7 +847,19 @@ function FontStyles() {
     .vo-sidecard{ position:sticky; top:84px; }
     .vo-mobtotal{ position:fixed; left:0; right:0; bottom:0; z-index:40; }
     @media (min-width:900px){ .vo-mobtotal{ display:none; } }
-    @media print { .vo-noprint{ display:none !important; } }
+    @media print {
+      .vo-noprint{ display:none !important; }
+      /* A private document, not a web page: generous margins, colours preserved,
+         and legs that never split awkwardly across a page break. */
+      @page { margin: 18mm 16mm; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      html, body { background: #fff !important; }
+      .vo-fade { animation: none !important; }
+      .vo-leg, .vo-note-card, .vo-map-card { break-inside: avoid; page-break-inside: avoid; }
+      .vo-hero { break-after: avoid; }
+      a { text-decoration: none !important; color: inherit !important; }
+      .vo-side, .vo-mobtotal { display: none !important; }
+    }
   `}</style>);
 }
 function Eyebrow({ children, color = t.brass }) { return <div style={{ fontFamily: font.ui, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color, fontWeight: 500 }}>{children}</div>; }
@@ -1884,7 +1915,7 @@ function ItinLine({ label, sub, price }) {
   </div>);
 }
 function ItinLeg({ n, title, meta, children }) {
-  return (<div style={{ display: "flex", gap: 18 }}>
+  return (<div className="vo-leg" style={{ display: "flex", gap: 18 }}>
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ width: 34, height: 34, borderRadius: 999, border: `1px solid ${t.brass}`, color: t.brass, display: "grid", placeItems: "center", fontFamily: font.display, fontSize: 17, flexShrink: 0 }}>{n}</div>
       <div style={{ flex: 1, width: 1, background: `repeating-linear-gradient(${t.brassLight} 0 4px, transparent 4px 9px)`, marginTop: 6 }} />
@@ -1938,16 +1969,21 @@ function JourneyMap({ points }) {
   const legend = Array.from(legendSeen.values())
     .map((e) => `${e.label} ${e.name}${e.again ? " (start & return)" : ""}`)
     .join("   ");
-  return (<div style={{ background: t.mist, borderRadius: 16, padding: 10 }}>
+  return (<div className="vo-map-card" style={{ background: t.mist, borderRadius: 16, padding: 14 }}>
+    <div style={{ fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: t.brass, textAlign: "center", marginBottom: 10 }}>The journey</div>
     <img
       src={`/api/staticmap?pts=${encodeURIComponent(q)}&w=640&h=360`}
       alt={`Map of the journey: ${pts.map((x) => x.name).join(" to ")}`}
       onError={() => setFailed(true)}
       style={{ width: "100%", height: "auto", display: "block", borderRadius: 10 }}
     />
-    <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.7, marginTop: 10, textAlign: "center" }}>{legend}</div>
-    <div style={{ textAlign: "center", fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 4 }}>
-      {pts[0].name} to {pts[pts.length - 1].name} · in order of travel
+    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 18px", marginTop: 12 }}>
+      {Array.from(legendSeen.values()).map((e, k) => (
+        <span key={"lg" + k} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, color: t.ink }}>
+          <span style={{ width: 18, height: 18, borderRadius: 999, background: t.pine, color: t.white, fontSize: 10.5, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{e.label}</span>
+          {e.name}{e.again ? <span style={{ color: t.inkFaint }}> · start &amp; return</span> : null}
+        </span>
+      ))}
     </div>
   </div>);
 }
@@ -2023,16 +2059,23 @@ function TripMap({ points, height = 300, note }) {
   </div>);
 }
 function PrepPanel({ p }) {
-  const { pack, before } = buildPrep(p);
-  if (!pack.length && !before.length) return null;
+  const { pack, before, insider } = buildPrep(p);
+  if (!pack.length && !before.length && !(insider && insider.length)) return null;
   const Row = ([title, why], k) => (<div key={k} style={{ display: "flex", gap: 11, alignItems: "flex-start", padding: "9px 0" }}>
     <span style={{ width: 5, height: 5, borderRadius: 999, background: t.brass, marginTop: 8, flexShrink: 0 }} />
     <span><span style={{ fontSize: 14.5, color: t.ink }}>{title}</span><span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 2 }}>{why}</span></span>
   </div>);
-  return (<div style={{ marginTop: 30, background: t.card, borderRadius: 18, padding: "26px 24px" }}>
+  return (<div className="vo-note-card" style={{ marginTop: 30, background: t.card, borderRadius: 18, padding: "26px 24px" }}>
     <Eyebrow>Before you go</Eyebrow>
     <div style={{ fontFamily: font.display, fontSize: 26, margin: "8px 0 4px" }}>Notes for this trip</div>
     <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5, maxWidth: 480 }}>Drawn from where you're going, when, and what you've chosen — not a generic checklist.</div>
+    {insider && insider.length > 0 && (<div style={{ marginTop: 22 }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.pine, marginBottom: 8 }}>While you're there</div>
+      {insider.map(([title, why], k) => (<div key={"ins" + k} style={{ borderLeft: `2px solid ${t.brass}`, paddingLeft: 14, margin: "0 0 14px" }}>
+        <div style={{ fontFamily: font.display, fontSize: 17, color: t.ink, lineHeight: 1.3 }}>{title}</div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 3 }}>{why}</div>
+      </div>))}
+    </div>)}
     {pack.length > 0 && (<div style={{ marginTop: 20 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Worth packing</div>
       {pack.map(Row)}
@@ -2144,12 +2187,12 @@ function onwardOptions(hub, city) {
   const link = connection(hub, city);
   const dr = link && link.mode === "Drive" ? driveEstimate(hub, city) : null;
   const seed = hashStr("ow" + hub + city);
-  if (rail != null) out.push({ mode: "Fast train", label: `${minsLabel(rail)} centre to centre`, why: `The airport train into ${hub}, then the fast service. Puts you in the middle of ${city} with no car to park.`, mins: rail + 50, price: round5(45 + rail * 0.35) });
-  if (dr) out.push({ mode: "Private driver", label: `${dr.label} · ${dr.km} km`, why: "Met at arrivals, door to door. Easiest on no sleep, and you can stop on the way.", mins: Math.round((dr.km / 72) * 60) + 20, price: round5(dr.km * 1.45) });
-  if (link && link.mode === "Ferry") out.push({ mode: "Ferry", label: link.label, why: `There is no road — the crossing from ${hub} is the way in, and it is the pleasant part of the day.`, mins: (link.mins || 120) + 60, price: round5(60 + (link.mins || 120) * 0.4) });
+  if (rail != null) out.push({ mode: "Fast train", label: `${minsLabel(rail)} centre to centre`, why: `The airport train into ${hub}, then the fast service. Puts you in the middle of ${city} with no car to park.`, mins: rail + 50, price: null });
+  if (dr) out.push({ mode: "Private driver", label: `${dr.label} · ${dr.km} km`, why: "Met at arrivals, door to door. Easiest on no sleep, and you can stop on the way.", mins: Math.round((dr.km / 72) * 60) + 20, price: null });
+  if (link && link.mode === "Ferry") out.push({ mode: "Ferry", label: link.label, why: `There is no road — the crossing from ${hub} is the way in, and it is the pleasant part of the day.`, mins: (link.mins || 120) + 60, price: null });
   const ap = airportFor(city);
-  if (ap) out.push({ mode: "Connecting flight", label: "~1 hr in the air, ~3 hr all in", why: "A short hop on regional metal. Cheap in air time, expensive in airport time — and a second chance to lose a bag.", mins: 230, price: round5(140 + seeded(seed) * 120) });
-  if (dr && dr.km < 120) out.push({ mode: "Hire car here", label: `${dr.label} · ${dr.km} km`, why: "Only worth it if you want the car for what comes after.", mins: Math.round((dr.km / 72) * 60) + 40, price: round5(70 + dr.km * 0.5) });
+  if (ap) out.push({ mode: "Connecting flight", label: "~1 hr in the air, ~3 hr all in", why: "A short hop on regional metal. Cheap in air time, expensive in airport time — and a second chance to lose a bag.", mins: 230, price: null });
+  if (dr && dr.km < 120) out.push({ mode: "Hire car here", label: `${dr.label} · ${dr.km} km`, why: "Only worth it if you want the car for what comes after.", mins: Math.round((dr.km / 72) * 60) + 40, price: null });
   return out.sort((a, b) => a.mins - b.mins);
 }
 function recommendOnward(list, city) {
@@ -2419,7 +2462,7 @@ function ItineraryView(p) {
       </div>
     </header>
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 clamp(22px,5vw,56px) 100px" }}>
-      <div style={{ position: "relative", height: 240, borderRadius: 18, overflow: "hidden", marginTop: 24 }}>
+      <div className="vo-hero" style={{ position: "relative", height: 240, borderRadius: 18, overflow: "hidden", marginTop: 24 }}>
         <Photo query={heroPlace(p)} h={240} radius={0} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(34,29,25,.55), rgba(34,29,25,.15))" }} />
       </div>
