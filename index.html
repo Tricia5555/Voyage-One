@@ -768,7 +768,7 @@ function useRemote(kind, city) {
     const key = kind + "|" + city.toLowerCase();
     if (REMOTE_CACHE[key] !== undefined) { setState({ loading: false, items: REMOTE_CACHE[key], tried: true }); return; }
     setState({ loading: true, items: null, tried: false });
-    fetch(`/api/places?kind=${kind}&city=${encodeURIComponent(bareCity(city))}`)
+    fetch(`/api/places?kind=${kind}&city=${encodeURIComponent(city)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         const items = j && j.ok && j.items ? j.items : null;
@@ -919,13 +919,16 @@ function CityBox({ value, onChange, placeholder, inputStyle }) {
       ))}
       {live.length > 0 && matches.length > 0 && <div style={{ height: 1, background: t.line }} />}
       {live.map((r, i) => {
-        const label = `${r.city} (${r.code})`;
-        return (<button key={"l" + r.code + i} onMouseDown={(e) => { e.preventDefault(); choose(label); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
+        // Airport-cities carry a code and become "City (CODE)". Google-fallback places have
+        // no airport of their own, so they're picked by plain name; flights route from the
+        // nearest airport automatically.
+        const label = r.code ? `${r.city} (${r.code})` : r.city;
+        return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
           <span style={{ minWidth: 0 }}>
             <span>{r.city}</span>
             <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
           </span>
-          <span style={{ color: t.brass, fontSize: 12.5, letterSpacing: "0.08em", flexShrink: 0 }}>{r.code}</span>
+          <span style={{ color: t.brass, fontSize: 12.5, letterSpacing: "0.08em", flexShrink: 0 }}>{r.code || ""}</span>
         </button>);
       })}
     </div>)}
@@ -979,7 +982,7 @@ function OptionRow({ selected, onClick, title, desc, sub, price }) {
 }
 const CITY_PHOTO_CACHE = {};
 function Photo({ query, h = 180, radius = 0 }) {
-  const city = bareCity(query);
+  const city = (query || "").trim();
   const [src, setSrc] = useState(null);
   useEffect(() => {
     let alive = true;
@@ -1431,18 +1434,33 @@ const GROUND_CACHE = {};
 function useGround(from, to) {
   const [state, setState] = useState(null);
   const a = (from || "").trim(), b = (to || "").trim();
-  const locate = (n) => coordsFor(n) || GEO_CACHE[(n || "").trim().toLowerCase()] || null;
   useEffect(() => {
     let dead = false;
     if (!a || !b || sameCity(a, b)) { setState(null); return; }
     const key = `${a}|${b}`.toLowerCase();
     if (GROUND_CACHE[key] !== undefined) { setState(GROUND_CACHE[key]); return; }
-    const ca = locate(a), cb = locate(b);
-    const coords = ca && cb ? `&flat=${ca[0]}&flng=${ca[1]}&tlat=${cb[0]}&tlng=${cb[1]}` : "";
-    fetch(`/api/ground?from=${encodeURIComponent(bareCity(a))}&to=${encodeURIComponent(bareCity(b))}${coords}`)
-      .then((r) => r.json())
-      .then((j) => { const v = j && j.ok ? j : null; GROUND_CACHE[key] = v; if (!dead) setState(v); })
-      .catch(() => { GROUND_CACHE[key] = null; if (!dead) setState(null); });
+    // Resolve BOTH endpoints to real coordinates first — code-aware, so "Birmingham (BHM)"
+    // becomes Alabama, not England. Routing then happens on coordinates, which cannot be
+    // misread. Without this, a bare "Birmingham" sent to Google finds England and offers a
+    // train to London across an ocean.
+    const coordFor = async (name) => {
+      const local = coordsFor(name); if (local) return local;
+      const ck = name.toLowerCase();
+      if (GEO_CACHE[ck] !== undefined && GEO_CACHE[ck] !== null) return GEO_CACHE[ck];
+      try {
+        const j = await fetch(`/api/geocode?city=${encodeURIComponent(name)}`).then((r) => r.json());
+        const c = j && j.ok && j.lat != null ? [j.lat, j.lng] : null;
+        GEO_CACHE[ck] = c; return c;
+      } catch (e) { return null; }
+    };
+    (async () => {
+      const [ca, cb] = await Promise.all([coordFor(a), coordFor(b)]);
+      const coords = ca && cb ? `&flat=${ca[0]}&flng=${ca[1]}&tlat=${cb[0]}&tlng=${cb[1]}` : "";
+      try {
+        const j = await fetch(`/api/ground?from=${encodeURIComponent(bareCity(a))}&to=${encodeURIComponent(bareCity(b))}${coords}`).then((r) => r.json());
+        const v = j && j.ok ? j : null; GROUND_CACHE[key] = v; if (!dead) setState(v);
+      } catch (e) { GROUND_CACHE[key] = null; if (!dead) setState(null); }
+    })();
     return () => { dead = true; };
   }, [a, b]);
   return state;
