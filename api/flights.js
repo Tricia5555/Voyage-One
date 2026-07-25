@@ -200,6 +200,26 @@ export default async function handler(req, res) {
         const m = /T(\d{2}:\d{2})/.exec(iso);
         return m ? m[1] : null;
       };
+      const dateOf = (iso) => { const m = /^(\d{4}-\d{2}-\d{2})/.exec(iso || ""); return m ? m[1] : null; };
+      const asMs = (iso) => { const t = Date.parse(iso); return Number.isFinite(t) ? t : null; };
+
+      // Total journey time, gate to gate, from the real timestamps — this is the number that
+      // tells a stupid 06:00-with-a-7-hour-layover option apart from a clean nonstop.
+      let totalMin = null;
+      const dep0 = asMs(first.departing_at), arrN = asMs(last.arriving_at);
+      if (dep0 != null && arrN != null && arrN > dep0) totalMin = Math.round((arrN - dep0) / 60000);
+
+      // Longest layover between segments — the "six hours in Atlanta" you want to avoid.
+      let maxLayover = 0;
+      for (let k = 1; k < segs.length; k++) {
+        const a = asMs(segs[k - 1].arriving_at), b = asMs(segs[k].departing_at);
+        if (a != null && b != null && b > a) maxLayover = Math.max(maxLayover, Math.round((b - a) / 60000));
+      }
+
+      // Does it land on a later calendar day? (Local dates, which is what the traveller reads.)
+      const dDate = dateOf(first.departing_at), aDate = dateOf(last.arriving_at);
+      const dayOffset = (dDate && aDate) ? Math.round((Date.parse(aDate) - Date.parse(dDate)) / 86400000) : 0;
+
       return {
         price: o.total_amount ? Math.round(parseFloat(o.total_amount)) : null,
         currency: o.total_currency || "USD",
@@ -207,6 +227,9 @@ export default async function handler(req, res) {
         depart: timeOf(first.departing_at),
         arrive: timeOf(last.arriving_at),
         stops: segs.length > 0 ? segs.length - 1 : 0,
+        totalMin,                 // whole-journey minutes, gate to gate
+        maxLayoverMin: maxLayover, // worst connection wait
+        dayOffset,                // 0 same day, 1 arrives next day, 2 = +2
         flightNo: (first.operating_carrier_flight_number || first.marketing_carrier_flight_number) ? `${(first.marketing_carrier && first.marketing_carrier.iata_code) || ""}${first.marketing_carrier_flight_number || ""}` : null,
         offerId: o.id,
       };
