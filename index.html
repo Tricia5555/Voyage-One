@@ -1379,7 +1379,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
   // Choosing a cabin keeps the selection but clears any specific chosen flight until you pick one.
   const chooseCabin = (c) => { upd({ flight: { cabin: c, price: null, chosen: false } }); };
   // Tap a real flight to lock it into the plan with its price, airline and time.
-  const chooseFlight = (o) => { upd({ flight: { cabin, price: o.price, airline: o.airline, depart: o.depart, arrive: o.arrive, stops: o.stops, flightNo: o.flightNo, offerId: o.offerId, chosen: true, real: true } }); };
+  const chooseFlight = (o) => { upd({ flight: { cabin, price: o.price, airline: o.airline, depart: o.depart, arrive: o.arrive, stops: o.stops, totalMin: o.totalMin, maxLayoverMin: o.maxLayoverMin, dayOffset: o.dayOffset, flightNo: o.flightNo, offerId: o.offerId, chosen: true, real: true } }); };
   if (!from || !to) return <div style={{ fontSize: 13, color: t.inkFaint }}>Name both cities and the route appears here.</div>;
   const chosen = f && f.chosen ? f : null;
   return (<>
@@ -1416,7 +1416,8 @@ function FlightPicker({ from, to, pick, upd, date }) {
           return <button key={o.offerId || k} onClick={() => chooseFlight(o)} style={{ width: "100%", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, marginBottom: 8, border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white }}>
             <span style={{ minWidth: 0 }}>
               <span style={{ display: "block", fontSize: 15, color: t.ink }}>{o.airline}{o.flightNo ? ` · ${o.flightNo}` : ""}</span>
-              <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{o.depart ? `Departs ${o.depart}` : "Time at booking"}{o.arrive ? ` → ${o.arrive}` : ""}{o.stops === 0 ? " · nonstop" : o.stops > 0 ? ` · ${o.stops} stop${o.stops > 1 ? "s" : ""}` : ""}</span>
+              <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{o.depart ? `Departs ${o.depart}` : "Time at booking"}{o.arrive ? ` → ${o.arrive}` : ""}{o.dayOffset > 0 ? <span style={{ color: "#B0563A", fontWeight: 500 }}>{` +${o.dayOffset} day`}</span> : ""}{o.stops === 0 ? " · nonstop" : o.stops > 0 ? ` · ${o.stops} stop${o.stops > 1 ? "s" : ""}` : ""}</span>
+              {o.totalMin ? <span style={{ display: "block", fontSize: 12, color: o.totalMin > 900 ? "#B0563A" : t.inkFaint, marginTop: 2 }}>{`${Math.floor(o.totalMin / 60)}h ${o.totalMin % 60}m total`}{o.maxLayoverMin >= 180 ? ` · ${Math.floor(o.maxLayoverMin / 60)}h ${o.maxLayoverMin % 60}m layover` : ""}</span> : null}
             </span>
             <span style={{ fontFamily: font.display, fontSize: 19, whiteSpace: "nowrap" }}>{fmt(o.price)}</span>
           </button>; })}
@@ -2419,7 +2420,7 @@ function ItineraryView(p) {
     const { total } = destCost(d, from); grand += total;
     const pk = d.pick || {};
     const rows = [];
-    if (d.arriveBy === "Flight" && pk.flight) rows.push(<ItinLine key="f" label={`Fly · ${pk.flight.airline || "airline TBC"}${pk.flight.flightNo ? " " + pk.flight.flightNo : ""}`} sub={`${pk.flight.cabin || "cabin TBC"}${pk.flight.depart ? " · departs " + pk.flight.depart : ""}${pk.flight.stops === 0 ? " · nonstop" : pk.flight.stops > 0 ? ` · ${pk.flight.stops} stop` : ""}`} price={pk.flight.price != null ? pk.flight.price : null} />);
+    if (d.arriveBy === "Flight" && pk.flight) rows.push(<ItinLine key="f" label={`Fly · ${pk.flight.airline || "airline TBC"}${pk.flight.flightNo ? " " + pk.flight.flightNo : ""}`} sub={`${pk.flight.cabin || "cabin TBC"}${pk.flight.depart ? " · departs " + pk.flight.depart : ""}${pk.flight.arrive ? " → " + pk.flight.arrive : ""}${pk.flight.dayOffset > 0 ? ` (+${pk.flight.dayOffset}d)` : ""}${pk.flight.stops === 0 ? " · nonstop" : pk.flight.stops > 0 ? ` · ${pk.flight.stops} stop` : ""}${pk.flight.totalMin ? ` · ${Math.floor(pk.flight.totalMin / 60)}h ${pk.flight.totalMin % 60}m total` : ""}`} price={pk.flight.price != null ? pk.flight.price : null} />);
     else if (pk.ground) rows.push(<ItinLine key="g" label={`${d.arriveBy} from ${from || "start"}`} price={pk.ground.price} />);
     if (d.mode === "open") {
       if (pk.exploreMode === "base") {
