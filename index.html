@@ -641,6 +641,43 @@ const INSIDER = {
   "Santorini": ["Sunset in Oia is worth it, and mobbed", "The crowd for it is real. A table booked in advance, or a small chartered boat off the caldera, buys you the same sky without the crush."],
 };
 function insiderFor(city) { if (!city) return null; const k = Object.keys(INSIDER).find((x) => x.toLowerCase() === (city || "").trim().toLowerCase()); return k ? INSIDER[k] : null; }
+
+// A hand-kept calendar of the events a luxury traveller would plan a trip around — the ones
+// worth telling someone "this is on while you're there." Dates are real (verified), keyed to
+// a city we can match against the itinerary. Not a fixture list of everything; the marquee
+// few. Tickets come later, when the Ticketmaster/hospitality links are live.
+// Each: [name, city, startISO, endISO, note].
+const MARQUEE_EVENTS = [
+  ["Wimbledon", "London", "2026-06-29", "2026-07-12", "The Championships at the All England Club — the grass-court Grand Slam. Debenture and hospitality seats are the civilised way in."],
+  ["The Championships, Wimbledon", "London", "2027-06-28", "2027-07-11", "Wimbledon fortnight returns to SW19."],
+  ["British Grand Prix", "Silverstone", "2026-07-03", "2026-07-05", "Formula 1 at Silverstone — the sport's spiritual home, and a paddock-club weekend like no other."],
+  ["The Open Championship", "Southport", "2026-07-12", "2026-07-19", "Golf's oldest major, at Royal Birkdale."],
+  ["Spanish Grand Prix", "Madrid", "2026-09-11", "2026-09-13", "Formula 1's new Madring circuit brings F1 to Madrid."],
+  ["US Open Tennis", "New York City", "2026-08-31", "2026-09-13", "The final Grand Slam of the year, in Flushing Meadows — night sessions under lights are the ticket."],
+  ["Monaco Grand Prix", "Monte Carlo", "2027-05-20", "2027-05-23", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets. Book a terrace a year out."],
+  ["Monaco Grand Prix", "Monaco", "2027-05-20", "2027-05-23", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets."],
+  ["The Masters", "Augusta", "2027-04-08", "2027-04-11", "Augusta National in azalea season — the most coveted badge in golf."],
+  ["Super Bowl LX", "San Francisco", "2026-02-08", "2026-02-08", "The NFL championship, at Levi's Stadium in the Bay Area."],
+  ["Ryder Cup", "New York City", "2025-09-26", "2025-09-28", "USA v Europe at Bethpage Black."],
+  ["Roland-Garros (French Open)", "Paris", "2026-05-24", "2026-06-07", "The clay-court Grand Slam at Roland-Garros — Parisian spring at its most stylish."],
+  ["Australian Open", "Melbourne", "2026-01-18", "2026-02-01", "The season-opening Grand Slam."],
+  ["Il Palio di Siena", "Siena", "2026-07-02", "2026-07-02", "The medieval bareback horse race around the Piazza del Campo — one of Italy's great spectacles (also 16 August)."],
+  ["Venice Film Festival", "Venice", "2026-09-02", "2026-09-12", "The Lido turns into cinema's most glamorous red carpet."],
+  ["Oktoberfest", "Munich", "2026-09-19", "2026-10-04", "The original, in the Theresienwbase — book a tent table well ahead."],
+  ["Carnival", "Venice", "2026-02-07", "2026-02-17", "Masks, palazzo balls and the city at its most theatrical."],
+];
+function eventsFor(city, startISO, endISO) {
+  if (!city || !startISO || !endISO) return [];
+  const c = bareCity(city).toLowerCase();
+  const s = Date.parse(startISO), e = Date.parse(endISO);
+  if (!Number.isFinite(s) || !Number.isFinite(e)) return [];
+  return MARQUEE_EVENTS.filter(([, ec, es, ee]) => {
+    if (ec.toLowerCase() !== c) return false;
+    const evS = Date.parse(es), evE = Date.parse(ee);
+    // Overlap: the trip's stay in this city intersects the event's run.
+    return evS <= e && evE >= s;
+  }).map(([name, , es, ee, note]) => ({ name, start: es, end: ee, note }));
+}
 function fmtList(arr) {
   const a = [...new Set(arr)];
   if (!a.length) return "";
@@ -2462,6 +2499,22 @@ function ItineraryView(p) {
     else if (d.mode === "open" && pk.baseTown) mapPoints.push({ name: pk.baseTown, when: ls ? fmtShort(ls.arrive) : "" });
     else if (d.mode === "open") { const gw = gatewayFor(d.city); const where = gw ? gw.air : d.city; if (where) mapPoints.push({ name: where, when: ls ? fmtShort(ls.arrive) : "" }); }
     else if (d.city) mapPoints.push({ name: d.city, when: ls ? fmtShort(ls.arrive) : "" });
+    // Is a marquee event on while they're in this city? Real dates, matched to the stay.
+    if (ls && d.city) {
+      const evs = eventsFor(d.city, ls.arrive.toISOString().slice(0, 10), ls.depart.toISOString().slice(0, 10));
+      evs.forEach((ev, k) => {
+        const evS = new Date(ev.start + "T00:00:00"), evE = new Date(ev.end + "T00:00:00");
+        rows.push(<div key={"ev" + k} style={{ marginTop: 12, background: t.mist, border: `1px solid ${t.brass}`, borderRadius: 12, padding: "13px 15px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+            <Trophy size={14} color={t.brass} />
+            <span style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass }}>On while you're here</span>
+          </div>
+          <div style={{ fontFamily: font.display, fontSize: 18, color: t.ink, lineHeight: 1.25 }}>{ev.name}</div>
+          <div style={{ fontSize: 12, color: t.inkSoft, marginTop: 2 }}>{fmtShort(evS)} – {fmtShort(evE)}, {d.city}</div>
+          <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 5 }}>{ev.note}</div>
+        </div>);
+      });
+    }
     const nextD = p.dests[i + 1];
     const leaveFrom = exitPoint(d);
     const nextTarget = nextD ? (gatewayFor(nextD.city) ? gatewayFor(nextD.city).air : nextD.city) : (p.returnFrom || "");
