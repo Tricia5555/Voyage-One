@@ -9,10 +9,13 @@
 // Duffel returns offers, each with a real total_amount. We take the cheapest.
 
 const AIRPORTS = {
-  "New York City": { code: "JFK", scale: "intercontinental" }, "Miami": { code: "MIA", scale: "intercontinental" },
+  // Metro cities with several airports use the IATA *city* code, which Duffel expands to all
+  // of them — so New York searches JFK, LaGuardia AND Newark, not just JFK, and a LaGuardia
+  // nonstop is found. Same for London (Heathrow/Gatwick/City/Stansted/Luton) and others.
+  "New York City": { code: "NYC", scale: "intercontinental" }, "Miami": { code: "MIA", scale: "intercontinental" },
   "Los Angeles": { code: "LAX", scale: "intercontinental" }, "San Francisco": { code: "SFO", scale: "intercontinental" },
-  "Chicago": { code: "ORD", scale: "intercontinental" }, "Boston": { code: "BOS", scale: "intercontinental" },
-  "Washington DC": { code: "IAD", scale: "intercontinental" }, "Newark": { code: "EWR", scale: "intercontinental" },
+  "Chicago": { code: "CHI", scale: "intercontinental" }, "Boston": { code: "BOS", scale: "intercontinental" },
+  "Washington DC": { code: "WAS", scale: "intercontinental" }, "Newark": { code: "EWR", scale: "intercontinental" },
   "Washington": { code: "IAD", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" },
   "Dallas": { code: "DFW", scale: "intercontinental" }, "Denver": { code: "DEN", scale: "intercontinental" },
   "Houston": { code: "IAH", scale: "intercontinental" }, "Los Angeles": { code: "LAX", scale: "intercontinental" },
@@ -37,13 +40,13 @@ const AIRPORTS = {
   "Palm Beach": { code: "PBI", scale: "regional" }, "West Palm Beach": { code: "PBI", scale: "regional" },
   "Naples FL": { code: "RSW", scale: "regional" }, "Fort Myers": { code: "RSW", scale: "regional" },
   "Sarasota": { code: "SRQ", scale: "regional" }, "Key West": { code: "EYW", scale: "regional" },
-  "London": { code: "LHR", scale: "intercontinental" }, "Paris": { code: "CDG", scale: "intercontinental" },
+  "London": { code: "LON", scale: "intercontinental" }, "Paris": { code: "PAR", scale: "intercontinental" },
   "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" },
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
   "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" },
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
   "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" },
-  "Tokyo": { code: "HND", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
+  "Tokyo": { code: "TYO", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
   "Venice": { code: "VCE", scale: "regional" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
   "Porto": { code: "OPO", scale: "regional" }, "Faro": { code: "FAO", scale: "regional" },
@@ -112,13 +115,12 @@ async function suggest(query, token) {
 
 async function resolveCity(city, token) {
   // If the traveller picked from the suggestion list, the code came with it — "Birmingham
-  // (BHM)" — and there is nothing left to guess.
+  // (BHM)" — and that exact airport is what they chose. Honour it.
   const picked = /\(([A-Z]{3})\)\s*$/.exec(city || "");
   if (picked) return picked[1];
-  const fast = iataFor(city);
-  if (fast) return fast;
   let q = (city || "").trim();
   if (!q) return null;
+  // A bare 3-letter code typed directly.
   if (q.length === 3 && /^[A-Za-z]{3}$/.test(q)) return q.toUpperCase();
   const ck = q.toLowerCase();
   if (LOOKUP_CACHE.has(ck)) return LOOKUP_CACHE.get(ck);
@@ -128,18 +130,24 @@ async function resolveCity(city, token) {
   const m = /^(.*?)[,\s]+([A-Za-z]{2})$/.exec(q);
   if (m && US_STATES.has(m[2].toUpperCase())) { q = m[1].trim(); wantCountry = "US"; }
 
-  let places = await suggest(q, token);
-  if (!places.length) places = await suggest(city.trim(), token);
-
+  // Ask Duffel first, and PREFER the metropolitan "city" code. Duffel expands a city code to
+  // every airport in the metro — so New York becomes JFK+LGA+EWR, London all five, Paris
+  // CDG+ORY — with no per-city list to maintain. This is the universal multi-airport fix:
+  // whichever city has multiple airports, we search all of them automatically.
+  const places = await suggest(q, token);
   const pick = (arr) => {
-    // A city entry covers all its airports, so prefer it; otherwise take an airport.
     const inCountry = wantCountry ? arr.filter((p) => p.iata_country_code === wantCountry) : arr;
     const pool = inCountry.length ? inCountry : (wantCountry ? [] : arr);
     return (pool.find((p) => p.type === "city" && p.iata_code)
       || pool.find((p) => p.type === "airport" && p.iata_code) || null);
   };
   const hit = pick(places);
-  const code = hit ? hit.iata_code : null;
+  let code = hit ? hit.iata_code : null;
+
+  // Only if Duffel gives us nothing do we fall back to the hand list — a safety net, not
+  // the primary path, so its single-airport entries can't override the metro codes above.
+  if (!code) code = iataFor(city);
+
   LOOKUP_CACHE.set(ck, code);
   return code;
 }
@@ -225,6 +233,8 @@ export default async function handler(req, res) {
         currency: o.total_currency || "USD",
         airline: (o.owner && o.owner.name) || "Airline",
         depart: timeOf(first.departing_at),
+        depAirport: (first.origin && first.origin.iata_code) || null,
+        arrAirport: (last.destination && last.destination.iata_code) || null,
         arrive: timeOf(last.arriving_at),
         stops: segs.length > 0 ? segs.length - 1 : 0,
         totalMin,                 // whole-journey minutes, gate to gate
