@@ -592,6 +592,8 @@ function returnCost(p) {
   const lastCity = p.dests.length ? exitPoint(p.dests[p.dests.length - 1]) : "";
   const needLeg = p.returnFrom && !sameCity(p.returnFrom, lastCity) && p.returnMode && p.returnMode !== "Flight";
   if (needLeg && rp.ground) { total += rp.ground.price; items.push([`${p.returnMode} → ${p.returnFrom}`, rp.ground.price]); }
+  // Transfer to the gateway airport when the last stop has no airport of its own.
+  if (!p.returnFrom && rp.homeTransfer && rp.homeTransfer.price) { total += rp.homeTransfer.price; items.push([`${rp.homeTransfer.mode} to the airport`, rp.homeTransfer.price]); }
   if (rp.flight && rp.flight.price) { total += rp.flight.price; items.push([`Fly ${p.returnFrom || ""} → ${p.homeCity || "home"}`, rp.flight.price]); }
   return { total, items, needLeg };
 }
@@ -1370,12 +1372,35 @@ function StepBuild(p) {
       <TripName p={p} />
       <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5 }}>Named from your route unless you type your own.</div>
     </div>
-    {sch.valid && sch.allowed != null && sch.nights !== sch.allowed && (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: sch.nights > sch.allowed ? "#FBEEE9" : t.card, border: `1px solid ${sch.nights > sch.allowed ? "#D9A08B" : t.line}`, borderRadius: 14, padding: "14px 16px", marginBottom: 18 }}>
-      <AlertTriangle size={16} color={sch.nights > sch.allowed ? "#B0563A" : t.brass} style={{ marginTop: 2, flexShrink: 0 }} />
-      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5 }}>
-        You have <strong style={{ color: t.ink }}>{sch.nights} {sch.nights === 1 ? "night" : "nights"}</strong> planned, but your dates allow <strong style={{ color: t.ink }}>{sch.allowed}</strong>. {sch.nights > sch.allowed ? `That is ${sch.nights - sch.allowed} too many — trim a stop or push your return date.` : `You have ${sch.allowed - sch.nights} spare — add a night somewhere, or fly home earlier.`}
-      </div>
-    </div>)}
+    {sch.valid && p.dests.length > 0 && (() => {
+      // A running tally of nights, editable in place. This is the "fix it here, don't walk
+      // back through every page" tool: each city's nights with +/- right on the summary, and
+      // the total measured against what the dates actually allow.
+      const allowed = sch.allowed;
+      const over = allowed != null && sch.nights > allowed;
+      const under = allowed != null && sch.nights < allowed;
+      const bad = over || under;
+      return (<div style={{ background: bad ? "#FBEEE9" : t.card, border: `1px solid ${bad ? "#D9A08B" : t.line}`, borderRadius: 14, padding: "14px 16px", marginBottom: 18 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: bad ? 8 : 0 }}>
+          <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: bad ? "#B0563A" : t.inkFaint }}>Nights across the trip</div>
+          <div style={{ fontSize: 13, color: t.ink }}>
+            <strong>{sch.nights}</strong> planned{allowed != null ? <> · <strong>{allowed}</strong> your dates allow</> : null}
+            {over ? <span style={{ color: "#B0563A" }}>{`  · ${sch.nights - allowed} too many`}</span> : under ? <span style={{ color: "#B0563A" }}>{`  · ${allowed - sch.nights} short`}</span> : allowed != null ? <span style={{ color: t.pine }}>  · matches</span> : null}
+          </div>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {p.dests.map((d, i) => (<div key={"ns" + i} style={{ display: "flex", alignItems: "center", gap: 6, background: t.white, border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
+            <span style={{ fontSize: 13, color: t.ink, maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bareCity(d.city) || `Stop ${i + 1}`}</span>
+            <button onClick={() => { const cur = destNights(d); const nn = Math.max(1, cur - 1); p.setDest(i, d.mode === "open" ? { days: nn } : { nights: nn }); }} style={{ width: 24, height: 24, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+            <span style={{ fontSize: 13, minWidth: 16, textAlign: "center", color: t.ink }}>{destNights(d)}</span>
+            <button onClick={() => { const cur = destNights(d); const nn = cur + 1; p.setDest(i, d.mode === "open" ? { days: nn } : { nights: nn }); }} style={{ width: 24, height: 24, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+          </div>))}
+        </div>
+        {bad && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 9 }}>{over
+          ? "Trim a night above, or push your return date back — otherwise a hotel or a flight lands on the wrong day."
+          : "Add a night above, or bring your return forward — otherwise a night of the trip has nowhere to sleep."} You can also <button onClick={() => p.setStep(0)} style={{ background: "none", border: "none", color: t.pine, textDecoration: "underline", padding: 0, fontSize: 12.5, cursor: "pointer" }}>change the dates</button>.</div>}
+      </div>);
+    })()}
     <div className="vo-build">
       <div className="vo-main" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         {p.dests.length === 0 && <div style={{ color: t.inkFaint, padding: "30px 0" }}>Go back and add at least one destination to start pricing.</div>}
@@ -1997,8 +2022,17 @@ function CitySection({ d, i, p, from, legSched }) {
 }
 function ReturnSection({ p, rc, blocked }) {
   const rp = p.returnPick || {}; const upd = (patch) => p.setReturnPick({ ...rp, ...patch });
-  const homeGround = groundOption(p.returnMode, "", p.returnFrom);
   const lastCity = p.dests.length ? exitPoint(p.dests[p.dests.length - 1]) : "";
+  // Where you actually fly home FROM. If you didn't name a separate airport city, it's your
+  // last stop — and if that last stop has no airport of its own (Cap d'Antibes, Positano),
+  // we resolve its nearest served airport with the SAME gateway logic used for arrivals, and
+  // compose "drive to that airport, then fly." One shared path — no city is special-cased.
+  const flyHomeCity = p.returnFrom || lastCity;
+  const homeGw = useGateway(flyHomeCity);
+  const gwHome = homeGw && !sameCity(homeGw.air, flyHomeCity) ? homeGw : null;
+  // The airport we depart the country from: the chosen airport city, or the resolved gateway.
+  const departAirport = p.returnFrom ? p.returnFrom : (gwHome ? gwHome.air : lastCity);
+  const homeGround = groundOption(p.returnMode, "", p.returnFrom);
   return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 18, padding: "22px" }}>
     <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>Heading home</span><span style={{ fontSize: 13, color: t.inkFaint }}>the last piece</span></div>
     <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 6, maxWidth: 520, lineHeight: 1.5 }}>Flying out of {lastCity || "your last stop"}? Just say where you land. If you travel on to a different airport city first, name it here.</div>
@@ -2024,13 +2058,21 @@ function ReturnSection({ p, rc, blocked }) {
       </div>);
     })()}
     {p.returnFrom && !sameCity(p.returnFrom, lastCity) && <div style={{ marginTop: 18 }}><Chips prefix={`Get to ${p.returnFrom} by`} options={ARRIVE} value={p.returnMode} onChange={p.setReturnMode} /></div>}
+    {/* No separate airport city named, but the last stop can't be flown from — compose the
+        overland leg to its gateway, the same way arrivals do, so the trip home is complete. */}
+    {!p.returnFrom && gwHome && (<div style={{ marginTop: 18 }}>
+      <Panel icon={Car} title={`Getting from ${bareCity(flyHomeCity)} to ${gwHome.air}`}>
+        <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{bareCity(flyHomeCity)} has no airport — you fly home from {gwHome.air}{gwHome.km ? `, about ${gwHome.km} km away` : ""}. {gwHome.code ? `(${gwHome.code})` : ""} Leave enough time: aim to be at the airport about 3 hours before an international flight, so plan the drive plus a buffer.</div>
+        {transferOptions(gwHome.air, bareCity(flyHomeCity)).map((o) => { const sel = rp.homeTransfer && rp.homeTransfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ homeTransfer: sel ? null : o })} title={`${o.mode} · ${bareCity(flyHomeCity)} → ${gwHome.air}`} desc={o.why} sub="door to door" price={fmt(o.price)} />; })}
+      </Panel>
+    </div>)}
     {rc.needLeg && <Panel icon={Car} title={`Getting to ${p.returnFrom} · ${p.returnMode}`}><OptionRow selected onClick={() => upd({ ground: homeGround })} title={`${p.returnMode} → ${p.returnFrom}`} sub="estimated, door to door" price={fmt(homeGround.price)} /></Panel>}
     {p.returnFrom && p.homeCity && departTime(p.returnFrom, p.homeCity) && <div style={{ fontSize: 12.5, color: t.brass, display: "flex", gap: 7, alignItems: "flex-start", marginTop: 14, lineHeight: 1.5 }}><Plane size={13} style={{ marginTop: 2, flexShrink: 0 }} /> Departs about {departTime(p.returnFrom, p.homeCity).time}. {departTime(p.returnFrom, p.homeCity).note}</div>}
-    {p.returnFrom && p.homeCity && <Panel icon={Plane} title={`Flight home · ${p.returnFrom} → ${p.homeCity}`} right={!rp.flight && !blocked ? <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#B0563A" }}>Not chosen</span> : null}>
+    {(p.returnFrom || departAirport) && p.homeCity && <Panel icon={Plane} title={`Flight home · ${departAirport} → ${p.homeCity}`} right={!rp.flight && !blocked ? <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#B0563A" }}>Not chosen</span> : null}>
       {blocked ? <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: "#FBEEE9", border: "1px solid #D9A08B", borderRadius: 12, padding: "13px 15px" }}>
         <AlertTriangle size={15} color="#B0563A" style={{ marginTop: 2, flexShrink: 0 }} />
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>Settle your nights first. Booking a flight home while the schedule is short a night is how people end up sleeping in an airport — fix the stays above and this opens up.</div>
-      </div> : <FlightPicker from={p.returnFrom} to={p.homeCity} pick={{ flight: rp.flight }} upd={(patch) => upd(patch)} date={p.dates && p.dates.ret ? p.dates.ret : ""} />}
+      </div> : <FlightPicker from={departAirport} to={p.homeCity} pick={{ flight: rp.flight }} upd={(patch) => upd(patch)} date={p.dates && p.dates.ret ? p.dates.ret : ""} />}
     </Panel>}
   </div>);
 }
@@ -2674,7 +2716,8 @@ function ItineraryView(p) {
         {legEls}
         {(rc.items.length > 0 || p.homeCity) && (<ItinLeg n={<Home size={15} />} title="Heading home" meta={p.homeCity ? `to ${p.homeCity}` : ""}>
           {rc.needLeg && p.returnPick.ground && <ItinLine label={`${p.returnMode} to ${p.returnFrom}`} price={p.returnPick.ground.price} />}
-          {p.returnPick.flight && <ItinLine label={`Fly · ${p.returnPick.flight.airline || "airline TBC"}${p.returnPick.flight.flightNo ? " " + p.returnPick.flight.flightNo : ""}`} sub={`${p.returnPick.flight.cabin || "cabin TBC"}${p.returnPick.flight.depart ? " · departs " + p.returnPick.flight.depart : ""}`} price={p.returnPick.flight.price != null ? p.returnPick.flight.price : null} />}
+          {!p.returnFrom && p.returnPick.homeTransfer && <ItinLine label={`${p.returnPick.homeTransfer.mode} to the airport`} sub="no airport in your last town — transfer to the nearest one, then fly" price={p.returnPick.homeTransfer.price} />}
+          {p.returnPick.flight && <ItinLine label={`Fly · ${p.returnPick.flight.airline || "airline TBC"}${p.returnPick.flight.flightNo ? " " + p.returnPick.flight.flightNo : ""}`} sub={`${p.returnPick.flight.cabin || "cabin TBC"}${p.returnPick.flight.depart ? " · departs " + p.returnPick.flight.depart : ""}${p.returnPick.flight.totalMin ? ` · ${Math.floor(p.returnPick.flight.totalMin / 60)}h ${p.returnPick.flight.totalMin % 60}m total` : ""}`} price={p.returnPick.flight.price != null ? p.returnPick.flight.price : null} />}
           {rc.items.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint }}>Flight home not yet chosen.</div>}
         </ItinLeg>)}
       </div>
