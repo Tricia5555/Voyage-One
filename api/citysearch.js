@@ -1,8 +1,11 @@
-// Voyage One — city suggestions as you type.
+// Voyage One — city suggestions as you type, town-first.
 //
-// Proxies Duffel's place search so the traveller picks a real place rather than hoping the
-// spelling matches. Typing "Birmingham" offers both Birmingham, United Kingdom (BHX) and
-// Birmingham, United States (BHM) — you choose, and the trip is built on a definite airport.
+// The old version only offered places that had their own airport, so Monte Carlo, Cap
+// d'Antibes, Positano, Portofino — the very places a luxury traveller wants to STAY — never
+// appeared, because they have no airport. That is backwards for this app. Here Google Places
+// is the primary source (it knows every town on earth), and Duffel is used only to attach an
+// airport code when the place happens to have one. Everywhere real is selectable; the trip's
+// flights route from the nearest airport, resolved separately.
 
 const COUNTRY = {
   US: "United States", GB: "United Kingdom", FR: "France", IT: "Italy", ES: "Spain",
@@ -17,40 +20,57 @@ const COUNTRY = {
 
 export default async function handler(req, res) {
   const token = process.env.DUFFEL_TOKEN;
+  const gKey = process.env.GOOGLE_PLACES_KEY;
   const q = (req.query.q || "").toString().trim();
-  if (!token) return res.status(200).json({ ok: false, reason: "no-token" });
   if (q.length < 2) return res.status(200).json({ ok: true, results: [] });
 
-  try {
-    const r = await fetch(`https://api.duffel.com/places/suggestions?query=${encodeURIComponent(q)}`, {
-      headers: { "Accept": "application/json", "Duffel-Version": "v2", "Authorization": `Bearer ${token}` },
-    });
-    if (!r.ok) {
-      const detail = await r.text();
-      return res.status(200).json({ ok: false, reason: "duffel-error", status: r.status, detail: detail.slice(0, 200) });
-    }
-    const data = await r.json();
-    const places = (data.data || []).filter((p) => p.iata_code);
+  const results = [];
+  const seen = new Set();
+  const add = (r) => { const k = (r.city + "|" + (r.country || "")).toLowerCase(); if (!seen.has(k)) { seen.add(k); results.push(r); } };
 
-    // A city covers all its airports, so it is the better pick when both appear. Keep single
-    // airports too, for places whose city has no entry of its own.
-    const cities = places.filter((p) => p.type === "city");
-    const cityNames = new Set(cities.map((c) => (c.name || "").toLowerCase()));
-    const airports = places.filter((p) => p.type === "airport" && !cityNames.has((p.city_name || "").toLowerCase()));
-
-    const shape = (p) => ({
-      code: p.iata_code,
-      city: p.type === "city" ? p.name : (p.city_name || p.name),
-      airport: p.type === "airport" ? p.name : null,
-      country: COUNTRY[p.iata_country_code] || p.iata_country_code || "",
-      countryCode: p.iata_country_code || "",
-      type: p.type,
-    });
-
-    const results = [...cities.map(shape), ...airports.map(shape)].slice(0, 8);
-    res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
-    return res.status(200).json({ ok: true, results });
-  } catch (e) {
-    return res.status(200).json({ ok: false, reason: "fetch-failed", detail: String(e).slice(0, 200) });
+  // 1) PRIMARY: Google Places — every town, village and neighbourhood, airport or not.
+  if (gKey) {
+    try {
+      const gr = await fetch("https://places.googleapis.com/v1/places:searchText", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gKey, "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.types,places.location" },
+        body: JSON.stringify({ textQuery: q, maxResultCount: 8 }),
+      });
+      if (gr.ok) {
+        const gd = await gr.json();
+        (gd.places || []).forEach((gp) => {
+          const nm = (gp.displayName && gp.displayName.text) || "";
+          const types = gp.types || [];
+          const isPlace = types.some((t) => ["locality", "sublocality", "administrative_area_level_1", "administrative_area_level_2", "administrative_area_level_3", "political", "neighborhood", "colloquial_area", "tourist_attraction"].includes(t));
+          if (!nm || !isPlace) return;
+          const addr = gp.formattedAddress || "";
+          const country = addr.split(",").pop().trim();
+          add({ code: null, city: nm, airport: null, country, countryCode: "", type: "place",
+                lat: gp.location ? gp.location.latitude : null, lng: gp.location ? gp.location.longitude : null });
+        });
+      }
+    } catch (e) { /* fall through to Duffel */ }
   }
+
+  // 2) Duffel — attach airport codes to matching towns, and cover the case where Google gave nothing.
+  if (token) {
+    try {
+      const r = await fetch(`https://api.duffel.com/places/suggestions?query=${encodeURIComponent(q)}`, {
+        headers: { "Accept": "application/json", "Duffel-Version": "v2", "Authorization": `Bearer ${token}` },
+      });
+      if (r.ok) {
+        const data = await r.json();
+        (data.data || []).filter((p) => p.iata_code).forEach((p) => {
+          const city = p.type === "city" ? p.name : (p.city_name || p.name);
+          const country = COUNTRY[p.iata_country_code] || p.iata_country_code || "";
+          const existing = results.find((x) => x.city.toLowerCase() === (city || "").toLowerCase());
+          if (existing) { if (!existing.code) existing.code = p.iata_code; }
+          else add({ code: p.iata_code, city, airport: p.type === "airport" ? p.name : null, country, countryCode: p.iata_country_code || "", type: p.type });
+        });
+      }
+    } catch (e) { /* Google results still stand */ }
+  }
+
+  res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=604800");
+  return res.status(200).json({ ok: true, results: results.slice(0, 8) });
 }
