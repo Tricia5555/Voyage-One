@@ -1412,6 +1412,9 @@ function flightSearchUrl(from, to, date, cabin) {
 }
 function FlightPicker({ from, to, pick, upd, date }) {
   const f = pick.flight || null;
+  // A ground-access origin (Positano, a lake town) has no airport of its own, so "fly from
+  // here" is the wrong question — explain that rather than returning a blank nothing.
+  const noAirportHere = !!(from && GATEWAY_CACHE[bareCity(from).toLowerCase()] && GATEWAY_CACHE[bareCity(from).toLowerCase()].computed) || !!(from && gatewayFor(bareCity(from)) && !sameCity(gatewayFor(bareCity(from)).air, from));
   const dt = departTime(from, to);
   const fc = iataFor(from), tc = iataFor(to);
   const cabin = (f && f.cabin) || "";
@@ -1467,7 +1470,9 @@ function FlightPicker({ from, to, pick, upd, date }) {
         <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel · one way · tap to add to your plan</div>
       </>)}
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
-        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{noAirportHere
+          ? `There's no airport in ${bareCity(from)} — you can't fly out from here directly. Head overland to the nearest airport first (the arrival panel shows which), then fly from there.`
+          : <>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</>}</div>
       </div>)}
     </div>)}
   </>);
