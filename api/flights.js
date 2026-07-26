@@ -202,31 +202,52 @@ export default async function handler(req, res) {
       const segs = slice.segments || [];
       const first = segs[0] || {};
       const last = segs[segs.length - 1] || {};
-      const timeOf = (iso) => {
-        if (!iso) return null;
-        // Duffel gives local ISO like "2026-09-01T11:15:00". Take the HH:MM.
-        const m = /T(\d{2}:\d{2})/.exec(iso);
-        return m ? m[1] : null;
-      };
       const dateOf = (iso) => { const m = /^(\d{4}-\d{2}-\d{2})/.exec(iso || ""); return m ? m[1] : null; };
-      const asMs = (iso) => { const t = Date.parse(iso); return Number.isFinite(t) ? t : null; };
 
-      // Total journey time, gate to gate, from the real timestamps — this is the number that
-      // tells a stupid 06:00-with-a-7-hour-layover option apart from a clean nonstop.
-      let totalMin = null;
-      const dep0 = asMs(first.departing_at), arrN = asMs(last.arriving_at);
-      if (dep0 != null && arrN != null && arrN > dep0) totalMin = Math.round((arrN - dep0) / 60000);
+      // Duffel's departing_at / arriving_at are LOCAL times with no zone offset in the string.
+      // Subtracting them naively counts the timezone gap as flight time — so NYC→Madrid (a 7h
+      // flight) reads as 13h because Madrid is 6h ahead. The honest elapsed time must use each
+      // airport's UTC offset. Duffel provides a per-segment ISO-8601 `duration` (already zone-
+      // correct) and each airport's `time_zone`; we prefer duration, and fall back to offsets.
+      const parseDur = (d) => {
+        if (!d) return null;
+        const m = /^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?/.exec(d);
+        if (!m) return null;
+        return (parseInt(m[1] || 0) * 1440) + (parseInt(m[2] || 0) * 60) + parseInt(m[3] || 0);
+      };
+      const tzOffset = (seg, which) => {
+        // Minutes east of UTC for the segment's origin/destination, if Duffel gave a zone.
+        const ap = which === "o" ? seg.origin : seg.destination;
+        const tz = ap && ap.time_zone;
+        if (!tz) return null;
+        // time_zone like "America/New_York" — we can't resolve arbitrary names here without a
+        // library, so this path stays null and we rely on `duration` below. Kept for clarity.
+        return null;
+      };
+      const localMs = (iso) => { const t = Date.parse((iso || "") + "Z"); return Number.isFinite(t) ? t : null; };
 
-      // Longest layover between segments — the "six hours in Atlanta" you want to avoid.
-      let maxLayover = 0;
+      // Flight (air) time: sum each segment's own duration — timezone-proof.
+      let airMin = 0, haveAllDur = segs.length > 0;
+      for (const s of segs) { const d = parseDur(s.duration); if (d == null) { haveAllDur = false; break; } airMin += d; }
+
+      // Layovers: gap between one segment's arrival and the next's departure. Both are LOCAL to
+      // the SAME airport (the connection point), so subtracting them is correct with no zone math.
+      let layoverMin = 0, maxLayover = 0, haveLayovers = true;
       for (let k = 1; k < segs.length; k++) {
-        const a = asMs(segs[k - 1].arriving_at), b = asMs(segs[k].departing_at);
-        if (a != null && b != null && b > a) maxLayover = Math.max(maxLayover, Math.round((b - a) / 60000));
+        const a = localMs(segs[k - 1].arriving_at), b = localMs(segs[k].departing_at);
+        if (a == null || b == null || b < a) { haveLayovers = false; break; }
+        const gap = Math.round((b - a) / 60000);
+        layoverMin += gap; maxLayover = Math.max(maxLayover, gap);
       }
 
-      // Does it land on a later calendar day? (Local dates, which is what the traveller reads.)
+      // True total = flying time + time spent connecting. Both parts are timezone-correct.
+      let totalMin = (haveAllDur && haveLayovers) ? (airMin + layoverMin) : null;
+
+      // Does it land on a later calendar day? Local dates are what the traveller reads.
       const dDate = dateOf(first.departing_at), aDate = dateOf(last.arriving_at);
       const dayOffset = (dDate && aDate) ? Math.round((Date.parse(aDate) - Date.parse(dDate)) / 86400000) : 0;
+
+      const timeOf = (iso) => { const m = /T(\d{2}:\d{2})/.exec(iso || ""); return m ? m[1] : null; };
 
       return {
         price: o.total_amount ? Math.round(parseFloat(o.total_amount)) : null,
