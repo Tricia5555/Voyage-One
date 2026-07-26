@@ -542,6 +542,12 @@ function exitPoint(d) {
     if (d.pick && d.pick.exploreMode === "roam" && stops.length) return stops[stops.length - 1].name;
     if (d.pick && d.pick.baseTown) return d.pick.baseTown;
   }
+  // A ground-access city (Positano, a lake town) is left through its gateway airport, which
+  // was resolved live and stored on the destination. So the next leg's flight departs from
+  // there — "ground to Naples, then fly to Madrid" — instead of from a city with no airport.
+  const g = gatewayFor(d.city);
+  if (g && !sameCity(g.air, d.city)) return g.air;
+  if (d.gatewayAir && !sameCity(d.gatewayAir, d.city)) return d.gatewayAir;
   return d.city || "";
 }
 function destNights(d) { return d.mode === "open" ? d.days : d.nights; }
@@ -1878,12 +1884,62 @@ function LiveRoute({ from, to, fallbackKnown }) {
   }
   return null;
 }
+// The gateway for ANY place, resolved live. The hand list above is a fast path for a few
+// well-known spots with nice editorial notes; everything else is computed from the place's
+// coordinates and real airport data — so a ground-access town we never listed still gets the
+// right "fly to the nearest airport, then overland" treatment. No place is special-cased.
+const GATEWAY_CACHE = {};
+function useGateway(city) {
+  const [live, setLive] = useState(undefined);
+  const bare = bareCity(city);
+  useEffect(() => {
+    let dead = false;
+    if (!bare) { setLive(null); return; }
+    // Hand list wins (it has curated notes and is instant).
+    const hand = gatewayFor(bare);
+    if (hand) { setLive(null); return; }
+    const ck = bare.toLowerCase();
+    if (GATEWAY_CACHE[ck] !== undefined) { setLive(GATEWAY_CACHE[ck]); return; }
+    // Need coordinates first, then the nearest airport to them.
+    const coords = coordsFor(bare) || GEO_CACHE[ck];
+    const run = async (lat, lng) => {
+      try {
+        const j = await fetch(`/api/nearestair?lat=${lat}&lng=${lng}&name=${encodeURIComponent(bare)}`).then((r) => r.json());
+        if (j && j.ok && j.nearest && j.groundAccess) {
+          const g = { air: j.nearest.city, code: j.nearest.code, km: j.nearest.km, options: j.options || [], note: `Nearest airport with service is ${j.nearest.city} (${j.nearest.code}), about ${j.nearest.km} km away${j.nearest.hasService === false ? " — limited scheduled service" : ""}. You arrive and leave overland.`, computed: true };
+          GATEWAY_CACHE[ck] = g;
+        } else {
+          GATEWAY_CACHE[ck] = null; // has its own airport, or none in range
+        }
+      } catch (e) { GATEWAY_CACHE[ck] = null; }
+      if (!dead) setLive(GATEWAY_CACHE[ck]);
+    };
+    if (coords) { run(coords[0], coords[1]); }
+    else {
+      // Geocode the place first, then find its gateway.
+      fetch(`/api/geocode?city=${encodeURIComponent(city)}`).then((r) => r.json()).then((g) => {
+        if (g && g.ok && g.lat != null) { GEO_CACHE[ck] = [g.lat, g.lng]; run(g.lat, g.lng); }
+        else { GATEWAY_CACHE[ck] = null; if (!dead) setLive(null); }
+      }).catch(() => { GATEWAY_CACHE[ck] = null; if (!dead) setLive(null); });
+    }
+    return () => { dead = true; };
+  }, [bare]);
+  // Hand list first (curated), then the live-computed one.
+  return gatewayFor(bare) || live || null;
+}
 function CitySection({ d, i, p, from, legSched }) {
   const pick = d.pick || {};
   const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
   const nights = destNights(d);
   const tours = pick.tours || []; const spas = pick.spas || []; const sports = pick.sports || [];
-  const gwRaw = gatewayFor(d.city);
+  const gwRaw = useGateway(d.city);
+  // Remember the resolved gateway on the destination, so the NEXT leg knows this city is
+  // reached and left through its airport (e.g. Positano's flights leave from Naples). This is
+  // what lets the app compose "ground to the airport, then fly" for any ground-access place.
+  useEffect(() => {
+    const code = pick.gatewayPick || (gwRaw && !sameCity(gwRaw.air, d.city) ? gwRaw.air : null);
+    if ((d.gatewayAir || null) !== (code || null)) p.setDest(i, { gatewayAir: code });
+  }, [gwRaw && gwRaw.air, pick.gatewayPick, d.city]);
   const gw = gwRaw && !sameCity(gwRaw.air, d.city) ? gwRaw : null;
   const flyTo = gw ? gw.air : d.city;
   // If you can reach it on the ground, flying is usually the wrong answer.
@@ -1894,7 +1950,7 @@ function CitySection({ d, i, p, from, legSched }) {
   const apHere = airportFor(surfaceTarget);
   const needsHub = d.arriveBy === "Flight" && farAway && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
   const flyFrom = from;
-  const flyInto = needsHub ? (pick.hub || "") : flyTo;
+  const flyInto = needsHub ? (pick.hub || "") : (pick.gatewayPick && gw ? pick.gatewayPick : flyTo);
   const base = d.mode === "open" ? `${d.days}-day explore` : d.mode === "flights" ? `${nights}n · flights only` : `${nights} ${nights === 1 ? "night" : "nights"}`;
   const label = legSched ? `${fmtShort(legSched.arrive)} – ${fmtShort(legSched.depart)} · ${base}` : base;
   const legNightsList = legSched ? nightsIn(legSched) : [];
@@ -1912,7 +1968,18 @@ function CitySection({ d, i, p, from, legSched }) {
     {d.mode === "open" ? <ExploreSection d={d} i={i} p={p} from={from} legSched={legSched} /> : <>
       {gw && d.arriveBy === "Flight" && <Panel icon={Car} title={`Getting from ${gw.air} to ${d.city}`}>
         <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{gw.note}</div>
-        {transferOptions(gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
+        {gw.computed && gw.options && gw.options.length > 1 && (<div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 6 }}>Fly into — your choice</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {gw.options.map((o) => { const chosenAir = pick.gatewayPick || gw.air; const sel = sameCity(chosenAir, o.city); return (
+              <button key={o.code} onClick={() => upd({ gatewayPick: o.city })} style={{ padding: "8px 13px", borderRadius: 999, fontSize: 12.5, textAlign: "left", border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white, color: t.ink }}>
+                <span style={{ fontWeight: 500 }}>{o.city} ({o.code})</span>
+                <span style={{ color: t.inkFaint }}>{`  ${o.km} km`}{o.hasService === false ? " · limited service" : ""}</span>
+              </button>); })}
+          </div>
+          <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6, lineHeight: 1.4 }}>Nearest first, but real scheduled service is ordered ahead of private-only fields. You have the final say.</div>
+        </div>)}
+        {transferOptions(pick.gatewayPick || gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
       </Panel>}
       {d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} /></Panel>}
       <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>
