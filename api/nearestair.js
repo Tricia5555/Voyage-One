@@ -94,6 +94,10 @@ export default async function handler(req, res) {
         code: a.code, city: a.cityName, airport: a.name,
         km: driveKm != null ? driveKm : a.km,        // real road km if we got it, else straight-line
         driveMin, straightKm: a.km, hasService,
+        // An airport within ~18 km straight-line effectively IS this city's own airport,
+        // whatever it's named (Florence's is "Amerigo Vespucci", Rome's "Leonardo da Vinci").
+        // Proximity is name-independent and reliable where name-matching fails.
+        isOwn: a.km <= 18,
       };
     }));
 
