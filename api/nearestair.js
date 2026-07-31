@@ -45,22 +45,64 @@ export default async function handler(req, res) {
       }))
       .sort((a, b) => a.km - b.km);
 
-    if (!airports.length) return res.status(200).json({ ok: true, name, nearest: null, note: "no-airport-in-range" });
+    if (!airports.length) return res.status(200).json({ ok: true, name, options: [], note: "no-airport-in-range" });
 
-    const nearest = airports[0];
-    // If the nearest airport is effectively in the place itself (< 25 km), the place is its
-    // own gateway — you fly straight there. Otherwise it is a ground-access place and the
-    // journey is: fly to the airport, then overland.
-    const groundAccess = nearest.km >= 25;
+    // The honest questions a traveller has: which airports are near here, and how far is the
+    // drive from each? Answer those and let the client choose — no guessing whether a city
+    // "owns" its airport. We take the nearest few, add a real driving time (Google Routes) and
+    // a quick check of whether flights actually operate, then present them.
+    const candidates = airports.slice(0, 3);
+    const gKey = process.env.GOOGLE_PLACES_KEY;
+    const probeDate = new Date(Date.now() + 45 * 86400000).toISOString().slice(0, 10);
+    const REFERENCE = "LHR";
 
-    res.setHeader("Cache-Control", "s-maxage=2592000, stale-while-revalidate=31536000");
-    return res.status(200).json({
-      ok: true,
-      name,
-      nearest: { code: nearest.code, airport: nearest.name, city: nearest.cityName, km: nearest.km },
-      groundAccess,
-      alternatives: airports.slice(1, 4).map((a) => ({ code: a.code, city: a.cityName, km: a.km })),
-    });
+    const enriched = await Promise.all(candidates.map(async (a) => {
+      // Real driving time from the place to this airport.
+      let driveMin = null, driveKm = null;
+      if (gKey) {
+        try {
+          const dr = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gKey, "X-Goog-FieldMask": "routes.duration,routes.distanceMeters" },
+            body: JSON.stringify({ origin: { location: { latLng: { latitude: lat, longitude: lng } } }, destination: { address: `${a.name} ${a.code} airport` }, travelMode: "DRIVE", routingPreference: "TRAFFIC_UNAWARE" }),
+          });
+          if (dr.ok) {
+            const dd = await dr.json();
+            const rt = (dd.routes || [])[0];
+            if (rt) {
+              const m = /^(\d+)s$/.exec(rt.duration || "");
+              if (m) driveMin = Math.round(parseInt(m[1]) / 60);
+              if (rt.distanceMeters) driveKm = Math.round(rt.distanceMeters / 1000);
+            }
+          }
+        } catch (e) { /* leave null */ }
+      }
+      // Does anything actually fly from here? (Aspen: yes, bumpy but real. Private field: no.)
+      let hasService = null;
+      if (a.code === REFERENCE) hasService = true;
+      else {
+        try {
+          const pr = await fetch("https://api.duffel.com/air/offer_requests?return_offers=false", {
+            method: "POST",
+            headers: { "Accept": "application/json", "Content-Type": "application/json", "Duffel-Version": "v2", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ data: { slices: [{ origin: a.code, destination: REFERENCE, departure_date: probeDate }], passengers: [{ type: "adult" }], cabin_class: "economy" } }),
+          });
+          if (pr.ok) { const pd = await pr.json(); hasService = !!(pd.data && pd.data.id); }
+        } catch (e) { /* unknown */ }
+      }
+      return {
+        code: a.code, city: a.cityName, airport: a.name,
+        km: driveKm != null ? driveKm : a.km,        // real road km if we got it, else straight-line
+        driveMin, straightKm: a.km, hasService,
+      };
+    }));
+
+    // Present nearest first; real service ordered ahead of private-only fields at similar range.
+    const rank = (x) => (x.hasService === true ? 0 : x.hasService === null ? 1 : 2);
+    enriched.sort((a, b) => (rank(a) - rank(b)) || ((a.driveMin ?? a.km) - (b.driveMin ?? b.km)));
+
+    res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=2592000");
+    return res.status(200).json({ ok: true, name, options: enriched });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch-failed", detail: String(e).slice(0, 160) });
   }
