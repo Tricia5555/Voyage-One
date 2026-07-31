@@ -28,8 +28,8 @@
 <body>
 <div id="root"></div>
 <script type="text/babel" data-type="module" data-presets="react">
-import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Plane, Car, TrainFront, MapPin, Plus, Minus, ArrowRight, ArrowLeft,
   Check, X, Users, Calendar, BedDouble, Utensils, Compass, Flower2, Route, Ship, ChevronUp, ArrowUp, ArrowDown, Pencil, Home, ScrollText, Sparkles, AlertTriangle, Trophy,
@@ -1077,8 +1077,8 @@ function VoyageOne() {
   const [undo, setUndo] = useState(null);
   useEffect(() => { if (!undo) return; const id = setTimeout(() => setUndo(null), 12000); return () => clearTimeout(id); }, [undo]);
 
-  useEffect(() => {
-    try { const raw = localStorage.getItem("voyage-one-trip"); if (raw) { const s = JSON.parse(raw);
+  useEffect(() => { (async () => {
+    try { if (typeof window !== "undefined" && localStorage) { const r = await localStorage.get("voyage-one-trip"); if (r && r.value) { const s = JSON.parse(r.value);
       // A trip saved by an older version has a different shape. Loading it produces
       // nonsense — duplicated cities, lost order. Better to start clean than corrupt.
       if (s.v === SCHEMA) {
@@ -1086,11 +1086,11 @@ function VoyageOne() {
         if (Array.isArray(s.dests)) setDests(s.dests.map((d) => (d.id ? d : { ...d, id: newId() })));
         if (s.returnFrom != null) setReturnFrom(s.returnFrom); if (s.returnMode != null) setReturnMode(s.returnMode); if (s.returnPick) setReturnPick(s.returnPick);
       } else if (s.v !== undefined || s.dests) { setStale(true); }
-    } } catch (e) {} setHydrated(true);
-  }, []);
+    } } } catch (e) {} setHydrated(true);
+  })(); }, []);
   useEffect(() => { if (!hydrated) return;
     const data = { v: SCHEMA, dates, travelers, fromCity, homeCity, tripName, dests, returnFrom, returnMode, returnPick };
-    const id = setTimeout(() => { try { localStorage.setItem("voyage-one-trip", JSON.stringify(data)); setSaved(Date.now()); } catch (e) {} }, 500);
+    const id = setTimeout(async () => { try { if (typeof window !== "undefined" && localStorage) { await localStorage.set("voyage-one-trip", JSON.stringify(data)); setSaved(Date.now()); } } catch (e) {} }, 500);
     return () => clearTimeout(id);
   }, [hydrated, dates, travelers, fromCity, homeCity, tripName, dests, returnFrom, returnMode, returnPick]);
   // Sensible defaults: fly home from your last stop, back to where you started.
@@ -1113,7 +1113,7 @@ function VoyageOne() {
   const startOver = async () => {
     setDates({ depart: "", ret: "" }); setTravelers([{ first: "", last: "" }]); setFromCity(""); setHomeCity(""); setTripName("");
     setDests([]); setReturnFrom(""); setReturnMode(""); setReturnPick({}); setStale(false); setStep(0);
-    try { localStorage.setItem("voyage-one-trip", JSON.stringify({ v: SCHEMA })); } catch (e) {}
+    try { if (typeof window !== "undefined" && localStorage) await localStorage.set("voyage-one-trip", JSON.stringify({ v: SCHEMA }));} catch (e) {}
   };
 
   const setDest = (i, patch) => setDests((d) => d.map((x, k) => {
@@ -1935,11 +1935,22 @@ function useGateway(city) {
     const run = async (lat, lng) => {
       try {
         const j = await fetch(`/api/nearestair?lat=${lat}&lng=${lng}&name=${encodeURIComponent(bare)}`).then((r) => r.json());
-        if (j && j.ok && j.nearest && j.groundAccess) {
-          const g = { air: j.nearest.city, code: j.nearest.code, km: j.nearest.km, options: j.options || [], note: `Nearest airport with service is ${j.nearest.city} (${j.nearest.code}), about ${j.nearest.km} km away${j.nearest.hasService === false ? " — limited scheduled service" : ""}. You arrive and leave overland.`, computed: true };
+        const opts = (j && j.ok && j.options) ? j.options : [];
+        // Is one of the nearby airports essentially THIS city's own? (very short drive and same
+        // name) — then it's not a gateway, you fly straight in. Otherwise the best option is a
+        // neighbouring airport and you go overland.
+        const norm = (s) => (s || "").toLowerCase().replace(/[^a-z]/g, "");
+        const isOwn = (o) => { const p = norm(bare), c = norm(o.city); return p && c && (p === c || p.includes(c) || c.includes(p)); };
+        const ownHere = opts.find((o) => isOwn(o));
+        if (!ownHere && opts.length) {
+          // Prefer nearest option that actually has service; else nearest.
+          const best = opts.find((o) => o.hasService) || opts[0];
+          const driveTxt = best.driveMin != null ? `about ${best.driveMin < 90 ? best.driveMin + " min" : (best.driveMin / 60).toFixed(1) + " hr"}` : (best.km ? `about ${best.km} km` : "a short drive");
+          const g = { air: best.city, code: best.code, km: best.km, driveMin: best.driveMin, options: opts,
+            note: `${bare} has no airport of its own. The nearest is ${best.city} (${best.code}), ${driveTxt} by road — you fly there and go overland. Pick a different airport below if you prefer.`, computed: true };
           GATEWAY_CACHE[ck] = g;
         } else {
-          GATEWAY_CACHE[ck] = null; // has its own airport, or none in range
+          GATEWAY_CACHE[ck] = null; // flies straight in
         }
       } catch (e) { GATEWAY_CACHE[ck] = null; }
       if (!dead) setLive(GATEWAY_CACHE[ck]);
@@ -2001,10 +2012,10 @@ function CitySection({ d, i, p, from, legSched }) {
         {gw.computed && gw.options && gw.options.length > 1 && (<div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 6 }}>Fly into — your choice</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
-            {gw.options.map((o) => { const chosenAir = pick.gatewayPick || gw.air; const sel = sameCity(chosenAir, o.city); return (
+            {gw.options.map((o) => { const chosenAir = pick.gatewayPick || gw.air; const sel = sameCity(chosenAir, o.city); const drive = o.driveMin != null ? (o.driveMin < 90 ? `${o.driveMin} min drive` : `${(o.driveMin / 60).toFixed(1)} hr drive`) : (o.km ? `${o.km} km` : ""); return (
               <button key={o.code} onClick={() => upd({ gatewayPick: o.city })} style={{ padding: "8px 13px", borderRadius: 999, fontSize: 12.5, textAlign: "left", border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white, color: t.ink }}>
                 <span style={{ fontWeight: 500 }}>{o.city} ({o.code})</span>
-                <span style={{ color: t.inkFaint }}>{`  ${o.km} km`}{o.hasService === false ? " · limited service" : ""}</span>
+                <span style={{ color: t.inkFaint }}>{drive ? `  ${drive}` : ""}{o.hasService === false ? " · limited service" : ""}</span>
               </button>); })}
           </div>
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6, lineHeight: 1.4 }}>Nearest first, but real scheduled service is ordered ahead of private-only fields. You have the final say.</div>
@@ -2737,7 +2748,6 @@ function ItineraryView(p) {
     </div>
   </div>);
 }
-
 
 createRoot(document.getElementById("root")).render(<VoyageOne />);
 
