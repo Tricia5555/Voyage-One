@@ -1939,9 +1939,9 @@ function useGateway(city) {
         // Is one of the nearby airports essentially THIS city's own? (very short drive and same
         // name) — then it's not a gateway, you fly straight in. Otherwise the best option is a
         // neighbouring airport and you go overland.
-        const norm = (s) => (s || "").toLowerCase().replace(/[^a-z]/g, "");
-        const isOwn = (o) => { const p = norm(bare), c = norm(o.city); return p && c && (p === c || p.includes(c) || c.includes(p)); };
-        const ownHere = opts.find((o) => isOwn(o));
+        // The endpoint flags an airport as this city's own by proximity (name-independent), so
+        // Florence's "Amerigo Vespucci" is correctly recognised as Florence's airport.
+        const ownHere = opts.find((o) => o.isOwn);
         if (!ownHere && opts.length) {
           // Prefer nearest option that actually has service; else nearest.
           const best = opts.find((o) => o.hasService) || opts[0];
