@@ -53,10 +53,38 @@ export default async function handler(req, res) {
   const drawn = new Map();
   pairs.forEach((p, i) => { if (!drawn.has(p)) drawn.set(p, labelFor(i)); });
 
+  // FRAME THE REGION, NOT THE WHOLE WORLD. Letting Google auto-fit every point shrinks the
+  // trip to a dot because a far origin (New York) drags the frame across an ocean. Instead we
+  // find the CLUSTER where the travel actually happens and zoom to that, so Europe (or Asia,
+  // or South America) fills the picture. Points far outside the cluster still get a marker,
+  // but they don't get to dominate the frame.
+  const coords = pairs.map((p) => p.split(",").map(Number));
+  // Median centre is robust to one far-flung outlier.
+  const lats = coords.map((c) => c[0]).sort((a, b) => a - b);
+  const lngs = coords.map((c) => c[1]).sort((a, b) => a - b);
+  const median = (arr) => arr[Math.floor(arr.length / 2)];
+  const cLat = median(lats), cLng = median(lngs);
+  // Keep only the points close to the cluster centre (within ~1500 km) to size the frame.
+  const near = coords.filter((c) => {
+    const dLa = (c[0] - cLat) * 111, dLo = (c[1] - cLng) * 111 * Math.cos(cLat * Math.PI / 180);
+    return Math.sqrt(dLa * dLa + dLo * dLo) <= 1500;
+  });
+  const framePts = near.length >= 1 ? near : coords;
+  let minLa = Math.min(...framePts.map((c) => c[0])), maxLa = Math.max(...framePts.map((c) => c[0]));
+  let minLo = Math.min(...framePts.map((c) => c[1])), maxLo = Math.max(...framePts.map((c) => c[1]));
+  // Pad the box ~18% so pins aren't jammed against the edge, with a sensible minimum span.
+  const padLa = Math.max((maxLa - minLa) * 0.18, 0.4);
+  const padLo = Math.max((maxLo - minLo) * 0.18, 0.4);
+  minLa -= padLa; maxLa += padLa; minLo -= padLo; maxLo += padLo;
+  // `visible` tells Google these corners must be in view — it then picks the tightest zoom
+  // that shows the region, instead of zooming out to include a distant origin.
+  const visible = `visible=${minLa.toFixed(4)},${minLo.toFixed(4)}|${maxLa.toFixed(4)},${maxLo.toFixed(4)}`;
+
   const params = [
     `size=${w}x${h}`,
     "scale=2",
     "maptype=roadmap",
+    visible,
     ...STYLE.map((s) => `style=${encodeURIComponent(s)}`),
     // The route line, in brass.
     `path=${encodeURIComponent("color:0xA9884Fcc|weight:3|" + pairs.join("|"))}`,
