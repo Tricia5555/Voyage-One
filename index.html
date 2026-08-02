@@ -423,9 +423,9 @@ function coordsFor(place) {
   if (k) return COORDS[k];
   // Not in the table. GEO_CACHE holds a resolved pair, or null if Google could not find it
   // (which we honour rather than asking again on every render).
-  const g = GEO_CACHE[bare.toLowerCase()];
+  const g = GEO_CACHE[geoKey(place)];
   if (g !== undefined) return g;
-  requestGeo(bare);
+  requestGeo(place);
   return null;
 }
 function distanceKm(a, b) {
@@ -1621,7 +1621,7 @@ function useGround(from, to) {
     // train to London across an ocean.
     const coordFor = async (name) => {
       const local = coordsFor(name); if (local) return local;
-      const ck = name.toLowerCase();
+      const ck = geoKey(name);
       if (GEO_CACHE[ck] !== undefined && GEO_CACHE[ck] !== null) return GEO_CACHE[ck];
       try {
         const j = await fetch(`/api/geocode?city=${encodeURIComponent(name)}`).then((r) => r.json());
@@ -2240,12 +2240,19 @@ const GEO_CACHE = {};
 const GEO_PENDING = {};
 const GEO_SUBS = new Set();
 let GEO_TICK = 0;
-function geoKey(name) { return bareCity(name).toLowerCase(); }
+// The airport code is the ONLY thing distinguishing Birmingham, Alabama from Birmingham,
+// England — so it must survive both the cache key and the request. Stripping it sent
+// "Birmingham" to Google, which answers England, and put the map pin 4,000 miles off a
+// trip the flight search had routed correctly. It also meant both Birminghams shared one
+// cache entry, so whichever resolved first won for the other.
+function geoKey(name) { const c = codeOf(name); return bareCity(name).toLowerCase() + (c ? "|" + c : ""); }
 function requestGeo(name) {
   const k = geoKey(name);
   if (!k || GEO_CACHE[k] !== undefined || GEO_PENDING[k]) return;
   GEO_PENDING[k] = true;
-  fetch(`/api/geocode?city=${encodeURIComponent(bareCity(name))}`)
+  // Send the name AS PICKED, code and all — /api/geocode is code-aware and will look up the
+  // airport when one is present, which is exactly the disambiguation we need.
+  fetch(`/api/geocode?city=${encodeURIComponent(String(name).trim())}`)
     .then((r) => r.json())
     .then((j) => { GEO_CACHE[k] = (j && j.ok && j.lat != null) ? [j.lat, j.lng] : null; })
     .catch(() => { GEO_CACHE[k] = null; })
