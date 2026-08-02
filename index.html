@@ -1483,6 +1483,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const est = cabin ? fareEstimate(from, to, cabin) : null;
   const [stopsFilter, setStopsFilter] = useState("0");
   const [whenFilter, setWhenFilter] = useState("");
+  const [viaFilter, setViaFilter] = useState("");
   const live = useLiveFlights(from, to, date, cabin, stopsFilter, whenFilter);
   // Choosing a cabin keeps the selection but clears any specific chosen flight until you pick one.
   const chooseCabin = (c) => { upd({ flight: { cabin: c, price: null, chosen: false } }); };
@@ -1518,9 +1519,51 @@ function FlightPicker({ from, to, pick, upd, date }) {
       {live.meta && live.meta.narrowedToNothing && <div style={{ fontSize: 12.5, color: "#B0563A", marginTop: 7, lineHeight: 1.5 }}>Nothing matched those filters, so every flight is shown below.</div>}
       <div style={{ height: 14 }} />
       {live.loading && <div style={{ fontSize: 13, color: t.inkFaint, padding: "10px 2px" }}>Finding real {cabin} flights…</div>}
-      {!live.loading && live.offers && live.offers.length > 0 && (<>
+      {!live.loading && live.offers && live.offers.length > 0 && (() => {
+        // ── The routing survey ────────────────────────────────────────────────
+        // A search for Birmingham to Milan comes back routed through Philadelphia, Miami and
+        // whatever else the airlines sell — same trip, same cabin, same price, but one is a
+        // 4 hr layover and the other is 11. Buried in a flat list, nobody sees the choice.
+        // So: group by WHERE it connects, and let her pick the routing first, the flight
+        // second. That is the decision a travel agent actually makes for a client.
+        const viaKey = (o) => (o.segments && o.segments.length > 1 ? (o.segments[0].toCity || o.segments[0].to) : "");
+        const groups = new Map();
+        live.offers.forEach((o) => {
+          const k = viaKey(o);
+          const g = groups.get(k) || { via: k, count: 0, lowest: null, fastest: null, worstLayover: 0, carriers: new Set() };
+          g.count += 1;
+          if (o.price != null && (g.lowest == null || o.price < g.lowest)) g.lowest = o.price;
+          if (o.totalMin != null && (g.fastest == null || o.totalMin < g.fastest)) g.fastest = o.totalMin;
+          if (o.maxLayoverMin) g.worstLayover = Math.max(g.worstLayover, o.maxLayoverMin);
+          (o.carriers && o.carriers.length ? o.carriers : [o.airline]).forEach((c) => c && g.carriers.add(c));
+          groups.set(k, g);
+        });
+        // Nonstop first if it exists, then quickest.
+        const routings = Array.from(groups.values()).sort((a, b) => (a.via === "" ? -1 : b.via === "" ? 1 : (a.fastest || 1e9) - (b.fastest || 1e9)));
+        const shown = viaFilter ? live.offers.filter((o) => viaKey(o) === viaFilter) : live.offers;
+        const hrs = (m) => `${Math.floor(m / 60)}h ${m % 60}m`;
+        return (<>
+        {routings.length > 1 && (<div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>How you could route it</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <button onClick={() => setViaFilter("")} style={{ padding: "10px 15px", borderRadius: 12, textAlign: "left", border: `1px solid ${viaFilter === "" ? t.pine : t.line}`, background: viaFilter === "" ? t.mist : t.white, color: t.ink, fontSize: 13 }}>
+              <span style={{ fontWeight: 500 }}>All routings</span>
+              <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>{live.offers.length} flights</span>
+            </button>
+            {routings.map((g) => { const on = viaFilter === g.via;
+              return (<button key={g.via || "nonstop"} onClick={() => setViaFilter(on ? "" : g.via)} style={{ padding: "10px 15px", borderRadius: 12, textAlign: "left", border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.mist : t.white, color: t.ink, fontSize: 13, minWidth: 148 }}>
+                <span style={{ fontWeight: 500 }}>{g.via ? `via ${g.via}` : "Nonstop"}</span>
+                <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>
+                  {g.fastest != null ? `${hrs(g.fastest)} best` : ""}{g.lowest != null ? ` · from ${fmt(g.lowest)}` : ""}
+                </span>
+                {g.worstLayover >= 240 ? <span style={{ display: "block", fontSize: 11, color: "#B0563A", marginTop: 2 }}>{`up to ${hrs(g.worstLayover)} on the ground`}</span> : null}
+                <span style={{ display: "block", fontSize: 11, color: t.brass, marginTop: 2 }}>{Array.from(g.carriers).slice(0, 2).join(", ")}</span>
+              </button>); })}
+          </div>
+          <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Same trip, same cabin — the difference is where you change and how long you sit there. Pick a routing to see only those flights.</div>
+        </div>)}
         <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live · Duffel</span></div>
-        {live.offers.map((o, k) => { const sel = chosen && chosen.offerId === o.offerId;
+        {shown.map((o, k) => { const sel = chosen && chosen.offerId === o.offerId;
           return <button key={o.offerId || k} onClick={() => chooseFlight(o)} style={{ width: "100%", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, marginBottom: 8, border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white }}>
             <span style={{ minWidth: 0 }}>
               <span style={{ display: "block", fontSize: 15, color: t.ink }}>{o.airline}{o.flightNo ? ` · ${o.flightNo}` : ""}</span>
@@ -1551,7 +1594,8 @@ function FlightPicker({ from, to, pick, upd, date }) {
             <span style={{ fontFamily: font.display, fontSize: 19, whiteSpace: "nowrap" }}>{fmt(o.price)}</span>
           </button>; })}
         <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel · one way · tap to add to your plan</div>
-      </>)}
+        </>);
+      })()}
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{noAirportHere
           ? `There's no airport in ${bareCity(from)} — you can't fly out from here directly. Head overland to the nearest airport first (the arrival panel shows which), then fly from there.`
