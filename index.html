@@ -415,7 +415,19 @@ const COORDS = {
   "Sydney": [-33.87,151.21], "Queenstown": [-45.03,168.66], "Cape Town": [-33.92,18.42], "Kruger": [-24.01,31.49],
   "Serengeti": [-2.33,34.83], "Kilimanjaro": [-3.43,37.07],
 };
-function coordsFor(place) { if (!place) return null; const bare = String(place).replace(/\s*\([A-Z]{3}\)\s*$/, "").trim(); const k = Object.keys(COORDS).find((x) => x.toLowerCase() === bare.toLowerCase()); return k ? COORDS[k] : null; }
+function coordsFor(place) {
+  if (!place) return null;
+  const bare = bareCity(place);
+  if (!bare) return null;
+  const k = Object.keys(COORDS).find((x) => x.toLowerCase() === bare.toLowerCase());
+  if (k) return COORDS[k];
+  // Not in the table. GEO_CACHE holds a resolved pair, or null if Google could not find it
+  // (which we honour rather than asking again on every render).
+  const g = GEO_CACHE[bare.toLowerCase()];
+  if (g !== undefined) return g;
+  requestGeo(bare);
+  return null;
+}
 function distanceKm(a, b) {
   const A = coordsFor(a), B = coordsFor(b); if (!A || !B) return null;
   const R = 6371, rad = (x) => (x * Math.PI) / 180;
@@ -478,7 +490,13 @@ function minsLabel(m) { const h = Math.floor(m / 60), r = m % 60; return h > 0 ?
 // How you'd actually get from a to b on the ground. Null means you need to fly.
 // A place is "known" only if we have real geographic data for it — coordinates AND a zone.
 // Outside that, we must not invent drives, trains or ferries. We say we don't know yet.
-function known(place) { return !!(coordsFor(place) && zoneOf(place)); }
+// "Known" means we have real coordinates for it. It used to ALSO demand membership of the
+// hardcoded ZONE table, which is what made every unlisted city unroutable — known() false
+// meant connection() returned null and drivable() returned false, so the app offered
+// nothing at all. Coordinates are what the distance maths actually needs. The sea-crossing
+// check inside drivable() only ever fires when BOTH zones are known, so it still protects
+// Palermo→Naples and Capri→Sorrento exactly as before.
+function known(place) { return !!coordsFor(place); }
 function connection(a, b) {
   // If either end is outside our verified data, we do not guess. No phantom trains.
   if (!known(a) || !known(b)) return null;
@@ -1190,6 +1208,7 @@ function Landing({ onBegin, onFresh, saved }) {
 }
 
 function Planner(p) {
+  useGeoTick(); // advisory notes and totals depend on distances that may resolve late
   useEffect(() => { if (typeof window !== "undefined") window.scrollTo(0, 0); }, [p.step]);
   const steps = ["Basics", "Departure", "Destinations", "Build"];
   const wrap = { maxWidth: p.step === 3 ? 1120 : 920, margin: "0 auto", padding: p.step === 3 ? "28px clamp(20px,5vw,48px) 150px" : "28px clamp(20px,5vw,48px) 120px" };
@@ -1987,6 +2006,7 @@ function useGateway(city) {
   return gatewayFor(bare) || live || null;
 }
 function CitySection({ d, i, p, from, legSched }) {
+  useGeoTick(); // a coordinate arriving late must repaint this panel
   const pick = d.pick || {};
   const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
   const nights = destNights(d);
@@ -2132,7 +2152,36 @@ function ItinLeg({ n, title, meta, children }) {
 }
 // Coordinates we were not born knowing. The curated list stays the fast path; anything else
 // is looked up once from Google so no city is silently dropped off the map.
+// ── Live coordinates for any place on Earth ───────────────────────────────────
+// COORDS is a hand-written table of 103 cities. It was the LIMIT of what the app could
+// reason about geographically: no coordinates meant no distance, no drive estimate, no
+// hub suggestion — Birmingham, Nashville, Bilbao and most of the world fell straight
+// through. /api/geocode already resolves any place; it just was not wired into the maths.
+//
+// So COORDS becomes a fast local CACHE rather than the source of truth. A miss fires one
+// geocode, remembers the answer (including a null, so we never ask twice for a place
+// Google cannot find), and tells anyone listening to re-render with the real number.
 const GEO_CACHE = {};
+const GEO_PENDING = {};
+const GEO_SUBS = new Set();
+let GEO_TICK = 0;
+function geoKey(name) { return bareCity(name).toLowerCase(); }
+function requestGeo(name) {
+  const k = geoKey(name);
+  if (!k || GEO_CACHE[k] !== undefined || GEO_PENDING[k]) return;
+  GEO_PENDING[k] = true;
+  fetch(`/api/geocode?city=${encodeURIComponent(bareCity(name))}`)
+    .then((r) => r.json())
+    .then((j) => { GEO_CACHE[k] = (j && j.ok && j.lat != null) ? [j.lat, j.lng] : null; })
+    .catch(() => { GEO_CACHE[k] = null; })
+    .then(() => { delete GEO_PENDING[k]; GEO_TICK++; GEO_SUBS.forEach((f) => f(GEO_TICK)); });
+}
+// Any component that reasons about distance subscribes, so a coordinate arriving late
+// repaints the panel instead of leaving a stale "we don't know" on screen.
+function useGeoTick() {
+  const [, bump] = useState(0);
+  useEffect(() => { const f = (v) => bump(v); GEO_SUBS.add(f); return () => { GEO_SUBS.delete(f); }; }, []);
+}
 function useGeocoded(points) {
   const [extra, setExtra] = useState({});
   const names = (points || []).map((x) => (x.name || "").trim()).filter((n) => n && !coordsFor(n));
@@ -2140,16 +2189,16 @@ function useGeocoded(points) {
   useEffect(() => {
     let dead = false;
     const missing = keyList ? keyList.split("|") : [];
-    const todo = missing.filter((n) => GEO_CACHE[n.toLowerCase()] === undefined);
+    const todo = missing.filter((n) => GEO_CACHE[geoKey(n)] === undefined);
     if (!todo.length) { if (missing.length) setExtra({ ...GEO_CACHE }); return; }
     Promise.all(todo.map((n) => fetch(`/api/geocode?city=${encodeURIComponent(n)}`)
       .then((r) => r.json())
-      .then((j) => { GEO_CACHE[n.toLowerCase()] = (j && j.ok && j.lat != null) ? [j.lat, j.lng] : null; })
-      .catch(() => { GEO_CACHE[n.toLowerCase()] = null; })))
+      .then((j) => { GEO_CACHE[geoKey(n)] = (j && j.ok && j.lat != null) ? [j.lat, j.lng] : null; })
+      .catch(() => { GEO_CACHE[geoKey(n)] = null; })))
       .then(() => { if (!dead) setExtra({ ...GEO_CACHE }); });
     return () => { dead = true; };
   }, [keyList]);
-  return (name) => coordsFor(name) || GEO_CACHE[(name || "").trim().toLowerCase()] || null;
+  return (name) => coordsFor(name) || GEO_CACHE[geoKey(name)] || null;
 }
 
 // A real map of the journey — actual coastlines and countries, numbered in travel order.
