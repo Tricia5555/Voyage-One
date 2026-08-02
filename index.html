@@ -215,7 +215,7 @@ const GATEWAY = {
   "Napa Valley": { air: "San Francisco", note: "San Francisco (SFO) is the gateway — about 1 hr 30 north." },
   "Algarve": { air: "Faro", note: "Faro (FAO) sits right in the middle of the coast." },
 };
-function gatewayFor(place) { if (!place) return null; const r = place.trim().toLowerCase(); const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r); return k ? GATEWAY[k] : null; }
+function gatewayFor(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r); return k ? GATEWAY[k] : null; }
 const REGION_STOPS = {
   "Amalfi Coast": [
     ["Positano", "1 hr 15 from Naples", "The postcard — pastel houses tumbling to a beach, best for glamour and boats."],
@@ -271,7 +271,7 @@ const AIRPORTS = {
   "Aspen": { code: "ASE", scale: "regional" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
   "Vancouver": { code: "YVR", scale: "intercontinental" }, "Seattle": { code: "SEA", scale: "intercontinental" },
 };
-function airportFor(city) { if (!city) return null; const k = Object.keys(AIRPORTS).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? { city: k, ...AIRPORTS[k] } : null; }
+function airportFor(city) { if (!city) return null; const k = Object.keys(AIRPORTS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? { city: k, ...AIRPORTS[k] } : null; }
 // Fast rail, minutes, city centre to city centre. Where this exists it usually beats flying.
 const RAIL = [
   ["Milan", "Florence", 110], ["Milan", "Venice", 135], ["Milan", "Rome", 180], ["Florence", "Rome", 95],
@@ -281,7 +281,7 @@ const RAIL = [
 ];
 function railBetween(a, b) {
   if (!a || !b) return null;
-  const A = a.trim().toLowerCase(), B = b.trim().toLowerCase();
+  const A = bareCity(a).toLowerCase(), B = bareCity(b).toLowerCase();
   const hit = RAIL.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? hit[2] : null;
 }
@@ -299,7 +299,7 @@ const CAR_TROUBLE = {
   "Barcelona": "The centre is a low-emission zone and parking is scarce. Not worth it.",
   "Zermatt": "The village is car-free. You park at Täsch and take the train up.",
 };
-function carTrouble(city) { if (!city) return null; const k = Object.keys(CAR_TROUBLE).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? CAR_TROUBLE[k] : null; }
+function carTrouble(city) { if (!city) return null; const k = Object.keys(CAR_TROUBLE).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? CAR_TROUBLE[k] : null; }
 const SPORTS = {
   "Positano": [["Private boat, Li Galli & the grottoes", 1100, "Your own skipper for the day, swim stops in the coves."], ["Sea kayak along the coast", 90, "Paddle to hidden beaches you cannot reach on foot."], ["Fishing with a local crew", 320, "Out at dawn from the Marina, back with lunch."]],
   "Capri": [["Sail around the island", 950, "The Faraglioni, the grottoes and a swim off the boat."], ["Dive the Blue Grotto coast", 180, "Wrecks, walls and Roman ruins under the water."], ["Tennis at the Capri Sporting Club", 70, "Clay courts above the sea, coaching on request."]],
@@ -324,7 +324,7 @@ const SPORTS = {
   "Mykonos": [["Windsurf at Kalafatis", 90, "The reliable Meltemi wind, boards and lessons."], ["Sail to Delos and Rhenia", 520, "The sacred island, then a swim off Rhenia."]],
   "Barcelona": [["Padel in Eixample", 50, "Indoor courts in the middle of the city."], ["Sail the Mediterranean at sunset", 130, "Two hours out of Port Vell."]],
 };
-function sportsFor(city) { if (!city) return []; const k = Object.keys(SPORTS).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? SPORTS[k] : []; }
+function sportsFor(city) { if (!city) return []; const k = Object.keys(SPORTS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? SPORTS[k] : []; }
 const DAYTRIPS = {
   "Amalfi Coast": [
     ["Capri for the day", "Ferry · ~40 min each way", "The Blue Grotto, the piazzetta and Monte Solaro — back before dinner.", 190, "Capri"],
@@ -356,7 +356,7 @@ function transferOptions(from, to) {
     { mode: "Hire car", why: `Freedom, though the coast road and parking are a test.`, price: null },
   ];
 }
-function dayTripsFor(region) { if (!region) return []; const r = region.trim().toLowerCase(); const k = Object.keys(DAYTRIPS).find((x) => x.toLowerCase() === r); return k ? DAYTRIPS[k] : []; }
+function dayTripsFor(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(DAYTRIPS).find((x) => x.toLowerCase() === r); return k ? DAYTRIPS[k] : []; }
 // You can only drive between places on the same landmass. Distance alone is not enough:
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
@@ -390,7 +390,7 @@ const ZONE = {
 };
 const ZONE_OF = {};
 Object.entries(ZONE).forEach(([z, list]) => list.forEach((pl) => { ZONE_OF[pl.toLowerCase()] = z; }));
-function zoneOf(place) { return place ? ZONE_OF[place.trim().toLowerCase()] || null : null; }
+function zoneOf(place) { return place ? ZONE_OF[bareCity(place).toLowerCase()] || null : null; }
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
@@ -444,7 +444,7 @@ const DRIVE_TIMES = [
 ];
 function knownDrive(a, b) {
   if (!a || !b) return null;
-  const A = a.trim().toLowerCase(), B = b.trim().toLowerCase();
+  const A = bareCity(a).toLowerCase(), B = bareCity(b).toLowerCase();
   const hit = DRIVE_TIMES.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? { mins: hit[2], km: hit[3] } : null;
 }
@@ -470,7 +470,7 @@ const FERRIES = [
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
   if (!a || !b) return null;
-  const A = a.trim().toLowerCase(), B = b.trim().toLowerCase();
+  const A = bareCity(a).toLowerCase(), B = bareCity(b).toLowerCase();
   const hit = FERRIES.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? hit[2] : null;
 }
@@ -523,11 +523,11 @@ function seeded(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(
 function round5(n) { return Math.round(n / 5) * 5; }
 const fmt = (n) => "$" + Math.round(n || 0).toLocaleString();
 const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
-function lookup(map, city) { if (!city) return null; if (map[city]) return map[city]; const k = Object.keys(map).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? map[k] : null; }
-function regionStops(region) { if (!region) return []; const r = region.trim().toLowerCase(); const k = Object.keys(REGION_STOPS).find((x) => x.toLowerCase() === r); return k ? REGION_STOPS[k] : []; }
-function sameCity(a, b) { return a && b && a.trim().toLowerCase() === b.trim().toLowerCase(); }
-function isUS(city) { const us = ["new york","miami","los angeles","san francisco","chicago","boston","washington","seattle","newark","atlanta","dallas","houston","denver","miami beach","orlando"]; if (!city) return false; const c = city.trim().toLowerCase(); return us.some((u) => c.includes(u)); }
-function stayBands(city) { const seed = hashStr("stay" + (city || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
+function lookup(map, city) { if (!city) return null; city = bareCity(city); if (map[city]) return map[city]; const k = Object.keys(map).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? map[k] : null; }
+function regionStops(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(REGION_STOPS).find((x) => x.toLowerCase() === r); return k ? REGION_STOPS[k] : []; }
+function sameCity(a, b) { return !!(a && b && bareCity(a).toLowerCase() === bareCity(b).toLowerCase()); }
+function isUS(city) { const us = ["new york","miami","los angeles","san francisco","chicago","boston","washington","seattle","newark","atlanta","dallas","houston","denver","miami beach","orlando"]; if (!city) return false; const c = bareCity(city).toLowerCase(); return us.some((u) => c.includes(u)); }
+function stayBands(city) { const seed = hashStr("stay" + (bareCity(city) || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
 function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
 function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
 function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
@@ -632,7 +632,7 @@ const TRAITS = {
   "Marrakech": ["heat","souk"], "Dubai": ["heat"], "Serengeti": ["safari"], "Kruger": ["safari"], "Galápagos": ["boat","beach"],
   "New York City": ["city-walking"], "Paris": ["city-walking","cobbles"], "London": ["city-walking","rain"], "Kyoto": ["city-walking"],
 };
-function traitsFor(city) { if (!city) return []; const k = Object.keys(TRAITS).find((x) => x.toLowerCase() === city.trim().toLowerCase()); return k ? TRAITS[k] : []; }
+function traitsFor(city) { if (!city) return []; const k = Object.keys(TRAITS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? TRAITS[k] : []; }
 
 // A few genuinely specific notes for signature cities — the kind of thing a good advisor
 // tells you, not a checklist. Keyed to the real place, so they only appear when relevant.
@@ -648,7 +648,7 @@ const INSIDER = {
   "Marrakech": ["Arrange a riad pickup for the first night", "The medina's lanes defeat taxis and GPS alike, and arriving after dark with luggage is no way to begin. Have the riad send someone to the nearest gate."],
   "Santorini": ["Sunset in Oia is worth it, and mobbed", "The crowd for it is real. A table booked in advance, or a small chartered boat off the caldera, buys you the same sky without the crush."],
 };
-function insiderFor(city) { if (!city) return null; const k = Object.keys(INSIDER).find((x) => x.toLowerCase() === (city || "").trim().toLowerCase()); return k ? INSIDER[k] : null; }
+function insiderFor(city) { if (!city) return null; const k = Object.keys(INSIDER).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? INSIDER[k] : null; }
 
 // A hand-kept calendar of the events a luxury traveller would plan a trip around — the ones
 // worth telling someone "this is on while you're there." Dates are real (verified), keyed to
@@ -860,7 +860,7 @@ function useRoute(from, to) {
   const [state, setState] = useState({ loading: false, modes: null, tried: false });
   useEffect(() => {
     let dead = false;
-    if (!from || !to || from.trim().toLowerCase() === to.trim().toLowerCase()) { setState({ loading: false, modes: null, tried: false }); return; }
+    if (!from || !to || sameCity(from, to)) { setState({ loading: false, modes: null, tried: false }); return; }
     const key = from.toLowerCase() + "|" + to.toLowerCase();
     if (ROUTE_CACHE[key] !== undefined) { setState({ loading: false, modes: ROUTE_CACHE[key], tried: true }); return; }
     setState({ loading: true, modes: null, tried: false });
