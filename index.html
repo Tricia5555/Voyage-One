@@ -1526,6 +1526,27 @@ function FlightPicker({ from, to, pick, upd, date }) {
               <span style={{ display: "block", fontSize: 15, color: t.ink }}>{o.airline}{o.flightNo ? ` · ${o.flightNo}` : ""}</span>
               <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{o.depAirport ? `${o.depAirport} ` : ""}{o.depart ? `Departs ${o.depart}` : "Time at booking"}{o.arrive ? ` → ${o.arrive}` : ""}{o.arrAirport ? ` ${o.arrAirport}` : ""}{o.dayOffset > 0 ? <span style={{ color: "#B0563A", fontWeight: 500 }}>{` +${o.dayOffset} day`}</span> : ""}{o.stops === 0 ? " · nonstop" : o.stops > 0 ? ` · ${o.stops} stop${o.stops > 1 ? "s" : ""}` : ""}</span>
               {o.totalMin ? <span style={{ display: "block", fontSize: 12, color: o.totalMin > 900 ? "#B0563A" : t.inkFaint, marginTop: 2 }}>{`${Math.floor(o.totalMin / 60)}h ${o.totalMin % 60}m total`}{o.maxLayoverMin >= 180 ? ` · ${Math.floor(o.maxLayoverMin / 60)}h ${o.maxLayoverMin % 60}m layover` : ""}</span> : null}
+              {/* WHERE it routes through. A total time and a layover length tell you a
+                  connection exists but not where you spend it — and changing planes in Munich
+                  is a different proposition from changing in Lisbon. The endpoint returns every
+                  leg; this shows them, with the airline actually operating each one. */}
+              {o.segments && o.segments.length > 1 ? (<span style={{ display: "block", marginTop: 7, paddingTop: 7, borderTop: `1px dashed ${t.line}` }}>
+                <span style={{ display: "block", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>via {o.segments.slice(0, -1).map((s) => s.toCity || s.to).join(" · ")}</span>
+                {o.segments.map((s, si) => (<span key={si} style={{ display: "block" }}>
+                  <span style={{ display: "block", fontSize: 12, color: t.inkSoft, lineHeight: 1.5 }}>
+                    <strong style={{ color: t.ink, fontWeight: 500 }}>{s.from}</strong> {s.depart} → <strong style={{ color: t.ink, fontWeight: 500 }}>{s.to}</strong> {s.arrive}
+                    {s.minutes != null ? ` · ${Math.floor(s.minutes / 60)}h ${s.minutes % 60}m` : ""}
+                  </span>
+                  <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, lineHeight: 1.45 }}>
+                    {s.flightNo || ""}{s.marketingCarrier ? ` · ${s.marketingCarrier}` : ""}
+                    {s.operatingCarrier && s.operatingCarrier !== s.marketingCarrier ? ` · operated by ${s.operatingCarrier}` : ""}
+                    {s.aircraft ? ` · ${s.aircraft}` : ""}
+                  </span>
+                  {s.layoverAfterMin != null ? <span style={{ display: "block", fontSize: 11.5, color: s.layoverAfterMin >= 240 ? "#B0563A" : t.brass, lineHeight: 1.5, margin: "3px 0 5px" }}>
+                    {`↳ ${Math.floor(s.layoverAfterMin / 60)}h ${s.layoverAfterMin % 60}m in ${s.toCity || s.to}`}{s.layoverAfterMin >= 240 ? " — a long sit" : ""}{s.layoverAfterMin < 60 ? " — tight if anything slips" : ""}
+                  </span> : null}
+                </span>))}
+              </span>) : null}
             </span>
             <span style={{ fontFamily: font.display, fontSize: 19, whiteSpace: "nowrap" }}>{fmt(o.price)}</span>
           </button>; })}
