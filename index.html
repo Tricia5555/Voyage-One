@@ -2048,7 +2048,17 @@ function CitySection({ d, i, p, from, legSched }) {
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
     </div>)}
     {needsHub && <HubPanel from={flyFrom} city={surfaceTarget} pick={pick} upd={upd} />}
-    <ArrivalPanel from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={needsHub && !pick.hub} flightDate={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} firstLabel={needsHub ? (pick.hub ? `Flying ${from} → ${pick.hub}` : `Getting here from ${from || "start"}`) : gw ? `Getting here from ${from || "start"} · fly into ${gw.air}` : `Getting here from ${from || "start"}`} />
+    <ArrivalPanel from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={needsHub && !pick.hub} flightDate={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} firstLabel={(() => {
+        // The title has to agree with the mode actually chosen. It used to say "fly into
+        // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
+        // by rail — so Florence → Portofino read as a flight, offered no flights (there are
+        // none, it is an hour by train), and advised the train. All three were on screen at
+        // once. Only claim a flight when we are actually flying.
+        const start = from || "start";
+        if (d.arriveBy !== "Flight") return `Getting here from ${start}`;
+        if (needsHub) return pick.hub ? `Flying ${start} → ${pick.hub}` : `Getting here from ${start}`;
+        return gw ? `Getting here from ${start} · fly into ${gw.air}` : `Getting here from ${start}`;
+      })()} />
     {d.mode === "open" ? <ExploreSection d={d} i={i} p={p} from={from} legSched={legSched} /> : <>
       {gw && d.arriveBy === "Flight" && <Panel icon={Car} title={`Getting from ${gw.air} to ${d.city}`}>
         <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{gw.note}</div>
