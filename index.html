@@ -2808,7 +2808,11 @@ function ItineraryView(p) {
       </div>
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "40px 0", borderBottom: `1px solid ${t.line}` }}>
         <Eyebrow>Voyage One · Private Itinerary</Eyebrow>
-        {(p.tripName || autoTripName(p)) && <div style={{ fontFamily: font.display, fontSize: 22, color: t.brass, letterSpacing: "0.02em" }}>{p.tripName || autoTripName(p)}</div>}
+        {/* Only ever show a name she typed herself. The auto-generated one collapsed a
+            six-city trip to "Rome to Milan", which reads as the whole itinerary and is
+            wrong — the real route is the line of cities below. A generated summary that
+            contradicts the thing under it is worse than no summary. */}
+        {p.tripName ? <div style={{ fontFamily: font.display, fontSize: 22, color: t.brass, letterSpacing: "0.02em" }}>{p.tripName}</div> : null}
         <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(34px,6vw,58px)", lineHeight: 1.05 }}>Curated for<br />{nameLine(p.travelers)}</h1>
         <Rule w={56} />
         <div style={{ fontSize: 14, letterSpacing: "0.06em", color: t.inkSoft }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
