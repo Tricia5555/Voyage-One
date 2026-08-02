@@ -526,7 +526,25 @@ const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
 function lookup(map, city) { if (!city) return null; city = bareCity(city); if (map[city]) return map[city]; const k = Object.keys(map).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? map[k] : null; }
 function regionStops(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(REGION_STOPS).find((x) => x.toLowerCase() === r); return k ? REGION_STOPS[k] : []; }
 function sameCity(a, b) { return !!(a && b && bareCity(a).toLowerCase() === bareCity(b).toLowerCase()); }
-function isUS(city) { const us = ["new york","miami","los angeles","san francisco","chicago","boston","washington","seattle","newark","atlanta","dallas","houston","denver","miami beach","orlando"]; if (!city) return false; const c = bareCity(city).toLowerCase(); return us.some((u) => c.includes(u)); }
+// Whether a place is in the United States. This used to be a fifteen-city list, so
+// Birmingham, Nashville, Charleston and every other American city read as foreign — which
+// switched off the long-haul advice for the people most likely to need it. Now: the ZONE
+// table if it knows, then a state suffix like "Birmingham, AL", then the airport code.
+const US_STATE_CODES = new Set(["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"]);
+const US_AIRPORT_CODES = new Set(["NYC","JFK","LGA","EWR","MIA","LAX","SFO","CHI","ORD","BOS","WAS","IAD","DCA","ATL","DFW","DEN","IAH","SAN","LAS","MCO","BNA","MSY","AUS","MSP","DTW","CLT","PHL","SLC","PDX","TPA","FLL","HNL","BHM","CHS","SAV","JAX","RDU","RIC","PIT","CLE","CVG","IND","MCI","STL","MEM","SDF","CMH","MKE","SMF","SJC","PBI","RSW","SRQ","EYW","PHX","SEA","OGG","KOA","LIH","ANC"]);
+function isUS(city) {
+  if (!city) return false;
+  const raw = String(city).trim();
+  if (zoneOf(raw) === "north-america") return true;
+  const c = bareCity(raw).toLowerCase();
+  const st = /[,\s]([a-z]{2})$/.exec(c);
+  if (st && US_STATE_CODES.has(st[1].toUpperCase())) return true;
+  const code = codeOf(raw);
+  if (code && US_AIRPORT_CODES.has(code)) return true;
+  const ap = airportFor(raw);
+  if (ap && US_AIRPORT_CODES.has(ap.code)) return true;
+  return false;
+}
 function stayBands(city) { const seed = hashStr("stay" + (bareCity(city) || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
 function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
 function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
@@ -1987,7 +2005,12 @@ function CitySection({ d, i, p, from, legSched }) {
   const surfaceTarget = gw ? gw.air : d.city;
   const surface = from && surfaceTarget && !sameCity(from, surfaceTarget) ? connection(from, surfaceTarget) : null;
   // A regional airport cannot take a long-haul. Say so BEFORE she picks a flight.
-  const farAway = from && zoneOf(from) && zoneOf(surfaceTarget) && zoneOf(from) !== zoneOf(surfaceTarget);
+  // If we do not KNOW the zones, we must not conclude "not far away" — that silently
+  // suppressed the hub panel for every city missing from the ZONE table (Birmingham,
+  // Nashville, Charleston, most of the world). Unknown means unknown: offer the options and
+  // let her judge. Only a KNOWN match on both sides rules a hub out.
+  const zFrom = zoneOf(from), zTo = zoneOf(surfaceTarget);
+  const farAway = !!(from && surfaceTarget && !sameCity(from, surfaceTarget) && (!zFrom || !zTo || zFrom !== zTo));
   const apHere = airportFor(surfaceTarget);
   const needsHub = d.arriveBy === "Flight" && farAway && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
   const flyFrom = from;
@@ -2462,7 +2485,10 @@ function buildReview(p, sch) {
     const gw = gatewayFor(d.city);
     const target = gw && !sameCity(gw.air, d.city) ? gw.air : d.city;
     const ap = airportFor(target);
-    const longHaul = i === 0 && isUS(p.fromCity) && !isUS(d.city);
+    // A crossing is a crossing wherever it falls in the trip. Gating on i === 0 meant that
+    // routing Birmingham → NYC → Florence hid the Florence advice entirely, because Florence
+    // was the second stop. What matters is that THIS leg leaves the US and lands outside it.
+    const longHaul = !!(from && isUS(from) && !isUS(d.city));
 
     // 2. The Florence problem: a regional airport quoted as a long-haul destination.
     if (longHaul && ap && ap.scale === "regional" && d.arriveBy === "Flight") {
