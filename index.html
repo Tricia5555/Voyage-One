@@ -16,14 +16,6 @@
 }
 </script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
-<script>
-(function () {
-  var script = document.createElement("script");
-  script.async = 1;
-  script.src = 'https://emrldtp.cc/NTUyNzY2.js?t=552766';
-  document.head.appendChild(script);
-})();
-</script>
 </head>
 <body>
 <div id="root"></div>
@@ -807,9 +799,19 @@ function schedule(p) {
   const out = { legs: [], valid: false, nights: 0, allowed: null, end: null };
   if (!p.dates || !p.dates.depart) return out;
   const start = new Date(p.dates.depart + "T00:00:00");
-  // A US-to-Europe redeye lands the next day.
+  // How many days the outbound flight actually costs. A US-to-Europe redeye lands the next
+  // day — but an 08:00 departure from New York lands in London the same evening and costs
+  // nothing. Assuming the redeye every time quietly stole a night: the schedule started a
+  // day late, so the first city came up one hotel night short. flights.js already computes
+  // the truth for every offer (dayOffset: 0 same day, 1 next day, 2 = +2) and chooseFlight
+  // already stores it. Use the real number whenever she has chosen a flight; fall back to
+  // the redeye assumption only while nothing is chosen yet. Works for any route and any
+  // origin, not just the Atlantic.
+  const outbound = (p.dests || [])[0] && (p.dests || [])[0].pick && (p.dests || [])[0].pick.flight;
+  const realOffset = outbound && outbound.chosen && Number.isFinite(outbound.dayOffset) ? outbound.dayOffset : null;
   const overnight = isUS(p.fromCity) && (p.dests || []).some((d) => d.city && !isUS(d.city));
-  let cur = addDays(start, overnight ? 1 : 0);
+  const shift = realOffset != null ? realOffset : (overnight ? 1 : 0);
+  let cur = addDays(start, shift);
   (p.dests || []).forEach((d) => {
     const n = legNights(d) || 0;
     const leg = { arrive: cur, nights: n, depart: addDays(cur, n), stops: [] };
@@ -828,7 +830,7 @@ function schedule(p) {
   out.end = cur;
   if (p.dates.ret) {
     const ret = new Date(p.dates.ret + "T00:00:00");
-    out.allowed = Math.round((ret - start) / 86400000) - (overnight ? 1 : 0);
+    out.allowed = Math.round((ret - start) / 86400000) - shift;
   }
   out.valid = true;
   return out;
