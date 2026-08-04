@@ -34,6 +34,11 @@ const t = {
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
 const LEVELS = ["UltraLux", "Luxury", "Refined", "Essential"];
+// Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
+// Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
+// the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
+// transatlantic crossings (Boston–Shannon ~4,600 km) sit well above.
+const LONGHAUL_MIN_KM = 3000;
 // A realistic fare ESTIMATE from distance and cabin — labeled "est." everywhere it shows.
 // Not a booked price, but honest enough that your total means something: American business
 // to Paris lands near $3,000 one-way, as it should. Real fares replace these at booking.
@@ -2099,7 +2104,16 @@ function CitySection({ d, i, p, from, legSched }) {
   const zFrom = zoneOf(from), zTo = zoneOf(surfaceTarget);
   const farAway = !!(from && surfaceTarget && !sameCity(from, surfaceTarget) && (!zFrom || !zTo || zFrom !== zTo));
   const apHere = airportFor(surfaceTarget);
-  const needsHub = d.arriveBy === "Flight" && farAway && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
+  // A "regional" airport means no LONG-HAUL metal lands there — it was never a claim that
+  // nothing flies in at all. London to Naples is a 2h narrow-body hop that BA and easyJet
+  // fly daily; routing it via Rome was wrong. farAway alone can't carry this, because ZONE
+  // puts Britain and continental Europe in different zones (correct for ferries, useless as
+  // a proxy for "needs a widebody"). So: only a KNOWN short distance rules the hub out.
+  // Unknown coordinates still fall through to the cautious path, exactly as farAway does —
+  // ignorance must not be read as "near". Universal: any origin, any regional airport.
+  const legKm = distanceKm(from, surfaceTarget);
+  const knownShortHaul = legKm != null && legKm <= LONGHAUL_MIN_KM;
+  const needsHub = d.arriveBy === "Flight" && farAway && !knownShortHaul && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
   const flyFrom = from;
   const flyInto = needsHub ? (pick.hub || "") : (pick.gatewayPick && gw ? pick.gatewayPick : flyTo);
   const base = d.mode === "open" ? `${d.days}-day explore` : d.mode === "flights" ? `${nights}n · flights only` : `${nights} ${nights === 1 ? "night" : "nights"}`;
