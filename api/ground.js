@@ -61,8 +61,21 @@ export default async function handler(req, res) {
 
   // Coordinates beat names every time: "Birmingham" is two cities, but 33.56,-86.75 is one
   // place. When the app knows where it means, we route on that and nothing is ambiguous.
-  const O = haveCoords ? { location: { latLng: { latitude: la1, longitude: lo1 } } } : { address: from };
-  const D = haveCoords ? { location: { latLng: { latitude: la2, longitude: lo2 } } } : { address: to };
+  //
+  // And when it does NOT know, we stop. The fallback used to hand the bare name to Google,
+  // which answered confidently and often wrongly: "Birmingham" became England, and a leg
+  // from Alabama to Milan came back as a sixteen-hour drive. A wrong answer delivered with
+  // certainty is worse than no answer, so an unresolved endpoint now returns nothing to say.
+  // Universal: it is a rule about missing coordinates, not about any particular city.
+  if (!haveCoords) {
+    return res.status(200).json({
+      ok: true, from, to, verdict: "unknown", drive: null, transit: null,
+      modes: { fly: true, drive: false, chauffeur: false, rail: false, ferry: false }, note: "",
+    });
+  }
+
+  const O = { location: { latLng: { latitude: la1, longitude: lo1 } } };
+  const D = { location: { latLng: { latitude: la2, longitude: lo2 } } };
 
   const [drive, transit, driveNoFerry] = await Promise.all([
     route(key, O, D, "DRIVE"),
@@ -77,15 +90,19 @@ export default async function handler(req, res) {
   if (drive) verdict = drive.minutes != null && drive.minutes > PUNISHING_DRIVE_MIN ? "far" : "land";
   else if (transit) verdict = "land"; // rail or ferry-served even where driving is not offered
 
-  let straightKm = null;
-  if (haveCoords) {
-    const R = 6371, dLa = (la2 - la1) * Math.PI / 180, dLo = (lo2 - lo1) * Math.PI / 180;
-    const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * Math.PI / 180) * Math.cos(la2 * Math.PI / 180) * Math.sin(dLo / 2) ** 2;
-    straightKm = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-  }
+  const R = 6371, dLa = (la2 - la1) * Math.PI / 180, dLo = (lo2 - lo1) * Math.PI / 180;
+  const hav = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * Math.PI / 180) * Math.cos(la2 * Math.PI / 180) * Math.sin(dLo / 2) ** 2;
+  const straightKm = Math.round(R * 2 * Math.atan2(Math.sqrt(hav), Math.sqrt(1 - hav)));
+
   const SHORT_WATER_KM = 120;   // a boat ride, not a voyage
-  const shortWater = verdict === "water" && straightKm != null && straightKm <= SHORT_WATER_KM;
-  const openWater = verdict === "water" && (straightKm == null || straightKm > SHORT_WATER_KM);
+  // Past this, nobody was ever going to drive it, so explaining that there is no road is
+  // noise at best and faintly absurd at worst — "no road connects Birmingham and Milan" is
+  // true and useless. Under it, the note earns its place: Barcelona to Mallorca or Naples to
+  // Capri are legs where a traveller genuinely wonders whether the car can come.
+  const NO_ROAD_EXPLAIN_KM = 1000;
+  const shortWater = verdict === "water" && straightKm <= SHORT_WATER_KM;
+  const openWater = verdict === "water" && straightKm > SHORT_WATER_KM;
+  const worthExplaining = straightKm <= NO_ROAD_EXPLAIN_KM;
 
   // What the traveller should actually be shown for this leg.
   const modes = {
@@ -100,8 +117,8 @@ export default async function handler(req, res) {
 
   // Plain-language reason, so the app can explain itself rather than just hiding buttons.
   let note = "";
-  if (shortWater) note = `No road connects ${from} and ${to}${straightKm != null ? ` — they are about ${straightKm} km apart across water` : ""}. This leg is a boat.`;
-  else if (openWater) note = `No road connects ${from} and ${to} — this leg is over open water, so it is a flight.`;
+  if (shortWater) note = `No road connects ${from} and ${to} — they are about ${straightKm} km apart across water. This leg is a boat.`;
+  else if (openWater) note = worthExplaining ? `No road connects ${from} and ${to} — this leg is over open water, so it is a flight.` : "";
   else if (driveNeedsFerry) note = `The only road route puts the car on a ferry — about ${Math.round(drive.minutes / 60)} hours all in${drive.km ? ` and ${drive.km} km` : ""}. Flying is usually the sane choice; take the car only if you want it once you arrive.`;
   else if (verdict === "far") note = `Driving is about ${Math.round(drive.minutes / 60)} hours${drive.km ? ` and ${drive.km} km` : ""} — a flight will win back most of a day.`;
   else if (drive && drive.minutes <= COMFORTABLE_DRIVE_MIN) note = `About ${Math.round(drive.minutes / 60 * 10) / 10} hours by road${drive.km ? ` (${drive.km} km)` : ""} — comfortably driveable, and quicker door to door than flying.`;
