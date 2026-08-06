@@ -1119,7 +1119,9 @@ async function supa() {
   try {
     const mod = await import("https://esm.sh/@supabase/supabase-js@2");
     _sb = mod.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { persistSession: storageWorks(), autoRefreshToken: true, detectSessionInUrl: false },
+      // detectSessionInUrl must be ON: a password-reset link brings its token back in the URL
+      // fragment, and with this off the link lands on the site and silently does nothing.
+      auth: { persistSession: storageWorks(), autoRefreshToken: true, detectSessionInUrl: true },
     });
   } catch (e) { _sb = null; }
   return _sb;
@@ -1257,6 +1259,7 @@ function VoyageOne() {
   const [migratable, setMigratable] = useState([]);
   // The sign-in card lives at the root so it can be opened from any screen, not just Landing.
   const [authPanel, setAuthPanel] = useState(false);
+  const [recovery, setRecovery] = useState(false);
   const [migrating, setMigrating] = useState(false);
   // Nothing here should be a one-way door. Removing anything keeps it for a minute.
   const [undo, setUndo] = useState(null);
@@ -1278,7 +1281,12 @@ function VoyageOne() {
         if (alive) setUser(r && r.data && r.data.session ? r.data.session.user : null);
       } catch (e) {}
       try {
-        const s = sb.auth.onAuthStateChange((_evt, session) => { setUser(session ? session.user : null); });
+        const s = sb.auth.onAuthStateChange((evt, session) => {
+          setUser(session ? session.user : null);
+          // Arriving from a reset email. The session is real but temporary — the only thing
+          // to do with it is choose a new password, so say so instead of silently signing in.
+          if (evt === "PASSWORD_RECOVERY") setRecovery(true);
+        });
         unsub = s && s.data && s.data.subscription ? s.data.subscription : null;
       } catch (e) {}
       if (alive) { clearTimeout(giveUp); setAuthReady(true); }
@@ -1309,7 +1317,7 @@ function VoyageOne() {
 
   // Journeys already saved in this browser do not vanish when an account appears, but they
   // are not in it either. Offer to copy them up rather than doing it unasked.
-  useEffect(() => { if (user) setAuthPanel(false); }, [user]);
+  useEffect(() => { if (user && !recovery) setAuthPanel(false); }, [user, recovery]);
   useEffect(() => {
     if (!user || !canSave) { setMigratable([]); return; }
     setMigratable(readIndex());
@@ -1444,6 +1452,27 @@ function VoyageOne() {
       return { err: "", confirm: !(r.data && r.data.session) };
     } catch (e) { return { err: "Could not reach the account service." }; }
   };
+  // Sends the email. Supabase deliberately reports success whether or not the address is
+  // registered — telling a stranger which emails have accounts here would be a leak.
+  const doReset = async (email) => {
+    const sb = await supa();
+    if (!sb) return "Accounts are unavailable just now.";
+    try {
+      const r = await sb.auth.resetPasswordForEmail((email || "").trim(), {
+        redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      });
+      return r.error ? r.error.message : "";
+    } catch (e) { return "Could not reach the account service."; }
+  };
+  // Called after the emailed link has signed them in on a temporary recovery session.
+  const doSetPassword = async (password) => {
+    const sb = await supa();
+    if (!sb) return "Accounts are unavailable just now.";
+    try {
+      const r = await sb.auth.updateUser({ password });
+      return r.error ? r.error.message : "";
+    } catch (e) { return "Could not reach the account service."; }
+  };
   const doSignOut = async () => {
     const sb = await supa();
     if (sb) { try { await sb.auth.signOut(); } catch (e) {} }
@@ -1480,9 +1509,14 @@ function VoyageOne() {
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
-    {authPanel && !user && (<div onClick={() => setAuthPanel(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(34,29,25,.42)", display: "grid", placeItems: "center", padding: 20 }}>
+    {recovery && (<div style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(34,29,25,.42)", display: "grid", placeItems: "center", padding: 20 }}>
+      <div style={{ width: "100%", maxWidth: 420, display: "flex" }}>
+        <NewPasswordPanel onSet={doSetPassword} onDone={() => { setRecovery(false); setAuthPanel(false); }} />
+      </div>
+    </div>)}
+    {authPanel && !user && !recovery && (<div onClick={() => setAuthPanel(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(34,29,25,.42)", display: "grid", placeItems: "center", padding: 20 }}>
       <div onClick={(ev) => ev.stopPropagation()} style={{ width: "100%", maxWidth: 420, display: "flex" }}>
-        <AccountPanel onSignIn={doSignIn} onSignUp={doSignUp} onClose={() => setAuthPanel(false)} />
+        <AccountPanel onSignIn={doSignIn} onSignUp={doSignUp} onReset={doReset} onClose={() => setAuthPanel(false)} />
       </div>
     </div>)}
   </div>);
@@ -1508,9 +1542,39 @@ function SaveJourneyPrompt({ onOpen }) {
   </div>);
 }
 
+// Shown when someone arrives from a reset email. They are technically signed in at this
+// point, on a short-lived recovery session — but the only useful thing to do with it is
+// choose a new password, so we ask for that rather than dropping them into the app.
+function NewPasswordPanel({ onSet, onDone }) {
+  const [pw, setPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const box = { fontFamily: font.ui, fontSize: 15.5, color: t.ink, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, padding: "13px 14px", outline: "none", width: "100%", boxSizing: "border-box" };
+  const submit = async () => {
+    if (busy) return;
+    setMsg("");
+    if (pw.length < 8) { setMsg("Please choose a password of at least eight characters."); return; }
+    setBusy(true);
+    const err = await onSet(pw);
+    setBusy(false);
+    if (err) setMsg(err); else onDone();
+  };
+  return (<div style={{ width: "100%", maxWidth: 420, background: t.card, border: `1px solid ${t.line}`, borderRadius: 16, padding: "22px 22px 20px", textAlign: "left", display: "flex", flexDirection: "column", gap: 13 }}>
+    <div style={{ fontFamily: font.display, fontSize: 23, lineHeight: 1.15 }}>Choose a new password</div>
+    <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.45 }}>Eight characters or more. Use Show to check it before you save it.</div>
+    <div style={{ position: "relative", width: "100%" }}>
+      <input type={showPw ? "text" : "password"} autoComplete="new-password" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="New password" value={pw} onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") submit(); }} style={{ ...box, paddingRight: 62 }} />
+      <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "Hide password" : "Show password"} style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: t.pineSoft, fontSize: 12.5, fontFamily: font.ui, letterSpacing: "0.04em", padding: "8px 10px", cursor: "pointer" }}>{showPw ? "Hide" : "Show"}</button>
+    </div>
+    {msg && <div style={{ fontSize: 13, color: t.brass, lineHeight: 1.5 }}>{msg}</div>}
+    <button onClick={submit} disabled={busy} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, letterSpacing: "0.04em", opacity: busy ? 0.6 : 1 }}>{busy ? "One moment…" : "Save new password"}</button>
+  </div>);
+}
+
 // The sign-in card. Deliberately one field set with a mode switch rather than two screens:
 // people mistype an address far less often when the box does not move under them.
-function AccountPanel({ onSignIn, onSignUp, onClose }) {
+function AccountPanel({ onSignIn, onSignUp, onReset, onClose }) {
   const [mode, setMode] = useState("in");
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
@@ -1523,8 +1587,17 @@ function AccountPanel({ onSignIn, onSignUp, onClose }) {
   const submit = async () => {
     if (busy) return;
     setMsg(""); setNote("");
-    if (!email.trim() || !pw) { setMsg("Both an email address and a password are needed."); return; }
+    if (!email.trim()) { setMsg("An email address is needed."); return; }
+    if (mode !== "forgot" && !pw) { setMsg("A password is needed too."); return; }
     if (mode === "up" && pw.length < 8) { setMsg("Please choose a password of at least eight characters."); return; }
+    if (mode === "forgot") {
+      setBusy(true);
+      const err = await onReset(email);
+      setBusy(false);
+      if (err) setMsg(err);
+      else setNote("If an account exists for " + email.trim() + ", a link to set a new password is on its way. It expires in an hour.");
+      return;
+    }
     setBusy(true);
     if (mode === "in") {
       const err = await onSignIn(email, pw);
@@ -1543,8 +1616,8 @@ function AccountPanel({ onSignIn, onSignUp, onClose }) {
   return (<div style={{ width: "100%", maxWidth: 420, background: t.card, border: `1px solid ${t.line}`, borderRadius: 16, padding: "22px 22px 20px", textAlign: "left", display: "flex", flexDirection: "column", gap: 13 }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
       <div>
-        <div style={{ fontFamily: font.display, fontSize: 23, lineHeight: 1.15 }}>{mode === "in" ? "Sign in" : "Keep your journeys"}</div>
-        <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 4, lineHeight: 1.45 }}>{mode === "in" ? "Your journeys, on every device you use." : "Only if you would like them saved. You are welcome to plan an entire trip first and decide later — nothing here is locked."}</div>
+        <div style={{ fontFamily: font.display, fontSize: 23, lineHeight: 1.15 }}>{mode === "in" ? "Sign in" : mode === "forgot" ? "Set a new password" : "Keep your journeys"}</div>
+        <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 4, lineHeight: 1.45 }}>{mode === "in" ? "Your journeys, on every device you use." : mode === "forgot" ? "Tell us the address you signed up with and we will send you a link." : "Only if you would like them saved. You are welcome to plan an entire trip first and decide later — nothing here is locked."}</div>
       </div>
       <button onClick={onClose} aria-label="Close" style={{ background: "none", border: "none", color: t.inkFaint, padding: 4, cursor: "pointer", lineHeight: 0 }}><X size={17} /></button>
     </div>
@@ -1555,18 +1628,21 @@ function AccountPanel({ onSignIn, onSignUp, onClose }) {
       Just an email and a password — enough for your journeys to find you again, wherever you sign in.
     </div>
     <input type="email" autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} style={box} />
-    <div style={{ position: "relative", width: "100%" }}>
+    {mode !== "forgot" && <div style={{ position: "relative", width: "100%" }}>
       <input type={showPw ? "text" : "password"} autoComplete={mode === "in" ? "current-password" : "new-password"} autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="Password" value={pw} onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") submit(); }} style={{ ...box, paddingRight: 62 }} />
       <button type="button" onClick={() => setShowPw(!showPw)} aria-label={showPw ? "Hide password" : "Show password"} style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: t.pineSoft, fontSize: 12.5, fontFamily: font.ui, letterSpacing: "0.04em", padding: "8px 10px", cursor: "pointer" }}>{showPw ? "Hide" : "Show"}</button>
-    </div>
+    </div>}
     {msg && <div style={{ fontSize: 13, color: t.brass, lineHeight: 1.5 }}>{msg}</div>}
     {note && <div style={{ fontSize: 13, color: t.pine, lineHeight: 1.5 }}>{note}</div>}
     <button onClick={submit} disabled={busy} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, letterSpacing: "0.04em", opacity: busy ? 0.6 : 1 }}>
-      {busy ? "One moment…" : mode === "in" ? "Sign in" : "Save my journeys"}
+      {busy ? "One moment…" : mode === "in" ? "Sign in" : mode === "forgot" ? "Email me a link" : "Save my journeys"}
     </button>
-    <button onClick={() => { setMode(mode === "in" ? "up" : "in"); setMsg(""); setNote(""); }} style={{ background: "none", border: "none", color: t.pineSoft, fontSize: 13.5, textDecoration: "underline", padding: 2, cursor: "pointer" }}>
+    <button onClick={() => { setMode(mode === "up" ? "in" : mode === "forgot" ? "in" : "up"); setMsg(""); setNote(""); }} style={{ background: "none", border: "none", color: t.pineSoft, fontSize: 13.5, textDecoration: "underline", padding: 2, cursor: "pointer" }}>
       {mode === "in" ? "I have not set a password yet" : "I already have an account"}
     </button>
+    {mode === "in" && <button onClick={() => { setMode("forgot"); setMsg(""); setNote(""); setPw(""); }} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12.5, textDecoration: "underline", padding: 2, cursor: "pointer" }}>
+      I have forgotten my password
+    </button>}
   </div>);
 }
 
@@ -2101,6 +2177,50 @@ function PlaceRow({ item, selected, onClick, sub, price }) {
     </span>
   </button>);
 }
+// "I already know where I want to stay." The browse list is twenty properties, which is the
+// right number to choose between and nowhere near every hotel in a city — Villa San Michele
+// sits in Fiesole and may never appear under "best hotels in Florence". Rather than widening
+// the browse list for everyone (double the API calls, every city, every client, to serve a
+// case that only arises when someone has a name in mind), we ask Google for the name itself.
+// One call, only when used. Works for any property in any city; nothing is hard-coded.
+function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
+  const [q, setQ] = useState("");
+  const [state, setState] = useState({ loading: false, matches: null, tried: false, failed: false });
+  const run = async () => {
+    const term = q.trim();
+    if (!term || !city || state.loading) return;
+    setState({ loading: true, matches: null, tried: false, failed: false });
+    try {
+      const j = await fetch(`/api/places?kind=${encodeURIComponent(kind)}&city=${encodeURIComponent(city)}&find=${encodeURIComponent(term)}`).then((r) => r.json());
+      if (j && j.ok) setState({ loading: false, matches: j.matches || [], tried: true, failed: false });
+      else setState({ loading: false, matches: null, tried: true, failed: true });
+    } catch (e) { setState({ loading: false, matches: null, tried: true, failed: true }); }
+  };
+  const clear = () => { setQ(""); setState({ loading: false, matches: null, tried: false, failed: false }); };
+  return (<div style={{ marginTop: 14, borderTop: `1px solid ${t.line}`, paddingTop: 14 }}>
+    <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 8, lineHeight: 1.5 }}>{label}</div>
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") run(); }}
+        placeholder={kind === "hotels" ? "Hotel name" : "Restaurant name"}
+        style={{ flex: "1 1 200px", fontFamily: font.ui, fontSize: 14.5, color: t.ink, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, padding: "11px 13px", outline: "none", minWidth: 0 }} />
+      <button onClick={run} disabled={state.loading || !q.trim()} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "11px 22px", fontSize: 13.5, letterSpacing: "0.04em", opacity: state.loading || !q.trim() ? 0.5 : 1 }}>{state.loading ? "Looking…" : "Search"}</button>
+      {(state.tried || q) && <button onClick={clear} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "11px 18px", fontSize: 13.5, color: t.inkFaint }}>Clear</button>}
+    </div>
+    {state.failed && <div style={{ fontSize: 12.5, color: t.brass, marginTop: 10, lineHeight: 1.5 }}>That search could not be completed just now. Please try again in a moment.</div>}
+    {state.tried && !state.failed && state.matches && state.matches.length === 0 && (
+      <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 10, lineHeight: 1.5 }}>Nothing found for “{q.trim()}” near {city}. Try the full name, or a different spelling.</div>)}
+    {state.matches && state.matches.length > 0 && (<div style={{ marginTop: 10 }}>
+      {state.matches.map((r, k) => {
+        const sel = selectedName && selectedName === r.name;
+        const per = r.estRate || null;
+        return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
+          sub={`${r.level}${r.band ? " · " + r.band : ""} · ~${fmt(per)}${kind === "hotels" ? "/night est." : "/person est."}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
+          price={kind === "hotels" && nights ? fmt((per || 0) * nights) : fmt(per)} />;
+      })}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · the level shown is our own reading of price band and reputation.</div>
+    </div>)}
+  </div>);
+}
 function HotelPicker({ city, nights, pick, upd }) {
   const [level, setLevel] = useState(pick.stay ? pick.stay.level : "");
   const remote = useRemote("hotels", city);
@@ -2120,6 +2240,9 @@ function HotelPicker({ city, nights, pick, upd }) {
       return <PlaceRow key={r.id || k} item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null } })}
         sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />; })}
     {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
+    {city && <FindPlace city={city} kind="hotels" nights={nights} label="Already have a hotel in mind? Search for it by name."
+      selectedName={pick.stay ? pick.stay.name : null}
+      onPick={(r, sel) => upd({ stay: sel ? null : { level: r.level, name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null } })} />}
   </>);
 }
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
