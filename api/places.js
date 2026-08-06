@@ -36,12 +36,20 @@ export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
   const city = (req.query.city || "").toString().trim();
   const kind = (req.query.kind || "hotels").toString();
+  // A named search. The browse list is deliberately a shortlist of twenty, which is the
+  // right size to choose from but far too small to contain every property in a city like
+  // Florence. When a traveller already knows the name, asking Google for THAT is both
+  // cheaper and more useful than widening the browse list for everyone.
+  const find = (req.query.find || "").toString().trim().slice(0, 120);
 
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
   if (!["hotels", "restaurants"].includes(kind)) return res.status(200).json({ ok: false, reason: "bad-kind" });
 
-  const query = kind === "hotels" ? `best hotels in ${city}` : `best restaurants in ${city}`;
+  const browseQuery = kind === "hotels" ? `best hotels in ${city}` : `best restaurants in ${city}`;
+  // The city stays in the query so "Cipriani" finds the Venice one, not the New York one.
+  // The kind word keeps a hotel search off restaurants of the same name, and vice versa.
+  const query = find ? `${find} ${kind === "hotels" ? "hotel" : "restaurant"} ${city}` : browseQuery;
 
   try {
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
@@ -61,7 +69,7 @@ export default async function handler(req, res) {
           "places.googleMapsUri",
         ].join(","),
       },
-      body: JSON.stringify({ textQuery: query, maxResultCount: 20 }),
+      body: JSON.stringify({ textQuery: query, maxResultCount: find ? 5 : 20 }),
     });
 
     if (!r.ok) {
@@ -166,6 +174,20 @@ export default async function handler(req, res) {
         maps: p.googleMapsUri || null,
       });
     });
+    // A named search answers a different question, so it gets a different shape: one flat
+    // list in GOOGLE'S order, not ours. For a browse list, best-reviewed first is right. For
+    // "find me the Villa San Michele", relevance to what was typed is right — re-sorting by
+    // rating would push the property she asked for below a neighbour with more reviews.
+    // Each result still carries its tier, so it slots into the same picker unchanged.
+    if (find) {
+      const matches = [];
+      for (const k of Object.keys(grouped)) matches.push(...grouped[k]);
+      const order = places.map((p) => p.id);
+      matches.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+      res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
+      return res.status(200).json({ ok: true, city, kind, find, matches: matches.slice(0, 5), attribution: "Powered by Google" });
+    }
+
     // Best-reviewed first within each tier; a curated shortlist, not the whole list.
     for (const k of Object.keys(grouped)) {
       grouped[k].sort((a, b) => (b.rating || 0) - (a.rating || 0));
