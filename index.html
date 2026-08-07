@@ -3256,7 +3256,7 @@ function buildReview(p, sch) {
   // 6b. The last morning is not free — the plane leaves.
   if (sch.valid && sch.end && p.returnFrom && p.homeCity) {
     const dt = departTime(p.returnFrom, p.homeCity);
-    if (dt) {
+    {
       const endKey = sch.end.toISOString().slice(0, 10);
       const clashes = [];
       (p.dests || []).forEach((d) => {
@@ -3264,9 +3264,15 @@ function buildReview(p, sch) {
         [...(pk.sports || []), ...(pk.tours || [])].forEach((x) => { if (x.date === endKey) clashes.push(x.name); });
         (pk.days || []).forEach((x) => { if (x.date === endKey) clashes.push(x.name); });
       });
+      // A lesson booked on the morning you fly home is a problem on a two-hour domestic hop
+      // exactly as much as on a transatlantic crossing. This used to wait for departTime to
+      // have an opinion, and departTime only speaks for long-haul legs — so the warning went
+      // quiet on precisely the short flights where a mistimed booking is easiest to make.
+      // Now it always fires; the only thing distance changes is whether we can name a clock.
       if (clashes.length) add("stop", `${fmtList(clashes)} on the day you fly home`,
-        `Your flight leaves ${p.returnFrom} about ${dt.time}, which means the airport by ${clockAdd(dt.time, -150).label}. ${dt.note} There is no morning to play with — move it, or move the flight.`);
-      else if (isUS(p.homeCity) && !isUS(p.returnFrom)) add("note", "The last day is not a day",
+        dt ? `Your flight leaves ${p.returnFrom} about ${dt.time}, which means the airport by ${clockAdd(dt.time, -150).label}. ${dt.note} There is no morning to play with — move it, or move the flight.`
+           : `That is the day you fly out of ${p.returnFrom}, and the airport will take the middle of it whatever time the flight leaves. Move this, or move the flight.`);
+      else if (dt && isUS(p.homeCity) && !isUS(p.returnFrom)) add("note", "The last day is not a day",
         `The flight home leaves about ${dt.time}, so you are up at six and gone. Do not plan anything for that morning, and do the goodbyes the night before.`);
     }
   }
