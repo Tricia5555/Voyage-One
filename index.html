@@ -39,6 +39,21 @@ const LEVELS = ["UltraLux", "Luxury", "Refined", "Essential"];
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
 // transatlantic crossings (Boston–Shannon ~4,600 km) sit well above.
 const LONGHAUL_MIN_KM = 3000;
+// Is this leg a genuine long crossing? Measured, not guessed.
+//
+// Every "are we going abroad" test in this file used to ask isUS(from) && !isUS(to). But
+// isUS checks a hardcoded list of fifty-nine US airports, so !isUS means "not on our list"
+// — a fact about our ignorance, not about geography. Providence is not on that list, and a
+// Birmingham to Rhode Island trip was therefore told about Schengen, European plug sockets,
+// biometric borders and an eastbound redeye.
+//
+// Distance cannot be ignorant in that way. It is either known or it is not, and when it is
+// not we say nothing rather than guessing. Works for every city pair on earth, and needs no
+// list to be kept up to date.
+function isLongHaul(a, b) {
+  const km = distanceKm(a, b);
+  return km != null && km >= LONGHAUL_MIN_KM;
+}
 // A realistic fare ESTIMATE from distance and cabin — labeled "est." everywhere it shows.
 // Not a booked price, but honest enough that your total means something: American business
 // to Paris lands near $3,000 one-way, as it should. Real fares replace these at booking.
@@ -744,7 +759,7 @@ function buildPrep(p) {
   const tags = new Set(); places.forEach((n) => traitsFor(n).forEach((x) => tags.add(x)));
   const has = (x) => tags.has(x);
   const drives = (p.dests || []).some((d) => d.arriveBy === "Self-drive" || (d.pick && d.pick.transfer && d.pick.transfer.mode === "Hire car")) || p.returnMode === "Self-drive" || has("driving");
-  const longHaul = isUS(p.fromCity) && places.some((n) => !isUS(n));
+  const longHaul = places.some((n) => isLongHaul(p.fromCity, n));
   const dressy = (p.dests || []).some((d) => (d.pick && (d.pick.dines || []).some((x) => x.level === "UltraLux")) || (d.pick && d.pick.stay && d.pick.stay.level === "UltraLux"));
   const dep = p.dates && p.dates.depart ? new Date(p.dates.depart + "T00:00:00") : null;
   const etias = dep ? (dep.getFullYear() > 2026 || (dep.getFullYear() === 2026 && dep.getMonth() >= 9)) : false;
@@ -772,7 +787,7 @@ function buildPrep(p) {
   if (dressy) pack.push(["One jacket, one dressy option", "The rooms and tables you have chosen expect it after dark."]);
   if (longHaul) pack.push(["A Type C/F plug adapter", "Europe's two-pin sockets will not take a US plug."]);
   const before = [];
-  before.push(["Check your passport now, not the week before", "Schengen wants at least three months' validity beyond your return, and a passport issued within the last ten years. Both are enforced."]);
+  if (longHaul) before.push(["Check your passport now, not the week before", "Schengen wants at least three months' validity beyond your return, and a passport issued within the last ten years. Both are enforced."]);
   if (longHaul) before.push(["Expect the new biometric border", "Europe's Entry/Exit System has been live since April 2026 — fingerprints and a face scan on arrival. No fee, nothing to apply for, but allow extra time at passport control."]);
   if (longHaul && etias) before.push(["Watch for ETIAS", "The EU's travel authorisation launches in the last quarter of 2026 — €20, online, valid three years. It is not open yet, so any site taking applications today is a scam. Check the official EU site before you fly."]);
   if (drives) before.push(["An International Driving Permit", "Most of Europe requires one alongside your license, and rental desks increasingly ask. AAA issues them in person, same day, for a few dollars — you cannot get one once you have left."]);
@@ -814,7 +829,7 @@ function schedule(p) {
   // origin, not just the Atlantic.
   const outbound = (p.dests || [])[0] && (p.dests || [])[0].pick && (p.dests || [])[0].pick.flight;
   const realOffset = outbound && outbound.chosen && Number.isFinite(outbound.dayOffset) ? outbound.dayOffset : null;
-  const overnight = isUS(p.fromCity) && (p.dests || []).some((d) => d.city && !isUS(d.city));
+  const overnight = (p.dests || []).some((d) => d.city && isLongHaul(p.fromCity, d.city));
   const shift = realOffset != null ? realOffset : (overnight ? 1 : 0);
   let cur = addDays(start, shift);
   (p.dests || []).forEach((d) => {
@@ -3193,7 +3208,7 @@ function buildReview(p, sch) {
     // A crossing is a crossing wherever it falls in the trip. Gating on i === 0 meant that
     // routing Birmingham → NYC → Florence hid the Florence advice entirely, because Florence
     // was the second stop. What matters is that THIS leg leaves the US and lands outside it.
-    const longHaul = !!(from && isUS(from) && !isUS(d.city));
+    const longHaul = !!(from && isLongHaul(from, d.city));
 
     // 2. The Florence problem: a regional airport quoted as a long-haul destination.
     if (longHaul && ap && ap.scale === "regional" && d.arriveBy === "Flight") {
@@ -3272,7 +3287,7 @@ function buildReview(p, sch) {
       if (clashes.length) add("stop", `${fmtList(clashes)} on the day you fly home`,
         dt ? `Your flight leaves ${p.returnFrom} about ${dt.time}, which means the airport by ${clockAdd(dt.time, -150).label}. ${dt.note} There is no morning to play with — move it, or move the flight.`
            : `That is the day you fly out of ${p.returnFrom}, and the airport will take the middle of it whatever time the flight leaves. Move this, or move the flight.`);
-      else if (dt && isUS(p.homeCity) && !isUS(p.returnFrom)) add("note", "The last day is not a day",
+      else if (dt) add("note", "The last day is not a day",
         `The flight home leaves about ${dt.time}, so you are up at six and gone. Do not plan anything for that morning, and do the goodbyes the night before.`);
     }
   }
