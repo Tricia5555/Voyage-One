@@ -63,6 +63,14 @@ export default async function handler(req, res) {
           "places.rating",
           "places.userRatingCount",
           "places.priceLevel",
+          // Diagnostic. priceLevel comes back null on every hotel — Four Seasons, Baccarat,
+          // The Langham, all of them — which leaves the tiering leaning entirely on review
+          // scores, and review scores favour new hotels over famous ones. priceRange is a
+          // different field holding actual currency amounts rather than a $–$$$$ band. If
+          // Google populates it for hotels, it gives both a sound basis for tiering and a
+          // real nightly rate in place of an estimate. Passed straight through untouched
+          // for now: nothing downstream reads it until we can see what it contains.
+          "places.priceRange",
           "places.editorialSummary",
           "places.photos",
           "places.websiteUri",
@@ -165,6 +173,7 @@ export default async function handler(req, res) {
         stars: kind === "hotels" ? starClass(p) : null,
         band,
         bandNote: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].note : null,
+        priceRange: p.priceRange || null,   // diagnostic — see the field mask note above
         estRate: estRate(kind, level, band),
         desc: (p.editorialSummary && p.editorialSummary.text) || "",
         rating: p.rating || null,
