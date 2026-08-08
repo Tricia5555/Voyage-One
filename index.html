@@ -790,9 +790,12 @@ function buildPrep(p) {
   if (longHaul) before.push(["Check your passport now, not the week before", "Schengen wants at least three months' validity beyond your return, and a passport issued within the last ten years. Both are enforced."]);
   if (longHaul) before.push(["Expect the new biometric border", "Europe's Entry/Exit System has been live since April 2026 — fingerprints and a face scan on arrival. No fee, nothing to apply for, but allow extra time at passport control."]);
   if (longHaul && etias) before.push(["Watch for ETIAS", "The EU's travel authorisation launches in the last quarter of 2026 — €20, online, valid three years. It is not open yet, so any site taking applications today is a scam. Check the official EU site before you fly."]);
-  if (drives) before.push(["An International Driving Permit", "Most of Europe requires one alongside your license, and rental desks increasingly ask. AAA issues them in person, same day, for a few dollars — you cannot get one once you have left."]);
+  if (drives && longHaul) before.push(["An International Driving Permit", "Most of Europe requires one alongside your license, and rental desks increasingly ask. AAA issues them in person, same day, for a few dollars — you cannot get one once you have left."]);
   if (longHaul) before.push(["A plan for the first day", `The eastbound redeye lands you in ${places[0] || "Europe"} in the morning, tired. Hold the room from the night before so you can drop bags and go — or treat the first day gently and let the trip properly begin on day two.`]);
-  before.push(["Tell your bank and check the cards", `A frozen card in ${places[0] || "a small town"} is a bad afternoon. Confirm no foreign-transaction fees while you are at it.`]);
+  // Worth saying on any trip — a card can be frozen in Newport as easily as in Naples. But
+  // foreign-transaction fees are a fact about crossing a border, and a domestic traveller who
+  // is told to check for them learns that this app does not know where they are going.
+  before.push(["Tell your bank and check the cards", `A frozen card in ${places[0] || "a small town"} is a bad afternoon.${longHaul ? " Confirm no foreign-transaction fees while you are at it." : ""}`]);
   // Curated, place-specific advice — the advisor's voice, only for cities we truly know.
   const insider = [];
   places.forEach((n) => { const note = insiderFor(n); if (note) insider.push(note); });
@@ -1420,8 +1423,16 @@ function VoyageOne() {
   useEffect(() => {
     if (!hydrated || !fromCity) return;
     const untouched = homeCity === "" ? autoHome.current === null : homeCity === autoHome.current;
-    if (untouched && homeCity !== fromCity) { autoHome.current = fromCity; setHomeCity(fromCity); }
-  }, [hydrated, fromCity]);
+    // Same town, but only one of the two strings carries its airport code. "Birmingham (BHM)"
+    // and "Birmingham" are one place to a reader and two places to a geocoder — the first
+    // resolves to Alabama, the second to England, and the journey map draws a line across the
+    // Atlantic. Adopt the coded form, since the code is the only thing that settles which
+    // Birmingham is meant. If BOTH carry codes and they differ, the traveller means two
+    // different cities and we leave it entirely alone.
+    const oneSideCoded = !!homeCity && !codeOf(homeCity) && !!codeOf(fromCity)
+      && bareCity(homeCity).toLowerCase() === bareCity(fromCity).toLowerCase();
+    if ((untouched || oneSideCoded) && homeCity !== fromCity) { autoHome.current = fromCity; setHomeCity(fromCity); }
+  }, [hydrated, fromCity, homeCity]);
   // "Start over" used to erase the only saved slot. Now it simply opens a fresh journey and
   // leaves the previous one on the shelf, so nothing a client built is ever destroyed by it.
   const startOver = () => beginTrip();
@@ -1955,7 +1966,16 @@ function StepBuild(p) {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {p.dests.map((d, i) => (<div key={"ns" + i} style={{ display: "flex", alignItems: "center", gap: 6, background: t.white, border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 6px 5px 12px" }}>
             <span style={{ fontSize: 13, color: t.ink, maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bareCity(d.city) || `Stop ${i + 1}`}</span>
-            <button onClick={() => { const cur = destNights(d); const nn = Math.max(1, cur - 1); p.setDest(i, d.mode === "open" ? { days: nn } : { nights: nn }); }} style={{ width: 24, height: 24, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+            {/* At one night the minus used to clamp and do nothing, which reads as broken —
+                and this is the only nights control on the Build step, so there was no way to
+                drop a city without going back a screen. Going below one night means "not here
+                at all", so it removes the stop. Recoverable: removeDest leaves an undo. */}
+            <button title={destNights(d) <= 1 ? `Remove ${bareCity(d.city) || "this stop"}` : "One night fewer"}
+              onClick={() => {
+                const cur = destNights(d);
+                if (cur <= 1) { p.removeDest(i); return; }
+                p.setDest(i, d.mode === "open" ? { days: cur - 1 } : { nights: cur - 1 });
+              }} style={{ width: 24, height: 24, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: destNights(d) <= 1 ? t.brass : t.ink, fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
             <span style={{ fontSize: 13, minWidth: 16, textAlign: "center", color: t.ink }}>{destNights(d)}</span>
             <button onClick={() => { const cur = destNights(d); const nn = cur + 1; p.setDest(i, d.mode === "open" ? { days: nn } : { nights: nn }); }} style={{ width: 24, height: 24, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
           </div>))}
