@@ -2027,6 +2027,15 @@ function FlightPicker({ from, to, pick, upd, date }) {
           <span>{c}</span>{ce != null && <span style={{ fontSize: 11, color: t.brass }}>~{fmt(ce)} est.</span>}
         </button>; })}
     </div>
+    {/* Said out loud, because the alternative is worse. Our fare data does not include Delta,
+        and on a great many routes — Birmingham to New York among them — Delta flies the best
+        connection. A list that stays silent does not merely omit an option, it recommends a
+        worse one while looking complete. Deliberately says nothing about which routes or which
+        continent: we cannot see Delta at all, so any claim about where they win would be a
+        guess, and the traveller is better placed to judge than we are. */}
+    <div style={{ fontSize: 11.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
+      Delta is not among the airlines we can currently price. We recommend checking their offerings with our best choices.
+    </div>
     {cabin && (<div style={{ marginTop: 14 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Narrow it down</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 6 }}>
