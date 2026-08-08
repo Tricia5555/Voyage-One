@@ -44,9 +44,13 @@ const COUNTRY = {
 // The kinds of place worth flying to. "locality" is a town or city; the administrative levels
 // and sublocalities catch comuni, quarters and the smaller places this app exists for —
 // Positano is a comune, Monte Carlo a quarter. No establishments, so no recreation centres.
+// Google caps this list at five. Six silently fails the whole request, which is why the
+// picker briefly showed nothing but airports. administrative_area_level_1 is the one dropped:
+// that level is states and regions, and this box is for towns — a trip to "Rhode Island"
+// belongs in Explore mode, not here.
 const PLACE_TYPES = [
-  "locality", "administrative_area_level_1", "administrative_area_level_2",
-  "administrative_area_level_3", "sublocality", "neighborhood",
+  "locality", "administrative_area_level_2", "administrative_area_level_3",
+  "sublocality", "neighborhood",
 ];
 
 // How many predictions to resolve. Each costs a details call, so this is the cost dial.
@@ -73,7 +77,7 @@ async function details(placeId, gKey) {
         "X-Goog-Api-Key": gKey,
         // Deliberately narrow. Location and address components are all this needs, and a
         // smaller mask is a cheaper call.
-        "X-Goog-FieldMask": "id,displayName,location,addressComponents",
+        "X-Goog-FieldMask": "id,displayName,location,addressComponents,types",
       },
     });
     if (!r.ok) return null;
@@ -99,11 +103,16 @@ export default async function handler(req, res) {
   // 1) PRIMARY: Google — every settlement, airport or not, with region and coordinates.
   if (gKey) {
     try {
-      const gr = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
+      const ask = (body) => fetch("https://places.googleapis.com/v1/places:autocomplete", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gKey },
-        body: JSON.stringify({ input: q, includedPrimaryTypes: PLACE_TYPES }),
+        body: JSON.stringify(body),
       });
+      // If the type restriction is ever rejected, ask again without it rather than returning
+      // an empty list. An unfiltered answer still gets filtered below, when the details call
+      // tells us what each place actually is; a rejected request tells us nothing at all.
+      let gr = await ask({ input: q, includedPrimaryTypes: PLACE_TYPES });
+      if (!gr.ok) gr = await ask({ input: q });
       if (gr.ok) {
         const gd = await gr.json();
         const ids = (gd.suggestions || [])
@@ -117,6 +126,16 @@ export default async function handler(req, res) {
           const nm = (d.displayName && d.displayName.text) || "";
           const loc = d.location || {};
           if (!nm || loc.latitude == null || loc.longitude == null) return;   // no coordinates, no row
+          // Second gate, and the one that actually stops recreation centres: a place you can
+          // fly to is a settlement. Checked here as well as in the request, because the request
+          // restriction may have been dropped by the retry above.
+          const kinds = d.types || [];
+          const settlement = !kinds.length || kinds.some((k) => [
+            "locality", "administrative_area_level_1", "administrative_area_level_2",
+            "administrative_area_level_3", "sublocality", "sublocality_level_1",
+            "neighborhood", "political", "colloquial_area",
+          ].includes(k));
+          if (!settlement) return;
           const ac = d.addressComponents;
           const cc = comp(ac, "country");
           const countryCode = cc && cc.shortText ? cc.shortText.toUpperCase() : "";
