@@ -1029,7 +1029,10 @@ function CityBox({ value, onChange, placeholder, inputStyle }) {
         return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
           <span style={{ minWidth: 0 }}>
             <span>{r.city}</span>
-            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
+            {/* State or region first, because that is what separates two places sharing a name.
+                "Providence · RI · United States" against "Providence · VA · United States" —
+                the country was never the thing in doubt. */}
+            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.region ? `  ${r.region}` : ""}{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
           </span>
           <span style={{ color: t.brass, fontSize: 12.5, letterSpacing: "0.08em", flexShrink: 0 }}>{r.code || ""}</span>
         </button>);
