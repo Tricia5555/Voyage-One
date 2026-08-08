@@ -9,6 +9,43 @@
 // those, so we show the honest band and say "rates on request" until a booking API
 // (Travelpayouts / Booking.com) is connected to supply true prices and availability.
 
+// The flag over the door. This is how a travel agent actually knows a hotel's class, and
+// after testing every alternative it is the only signal in reach: Google gives us no star
+// class, priceLevel is null on every hotel, priceRange is null too, and rating and review
+// count both rank a six-hundred-room Times Square tourist hotel above The Plaza.
+//
+// This is a list, and Tricia is right to distrust lists — but it is a list of BRANDS, not
+// of cities or hotels. Four Seasons is Four Seasons in Lisbon, Bali and Kyoto. Written once,
+// it is correct in every city on earth and never needs editing for a new destination. That
+// is the opposite of a per-city patch.
+//
+// It works because Google's displayName carries the flag: "Villa San Michele, A Belmond
+// Hotel", "The Pierre, A Taj Hotel", "Four Seasons Hotel New York Downtown".
+//
+// Known gap: independent landmarks with no group behind them. A handful of the most famous
+// are named below, but that tail is long and cannot be typed out honestly. The real fix is
+// supplier data — Duffel Stays and every other inventory API carry a star class, because
+// star ratings are national schemes that travel with the room, not a thing you can look up.
+const ULTRA_BRANDS = [
+  // Global groups operating at the top of the market
+  "aman", "four seasons", "rosewood", "mandarin oriental", "peninsula", "belmond",
+  "st. regis", "st regis", "ritz-carlton", "ritz carlton", "waldorf astoria", "park hyatt",
+  "bulgari", "bvlgari", "cheval blanc", "raffles", "oetker", "dorchester", "one&only",
+  "one and only", "six senses", "capella", "soneva", "baccarat", "corinthia", "rocco forte",
+  "auberge", "montage", "oberoi", "taj ", "a taj", "shangri-la", "shangri la", "regent ",
+  "banyan tree", "jumeirah", "cheval blanc", "orient express",
+  // Independent landmarks with no group behind them — the incomplete part, and the reason
+  // supplier data matters. Matched on distinctive words, not whole names.
+  "the plaza", "the pierre", "the carlyle", "claridge", "the connaught", "the berkeley",
+  "le bristol", "plaza athénée", "plaza athenee", "the savoy", "the ritz london", "hotel ritz",
+  "danieli", "cipriani", "gritti", "splendido", "villa d'este", "le sirenuse", "il pellicano",
+  "the greenbrier", "the broadmoor", "beverly hills hotel", "bel-air", "the mark",
+];
+function ultraBrand(name) {
+  const n = String(name || "").toLowerCase();
+  return ULTRA_BRANDS.some((b) => n.includes(b));
+}
+
 const PRICE_TIER = {
   PRICE_LEVEL_VERY_EXPENSIVE: { band: "$$$$", note: "Top of the market" },
   PRICE_LEVEL_EXPENSIVE: { band: "$$$", note: "Upper tier" },
@@ -120,13 +157,19 @@ export default async function handler(req, res) {
       const rating = p.rating || 0;
       const reviews = p.userRatingCount || 0;
       const wellReviewed = rating >= 4.4 && reviews >= 150;
-      const acclaimed = rating >= 4.6 && reviews >= 250;
+      // The top tier is now reached by the flag over the door, with a rating floor so that a
+      // tired outpost of a great group cannot coast on the name. Reputation ALONE no longer
+      // reaches five stars: that path put Hotel Riu Plaza Times Square above The Plaza, on
+      // the strength of nine thousand reviews. Volume is not class.
+      if (ultraBrand(p.displayName && p.displayName.text) && rating >= 4.3) return 5;
       if (pl === "PRICE_LEVEL_VERY_EXPENSIVE") return 5;
       if (pl === "PRICE_LEVEL_EXPENSIVE") return wellReviewed ? 5 : 4;
       if (pl === "PRICE_LEVEL_MODERATE") return 3;
       if (pl === "PRICE_LEVEL_INEXPENSIVE" || pl === "PRICE_LEVEL_FREE") return 2;
-      // No band at all — lean on reputation.
-      if (acclaimed) return 5;
+      // No band at all — reputation decides, but only up to four stars. A hotel with no
+      // recognised flag and no price signal may be excellent; we cannot show that it is
+      // five-star, and an empty UltraLux is the honest answer for a city with no such house.
+      if (rating >= 4.5 && reviews >= 250) return 4;
       if (rating >= 4.4 && reviews >= 150) return 4;
       if (rating >= 4.2) return 3;
       return 2;
