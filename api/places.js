@@ -162,6 +162,12 @@ export default async function handler(req, res) {
       // reaches five stars: that path put Hotel Riu Plaza Times Square above The Plaza, on
       // the strength of nine thousand reviews. Volume is not class.
       if (ultraBrand(p.displayName && p.displayName.text) && rating >= 4.3) return 5;
+      // A second door into the top tier, opened deliberately: a recognised flag makes for a
+      // correct list but a predictable one, and a house nobody has heard of that everybody
+      // loves is exactly what a good agent is for. The cost is that this door has no way to
+      // tell a small remarkable hotel from a large well-run commercial one — both can hold
+      // 4.6 — so the tier will contain some names that do not belong beside the Ritz.
+      if (rating >= 4.6) return 5;
       if (pl === "PRICE_LEVEL_VERY_EXPENSIVE") return 5;
       if (pl === "PRICE_LEVEL_EXPENSIVE") return wellReviewed ? 5 : 4;
       if (pl === "PRICE_LEVEL_MODERATE") return 3;
