@@ -71,13 +71,25 @@ export default async function handler(req, res) {
         (gd.places || []).forEach((gp) => {
           const nm = (gp.displayName && gp.displayName.text) || "";
           const types = gp.types || [];
-          const isPlace = types.some((t) => ["locality", "sublocality", "administrative_area_level_1", "administrative_area_level_2", "administrative_area_level_3", "political", "neighborhood", "colloquial_area", "tourist_attraction"].includes(t));
+          // "tourist_attraction" used to be on this list, and it is how "Providence Rec Center,
+          // Virginia" arrived in the dropdown offering itself as a destination. Everything
+          // downstream then behaved correctly for a leisure centre in Fairfax County: no flights,
+          // a nonsense drive, and Martha's Vineyard looking like a reasonable neighbour. A place
+          // you can fly to is a settlement, not a building.
+          const isPlace = types.some((t) => ["locality", "sublocality", "administrative_area_level_1", "administrative_area_level_2", "administrative_area_level_3", "political", "neighborhood", "colloquial_area"].includes(t));
           if (!nm || !isPlace) return;
           const addr = gp.formattedAddress || "";
           const cc = (gp.addressComponents || []).find((c) => (c.types || []).includes("country"));
           const countryCode = cc && cc.shortText ? cc.shortText.toUpperCase() : "";
           const country = COUNTRY[countryCode] || (cc && cc.longText) || addr.split(",").pop().trim();
-          add({ code: null, city: nm, airport: null, country, countryCode, type: "place",
+          // The state, province or region. Country alone cannot separate Providence RI from
+          // Providence VA, or Birmingham AL from Birmingham MI — and the United States has a
+          // great many repeated names. Google already sends this in addressComponents; we were
+          // simply throwing it away. Short form where there is one (RI, CA, NY), otherwise the
+          // full name, which is what serves Italy, France and everywhere else.
+          const rc = (gp.addressComponents || []).find((c) => (c.types || []).includes("administrative_area_level_1"));
+          const region = rc ? (rc.shortText || rc.longText || "") : "";
+          add({ code: null, city: nm, airport: null, country, countryCode, region, type: "place",
                 lat: gp.location ? gp.location.latitude : null, lng: gp.location ? gp.location.longitude : null });
         });
       }
@@ -114,7 +126,7 @@ export default async function handler(req, res) {
             // the same name. Offer it in its own right — that is how both Birminghams appear,
             // each carrying the airport that actually belongs to it.
             add({ code: p.iata_code, city, airport: p.type === "airport" ? p.name : null, country,
-                  countryCode: dcc, type: p.type,
+                  countryCode: dcc, region: "", type: p.type,
                   lat: dpos ? dpos[0] : null, lng: dpos ? dpos[1] : null });
           }
         });
