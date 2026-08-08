@@ -83,13 +83,26 @@ export default async function handler(req, res) {
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
   if (!["hotels", "restaurants"].includes(kind)) return res.status(200).json({ ok: false, reason: "bad-kind" });
 
-  const browseQuery = kind === "hotels" ? `best hotels in ${city}` : `best restaurants in ${city}`;
   // The city stays in the query so "Cipriani" finds the Venice one, not the New York one.
   // The kind word keeps a hotel search off restaurants of the same name, and vice versa.
-  const query = find ? `${find} ${kind === "hotels" ? "hotel" : "restaurant"} ${city}` : browseQuery;
+  //
+  // BROWSING ASKS TWICE. Google returns twenty results for a text query, and twenty is a
+  // general web ranking — popularity, review volume, SEO — not a hotel list. Asked for the
+  // best hotels in Boston it produced a bed and breakfast, a Hyatt Place and a Staypineapple,
+  // and left out the Four Seasons, the Mandarin Oriental and the Ritz-Carlton entirely. No
+  // amount of tiering can rescue a hotel that never arrives.
+  //
+  // So a second query goes in alongside, worded to pull the top of the market rather than the
+  // most-clicked. Merged and deduplicated by place id, that is roughly forty properties instead
+  // of twenty, weighted toward exactly the tier that was starving. It costs one extra Places
+  // call per city, which is the honest price of a top tier that contains the top hotels.
+  const browseQueries = kind === "hotels"
+    ? [`best hotels in ${city}`, `luxury 5 star hotels in ${city}`]
+    : [`best restaurants in ${city}`, `fine dining restaurants in ${city}`];
+  const queries = find ? [`${find} ${kind === "hotels" ? "hotel" : "restaurant"} ${city}`] : browseQueries;
 
   try {
-    const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
+    const ask = (textQuery) => fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,13 +113,10 @@ export default async function handler(req, res) {
           "places.rating",
           "places.userRatingCount",
           "places.priceLevel",
-          // Diagnostic. priceLevel comes back null on every hotel — Four Seasons, Baccarat,
-          // The Langham, all of them — which leaves the tiering leaning entirely on review
-          // scores, and review scores favour new hotels over famous ones. priceRange is a
-          // different field holding actual currency amounts rather than a $–$$$$ band. If
-          // Google populates it for hotels, it gives both a sound basis for tiering and a
-          // real nightly rate in place of an estimate. Passed straight through untouched
-          // for now: nothing downstream reads it until we can see what it contains.
+          // priceLevel comes back null on every hotel — Four Seasons, Baccarat, The Langham,
+          // all of them. priceRange holds actual currency amounts rather than a $–$$$$ band;
+          // it too returns null for hotels, but it is in the same billing tier as priceLevel,
+          // so it costs nothing to keep asking in case Google ever fills it in.
           "places.priceRange",
           "places.editorialSummary",
           "places.photos",
@@ -114,15 +124,33 @@ export default async function handler(req, res) {
           "places.googleMapsUri",
         ].join(","),
       },
-      body: JSON.stringify({ textQuery: query, maxResultCount: find ? 5 : 20 }),
+      body: JSON.stringify({ textQuery, maxResultCount: find ? 5 : 20 }),
     });
 
-    if (!r.ok) {
-      const detail = await r.text();
-      return res.status(200).json({ ok: false, reason: "google-error", status: r.status, detail: detail.slice(0, 300) });
+    // In parallel — two sequential round trips would be felt on every city opened.
+    const responses = await Promise.all(queries.map(ask));
+
+    // Only a total failure is an error. If the second query fails and the first succeeds we
+    // still have a good list, and a narrower list beats an empty panel.
+    if (responses.every((r) => !r.ok)) {
+      const detail = await responses[0].text();
+      return res.status(200).json({ ok: false, reason: "google-error", status: responses[0].status, detail: detail.slice(0, 300) });
     }
 
-    const data = await r.json();
+    // Merge, keeping first appearance. The queries overlap heavily — that is expected, and the
+    // place id is what makes the overlap free rather than duplicated.
+    const byId = new Map();
+    for (const r of responses) {
+      if (!r.ok) continue;
+      let d = null;
+      try { d = await r.json(); } catch (e) { continue; }
+      (d.places || []).forEach((p) => {
+        if (!p || !p.id || byId.has(p.id)) return;
+        byId.set(p.id, p);
+      });
+    }
+    const data = { places: Array.from(byId.values()) };
+
     const places = (data.places || []).filter((p) => p.displayName && p.displayName.text);
 
     // UltraLux is a GLOBAL standard — Villa d'Este, San Pietro — not "priciest in town".
@@ -249,7 +277,9 @@ export default async function handler(req, res) {
     // Best-reviewed first within each tier; a curated shortlist, not the whole list.
     for (const k of Object.keys(grouped)) {
       grouped[k].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      grouped[k] = grouped[k].slice(0, 10);
+      // Twelve rather than ten. With two queries feeding the list there is genuinely more to
+      // choose from, and UltraLux was the tier being truncated hardest.
+      grouped[k] = grouped[k].slice(0, 12);
     }
 
     // Google's terms require attribution wherever this is shown, and forbid holding
