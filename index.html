@@ -908,7 +908,7 @@ function useLiveFlights(from, to, date, cabin, stops, when) {
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         const offers = j && j.ok && j.offers && j.offers.length ? j.offers : null;
-        const meta = j && j.ok ? { totalFound: j.totalFound, nonstopCount: j.nonstopCount, narrowedToNothing: j.narrowedToNothing } : null;
+        const meta = j && j.ok ? { totalFound: j.totalFound, nonstopCount: j.nonstopCount, narrowedToNothing: j.narrowedToNothing, cabinsFound: j.cabinsFound } : null;
         FARE_CACHE[key] = { offers, meta };
         if (!dead) setState({ loading: false, offers, tried: true, meta });
       })
@@ -1014,7 +1014,20 @@ function CityBox({ value, onChange, placeholder, inputStyle }) {
     return () => { dead = true; clearTimeout(timer); };
   }, [raw]);
 
-  const choose = (label) => { onChange(label); setOpen(false); };
+  // The suggestion knows exactly where it is — the picker resolved a placeId to real
+  // coordinates. Everything downstream (the gateway airport, ground routing, distances, the
+  // journey map) reads coordinates through GEO_CACHE, so seeding it here settles the question
+  // once, at the only moment anyone actually knows the answer.
+  //
+  // Without this, the app throws the coordinates away and re-derives them later from the bare
+  // word. "Newport" then becomes Vermont or Virginia or Wales, and the app reports an eight
+  // hour drive from Boston to a town seventy-one miles away — while the hotels, which were
+  // fetched by name, remain correctly in Rhode Island. That split is the whole bug.
+  const choose = (label, row) => {
+    if (row && row.lat != null && row.lng != null) GEO_CACHE[geoKey(label)] = [row.lat, row.lng];
+    onChange(label);
+    setOpen(false);
+  };
   const showAny = open && (matches.length > 0 || live.length > 0);
 
   return (<div style={{ position: "relative" }}>
@@ -1029,7 +1042,7 @@ function CityBox({ value, onChange, placeholder, inputStyle }) {
         // no airport of their own, so they're picked by plain name; flights route from the
         // nearest airport automatically.
         const label = r.code ? `${r.city} (${r.code})` : r.city;
-        return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
+        return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label, r); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
           <span style={{ minWidth: 0 }}>
             <span>{r.city}</span>
             {/* State or region first, because that is what separates two places sharing a name.
@@ -2040,7 +2053,9 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const chosen = f && f.chosen ? f : null;
   return (<>
     <div style={{ background: t.card, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
-      <div style={{ fontFamily: font.display, fontSize: 21 }}>{from} {fc ? `(${fc})` : ""} → {to} {tc ? `(${tc})` : ""}</div>
+      {/* Show the bare town plus one code. The city string often already carries its code —
+          "Boston (BOS)" — and appending the looked-up code to that produced "Boston (BOS) (BOS)". */}
+      <div style={{ fontFamily: font.display, fontSize: 21 }}>{bareCity(from)} {fc ? `(${fc})` : ""} → {bareCity(to)} {tc ? `(${tc})` : ""}</div>
       {dt && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{dt.note}</div>}
     </div>
     <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Cabin</div>
@@ -2155,7 +2170,18 @@ function FlightPicker({ from, to, pick, upd, date }) {
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{noAirportHere
           ? `There's no airport in ${bareCity(from)} — you can't fly out from here directly. Head overland to the nearest airport first (the arrival panel shows which), then fly from there.`
-          : <>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</>}</div>
+          : (() => {
+              // "No fares in this cabin" and "no fares at all" are different facts, and only
+              // one of them is the traveller's to fix. The API now reports which cabins the
+              // route actually sells, so say that instead of an empty shrug — Birmingham to
+              // Boston flies a dozen times a day, but on regional aircraft, which sell First
+              // rather than Business. The old wording read as "this route does not exist".
+              const sold = (live.meta && live.meta.cabinsFound) || [];
+              const LABEL = { economy: "Economy", premium_economy: "Premium", business: "Business", first: "First" };
+              const named = sold.map((c) => LABEL[c] || c).filter((x) => x && x !== cabin);
+              if (named.length) return (<>No {cabin} on this route — the aircraft flying it {named.length === 1 ? "sells" : "sell"} <strong style={{ color: t.ink }}>{fmtList(named)}</strong>. Smaller US aircraft often have no Business cabin at all, so First is the premium seat. Switch above to see the fares.</>);
+              return (<>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</>);
+            })()}</div>
       </div>)}
     </div>)}
   </>);
