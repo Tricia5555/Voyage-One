@@ -166,6 +166,21 @@ async function resolveCity(city, token, countryHint) {
     out.alsoIn = Array.from(countries).filter((c) => c !== out.country);
   }
 
+  // Disambiguation by curated intent. When a bare name answers to more than one country,
+  // Duffel ranks the US airport first — so "Florence" becomes Florence, South Carolina (FLO)
+  // and the whole trip routes through Charlotte, and bare "Naples" could land in Florida.
+  // Our AIRPORTS table encodes the airport a luxury traveller MEANS by that name (Florence =
+  // FLR, Naples = NAP). On an ambiguous name we have a curated code for, trust the table to
+  // break the tie. Universal: unaffected are unambiguous names (Milan → MIL), explicit picks
+  // ("Florence (FLR)"), and state-qualified US names ("Florence SC" / "Naples FL"), which take
+  // the wantCountry path above and never reach here.
+  if (out && out.ambiguous && !wantCountry) {
+    const curated = iataFor(city);
+    if (curated && curated !== out.code) {
+      out = { code: curated, country: null, name: null, source: "table-disambiguated", ambiguous: true, alsoIn: out.alsoIn };
+    }
+  }
+
   LOOKUP_CACHE.set(ck, out);
   return out;
 }
