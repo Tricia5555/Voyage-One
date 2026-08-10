@@ -932,10 +932,15 @@ function useRoute(from, to) {
   useEffect(() => {
     let dead = false;
     if (!from || !to || sameCity(from, to)) { setState({ loading: false, modes: null, tried: false }); return; }
-    const key = from.toLowerCase() + "|" + to.toLowerCase();
+    // Route CITY CENTRE to CITY CENTRE. Passing the airport code ("Milan (MXP)") makes Google
+    // start at the airport itself (Malpensa), which returns a bus-to-terminal detour — a 4h42
+    // Milan→Florence instead of the real 2h20 city-centre train. bareCity strips the code, the
+    // same way the ground-modes lookup already does. Universal: fixes rail for every coded pair.
+    const ra = bareCity(from), rb = bareCity(to);
+    const key = ra.toLowerCase() + "|" + rb.toLowerCase();
     if (ROUTE_CACHE[key] !== undefined) { setState({ loading: false, modes: ROUTE_CACHE[key], tried: true }); return; }
     setState({ loading: true, modes: null, tried: false });
-    fetch(`/api/route?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
+    fetch(`/api/route?from=${encodeURIComponent(ra)}&to=${encodeURIComponent(rb)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         const modes = j && j.ok ? j.modes || [] : null;
