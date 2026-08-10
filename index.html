@@ -529,6 +529,16 @@ function connection(a, b) {
 // time — so we only call something "drivable instead of flying" under that. 700 km was far
 // too high: it wrongly told people to drive Madrid→Lisbon (6+ hours) rather than fly 80 min.
 const DRIVE_LIMIT_KM = 300;
+// A tight bar for the flight picker's "too close to fly" note — and it is ONLY consulted when
+// the flight search already returned zero offers (it can never hide real flights). Distance is
+// a crude proxy: Charlotte→Columbia (~85 mi) has nonstops while NYC→Philadelphia (~81 mi) does
+// not, so no mileage line separates "served" from "not". We therefore make the confident
+// "no airline sells this, go by ground" claim ONLY for genuinely co-located airports within
+// ~60 miles (97 km straight-line): Boston→Providence (~40 mi), Dallas Love/DFW, the DC field,
+// and the like. Anything longer lets the real search speak (flights, or a neutral "no fares").
+// Kept apart from DRIVE_LIMIT_KM (300), which still governs where trains/drives are OFFERED
+// (Florence→Rome, Lisbon→Porto) — that must not be suppressed.
+const TOO_CLOSE_TO_FLY_KM = 97;
 function drivable(a, b) {
   // Unknown place? We cannot claim a road exists. Better honest "no" than an invented drive.
   if (!known(a) || !known(b)) return ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN ? true : false;
@@ -2033,6 +2043,7 @@ function flightSearchUrl(from, to, date, cabin) {
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
 }
 function FlightPicker({ from, to, pick, upd, date }) {
+  useGeoTick(); // a coordinate arriving late must repaint this panel, so the too-close-to-fly note can appear
   const f = pick.flight || null;
   // A ground-access origin (Positano, a lake town) has no airport of its own, so "fly from
   // here" is the wrong question — explain that rather than returning a blank nothing.
@@ -2180,6 +2191,16 @@ function FlightPicker({ from, to, pick, upd, date }) {
               const LABEL = { economy: "Economy", premium_economy: "Premium", business: "Business", first: "First" };
               const named = sold.map((c) => LABEL[c] || c).filter((x) => x && x !== cabin);
               if (named.length) return (<>No {cabin} on this route — the aircraft flying it {named.length === 1 ? "sells" : "sell"} <strong style={{ color: t.ink }}>{fmtList(named)}</strong>. Smaller US aircraft often have no Business cabin at all, so First is the premium seat. Switch above to see the fares.</>);
+              // Two real airports too close to fly: no airline sells the hop, so an empty list is
+              // the honest result — but a blank shrug is not. If the pair is drivable, say so and
+              // point to the ground modes. Universal: any close pair (Boston–Providence, LA–San
+              // Diego, NYC–Philadelphia), decided by real distance, not a hand-kept list.
+              const closeKm = distanceKm(from, to);
+              if (drivable(from, to) && closeKm != null && closeKm <= TOO_CLOSE_TO_FLY_KM) {
+                const dr = driveEstimate(from, to);
+                const how = dr ? `${dr.label}${dr.km ? ` (${dr.km} km)` : ""} by road` : "a short hop by road";
+                return (<>These airports are too close to fly — {bareCity(to)} is only about {how} from {bareCity(from)}, so airlines don't sell it as a flight. Choose <strong style={{ color: t.ink }}>Train</strong> or <strong style={{ color: t.ink }}>Self-drive</strong> above for real door-to-door times.</>);
+              }
               return (<>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</>);
             })()}</div>
       </div>)}
