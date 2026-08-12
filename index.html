@@ -1836,33 +1836,66 @@ function Planner(p) {
 const ONE_LIST = {
   "Sport": {
     "Formula 1": [
-      { title: "Singapore Grand Prix", city: "Singapore", start: "2026-10-08", end: "2026-10-12", dateLabel: "Oct 9–11, 2026", nights: 4, blurb: "The only true night race — the city ablaze, the marina glittering, from a suite above turn one." },
-      { title: "United States Grand Prix", city: "Austin", start: "2026-10-22", end: "2026-10-26", dateLabel: "Oct 23–25, 2026", nights: 4, blurb: "America's home race — barbecue, live music, and the Hill Country an hour away." },
-      { title: "Las Vegas Grand Prix", city: "Las Vegas", start: "2026-11-18", end: "2026-11-22", dateLabel: "Nov 19–21, 2026", nights: 4, blurb: "The Strip becomes the circuit after dark — the most theatrical night in the sport." },
-      { title: "Abu Dhabi Grand Prix", city: "Abu Dhabi", start: "2026-12-03", end: "2026-12-07", dateLabel: "Dec 4–6, 2026", nights: 4, blurb: "The season decided under the lights at Yas Marina — desert luxury, a twilight start." },
+      { title: "Singapore Grand Prix", city: "Singapore", airport: "SIN", airportName: "Singapore Changi", start: "2026-10-08", end: "2026-10-12", dateLabel: "Oct 9–11, 2026", nights: 4, blurb: "The only true night race — the city ablaze, the marina glittering, from a suite above turn one." },
+      { title: "United States Grand Prix", city: "Austin", airport: "AUS", airportName: "Austin-Bergstrom", start: "2026-10-22", end: "2026-10-26", dateLabel: "Oct 23–25, 2026", nights: 4, blurb: "America's home race — barbecue, live music, and the Hill Country an hour away." },
+      { title: "Las Vegas Grand Prix", city: "Las Vegas", airport: "LAS", airportName: "Harry Reid Intl", start: "2026-11-18", end: "2026-11-22", dateLabel: "Nov 19–21, 2026", nights: 4, blurb: "The Strip becomes the circuit after dark — the most theatrical night in the sport." },
+      { title: "Abu Dhabi Grand Prix", city: "Abu Dhabi", airport: "AUH", airportName: "Zayed Intl", start: "2026-12-03", end: "2026-12-07", dateLabel: "Dec 4–6, 2026", nights: 4, blurb: "The season decided under the lights at Yas Marina — desert luxury, a twilight start." },
+      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, blurb: "The crown jewel — barriers inches from the yachts, the Riviera at its most glamorous." },
+      { title: "British Grand Prix · Silverstone", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-01", end: "2027-07-05", dateLabel: "July 2–4, 2027", nights: 4, blurb: "The home of the sport — a roaring crowd and the fastest corners in Formula 1." },
+    ],
+    "Tennis": [
+      { title: "Australian Open", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2027-01-26", end: "2027-02-01", dateLabel: "Jan 17–31, 2027", nights: 6, blurb: "Grand Slam summer in Melbourne — the finals under lights at Rod Laver Arena." },
+      { title: "Roland-Garros", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, blurb: "The clay-court classic — Paris in early summer, finals weekend at Court Philippe-Chatrier." },
+      { title: "Wimbledon", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-07", end: "2027-07-12", dateLabel: "June 28–July 11, 2027", nights: 5, blurb: "Strawberries, grass courts and the most storied fortnight in tennis — aim for the second week." },
+      { title: "US Open Tennis", city: "New York City", airport: "JFK", airportName: "John F. Kennedy Intl", start: "2027-09-08", end: "2027-09-13", dateLabel: "Aug 30–Sep 12, 2027", nights: 5, blurb: "New York's late-summer roar — night sessions at Ashe and the season's final major." },
     ],
     "Golf": [
-      { title: "The Masters", city: "Augusta", start: "2027-04-07", end: "2027-04-12", dateLabel: "Apr 8–11, 2027", nights: 5, blurb: "The most coveted ticket in golf — azaleas, Amen Corner, a green jacket on Sunday." },
-      { title: "The Ryder Cup", city: "Adare Manor, Ireland", start: "2027-09-16", end: "2027-09-20", dateLabel: "Sep 17–19, 2027", nights: 4, blurb: "Europe and America on a castle estate — roaring galleries and an Irish welcome." },
+      { title: "The Masters", city: "Augusta", airport: "AGS", airportName: "Augusta Regional", start: "2027-04-07", end: "2027-04-12", dateLabel: "Apr 8–11, 2027", nights: 5, blurb: "The most coveted ticket in golf — azaleas, Amen Corner, a green jacket on Sunday." },
+      { title: "The Open Championship · St Andrews", city: "St Andrews, Scotland", airport: "EDI", airportName: "Edinburgh", start: "2027-07-14", end: "2027-07-19", dateLabel: "July 11–18, 2027", nights: 5, blurb: "Golf's oldest major, on the Old Course where the game itself was born." },
+      { title: "The Ryder Cup", city: "Adare Manor, Ireland", airport: "SNN", airportName: "Shannon", start: "2027-09-16", end: "2027-09-20", dateLabel: "Sep 17–19, 2027", nights: 4, blurb: "Europe and America on a castle estate — roaring galleries and an Irish welcome." },
+    ],
+    "Cycling": [
+      { title: "Tour de France · Grand Départ", city: "Edinburgh", airport: "EDI", airportName: "Edinburgh", start: "2027-07-01", end: "2027-07-05", dateLabel: "Grand Départ · July 2, 2027", nights: 4, blurb: "For the first time ever, the Tour begins in Scotland — the peloton launching from Edinburgh." },
+    ],
+    "American Classics": [
+      { title: "The Kentucky Derby", city: "Louisville", airport: "SDF", airportName: "Louisville Muhammad Ali Intl", start: "2027-04-30", end: "2027-05-02", dateLabel: "May 1, 2027", nights: 2, blurb: "The most exciting two minutes in sport — juleps, hats, and Millionaires' Row." },
+      { title: "Super Bowl LXI", city: "Los Angeles", airport: "LAX", airportName: "Los Angeles Intl", start: "2027-02-12", end: "2027-02-16", dateLabel: "Feb 14, 2027", nights: 4, blurb: "The biggest night in American sport — at SoFi Stadium, with a week of parties around it." },
     ],
   },
   "Arts & Culture": {
     "Festivals": [
-      { title: "Oktoberfest", city: "Munich", start: "2026-09-18", end: "2026-09-22", dateLabel: "Sep 19–Oct 4, 2026", nights: 4, blurb: "Bavaria at full song — private tables in the great tents, Alpine day-trips between." },
+      { title: "Oktoberfest", city: "Munich", airport: "MUC", airportName: "Munich", start: "2026-09-18", end: "2026-09-22", dateLabel: "Sep 19–Oct 4, 2026", nights: 4, blurb: "Bavaria at full song — private tables in the great tents, Alpine day-trips between." },
+      { title: "Carnevale di Venezia", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-09", dateLabel: "Jan 23–Feb 9, 2027", nights: 5, blurb: "Masks, candlelit palazzo balls, the city at its most theatrical — aim for the final days." },
+      { title: "Cannes Film Festival", city: "Cannes", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-05-11", end: "2027-05-16", dateLabel: "May 11–22, 2027", nights: 5, blurb: "The Croisette, the red carpet and the yachts — the 80th edition on the Riviera." },
+      { title: "Edinburgh Festival Fringe", city: "Edinburgh", airport: "EDI", airportName: "Edinburgh", start: "2027-08-13", end: "2027-08-18", dateLabel: "Aug 6–30, 2027", nights: 5, blurb: "The world's greatest arts festival takes over an entire city for the month of August." },
     ],
     "Art Fairs": [
-      { title: "Art Basel Miami Beach", city: "Miami", start: "2026-12-03", end: "2026-12-07", dateLabel: "Dec 4–6, 2026", nights: 4, blurb: "The art world decamps to the ocean — the fair, the parties, a city in full bloom." },
+      { title: "Art Basel Miami Beach", city: "Miami", airport: "MIA", airportName: "Miami Intl", start: "2026-12-03", end: "2026-12-07", dateLabel: "Dec 4–6, 2026", nights: 4, blurb: "The art world decamps to the ocean — the fair, the parties, a city in full bloom." },
+      { title: "Art Basel Paris", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2026-10-22", end: "2026-10-26", dateLabel: "Oct 23–25, 2026", nights: 4, blurb: "The Grand Palais, the galleries and Paris in autumn — the fair the whole city turns out for." },
+      { title: "Frieze London", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2026-10-14", end: "2026-10-18", dateLabel: "Oct 14–18, 2026", nights: 4, blurb: "Regent's Park in tents — contemporary and masters, and all of London's art week around it." },
+      { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2026-10-15", end: "2026-10-19", dateLabel: "Through Nov 22, 2026", nights: 4, blurb: "The Giardini and Arsenale pavilions — the art world's grandest exhibition, before it closes." },
+    ],
+    "Music & Opera": [
+      { title: "Vienna New Year's Concert", city: "Vienna", airport: "VIE", airportName: "Vienna Intl", start: "2026-12-30", end: "2027-01-02", dateLabel: "Jan 1, 2027", nights: 3, blurb: "The Philharmonic in the Musikverein's Golden Hall — the most elegant way to start the year." },
+      { title: "Salzburg Festival", city: "Salzburg", airport: "SZG", airportName: "Salzburg W. A. Mozart", start: "2027-07-24", end: "2027-07-29", dateLabel: "Mid-July–Aug 2027", nights: 5, blurb: "Opera and orchestra in Mozart's own city — the summit of the classical calendar." },
     ],
   },
   "Signature Journeys": {
     "Safari": [
-      { title: "The Great Migration", city: "Serengeti", start: "", end: "", dateLabel: "River crossings · Jul–Sep", nights: 6, blurb: "A million wildebeest at the river's edge — Singita and andBeyond camps, timed to the crossings." },
+      { title: "The Great Migration", city: "Serengeti", airport: "JRO", airportName: "Kilimanjaro", start: "", end: "", dateLabel: "River crossings · Jul–Sep", nights: 6, blurb: "A million wildebeest at the river's edge — Singita and andBeyond camps, timed to the crossings." },
+      { title: "Gorilla Trekking, Rwanda", city: "Kigali", airport: "KGL", airportName: "Kigali Intl", start: "", end: "", dateLabel: "Best Jun–Sep & Dec–Feb", nights: 5, blurb: "An hour on foot with a mountain gorilla family in the Volcanoes — the rarest encounter in the wild." },
     ],
     "Ski & Powder": [
-      { title: "Japan, Deep Winter", city: "Niseko", start: "", end: "", dateLabel: "Powder weeks · Jan–Feb", nights: 6, blurb: "The lightest snow on earth, an onsen at dusk, kaiseki by night." },
+      { title: "Japan, Deep Winter", city: "Niseko", airport: "CTS", airportName: "Sapporo New Chitose", start: "", end: "", dateLabel: "Powder weeks · Jan–Feb", nights: 6, blurb: "The lightest snow on earth, an onsen at dusk, kaiseki by night." },
+      { title: "St. Moritz", city: "St. Moritz", airport: "ZRH", airportName: "Zurich", start: "", end: "", dateLabel: "Ski season · Dec–Mar", nights: 5, blurb: "The original alpine grande dame — glacier runs, the Cresta, and long lunches in the sun." },
     ],
     "Wine-Country Cycling": [
-      { title: "Tuscany & Piedmont", city: "Tuscany", start: "", end: "", dateLabel: "Vintage season · May–Jun & Sep–Oct", nights: 6, blurb: "Gentle miles between cellars and hilltop towns — Butterfield & Robinson or Backroads." },
+      { title: "Tuscany & Piedmont", city: "Tuscany", airport: "FLR", airportName: "Florence", start: "", end: "", dateLabel: "Vintage season · May–Jun & Sep–Oct", nights: 6, blurb: "Gentle miles between cellars and hilltop towns — Butterfield & Robinson or Backroads." },
+      { title: "Burgundy & Provence", city: "Burgundy", airport: "LYS", airportName: "Lyon–Saint-Exupéry", start: "", end: "", dateLabel: "Vintage season · May–Jun & Sep–Oct", nights: 6, blurb: "Grand cru villages, Michelin tables and lavender roads at an unhurried pace." },
+    ],
+    "Wild & Remote": [
+      { title: "The Northern Lights", city: "Tromsø", airport: "TOS", airportName: "Tromsø", start: "", end: "", dateLabel: "Aurora season · Oct–Mar", nights: 4, blurb: "Chase the aurora above the Arctic Circle — by snowmobile, sled, or a heated glass lodge." },
+      { title: "The Galápagos", city: "Galápagos", airport: "UIO", airportName: "Quito (gateway)", start: "", end: "", dateLabel: "Year-round · driest Jun–Dec", nights: 6, blurb: "A private yacht among the islands that taught the world about life — tortoises, boobies, sea lions." },
     ],
   },
 };
@@ -1912,6 +1945,7 @@ function OneList({ onPick, onBack, onHome }) {
           <span style={{ fontSize: 12.5, color: t.brassLight }}>{ev.city}</span>
           <span style={{ fontSize: 12, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
           <span style={{ fontSize: 13, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
+          {ev.airport ? <span style={{ fontSize: 11.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
           <span style={cArw}>Plan this trip →</span>
         </button>))}
       </div>
