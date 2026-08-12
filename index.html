@@ -2934,7 +2934,12 @@ function CitySection({ d, i, p, from, legSched }) {
   const knownShortHaul = legKm != null && legKm <= LONGHAUL_MIN_KM;
   const needsHub = d.arriveBy === "Flight" && farAway && !knownShortHaul && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
   const flyFrom = from;
-  const flyInto = needsHub ? (pick.hub || "") : (pick.gatewayPick && gw ? pick.gatewayPick : flyTo);
+  // Duffel already returns complete connecting itineraries INTO a regional airport, so we never
+  // hide flights waiting for a manual hub pick — that stranded every long-haul leg into a gateway
+  // like Edinburgh, Shannon or Florence (the trip could get you home, but not there). Search
+  // straight into the chosen airport: the hub if one was picked, otherwise the gateway/destination.
+  // Connections come back on their own. The hub panel remains an optional refinement, not a gate.
+  const flyInto = pick.hub ? pick.hub : (pick.gatewayPick && gw ? pick.gatewayPick : flyTo);
   const base = d.mode === "open" ? `${d.days}-day explore` : d.mode === "flights" ? `${nights}n · flights only` : `${nights} ${nights === 1 ? "night" : "nights"}`;
   const label = legSched ? `${fmtShort(legSched.arrive)} – ${fmtShort(legSched.depart)} · ${base}` : base;
   const legNightsList = legSched ? nightsIn(legSched) : [];
@@ -2947,8 +2952,8 @@ function CitySection({ d, i, p, from, legSched }) {
       {surface.mode === "Ferry" ? <Ship size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} /> : <Route size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} />}
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
     </div>)}
-    {needsHub && <HubPanel from={flyFrom} city={surfaceTarget} pick={pick} upd={upd} />}
-    <ArrivalPanel from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={needsHub && !pick.hub} flightDate={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} firstLabel={(() => {
+    {needsHub && !gw && <HubPanel from={flyFrom} city={surfaceTarget} pick={pick} upd={upd} />}
+    <ArrivalPanel from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={false} flightDate={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} firstLabel={(() => {
         // The title has to agree with the mode actually chosen. It used to say "fly into
         // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
         // by rail — so Florence → Portofino read as a flight, offered no flights (there are
