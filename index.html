@@ -590,7 +590,16 @@ function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const
 function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
 function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
 function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
-function groundOption(mode, from, to) { return { mode, price: null }; }
+function groundOption(mode, from, to) {
+  // Give the traveller the real time for the mode they chose, not a blank card. Train uses the
+  // rail estimate, ferry the crossing time, drive/chauffeur the road estimate (curated where we
+  // have it — e.g. Lisbon→Madrid 6 hr 20 min — otherwise distance-based). All helpers already exist.
+  let mins = null, km = null, label = null;
+  if (mode === "Train") { const r = railBetween(from, to); if (r != null) { mins = r; label = minsLabel(r) + " by train"; } }
+  else if (mode === "Ferry") { const f = ferryBetween(from, to); if (f != null) { mins = f; label = minsLabel(f) + " ferry"; } }
+  else if (mode === "Self-drive" || mode === "Chauffeur") { const dr = driveEstimate(from, to); if (dr) { mins = dr.mins; km = dr.km; label = dr.label + " drive" + (dr.km ? ` · ${dr.km} km` : ""); } }
+  return { mode, price: null, mins, km, label };
+}
 function exitPoint(d) {
   if (!d) return "";
   if (d.mode === "open") {
@@ -2266,14 +2275,17 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   useEffect(() => {
     if (allowed && arriveBy && !allowed.some((m) => m.key === arriveBy)) chooseMode(allowed[0].key);
   }, [allowed && allowed.map((m) => m.key).join(","), arriveBy]);
-  const o = arriveBy !== "Flight" ? (pick.ground && pick.ground.mode === arriveBy ? pick.ground : groundOption(arriveBy, from, to)) : null;
+  // Always recompute the time/label from the current cities, then overlay whatever was saved on
+  // the trip (mode, any price). A leg chosen before this feature existed has a stored ground with
+  // no label — recomputing here means it still shows the drive/rail time instead of a blank.
+  const o = arriveBy !== "Flight" ? { ...groundOption(arriveBy, from, to), ...((pick.ground && pick.ground.mode === arriveBy) ? pick.ground : {}) } : null;
   return (<Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
     <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>
     {ground && ground.note && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} />)
-      : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={grounds.includes(arriveBy) ? "estimated, door to door" : ""} price={fmt(o.price)} />}
+      : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />}
   </Panel>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
