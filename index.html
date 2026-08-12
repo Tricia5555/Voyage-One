@@ -1404,7 +1404,15 @@ function VoyageOne() {
     blankTrip(); applyTrip(s); setStale(false);
     setTripId(id); setScreen("plan"); setStep(0);
   };
-  const beginTrip = () => { blankTrip(); setTripId(newTripId()); setScreen("plan"); setStep(0); };
+  const beginTrip = () => { blankTrip(); setTripId(newTripId()); setScreen("start"); setStep(0); };
+  // The One List: an inspiring event becomes a real trip — its host city and dates seeded straight
+  // into the builder. Fixed-date events land you on Departure (dates already set); season-based
+  // journeys land on Basics so you choose your week within the season.
+  const seedFromEvent = (ev) => {
+    if (ev.start && ev.end) setDates({ depart: ev.start, ret: ev.end });
+    setDests([{ id: newId(), city: ev.city, mode: "full", nights: ev.nights || 3, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }]);
+    setScreen("plan"); setStep(ev.start ? 1 : 0);
+  };
   const removeTrip = async (id) => {
     if (typeof window !== "undefined" && !window.confirm("Delete this journey? This cannot be undone.")) return;
     if (user) {
@@ -1573,6 +1581,8 @@ function VoyageOne() {
     {screen === "landing" && <Landing trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
+    {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+    {screen === "oneList" && <OneList onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
     {recovery && (<div style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(34,29,25,.42)", display: "grid", placeItems: "center", padding: 20 }}>
@@ -1819,6 +1829,116 @@ function Planner(p) {
   </div>);
 }
 
+// ── The One List ──────────────────────────────────────────────────────────────────────
+// A curated, drill-down catalogue: category → type → a SHORT shortlist. Never a wall of cards.
+// Real events, real dates (verified). Season-based journeys carry no fixed date and seed only
+// the destination, landing the traveller on Basics to choose their week. Grows as partners join.
+const ONE_LIST = {
+  "Sport": {
+    "Formula 1": [
+      { title: "Singapore Grand Prix", city: "Singapore", start: "2026-10-08", end: "2026-10-12", dateLabel: "Oct 9–11, 2026", nights: 4, blurb: "The only true night race — the city ablaze, the marina glittering, from a suite above turn one." },
+      { title: "United States Grand Prix", city: "Austin", start: "2026-10-22", end: "2026-10-26", dateLabel: "Oct 23–25, 2026", nights: 4, blurb: "America's home race — barbecue, live music, and the Hill Country an hour away." },
+      { title: "Las Vegas Grand Prix", city: "Las Vegas", start: "2026-11-18", end: "2026-11-22", dateLabel: "Nov 19–21, 2026", nights: 4, blurb: "The Strip becomes the circuit after dark — the most theatrical night in the sport." },
+      { title: "Abu Dhabi Grand Prix", city: "Abu Dhabi", start: "2026-12-03", end: "2026-12-07", dateLabel: "Dec 4–6, 2026", nights: 4, blurb: "The season decided under the lights at Yas Marina — desert luxury, a twilight start." },
+    ],
+    "Golf": [
+      { title: "The Masters", city: "Augusta", start: "2027-04-07", end: "2027-04-12", dateLabel: "Apr 8–11, 2027", nights: 5, blurb: "The most coveted ticket in golf — azaleas, Amen Corner, a green jacket on Sunday." },
+      { title: "The Ryder Cup", city: "Adare Manor, Ireland", start: "2027-09-16", end: "2027-09-20", dateLabel: "Sep 17–19, 2027", nights: 4, blurb: "Europe and America on a castle estate — roaring galleries and an Irish welcome." },
+    ],
+  },
+  "Arts & Culture": {
+    "Festivals": [
+      { title: "Oktoberfest", city: "Munich", start: "2026-09-18", end: "2026-09-22", dateLabel: "Sep 19–Oct 4, 2026", nights: 4, blurb: "Bavaria at full song — private tables in the great tents, Alpine day-trips between." },
+    ],
+    "Art Fairs": [
+      { title: "Art Basel Miami Beach", city: "Miami", start: "2026-12-03", end: "2026-12-07", dateLabel: "Dec 4–6, 2026", nights: 4, blurb: "The art world decamps to the ocean — the fair, the parties, a city in full bloom." },
+    ],
+  },
+  "Signature Journeys": {
+    "Safari": [
+      { title: "The Great Migration", city: "Serengeti", start: "", end: "", dateLabel: "River crossings · Jul–Sep", nights: 6, blurb: "A million wildebeest at the river's edge — Singita and andBeyond camps, timed to the crossings." },
+    ],
+    "Ski & Powder": [
+      { title: "Japan, Deep Winter", city: "Niseko", start: "", end: "", dateLabel: "Powder weeks · Jan–Feb", nights: 6, blurb: "The lightest snow on earth, an onsen at dusk, kaiseki by night." },
+    ],
+    "Wine-Country Cycling": [
+      { title: "Tuscany & Piedmont", city: "Tuscany", start: "", end: "", dateLabel: "Vintage season · May–Jun & Sep–Oct", nights: 6, blurb: "Gentle miles between cellars and hilltop towns — Butterfield & Robinson or Backroads." },
+    ],
+  },
+};
+function StartChooser({ onKnow, onOpen, onInspire, onHome }) {
+  const card = { textAlign: "left", background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, padding: "22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 };
+  const ey = { fontSize: 10.5, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 500 };
+  const ttl = { fontFamily: font.display, fontSize: 25, color: t.ink, lineHeight: 1.1 };
+  const sub = { fontSize: 13, color: t.inkSoft, lineHeight: 1.5, flex: 1 };
+  const arw = { marginTop: 10, fontSize: 12.5, color: t.pine, fontWeight: 500 };
+  return (<div style={{ maxWidth: 920, margin: "0 auto", padding: "40px clamp(20px,5vw,48px) 100px" }}>
+    <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 20 }}>← Home</button>
+    <div style={{ textAlign: "center", marginBottom: 34 }}>
+      <div style={ey}>Voyage One</div>
+      <div style={{ fontFamily: font.display, fontSize: "clamp(32px,6vw,48px)", color: t.ink, marginTop: 8 }}>How would you like to begin?</div>
+      <div style={{ width: 48, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto 0" }} />
+    </div>
+    <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}>
+      <button onClick={onKnow} style={card}><span style={ey}>A plan in mind</span><span style={ttl}>I know where and when</span><span style={sub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span><span style={arw}>Start planning →</span></button>
+      <button onClick={onOpen} style={card}><span style={ey}>Open to ideas</span><span style={ttl}>I know when — inspire me</span><span style={sub}>Give us the season and a mood — ski, beach, a region — and we'll suggest where.</span><span style={arw}>Explore ideas →</span></button>
+      <button onClick={onInspire} style={card}><span style={ey}>The One List</span><span style={ttl}>Inspire me by an event</span><span style={sub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span><span style={arw}>Open The One List →</span></button>
+    </div>
+  </div>);
+}
+function OneList({ onPick, onBack, onHome }) {
+  const [cat, setCat] = useState(null);
+  const [type, setType] = useState(null);
+  const shell = { maxWidth: 920, margin: "0 auto", padding: "40px clamp(20px,5vw,48px) 100px" };
+  const ey = { fontSize: 10.5, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 500 };
+  const grid = { display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" };
+  const tile = { textAlign: "left", background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, padding: "20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 };
+  const arw = { marginTop: 10, fontSize: 12.5, color: t.pine, fontWeight: 500 };
+  const back = (fn, label) => (<button onClick={fn} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 20 }}>← {label}</button>);
+  const head = (title, sub) => (<div style={{ textAlign: "center", marginBottom: 30 }}><div style={ey}>The One List</div><div style={{ fontFamily: font.display, fontSize: "clamp(30px,5.5vw,44px)", color: t.ink, marginTop: 8 }}>{title}</div>{sub ? <div style={{ fontSize: 14, color: t.inkSoft, marginTop: 8, maxWidth: 520, marginLeft: "auto", marginRight: "auto", lineHeight: 1.5 }}>{sub}</div> : null}<div style={{ width: 48, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto 0" }} /></div>);
+  if (cat && type) {
+    const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
+    return (<div style={shell}>
+      {back(() => setType(null), "back to " + cat)}
+      {head(type, "A short, curated few. Choose one and we'll set the dates and build the trip.")}
+      <div style={grid}>
+        {events.map((ev, k) => (<button key={k} onClick={() => onPick(ev)} style={tile}>
+          <span style={{ fontFamily: font.display, fontSize: 23, color: t.ink, lineHeight: 1.1 }}>{ev.title}</span>
+          <span style={{ fontSize: 12.5, color: t.inkFaint }}>{ev.city}</span>
+          <span style={{ fontSize: 12, letterSpacing: "0.05em", color: t.brass, fontWeight: 500 }}>{ev.dateLabel}</span>
+          <span style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, flex: 1 }}>{ev.blurb}</span>
+          <span style={arw}>Plan this trip →</span>
+        </button>))}
+      </div>
+    </div>);
+  }
+  if (cat) {
+    const types = Object.keys(ONE_LIST[cat] || {});
+    return (<div style={shell}>
+      {back(() => setCat(null), "back to categories")}
+      {head(cat, "What kind?")}
+      <div style={grid}>
+        {types.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={tile}>
+          <span style={{ fontFamily: font.display, fontSize: 24, color: t.ink }}>{ty}</span>
+          <span style={{ fontSize: 12.5, color: t.inkFaint }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
+          <span style={arw}>See them →</span>
+        </button>))}
+      </div>
+    </div>);
+  }
+  const cats = Object.keys(ONE_LIST);
+  return (<div style={shell}>
+    {back(onBack, "how to begin")}
+    {head("What inspires you?", "Pick a category, then a type, then a short curated few — never a long list.")}
+    <div style={grid}>
+      {cats.map((c) => (<button key={c} onClick={() => setCat(c)} style={tile}>
+        <span style={{ fontFamily: font.display, fontSize: 26, color: t.ink }}>{c}</span>
+        <span style={{ fontSize: 12.5, color: t.inkFaint }}>{Object.keys(ONE_LIST[c]).length} kinds</span>
+        <span style={arw}>Explore →</span>
+      </button>))}
+    </div>
+  </div>);
+}
 function StepBasics(p) {
   const setTrav = (i, patch) => p.setTravelers(p.travelers.map((x, k) => (k === i ? { ...x, ...patch } : x)));
   const addTrav = () => p.setTravelers([...p.travelers, { first: "", last: "" }]);
