@@ -814,7 +814,7 @@ function buildPrep(p) {
   if (wine.length) pack.push(["Room in the case, or a wine skin", `You will buy bottles in ${fmtList(wine)}. Plan the journey home.`]);
   const hills = withTag("hills");
   if (hills.length && !steps.length) pack.push(["Shoes you can climb in", `${fmtList(hills)} ${hills.length === 1 ? "is" : "are"} steeper than the photographs admit.`]);
-  if (dressy) pack.push(["One jacket, one dressy option", "The rooms and tables you have chosen expect it after dark."]);
+  // (Removed the automatic "one jacket, one dressy option" line — our travellers pack their own formalwear, and these trips run heavy on it.)
   if (longHaul) pack.push(["A Type C/F plug adapter", "Europe's two-pin sockets will not take a US plug."]);
   const before = [];
   if (longHaul) before.push(["Check your passport now, not the week before", "Schengen wants at least three months' validity beyond your return, and a passport issued within the last ten years. Both are enforced."]);
@@ -1987,22 +1987,22 @@ const ONE_LIST = {
   },
 };
 function StartChooser({ onKnow, onOpen, onInspire, onHome }) {
-  const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 16, padding: "20px 24px", cursor: "pointer", display: "flex", alignItems: "center", gap: 18, width: "100%" };
-  const cEy = { display: "block", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
-  const cTtl = { display: "block", fontFamily: font.display, fontSize: 24, color: t.paper, lineHeight: 1.14, margin: "4px 0" };
-  const cSub = { display: "block", fontSize: 13, color: "#D8D2C6", lineHeight: 1.5 };
-  const cArw = { fontSize: 26, color: t.brassLight, fontWeight: 400, flexShrink: 0 };
-  return (<div style={{ maxWidth: 640, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 56px" }}>
-    <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 22 }}>← Home</button>
-    <div style={{ textAlign: "center", marginBottom: 32 }}>
-      <div style={{ fontFamily: font.display, fontSize: "clamp(38px,8vw,58px)", color: t.pine, fontWeight: 600, letterSpacing: "0.01em" }}>Voyage One</div>
-      <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "14px auto" }} />
-      <div style={{ fontSize: 16, color: t.inkSoft, letterSpacing: "0.02em" }}>How would you like to begin?</div>
+  const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
+  const cEy = { display: "block", fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
+  const cTtl = { display: "block", fontFamily: font.display, fontSize: 33, color: t.paper, lineHeight: 1.12, margin: "7px 0" };
+  const cSub = { display: "block", fontSize: 16, color: "#D8D2C6", lineHeight: 1.5 };
+  const cArw = { fontSize: 36, color: t.brassLight, fontWeight: 400, flexShrink: 0 };
+  return (<div style={{ maxWidth: 720, margin: "0 auto", padding: "40px clamp(20px,5vw,48px) 72px" }}>
+    <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 24 }}>← Home</button>
+    <div style={{ textAlign: "center", marginBottom: 40 }}>
+      <div style={{ fontFamily: font.display, fontSize: "clamp(42px,9vw,64px)", color: t.pine, fontWeight: 600, letterSpacing: "0.01em" }}>Voyage One</div>
+      <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto" }} />
+      <div style={{ fontSize: 17, color: t.inkSoft, letterSpacing: "0.02em" }}>How would you like to begin?</div>
     </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
       <button onClick={onKnow} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span></span><span style={cArw}>→</span></button>
       <button onClick={onOpen} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — let's explore the what and where</span><span style={cSub}>Give us the season and a mood — ski, beach, a region — and we'll suggest where.</span></span><span style={cArw}>→</span></button>
-      <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me by an experience</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
+      <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me with an experience</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
     </div>
   </div>);
 }
@@ -2180,7 +2180,7 @@ function OneList({ onPick, onBack, onHome }) {
   }
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
-    return (<><DrawBoardBackdrop /><div style={shell}>
+    return (<div style={shell}>
       {back(() => setType(null), "back to " + cat)}
       {head(type, "A short, curated few. Tap one for the insider guide, then plan the trip.")}
       <div style={grid}>
@@ -2193,11 +2193,11 @@ function OneList({ onPick, onBack, onHome }) {
           <span style={cArw}>Plan this trip →</span>
         </button>))}
       </div>
-    </div></>);
+    </div>);
   }
   if (cat) {
     const types = Object.keys(ONE_LIST[cat] || {});
-    return (<><DrawBoardBackdrop /><div style={shell}>
+    return (<div style={shell}>
       {back(() => setCat(null), "back to categories")}
       {head(cat, "What kind?")}
       <div style={grid}>
@@ -2207,10 +2207,10 @@ function OneList({ onPick, onBack, onHome }) {
           <span style={cArw}>See them →</span>
         </button>))}
       </div>
-    </div></>);
+    </div>);
   }
   const cats = Object.keys(ONE_LIST);
-  return (<><DrawBoardBackdrop /><div style={shell}>
+  return (<div style={shell}>
     {back(onBack, "how to begin")}
     {head("What inspires you?", "Pick a category, then a type, then a short curated few — never a long list.")}
     <div style={grid}>
@@ -2220,7 +2220,7 @@ function OneList({ onPick, onBack, onHome }) {
         <span style={cArw}>Explore →</span>
       </button>))}
     </div>
-  </div></>);
+  </div>);
 }
 function StepBasics(p) {
   const setTrav = (i, patch) => p.setTravelers(p.travelers.map((x, k) => (k === i ? { ...x, ...patch } : x)));
