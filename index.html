@@ -2061,9 +2061,13 @@ function OneList({ onPick, onBack, onHome }) {
   const [stayPick, setStayPick] = useState(null);
   const [stayType, setStayType] = useState("");
   const shell = { maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px", position: "relative", zIndex: 1 };
-  const grid = { display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" };
-  const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 16, padding: "22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 };
-  const cArw = { marginTop: 12, fontSize: 12.5, color: t.brassLight, fontWeight: 500 };
+  const grid = { display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" };
+  const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "26px 28px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7 };
+  const cArw = { marginTop: 14, fontSize: 14, color: t.brassLight, fontWeight: 500 };
+  const recCard = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
+  const rowTile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "24px 22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7, flex: "1 1 0", minWidth: 0 };
+  const TYPE_ROWS = { "Sport": [3, 2, 3], "Arts & Culture": [2, 2], "Signature Journeys": [2, 2] };
+  const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<button onClick={fn} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 22 }}>← {label}</button>);
   const head = (title, sub) => (<div style={{ textAlign: "center", marginBottom: 32 }}>
     <div style={{ fontFamily: font.display, fontSize: "clamp(30px,6vw,44px)", color: t.pine, fontWeight: 600 }}>Voyage One</div>
@@ -2185,39 +2189,44 @@ function OneList({ onPick, onBack, onHome }) {
       {head(type, "A short, curated few. Tap one for the insider guide, then plan the trip.")}
       <div style={grid}>
         {events.map((ev, k) => (<button key={k} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setStayPick(null); setStayType(""); }} style={tile}>
-          <span style={{ fontFamily: font.display, fontSize: 24, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
-          <span style={{ fontSize: 12.5, color: t.brassLight }}>{ev.city}</span>
-          <span style={{ fontSize: 12, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
-          <span style={{ fontSize: 13, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
-          {ev.airport ? <span style={{ fontSize: 11.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
+          <span style={{ fontFamily: font.display, fontSize: 28, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
+          <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
+          <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
+          <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
+          {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
           <span style={cArw}>Plan this trip →</span>
         </button>))}
       </div>
     </div>);
   }
   if (cat) {
-    const types = Object.keys(ONE_LIST[cat] || {});
+    const types = Object.keys(ONE_LIST[cat] || {}).sort((a, b) => a.localeCompare(b));
+    const rows = chunkRows(types, TYPE_ROWS[cat]);
     return (<div style={shell}>
       {back(() => setCat(null), "back to categories")}
       {head(cat, "What kind?")}
-      <div style={grid}>
-        {types.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={tile}>
-          <span style={{ fontFamily: font.display, fontSize: 25, color: t.paper }}>{ty}</span>
-          <span style={{ fontSize: 12.5, color: t.brassLight }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
-          <span style={cArw}>See them →</span>
-        </button>))}
+      <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 780, margin: "0 auto" }}>
+        {rows.map((row, ri) => (<div key={ri} style={{ display: "flex", gap: 18 }}>
+          {row.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={rowTile}>
+            <span style={{ fontFamily: font.display, fontSize: 23, color: t.paper, lineHeight: 1.14 }}>{ty}</span>
+            <span style={{ fontSize: 13, color: t.brassLight }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
+            <span style={cArw}>See them →</span>
+          </button>))}
+        </div>))}
       </div>
     </div>);
   }
-  const cats = Object.keys(ONE_LIST);
+  const cats = Object.keys(ONE_LIST).sort((a, b) => a.localeCompare(b));
   return (<div style={shell}>
     {back(onBack, "how to begin")}
     {head("What inspires you?", "Pick a category, then a type, then a short curated few — never a long list.")}
-    <div style={grid}>
-      {cats.map((c) => (<button key={c} onClick={() => setCat(c)} style={tile}>
-        <span style={{ fontFamily: font.display, fontSize: 27, color: t.paper }}>{c}</span>
-        <span style={{ fontSize: 12.5, color: t.brassLight }}>{Object.keys(ONE_LIST[c]).length} kinds</span>
-        <span style={cArw}>Explore →</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 720, margin: "0 auto" }}>
+      {cats.map((c) => (<button key={c} onClick={() => setCat(c)} style={recCard}>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontFamily: font.display, fontSize: 33, color: t.paper, lineHeight: 1.1 }}>{c}</span>
+          <span style={{ display: "block", fontSize: 14.5, color: t.brassLight, marginTop: 6 }}>{Object.keys(ONE_LIST[c]).length} kinds</span>
+        </span>
+        <span style={{ fontSize: 34, color: t.brassLight, flexShrink: 0 }}>→</span>
       </button>))}
     </div>
   </div>);
