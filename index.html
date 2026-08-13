@@ -1411,7 +1411,7 @@ function VoyageOne() {
   const seedFromEvent = (ev) => {
     if (ev.start && ev.end) setDates({ depart: ev.start, ret: ev.end });
     setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights: ev.nights || 3, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }]);
-    setScreen("plan"); setStep(ev.start ? 1 : 0);
+    setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
     if (typeof window !== "undefined" && !window.confirm("Delete this journey? This cannot be undone.")) return;
@@ -1847,23 +1847,46 @@ const ONE_LIST = {
       { title: "The Ryder Cup", city: "Adare, Ireland", airport: "SNN", airportName: "Shannon", start: "2027-09-16", end: "2027-09-20", dateLabel: "Sep 17–19, 2027", nights: 4, blurb: "Europe and America at Adare Manor — a castle estate, roaring galleries and an Irish welcome." },
     ],
     "Tennis": [
-      { title: "Wimbledon", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-07", end: "2027-07-12", dateLabel: "June 28–July 11, 2027", nights: 5, blurb: "Strawberries, grass and the Centre Court finals — the most storied fortnight in tennis.", guide: {
-        days: "There is no ordinary day at Wimbledon. The first week is the connoisseur's secret — the top seeds playing the intimate outer courts, walkable and blissfully uncrowded. Since 2022 there is play on the middle Sunday too, so the fortnight never pauses. The second weekend is the crescendo: the Ladies' final on Saturday, the Gentlemen's on Sunday. Every single day is a day worth having.",
-        stay: [
-          { name: "Hotel du Vin at Cannizaro House", note: "An elegant Georgian mansion in its own parkland on Wimbledon Common — minutes from the grounds, and the local luxury choice that skips the central-London traffic entirely." },
-          { name: "The Dog & Fox, Wimbledon Village", note: "Boutique rooms above a handsome village gastropub, a short stroll from the gates — characterful, and exactly where you want to be for the fortnight." },
-          { name: "Central London, with a car — The Berkeley · Claridge's · The Peninsula", note: "Glorious if London itself is the trip, but budget 45–75 minutes each way in Championships traffic, and book a private car rather than cabs." },
+      { title: "Wimbledon", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-10", end: "2027-07-11", dateLabel: "June 28–July 11, 2027", nights: 5, blurb: "Strawberries and cream, the ivy running up the walls, the sound of the ball on the grass — it is all simply elevated at the All England Club.", guide: {
+        daysIntro: "First, the days. A Wimbledon trip begins here — not with flights, but with which days at the AEC you want. Your choice locks in the Debentures we buy and the nights we hold, and the price swings enormously from a first-round Monday to the Gentlemen's Final. Pick your days, then we'll set your arrival and departure from London.",
+        dayPicks: [
+          { label: "The First Week", dates: "Mon Jun 28 – Fri Jul 2, 2027", start: "2027-06-28", end: "2027-07-02", band: "Debentures from ≈ £4,400 / Centre Court day", note: "Busy and gloriously alive — not the quiet secret people imagine. But every top seed is in action, and it is the single best chance to see all your favourites. Few empty seats on Centre or No.1, if any." },
+          { label: "First Weekend", dates: "Sat Jul 3 – Sun Jul 4, 2027", start: "2027-07-03", end: "2027-07-04", band: "≈ £5,100–£6,400 / day", note: "Third and fourth rounds — the draw tightens to the real contenders, the big names moving onto the show courts." },
+          { label: "The Quarterfinals", dates: "Tue Jul 6 & Wed Jul 7, 2027", start: "2027-07-06", end: "2027-07-07", band: "≈ £8,000–£8,400 / day", note: "The last eight, back to back on Centre and No.1 — often the most concentrated tennis of the fortnight." },
+          { label: "The Semifinals", dates: "Ladies' Thu Jul 8 · Gentlemen's Fri Jul 9, 2027", start: "2027-07-08", end: "2027-07-09", band: "Ladies' ≈ £4,800 · Gentlemen's £16,700+", note: "The penultimate act, and to many the finest matches of them all." },
+          { label: "The Finals", dates: "Ladies' Sat Jul 10 · Gentlemen's Sun Jul 11, 2027", start: "2027-07-10", end: "2027-07-11", band: "Ladies' ≈ £5,800 · Gentlemen's £18,000+", note: "The crescendo — a champion crowned on Centre Court, the whole fortnight distilled into an afternoon." },
         ],
-        tickets: "For our clientele, Debentures only. They are the sole Wimbledon tickets that may be legally transferred, they seat you in the finest positions on Centre Court and No.1 Court, and they carry access to the private Debenture lounges, restaurants and gardens. We secure them directly — no ballot, no queue, no compromise.",
+        days: "There is no ordinary day at Wimbledon, but they are far from equal. Contrary to the myth, the first week is not blissfully uncrowded — it is busy, with barely a spare seat on Centre or No.1. What it offers instead is breadth: every top seed on court, and the chance to see all your favourite players in a single day. As the fortnight narrows, the tennis sharpens and the prices climb toward the finals.",
+        stayNote: "There is no hotel in Wimbledon Village worth the compromise, and at night you would far rather be dining in London. In our experience, drawing a line roughly 10km into the city still lets a private car reach the gates inside 45 minutes — and on the right day and hour, in barely 30. So we base you at a truly great London hotel: five-star only, the city by night, the tennis by day.",
+        stay: [
+          { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", note: "In Chelsea, so a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
+          { name: "The Berkeley", area: "Knightsbridge", note: "Among the shortest runs to the courts — quintessential London luxury, a rooftop pool and Marcus at the door." },
+          { name: "The Peninsula London", area: "Belgravia", note: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London for the daily transfer." },
+          { name: "The Goring", area: "Belgravia", note: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, with a garden of its own." },
+        ],
+        stayMore: "These are our four favourites for Wimbledon — but you may click through to any hotel we list, or simply tell us one you love and we will arrange it.",
+        tickets: "For our clientele, Debentures only. They are the sole Wimbledon tickets that may be legally resold, they seat you in the best positions on Centre Court and No.1 Court, and they carry access to the private Debenture lounges, restaurants and gardens. The All England Club issues five-year Debentures to their holders; we secure the individual days you want on the official Debenture market through our brokers — no ballot, no queue. Confirmed early, tickets arrive in your myWimbledon app in the weeks before The Championships, with exact seats assigned in the spring.",
+        ticketBands: [
+          { label: "First / second round", price: "≈ £4,400–£5,200" },
+          { label: "Third & fourth round", price: "≈ £5,100–£6,400" },
+          { label: "Quarterfinals", price: "≈ £8,000–£8,400" },
+          { label: "Ladies' Semifinal", price: "≈ £4,800" },
+          { label: "Gentlemen's Semifinal", price: "£16,700+" },
+          { label: "Ladies' Final", price: "≈ £5,800" },
+          { label: "Gentlemen's Final", price: "£18,000+" },
+        ],
+        ticketNote: "Estimates, per person for a Centre Court Debenture, drawn from recent secondary-market pricing — the true figure moves with the draw and the demand. We confirm the exact cost before anything is committed.",
         beyond: [
-          { name: "Wimbledon Village", note: "Long lunches and boutiques up the hill before play." },
-          { name: "Richmond Park & the river", note: "London's wildest royal park and Thames-side walks, ten minutes away." },
-          { name: "London in high summer", note: "The Proms, Chelsea in bloom, a Thames evening — pair the tennis with the season." },
+          { name: "A table worth the trip", note: "We hold the seats that don't come easily — a three-star tasting menu, or the room everyone is talking about this season." },
+          { name: "The season in full swing", note: "London in July: a night at the Opera or the Proms, the great galleries, Chelsea and Mayfair at their best." },
+          { name: "Privately, behind the ropes", note: "An after-hours view of the Crown Jewels, a curator-led morning, a private gallery hour — arranged for you alone." },
+          { name: "Out of town, if you wish", note: "An easy day to Oxford, Blenheim or Windsor by car — and back to London for dinner." },
         ],
         notes: [
-          "Cars, not cabs, on finals days — and leave early; the Village bottlenecks.",
-          "The grounds have no strict dress code, but the Debenture lounges lean smart — a jacket is welcome.",
-          "Strawberries and a glass of English sparkling at the top of the hill is the ritual.",
+          "Jet-lag, solved: from New York or Boston, take an early-evening flight and you land in London first thing — a full day to settle before any tennis. If you sleep poorly on planes whatever the seat, this is the single best thing you can do.",
+          "Cars, not cabs, on the big days — and leave early; the roads around the grounds bottleneck badly.",
+          "No strict dress code on the grounds, but the Debenture lounges lean smart — a jacket is welcome.",
+          "The ritual: strawberries and cream with a glass of English sparkling, taken at the top of the hill.",
         ],
       } },
       { title: "US Open · Finals Weekend", city: "New York City", airport: "JFK", airportName: "John F. Kennedy Intl", start: "2027-09-08", end: "2027-09-13", dateLabel: "Aug 30–Sep 12, 2027", nights: 5, blurb: "New York's late-summer roar — finals weekend under the lights at Arthur Ashe." },
@@ -1952,11 +1975,58 @@ function StartChooser({ onKnow, onOpen, onInspire, onHome }) {
     </div>
   </div>);
 }
+// Original artwork (not a photo): the Wimbledon draw-board tradition — the bracket of
+// hand-placed painted name slats, with the ladder the attendant climbs to change them
+// each round. Drawn in the brand palette and faded, as a background for the picking page.
+// Everything here is generated by hand, so it carries no copyright risk in a public repo.
+function DrawBoardBackdrop() {
+  const H = 700, W = 1000, margin = 40, sw = 130, sh = 20;
+  const rounds = [8, 4, 2, 1], colX = [170, 370, 570, 770];
+  const gap0 = (H - 2 * margin) / rounds[0];
+  const ys = [Array.from({ length: rounds[0] }, (_, i) => margin + (i + 0.5) * gap0)];
+  for (let c = 1; c < rounds.length; c++) ys[c] = Array.from({ length: rounds[c] }, (_, i) => (ys[c - 1][2 * i] + ys[c - 1][2 * i + 1]) / 2);
+  const slats = [];
+  ys.forEach((col, c) => col.forEach((y) => slats.push({ x: colX[c], y: y - sh / 2 })));
+  const conns = [];
+  for (let c = 0; c < rounds.length - 1; c++) for (let i = 0; i < rounds[c + 1]; i++) {
+    const y0 = ys[c][2 * i], y1 = ys[c][2 * i + 1], yn = ys[c + 1][i];
+    const xr = colX[c] + sw, xn = colX[c + 1], xm = (xr + xn) / 2;
+    conns.push(`M${xr} ${y0} H${xm} M${xr} ${y1} H${xm} M${xm} ${y0} V${y1} M${xm} ${yn} H${xn}`);
+  }
+  const r1 = [[55, 662], [128, 120]], r2 = [[92, 662], [165, 120]];
+  const lerp = (a, b, tt) => [a[0] + (b[0] - a[0]) * tt, a[1] + (b[1] - a[1]) * tt];
+  const rungs = [];
+  for (let k = 0; k < 8; k++) { const tt = 0.06 + k * (0.88 / 7); const p = lerp(r1[0], r1[1], tt), q = lerp(r2[0], r2[1], tt); rungs.push(`M${p[0].toFixed(1)} ${p[1].toFixed(1)} L${q[0].toFixed(1)} ${q[1].toFixed(1)}`); }
+  const ink = "#221D19", brass = "#A9884F";
+  return (<div aria-hidden="true" style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden", opacity: 0.2 }}>
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid slice" style={{ width: "100%", height: "100%" }}>
+      <defs>
+        <radialGradient id="v1fade" cx="52%" cy="42%" r="72%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="1" />
+          <stop offset="60%" stopColor="#fff" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <mask id="v1mask"><rect width={W} height={H} fill="url(#v1fade)" /></mask>
+      </defs>
+      <g mask="url(#v1mask)" fill="none">
+        <rect x="130" y="24" width="800" height="652" rx="10" stroke={ink} strokeOpacity="0.45" strokeWidth="2" />
+        <path d={conns.join(" ")} stroke={ink} strokeOpacity="0.55" strokeWidth="1.4" />
+        {slats.map((s, k) => (<g key={k}>
+          <rect x={s.x} y={s.y} width={sw} height={sh} rx="3" fill={brass} fillOpacity="0.22" stroke={brass} strokeOpacity="0.7" strokeWidth="1" />
+          <line x1={s.x + 10} y1={s.y + sh / 2} x2={s.x + sw * 0.62} y2={s.y + sh / 2} stroke={ink} strokeOpacity="0.6" strokeWidth="1.4" />
+        </g>))}
+        <path d={`M${r1[0][0]} ${r1[0][1]} L${r1[1][0]} ${r1[1][1]} M${r2[0][0]} ${r2[0][1]} L${r2[1][0]} ${r2[1][1]}`} stroke={ink} strokeOpacity="0.7" strokeWidth="3" strokeLinecap="round" />
+        <path d={rungs.join(" ")} stroke={ink} strokeOpacity="0.7" strokeWidth="2.4" strokeLinecap="round" />
+      </g>
+    </svg>
+  </div>);
+}
 function OneList({ onPick, onBack, onHome }) {
   const [cat, setCat] = useState(null);
   const [type, setType] = useState(null);
   const [sel, setSel] = useState(null);
-  const shell = { maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px" };
+  const [aecPick, setAecPick] = useState(null);
+  const shell = { maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px", position: "relative", zIndex: 1 };
   const grid = { display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" };
   const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 16, padding: "22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 };
   const cArw = { marginTop: 12, fontSize: 12.5, color: t.brassLight, fontWeight: 500 };
@@ -1968,42 +2038,66 @@ function OneList({ onPick, onBack, onHome }) {
     {sub ? <div style={{ fontSize: 14, color: t.inkSoft, marginTop: 8, maxWidth: 520, marginLeft: "auto", marginRight: "auto", lineHeight: 1.5 }}>{sub}</div> : null}
     <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto 0" }} />
   </div>);
-  const secTitle = { fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 };
-  const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.6 }}>{body}</div></div>);
-  const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 12, padding: "13px 15px" }}><div style={{ fontFamily: font.display, fontSize: 18, color: t.paper }}>{s.name}</div><div style={{ fontSize: 12.5, color: "#D8D2C6", lineHeight: 1.5, marginTop: 3 }}>{s.note}</div></div>))}</div>);
-  const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5 }}><strong style={{ color: t.ink }}>{b.name}</strong> — {b.note}</div>))}</div>);
-  const bul = (arr) => (<ul style={{ margin: 0, paddingLeft: 18, color: t.inkSoft, fontSize: 13.5, lineHeight: 1.6 }}>{(arr || []).map((x, k) => (<li key={k} style={{ marginBottom: 5 }}>{x}</li>))}</ul>);
+  const secTitle = { fontSize: 12.5, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 };
+  const secHead = (title) => (<div style={{ fontFamily: font.display, fontSize: 25, color: t.ink, marginBottom: 4 }}>{title}</div>);
+  const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
+  const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div><div style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 8 }}>View this hotel →</div></div>))}</div>);
+  const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong> — {b.note}</div>))}</div>);
+  const bul = (arr) => (<ul style={{ margin: 0, paddingLeft: 20, color: t.inkSoft, fontSize: 15, lineHeight: 1.65 }}>{(arr || []).map((x, k) => (<li key={k} style={{ marginBottom: 8 }}>{x}</li>))}</ul>);
+  const bandTable = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 0, border: `1px solid ${t.line}`, borderRadius: 12, overflow: "hidden", marginTop: 12 }}>{(arr || []).map((b, k) => (<div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "11px 15px", background: k % 2 ? t.card : t.white, borderTop: k ? `1px solid ${t.line}` : "none" }}><span style={{ fontSize: 14.5, color: t.ink }}>{b.label}</span><span style={{ fontFamily: font.display, fontSize: 17, color: t.pine, fontWeight: 600, whiteSpace: "nowrap" }}>{b.price}</span></div>))}</div>);
   if (sel) {
     const ev = sel, g = ev.guide;
+    const picks = (g && g.dayPicks) || null;
+    const needPick = !!picks;
+    const ready = !needPick || !!aecPick;
+    const planEv = aecPick ? { ...ev, start: aecPick.start, end: aecPick.end, dateLabel: aecPick.dates } : ev;
     return (<div style={shell}>
-      {back(() => setSel(null), "back to " + type)}
-      <div style={{ textAlign: "center", marginBottom: 22 }}>
-        <div style={{ fontFamily: font.display, fontSize: "clamp(30px,6vw,46px)", color: t.ink, lineHeight: 1.1 }}>{ev.title}</div>
-        <div style={{ fontSize: 13, color: t.brass, letterSpacing: "0.05em", marginTop: 8 }}>{ev.city} · {ev.dateLabel}</div>
-        {ev.airport ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 3 }}>✈ Fly into {ev.airportName} ({ev.airport})</div> : null}
+      {back(() => { setSel(null); setAecPick(null); }, "back to " + type)}
+      <div style={{ textAlign: "center", marginBottom: 26 }}>
+        <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.ink, lineHeight: 1.05 }}>{ev.title}</div>
+        <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city} · {ev.dateLabel}</div>
+        {ev.airport ? <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</div> : null}
       </div>
-      <div style={{ maxWidth: 680, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
-        <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.5 }}>{ev.blurb}</div>
+      <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 26 }}>
+        <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
         {g ? (<>
-          {g.days ? sect("The days", g.days) : null}
-          {g.stay ? (<div><div style={secTitle}>Where to stay</div>{stayList(g.stay)}</div>) : null}
-          {g.tickets ? sect("Getting in", g.tickets) : null}
-          {g.beyond ? (<div><div style={secTitle}>Beyond the main event</div>{beyondList(g.beyond)}</div>) : null}
-          {g.notes ? (<div><div style={secTitle}>Insider notes</div>{bul(g.notes)}</div>) : null}
-        </>) : (<div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.6 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
+          {picks ? (<div>
+            {secHead("The days")}
+            <div style={secTitle}>Step one · choose your days at the AEC</div>
+            {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
+                <button key={k} onClick={() => setAecPick(p)} style={{ textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 14, padding: "15px 17px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 5 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ fontFamily: font.display, fontSize: 21, color: on ? t.paper : t.ink }}>{p.label}</span>
+                    <span style={{ fontSize: 13, color: on ? t.brassLight : t.brass, fontWeight: 500 }}>{p.dates}</span>
+                  </div>
+                  <span style={{ fontSize: 13.5, fontWeight: 600, color: on ? t.brassLight : t.pine }}>{p.band}</span>
+                  <span style={{ fontSize: 14, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55 }}>{p.note}</span>
+                  {on ? <span style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 3 }}>✓ Selected — we'll confirm your London arrival and departure next</span> : null}
+                </button>); })}
+            </div>
+          </div>) : (g.days ? (<div>{secHead("The days")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
+          {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic" }}>{g.days}</div> : null}
+          {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}{stayList(g.stay)}{g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.stayMore}</div> : null}</div>) : null}
+          {g.tickets ? (<div>{secHead("Getting in, the right way")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          {g.beyond ? (<div>{secHead("Beyond the main event")}{beyondList(g.beyond)}</div>) : null}
+          {g.notes ? (<div>{secHead("Insider notes")}{bul(g.notes)}</div>) : null}
+        </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          <button onClick={() => onPick(ev)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 34px", fontSize: 15, fontWeight: 500, cursor: "pointer" }}>Plan this trip →</button>
+          {!ready ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>Choose your days above to begin.</div> : null}
+          <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
         </div>
       </div>
     </div>);
   }
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
-    return (<div style={shell}>
+    return (<><DrawBoardBackdrop /><div style={shell}>
       {back(() => setType(null), "back to " + cat)}
       {head(type, "A short, curated few. Tap one for the insider guide, then plan the trip.")}
       <div style={grid}>
-        {events.map((ev, k) => (<button key={k} onClick={() => setSel(ev)} style={tile}>
+        {events.map((ev, k) => (<button key={k} onClick={() => { setSel(ev); setAecPick(null); }} style={tile}>
           <span style={{ fontFamily: font.display, fontSize: 24, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
           <span style={{ fontSize: 12.5, color: t.brassLight }}>{ev.city}</span>
           <span style={{ fontSize: 12, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
@@ -2012,11 +2106,11 @@ function OneList({ onPick, onBack, onHome }) {
           <span style={cArw}>Plan this trip →</span>
         </button>))}
       </div>
-    </div>);
+    </div></>);
   }
   if (cat) {
     const types = Object.keys(ONE_LIST[cat] || {});
-    return (<div style={shell}>
+    return (<><DrawBoardBackdrop /><div style={shell}>
       {back(() => setCat(null), "back to categories")}
       {head(cat, "What kind?")}
       <div style={grid}>
@@ -2026,10 +2120,10 @@ function OneList({ onPick, onBack, onHome }) {
           <span style={cArw}>See them →</span>
         </button>))}
       </div>
-    </div>);
+    </div></>);
   }
   const cats = Object.keys(ONE_LIST);
-  return (<div style={shell}>
+  return (<><DrawBoardBackdrop /><div style={shell}>
     {back(onBack, "how to begin")}
     {head("What inspires you?", "Pick a category, then a type, then a short curated few — never a long list.")}
     <div style={grid}>
@@ -2039,7 +2133,7 @@ function OneList({ onPick, onBack, onHome }) {
         <span style={cArw}>Explore →</span>
       </button>))}
     </div>
-  </div>);
+  </div></>);
 }
 function StepBasics(p) {
   const setTrav = (i, patch) => p.setTravelers(p.travelers.map((x, k) => (k === i ? { ...x, ...patch } : x)));
