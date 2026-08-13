@@ -1410,7 +1410,8 @@ function VoyageOne() {
   // journeys land on Basics so you choose your week within the season.
   const seedFromEvent = (ev) => {
     if (ev.start && ev.end) setDates({ depart: ev.start, ret: ev.end });
-    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights: ev.nights || 3, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }]);
+    const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null } : null;
+    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights: ev.nights || 3, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
@@ -1856,15 +1857,15 @@ const ONE_LIST = {
           { label: "The Semifinals", dates: "Ladies' Thu Jul 8 · Gentlemen's Fri Jul 9, 2027", start: "2027-07-08", end: "2027-07-09", band: "Ladies' ≈ £4,800 · Gentlemen's £16,700+", note: "The penultimate act, and to many the finest matches of them all." },
           { label: "The Finals", dates: "Ladies' Sat Jul 10 · Gentlemen's Sun Jul 11, 2027", start: "2027-07-10", end: "2027-07-11", band: "Ladies' ≈ £5,800 · Gentlemen's £18,000+", note: "The crescendo — a champion crowned on Centre Court, the whole fortnight distilled into an afternoon." },
         ],
-        days: "There is no ordinary day at Wimbledon, but they are far from equal. Contrary to the myth, the first week is not blissfully uncrowded — it is busy, with barely a spare seat on Centre or No.1. What it offers instead is breadth: every top seed on court, and the chance to see all your favourite players in a single day. As the fortnight narrows, the tennis sharpens and the prices climb toward the finals.",
+        days: "There is no ordinary day at Wimbledon, but they are far from equal. Contrary to the myth, the first week is not blissfully uncrowded — it is busy and gloriously alive. What it offers instead is breadth: every top seed on court, and the chance to see all your favourite players in a single day. As the fortnight narrows, the tennis sharpens and the prices climb toward the finals.",
         stayNote: "There is no hotel in Wimbledon Village worth the compromise, and at night you would far rather be dining in London. In our experience, drawing a line roughly 10km into the city still lets a private car reach the gates inside 45 minutes — and on the right day and hour, in barely 30. So we base you at a truly great London hotel: five-star only, the city by night, the tennis by day.",
         stay: [
-          { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", note: "In Chelsea, so a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
-          { name: "The Berkeley", area: "Knightsbridge", note: "Among the shortest runs to the courts — quintessential London luxury, a rooftop pool and Marcus at the door." },
-          { name: "The Peninsula London", area: "Belgravia", note: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London for the daily transfer." },
-          { name: "The Goring", area: "Belgravia", note: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, with a garden of its own." },
+          { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", rate: 1150, note: "In Chelsea, so a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
+          { name: "The Berkeley", area: "Knightsbridge", rate: 1250, note: "Among the shortest runs to the courts — quintessential London luxury, a rooftop pool and Marcus at the door." },
+          { name: "The Peninsula London", area: "Belgravia", rate: 1450, note: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London for the daily transfer." },
+          { name: "The Goring", area: "Belgravia", rate: 1050, note: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, with a garden of its own." },
         ],
-        stayMore: "These are our four favourites for Wimbledon — but you may click through to any hotel we list, or simply tell us one you love and we will arrange it.",
+        stayMore: "These four are our favourites for Wimbledon. When you plan the trip, you can keep any of them — or search for a hotel you love by name — right inside the builder, without losing your place.",
         tickets: "For our clientele, Debentures only. They are the sole Wimbledon tickets that may be legally resold, they seat you in the best positions on Centre Court and No.1 Court, and they carry access to the private Debenture lounges, restaurants and gardens. The All England Club issues five-year Debentures to their holders; we secure the individual days you want on the official Debenture market through our brokers — no ballot, no queue. Confirmed early, tickets arrive in your myWimbledon app in the weeks before The Championships, with exact seats assigned in the spring.",
         ticketBands: [
           { label: "First / second round", price: "≈ £4,400–£5,200" },
@@ -2026,6 +2027,8 @@ function OneList({ onPick, onBack, onHome }) {
   const [type, setType] = useState(null);
   const [sel, setSel] = useState(null);
   const [aecPick, setAecPick] = useState(null);
+  const [stayPick, setStayPick] = useState(null);
+  const [stayType, setStayType] = useState("");
   const shell = { maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px", position: "relative", zIndex: 1 };
   const grid = { display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" };
   const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 16, padding: "22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 };
@@ -2039,9 +2042,9 @@ function OneList({ onPick, onBack, onHome }) {
     <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto 0" }} />
   </div>);
   const secTitle = { fontSize: 12.5, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 };
-  const secHead = (title) => (<div style={{ fontFamily: font.display, fontSize: 25, color: t.ink, marginBottom: 4 }}>{title}</div>);
+  const secHead = (title) => (<div style={{ fontFamily: font.display, fontSize: 27, color: t.ink, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.09em", textAlign: "center", marginBottom: 12 }}>{title}</div>);
   const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
-  const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div><div style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 8 }}>View this hotel →</div></div>))}</div>);
+  const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div></div>))}</div>);
   const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong> — {b.note}</div>))}</div>);
   const bul = (arr) => (<ul style={{ margin: 0, paddingLeft: 20, color: t.inkSoft, fontSize: 15, lineHeight: 1.65 }}>{(arr || []).map((x, k) => (<li key={k} style={{ marginBottom: 8 }}>{x}</li>))}</ul>);
   const bandTable = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 0, border: `1px solid ${t.line}`, borderRadius: 12, overflow: "hidden", marginTop: 12 }}>{(arr || []).map((b, k) => (<div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "11px 15px", background: k % 2 ? t.card : t.white, borderTop: k ? `1px solid ${t.line}` : "none" }}><span style={{ fontSize: 14.5, color: t.ink }}>{b.label}</span><span style={{ fontFamily: font.display, fontSize: 17, color: t.pine, fontWeight: 600, whiteSpace: "nowrap" }}>{b.price}</span></div>))}</div>);
@@ -2050,9 +2053,9 @@ function OneList({ onPick, onBack, onHome }) {
     const picks = (g && g.dayPicks) || null;
     const needPick = !!picks;
     const ready = !needPick || !!aecPick;
-    const planEv = aecPick ? { ...ev, start: aecPick.start, end: aecPick.end, dateLabel: aecPick.dates } : ev;
+    const planEv = { ...ev, ...(aecPick ? { start: aecPick.start, end: aecPick.end, dateLabel: aecPick.dates } : {}), stay: stayPick || null };
     return (<div style={shell}>
-      {back(() => { setSel(null); setAecPick(null); }, "back to " + type)}
+      {back(() => { setSel(null); setAecPick(null); setStayPick(null); setStayType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.ink, lineHeight: 1.05 }}>{ev.title}</div>
         <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city} · {ev.dateLabel}</div>
@@ -2078,9 +2081,40 @@ function OneList({ onPick, onBack, onHome }) {
                 </button>); })}
             </div>
           </div>) : (g.days ? (<div>{secHead("The days")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
-          {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic" }}>{g.days}</div> : null}
-          {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}{stayList(g.stay)}{g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.stayMore}</div> : null}</div>) : null}
-          {g.tickets ? (<div>{secHead("Getting in, the right way")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
+          {g.tickets ? (<div>{secHead("Getting in, the right way")}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your days: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {g.stay.map((s, k) => { const on = stayPick && stayPick.name === s.name; return (
+                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
+                    {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
+                  </div>
+                  <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
+                    <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ £${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
+                    <span style={{ fontSize: 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: 500 }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
+                  </div>
+                </button>); })}
+            </div>
+            <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates — placeholders until live rates connect.</div>
+            <div style={{ marginTop: 18 }}>
+              <div style={{ fontSize: 14, color: t.inkSoft, marginBottom: 8 }}>Prefer a different hotel? Type its name and we'll source it for you.</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <input value={stayType} onChange={(e) => setStayType(e.target.value)} placeholder="e.g. Claridge's" style={{ flex: "1 1 220px", fontSize: 15, padding: "12px 13px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink, outline: "none" }} />
+                <button onClick={() => { const n = stayType.trim(); if (n) setStayPick({ name: n, area: "Your choice", rate: null, note: "We'll source and confirm this hotel for you — rates on request." }); }} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 10, padding: "12px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>Choose this →</button>
+              </div>
+              {stayPick && !g.stay.some((s) => s.name === stayPick.name) ? (<div style={{ marginTop: 12, background: t.pine, border: `2px solid ${t.brass}`, borderRadius: 14, padding: "16px 18px" }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{stayPick.name}</div>
+                  <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>Your choice</div>
+                </div>
+                <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{stayPick.note}</div>
+                <div style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 10 }}>✓ Your choice</div>
+              </div>) : null}
+            </div>
+            {g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.stayMore}</div> : null}</div>) : null}
           {g.beyond ? (<div>{secHead("Beyond the main event")}{beyondList(g.beyond)}</div>) : null}
           {g.notes ? (<div>{secHead("Insider notes")}{bul(g.notes)}</div>) : null}
         </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
@@ -2097,7 +2131,7 @@ function OneList({ onPick, onBack, onHome }) {
       {back(() => setType(null), "back to " + cat)}
       {head(type, "A short, curated few. Tap one for the insider guide, then plan the trip.")}
       <div style={grid}>
-        {events.map((ev, k) => (<button key={k} onClick={() => { setSel(ev); setAecPick(null); }} style={tile}>
+        {events.map((ev, k) => (<button key={k} onClick={() => { setSel(ev); setAecPick(null); setStayPick(null); setStayType(""); }} style={tile}>
           <span style={{ fontFamily: font.display, fontSize: 24, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
           <span style={{ fontSize: 12.5, color: t.brassLight }}>{ev.city}</span>
           <span style={{ fontSize: 12, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
