@@ -2250,7 +2250,7 @@ function OneList({ onPick, onBack, onHome }) {
                 {aecPick.tiers.map((tr, ti) => { const on = ballTier && ballTier.tier === tr.tier; return (
                   <button key={ti} onClick={() => setBallTier(tr)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
                     <span style={{ fontSize: 15, color: on ? t.paper : t.ink }}>{tr.label}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: on ? t.brassLight : t.brass }}>{on ? "✓ Locked" : "Choose"}</span>
+                    <span style={{ fontSize: on ? 14.5 : 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass }}>{on ? "✓ Locked" : "Choose"}</span>
                   </button>); })}
               </div>
               <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div>
@@ -2278,7 +2278,7 @@ function OneList({ onPick, onBack, onHome }) {
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
                   </div>
                   <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
-                  <div style={{ fontSize: 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: 500, marginTop: 9 }}>{on ? "✓ Your costume house" : "Choose this →"}</div>
+                  <div style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", marginTop: 10 }}>{on ? "✓ Your costume house" : "Choose this →"}</div>
                 </button>); })}
             </div>
             {g.costumeMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.costumeMore}</div> : null}</div>) : null}
@@ -2293,7 +2293,7 @@ function OneList({ onPick, onBack, onHome }) {
                   <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
                     <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
-                    <span style={{ fontSize: 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: 500 }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
+                    <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
                 </button>); })}
             </div>
