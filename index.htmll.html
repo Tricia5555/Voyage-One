@@ -113,6 +113,14 @@ const FAVORITES = {
     { name: "The Peninsula London", area: "Belgravia", rate: 1450, desc: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London." },
     { name: "The Goring", area: "Belgravia", rate: 1050, desc: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, a garden of its own." },
   ],
+  "Venice": [
+    { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
+    { name: "The St. Regis Venice", area: "Grand Canal", rate: 1900, desc: "Sleek and contemporary on the Grand Canal, close to San Marco, with the best terrace bar in the city." },
+    { name: "Danieli, a Four Seasons Hotel", area: "San Marco", rate: 2400, desc: "The 200-year-old icon by the Doge's Palace, reborn as a Four Seasons in 2026 — the most central of the grand hotels." },
+    { name: "Aman Venice", area: "Grand Canal", rate: 3200, desc: "A hushed frescoed palazzo with a private garden — the discreet, ultra-exclusive choice." },
+    { name: "Belmond Hotel Cipriani", area: "Giudecca", rate: 2600, desc: "Garden, pool and seclusion on Giudecca island, reached by private launch." },
+    { name: "Ca' Sagredo", area: "Cannaregio", rate: 1400, desc: "A genuine 15th-century palazzo-museum with a monumental frescoed staircase." },
+  ],
 };
 const EATS = {
   "Positano": { UltraLux: [["La Sponda", 250, "Candlelit by 400 candles, Michelin dining above the bay."], ["Zass", 220, "Michelin terrace at Il San Pietro, right over the water."]], Luxury: [["Next2", 110, "Modern Campanian cooking on a candlelit terrace."]], Refined: [["Chez Black", 70, "Beachfront institution for seafood pasta."], ["Da Vincenzo", 65, "Family-run classics just off the main street."]], Essential: [["C'era Una Volta", 35, "Honest trattoria up the hill, away from the crowds."]] },
@@ -814,7 +822,7 @@ function buildPrep(p) {
   if (wine.length) pack.push(["Room in the case, or a wine skin", `You will buy bottles in ${fmtList(wine)}. Plan the journey home.`]);
   const hills = withTag("hills");
   if (hills.length && !steps.length) pack.push(["Shoes you can climb in", `${fmtList(hills)} ${hills.length === 1 ? "is" : "are"} steeper than the photographs admit.`]);
-  if (dressy) pack.push(["One jacket, one dressy option", "The rooms and tables you have chosen expect it after dark."]);
+  // (Removed the automatic "one jacket, one dressy option" line — our travellers pack their own formalwear, and these trips run heavy on it.)
   if (longHaul) pack.push(["A Type C/F plug adapter", "Europe's two-pin sockets will not take a US plug."]);
   const before = [];
   if (longHaul) before.push(["Check your passport now, not the week before", "Schengen wants at least three months' validity beyond your return, and a passport issued within the last ten years. Both are enforced."]);
@@ -1420,9 +1428,27 @@ function VoyageOne() {
   // into the builder. Fixed-date events land you on Departure (dates already set); season-based
   // journeys land on Basics so you choose your week within the season.
   const seedFromEvent = (ev) => {
-    if (ev.start && ev.end) setDates({ depart: ev.start, ret: ev.end });
     const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null } : null;
-    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights: ev.nights || 3, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }]);
+    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date }));
+    // Never fly in on the day of a fixed, ticketed event. When the client has chosen specific
+    // event days, land them a set number of full days ahead so there is time to cross, settle
+    // and — where the experience needs it, like a Carnival costume fitting — get ready before
+    // the first day. arriveDaysBefore is that on-the-ground lead (default 1 settle day; Venice
+    // sets 2 for the fitting). Because departure is derived from it, the flight search that
+    // follows lands on the right date automatically. Home the day after the last event day.
+    const iso = (dt) => dt.toISOString().slice(0, 10);
+    const arriveDaysBefore = Number.isFinite(ev.arriveDaysBefore) ? ev.arriveDaysBefore : 1;
+    const evDates = (ev.aecDays || []).map((d) => d.date).filter(Boolean).sort();
+    let depart = ev.start || "", ret = ev.end || "", nights = ev.nights || 3;
+    if (evDates.length) {
+      depart = iso(addDays(new Date(evDates[0] + "T00:00:00"), -(arriveDaysBefore + 1)));
+      ret = iso(addDays(new Date(evDates[evDates.length - 1] + "T00:00:00"), 1));
+      nights = Math.max(1, Math.round((new Date(ret + "T00:00:00") - new Date(depart + "T00:00:00")) / 86400000) - 1);
+    }
+    // A chosen costume house becomes a dated line the day before the first event day — the fitting.
+    const seededTours = (ev.costume && evDates.length) ? [{ name: "Costume fitting · " + ev.costume.name, price: null, date: iso(addDays(new Date(evDates[0] + "T00:00:00"), -1)) }] : [];
+    if (depart && ret) setDates({ depart, ret });
+    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: [], tours: seededTours, spas: [], sports: seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
@@ -1919,10 +1945,9 @@ const ONE_LIST = {
           "The ritual: strawberries and cream with a glass of English sparkling, taken at the top of the hill.",
         ],
       } },
-      { title: "US Open · Finals Weekend", city: "New York City", airport: "JFK", airportName: "John F. Kennedy Intl", start: "2027-09-08", end: "2027-09-13", dateLabel: "Aug 30–Sep 12, 2027", nights: 5, blurb: "New York's late-summer roar — finals weekend under the lights at Arthur Ashe." },
-      { title: "Australian Open · Finals", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2027-01-26", end: "2027-02-01", dateLabel: "Jan 17–31, 2027", nights: 6, blurb: "Grand Slam summer down under — the finals at Rod Laver Arena." },
-      { title: "French Open · Finals", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, blurb: "The clay-court classic — Roland-Garros finals weekend, Paris in early summer." },
-      { title: "Indian Wells", city: "Palm Springs", airport: "PSP", airportName: "Palm Springs Intl", start: "2027-03-08", end: "2027-03-15", dateLabel: "Feb 28–Mar 14, 2027", nights: 5, blurb: "Tennis in the desert — courtside seats and a Coachella Valley weekend." },
+      { title: "The US Open", city: "New York City", airport: "JFK", airportName: "John F. Kennedy Intl", start: "2027-09-08", end: "2027-09-13", dateLabel: "Aug 30–Sep 12, 2027", nights: 5, blurb: "New York's late-summer roar in Flushing Meadows — thrilling on any day of the draw, from the first-round night sessions to the last under the lights at Arthur Ashe." },
+      { title: "The Australian Open", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2027-01-26", end: "2027-02-01", dateLabel: "Jan 17–31, 2027", nights: 6, blurb: "Grand Slam summer down under at Rod Laver Arena — a whole fortnight to choose from, opening week to the closing weekend." },
+      { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, blurb: "The clay-court classic at Roland-Garros — Paris in early summer, a joy on any day of the tournament." },
     ],
     "Horse Racing & Polo": [
       { title: "The Kentucky Derby", city: "Louisville", airport: "SDF", airportName: "Louisville Muhammad Ali Intl", start: "2027-04-30", end: "2027-05-02", dateLabel: "May 1, 2027", nights: 2, blurb: "The most exciting two minutes in sport — a box on Millionaires' Row, juleps and hats." },
@@ -1931,15 +1956,15 @@ const ONE_LIST = {
       { title: "The Grand National", city: "Liverpool", airport: "MAN", airportName: "Manchester", start: "2027-04-08", end: "2027-04-11", dateLabel: "April 10, 2027", nights: 3, blurb: "The world's greatest steeplechase — Aintree at its most thrilling, hospitality above the last fence." },
       { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-10", end: "2026-12-14", dateLabel: "December 12, 2026", nights: 4, blurb: "The Cathedral of Polo at Palermo — the Argentine Open final, the sport at its very highest level." },
     ],
-    "Football & Team": [
+    "Football & Fútbol": [
+      { title: "The FIFA World Cup Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "", end: "", dateLabel: "Returns 2030", nights: 5, blurb: "The single most-watched match on earth. The World Cup — and its final — return in 2030." },
       { title: "The Super Bowl", city: "Los Angeles", airport: "LAX", airportName: "Los Angeles Intl", start: "2027-02-12", end: "2027-02-16", dateLabel: "Feb 14, 2027", nights: 4, blurb: "The biggest night in American sport at SoFi — great seats and a week of parties around it." },
       { title: "Champions League Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 5, 2027", nights: 4, blurb: "Europe's grandest club final at the Metropolitano — the best single night in football." },
       { title: "College Football Championship", city: "Las Vegas", airport: "LAS", airportName: "Harry Reid Intl", start: "2027-01-23", end: "2027-01-26", dateLabel: "January 25, 2027", nights: 3, blurb: "The national title decided at Allegiant Stadium — the Strip as your basecamp." },
-      { title: "The Army–Navy Game", city: "New York City", airport: "EWR", airportName: "Newark Liberty Intl", start: "2026-12-11", end: "2026-12-13", dateLabel: "December 12, 2026", nights: 2, blurb: "America's most storied rivalry, at MetLife — pageantry, tradition, both academies on their feet." },
     ],
     "Global Games": [
       { title: "The Olympics · Los Angeles", city: "Los Angeles", airport: "LAX", airportName: "Los Angeles Intl", start: "2028-07-13", end: "2028-07-18", dateLabel: "Opens July 14, 2028", nights: 5, blurb: "The Opening Ceremony and the marquee finals — the world's greatest gathering returns to LA." },
-      { title: "FIFA World Cup Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "", end: "", dateLabel: "Returns 2030", nights: 5, blurb: "The single most-watched match on earth. The World Cup — and its final — return in 2030." },
+      { title: "The Winter Olympics · French Alps", city: "Courchevel", airport: "GVA", airportName: "Geneva", start: "", end: "", dateLabel: "Feb 1–17, 2030", nights: 6, blurb: "The Winter Games return to the French Alps — the marquee Alpine events above Courchevel and Val d'Isère, snow and glamour at altitude, with the closing ceremony on the Promenade des Anglais in Nice." },
     ],
     "Cycling": [
       { title: "Tour de France · Alpine Stages", city: "Geneva", airport: "GVA", airportName: "Geneva", start: "2027-07-16", end: "2027-07-21", dateLabel: "Alpine stages · mid-July 2027", nights: 5, blurb: "The Tour's mountain showdown — VIP at the summit finishes as the peloton grinds up legendary climbs." },
@@ -1964,7 +1989,86 @@ const ONE_LIST = {
     ],
     "Spectacle & Pageantry": [
       { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 3, blurb: "The bareback race around the Campo, from a private palazzo — medieval Siena at fever pitch." },
-      { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-09", dateLabel: "Jan 23–Feb 9, 2027", nights: 5, blurb: "A private masked ball in a Grand Canal palazzo — the city at its most mysterious and theatrical." },
+      { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-07", dateLabel: "Jan 30–Feb 9, 2027", nights: 4, arriveDaysBefore: 2, blurb: "A masked ball in a Grand Canal palazzo, a whole city dressed for the 18th century — Carnival at its most mysterious and theatrical.", guide: {
+        daysTitle: "Your evening",
+        pickStep: "Step one · choose your Carnival evening",
+        pickPrompt: "Which evening will you take?",
+        pickHelp: "Pick the ball — or the free finale — you want to build the trip around. This is the night we book first and well ahead; everything else is arranged around it.",
+        pickSettle: "Your ball needs a costume, and a costume needs a fitting — so we land you two days before it: one for the fitting and final adjustments, one to settle. That sets your arrival, and your flights fall in behind it. You'll confirm the exact dates next (three or four nights over the closing weekend is the sweet spot).",
+        recapLabel: "Your evening",
+        ticketsTitle: "The tickets, and when to book",
+        beyondTitle: "Beyond the ball",
+        cur: "€",
+        daysIntro: "Carnival comes down to one evening — how grand, how intimate, how much you want to be swept up in a spectacle versus pulled onto the floor yourself. That choice sets the whole trip. Here are the exciting options:",
+        dayPicks: [
+          { label: "The grand ball", dates: "Sat 6 Feb 2027", band: "Il Ballo del Doge · ≈ €1,600–€10,000 pp", note: "The most famous masked ball in the world — Antonia Sautter's spectacle in a Grand Canal palazzo: gala dinner, a hundred performers, dancing to 3am. You're placed at an assigned table with others (a private table for two is a top tier), and the programming sweeps you up. Costume compulsory.", date: "2027-02-06", tiers: [
+            { tier: "Doge Lounge", label: "Doge Lounge · after-cocktail seating · ≈ €1,600" },
+            { tier: "Section B dinner", label: "Section B · gala dinner + show · ≈ €4,000" },
+            { tier: "Supreme dinner", label: "Supreme · prime dinner tier · ≈ €6,000–€7,000" },
+            { tier: "Imperial private table", label: "Imperial · a private table for two · ≈ €10,000" },
+            { tier: "After-dinner", label: "After-dinner entry · from ~11:30pm · ≈ €800" },
+          ] },
+          { label: "An intimate palazzo evening", dates: "A Carnival night · early Feb 2027", band: "≈ €380–€550 pp", note: "Thirty to sixty guests in a frescoed palazzo — an immersive opera dinner-show (Don Giovanni at Palazzo Barbarigo Minotto, or similar). Far more personal than the mega-balls; a party of two feels part of the room, not lost in a crowd. Costume or black-tie with a mask.", date: "2027-02-05", tiers: [
+            { tier: "Dinner-show", label: "Palazzo opera dinner-show · ≈ €380–€550 (exact night to confirm)" },
+          ] },
+          { label: "A couples' evening — and dancing", dates: "A Carnival night · early Feb 2027", band: "≈ €750–€1,100 pp", note: "The Minuetto: you are actually taught the 18th-century court dances and led through them, so you take part rather than watch. The best answer for two people who want to feel included and end the night on the floor. Costume provided/required.", date: "2027-02-05", tiers: [
+            { tier: "Minuetto evening", label: "Minuetto masked evening · ≈ €750–€1,100 (exact night to confirm)" },
+          ] },
+          { label: "The city and the free Carnival", dates: "Closing weekend · 6–9 Feb 2027", band: "No ticket — free", note: "No ball at all. In costume in Piazza San Marco you ARE the spectacle — the best-costume contests on the stage, the Flight of the Lion finale on Martedì Grasso, photographers seeking you out at dawn. A couple can fill every day without a single ticket.", days: [ { date: "2027-02-06", label: "Closing Saturday · 6 Feb 2027" }, { date: "2027-02-09", label: "Martedì Grasso finale · 9 Feb 2027" } ] },
+        ],
+        tickets: "The balls sell by tier and the best go first, often months ahead. Il Ballo del Doge is bought only through its own site; the smaller balls and palazzo dinner-shows through the Venice ticket houses — we secure the tier you want the moment your evening is set. Every big ball also sells an after-dinner-only ticket (arrive near midnight for the show and the dancing) as the lighter way in. And a heads-up: if 2027 is already sold out — ball tiers and the best hotels do go early — look straight to 2028. Carnival climaxes on Martedì Grasso, 29 February 2028 (a leap-year finale), with the closing weekend around 26–27 February. It is not too early to hold a hotel for it.",
+        ticketBands: [
+          { label: "Il Ballo del Doge · Lounge", price: "≈ €1,600" },
+          { label: "Il Ballo del Doge · dinner tiers", price: "≈ €4,000–€7,000" },
+          { label: "Il Ballo del Doge · Imperial (private table)", price: "≈ €10,000" },
+          { label: "After-dinner entry (big balls)", price: "≈ €800" },
+          { label: "Palazzo dinner-show", price: "≈ €380–€550" },
+          { label: "Minuetto / couples' ball", price: "≈ €750–€1,100" },
+        ],
+        ticketNote: "Approximate, per person, from recent editions — ball prices rise each year and the 2027 tiers confirm when the program publishes. We confirm exact cost before anything is committed.",
+        costumesTitle: "Costumes & masks",
+        costumeNote: "Rent the costume, buy the mask. A full, spectacular 18th-century rental runs roughly €400–€800 for the day; a genuine artisan papier-mâché mask from about €35 into the hundreds. The marquee ateliers quote their finest pieces on request. TIMING: be in Venice at least two days before your ball — the day before is your fitting and final adjustments (and hair, if you'd like), then the ball. This is exactly why we set your arrival two days ahead, so your flights are booked to match. A bespoke, made-to-own costume is different: commission it several months out. We arrange the fitting, and a photographer for dawn in an empty Piazza San Marco.",
+        costumes: [
+          { name: "Nicolao Atelier", area: "Rental · Cannaregio", note: "The benchmark — over 10,000 hand-sewn costumes in Venetian silk, film-grade (Casanova, Pirates of the Caribbean). Fittings at the atelier; delivery within Venice." },
+          { name: "Antonia Sautter", area: "The Ballo del Doge atelier", note: "The name behind Il Ballo del Doge — around 1,500 costumes, and her team dresses you. The one to use for her ball; made-to-own pieces from about €3,500." },
+          { name: "Sogno Veneziano / VivoVenetia", area: "High-end rental", note: "Spectacular 24-hour rentals in the €400–€800 band, fitting and adjustments included — the practical route to a showstopping look." },
+          { name: "Ca' Macana", area: "Masks · Dorsoduro", note: "Artisan papier-mâché masks — the makers behind the masks in Eyes Wide Shut. From about €35 to bespoke." },
+          { name: "La Bottega dei Mascareri", area: "Masks · Rialto", note: "Traditional papier-mâché by the Boldrin brothers, on the Rialto bridge — the mask you keep as the souvenir." },
+        ],
+        stayNote: "You know these addresses — Grand Canal or steps from San Marco for the Carnival on foot, the island retreats for calm and a private launch across. The balls are in private palazzi, so we base you in a great hotel and take you to the ball.",
+        stay: [
+          { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, note: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot, with the Club del Doge terrace." },
+          { name: "The St. Regis Venice", area: "Grand Canal", rate: 1900, note: "Sleek and contemporary on the Grand Canal, very close to San Marco, with the best terrace bar in the city and butler service." },
+          { name: "Danieli, a Four Seasons Hotel", area: "San Marco waterfront", rate: 2400, note: "The 200-year-old icon on the Riva degli Schiavoni, steps from the Doge's Palace — reborn as a Four Seasons in 2026. The most central of the grand hotels." },
+          { name: "Aman Venice", area: "Grand Canal", rate: 3200, note: "A hushed 16th-century palazzo with a frescoed piano nobile and a private garden — the discreet, ultra-exclusive choice, tucked away from the crowds." },
+          { name: "Belmond Hotel Cipriani", area: "Giudecca island", rate: 2600, note: "Resort-in-the-city on Giudecca — Venice's only garden, the famous pool, reached by private launch. Seclusion, in exchange for a boat to the Piazza." },
+          { name: "Ca' Sagredo", area: "Grand Canal · Cannaregio", rate: 1400, note: "A genuine 15th-century noble palazzo-museum with a monumental frescoed staircase — more intimate and historic than the big flags." },
+        ],
+        stayMore: "Your favourites for Venice — choose any, or type another and we'll source it.",
+        beyond: [
+          { name: "A private boat on the lagoon", note: "Charter a classic wooden launch for a half-day to Murano, Burano and Torcello — the winter lagoon is empty and glorious. Booked through the concierge or a licensed motoscafi operator; reserve ahead, and always take a private launch, never the vaporetto, on gala nights." },
+          { name: "The tables, booked early", note: "Harry's Bar for the Bellini pilgrimage, Quadri on the Piazza, Oro at the Cipriani, Glam by Enrico Bartolini — Carnival fills them. We book the moment your dates are set, weeks ahead." },
+          { name: "A night gondola", note: "A private gondola through the quiet inner canals after dark — far more romantic than the daytime Grand Canal, and the city at its most secret." },
+          { name: "The free spectacle", note: "The Flight of the Angel over San Marco, the daily costume contests on the stage, the Flight of the Lion finale — all free, all yours simply by turning up in costume." },
+        ],
+        notes: [
+          "Book in this order, all well ahead: the ball tier, the hotel, the costume fitting, then the tables and the private boat. Carnival is the one week when everything sells out.",
+          "Acqua alta (high water) is real in February but short — usually a couple of hours around high tide, and San Marco floods first. Pack waterproof boots; the concierge reads the tide each morning.",
+          "It is cold and often foggy — dress warm under the costume, and plan indoor anchors (the ball, the great dinners, the hotel).",
+          "Go to the Piazza at dawn for the costume photographs — an empty square, soft light — long before the day-trippers arrive.",
+          "The final weekend is the climax (the biggest costumes, the stage shows, the marquee balls); opening weekend is quieter if you would rather have room to breathe.",
+        ],
+        stepsTitle: "Building your dream Carnival, step by step",
+        steps: [
+          { h: "Choose your evening", b: "grand ball, intimate palazzo, a couples' dancing evening, or the free finale — and lock the level you want. This is the anchor for everything else." },
+          { h: "Choose your costume house", b: "Nicolao or Antonia Sautter for the costume, Ca' Macana for the mask. The fitting is the day before the ball; a bespoke piece to own is commissioned months ahead." },
+          { h: "Choose your hotel", b: "Grand Canal or steps from San Marco for the Carnival on foot, an island retreat for calm — your address for the trip. Secure the ball tier and hotel early; they sell out first, and if 2027 is gone, hold 2028." },
+          { h: "Then your nights and arrival", b: "three or four nights over the closing weekend; we land you two days before your ball — one for the fitting, one to settle — so you never arrive the day of." },
+          { h: "And the flights follow", b: "because your arrival is already set, the flights flow straight from it — you just search and lock them for those dates." },
+          { h: "The tables and the boat", b: "Harry's Bar and the Michelin rooms booked weeks out; a private launch for the lagoon and the gala nights." },
+          { h: "Arrive and be swept up", b: "the fitting, a day to settle, then Carnival — in costume, on the water, part of the oldest masquerade there is." },
+        ],
+      } },
       { title: "Carnival in Rio", city: "Rio de Janeiro", airport: "GIG", airportName: "Rio Galeão Intl", start: "2027-02-06", end: "2027-02-10", dateLabel: "Feb 7–8, 2027", nights: 5, blurb: "The Sambadrome from a VIP box — the Special Group parade, the greatest party on earth." },
     ],
   },
@@ -1986,22 +2090,22 @@ const ONE_LIST = {
   },
 };
 function StartChooser({ onKnow, onOpen, onInspire, onHome }) {
-  const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 16, padding: "24px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7 };
-  const cEy = { fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
-  const cTtl = { fontFamily: font.display, fontSize: 26, color: t.paper, lineHeight: 1.1 };
-  const cSub = { fontSize: 13, color: "#D8D2C6", lineHeight: 1.55, flex: 1 };
-  const cArw = { marginTop: 12, fontSize: 12.5, color: t.brassLight, fontWeight: 500 };
-  return (<div style={{ maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px" }}>
-    <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 22 }}>← Home</button>
-    <div style={{ textAlign: "center", marginBottom: 36 }}>
-      <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.pine, fontWeight: 600, letterSpacing: "0.01em" }}>Voyage One</div>
-      <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "14px auto" }} />
-      <div style={{ fontSize: 16, color: t.inkSoft, letterSpacing: "0.02em" }}>How would you like to begin?</div>
+  const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
+  const cEy = { display: "block", fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
+  const cTtl = { display: "block", fontFamily: font.display, fontSize: 33, color: t.paper, lineHeight: 1.12, margin: "7px 0" };
+  const cSub = { display: "block", fontSize: 16, color: "#D8D2C6", lineHeight: 1.5 };
+  const cArw = { fontSize: 36, color: t.brassLight, fontWeight: 400, flexShrink: 0 };
+  return (<div style={{ maxWidth: 720, margin: "0 auto", padding: "40px clamp(20px,5vw,48px) 72px" }}>
+    <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 24 }}>← Home</button>
+    <div style={{ textAlign: "center", marginBottom: 40 }}>
+      <div style={{ fontFamily: font.display, fontSize: "clamp(42px,9vw,64px)", color: t.pine, fontWeight: 600, letterSpacing: "0.01em" }}>Voyage One</div>
+      <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto" }} />
+      <div style={{ fontSize: 17, color: t.inkSoft, letterSpacing: "0.02em" }}>How would you like to begin?</div>
     </div>
-    <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))" }}>
-      <button onClick={onKnow} style={card}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span><span style={cArw}>Start planning →</span></button>
-      <button onClick={onOpen} style={card}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — inspire me</span><span style={cSub}>Give us the season and a mood — ski, beach, a region — and we'll suggest where.</span><span style={cArw}>Explore ideas →</span></button>
-      <button onClick={onInspire} style={card}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me by an event</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span><span style={cArw}>Open The One List →</span></button>
+    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <button onClick={onKnow} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span></span><span style={cArw}>→</span></button>
+      <button onClick={onOpen} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — let's explore the what and where</span><span style={cSub}>Give us the season and a mood — ski, beach, a region — and we'll suggest where.</span></span><span style={cArw}>→</span></button>
+      <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me with an experience</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
     </div>
   </div>);
 }
@@ -2057,12 +2161,19 @@ function OneList({ onPick, onBack, onHome }) {
   const [sel, setSel] = useState(null);
   const [aecPick, setAecPick] = useState(null);
   const [aecDays, setAecDays] = useState([]);
+  const [ballTier, setBallTier] = useState(null);
+  const [costumePick, setCostumePick] = useState(null);
   const [stayPick, setStayPick] = useState(null);
   const [stayType, setStayType] = useState("");
   const shell = { maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px", position: "relative", zIndex: 1 };
-  const grid = { display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" };
-  const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 16, padding: "22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 6 };
-  const cArw = { marginTop: 12, fontSize: 12.5, color: t.brassLight, fontWeight: 500 };
+  const grid = { display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" };
+  const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "26px 28px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7 };
+  const cArw = { marginTop: 14, fontSize: 14, color: t.brassLight, fontWeight: 500 };
+  const recCard = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
+  const rowTile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "24px 22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7, flex: "1 1 0", minWidth: 0 };
+  const TYPE_ROWS = { "Sport": [3, 2, 3], "Arts & Culture": [2, 2], "Signature Journeys": [2, 2] };
+  const EVENT_ROWS = { "Golf": [2, 1], "Horse Racing & Polo": [2, 1, 2] };
+  const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<button onClick={fn} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 22 }}>← {label}</button>);
   const head = (title, sub) => (<div style={{ textAlign: "center", marginBottom: 32 }}>
     <div style={{ fontFamily: font.display, fontSize: "clamp(30px,6vw,44px)", color: t.pine, fontWeight: 600 }}>Voyage One</div>
@@ -2082,13 +2193,32 @@ function OneList({ onPick, onBack, onHome }) {
     const ev = sel, g = ev.guide;
     const picks = (g && g.dayPicks) || null;
     const needPick = !!picks;
-    const ready = !needPick || aecDays.length > 0;
-    const selDayLabels = aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)).map((d) => d.label) : [];
-    const sortedDays = [...aecDays].sort();
+    // A bucket is either "tier-select" (Venice: pick a ball level, one date) or "day-select"
+    // (Wimbledon: tick which match days). selDays is the resulting dated highlight either way.
+    const tierMode = !!(aecPick && aecPick.tiers);
+    const selDays = tierMode
+      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier }] : [])
+      : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
+    const ready = !needPick || selDays.length > 0;
+    const selDayLabels = selDays.map((d) => d.label);
+    const sortedDays = selDays.map((d) => d.date).sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
-    const planEv = { ...ev, ...planDates, stay: stayPick || null, aecDays: selDayLabels };
+    const planEv = { ...ev, ...planDates, stay: stayPick || null, aecDays: selDays, costume: costumePick || null };
+    const gg = g || {};
+    const L = {
+      daysTitle: gg.daysTitle || "The days",
+      pickStep: gg.pickStep || "Step one · choose your days at the AEC",
+      pickPrompt: gg.pickPrompt || "Which exact day(s) at the AEC?",
+      pickHelp: gg.pickHelp || "Tick the day or days you actually want to be there — these are the ones we buy your Debentures for. One day, or several; it's up to you.",
+      pickSettle: gg.pickSettle || ("We never fly you in on the day of the main event. We'll set your arrival a day or two ahead so you land with time to settle — and how long you stay in " + (ev.city || "town") + " is yours to widen next."),
+      recapLabel: gg.recapLabel || "Debenture day",
+      ticketsTitle: gg.ticketsTitle || "Getting in, the right way",
+      beyondTitle: gg.beyondTitle || "Beyond the main event",
+      cur: gg.cur || "£",
+      handoff: gg.handoff || ("Next, in the trip builder: we'll ask when you want to arrive in and leave " + (ev.city || "town") + ", then whether you'd like to add another stop in Europe or simply head home — then flights, your hotel, tables and tours, every price shown."),
+    };
     return (<div style={shell}>
-      {back(() => { setSel(null); setAecPick(null); setAecDays([]); setStayPick(null); setStayType(""); }, "back to " + type)}
+      {back(() => { setSel(null); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.ink, lineHeight: 1.05 }}>{ev.title}</div>
         <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city} · {ev.dateLabel}</div>
@@ -2098,24 +2228,35 @@ function OneList({ onPick, onBack, onHome }) {
         <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
         {g ? (<>
           {picks ? (<div>
-            {secHead("The days")}
-            <div style={secTitle}>Step one · choose your days at the AEC</div>
+            {secHead(L.daysTitle)}
+            <div style={secTitle}>{L.pickStep}</div>
             {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
-                <button key={k} onClick={() => { setAecPick(p); setAecDays([]); }} style={{ textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 14, padding: "15px 17px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 5 }}>
+                <button key={k} onClick={() => { setAecPick(p); setAecDays([]); setBallTier(null); }} style={{ textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 14, padding: "15px 17px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 5 }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                     <span style={{ fontFamily: font.display, fontSize: 21, color: on ? t.paper : t.ink }}>{p.label}</span>
                     <span style={{ fontSize: 13, color: on ? t.brassLight : t.brass, fontWeight: 500 }}>{p.dates}</span>
                   </div>
                   <span style={{ fontSize: 13.5, fontWeight: 600, color: on ? t.brassLight : t.pine }}>{p.band}</span>
                   <span style={{ fontSize: 14, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55 }}>{p.note}</span>
-                  {on ? <span style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 3 }}>✓ Now pick your exact day(s) below ↓</span> : null}
+                  {on ? <span style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 3 }}>✓ Now pick your {p.tiers ? "level" : "day(s)"} below ↓</span> : null}
                 </button>); })}
             </div>
-            {aecPick && aecPick.days ? (<div style={{ marginTop: 16, background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 17px" }}>
-              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>Which exact day(s) at the AEC?</div>
-              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>Tick the day or days you actually want to be there — these are the ones we buy your Debentures for. One day, or several; it's up to you.</div>
+            {aecPick && aecPick.tiers ? (<div style={{ marginTop: 16, background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 17px" }}>
+              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>{aecPick.tiers.length > 1 ? "Which level?" : "Lock it in"}</div>
+              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{aecPick.tiers.length > 1 ? "Choose the level you want — this is the ticket we secure, and it sets your date." : "Confirm the ticket we'll secure — this sets your date."}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {aecPick.tiers.map((tr, ti) => { const on = ballTier && ballTier.tier === tr.tier; return (
+                  <button key={ti} onClick={() => setBallTier(tr)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
+                    <span style={{ fontSize: 15, color: on ? t.paper : t.ink }}>{tr.label}</span>
+                    <span style={{ fontSize: on ? 14.5 : 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass }}>{on ? "✓ Locked" : "Choose"}</span>
+                  </button>); })}
+              </div>
+              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div>
+            </div>) : (aecPick && aecPick.days ? (<div style={{ marginTop: 16, background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 17px" }}>
+              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>{L.pickPrompt}</div>
+              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{L.pickHelp}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {aecPick.days.map((dy, di) => { const on = aecDays.includes(dy.date); return (
                   <button key={di} onClick={() => setAecDays(on ? aecDays.filter((x) => x !== dy.date) : [...aecDays, dy.date])} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
@@ -2123,11 +2264,24 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontSize: 13, fontWeight: 600, color: on ? t.brassLight : t.brass }}>{on ? "✓ Attending" : "Add"}</span>
                   </button>); })}
               </div>
-              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>How long you stay in London is a separate question — we'll ask your arrival and departure next, whether that's just these days or a full week.</div>
-            </div>) : null}
-          </div>) : (g.days ? (<div>{secHead("The days")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
+              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div>
+            </div>) : null)}
+          </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
-          {g.tickets ? (<div>{secHead("Getting in, the right way")}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your days: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          {g.tickets ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          {g.costumes ? (<div>{secHead(g.costumesTitle || "Costumes & masks")}{g.costumeNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.costumeNote}</div> : null}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {g.costumes.map((s, k) => { const on = costumePick && costumePick.name === s.name; return (
+                <button key={k} onClick={() => setCostumePick({ name: s.name, area: s.area, note: s.note })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
+                    {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
+                  </div>
+                  <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
+                  <div style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", marginTop: 10 }}>{on ? "✓ Your costume house" : "Choose this →"}</div>
+                </button>); })}
+            </div>
+            {g.costumeMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.costumeMore}</div> : null}</div>) : null}
           {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {g.stay.map((s, k) => { const on = stayPick && stayPick.name === s.name; return (
@@ -2138,8 +2292,8 @@ function OneList({ onPick, onBack, onHome }) {
                   </div>
                   <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
-                    <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ £${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
-                    <span style={{ fontSize: 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: 500 }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
+                    <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
+                    <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
                 </button>); })}
             </div>
@@ -2160,65 +2314,78 @@ function OneList({ onPick, onBack, onHome }) {
               </div>) : null}
             </div>
             {g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.stayMore}</div> : null}</div>) : null}
-          {g.beyond ? (<div>{secHead("Beyond the main event")}{beyondList(g.beyond)}</div>) : null}
+          {g.beyond ? (<div>{secHead(L.beyondTitle)}{beyondList(g.beyond)}</div>) : null}
           {g.notes ? (<div>{secHead("Insider notes")}{bul(g.notes)}</div>) : null}
+          {g.steps ? (<div>{secHead(g.stepsTitle || "Your trip, step by step")}<ol style={{ margin: 0, paddingLeft: 22, color: t.inkSoft, fontSize: 15, lineHeight: 1.6 }}>{g.steps.map((s, k) => (<li key={k} style={{ marginBottom: 9 }}><strong style={{ color: t.ink }}>{s.h}</strong>{s.h && s.b ? " — " : ""}{s.b}</li>))}</ol></div>) : null}
         </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          {(selDayLabels.length || stayPick) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your selections so far</div>
-            {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: stayPick ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Debenture day{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
+          {(selDayLabels.length || stayPick || costumePick) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your package so far</div>
+            {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 6 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
+            {costumePick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: stayPick ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Costume · </span><strong>{costumePick.name}</strong></div> : null}
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
           </div>) : null}
           {!ready ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin."}</div> : null}
           <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
-          {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>Next, in the trip builder: we'll ask when you want to arrive in and leave London, then whether you'd like to add another stop in Europe or simply head home — then flights, your hotel, tables and tours, every price shown.</div> : null}
+          {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
         </div>
       </div>
     </div>);
   }
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
-    return (<><DrawBoardBackdrop /><div style={shell}>
+    const pattern = EVENT_ROWS[type];
+    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }} style={pattern ? { ...tile, flex: "1 1 300px", maxWidth: 372 } : tile}>
+      <span style={{ fontFamily: font.display, fontSize: 28, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
+      <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
+      <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
+      <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
+      {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
+      <span style={cArw}>Plan this trip →</span>
+    </button>);
+    return (<div style={shell}>
       {back(() => setType(null), "back to " + cat)}
       {head(type, "A short, curated few. Tap one for the insider guide, then plan the trip.")}
-      <div style={grid}>
-        {events.map((ev, k) => (<button key={k} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setStayPick(null); setStayType(""); }} style={tile}>
-          <span style={{ fontFamily: font.display, fontSize: 24, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
-          <span style={{ fontSize: 12.5, color: t.brassLight }}>{ev.city}</span>
-          <span style={{ fontSize: 12, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
-          <span style={{ fontSize: 13, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
-          {ev.airport ? <span style={{ fontSize: 11.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
-          <span style={cArw}>Plan this trip →</span>
-        </button>))}
-      </div>
-    </div></>);
+      {pattern ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 792, margin: "0 auto" }}>
+          {chunkRows(events, pattern).map((row, ri) => (<div key={ri} style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>{row.map((ev, k) => evCard(ev, ri + "-" + k))}</div>))}
+        </div>
+      ) : (
+        <div style={grid}>{events.map((ev, k) => evCard(ev, k))}</div>
+      )}
+    </div>);
   }
   if (cat) {
-    const types = Object.keys(ONE_LIST[cat] || {});
-    return (<><DrawBoardBackdrop /><div style={shell}>
+    const types = Object.keys(ONE_LIST[cat] || {}).sort((a, b) => a.localeCompare(b));
+    const rows = chunkRows(types, TYPE_ROWS[cat]);
+    return (<div style={shell}>
       {back(() => setCat(null), "back to categories")}
       {head(cat, "What kind?")}
-      <div style={grid}>
-        {types.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={tile}>
-          <span style={{ fontFamily: font.display, fontSize: 25, color: t.paper }}>{ty}</span>
-          <span style={{ fontSize: 12.5, color: t.brassLight }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
-          <span style={cArw}>See them →</span>
-        </button>))}
+      <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 780, margin: "0 auto" }}>
+        {rows.map((row, ri) => (<div key={ri} style={{ display: "flex", gap: 18 }}>
+          {row.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={rowTile}>
+            <span style={{ fontFamily: font.display, fontSize: 23, color: t.paper, lineHeight: 1.14 }}>{ty}</span>
+            <span style={{ fontSize: 13, color: t.brassLight }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
+            <span style={cArw}>See them →</span>
+          </button>))}
+        </div>))}
       </div>
-    </div></>);
+    </div>);
   }
-  const cats = Object.keys(ONE_LIST);
-  return (<><DrawBoardBackdrop /><div style={shell}>
+  const cats = Object.keys(ONE_LIST).sort((a, b) => a.localeCompare(b));
+  return (<div style={shell}>
     {back(onBack, "how to begin")}
     {head("What inspires you?", "Pick a category, then a type, then a short curated few — never a long list.")}
-    <div style={grid}>
-      {cats.map((c) => (<button key={c} onClick={() => setCat(c)} style={tile}>
-        <span style={{ fontFamily: font.display, fontSize: 27, color: t.paper }}>{c}</span>
-        <span style={{ fontSize: 12.5, color: t.brassLight }}>{Object.keys(ONE_LIST[c]).length} kinds</span>
-        <span style={cArw}>Explore →</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 22, maxWidth: 720, margin: "0 auto" }}>
+      {cats.map((c) => (<button key={c} onClick={() => setCat(c)} style={recCard}>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontFamily: font.display, fontSize: 33, color: t.paper, lineHeight: 1.1 }}>{c}</span>
+          <span style={{ display: "block", fontSize: 14.5, color: t.brassLight, marginTop: 6 }}>{Object.keys(ONE_LIST[c]).length} kinds</span>
+        </span>
+        <span style={{ fontSize: 34, color: t.brassLight, flexShrink: 0 }}>→</span>
       </button>))}
     </div>
-  </div></>);
+  </div>);
 }
 function StepBasics(p) {
   const setTrav = (i, patch) => p.setTravelers(p.travelers.map((x, k) => (k === i ? { ...x, ...patch } : x)));
@@ -3210,7 +3377,7 @@ function CitySection({ d, i, p, from, legSched }) {
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
     </div>)}
     {needsHub && !gw && <HubPanel from={flyFrom} city={surfaceTarget} pick={pick} upd={upd} />}
-    <ArrivalPanel from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={false} flightDate={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} firstLabel={(() => {
+    <ArrivalPanel from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
         // The title has to agree with the mode actually chosen. It used to say "fly into
         // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
         // by rail — so Florence → Portofino read as a flight, offered no flights (there are
@@ -3726,6 +3893,19 @@ function buildReview(p, sch) {
     // routing Birmingham → NYC → Florence hid the Florence advice entirely, because Florence
     // was the second stop. What matters is that THIS leg leaves the US and lands outside it.
     const longHaul = !!(from && isLongHaul(from, d.city));
+
+    // 1b. A fixed, dated commitment on the very day you land. The classic mistake: fly in and
+    // go straight to the event with no time to clear the airport, drop bags, or shake off the
+    // flight. Universal — any dated sport, tour or dinner on or before the arrival day, and
+    // sharper still off a long-haul. Catches both seeded event trips and hand-built ones.
+    const ls0 = sch.legs[i];
+    if (ls0 && ls0.arrive) {
+      const arriveISO = ls0.arrive.toISOString().slice(0, 10);
+      const pk0 = d.pick || {};
+      const dated = [...(pk0.sports || []), ...(pk0.tours || []), ...(pk0.dines || [])].filter((x) => x && x.date && x.date <= arriveISO);
+      if (dated.length) add("stop", `You land in ${d.city} and have ${fmtList(dated.map((x) => x.name))} the same day`,
+        `You arrive ${fmtDay(ls0.arrive)} — the very day ${dated.length === 1 ? "that is" : "those are"} booked.${longHaul ? " After an overnight crossing that means going straight there on no sleep." : ""} Leave home a day or two earlier so you land with time to clear the airport, settle in and be at your best. Add the nights on the dates step.`);
+    }
 
     // 2. The Florence problem: a regional airport quoted as a long-haul destination.
     if (longHaul && ap && ap.scale === "regional" && d.arriveBy === "Flight") {
