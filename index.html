@@ -113,14 +113,6 @@ const FAVORITES = {
     { name: "The Peninsula London", area: "Belgravia", rate: 1450, desc: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London." },
     { name: "The Goring", area: "Belgravia", rate: 1050, desc: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, a garden of its own." },
   ],
-  "Venice": [
-    { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
-    { name: "The St. Regis Venice", area: "Grand Canal", rate: 1900, desc: "Sleek and contemporary on the Grand Canal, close to San Marco, with the best terrace bar in the city." },
-    { name: "Danieli, a Four Seasons Hotel", area: "San Marco", rate: 2400, desc: "The 200-year-old icon by the Doge's Palace, reborn as a Four Seasons in 2026 — the most central of the grand hotels." },
-    { name: "Aman Venice", area: "Grand Canal", rate: 3200, desc: "A hushed frescoed palazzo with a private garden — the discreet, ultra-exclusive choice." },
-    { name: "Belmond Hotel Cipriani", area: "Giudecca", rate: 2600, desc: "Garden, pool and seclusion on Giudecca island, reached by private launch." },
-    { name: "Ca' Sagredo", area: "Cannaregio", rate: 1400, desc: "A genuine 15th-century palazzo-museum with a monumental frescoed staircase." },
-  ],
 };
 const EATS = {
   "Positano": { UltraLux: [["La Sponda", 250, "Candlelit by 400 candles, Michelin dining above the bay."], ["Zass", 220, "Michelin terrace at Il San Pietro, right over the water."]], Luxury: [["Next2", 110, "Modern Campanian cooking on a candlelit terrace."]], Refined: [["Chez Black", 70, "Beachfront institution for seafood pasta."], ["Da Vincenzo", 65, "Family-run classics just off the main street."]], Essential: [["C'era Una Volta", 35, "Honest trattoria up the hill, away from the crowds."]] },
@@ -1431,17 +1423,13 @@ function VoyageOne() {
     const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null } : null;
     const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date }));
     // Never fly in on the day of a fixed, ticketed event. When the client has chosen specific
-    // event days, land them a set number of full days ahead so there is time to cross, settle
-    // and — where the experience needs it, like a Carnival costume fitting — get ready before
-    // the first day. arriveDaysBefore is that on-the-ground lead (default 1 settle day; Venice
-    // sets 2 for the fitting). Because departure is derived from it, the flight search that
-    // follows lands on the right date automatically. Home the day after the last event day.
-    const arriveDaysBefore = Number.isFinite(ev.arriveDaysBefore) ? ev.arriveDaysBefore : 1;
+    // event days, leave home two days ahead so there is time to cross, land and settle before
+    // the first — and come home the day after the last. They widen or trim this on the dates step.
     const evDates = (ev.aecDays || []).map((d) => d.date).filter(Boolean).sort();
     let depart = ev.start || "", ret = ev.end || "", nights = ev.nights || 3;
     if (evDates.length) {
       const iso = (dt) => dt.toISOString().slice(0, 10);
-      depart = iso(addDays(new Date(evDates[0] + "T00:00:00"), -(arriveDaysBefore + 1)));
+      depart = iso(addDays(new Date(evDates[0] + "T00:00:00"), -2));
       ret = iso(addDays(new Date(evDates[evDates.length - 1] + "T00:00:00"), 1));
       nights = Math.max(1, Math.round((new Date(ret + "T00:00:00") - new Date(depart + "T00:00:00")) / 86400000) - 1);
     }
@@ -1987,76 +1975,7 @@ const ONE_LIST = {
     ],
     "Spectacle & Pageantry": [
       { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 3, blurb: "The bareback race around the Campo, from a private palazzo — medieval Siena at fever pitch." },
-      { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-07", dateLabel: "Jan 30–Feb 9, 2027", nights: 4, arriveDaysBefore: 2, blurb: "A masked ball in a Grand Canal palazzo, a whole city dressed for the 18th century — Carnival at its most mysterious and theatrical.", guide: {
-        daysTitle: "Your evening",
-        pickStep: "Step one · choose your Carnival evening",
-        pickPrompt: "Which evening will you take?",
-        pickHelp: "Pick the ball — or the free finale — you want to build the trip around. This is the night we book first and well ahead; everything else is arranged around it.",
-        pickSettle: "Your ball needs a costume, and a costume needs a fitting — so we land you two days before it: one for the fitting and final adjustments, one to settle. That sets your arrival, and your flights fall in behind it. You'll confirm the exact dates next (three or four nights over the closing weekend is the sweet spot).",
-        recapLabel: "Your evening",
-        ticketsTitle: "The tickets, and when to book",
-        beyondTitle: "Beyond the ball",
-        cur: "€",
-        daysIntro: "Carnival comes down to one evening — how grand, how intimate, how much you want to be swept up in a spectacle versus pulled onto the floor yourself. That choice sets the whole trip. Here are the exciting options:",
-        dayPicks: [
-          { label: "The grand ball", dates: "Sat 6 Feb 2027", band: "Il Ballo del Doge · ≈ €1,600–€10,000 pp", note: "The most famous masked ball in the world — Antonia Sautter's spectacle in a Grand Canal palazzo: gala dinner, a hundred performers, dancing to 3am. You're placed at an assigned table with others (a private table for two is a top tier), and the programming sweeps you up. Costume compulsory.", days: [ { date: "2027-02-06", label: "Il Ballo del Doge · Sat 6 Feb 2027" } ] },
-          { label: "An intimate palazzo evening", dates: "A Carnival night · early Feb 2027", band: "≈ €380–€550 pp", note: "Thirty to sixty guests in a frescoed palazzo — an immersive opera dinner-show (Don Giovanni at Palazzo Barbarigo Minotto, or similar). Far more personal than the mega-balls; a party of two feels part of the room, not lost in a crowd. Costume or black-tie with a mask.", days: [ { date: "2027-02-05", label: "Palazzo dinner-show · Fri 5 Feb 2027 (exact night to confirm)" } ] },
-          { label: "A couples' evening — and dancing", dates: "A Carnival night · early Feb 2027", band: "≈ €750–€1,100 pp", note: "The Minuetto: you are actually taught the 18th-century court dances and led through them, so you take part rather than watch. The best answer for two people who want to feel included and end the night on the floor. Costume provided/required.", days: [ { date: "2027-02-05", label: "Minuetto masked evening · Fri 5 Feb 2027 (exact night to confirm)" } ] },
-          { label: "The city and the free Carnival", dates: "Closing weekend · 6–9 Feb 2027", band: "No ticket — free", note: "No ball at all. In costume in Piazza San Marco you ARE the spectacle — the best-costume contests on the stage, the Flight of the Lion finale on Martedì Grasso, photographers seeking you out at dawn. A couple can fill every day without a single ticket.", days: [ { date: "2027-02-06", label: "Closing Saturday · 6 Feb 2027" }, { date: "2027-02-09", label: "Martedì Grasso finale · 9 Feb 2027" } ] },
-        ],
-        tickets: "The balls sell by tier and the best go first, often months ahead. Il Ballo del Doge is bought only through its own site; the smaller balls and palazzo dinner-shows through the Venice ticket houses — we secure the tier you want the moment your evening is set. Every big ball also sells an after-dinner-only ticket (arrive near midnight for the show and the dancing) as the lighter way in. And a heads-up: if 2027 is already sold out — ball tiers and the best hotels do go early — look straight to 2028. Carnival climaxes on Martedì Grasso, 29 February 2028 (a leap-year finale), with the closing weekend around 26–27 February. It is not too early to hold a hotel for it.",
-        ticketBands: [
-          { label: "Il Ballo del Doge · Lounge", price: "≈ €1,600" },
-          { label: "Il Ballo del Doge · dinner tiers", price: "≈ €4,000–€7,000" },
-          { label: "Il Ballo del Doge · Imperial (private table)", price: "≈ €10,000" },
-          { label: "After-dinner entry (big balls)", price: "≈ €800" },
-          { label: "Palazzo dinner-show", price: "≈ €380–€550" },
-          { label: "Minuetto / couples' ball", price: "≈ €750–€1,100" },
-        ],
-        ticketNote: "Approximate, per person, from recent editions — ball prices rise each year and the 2027 tiers confirm when the program publishes. We confirm exact cost before anything is committed.",
-        costumesTitle: "Costumes & masks",
-        costumeNote: "Rent the costume, buy the mask. A full, spectacular 18th-century rental runs roughly €400–€800 for the day; a genuine artisan papier-mâché mask from about €35 into the hundreds. The marquee ateliers quote their finest pieces on request. TIMING: be in Venice at least two days before your ball — the day before is your fitting and final adjustments (and hair, if you'd like), then the ball. This is exactly why we set your arrival two days ahead, so your flights are booked to match. A bespoke, made-to-own costume is different: commission it several months out. We arrange the fitting, and a photographer for dawn in an empty Piazza San Marco.",
-        costumes: [
-          { name: "Nicolao Atelier", area: "Rental · Cannaregio", note: "The benchmark — over 10,000 hand-sewn costumes in Venetian silk, film-grade (Casanova, Pirates of the Caribbean). Fittings at the atelier; delivery within Venice." },
-          { name: "Antonia Sautter", area: "The Ballo del Doge atelier", note: "The name behind Il Ballo del Doge — around 1,500 costumes, and her team dresses you. The one to use for her ball; made-to-own pieces from about €3,500." },
-          { name: "Sogno Veneziano / VivoVenetia", area: "High-end rental", note: "Spectacular 24-hour rentals in the €400–€800 band, fitting and adjustments included — the practical route to a showstopping look." },
-          { name: "Ca' Macana", area: "Masks · Dorsoduro", note: "Artisan papier-mâché masks — the makers behind the masks in Eyes Wide Shut. From about €35 to bespoke." },
-          { name: "La Bottega dei Mascareri", area: "Masks · Rialto", note: "Traditional papier-mâché by the Boldrin brothers, on the Rialto bridge — the mask you keep as the souvenir." },
-        ],
-        stayNote: "You know these addresses — Grand Canal or steps from San Marco for the Carnival on foot, the island retreats for calm and a private launch across. The balls are in private palazzi, so we base you in a great hotel and take you to the ball.",
-        stay: [
-          { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, note: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot, with the Club del Doge terrace." },
-          { name: "The St. Regis Venice", area: "Grand Canal", rate: 1900, note: "Sleek and contemporary on the Grand Canal, very close to San Marco, with the best terrace bar in the city and butler service." },
-          { name: "Danieli, a Four Seasons Hotel", area: "San Marco waterfront", rate: 2400, note: "The 200-year-old icon on the Riva degli Schiavoni, steps from the Doge's Palace — reborn as a Four Seasons in 2026. The most central of the grand hotels." },
-          { name: "Aman Venice", area: "Grand Canal", rate: 3200, note: "A hushed 16th-century palazzo with a frescoed piano nobile and a private garden — the discreet, ultra-exclusive choice, tucked away from the crowds." },
-          { name: "Belmond Hotel Cipriani", area: "Giudecca island", rate: 2600, note: "Resort-in-the-city on Giudecca — Venice's only garden, the famous pool, reached by private launch. Seclusion, in exchange for a boat to the Piazza." },
-          { name: "Ca' Sagredo", area: "Grand Canal · Cannaregio", rate: 1400, note: "A genuine 15th-century noble palazzo-museum with a monumental frescoed staircase — more intimate and historic than the big flags." },
-        ],
-        stayMore: "Your favourites for Venice — choose any, or type another and we'll source it.",
-        beyond: [
-          { name: "A private boat on the lagoon", note: "Charter a classic wooden launch for a half-day to Murano, Burano and Torcello — the winter lagoon is empty and glorious. Booked through the concierge or a licensed motoscafi operator; reserve ahead, and always take a private launch, never the vaporetto, on gala nights." },
-          { name: "The tables, booked early", note: "Harry's Bar for the Bellini pilgrimage, Quadri on the Piazza, Oro at the Cipriani, Glam by Enrico Bartolini — Carnival fills them. We book the moment your dates are set, weeks ahead." },
-          { name: "A night gondola", note: "A private gondola through the quiet inner canals after dark — far more romantic than the daytime Grand Canal, and the city at its most secret." },
-          { name: "The free spectacle", note: "The Flight of the Angel over San Marco, the daily costume contests on the stage, the Flight of the Lion finale — all free, all yours simply by turning up in costume." },
-        ],
-        notes: [
-          "Book in this order, all well ahead: the ball tier, the hotel, the costume fitting, then the tables and the private boat. Carnival is the one week when everything sells out.",
-          "Acqua alta (high water) is real in February but short — usually a couple of hours around high tide, and San Marco floods first. Pack waterproof boots; the concierge reads the tide each morning.",
-          "It is cold and often foggy — dress warm under the costume, and plan indoor anchors (the ball, the great dinners, the hotel).",
-          "Go to the Piazza at dawn for the costume photographs — an empty square, soft light — long before the day-trippers arrive.",
-          "The final weekend is the climax (the biggest costumes, the stage shows, the marquee balls); opening weekend is quieter if you would rather have room to breathe.",
-        ],
-        stepsTitle: "Building your dream Carnival, step by step",
-        steps: [
-          { h: "Choose your evening", b: "grand ball, intimate palazzo, a couples' dancing evening, or the free finale, above. This is the anchor for everything else." },
-          { h: "Set your nights", b: "three or four over the closing weekend; you'll confirm the dates next. We land you two days before your ball — one for the costume fitting, one to settle — so you never arrive the day of." },
-          { h: "Book your flights", b: "because your arrival is already set two days ahead, the flights flow straight from it — search and lock them for those dates." },
-          { h: "Lock the ball and the hotel", b: "we secure your ball tier and your hotel first, because they sell out earliest — or, if 2027 is gone, hold 2028." },
-          { h: "The costume", b: "your fitting the day before the ball at Nicolao or Antonia Sautter, the mask from Ca' Macana; a bespoke piece to own is commissioned months ahead, with a dawn photographer if you'd like." },
-          { h: "The tables and the boat", b: "Harry's Bar and the Michelin rooms booked weeks out; a private launch for the lagoon and for the gala nights." },
-          { h: "Arrive and be swept up", b: "the fitting, a day to settle, then Carnival — in costume, on the water, part of the oldest masquerade there is." },
-        ],
-      } },
+      { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-09", dateLabel: "Jan 23–Feb 9, 2027", nights: 5, blurb: "A private masked ball in a Grand Canal palazzo — the city at its most mysterious and theatrical." },
       { title: "Carnival in Rio", city: "Rio de Janeiro", airport: "GIG", airportName: "Rio Galeão Intl", start: "2027-02-06", end: "2027-02-10", dateLabel: "Feb 7–8, 2027", nights: 5, blurb: "The Sambadrome from a VIP box — the Special Group parade, the greatest party on earth." },
     ],
   },
@@ -2185,19 +2104,6 @@ function OneList({ onPick, onBack, onHome }) {
     const sortedDays = [...aecDays].sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
     const planEv = { ...ev, ...planDates, stay: stayPick || null, aecDays: selDays };
-    const gg = g || {};
-    const L = {
-      daysTitle: gg.daysTitle || "The days",
-      pickStep: gg.pickStep || "Step one · choose your days at the AEC",
-      pickPrompt: gg.pickPrompt || "Which exact day(s) at the AEC?",
-      pickHelp: gg.pickHelp || "Tick the day or days you actually want to be there — these are the ones we buy your Debentures for. One day, or several; it's up to you.",
-      pickSettle: gg.pickSettle || ("We never fly you in on the day of the main event. We'll set your arrival a day or two ahead so you land with time to settle — and how long you stay in " + (ev.city || "town") + " is yours to widen next."),
-      recapLabel: gg.recapLabel || "Debenture day",
-      ticketsTitle: gg.ticketsTitle || "Getting in, the right way",
-      beyondTitle: gg.beyondTitle || "Beyond the main event",
-      cur: gg.cur || "£",
-      handoff: gg.handoff || ("Next, in the trip builder: we'll ask when you want to arrive in and leave " + (ev.city || "town") + ", then whether you'd like to add another stop in Europe or simply head home — then flights, your hotel, tables and tours, every price shown."),
-    };
     return (<div style={shell}>
       {back(() => { setSel(null); setAecPick(null); setAecDays([]); setStayPick(null); setStayType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
@@ -2209,8 +2115,8 @@ function OneList({ onPick, onBack, onHome }) {
         <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
         {g ? (<>
           {picks ? (<div>
-            {secHead(L.daysTitle)}
-            <div style={secTitle}>{L.pickStep}</div>
+            {secHead("The days")}
+            <div style={secTitle}>Step one · choose your days at the AEC</div>
             {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
@@ -2225,8 +2131,8 @@ function OneList({ onPick, onBack, onHome }) {
                 </button>); })}
             </div>
             {aecPick && aecPick.days ? (<div style={{ marginTop: 16, background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 17px" }}>
-              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>{L.pickPrompt}</div>
-              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{L.pickHelp}</div>
+              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>Which exact day(s) at the AEC?</div>
+              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>Tick the day or days you actually want to be there — these are the ones we buy your Debentures for. One day, or several; it's up to you.</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {aecPick.days.map((dy, di) => { const on = aecDays.includes(dy.date); return (
                   <button key={di} onClick={() => setAecDays(on ? aecDays.filter((x) => x !== dy.date) : [...aecDays, dy.date])} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
@@ -2234,12 +2140,11 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontSize: 13, fontWeight: 600, color: on ? t.brassLight : t.brass }}>{on ? "✓ Attending" : "Add"}</span>
                   </button>); })}
               </div>
-              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div>
+              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>We never fly you in on a match day. We'll set your arrival a day or two ahead so you land with time to settle — and how long you stay in London is yours to widen next, whether that's just these days or a full week.</div>
             </div>) : null}
-          </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
+          </div>) : (g.days ? (<div>{secHead("The days")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
-          {g.tickets ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
-          {g.costumes ? (<div>{secHead(g.costumesTitle || "Costumes & masks")}{g.costumeNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.costumeNote}</div> : null}{stayList(g.costumes)}{g.costumeMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.costumeMore}</div> : null}</div>) : null}
+          {g.tickets ? (<div>{secHead("Getting in, the right way")}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your days: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
           {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {g.stay.map((s, k) => { const on = stayPick && stayPick.name === s.name; return (
@@ -2250,7 +2155,7 @@ function OneList({ onPick, onBack, onHome }) {
                   </div>
                   <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
-                    <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
+                    <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ £${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
                     <span style={{ fontSize: 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: 500 }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
                 </button>); })}
@@ -2272,19 +2177,18 @@ function OneList({ onPick, onBack, onHome }) {
               </div>) : null}
             </div>
             {g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.stayMore}</div> : null}</div>) : null}
-          {g.beyond ? (<div>{secHead(L.beyondTitle)}{beyondList(g.beyond)}</div>) : null}
+          {g.beyond ? (<div>{secHead("Beyond the main event")}{beyondList(g.beyond)}</div>) : null}
           {g.notes ? (<div>{secHead("Insider notes")}{bul(g.notes)}</div>) : null}
-          {g.steps ? (<div>{secHead(g.stepsTitle || "Your trip, step by step")}<ol style={{ margin: 0, paddingLeft: 22, color: t.inkSoft, fontSize: 15, lineHeight: 1.6 }}>{g.steps.map((s, k) => (<li key={k} style={{ marginBottom: 9 }}><strong style={{ color: t.ink }}>{s.h}</strong>{s.h && s.b ? " — " : ""}{s.b}</li>))}</ol></div>) : null}
         </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
         <div style={{ textAlign: "center", marginTop: 8 }}>
           {(selDayLabels.length || stayPick) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
             <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your selections so far</div>
-            {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: stayPick ? 6 : 0 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
+            {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: stayPick ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Debenture day{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
           </div>) : null}
           {!ready ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin."}</div> : null}
           <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
-          {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
+          {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>Next, in the trip builder: we'll ask when you want to arrive in and leave London, then whether you'd like to add another stop in Europe or simply head home — then flights, your hotel, tables and tours, every price shown.</div> : null}
         </div>
       </div>
     </div>);
