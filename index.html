@@ -121,6 +121,14 @@ const FAVORITES = {
     { name: "Belmond Hotel Cipriani", area: "Giudecca", rate: 2600, desc: "Garden, pool and seclusion on Giudecca island, reached by private launch." },
     { name: "Ca' Sagredo", area: "Cannaregio", rate: 1400, desc: "A genuine 15th-century palazzo-museum with a monumental frescoed staircase." },
   ],
+  "Monaco": [
+    { name: "Hôtel de Paris Monte-Carlo", area: "On the circuit", rate: 3200, desc: "The 1864 grande dame on Place du Casino, literally on the track, home to Le Louis XV." },
+    { name: "Hôtel Hermitage Monte-Carlo", area: "Steps off", rate: 2600, desc: "Belle Époque icon behind Casino Square, the Eiffel winter-garden dome — quieter and romantic." },
+    { name: "Château de la Chèvre d'Or", area: "Èze village", rate: 1600, desc: "A Relais & Châteaux clifftop legend in the medieval village, two Michelin stars — off-campus and calm." },
+    { name: "Cap Estel", area: "Èze-sur-Mer", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
+    { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
+    { name: "La Réserve de Beaulieu", area: "Beaulieu", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
+  ],
 };
 const EATS = {
   "Positano": { UltraLux: [["La Sponda", 250, "Candlelit by 400 candles, Michelin dining above the bay."], ["Zass", 220, "Michelin terrace at Il San Pietro, right over the water."]], Luxury: [["Next2", 110, "Modern Campanian cooking on a candlelit terrace."]], Refined: [["Chez Black", 70, "Beachfront institution for seafood pasta."], ["Da Vincenzo", 65, "Family-run classics just off the main street."]], Essential: [["C'era Una Volta", 35, "Honest trattoria up the hill, away from the crowds."]] },
@@ -1438,8 +1446,8 @@ function VoyageOne() {
   // into the builder. Fixed-date events land you on Departure (dates already set); season-based
   // journeys land on Basics so you choose your week within the season.
   const seedFromEvent = (ev) => {
-    const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null } : null;
-    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date }));
+    const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null, contact: ev.stay.contact || null } : null;
+    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date, evening: !!d.evening }));
     // Never fly in on the day of a fixed, ticketed event. When the client has chosen specific
     // event days, land them a set number of full days ahead so there is time to cross, settle
     // and — where the experience needs it, like a Carnival costume fitting — get ready before
@@ -1884,7 +1892,67 @@ function Planner(p) {
 const ONE_LIST = {
   "Sport": {
     "Motorsport": [
-      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, blurb: "The crown jewel, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour." },
+      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, arriveDaysBefore: 3, blurb: "The crown jewel of Formula 1, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour.", guide: {
+        daysTitle: "How you'll watch",
+        pickStep: "Step one · choose how you watch",
+        pickPrompt: "Which level?",
+        pickHelp: "Lock the way you want to watch — this is what we secure first, and everything else is built around it.",
+        pickSettle: "You'll set your nights and arrival next — Saturday's qualifying is the real event here (pole usually wins), so we build you in for the weekend and never land you on race day itself.",
+        recapLabel: "Your race",
+        ticketsTitle: "Securing your place",
+        beyondTitle: "Beyond the race",
+        cur: "€",
+        daysIntro: "Monaco comes down to where you watch from. The harbour sits inside the circuit, so a yacht is quite simply the best seat in the sport; a great VIP is the strong alternative; and one land terrace is genuinely worth it. Here are the exciting options — and, honestly, the ones we don't sell.",
+        dayPicks: [
+          { label: "A yacht in the harbour", dates: "Race weekend · early June 2027", band: "The best seat in the sport", note: "The harbour is inside the circuit — a trackside berth in Port Hercule puts you metres from the Nouvelle Chicane, Rascasse and the swimming-pool section, champagne in hand, the cars at the corners that matter. The berth is the hard part, allocated by application months ahead — which is exactly where a broker earns their keep.", date: "2027-06-06", tiers: [
+            { tier: "Whole-boat charter", label: "Charter the whole yacht for the week · ≈ €150k–€1M+ plus fees & the berth" },
+            { tier: "A VIP deck", label: "A deck on a chartered yacht, by the day · ≈ £2,000 Sat · £3,100–£4,700 Sun" },
+          ] },
+          { label: "VIP hospitality", dates: "Race weekend · early June 2027", band: "Access & champagne, trackside", note: "The strong alternative to a yacht — trackside catering, open bar and, in one case, the only real access to the pit lane.", date: "2027-06-06", tiers: [
+            { tier: "Yacht Club de Monaco", label: "The members' clubhouse terrace · by invitation — we arrange it" },
+            { tier: "F1 Paddock Club · La Rascasse", label: "Official F1 hospitality, pit-lane access · ≈ $14,500–$24,000 pp" },
+          ] },
+          { label: "The Ermanno terrace", date: "2027-06-06", dates: "Race weekend · early June 2027", band: "The one land view worth it — over half the lap", note: "A residential-tower terrace whose sweep takes in the tunnel exit, the chicane, Tabac, the pool section and start/finish — far more of the race than any hotel rooftop, with a buffet and open bar. The honest land option.", tiers: [
+            { tier: "Saturday · qualifying", label: "Saturday, the qualifying (the real event) · ≈ €2,000 pp" },
+            { tier: "Sunday · the race", label: "Sunday, race day · ≈ €4,000 pp" },
+            { tier: "Both days", label: "Saturday and Sunday · the full weekend" },
+          ] },
+        ],
+        tickets: "Everything here is secured, not clicked. A yacht berth in Port Hercule is allocated by hard-copy application on an unforgiving deadline (2027 applications closed around late February) — book 9–12 months ahead through a broker who holds a trackside berth. Yacht decks and the Ermanno terrace sell by the day; the Paddock Club is official F1 hospitality, currently by waitlist; and the Yacht Club de Monaco is a relationship, not a checkout. We don't sell grandstands or hotel rooftop 'viewing packages' — see the notes for why. An after-dark add-on, the Amber Lounge (the F1 party), is optional and shows you no racing.",
+        ticketNote: "Prices are approximate, per person, largely reseller-quoted for recent editions — the whole-charter figure excludes VAT, provisioning and the berth fee. We confirm exact cost before anything is committed.",
+        stayNote: "Two philosophies, both good. Stay IN Monaco to be on the action (wonderful hotels — but book the stay, never their overpriced rooftop race package). Or stay OFF-CAMPUS up the coast in Èze, Cap-Ferrat or Beaulieu: outside the road closures, calm at night, and a 7-minute helicopter or train into the circus by day — for many, the better move.",
+        stay: [
+          { name: "Hôtel de Paris Monte-Carlo", area: "Monte-Carlo · on the circuit", rate: 3200, note: "The 1864 grande dame on Place du Casino, literally on the track, home to Le Louis XV — the most storied address in the principality.", contact: { addr: "Place du Casino, 98000 Monaco", tel: "+377 98 06 30 00", web: "montecarlosbm.com" } },
+          { name: "Hôtel Hermitage Monte-Carlo", area: "Monte-Carlo · steps off", rate: 2600, note: "Belle Époque icon just behind Casino Square, the Eiffel-engineered winter-garden dome — quieter and more romantic than its sister, and one you already love.", contact: { addr: "Square Beaumarchais, 98000 Monaco", tel: "+377 98 06 40 00", web: "montecarlosbm.com" } },
+          { name: "Château de la Chèvre d'Or", area: "Èze village · ~15 min", rate: 1600, note: "A Relais & Châteaux legend woven into the medieval hilltop village, 400m above the sea, with a two-Michelin-star table and vertiginous terraces — off-campus and unforgettable.", contact: { addr: "Rue du Barri, 06360 Èze", tel: "+33 4 92 10 66 66", web: "chevredor.com" } },
+          { name: "Cap Estel", area: "Èze-sur-Mer · ~15–20 min", rate: 1900, note: "A two-hectare private peninsula, just 20 rooms, hanging gardens over the water and a private beach — screened from the world, the definition of calm.", contact: { addr: "1312 Av. Raymond Poincaré, 06360 Èze-sur-Mer", tel: "+33 4 93 76 29 29", web: "capestel.com" } },
+          { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat · ~25 min", rate: 2400, note: "A 1908 palace on seventeen acres at the tip of the billionaires' peninsula — the Club Dauphin sea-pool, Le Cap (one star), grand and green and serene.", contact: { addr: "71 Bd du Général de Gaulle, 06230 Saint-Jean-Cap-Ferrat", tel: "+33 4 93 76 50 50", web: "fourseasons.com/capferrat" } },
+          { name: "La Réserve de Beaulieu", area: "Beaulieu · ~15–20 min", rate: 1500, note: "A Belle Époque seafront icon between Nice and Monaco, with its own train station a few minutes into the principality — relaxed grandeur outside the crush.", contact: { addr: "5 Bd du Général Leclerc, 06310 Beaulieu-sur-Mer", tel: "+33 4 93 01 00 01", web: "lareservebeaulieu.com" } },
+        ],
+        stayMore: "Choose any, or type another and we'll source it. Contact details are indicative — we confirm and book on your behalf.",
+        beyond: [
+          { name: "Getting in — never drive on race day", note: "Fly into Nice (NCE), then the glamorous move is the helicopter to Monaco: about 7 minutes, roughly €180–195 per person on the scheduled line or from ~€750 to charter privately. From an Èze or Beaulieu hotel, the concierge's trick is the 7-minute train straight into Monaco-Monte-Carlo. On Saturday and Sunday the streets and tunnels close — a car only gets you to the fringe." },
+          { name: "The great tables", note: "Le Louis XV – Alain Ducasse (three stars) and Le Grill on the Hôtel de Paris rooftop, Pavyllon by Yannick Alléno at the Hermitage, Blue Bay at Monte-Carlo Bay; and up the coast, La Chèvre d'Or in Èze and Le Cap at Cap-Ferrat. Booked weeks ahead — GP weekend fills them." },
+          { name: "Amber Lounge, after dark", note: "The F1 party institution — the driver fashion show, DJs, the scene. A night add-on, never a way to watch the race." },
+          { name: "The days that matter", note: "Friday to settle in and take the tender out; Saturday for qualifying, the real sport here; Sunday for the race and the harbour at full tilt." },
+        ],
+        notes: [
+          "Skip these, and we won't sell them: the casino is a tourist crush, not a Bond scene; the general grandstands see the cars for seconds; and the hotel rooftop 'viewing packages' are an insane price for a two-minute glimpse.",
+          "Saturday qualifying decides it — overtaking is near-impossible on these streets, so pole usually wins the race. Many regulars rate Saturday above Sunday.",
+          "Stay off-campus to sleep in peace: Èze and Cap-Ferrat sit outside the road closures — drop into the circuit by helicopter or a 7-minute train, and retreat to calm at night.",
+          "Book early: yacht berths are allocated by application months ahead, and the best tables and helicopter slots go fast.",
+          "Dates: 2027 is early June — race Sunday 6 June — pending the FIA's final sign-off on the calendar.",
+        ],
+        stepsTitle: "Building your dream Monaco, step by step",
+        steps: [
+          { h: "Choose how you watch", b: "a yacht, a VIP, or the Ermanno terrace — locked above. This is the anchor for everything else." },
+          { h: "Choose your hotel", b: "in Monaco to be on the action, or off-campus in Èze or Cap-Ferrat for calm and no crowds." },
+          { h: "Set your nights & arrival", b: "the weekend, Friday to Sunday; we land you before qualifying and never on race day itself." },
+          { h: "And the flights follow", b: "into Nice (NCE), then the helicopter or the 7-minute train into Monaco — set from your arrival." },
+          { h: "The tables and the transfer", b: "Le Louis XV and the great rooms booked weeks out; your helicopter or car legs locked to the session times." },
+          { h: "Race weekend", b: "Saturday's qualifying, Sunday's race, the harbour in full glamour — the best moment in the sport." },
+        ],
+      } },
       { title: "Singapore Grand Prix", city: "Singapore", airport: "SIN", airportName: "Singapore Changi", start: "2026-10-08", end: "2026-10-12", dateLabel: "Oct 9–11, 2026", nights: 4, blurb: "The only true night race — the city ablaze, the marina glittering, from a suite above turn one." },
       { title: "British Grand Prix", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-01", end: "2027-07-05", dateLabel: "July 2–4, 2027", nights: 4, blurb: "Paddock and VIP access at Silverstone — a roaring home crowd and the fastest corners in Formula 1." },
       { title: "Le Mans 24 Hours", city: "Le Mans, France", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-11", end: "2027-06-14", dateLabel: "June 12–13, 2027", nights: 3, blurb: "Twice around the clock at the greatest endurance race — VIP suites trackside through the night." },
@@ -2199,7 +2267,7 @@ function OneList({ onPick, onBack, onHome }) {
     // (Wimbledon: tick which match days). selDays is the resulting dated highlight either way.
     const tierMode = !!(aecPick && aecPick.tiers);
     const selDays = tierMode
-      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier }] : [])
+      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: true }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
     const ready = !needPick || selDays.length > 0;
     const selDayLabels = selDays.map((d) => d.label);
@@ -2287,7 +2355,7 @@ function OneList({ onPick, onBack, onHome }) {
           {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {g.stay.map((s, k) => { const on = stayPick && stayPick.name === s.name; return (
-                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note, contact: s.contact || null })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                     <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
@@ -2297,6 +2365,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
+                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.email ? <div>{s.contact.email}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
                 </button>); })}
             </div>
             <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates — placeholders until live rates connect.</div>
@@ -4008,6 +4077,32 @@ function buildReview(p, sch) {
       else if (depMin != null && hasMorning) add("note", "Your last morning is yours",
         `The flight home leaves about ${realDep}, so the morning is yours — a final coffee, a last walk, then the airport by ${cutoff}.`);
     }
+  }
+
+  // 6b-ii. Two things the same evening — the clash a good agent always catches. An evening
+  // event (a masked ball, a gala) and a dinner booked the same night cannot both happen, nor
+  // can two dinners. Daytime commitments (a match, a day-out) don't trip this — only genuine
+  // evening overlaps do, which is why the ball carries an `evening` flag and a match does not.
+  {
+    const eveByDate = {}, dineByDate = {};
+    (p.dests || []).forEach((d) => {
+      const pk = d.pick || {};
+      (pk.sports || []).forEach((x) => { if (x.date && x.evening) (eveByDate[x.date] = eveByDate[x.date] || []).push(x.name); });
+      (pk.dines || []).forEach((x) => { if (x.date) (dineByDate[x.date] = dineByDate[x.date] || []).push(x.name || "a dinner"); });
+    });
+    const flagged = {};
+    Object.keys(eveByDate).forEach((date) => {
+      const dines = dineByDate[date] || [];
+      if (dines.length) { flagged[date] = true; const when = fmtDay(new Date(date + "T00:00:00"));
+        add("stop", `${eveByDate[date][0]} and a dinner the same night`,
+          `On ${when} you have ${fmtList(eveByDate[date].concat(dines))} — that is one evening, and an evening event and a dinner cannot both happen. Keep the event, and move the table to another night.`); }
+    });
+    Object.keys(dineByDate).forEach((date) => {
+      if (flagged[date] || (dineByDate[date] || []).length < 2) return;
+      const when = fmtDay(new Date(date + "T00:00:00"));
+      add("think", `Two tables on ${when}`,
+        `You have ${fmtList(dineByDate[date])} the same day. Lunch and dinner is lovely — two dinners is one too many. Worth a look at the times.`);
+    });
   }
 
   // 6c. Moving hotels for a place down the road is a wasted morning.
