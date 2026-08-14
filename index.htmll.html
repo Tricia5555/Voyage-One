@@ -247,6 +247,16 @@ const GATEWAY = {
   "Algarve": { air: "Faro", note: "Faro (FAO) sits right in the middle of the coast." },
 };
 function gatewayFor(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r); return k ? GATEWAY[k] : null; }
+// Cities whose own airport still needs a special last hop to the hotel — Venice is all water,
+// so from Marco Polo you arrive by boat, not car. A universal map: any such city gets its own
+// "getting to your hotel" step. Prices are indicative, per boat, each way.
+const CITY_ARRIVAL = {
+  "Venice": { icon: "boat", note: "There are no roads in Venice — from Marco Polo (VCE) you reach your hotel by water.", modes: [
+    { mode: "Private water taxi (motoscafo)", why: "A private launch straight to your hotel's water door — the right arrival, and essential in costume or with luggage. Booked ahead through the hotel.", price: 140 },
+    { mode: "Alilaguna water bus", why: "The shared public boat from the airport to the San Marco and Rialto stops, then a short walk or hotel porter. Slower, a fraction of the cost.", price: 15 },
+  ] },
+};
+function cityArrival(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(CITY_ARRIVAL).find((x) => x.toLowerCase() === r); return k ? CITY_ARRIVAL[k] : null; }
 const REGION_STOPS = {
   "Amalfi Coast": [
     ["Positano", "1 hr 15 from Naples", "The postcard — pastel houses tumbling to a beach, best for glamour and boats."],
@@ -288,7 +298,7 @@ const AIRPORTS = {
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
   "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" },
   "Tokyo": { code: "HND", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
-  "Venice": { code: "VCE", scale: "regional" }, "Florence": { code: "FLR", scale: "regional" },
+  "Venice": { code: "VCE", scale: "intercontinental" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
   "Porto": { code: "OPO", scale: "regional" }, "Faro": { code: "FAO", scale: "regional" },
   "Pisa": { code: "PSA", scale: "regional" }, "Nice": { code: "NCE", scale: "regional" },
@@ -2017,15 +2027,7 @@ const ONE_LIST = {
           { label: "The city and the free Carnival", dates: "Closing weekend · 6–9 Feb 2027", band: "No ticket — free", note: "No ball at all. In costume in Piazza San Marco you ARE the spectacle — the best-costume contests on the stage, the Flight of the Lion finale on Martedì Grasso, photographers seeking you out at dawn. A couple can fill every day without a single ticket.", days: [ { date: "2027-02-06", label: "Closing Saturday · 6 Feb 2027" }, { date: "2027-02-09", label: "Martedì Grasso finale · 9 Feb 2027" } ] },
         ],
         tickets: "The balls sell by tier and the best go first, often months ahead. Il Ballo del Doge is bought only through its own site; the smaller balls and palazzo dinner-shows through the Venice ticket houses — we secure the tier you want the moment your evening is set. Every big ball also sells an after-dinner-only ticket (arrive near midnight for the show and the dancing) as the lighter way in. And a heads-up: if 2027 is already sold out — ball tiers and the best hotels do go early — look straight to 2028. Carnival climaxes on Martedì Grasso, 29 February 2028 (a leap-year finale), with the closing weekend around 26–27 February. It is not too early to hold a hotel for it.",
-        ticketBands: [
-          { label: "Il Ballo del Doge · Lounge", price: "≈ €1,600" },
-          { label: "Il Ballo del Doge · dinner tiers", price: "≈ €4,000–€7,000" },
-          { label: "Il Ballo del Doge · Imperial (private table)", price: "≈ €10,000" },
-          { label: "After-dinner entry (big balls)", price: "≈ €800" },
-          { label: "Palazzo dinner-show", price: "≈ €380–€550" },
-          { label: "Minuetto / couples' ball", price: "≈ €750–€1,100" },
-        ],
-        ticketNote: "Approximate, per person, from recent editions — ball prices rise each year and the 2027 tiers confirm when the program publishes. We confirm exact cost before anything is committed.",
+        ticketNote: "Prices are approximate, per person, from recent editions — the levels you lock in above are the ones we secure. Ball prices rise each year and the 2027 tiers confirm when the program publishes; we confirm exact cost before anything is committed.",
         costumesTitle: "Costumes & masks",
         costumeNote: "Rent the costume, buy the mask. A full, spectacular 18th-century rental runs roughly €400–€800 for the day; a genuine artisan papier-mâché mask from about €35 into the hundreds. The marquee ateliers quote their finest pieces on request. TIMING: be in Venice at least two days before your ball — the day before is your fitting and final adjustments (and hair, if you'd like), then the ball. This is exactly why we set your arrival two days ahead, so your flights are booked to match. A bespoke, made-to-own costume is different: commission it several months out. We arrange the fitting, and a photographer for dawn in an empty Piazza San Marco.",
         costumes: [
@@ -3403,6 +3405,10 @@ function CitySection({ d, i, p, from, legSched }) {
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6, lineHeight: 1.4 }}>Nearest first, but real scheduled service is ordered ahead of private-only fields. You have the final say.</div>
         </div>)}
         {transferOptions(pick.gatewayPick || gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
+      </Panel>}
+      {!gw && d.arriveBy === "Flight" && cityArrival(d.city) && <Panel icon={Ship} title={`Getting to your hotel in ${d.city}`}>
+        <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{cityArrival(d.city).note}</div>
+        {cityArrival(d.city).modes.map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
       </Panel>}
       {d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} /></Panel>}
       <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>
