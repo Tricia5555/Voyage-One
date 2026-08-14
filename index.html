@@ -1420,10 +1420,21 @@ function VoyageOne() {
   // into the builder. Fixed-date events land you on Departure (dates already set); season-based
   // journeys land on Basics so you choose your week within the season.
   const seedFromEvent = (ev) => {
-    if (ev.start && ev.end) setDates({ depart: ev.start, ret: ev.end });
     const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null } : null;
     const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date }));
-    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights: ev.nights || 3, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: [], tours: [], spas: [], sports: seededSports, exploreMode: "", stops: [] } }]);
+    // Never fly in on the day of a fixed, ticketed event. When the client has chosen specific
+    // event days, leave home two days ahead so there is time to cross, land and settle before
+    // the first — and come home the day after the last. They widen or trim this on the dates step.
+    const evDates = (ev.aecDays || []).map((d) => d.date).filter(Boolean).sort();
+    let depart = ev.start || "", ret = ev.end || "", nights = ev.nights || 3;
+    if (evDates.length) {
+      const iso = (dt) => dt.toISOString().slice(0, 10);
+      depart = iso(addDays(new Date(evDates[0] + "T00:00:00"), -2));
+      ret = iso(addDays(new Date(evDates[evDates.length - 1] + "T00:00:00"), 1));
+      nights = Math.max(1, Math.round((new Date(ret + "T00:00:00") - new Date(depart + "T00:00:00")) / 86400000) - 1);
+    }
+    if (depart && ret) setDates({ depart, ret });
+    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: [], tours: [], spas: [], sports: seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
@@ -1920,10 +1931,9 @@ const ONE_LIST = {
           "The ritual: strawberries and cream with a glass of English sparkling, taken at the top of the hill.",
         ],
       } },
-      { title: "US Open · Finals Weekend", city: "New York City", airport: "JFK", airportName: "John F. Kennedy Intl", start: "2027-09-08", end: "2027-09-13", dateLabel: "Aug 30–Sep 12, 2027", nights: 5, blurb: "New York's late-summer roar — finals weekend under the lights at Arthur Ashe." },
-      { title: "Australian Open · Finals", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2027-01-26", end: "2027-02-01", dateLabel: "Jan 17–31, 2027", nights: 6, blurb: "Grand Slam summer down under — the finals at Rod Laver Arena." },
-      { title: "French Open · Finals", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, blurb: "The clay-court classic — Roland-Garros finals weekend, Paris in early summer." },
-      { title: "Indian Wells", city: "Palm Springs", airport: "PSP", airportName: "Palm Springs Intl", start: "2027-03-08", end: "2027-03-15", dateLabel: "Feb 28–Mar 14, 2027", nights: 5, blurb: "Tennis in the desert — courtside seats and a Coachella Valley weekend." },
+      { title: "The US Open", city: "New York City", airport: "JFK", airportName: "John F. Kennedy Intl", start: "2027-09-08", end: "2027-09-13", dateLabel: "Aug 30–Sep 12, 2027", nights: 5, blurb: "New York's late-summer roar — the final Grand Slam of the year, under the lights at Arthur Ashe." },
+      { title: "The Australian Open", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2027-01-26", end: "2027-02-01", dateLabel: "Jan 17–31, 2027", nights: 6, blurb: "Grand Slam summer down under, at Rod Laver Arena." },
+      { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, blurb: "The clay-court classic — Roland-Garros, Paris in early summer." },
     ],
     "Horse Racing & Polo": [
       { title: "The Kentucky Derby", city: "Louisville", airport: "SDF", airportName: "Louisville Muhammad Ali Intl", start: "2027-04-30", end: "2027-05-02", dateLabel: "May 1, 2027", nights: 2, blurb: "The most exciting two minutes in sport — a box on Millionaires' Row, juleps and hats." },
@@ -1932,15 +1942,15 @@ const ONE_LIST = {
       { title: "The Grand National", city: "Liverpool", airport: "MAN", airportName: "Manchester", start: "2027-04-08", end: "2027-04-11", dateLabel: "April 10, 2027", nights: 3, blurb: "The world's greatest steeplechase — Aintree at its most thrilling, hospitality above the last fence." },
       { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-10", end: "2026-12-14", dateLabel: "December 12, 2026", nights: 4, blurb: "The Cathedral of Polo at Palermo — the Argentine Open final, the sport at its very highest level." },
     ],
-    "Football & Team": [
+    "Football & Fútbol": [
+      { title: "The FIFA World Cup Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "", end: "", dateLabel: "Returns 2030", nights: 5, blurb: "The single most-watched match on earth. The World Cup — and its final — return in 2030." },
       { title: "The Super Bowl", city: "Los Angeles", airport: "LAX", airportName: "Los Angeles Intl", start: "2027-02-12", end: "2027-02-16", dateLabel: "Feb 14, 2027", nights: 4, blurb: "The biggest night in American sport at SoFi — great seats and a week of parties around it." },
       { title: "Champions League Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 5, 2027", nights: 4, blurb: "Europe's grandest club final at the Metropolitano — the best single night in football." },
       { title: "College Football Championship", city: "Las Vegas", airport: "LAS", airportName: "Harry Reid Intl", start: "2027-01-23", end: "2027-01-26", dateLabel: "January 25, 2027", nights: 3, blurb: "The national title decided at Allegiant Stadium — the Strip as your basecamp." },
-      { title: "The Army–Navy Game", city: "New York City", airport: "EWR", airportName: "Newark Liberty Intl", start: "2026-12-11", end: "2026-12-13", dateLabel: "December 12, 2026", nights: 2, blurb: "America's most storied rivalry, at MetLife — pageantry, tradition, both academies on their feet." },
     ],
     "Global Games": [
       { title: "The Olympics · Los Angeles", city: "Los Angeles", airport: "LAX", airportName: "Los Angeles Intl", start: "2028-07-13", end: "2028-07-18", dateLabel: "Opens July 14, 2028", nights: 5, blurb: "The Opening Ceremony and the marquee finals — the world's greatest gathering returns to LA." },
-      { title: "FIFA World Cup Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "", end: "", dateLabel: "Returns 2030", nights: 5, blurb: "The single most-watched match on earth. The World Cup — and its final — return in 2030." },
+      { title: "The Winter Olympics · French Alps", city: "Courchevel", airport: "GVA", airportName: "Geneva", start: "", end: "", dateLabel: "Feb 1–17, 2030", nights: 6, blurb: "The Winter Games return to the French Alps — the marquee Alpine events above Courchevel and Val d'Isère, snow and glamour at altitude, with the closing ceremony on the Promenade des Anglais in Nice." },
     ],
     "Cycling": [
       { title: "Tour de France · Alpine Stages", city: "Geneva", airport: "GVA", airportName: "Geneva", start: "2027-07-16", end: "2027-07-21", dateLabel: "Alpine stages · mid-July 2027", nights: 5, blurb: "The Tour's mountain showdown — VIP at the summit finishes as the peloton grinds up legendary climbs." },
@@ -2067,6 +2077,7 @@ function OneList({ onPick, onBack, onHome }) {
   const recCard = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
   const rowTile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "24px 22px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7, flex: "1 1 0", minWidth: 0 };
   const TYPE_ROWS = { "Sport": [3, 2, 3], "Arts & Culture": [2, 2], "Signature Journeys": [2, 2] };
+  const EVENT_ROWS = { "Golf": [2, 1], "Horse Racing & Polo": [2, 1, 2] };
   const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<button onClick={fn} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", marginBottom: 22 }}>← {label}</button>);
   const head = (title, sub) => (<div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -2129,7 +2140,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontSize: 13, fontWeight: 600, color: on ? t.brassLight : t.brass }}>{on ? "✓ Attending" : "Add"}</span>
                   </button>); })}
               </div>
-              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>How long you stay in London is a separate question — we'll ask your arrival and departure next, whether that's just these days or a full week.</div>
+              <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>We never fly you in on a match day. We'll set your arrival a day or two ahead so you land with time to settle — and how long you stay in London is yours to widen next, whether that's just these days or a full week.</div>
             </div>) : null}
           </div>) : (g.days ? (<div>{secHead("The days")}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
@@ -2184,19 +2195,25 @@ function OneList({ onPick, onBack, onHome }) {
   }
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
+    const pattern = EVENT_ROWS[type];
+    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setStayPick(null); setStayType(""); }} style={pattern ? { ...tile, flex: "1 1 300px", maxWidth: 372 } : tile}>
+      <span style={{ fontFamily: font.display, fontSize: 28, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
+      <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
+      <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
+      <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
+      {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
+      <span style={cArw}>Plan this trip →</span>
+    </button>);
     return (<div style={shell}>
       {back(() => setType(null), "back to " + cat)}
       {head(type, "A short, curated few. Tap one for the insider guide, then plan the trip.")}
-      <div style={grid}>
-        {events.map((ev, k) => (<button key={k} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setStayPick(null); setStayType(""); }} style={tile}>
-          <span style={{ fontFamily: font.display, fontSize: 28, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
-          <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
-          <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
-          <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
-          {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
-          <span style={cArw}>Plan this trip →</span>
-        </button>))}
-      </div>
+      {pattern ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 792, margin: "0 auto" }}>
+          {chunkRows(events, pattern).map((row, ri) => (<div key={ri} style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>{row.map((ev, k) => evCard(ev, ri + "-" + k))}</div>))}
+        </div>
+      ) : (
+        <div style={grid}>{events.map((ev, k) => evCard(ev, k))}</div>
+      )}
     </div>);
   }
   if (cat) {
@@ -3737,6 +3754,19 @@ function buildReview(p, sch) {
     // routing Birmingham → NYC → Florence hid the Florence advice entirely, because Florence
     // was the second stop. What matters is that THIS leg leaves the US and lands outside it.
     const longHaul = !!(from && isLongHaul(from, d.city));
+
+    // 1b. A fixed, dated commitment on the very day you land. The classic mistake: fly in and
+    // go straight to the event with no time to clear the airport, drop bags, or shake off the
+    // flight. Universal — any dated sport, tour or dinner on or before the arrival day, and
+    // sharper still off a long-haul. Catches both seeded event trips and hand-built ones.
+    const ls0 = sch.legs[i];
+    if (ls0 && ls0.arrive) {
+      const arriveISO = ls0.arrive.toISOString().slice(0, 10);
+      const pk0 = d.pick || {};
+      const dated = [...(pk0.sports || []), ...(pk0.tours || []), ...(pk0.dines || [])].filter((x) => x && x.date && x.date <= arriveISO);
+      if (dated.length) add("stop", `You land in ${d.city} and have ${fmtList(dated.map((x) => x.name))} the same day`,
+        `You arrive ${fmtDay(ls0.arrive)} — the very day ${dated.length === 1 ? "that is" : "those are"} booked.${longHaul ? " After an overnight crossing that means going straight there on no sleep." : ""} Leave home a day or two earlier so you land with time to clear the airport, settle in and be at your best. Add the nights on the dates step.`);
+    }
 
     // 2. The Florence problem: a regional airport quoted as a long-haul destination.
     if (longHaul && ap && ap.scale === "regional" && d.arriveBy === "Flight") {
