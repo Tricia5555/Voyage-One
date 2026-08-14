@@ -247,6 +247,16 @@ const GATEWAY = {
   "Algarve": { air: "Faro", note: "Faro (FAO) sits right in the middle of the coast." },
 };
 function gatewayFor(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r); return k ? GATEWAY[k] : null; }
+// Cities whose own airport still needs a special last hop to the hotel — Venice is all water,
+// so from Marco Polo you arrive by boat, not car. A universal map: any such city gets its own
+// "getting to your hotel" step. Prices are indicative, per boat, each way.
+const CITY_ARRIVAL = {
+  "Venice": { icon: "boat", note: "There are no roads in Venice — from Marco Polo (VCE) you reach your hotel by water.", modes: [
+    { mode: "Private water taxi (motoscafo)", why: "A private launch straight to your hotel's water door — the right arrival, and essential in costume or with luggage. Booked ahead through the hotel.", price: 140 },
+    { mode: "Alilaguna water bus", why: "The shared public boat from the airport to the San Marco and Rialto stops, then a short walk or hotel porter. Slower, a fraction of the cost.", price: 15 },
+  ] },
+};
+function cityArrival(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(CITY_ARRIVAL).find((x) => x.toLowerCase() === r); return k ? CITY_ARRIVAL[k] : null; }
 const REGION_STOPS = {
   "Amalfi Coast": [
     ["Positano", "1 hr 15 from Naples", "The postcard — pastel houses tumbling to a beach, best for glamour and boats."],
@@ -288,7 +298,7 @@ const AIRPORTS = {
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
   "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" },
   "Tokyo": { code: "HND", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
-  "Venice": { code: "VCE", scale: "regional" }, "Florence": { code: "FLR", scale: "regional" },
+  "Venice": { code: "VCE", scale: "intercontinental" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
   "Porto": { code: "OPO", scale: "regional" }, "Faro": { code: "FAO", scale: "regional" },
   "Pisa": { code: "PSA", scale: "regional" }, "Nice": { code: "NCE", scale: "regional" },
@@ -2718,7 +2728,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
           </div>
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Same trip, same cabin — the difference is where you change and how long you sit there. Pick a routing to see only those flights.</div>
         </div>)}
-        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live · Duffel</span></div>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live fares</span></div>
         {shown.map((o, k) => { const sel = chosen && chosen.offerId === o.offerId;
           return <button key={o.offerId || k} onClick={() => chooseFlight(o)} style={{ width: "100%", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, marginBottom: 8, border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white }}>
             <span style={{ minWidth: 0 }}>
@@ -2749,7 +2759,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
             </span>
             <span style={{ fontFamily: font.display, fontSize: 19, whiteSpace: "nowrap" }}>{fmt(o.price)}</span>
           </button>; })}
-        <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel · one way · tap to add to your plan</div>
+        <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real live fares · one way · tap to add to your plan</div>
         </>);
       })()}
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
@@ -3267,6 +3277,13 @@ function useGateway(city) {
     // Hand list wins (it has curated notes and is instant).
     const hand = gatewayFor(bare);
     if (hand) { setLive(null); return; }
+    // A city that IS its own intercontinental airport flies straight in — never route it
+    // through a neighbouring hub. The live nearest-airport service can misjudge a water- or
+    // island-access field (Venice Marco Polo sits across the lagoon), so for these we trust our
+    // own airport table over the computed gateway. Regional own-airports (Florence) still fall
+    // through to the hub path, which is correct for a long-haul.
+    const ownAir = airportFor(bare);
+    if (ownAir && ownAir.scale === "intercontinental" && sameCity(ownAir.city, bare)) { setLive(null); return; }
     const ck = bare.toLowerCase();
     if (GATEWAY_CACHE[ck] !== undefined) { setLive(GATEWAY_CACHE[ck]); return; }
     // Need coordinates first, then the nearest airport to them.
@@ -3395,6 +3412,10 @@ function CitySection({ d, i, p, from, legSched }) {
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6, lineHeight: 1.4 }}>Nearest first, but real scheduled service is ordered ahead of private-only fields. You have the final say.</div>
         </div>)}
         {transferOptions(pick.gatewayPick || gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
+      </Panel>}
+      {!gw && d.arriveBy === "Flight" && cityArrival(d.city) && <Panel icon={Ship} title={`Getting to your hotel in ${d.city}`}>
+        <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{cityArrival(d.city).note}</div>
+        {cityArrival(d.city).modes.map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
       </Panel>}
       {d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} /></Panel>}
       <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>
@@ -3960,6 +3981,17 @@ function buildReview(p, sch) {
   // 6b. The last morning is not free — the plane leaves.
   if (sch.valid && sch.end && p.returnFrom && p.homeCity) {
     const dt = departTime(p.returnFrom, p.homeCity);
+    // The ACTUAL chosen flight wins over the generic assumption. departTime only guesses a
+    // typical departure (a mid-morning long-haul); once a real flight is picked, its time is the
+    // truth. A 15:00 flight leaves the morning free — a note that says "up at six and gone" then
+    // is a generic line fighting the pick, which is worse than no note at all.
+    const rf = p.returnPick && p.returnPick.flight;
+    const realDep = (rf && rf.chosen && rf.depart) ? rf.depart : (dt ? dt.time : null);
+    const toMin = (s) => { if (!s) return null; const m = /(\d{1,2}):(\d{2})\s*([AaPp][Mm])?/.exec(s); if (!m) return null; let h = +m[1]; const ap = (m[3] || "").toUpperCase(); if (ap === "PM" && h < 12) h += 12; if (ap === "AM" && h === 12) h = 0; return h * 60 + (+m[2]); };
+    const fmtMin = (x) => { let v = ((x % 1440) + 1440) % 1440; let h = Math.floor(v / 60); const mm = v % 60; const ap = h < 12 ? "am" : "pm"; h = h % 12; if (h === 0) h = 12; return `${h}:${String(mm).padStart(2, "0")}${ap}`; };
+    const depMin = toMin(realDep);
+    const cutoff = depMin != null ? fmtMin(depMin - 150) : null;
+    const hasMorning = depMin != null && depMin >= 720;
     {
       const endKey = sch.end.toISOString().slice(0, 10);
       const clashes = [];
@@ -3968,16 +4000,13 @@ function buildReview(p, sch) {
         [...(pk.sports || []), ...(pk.tours || [])].forEach((x) => { if (x.date === endKey) clashes.push(x.name); });
         (pk.days || []).forEach((x) => { if (x.date === endKey) clashes.push(x.name); });
       });
-      // A lesson booked on the morning you fly home is a problem on a two-hour domestic hop
-      // exactly as much as on a transatlantic crossing. This used to wait for departTime to
-      // have an opinion, and departTime only speaks for long-haul legs — so the warning went
-      // quiet on precisely the short flights where a mistimed booking is easiest to make.
-      // Now it always fires; the only thing distance changes is whether we can name a clock.
-      if (clashes.length) add("stop", `${fmtList(clashes)} on the day you fly home`,
-        dt ? `Your flight leaves ${p.returnFrom} about ${dt.time}, which means the airport by ${clockAdd(dt.time, -150).label}. ${dt.note} There is no morning to play with — move it, or move the flight.`
+      if (clashes.length) add(hasMorning ? "think" : "stop", `${fmtList(clashes)} on the day you fly home`,
+        realDep ? `Your flight leaves ${p.returnFrom} about ${realDep}${cutoff ? `, so you're at the airport by ${cutoff}` : ""}. ${hasMorning ? "A morning plan still works — but anything later than that will clash." : "There is no morning to play with — move it, or move the flight."}`
            : `That is the day you fly out of ${p.returnFrom}, and the airport will take the middle of it whatever time the flight leaves. Move this, or move the flight.`);
-      else if (dt) add("note", "The last day is not a day",
-        `The flight home leaves about ${dt.time}, so you are up at six and gone. Do not plan anything for that morning, and do the goodbyes the night before.`);
+      else if (depMin != null && !hasMorning) add("note", "The last day is not a day",
+        `The flight home leaves about ${realDep}, so you're up early and gone. Keep that morning free, and say the goodbyes the night before.`);
+      else if (depMin != null && hasMorning) add("note", "Your last morning is yours",
+        `The flight home leaves about ${realDep}, so the morning is yours — a final coffee, a last walk, then the airport by ${cutoff}.`);
     }
   }
 
