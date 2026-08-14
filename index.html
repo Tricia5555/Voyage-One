@@ -2248,7 +2248,7 @@ function OneList({ onPick, onBack, onHome }) {
               <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{aecPick.tiers.length > 1 ? "Choose the level you want — this is the ticket we secure, and it sets your date." : "Confirm the ticket we'll secure — this sets your date."}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {aecPick.tiers.map((tr, ti) => { const on = ballTier && ballTier.tier === tr.tier; return (
-                  <button key={ti} onClick={() => setBallTier(on ? null : tr)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
+                  <button key={ti} onClick={() => setBallTier(tr)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
                     <span style={{ fontSize: 15, color: on ? t.paper : t.ink }}>{tr.label}</span>
                     <span style={{ fontSize: 13, fontWeight: 600, color: on ? t.brassLight : t.brass }}>{on ? "✓ Locked" : "Choose"}</span>
                   </button>); })}
@@ -2272,7 +2272,7 @@ function OneList({ onPick, onBack, onHome }) {
           {g.costumes ? (<div>{secHead(g.costumesTitle || "Costumes & masks")}{g.costumeNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.costumeNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {g.costumes.map((s, k) => { const on = costumePick && costumePick.name === s.name; return (
-                <button key={k} onClick={() => setCostumePick(on ? null : { name: s.name, area: s.area, note: s.note })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+                <button key={k} onClick={() => setCostumePick({ name: s.name, area: s.area, note: s.note })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                     <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
@@ -2320,7 +2320,7 @@ function OneList({ onPick, onBack, onHome }) {
         </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
         <div style={{ textAlign: "center", marginTop: 8 }}>
           {(selDayLabels.length || stayPick || costumePick) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your selections so far</div>
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your package so far</div>
             {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 6 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
             {costumePick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: stayPick ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Costume · </span><strong>{costumePick.name}</strong></div> : null}
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
