@@ -34,6 +34,14 @@ const t = {
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
 const LEVELS = ["UltraLux", "Luxury"];
+// Restaurants get their own, more foodie ladder — and unlike hotels we happily include a great
+// inexpensive find. The labels are what the client sees; the keys map to the underlying data.
+const DINE_LEVELS = [
+  { key: "UltraLux", label: "Destination" },
+  { key: "Luxury", label: "Standout" },
+  { key: "Refined", label: "Local Gem" },
+  { key: "Essential", label: "Café & Casual" },
+];
 // Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
 // Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
@@ -108,10 +116,18 @@ const HOTELS = {
 // shows up already selected here. Rates are indicative placeholders until live rates connect.
 const FAVORITES = {
   "London": [
-    { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", rate: 1150, desc: "In Chelsea, a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
-    { name: "The Berkeley", area: "Knightsbridge", rate: 1250, desc: "Among the shortest runs to the courts — quintessential London luxury, a rooftop pool and Marcus at the door." },
-    { name: "The Peninsula London", area: "Belgravia", rate: 1450, desc: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London." },
-    { name: "The Goring", area: "Belgravia", rate: 1050, desc: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, a garden of its own." },
+    { name: "Claridge's", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The definitive London address — Art Deco glamour and the lobby everyone wants to be seen in.", contact: { addr: "Brook Street, Mayfair, London W1K 4HR", web: "claridges.com" } },
+    { name: "The Connaught", area: "Mayfair", tier: "UltraLux", rate: 1590, ourTake: "Discreet, clubby, the best bars in London — old-money Mayfair at its most assured.", contact: { addr: "Carlos Place, Mayfair, London W1K 2AL", web: "the-connaught.co.uk" } },
+    { name: "The Savoy", area: "Strand", tier: "UltraLux", rate: 842, ourTake: "The theatrical grande dame on the Thames — the Grill, the river, a century of legend.", contact: { addr: "Strand, London WC2R 0EZ", web: "thesavoylondon.com" } },
+    { name: "The Berkeley", area: "Knightsbridge", tier: "UltraLux", rate: 990, ourTake: "Quintessential Knightsbridge — a rooftop pool, Marcus at the door, and a short run to the West End.", contact: { addr: "Wilton Place, Knightsbridge, London SW1X 7RL", web: "the-berkeley.co.uk" } },
+    { name: "The Peninsula London", area: "Belgravia", tier: "UltraLux", rate: null, ourTake: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest house cars in town.", contact: { addr: "1 Grosvenor Place, London SW1X 7HJ", web: "peninsula.com" } },
+    { name: "The Ritz London", area: "Piccadilly", tier: "UltraLux", rate: null, ourTake: "Louis XVI gilt and the most famous afternoon tea in the world — pure, unapologetic occasion.", contact: { addr: "150 Piccadilly, London W1J 9BR", web: "theritzlondon.com" } },
+    { name: "Raffles London at The OWO", area: "Whitehall", tier: "UltraLux", rate: 1038, ourTake: "The Old War Office reborn — nine restaurants, a Guerlain spa, history in every corner.", contact: { addr: "57 Whitehall, London SW1A 2BX", tel: "+44 20 3907 7500", web: "raffles.com" } },
+    { name: "Four Seasons Hotel London at Park Lane", area: "Mayfair", tier: "Luxury", rate: 924, ourTake: "Impeccable modern Four Seasons polish overlooking the park — service you can set a watch by.", contact: { addr: "Hamilton Place, Park Lane, London W1J 7DR", web: "fourseasons.com/london" } },
+    { name: "The Langham, London", area: "Marylebone", tier: "Luxury", rate: 572, ourTake: "A grand Victorian original by Regent Street — wonderful value at this level, the Palm Court a joy.", contact: { addr: "1c Portland Place, London W1B 1JA", web: "langhamhotels.com" } },
+    { name: "The Stafford London", area: "St James's", tier: "Luxury", rate: 790, ourTake: "A hidden gem down a cobbled cul-de-sac — the American Bar, a country-house calm by the Palace.", contact: { addr: "16–18 St James's Place, London SW1A 1NJ", tel: "+44 20 7493 0111", web: "thestaffordlondon.com" } },
+    { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", tier: "Luxury", rate: null, ourTake: "Quietly perfect in Chelsea — a Michelin table and gardens at the door, closest of the group to SW19.", contact: { addr: "75 Sloane Street, Chelsea, London SW1X 9SG", web: "belmond.com" } },
+    { name: "The Goring", area: "Belgravia", tier: "Luxury", rate: null, ourTake: "The last family-owned grand hotel, beloved by the Palace — impeccably English, with its own garden.", contact: { addr: "15 Beeston Place, Belgravia, London SW1W 0JW", web: "thegoring.com" } },
   ],
   "Venice": [
     { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
@@ -624,7 +640,7 @@ function isUS(city) {
 }
 function stayBands(city) { const seed = hashStr("stay" + (bareCity(city) || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
 function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
-function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
+function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; Object.keys(per).forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
 function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
 function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
 function groundOption(mode, from, to) {
@@ -2993,15 +3009,28 @@ function HotelPicker({ city, nights, pick, upd }) {
   const curated = !!lookup(HOTELS, city);
   const rows = level ? (live ? (remote.items[level] || []) : (stayData(city)[level] || []).map(([name, nightly, desc]) => ({ name, price: nightly, desc, level }))) : [];
   const favs = lookup(FAVORITES, city) || [];
+  const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
+  const favCard = (s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
+    <button key={k} onClick={() => upd({ stay: sel ? null : { level: s.tier || "UltraLux", name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null } })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${sel ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
+        {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
+      </div>
+      {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: "#E7E1D4", lineHeight: 1.4, marginTop: 6 }}>{s.ourTake}</div> : (s.desc ? <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.desc}</div> : null)}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
+        <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `from ${favCur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
+        <span style={{ fontSize: sel ? 14 : 12.5, color: sel ? t.brassLight : "#B6C0B6", fontWeight: sel ? 700 : 500, textTransform: sel ? "uppercase" : "none", letterSpacing: sel ? "0.08em" : "normal" }}>{sel ? "✓ Your choice" : "Choose →"}</span>
+      </div>
+      {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
+    </button>); };
   return (<>
     {favs.length > 0 && (<div style={{ marginBottom: 18 }}>
-      <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Our picks in {bareCity(city)}</div>
-      {favs.map((s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
-        <PlaceRow key={"fav" + k} item={{ name: s.name, desc: s.desc, band: s.area }} selected={!!sel}
-          onClick={() => upd({ stay: sel ? null : { level: "UltraLux", name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null } })}
-          sub={`${s.rate ? "≈ " + fmt(s.rate) + "/night" : "rate on request"}${nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
-          price={fmt((s.rate || 0) * (nights || 1))} />); })}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Our own favourites, pinned to the top. Indicative rates for now. More options below.</div>
+      {["UltraLux", "Luxury", ""].map((tg) => { const group = favs.filter((s) => (s.tier || "") === tg); if (!group.length) return null; return (
+        <div key={tg || "plain"} style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>{tg ? `${tg} · our picks in ${bareCity(city)}` : `Our picks in ${bareCity(city)}`}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{group.map((s, k) => favCard(s, tg + k))}</div>
+        </div>); })}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Rates are the hotel's direct rate where shown, indicative otherwise — we confirm and book on your behalf. More options below.</div>
     </div>)}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}
@@ -3030,11 +3059,11 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}
+      {DINE_LEVELS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
       <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
     </div>
     {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a level to see restaurants — add as many as you like.</div>}
+    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
     {level && rows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
     {rows.map((r, k) => {
       const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
