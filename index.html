@@ -3002,6 +3002,50 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
     </div>)}
   </div>);
 }
+// A curated hotel's photo comes from the app's own places source (the same one the live browse
+// uses), fetched by name and cached — DirectBooker gives us the rate and contacts, not the image.
+const HOTEL_PHOTO_CACHE = {};
+function useHotelPhoto(city, name) {
+  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+  const [url, setUrl] = useState(HOTEL_PHOTO_CACHE[key]);
+  useEffect(() => {
+    if (!city || !name) return;
+    if (HOTEL_PHOTO_CACHE[key] !== undefined) { setUrl(HOTEL_PHOTO_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/places?kind=hotels&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const p = (m && m.photo) || null; HOTEL_PHOTO_CACHE[key] = p; if (!dead) setUrl(p); })
+      .catch(() => { HOTEL_PHOTO_CACHE[key] = null; if (!dead) setUrl(null); });
+    return () => { dead = true; };
+  }, [key]);
+  return url || null;
+}
+// The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
+// opens up — bigger photo, our take, and the contacts.
+function FavHotelCard({ s, city, cur, sel, onClick }) {
+  const photo = useHotelPhoto(city, s.name);
+  const [broken, setBroken] = useState(false);
+  const showImg = photo && !broken;
+  const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 44%" : "none", height: sel ? "auto" : 152, minHeight: sel ? 210 : 152, overflow: "hidden" };
+  return (<button onClick={onClick} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+    <div style={photoBox}>
+      {showImg
+        ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
+      {s.tier ? <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{s.tier === "UltraLux" ? "Ultra Luxury" : s.tier}</span> : null}
+    </div>
+    <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
+      <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}</div>
+      {s.area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.area}</div> : null}
+      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
+      {sel ? (<>
+        {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
+        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
+        <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
+      </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
+    </div>
+  </button>);
+}
 function HotelPicker({ city, nights, pick, upd }) {
   const [level, setLevel] = useState(pick.stay ? pick.stay.level : "");
   const remote = useRemote("hotels", city);
@@ -3010,41 +3054,33 @@ function HotelPicker({ city, nights, pick, upd }) {
   const rows = level ? (live ? (remote.items[level] || []) : (stayData(city)[level] || []).map(([name, nightly, desc]) => ({ name, price: nightly, desc, level }))) : [];
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
-  const favCard = (s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
-    <button key={k} onClick={() => upd({ stay: sel ? null : { level: s.tier || "UltraLux", name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null } })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${sel ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
-        {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
-      </div>
-      {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: "#E7E1D4", lineHeight: 1.4, marginTop: 6 }}>{s.ourTake}</div> : (s.desc ? <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.desc}</div> : null)}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
-        <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `from ${favCur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
-        <span style={{ fontSize: sel ? 14 : 12.5, color: sel ? t.brassLight : "#B6C0B6", fontWeight: sel ? 700 : 500, textTransform: sel ? "uppercase" : "none", letterSpacing: sel ? "0.08em" : "normal" }}>{sel ? "✓ Your choice" : "Choose →"}</span>
-      </div>
-      {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
-    </button>); };
+  const levelFavs = level ? favs.filter((s) => (s.tier || "UltraLux") === level) : [];
+  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
-    {favs.length > 0 && (<div style={{ marginBottom: 18 }}>
-      {["UltraLux", "Luxury", ""].map((tg) => { const group = favs.filter((s) => (s.tier || "") === tg); if (!group.length) return null; return (
-        <div key={tg || "plain"} style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>{tg ? `${tg} · our picks in ${bareCity(city)}` : `Our picks in ${bareCity(city)}`}</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{group.map((s, k) => favCard(s, tg + k))}</div>
-        </div>); })}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Rates are the hotel's direct rate where shown, indicative otherwise — we confirm and book on your behalf. More options below.</div>
-    </div>)}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}
+      {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{lbl(l)}</button>)}
       <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
     </div>
-    {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a level above to see the hotels — switch levels to compare up or down.</div>}
-    {level && !live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {city || "this city"} yet — showing an indicative rate.</div>}
-    {level && live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true UltraLux property in ${city} — that tier is reserved for the Villa d’Este class, and not every city has one. Try Luxury for the best ${city} offers.` : `Nothing at this level in ${city}. Try another.`}</div>}
-    {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
-      return <PlaceRow key={r.id || k} item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null } })}
-        sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />; })}
-    {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
-    {city && <FindPlace city={city} kind="hotels" nights={nights} label="Already have a hotel in mind? Search for it by name."
+    {!level && <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5 }}>Choose <strong style={{ color: t.ink }}>Ultra Luxury</strong> or <strong style={{ color: t.ink }}>Luxury</strong>{city ? " to see our hotels in " + bareCity(city) : " to see the hotels"}.</div>}
+    {level && levelFavs.length > 0 && (<>
+      <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
+      <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+        {levelFavs.map((s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
+          <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
+            onClick={() => upd({ stay: sel ? null : { level: s.tier || level, name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null } })} />); })}
+      </div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose. Rates are the direct rate where shown, indicative otherwise — we confirm and book on your behalf.</div>
+    </>)}
+    {level && levelFavs.length === 0 && (<>
+      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
+      {!live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {bareCity(city) || "this city"} yet — showing an indicative rate.</div>}
+      {live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true Ultra Luxury property in ${bareCity(city)} — try Luxury for the best offers.` : `Nothing at this level in ${bareCity(city)}. Try another.`}</div>}
+      {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
+        return <PlaceRow key={r.id || k} item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null } })}
+          sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />; })}
+      {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
+    </>)}
+    {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
       selectedName={pick.stay ? pick.stay.name : null}
       onPick={(r, sel) => upd({ stay: sel ? null : { level: r.level, name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null } })} />}
   </>);
