@@ -3004,30 +3004,46 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
 }
 // A curated hotel's photo comes from the app's own places source (the same one the live browse
 // uses), fetched by name and cached — DirectBooker gives us the rate and contacts, not the image.
+// Every outbound hotel link is tagged as coming from us — so the hotel's own analytics
+// sees "voyage-one-world.com" as the source. Keeps the hotel's own functional params
+// (merchant/room codes), strips their tracking, adds ours. This is the source proof.
+function brandedLink(url) {
+  if (!url) return null;
+  var hash = "", u = String(url);
+  var hi = u.indexOf("#"); if (hi >= 0) { hash = u.slice(hi); u = u.slice(0, hi); }
+  var qi = u.indexOf("?");
+  var base = qi >= 0 ? u.slice(0, qi) : u;
+  var qs = qi >= 0 ? u.slice(qi + 1) : "";
+  var parts = qs ? qs.split("&").filter(function (p) { return p && p.slice(0, 4) !== "utm_"; }) : [];
+  parts.push("utm_source=voyage-one-world.com", "utm_medium=referral", "utm_campaign=voyageone");
+  return base + "?" + parts.join("&") + hash;
+}
 const HOTEL_PHOTO_CACHE = {};
-function useHotelPhoto(city, name) {
+function useHotelInfo(city, name) {
   const key = ((city || "") + "|" + (name || "")).toLowerCase();
-  const [url, setUrl] = useState(HOTEL_PHOTO_CACHE[key]);
+  const [info, setInfo] = useState(HOTEL_PHOTO_CACHE[key]);
   useEffect(() => {
     if (!city || !name) return;
-    if (HOTEL_PHOTO_CACHE[key] !== undefined) { setUrl(HOTEL_PHOTO_CACHE[key]); return; }
+    if (HOTEL_PHOTO_CACHE[key] !== undefined) { setInfo(HOTEL_PHOTO_CACHE[key]); return; }
     let dead = false;
     fetch(`/api/places?kind=hotels&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const p = (m && m.photo) || null; HOTEL_PHOTO_CACHE[key] = p; if (!dead) setUrl(p); })
-      .catch(() => { HOTEL_PHOTO_CACHE[key] = null; if (!dead) setUrl(null); });
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null }; if (!dead) setInfo({ photo: null, site: null }); });
     return () => { dead = true; };
   }, [key]);
-  return url || null;
+  return info || { photo: null, site: null };
 }
 // The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
 // opens up — bigger photo, our take, and the contacts.
 function FavHotelCard({ s, city, cur, sel, onClick }) {
-  const photo = useHotelPhoto(city, s.name);
+  const info = useHotelInfo(city, s.name);
+  const photo = info.photo;
+  const site = info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
   const [broken, setBroken] = useState(false);
   const showImg = photo && !broken;
   const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 44%" : "none", height: sel ? "auto" : 152, minHeight: sel ? 210 : 152, overflow: "hidden" };
-  return (<button onClick={onClick} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+  return (<div role="button" tabIndex={0} onClick={onClick} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
     <div style={photoBox}>
       {showImg
         ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -3040,11 +3056,12 @@ function FavHotelCard({ s, city, cur, sel, onClick }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
-        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
+        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
+        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
     </div>
-  </button>);
+  </div>);
 }
 function HotelPicker({ city, nights, pick, upd }) {
   const [level, setLevel] = useState(pick.stay ? pick.stay.level : "");
@@ -3067,7 +3084,7 @@ function HotelPicker({ city, nights, pick, upd }) {
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {levelFavs.map((s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
           <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
-            onClick={() => upd({ stay: sel ? null : { level: s.tier || level, name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null } })} />); })}
+            onClick={() => upd({ stay: sel ? null : { level: s.tier || level, name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} />); })}
       </div>
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose. Rates are the direct rate where shown, indicative otherwise — we confirm and book on your behalf.</div>
     </>)}
@@ -3076,13 +3093,16 @@ function HotelPicker({ city, nights, pick, upd }) {
       {!live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {bareCity(city) || "this city"} yet — showing an indicative rate.</div>}
       {live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true Ultra Luxury property in ${bareCity(city)} — try Luxury for the best offers.` : `Nothing at this level in ${bareCity(city)}. Try another.`}</div>}
       {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
-        return <PlaceRow key={r.id || k} item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null } })}
-          sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />; })}
+        return (<div key={r.id || k}>
+          <PlaceRow item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null, site: r.site || null } })}
+            sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />
+          {sel && r.site ? <a href={brandedLink(r.site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "0 0 10px 8px", color: t.pineSoft, fontSize: 12.5, textDecoration: "none" }}>Book direct at {r.name} →</a> : null}
+        </div>); })}
       {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
       selectedName={pick.stay ? pick.stay.name : null}
-      onPick={(r, sel) => upd({ stay: sel ? null : { level: r.level, name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null } })} />}
+      onPick={(r, sel) => upd({ stay: sel ? null : { level: r.level, name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null, site: r.site || null } })} />}
   </>);
 }
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
