@@ -100,7 +100,13 @@ const ULTRA_LUX = [
   "Villa La Coste", "Airelles Gordes", "Baumanière Les Baux-de-Provence",
   "Cheval Blanc St-Tropez", "La Réserve Ramatuelle",
   "Hôtel du Cap-Eden-Roc",
-  "La Residence Franschhoek", "Leeu Estates",
+  "La Residence Franschhoek", "Leeu Estates", "Delaire Graff Estate",
+  "Les Sources de Caudalie", "Royal Champagne Hotel & Spa", "Le K2 Palace", "Airelles Château de Versailles, Le Grand Contrôle", "Saint James Paris",
+  "Beau-Rivage Genève", "Bürgenstock Resort", "Les Trois Rois",
+  "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
+  "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
+  "Taj Lake Palace", "RAAS Devigarh",
+  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "The Peninsula Beverly Hills", "Maybourne Beverly Hills", "Montage Laguna Beach", "Halekulani", "The Setai Miami Beach", "Faena Hotel Miami",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -377,6 +383,7 @@ const FAVORITES = {
     { name: "The Peninsula Paris", area: "16th · Avenue Kléber", rate: null, ourTake: "A restored Haussmann palace near the Arc, with a rooftop and tower views.", contact: { addr: "19 Avenue Kléber, 75116 Paris", web: "peninsula.com" } },
     { name: "La Réserve Paris", area: "8th · Avenue Gabriel", rate: null, ourTake: "An intimate town-house palace near the Champs — grand, discreet, residential.", contact: { addr: "42 Avenue Gabriel, 75008 Paris", web: "lareserve-paris.com" } },
     { name: "Bulgari Hotel Paris", area: "8th · Avenue George V", rate: null, ourTake: "Italian glamour off Avenue Montaigne, with a spectacular spa and pool.", contact: { addr: "30 Avenue George V, 75008 Paris", web: "bulgarihotels.com" } },
+    { name: "Saint James Paris", area: "16th · Bois de Boulogne", rate: null, ourTake: "The only château-hotel in Paris — a hidden garden mansion with a library bar.", contact: { addr: "43 Avenue Bugeaud, 75116 Paris", web: "saintjames-paris.com" } },
   ],
   "Milan": [
     { name: "Bulgari Hotel Milano", area: "Brera", rate: null, ourTake: "A hidden garden oasis in Brera with the city's chicest bar.", contact: { addr: "Via Privata Fratelli Gabba 7b, Milan", web: "bulgarihotels.com" } },
@@ -443,6 +450,54 @@ const FAVORITES = {
     { name: "Leeu Estates", area: "Franschhoek", rate: null, ourTake: "An art-filled wine estate in the Leeu Collection, gardens and a fine spa.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "leeucollection.com" } },
     { name: "Babylonstoren Farm Hotel", area: "Simondium", rate: null, ourTake: "A working Cape Dutch farm with a world-famous garden and farm-to-table table.", contact: { addr: "Klapmuts-Simondium Rd, Simondium", web: "babylonstoren.com" } },
     { name: "Mont Rochelle", area: "Franschhoek", rate: null, ourTake: "Richard Branson's mountain vineyard hotel above the valley.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "virginlimitededition.com" } },
+  ],
+  "Stellenbosch": [
+    { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
+  ],
+  "Bordeaux": [
+    { name: "Les Sources de Caudalie", area: "Martillac", rate: null, ourTake: "A vineyard retreat at Château Smith Haut Lafitte — the birthplace of vinothérapie.", contact: { web: "sources-caudalie.com" } },
+  ],
+  "Champagne": [
+    { name: "Royal Champagne Hotel & Spa", area: "Champillon", rate: null, ourTake: "A hillside hotel above the vineyards near Épernay — all bubbles and valley views.", contact: { web: "royalchampagne.com" } },
+  ],
+  "Courchevel": [
+    { name: "Le K2 Palace", area: "Courchevel 1850", rate: null, ourTake: "A chalet-palace on the slopes of 1850 — ski-in, ski-out grandeur.", contact: { web: "lek2palace.com" } },
+  ],
+  "Versailles": [
+    { name: "Airelles Château de Versailles, Le Grand Contrôle", area: "Palace grounds", rate: null, ourTake: "Sleeping inside the palace grounds — Marie-Antoinette's world, after the crowds leave.", contact: { web: "airelles.com" } },
+  ],
+  "Bürgenstock": [
+    { name: "Bürgenstock Resort", area: "Lake Lucerne", rate: null, ourTake: "A cliff-top resort 500 metres above Lake Lucerne, with a sky-edge infinity pool.", contact: { web: "buergenstock.ch" } },
+  ],
+  "Basel": [
+    { name: "Les Trois Rois", area: "Old Town", rate: null, ourTake: "One of Europe's oldest city hotels, on the Rhine since 1681.", contact: { web: "lestroisrois.com" } },
+  ],
+  "Ise-Shima": [
+    { name: "Amanemu", area: "Ago Bay", rate: null, ourTake: "An onsen Aman on Ago Bay — hot-spring pavilions among the pines.", contact: { web: "aman.com" } },
+  ],
+  "Izu": [
+    { name: "Asaba", area: "Shuzenji", rate: null, ourTake: "A centuries-old ryokan with a Noh stage set over its own pond.", contact: { web: "relaischateaux.com" } },
+  ],
+  "Chiang Mai": [
+    { name: "Four Seasons Resort Chiang Mai", area: "Mae Rim", rate: null, ourTake: "Pavilions and villas among working rice terraces in the Mae Rim valley.", contact: { web: "fourseasons.com/chiangmai" } },
+  ],
+  "Krabi": [
+    { name: "Phulay Bay, a Ritz-Carlton Reserve", area: "Andaman coast", rate: null, ourTake: "A jungle-and-sea Reserve on the Andaman coast near Krabi.", contact: { web: "ritzcarlton.com" } },
+  ],
+  "Boston": [
+    { name: "Raffles Boston", area: "Back Bay", rate: null, ourTake: "Raffles' first US address — a sky-lobby tower in Back Bay.", contact: { web: "raffles.com" } },
+  ],
+  "Washington, Virginia": [
+    { name: "The Inn at Little Washington", area: "Virginia", rate: null, ourTake: "A three-Michelin-star country inn in the Blue Ridge foothills, theatrical and beloved.", contact: { web: "theinnatlittlewashington.com" } },
+  ],
+  "Montana": [
+    { name: "Sage Lodge", area: "Paradise Valley", rate: null, ourTake: "A lodge on the Yellowstone River near the park's north gate.", contact: { web: "sagelodge.com" } },
+  ],
+  "Laguna Beach": [
+    { name: "Montage Laguna Beach", area: "Laguna Beach", rate: null, ourTake: "A Craftsman-style resort on the bluffs above the Pacific.", contact: { web: "montage.com" } },
+  ],
+  "Honolulu": [
+    { name: "Halekulani", area: "Waikiki", rate: null, ourTake: "The serene Waikiki grande dame — 'house befitting heaven', right on the beach.", contact: { web: "halekulani.com" } },
   ],
   "St-Tropez": [
     { name: "Cheval Blanc St-Tropez", area: "St-Tropez", rate: null, ourTake: "LVMH glamour on the old port, with a three-Michelin-star table.", contact: { addr: "Place des Lices area, St-Tropez", web: "chevalblanc.com" } },
@@ -520,6 +575,7 @@ const FAVORITES = {
     { name: "La Réserve Genève", area: "Bellevue", rate: null, ourTake: "A lakeside resort-and-spa retreat with a Garrell-designed safari-lodge feel." },
     { name: "Four Seasons Hotel des Bergues Geneva", area: "Old Town", rate: null, ourTake: "Geneva's oldest grand hotel, on the lake by the Old Town." },
     { name: "The Woodward Geneva", area: "Lakefront", rate: null, ourTake: "An all-suite Oetker jewel on the water, with a Guerlain spa." },
+    { name: "Beau-Rivage Genève", area: "Lakefront", rate: null, ourTake: "A family-owned lakefront grande dame since 1865.", contact: { web: "beau-rivage.ch" } },
   ],
   "Vienna": [
     { name: "Hotel Sacher Wien", area: "Opera", rate: null, ourTake: "The red-velvet imperial institution behind the Opera — home of the Sachertorte." },
@@ -602,6 +658,8 @@ const FAVORITES = {
   "Udaipur": [
     { name: "The Oberoi Udaivilas", area: "Lake Pichola", rate: null, ourTake: "A palace on the lake, regularly named the best hotel in the world." },
     { name: "The Leela Palace Udaipur", area: "Lake Pichola", rate: null, ourTake: "A lakeside palace with every room facing the City Palace across the water." },
+    { name: "Taj Lake Palace", area: "Lake Pichola", rate: null, ourTake: "The white marble palace that seems to float on Lake Pichola.", contact: { web: "tajhotels.com" } },
+    { name: "RAAS Devigarh", area: "Delwara", rate: null, ourTake: "An 18th-century fort-palace of all-suite marble grandeur outside Udaipur.", contact: { web: "raashotels.com" } },
   ],
   "Agra": [
     { name: "The Oberoi Amarvilas", area: "Taj Mahal", rate: null, ourTake: "Every room framing the Taj Mahal, six hundred metres away." },
@@ -670,6 +728,7 @@ const FAVORITES = {
   ],
   "Koh Samui": [
     { name: "Four Seasons Resort Koh Samui", area: "Laem Yai", rate: null, ourTake: "Hillside villas over a private bay on the quiet north-west coast." },
+    { name: "Samujana", area: "Choeng Mon", rate: null, ourTake: "Cliffside private villas with pools over the Gulf of Thailand.", contact: { web: "samujana.com" } },
   ],
   "Koh Kood": [
     { name: "Soneva Kiri", area: "Koh Kood", rate: null, ourTake: "A remote-island fantasy — treetop dining pods, cinema, barefoot luxury." },
@@ -694,6 +753,7 @@ const FAVORITES = {
     { name: "Mandarin Oriental Tokyo", area: "Nihonbashi", rate: null, ourTake: "Michelin dining and city-wide views from the top of Nihonbashi." },
     { name: "The Peninsula Tokyo", area: "Marunouchi", rate: null, ourTake: "A grande dame facing the Imperial Palace gardens and Ginza." },
     { name: "Four Seasons Hotel Tokyo at Otemachi", area: "Otemachi", rate: null, ourTake: "A jewel-box hotel with a rooftop spa over the skyline." },
+    { name: "Palace Hotel Tokyo", area: "Marunouchi", rate: null, ourTake: "A refined, family-owned hotel over the Imperial Palace gardens and moat.", contact: { web: "palacehoteltokyo.com" } },
   ],
   "Kyoto": [
     { name: "Aman Kyoto", area: "Northern hills", rate: null, ourTake: "A hidden garden sanctuary in a mossy forest below Kinkaku-ji." },
@@ -701,6 +761,8 @@ const FAVORITES = {
     { name: "Park Hyatt Kyoto", area: "Higashiyama", rate: null, ourTake: "On the lanes below Kodai-ji, steps from Kiyomizu — pure Kyoto." },
     { name: "The Ritz-Carlton Kyoto", area: "Kamogawa", rate: null, ourTake: "Riverside elegance with the Higashiyama mountains beyond." },
     { name: "Hoshinoya Kyoto", area: "Arashiyama", rate: null, ourTake: "A riverboat-access ryokan retreat among the Arashiyama maples." },
+    { name: "Hotel The Mitsui Kyoto", area: "Nijō Castle", rate: null, ourTake: "A former Mitsui-family estate by Nijō Castle, with a thermal-spring spa.", contact: { web: "hotelthemitsui.com" } },
+    { name: "The Shinmonzen", area: "Gion", rate: null, ourTake: "A tiny Tadao Ando ryokan-hotel along the Shirakawa canal in Gion.", contact: { web: "theshinmonzen.com" } },
   ],
   "Hakone": [
     { name: "Gora Kadan", area: "Hakone", rate: null, ourTake: "A former imperial retreat, the definitive luxury ryokan with private onsen." },
@@ -840,6 +902,8 @@ const FAVORITES = {
   "Los Angeles": [
     { name: "Hotel Bel-Air", area: "Bel-Air", rate: null, ourTake: "A pink-and-bougainvillea Dorchester hideaway with swans and Wolfgang Puck." },
     { name: "The Beverly Hills Hotel", area: "Beverly Hills", rate: null, ourTake: "The Pink Palace — the Polo Lounge and a century of Hollywood legend." },
+    { name: "The Peninsula Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Forbes-perennial garden hotel a step off Rodeo Drive.", contact: { web: "peninsula.com" } },
+    { name: "Maybourne Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Maybourne group's sleek Beverly Hills flagship.", contact: { web: "maybournebeverlyhills.com" } },
   ],
   "Santa Barbara": [
     { name: "Rosewood Miramar Beach", area: "Montecito", rate: null, ourTake: "A Montecito beach resort with old-Hollywood glamour and its own sand." },
@@ -856,6 +920,8 @@ const FAVORITES = {
   ],
   "Miami": [
     { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "A restored 1930s beach club with a Thomas Keller table and true glamour." },
+    { name: "The Setai Miami Beach", area: "South Beach", rate: null, ourTake: "An Art-Deco-meets-Asia sanctuary on Collins Avenue with three pools.", contact: { web: "thesetaihotel.com" } },
+    { name: "Faena Hotel Miami", area: "Mid-Beach", rate: null, ourTake: "Baz Luhrmann-designed theatrical glamour on Mid-Beach.", contact: { web: "faena.com" } },
   ],
   "Florida Keys": [
     { name: "Little Palm Island Resort and Spa", area: "Little Torch Key", rate: null, ourTake: "A boat-access private-island escape, adults only, castaway-chic." },
