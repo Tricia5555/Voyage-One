@@ -293,6 +293,11 @@ const FAVORITES = {
     { name: "Mandarin Oriental Mayfair", area: "Hanover Square", tier: "UltraLux", rate: null, ourTake: "The brand's sleek 2025 Mayfair debut on Hanover Square — the newest way to stay in the heart of it.", contact: { addr: "22 Hanover Square, London W1S 1JP", web: "mandarinoriental.com" } },
     { name: "The Lanesborough", area: "Hyde Park Corner", tier: "UltraLux", rate: null, ourTake: "Oetker's Regency palace at Hyde Park Corner — Céleste under the glass dome, butlers for every suite.", contact: { addr: "Hyde Park Corner, London SW1X 7TA", web: "oetkercollection.com" } },
     { name: "Four Seasons Tower Bridge", area: "The City", tier: "UltraLux", rate: null, ourTake: "A Beaux-Arts landmark at Ten Trinity Square by the Tower, with a rooftop over the river.", contact: { addr: "10 Trinity Square, London EC3N 4AJ", web: "fourseasons.com/tentrinity" } },
+    { name: "Rosewood London", area: "Holborn", tier: "Luxury", rate: null, ourTake: "Edwardian courtyard grandeur — the Mirror Room and a grand-staircase sense of arrival.", contact: { addr: "252 High Holborn, London WC1V 7EN", web: "rosewoodhotels.com" } },
+    { name: "Brown's Hotel", area: "Mayfair", tier: "Luxury", rate: null, ourTake: "Rocco Forte's — London's oldest hotel, quietly grand on Albemarle Street.", contact: { addr: "33 Albemarle Street, Mayfair, London W1S 4BP", web: "roccofortehotels.com" } },
+    { name: "The Beaumont", area: "Mayfair", tier: "Luxury", rate: null, ourTake: "An Art Deco jewel off Grosvenor Square, with a members'-bar hush.", contact: { addr: "Brown Hart Gardens, Mayfair, London W1K 6TF", web: "thebeaumont.com" } },
+    { name: "Corinthia London", area: "Whitehall", tier: "Luxury", rate: null, ourTake: "A modern palace by the river with one of the city's great spas.", contact: { addr: "10 Whitehall Place, London SW1A 2BD", web: "corinthia.com" } },
+    { name: "Hotel Café Royal", area: "Regent Street", tier: "Luxury", rate: null, ourTake: "A Regent Street landmark with the Akasha spa and a glittering past.", contact: { addr: "68 Regent Street, London W1B 4DY", web: "hotelcaferoyal.com" } },
   ],
   "Venice": [
     { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
@@ -3721,6 +3726,9 @@ function HotelPicker({ city, nights, pick, upd }) {
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
+  // Show our curated picks AND the live feed for this tier (deduped) — so Luxury is never cut short.
+  const favSet = {}; levelFavs.forEach((s) => { favSet[ulxAlnum(s.name)] = 1; });
+  const liveRows = rows.filter((r) => r.name && !favSet[ulxAlnum(r.name)]);
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
@@ -3737,17 +3745,19 @@ function HotelPicker({ city, nights, pick, upd }) {
       </div>
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose. Rates are the direct rate where shown, indicative otherwise — we confirm and book on your behalf.</div>
     </>)}
-    {level && levelFavs.length === 0 && (<>
-      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-      {!live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {bareCity(city) || "this city"} yet — showing an indicative rate.</div>}
-      {live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true Ultra Luxury property in ${bareCity(city)} — try Luxury for the best offers.` : `Nothing at this level in ${bareCity(city)}. Try another.`}</div>}
-      {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
-        return (<div key={r.id || k}>
-          <PlaceRow item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null, site: r.site || null } })}
-            sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />
-          {sel && r.site ? <a href={brandedLink(r.site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "0 0 10px 8px", color: t.pineSoft, fontSize: 12.5, textDecoration: "none" }}>Book direct at {r.name} →</a> : null}
-        </div>); })}
-      {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
+    {level && (<>
+      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
+      {!remote.loading && levelFavs.length === 0 && liveRows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No Ultra Luxury hotel on our list for ${bareCity(city) || "this city"} yet.` : `More ${lbl(level)} options for ${bareCity(city) || "this city"} are on the way.`}</div>}
+      {liveRows.length > 0 && (<>
+        {levelFavs.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More {lbl(level)} in {bareCity(city)}</div>}
+        {liveRows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
+          return (<div key={r.id || k}>
+            <PlaceRow item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level: tierOf(r.name), name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null, site: r.site || null } })}
+              sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />
+            {sel && r.site ? <a href={brandedLink(r.site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "0 0 10px 8px", color: t.pineSoft, fontSize: 12.5, textDecoration: "none" }}>Book direct at {r.name} →</a> : null}
+          </div>); })}
+        {live && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings are real; nightly rate is an estimate until booking is connected.</div>}
+      </>)}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
       selectedName={pick.stay ? pick.stay.name : null}
