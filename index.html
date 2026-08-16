@@ -1314,7 +1314,34 @@ function seeded(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(
 function round5(n) { return Math.round(n / 5) * 5; }
 const fmt = (n) => "$" + Math.round(n || 0).toLocaleString();
 const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
-function lookup(map, city) { if (!city) return null; city = bareCity(city); if (map[city]) return map[city]; const k = Object.keys(map).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? map[k] : null; }
+// Common ways a city gets typed → the canonical key our data is filed under. Keeps "NYC",
+// "New York", "New York, NY" all resolving to "New York City", and the like.
+const CITY_ALIASES = {
+  "new york": "New York City", "nyc": "New York City", "manhattan": "New York City", "new york ny": "New York City",
+  "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
+  "sf": "San Francisco", "san fran": "San Francisco",
+  "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
+  "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
+  "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos",
+  "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island",
+  "como": "Lake Como", "firenze": "Florence", "venezia": "Venice", "roma": "Rome", "milano": "Milan", "napoli": "Naples",
+  "wien": "Vienna", "munchen": "Munich", "münchen": "Munich", "geneve": "Geneva", "genève": "Geneva",
+  "marrakesh": "Marrakech", "cdmx": "Mexico City", "rio": "Rio de Janeiro", "sao paulo": "São Paulo",
+  "st moritz": "St Moritz", "saint moritz": "St Moritz",
+};
+function lookup(map, city) {
+  if (!city) return null;
+  const raw = bareCity(city);
+  if (map[raw]) return map[raw];
+  const c = raw.toLowerCase();
+  let k = Object.keys(map).find((x) => x.toLowerCase() === c);
+  if (k) return map[k];
+  const base = c.split(",")[0].trim(); // "New York, NY" → "new york"
+  const al = CITY_ALIASES[c] || CITY_ALIASES[base];
+  if (al && map[al]) return map[al];
+  if (base !== c) { k = Object.keys(map).find((x) => x.toLowerCase() === base); if (k) return map[k]; }
+  return null;
+}
 function regionStops(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(REGION_STOPS).find((x) => x.toLowerCase() === r); return k ? REGION_STOPS[k] : []; }
 function sameCity(a, b) { return !!(a && b && bareCity(a).toLowerCase() === bareCity(b).toLowerCase()); }
 // Whether a place is in the United States. This used to be a fifteen-city list, so
