@@ -83,6 +83,10 @@ const ULTRA_LUX = [
   "Adare Manor", "Ballyfin", "Ashford Castle",
   // Monaco
   "Hôtel de Paris Monte-Carlo", "Hôtel Hermitage Monte-Carlo",
+  // France — Paris (added after the master list; ChatGPT's list omitted Paris)
+  "Four Seasons George V", "Hôtel Plaza Athénée", "Le Bristol Paris", "Le Meurice", "Ritz Paris",
+  "Cheval Blanc Paris", "Hôtel de Crillon", "Mandarin Oriental Paris", "The Peninsula Paris",
+  "La Réserve Paris", "Bulgari Hotel Paris",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -195,6 +199,34 @@ function isUltraLux(name) {
   return false;
 }
 function tierOf(name) { return isUltraLux(name) ? "UltraLux" : "Luxury"; }
+// Do two hotel names refer to the same property? Tolerates Google inserting words in the middle
+// ("Four Seasons Hotel London at Tower Bridge" == "Four Seasons Tower Bridge") — used to de-dupe
+// the live feed against our curated picks.
+function nameMatch(n1, n2) {
+  const a = ulxAlnum(n1), b = ulxAlnum(n2);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.length >= 6 && b.indexOf(a) >= 0) return true;
+  if (b.length >= 6 && a.indexOf(b) >= 0) return true;
+  const ta = ulxTokens(n1), tb = ulxTokens(n2);
+  if (ta.length >= 2 && tb.length >= 2) {
+    const sb = {}; tb.forEach((w) => sb[w] = 1);
+    if (ta.every((w) => sb[w])) return true;
+    const sa = {}; ta.forEach((w) => sa[w] = 1);
+    if (tb.every((w) => sa[w])) return true;
+  }
+  return false;
+}
+// Mass-market chains that have no place in a luxury app. Their genuine ultra sub-brands
+// (Ritz-Carlton, St Regis, Waldorf, Conrad, Bulgari…) have different names and are unaffected.
+const CHAIN_RE = /\b(hilton|hampton|doubletree|embassy suites|garden inn|marriott|courtyard|four points|fairfield|residence inn|springhill|sheraton|le meridien|holiday inn|intercontinental|crowne plaza|voco|indigo|ibis|novotel|mercure|pullman|radisson|park plaza|park inn|premier inn|travelodge|best western|wyndham|ramada|days inn|comfort inn|hyatt place|hyatt regency|motel|leonardo|jurys inn|clayton|ihg|ruby|melia|nh hotel|nh collection|scandic|citizenm|point a|z hotel|montcalm|apex|hub by)\b/i;
+// A live-feed hotel is a luxury candidate only if it isn't a sub-5-star property or a mass chain.
+function isLuxeCandidate(item) {
+  if (!item) return false;
+  if (item.stars != null && item.stars < 5) return false;
+  if (CHAIN_RE.test(item.name || "")) return false;
+  return true;
+}
 // Restaurants get their own, more foodie ladder — and unlike hotels we happily include a great
 // inexpensive find. The labels are what the client sees; the keys map to the underlying data.
 const DINE_LEVELS = [
@@ -318,6 +350,19 @@ const FAVORITES = {
     { name: "Cap Estel", area: "Èze-sur-Mer", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
     { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
     { name: "La Réserve de Beaulieu", area: "Beaulieu", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
+  ],
+  "Paris": [
+    { name: "Four Seasons George V", area: "8th · off the Champs-Élysées", rate: null, ourTake: "The palace of palaces — three Michelin stars and the city's most famous florals.", contact: { addr: "31 Avenue George V, 75008 Paris", web: "fourseasons.com/paris" } },
+    { name: "Hôtel Plaza Athénée", area: "8th · Avenue Montaigne", rate: null, ourTake: "Red-awning haute-couture glamour on Avenue Montaigne, with a Dior spa within.", contact: { addr: "25 Avenue Montaigne, 75008 Paris", web: "dorchestercollection.com" } },
+    { name: "Le Bristol Paris", area: "8th · Faubourg Saint-Honoré", rate: null, ourTake: "Oetker's garden palace — Epicure's three stars and a rooftop pool over the rooftops.", contact: { addr: "112 Rue du Faubourg Saint-Honoré, 75008 Paris", web: "oetkercollection.com" } },
+    { name: "Le Meurice", area: "1st · Rue de Rivoli", rate: null, ourTake: "Versailles-inspired grandeur facing the Tuileries, Alain Ducasse at the table.", contact: { addr: "228 Rue de Rivoli, 75001 Paris", web: "dorchestercollection.com" } },
+    { name: "Ritz Paris", area: "1st · Place Vendôme", rate: null, ourTake: "The legend on Place Vendôme — the Hemingway Bar, the Ritz Escoffier, pure myth.", contact: { addr: "15 Place Vendôme, 75001 Paris", web: "ritzparis.com" } },
+    { name: "Cheval Blanc Paris", area: "1st · La Samaritaine", rate: null, ourTake: "LVMH's jewel over the Seine — Plénitude's three stars and a Dior spa.", contact: { addr: "8 Quai du Louvre, 75001 Paris", web: "chevalblanc.com" } },
+    { name: "Hôtel de Crillon", area: "8th · Place de la Concorde", rate: null, ourTake: "A Rosewood palace on the Concorde — 18th-century bones, contemporary soul.", contact: { addr: "10 Place de la Concorde, 75008 Paris", web: "rosewoodhotels.com" } },
+    { name: "Mandarin Oriental Paris", area: "1st · Rue Saint-Honoré", rate: null, ourTake: "A serene garden courtyard hidden just off the couture street.", contact: { addr: "251 Rue Saint-Honoré, 75001 Paris", web: "mandarinoriental.com" } },
+    { name: "The Peninsula Paris", area: "16th · Avenue Kléber", rate: null, ourTake: "A restored Haussmann palace near the Arc, with a rooftop and tower views.", contact: { addr: "19 Avenue Kléber, 75116 Paris", web: "peninsula.com" } },
+    { name: "La Réserve Paris", area: "8th · Avenue Gabriel", rate: null, ourTake: "An intimate town-house palace near the Champs — grand, discreet, residential.", contact: { addr: "42 Avenue Gabriel, 75008 Paris", web: "lareserve-paris.com" } },
+    { name: "Bulgari Hotel Paris", area: "8th · Avenue George V", rate: null, ourTake: "Italian glamour off Avenue Montaigne, with a spectacular spa and pool.", contact: { addr: "30 Avenue George V, 75008 Paris", web: "bulgarihotels.com" } },
   ],
   // ——— WORLDWIDE ULTRA LUXURY ROLLOUT — sourced from the canon (claude/ultra-lux-worldwide-standard.md).
   // Every entry here is on the Ultra Luxury list, so each city's Ultra tab shows exactly these; the
@@ -3735,15 +3780,22 @@ function HotelPicker({ city, nights, pick, upd }) {
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
-  // Show our curated picks AND the live feed for this tier (deduped) — so Luxury is never cut short.
-  const favAlnums = levelFavs.map((s) => ulxAlnum(s.name)).filter(Boolean);
-  const seenLive = {};
-  const liveRows = rows.filter((r) => {
-    const a = ulxAlnum(r.name); if (!a) return false;
-    if (seenLive[a]) return false; seenLive[a] = 1; // no duplicate live rows
-    // drop anything that is really one of our curated picks under a different spelling
-    return !favAlnums.some((c) => a === c || (c.length >= 6 && a.indexOf(c) >= 0) || (a.length >= 6 && c.indexOf(a) >= 0));
-  });
+  // THE LOCK: Ultra Luxury is ONLY our curated list — the live feed never adds to it. So nothing is
+  // ever called Ultra unless it's on the list (or hand-picked into FAVORITES later). The live feed
+  // only ever fills the Luxury tab, minus our picks, duplicates, sub-5-star and mass-market chains.
+  let liveRows = [];
+  if (level === "Luxury") {
+    const seen = {};
+    const base = rows.filter((r) => {
+      const a = ulxAlnum(r.name); if (!a) return false;
+      if (seen[a]) return false; seen[a] = 1;
+      return !levelFavs.some((f) => nameMatch(r.name, f.name));
+    });
+    const luxe = base.filter(isLuxeCandidate);
+    // Small-town fallback: if nothing clears the luxury bar (e.g. a town whose best is a 4-star),
+    // show the best available rather than an empty list. We refine the small-town rule later.
+    liveRows = luxe.length > 0 ? luxe : base;
+  }
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
