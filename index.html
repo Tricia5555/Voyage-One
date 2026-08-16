@@ -4120,6 +4120,53 @@ function HotelPicker({ city, nights, pick, upd }) {
       onPick={(r, sel) => upd({ stay: sel ? null : { level: tierOf(r.name), name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null, site: r.site || null } })} />}
   </>);
 }
+// A restaurant's photo, blurb and site come live from the app's places source, by name — same as
+// the hotels. We add the Michelin distinction ourselves; we never invent a description.
+const DINE_PHOTO_CACHE = {};
+function useDineInfo(city, name) {
+  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+  const [info, setInfo] = useState(DINE_PHOTO_CACHE[key]);
+  useEffect(() => {
+    if (!city || !name) return;
+    if (DINE_PHOTO_CACHE[key] !== undefined) { setInfo(DINE_PHOTO_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/places?kind=restaurants&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, desc: (m && m.desc) || null, rating: (m && m.rating) || null }; DINE_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { DINE_PHOTO_CACHE[key] = { photo: null, site: null, desc: null, rating: null }; if (!dead) setInfo({ photo: null, site: null, desc: null, rating: null }); });
+    return () => { dead = true; };
+  }, [key]);
+  return info || { photo: null, site: null, desc: null, rating: null };
+}
+// The restaurant tile — photo, Michelin stars, name, neighbourhood. Selected, it opens up with the
+// blurb, a reserve link, and the "which evening" picker.
+function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
+  const info = useDineInfo(city, r.n);
+  const photo = info.photo;
+  const site = info.site;
+  const [broken, setBroken] = useState(false);
+  const sel = !!found;
+  const showImg = photo && !broken;
+  const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 40%" : "none", height: sel ? "auto" : 150, minHeight: sel ? 190 : 150, overflow: "hidden" };
+  return (<div role="button" tabIndex={0} onClick={onToggle} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
+    style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+    <div style={photoBox}>
+      {showImg
+        ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 190 : 150, color: t.inkFaint, fontFamily: font.display, fontSize: 15, padding: 12, textAlign: "center" }}>{r.n}</div>}
+      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(34,29,25,.62)", color: t.brassLight, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", padding: "4px 9px", borderRadius: 999 }}>{"★".repeat(r.s)} Michelin</span>
+    </div>
+    <div style={{ padding: "13px 15px 15px", flex: 1, minWidth: 0 }}>
+      <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
+      <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {r.city}</div>
+      {sel ? (<>
+        {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
+        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, fontSize: 12.5, color: t.pineSoft, textDecoration: "none" }}>Visit site / reserve →</a> : null}
+        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which evening?" /></div>
+      </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap to add →</div>}
+    </div>
+  </div>);
+}
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // Michelin mode where we have the data (Destination = starred); otherwise the old browse.
   const mich = lookup(DINING, city);
@@ -4140,15 +4187,13 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
     </div>
     {michMode ? (<>
       {michRows.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Standout" ? `Bib Gourmand & recommended tables for ${bareCity(city)} are coming in the next batch.` : `No ${level} restaurants on our list for ${bareCity(city)} yet.`}</div>}
-      {michRows.map((r, k) => {
-        const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level));
-        return (<div key={k}>
-          <PlaceRow item={{ name: r.n }} selected={!!found}
-            onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
-            sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : `MICHELIN ${"★".repeat(r.s)} · ${level}`} price="" />
-          {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.n, level, dt)} label={dayLabel || "Which evening?"} />}
-        </div>); })}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 6, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables. We reserve on your behalf.</div>
+      {michRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+        {michRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
+          <DineCard key={k} r={r} city={city} level={level} found={found}
+            onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
+            onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
+      </div>}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables · photo and reservation live. We book on your behalf.</div>
     </>) : (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
       {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
