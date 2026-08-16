@@ -33,7 +33,172 @@ const t = {
   line: "#E4DDD0", card: "#F3EEE4", mist: "#EDE9E0", white: "#FFFFFF",
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
-const LEVELS = ["UltraLux", "Luxury", "Refined", "Essential"];
+const LEVELS = ["UltraLux", "Luxury"];
+// THE ULTRA LUXURY CANON — Tricia's definitive worldwide list (see project doc
+// claude/ultra-lux-worldwide-standard.md). Membership here is the tier rule: a hotel that
+// matches this list is Ultra Luxury; every other hotel, in every city, is Luxury. Matching is
+// name-normalised (accents, punctuation, "the"/"a"/"and", word order) so it holds against the
+// spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
+// can always pin the tier by hand.
+const ULTRA_LUX = [
+  // United Kingdom — London
+  "Claridge's", "The Connaught", "The Berkeley", "The Emory", "The Dorchester", "45 Park Lane",
+  "The Peninsula London", "Raffles London at The OWO", "Bulgari Hotel London",
+  "Mandarin Oriental Hyde Park", "Mandarin Oriental Mayfair", "The Lanesborough", "The Savoy",
+  "Four Seasons Park Lane", "Four Seasons Tower Bridge", "The Ritz London",
+  // England / countryside
+  "Cliveden House", "Heckfield Place", "Gleneagles", "The Newt in Somerset",
+  // Italy — Lake Como
+  "Passalacqua", "Grand Hotel Tremezzo", "Villa d'Este", "Mandarin Oriental Lago di Como",
+  // Italy — Florence & Tuscany
+  "Four Seasons Hotel Firenze", "Rosewood Castiglion del Bosco", "Borgo Santo Pietro",
+  "Hotel Il Pellicano", "Reschio", "Villa San Michele",
+  // Italy — Rome
+  "Hotel de Russie", "Bulgari Hotel Roma", "Hotel Eden", "Six Senses Rome", "Portrait Roma", "Hassler Roma",
+  // Italy — Amalfi
+  "Il San Pietro di Positano", "Le Sirenuse", "Caruso, a Belmond Hotel", "Borgo Santandrea",
+  // Italy — Venice
+  "Aman Venice", "Hotel Cipriani, a Belmond Hotel", "The Gritti Palace",
+  // Italy — Sicily
+  "San Domenico Palace Taormina", "Villa Sant'Andrea, a Belmond Hotel",
+  // Italy — Puglia / Dolomites
+  "Borgo Egnazia", "Aman Rosa Alpina",
+  // Switzerland
+  "Badrutt's Palace", "Kulm Hotel St Moritz", "The Alpina Gstaad", "Gstaad Palace", "Baur au Lac",
+  "La Réserve Genève", "Four Seasons Hotel des Bergues Geneva", "The Woodward Geneva",
+  // Austria & Germany
+  "Hotel Sacher Wien", "Rosewood Vienna", "Hotel Imperial Vienna", "Rosewood Munich",
+  "Mandarin Oriental Munich", "Brenners Park-Hotel & Spa Baden-Baden",
+  // Spain & Portugal
+  "Mandarin Oriental Ritz Madrid", "Four Seasons Hotel Madrid", "Marbella Club", "Finca Cortesin",
+  "Cap Rocat", "La Residencia, a Belmond Hotel", "Six Senses Douro Valley", "Sublime Comporta",
+  // Greece
+  "Amanzoe", "Four Seasons Astir Palace Athens", "One&Only Aesthesis", "One&Only Kéa Island",
+  "Mandarin Oriental Costa Navarino",
+  // Ireland
+  "Adare Manor", "Ballyfin", "Ashford Castle",
+  // Monaco
+  "Hôtel de Paris Monte-Carlo", "Hôtel Hermitage Monte-Carlo",
+  // Morocco
+  "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
+  // UAE
+  "Bulgari Resort Dubai", "Burj Al Arab", "One&Only One Za'abeel", "One&Only The Palm",
+  "Mandarin Oriental Jumeira", "Atlantis The Royal", "Emirates Palace Mandarin Oriental",
+  // Saudi Arabia
+  "Nujuma, a Ritz-Carlton Reserve", "Six Senses Southern Dunes", "Desert Rock",
+  "Four Seasons Resort and Residences Red Sea at Shura Island",
+  // India
+  "The Oberoi Udaivilas", "The Oberoi Amarvilas", "Rambagh Palace", "Umaid Bhawan Palace",
+  "Amanbagh", "Aman-i-Khás", "The Leela Palace Udaipur",
+  // Bhutan
+  "Amankora", "Six Senses Bhutan", "COMO Uma Paro", "COMO Uma Punakha",
+  // Sri Lanka
+  "Amangalla", "Amanwella", "Cape Weligama", "Ceylon Tea Trails",
+  // Maldives
+  "Soneva Fushi", "Soneva Jani", "Cheval Blanc Randheli", "One&Only Reethi Rah",
+  "Velaa Private Island", "Waldorf Astoria Maldives Ithaafushi", "The Ritz-Carlton Maldives Fari Islands",
+  "Four Seasons Resort Maldives at Landaa Giraavaru", "The Nautilus Maldives",
+  // Indonesia
+  "Amankila", "Amandari", "Amanjiwo", "Nihi Sumba", "Capella Ubud", "Bulgari Resort Bali",
+  "Four Seasons Resort Bali at Sayan", "Mandapa, a Ritz-Carlton Reserve",
+  // Thailand
+  "Amanpuri", "Four Seasons Tented Camp Golden Triangle", "Four Seasons Resort Koh Samui",
+  "Trisara", "Soneva Kiri", "Six Senses Yao Noi", "Mandarin Oriental Bangkok", "Capella Bangkok",
+  "Four Seasons Bangkok at Chao Phraya River", "Aman Nai Lert Bangkok",
+  // Singapore
+  "Raffles Singapore", "Capella Singapore",
+  // Hong Kong
+  "The Peninsula Hong Kong", "Rosewood Hong Kong", "The Upper House", "Mandarin Oriental Hong Kong",
+  "Four Seasons Hong Kong",
+  // Japan
+  "Aman Tokyo", "Bulgari Hotel Tokyo", "Mandarin Oriental Tokyo", "The Peninsula Tokyo",
+  "Four Seasons Hotel Tokyo at Otemachi", "Aman Kyoto", "Four Seasons Kyoto", "Park Hyatt Kyoto",
+  "The Ritz-Carlton Kyoto", "Gora Kadan", "Hoshinoya Kyoto",
+  // China
+  "Aman Summer Palace Beijing", "Amanyangyun Shanghai", "Capella Shanghai", "Rosewood Beijing",
+  // Australia
+  "Southern Ocean Lodge", "Saffire Freycinet", "Qualia", "Capella Sydney", "Longitude 131",
+  // New Zealand
+  "Huka Lodge", "Rosewood Kauri Cliffs", "Rosewood Cape Kidnappers", "Rosewood Matakauri", "Blanket Bay",
+  // Africa — South Africa
+  "Singita Lebombo", "Singita Ebony", "Singita Boulders", "Royal Malewane",
+  "Londolozi Private Granite Suites", "Ellerman House", "The Silo Hotel",
+  // Africa — Tanzania / Kenya / Botswana / Rwanda / Namibia
+  "Singita Sasakwa Lodge", "Singita Sabora Tented Camp", "andBeyond Ngorongoro Crater Lodge",
+  "Angama Mara", "Segera Retreat", "Giraffe Manor", "Wilderness Mombo", "Wilderness Jao",
+  "Great Plains Zarafa Camp", "One&Only Gorilla's Nest", "One&Only Nyungwe Lodge",
+  "Singita Kwitonda Lodge", "Wilderness Bisate", "andBeyond Sossusvlei Desert Lodge",
+  // African Indian Ocean Islands
+  "North Island Seychelles", "Six Senses Zil Pasyon", "Four Seasons Resort Seychelles at Desroches Island",
+  "Miavana by Time and Tide",
+  // Mexico
+  "One&Only Palmilla", "One&Only Mandarina", "Las Ventanas al Paraíso, a Rosewood Resort",
+  "Zadún, a Ritz-Carlton Reserve", "Four Seasons Los Cabos at Costa Palmas",
+  "Four Seasons Resort Tamarindo", "Hotel Esencia", "Maroma, a Belmond Hotel",
+  // Caribbean
+  "Cheval Blanc St-Barth", "Eden Rock St Barths", "Le Toiny", "Cap Juluca, a Belmond Hotel",
+  "Malliouhana", "Amanyara", "COMO Parrot Cay", "Rosewood Little Dix Bay", "Jumby Bay Island",
+  "The Ocean Club, a Four Seasons Resort",
+  // United States — NYC
+  "Aman New York", "The Fifth Avenue Hotel", "The Lowell", "The Greenwich Hotel", "The Carlyle",
+  "Casa Cipriani", "The Mark",
+  // United States — California
+  "Hotel Bel-Air", "The Beverly Hills Hotel", "Rosewood Miramar Beach", "Post Ranch Inn",
+  "Auberge du Soleil", "Meadowood Napa Valley", "SingleThread",
+  // United States — Florida
+  "Four Seasons Hotel at The Surf Club", "Little Palm Island Resort and Spa", "Four Seasons Palm Beach",
+  // United States — Hawaii
+  "Kona Village, a Rosewood Resort", "Four Seasons Hualalai", "Sensei Lanai, a Four Seasons Resort",
+  "Four Seasons Lanai",
+  // United States — Mountain West / South / Northeast
+  "Amangiri", "One&Only Moonlight Basin", "Caldera House Jackson Hole", "Dunton Hot Springs",
+  "Blackberry Farm", "Montage Palmetto Bluff", "The Cloister at Sea Island", "Twin Farms", "The Point",
+  // Canada
+  "Clayoquot Wilderness Lodge", "Fogo Island Inn",
+  // South Pacific
+  "The Brando", "Four Seasons Bora Bora", "Kokomo Private Island Fiji", "COMO Laucala Island Fiji",
+  // South America
+  "Awasi Patagonia", "Awasi Atacama", "Explora Patagonia", "Vik Chile",
+  "Rosewood São Paulo", "Copacabana Palace, a Belmond Hotel",
+];
+const ULX_STOP = { a: 1, an: 1, the: 1, of: 1, at: 1, on: 1, in: 1, and: 1, by: 1, de: 1, di: 1, du: 1, da: 1, la: 1, le: 1, el: 1 };
+function ulxAlnum(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").replace(/[^a-z0-9]+/g, ""); }
+function ulxTokens(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").split(/[^a-z0-9]+/).filter(function (w) { return w && !ULX_STOP[w]; }); }
+const ULX_ALNUM = ULTRA_LUX.map(ulxAlnum);
+const ULX_TOKENSETS = ULTRA_LUX.map(ulxTokens);
+function isUltraLux(name) {
+  if (!name) return false;
+  const a = ulxAlnum(name);
+  if (!a) return false;
+  for (let i = 0; i < ULX_ALNUM.length; i++) {
+    const c = ULX_ALNUM[i];
+    if (a === c) return true;
+    if (c.length >= 9 && a.indexOf(c) >= 0) return true; // Google name contains the full canon name
+    if (a.length >= 9 && c.indexOf(a) >= 0) return true; // canon name contains the full Google name
+  }
+  const nt = ulxTokens(name);
+  if (nt.length) {
+    const nset = {};
+    for (let j = 0; j < nt.length; j++) nset[nt[j]] = 1;
+    for (let i = 0; i < ULX_TOKENSETS.length; i++) {
+      const ct = ULX_TOKENSETS[i];
+      if (ct.length < 2) continue; // single distinctive word must match exactly (handled above)
+      let all = true;
+      for (let k = 0; k < ct.length; k++) { if (!nset[ct[k]]) { all = false; break; } }
+      if (all) return true;
+    }
+  }
+  return false;
+}
+function tierOf(name) { return isUltraLux(name) ? "UltraLux" : "Luxury"; }
+// Restaurants get their own, more foodie ladder — and unlike hotels we happily include a great
+// inexpensive find. The labels are what the client sees; the keys map to the underlying data.
+const DINE_LEVELS = [
+  { key: "UltraLux", label: "Destination" },
+  { key: "Luxury", label: "Standout" },
+  { key: "Refined", label: "Local Gem" },
+  { key: "Essential", label: "Café & Casual" },
+];
 // Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
 // Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
@@ -108,10 +273,18 @@ const HOTELS = {
 // shows up already selected here. Rates are indicative placeholders until live rates connect.
 const FAVORITES = {
   "London": [
-    { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", rate: 1150, desc: "In Chelsea, a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
-    { name: "The Berkeley", area: "Knightsbridge", rate: 1250, desc: "Among the shortest runs to the courts — quintessential London luxury, a rooftop pool and Marcus at the door." },
-    { name: "The Peninsula London", area: "Belgravia", rate: 1450, desc: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest fleet of house cars in London." },
-    { name: "The Goring", area: "Belgravia", rate: 1050, desc: "The last family-owned grand hotel in London, beloved by the Palace — discreet, impeccably English, a garden of its own." },
+    { name: "Claridge's", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The definitive London address — Art Deco glamour and the lobby everyone wants to be seen in.", contact: { addr: "Brook Street, Mayfair, London W1K 4HR", web: "claridges.com" } },
+    { name: "The Connaught", area: "Mayfair", tier: "UltraLux", rate: 1590, ourTake: "Discreet, clubby, the best bars in London — old-money Mayfair at its most assured.", contact: { addr: "Carlos Place, Mayfair, London W1K 2AL", web: "the-connaught.co.uk" } },
+    { name: "The Savoy", area: "Strand", tier: "UltraLux", rate: 842, ourTake: "The theatrical grande dame on the Thames — the Grill, the river, a century of legend.", contact: { addr: "Strand, London WC2R 0EZ", web: "thesavoylondon.com" } },
+    { name: "The Berkeley", area: "Knightsbridge", tier: "UltraLux", rate: 990, ourTake: "Quintessential Knightsbridge — a rooftop pool, Marcus at the door, and a short run to the West End.", contact: { addr: "Wilton Place, Knightsbridge, London SW1X 7RL", web: "the-berkeley.co.uk" } },
+    { name: "The Peninsula London", area: "Belgravia", tier: "UltraLux", rate: null, ourTake: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest house cars in town.", contact: { addr: "1 Grosvenor Place, London SW1X 7HJ", web: "peninsula.com" } },
+    { name: "The Ritz London", area: "Piccadilly", tier: "UltraLux", rate: null, ourTake: "Louis XVI gilt and the most famous afternoon tea in the world — pure, unapologetic occasion.", contact: { addr: "150 Piccadilly, London W1J 9BR", web: "theritzlondon.com" } },
+    { name: "Raffles London at The OWO", area: "Whitehall", tier: "UltraLux", rate: 1038, ourTake: "The Old War Office reborn — nine restaurants, a Guerlain spa, history in every corner.", contact: { addr: "57 Whitehall, London SW1A 2BX", tel: "+44 20 3907 7500", web: "raffles.com" } },
+    { name: "Four Seasons Hotel London at Park Lane", area: "Mayfair", tier: "Luxury", rate: 924, ourTake: "Impeccable modern Four Seasons polish overlooking the park — service you can set a watch by.", contact: { addr: "Hamilton Place, Park Lane, London W1J 7DR", web: "fourseasons.com/london" } },
+    { name: "The Langham, London", area: "Marylebone", tier: "Luxury", rate: 572, ourTake: "A grand Victorian original by Regent Street — wonderful value at this level, the Palm Court a joy.", contact: { addr: "1c Portland Place, London W1B 1JA", web: "langhamhotels.com" } },
+    { name: "The Stafford London", area: "St James's", tier: "Luxury", rate: 790, ourTake: "A hidden gem down a cobbled cul-de-sac — the American Bar, a country-house calm by the Palace.", contact: { addr: "16–18 St James's Place, London SW1A 1NJ", tel: "+44 20 7493 0111", web: "thestaffordlondon.com" } },
+    { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", tier: "Luxury", rate: null, ourTake: "Quietly perfect in Chelsea — a Michelin table and gardens at the door, closest of the group to SW19.", contact: { addr: "75 Sloane Street, Chelsea, London SW1X 9SG", web: "belmond.com" } },
+    { name: "The Goring", area: "Belgravia", tier: "Luxury", rate: null, ourTake: "The last family-owned grand hotel, beloved by the Palace — impeccably English, with its own garden.", contact: { addr: "15 Beeston Place, Belgravia, London SW1W 0JW", web: "thegoring.com" } },
   ],
   "Venice": [
     { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
@@ -120,6 +293,14 @@ const FAVORITES = {
     { name: "Aman Venice", area: "Grand Canal", rate: 3200, desc: "A hushed frescoed palazzo with a private garden — the discreet, ultra-exclusive choice." },
     { name: "Belmond Hotel Cipriani", area: "Giudecca", rate: 2600, desc: "Garden, pool and seclusion on Giudecca island, reached by private launch." },
     { name: "Ca' Sagredo", area: "Cannaregio", rate: 1400, desc: "A genuine 15th-century palazzo-museum with a monumental frescoed staircase." },
+  ],
+  "Monaco": [
+    { name: "Hôtel de Paris Monte-Carlo", area: "On the circuit", rate: 3200, desc: "The 1864 grande dame on Place du Casino, literally on the track, home to Le Louis XV." },
+    { name: "Hôtel Hermitage Monte-Carlo", area: "Steps off", rate: 2600, desc: "Belle Époque icon behind Casino Square, the Eiffel winter-garden dome — quieter and romantic." },
+    { name: "Château de la Chèvre d'Or", area: "Èze village", rate: 1600, desc: "A Relais & Châteaux clifftop legend in the medieval village, two Michelin stars — off-campus and calm." },
+    { name: "Cap Estel", area: "Èze-sur-Mer", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
+    { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
+    { name: "La Réserve de Beaulieu", area: "Beaulieu", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
   ],
 };
 const EATS = {
@@ -616,7 +797,7 @@ function isUS(city) {
 }
 function stayBands(city) { const seed = hashStr("stay" + (bareCity(city) || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
 function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
-function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; LEVELS.forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
+function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; Object.keys(per).forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
 function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
 function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
 function groundOption(mode, from, to) {
@@ -1438,8 +1619,8 @@ function VoyageOne() {
   // into the builder. Fixed-date events land you on Departure (dates already set); season-based
   // journeys land on Basics so you choose your week within the season.
   const seedFromEvent = (ev) => {
-    const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null } : null;
-    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date }));
+    const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null, contact: ev.stay.contact || null } : null;
+    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date, evening: !!d.evening }));
     // Never fly in on the day of a fixed, ticketed event. When the client has chosen specific
     // event days, land them a set number of full days ahead so there is time to cross, settle
     // and — where the experience needs it, like a Carnival costume fitting — get ready before
@@ -1884,7 +2065,67 @@ function Planner(p) {
 const ONE_LIST = {
   "Sport": {
     "Motorsport": [
-      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, blurb: "The crown jewel, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour." },
+      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, arriveDaysBefore: 3, blurb: "The crown jewel of Formula 1, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour.", guide: {
+        daysTitle: "How you'll watch",
+        pickStep: "Step one · choose how you watch",
+        pickPrompt: "Which level?",
+        pickHelp: "Lock the way you want to watch — this is what we secure first, and everything else is built around it.",
+        pickSettle: "You'll set your nights and arrival next — Saturday's qualifying is the real event here (pole usually wins), so we build you in for the weekend and never land you on race day itself.",
+        recapLabel: "Your race",
+        ticketsTitle: "Securing your place",
+        beyondTitle: "Beyond the race",
+        cur: "€",
+        daysIntro: "Monaco comes down to where you watch from. The harbour sits inside the circuit, so a yacht is quite simply the best seat in the sport; a great VIP is the strong alternative; and one land terrace is genuinely worth it. Here are the exciting options — each chosen for how much of the race you actually see.",
+        dayPicks: [
+          { label: "A yacht in the harbour", dates: "Race weekend · early June 2027", band: "The best seat in the sport", note: "The harbour is inside the circuit — a trackside berth in Port Hercule puts you metres from the Nouvelle Chicane, Rascasse and the swimming-pool section, champagne in hand, the cars at the corners that matter. The berth is the hard part, allocated by application months ahead — which is exactly where a broker earns their keep.", date: "2027-06-06", tiers: [
+            { tier: "Whole-boat charter", label: "Charter the whole yacht for the week · ≈ €150k–€1M+ plus fees & the berth" },
+            { tier: "A VIP deck", label: "A deck on a chartered yacht, by the day · ≈ £2,000 Sat · £3,100–£4,700 Sun" },
+          ] },
+          { label: "VIP hospitality", dates: "Race weekend · early June 2027", band: "Access & champagne, trackside", note: "The strong alternative to a yacht — trackside catering, open bar and, in one case, the only real access to the pit lane.", date: "2027-06-06", tiers: [
+            { tier: "Yacht Club de Monaco", label: "The members' clubhouse terrace · by invitation — we arrange it" },
+            { tier: "F1 Paddock Club · La Rascasse", label: "Official F1 hospitality, pit-lane access · ≈ $14,500–$24,000 pp" },
+          ] },
+          { label: "The Ermanno terrace", date: "2027-06-06", dates: "Race weekend · early June 2027", band: "The one land view worth it — over half the lap", note: "A residential-tower terrace whose sweep takes in the tunnel exit, the chicane, Tabac, the pool section and start/finish — over half the lap — with a buffet and open bar. The land option that truly sees the race.", tiers: [
+            { tier: "Saturday · qualifying", label: "Saturday, the qualifying (the real event) · ≈ €2,000 pp" },
+            { tier: "Sunday · the race", label: "Sunday, race day · ≈ €4,000 pp" },
+            { tier: "Both days", label: "Saturday and Sunday · the full weekend" },
+          ] },
+        ],
+        tickets: "Everything here is secured, not clicked. A yacht berth in Port Hercule is allocated by hard-copy application on an unforgiving deadline (2027 applications closed around late February) — book 9–12 months ahead through a broker who holds a trackside berth. Yacht decks and the Ermanno terrace sell by the day; the Paddock Club is official F1 hospitality, currently by waitlist; and the Yacht Club de Monaco is a relationship, not a checkout. An optional after-dark add-on is the Amber Lounge — the F1 party, rather than a place to watch the race.",
+        ticketNote: "Prices are approximate, per person, largely reseller-quoted for recent editions — the whole-charter figure excludes VAT, provisioning and the berth fee. We confirm exact cost before anything is committed.",
+        stayNote: "Two philosophies, both good. Stay IN Monaco to be on the action (wonderful hotels — but book the stay, never their overpriced rooftop race package). Or stay OFF-CAMPUS up the coast in Èze, Cap-Ferrat or Beaulieu: outside the road closures, calm at night, and a 7-minute helicopter or train into the circus by day — for many, the better move.",
+        stay: [
+          { name: "Hôtel de Paris Monte-Carlo", area: "Monte-Carlo · on the circuit", rate: 3200, note: "The 1864 grande dame on Place du Casino, literally on the track, home to Le Louis XV — the most storied address in the principality.", contact: { addr: "Place du Casino, 98000 Monaco", tel: "+377 98 06 30 00", web: "montecarlosbm.com" } },
+          { name: "Hôtel Hermitage Monte-Carlo", area: "Monte-Carlo · steps off", rate: 2600, note: "Belle Époque icon just behind Casino Square, the Eiffel-engineered winter-garden dome — quieter and more romantic than its sister, and one you already love.", contact: { addr: "Square Beaumarchais, 98000 Monaco", tel: "+377 98 06 40 00", web: "montecarlosbm.com" } },
+          { name: "Château de la Chèvre d'Or", area: "Èze village · ~15 min", rate: 1600, note: "A Relais & Châteaux legend woven into the medieval hilltop village, 400m above the sea, with a two-Michelin-star table and vertiginous terraces — off-campus and unforgettable.", contact: { addr: "Rue du Barri, 06360 Èze", tel: "+33 4 92 10 66 66", web: "chevredor.com" } },
+          { name: "Cap Estel", area: "Èze-sur-Mer · ~15–20 min", rate: 1900, note: "A two-hectare private peninsula, just 20 rooms, hanging gardens over the water and a private beach — screened from the world, the definition of calm.", contact: { addr: "1312 Av. Raymond Poincaré, 06360 Èze-sur-Mer", tel: "+33 4 93 76 29 29", web: "capestel.com" } },
+          { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat · ~25 min", rate: 2400, note: "A 1908 palace on seventeen acres at the tip of the billionaires' peninsula — the Club Dauphin sea-pool, Le Cap (one star), grand and green and serene.", contact: { addr: "71 Bd du Général de Gaulle, 06230 Saint-Jean-Cap-Ferrat", tel: "+33 4 93 76 50 50", web: "fourseasons.com/capferrat" } },
+          { name: "La Réserve de Beaulieu", area: "Beaulieu · ~15–20 min", rate: 1500, note: "A Belle Époque seafront icon between Nice and Monaco, with its own train station a few minutes into the principality — relaxed grandeur outside the crush.", contact: { addr: "5 Bd du Général Leclerc, 06310 Beaulieu-sur-Mer", tel: "+33 4 93 01 00 01", web: "lareservebeaulieu.com" } },
+        ],
+        stayMore: "Choose any, or type another and we'll source it. Contact details are indicative — we confirm and book on your behalf.",
+        beyond: [
+          { name: "Getting in — never drive on race day", note: "Fly into Nice (NCE), then the glamorous move is the helicopter to Monaco: about 7 minutes, roughly €180–195 per person on the scheduled line or from ~€750 to charter privately. From an Èze or Beaulieu hotel, the concierge's trick is the 7-minute train straight into Monaco-Monte-Carlo. On Saturday and Sunday the streets and tunnels close — a car only gets you to the fringe." },
+          { name: "The great tables", note: "Le Louis XV – Alain Ducasse (three stars) and Le Grill on the Hôtel de Paris rooftop, Pavyllon by Yannick Alléno at the Hermitage, Blue Bay at Monte-Carlo Bay; and up the coast, La Chèvre d'Or in Èze and Le Cap at Cap-Ferrat. Booked weeks ahead — GP weekend fills them." },
+          { name: "Amber Lounge, after dark", note: "The F1 party institution — the driver fashion show, DJs, the scene. A night add-on, never a way to watch the race." },
+          { name: "The days that matter", note: "Friday to settle in and take the tender out; Saturday for qualifying, the real sport here; Sunday for the race and the harbour at full tilt." },
+        ],
+        notes: [
+          "Every way in we offer is chosen for the view — a yacht deck and the Ermanno terrace put you at the corners that matter, so you watch the race unfold rather than catch a single flash of it.",
+          "Saturday qualifying decides it — overtaking is near-impossible on these streets, so pole usually wins the race. Many regulars rate Saturday above Sunday.",
+          "Stay off-campus to sleep in peace: Èze and Cap-Ferrat sit outside the road closures — drop into the circuit by helicopter or a 7-minute train, and retreat to calm at night.",
+          "Book early: yacht berths are allocated by application months ahead, and the best tables and helicopter slots go fast.",
+          "Dates: 2027 is early June — race Sunday 6 June — pending the FIA's final sign-off on the calendar.",
+        ],
+        stepsTitle: "Building your dream Monaco, step by step",
+        steps: [
+          { h: "Choose how you watch", b: "a yacht, a VIP, or the Ermanno terrace — locked above. This is the anchor for everything else." },
+          { h: "Choose your hotel", b: "in Monaco to be on the action, or off-campus in Èze or Cap-Ferrat for calm and no crowds." },
+          { h: "Set your nights & arrival", b: "the weekend, Friday to Sunday; we land you before qualifying and never on race day itself." },
+          { h: "And the flights follow", b: "into Nice (NCE), then the helicopter or the 7-minute train into Monaco — set from your arrival." },
+          { h: "The tables and the transfer", b: "Le Louis XV and the great rooms booked weeks out; your helicopter or car legs locked to the session times." },
+          { h: "Race weekend", b: "Saturday's qualifying, Sunday's race, the harbour in full glamour — the best moment in the sport." },
+        ],
+      } },
       { title: "Singapore Grand Prix", city: "Singapore", airport: "SIN", airportName: "Singapore Changi", start: "2026-10-08", end: "2026-10-12", dateLabel: "Oct 9–11, 2026", nights: 4, blurb: "The only true night race — the city ablaze, the marina glittering, from a suite above turn one." },
       { title: "British Grand Prix", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-01", end: "2027-07-05", dateLabel: "July 2–4, 2027", nights: 4, blurb: "Paddock and VIP access at Silverstone — a roaring home crowd and the fastest corners in Formula 1." },
       { title: "Le Mans 24 Hours", city: "Le Mans, France", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-11", end: "2027-06-14", dateLabel: "June 12–13, 2027", nights: 3, blurb: "Twice around the clock at the greatest endurance race — VIP suites trackside through the night." },
@@ -2199,7 +2440,7 @@ function OneList({ onPick, onBack, onHome }) {
     // (Wimbledon: tick which match days). selDays is the resulting dated highlight either way.
     const tierMode = !!(aecPick && aecPick.tiers);
     const selDays = tierMode
-      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier }] : [])
+      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: true }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
     const ready = !needPick || selDays.length > 0;
     const selDayLabels = selDays.map((d) => d.label);
@@ -2287,7 +2528,7 @@ function OneList({ onPick, onBack, onHome }) {
           {g.stay ? (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {g.stay.map((s, k) => { const on = stayPick && stayPick.name === s.name; return (
-                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note, contact: s.contact || null })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
                     <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
@@ -2297,6 +2538,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
+                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.email ? <div>{s.contact.email}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
                 </button>); })}
             </div>
             <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates — placeholders until live rates connect.</div>
@@ -2728,7 +2970,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
           </div>
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Same trip, same cabin — the difference is where you change and how long you sit there. Pick a routing to see only those flights.</div>
         </div>)}
-        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live · Duffel</span></div>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Choose your flight · <span style={{ color: t.pine }}>live fares</span></div>
         {shown.map((o, k) => { const sel = chosen && chosen.offerId === o.offerId;
           return <button key={o.offerId || k} onClick={() => chooseFlight(o)} style={{ width: "100%", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, marginBottom: 8, border: `1px solid ${sel ? t.pine : t.line}`, background: sel ? t.mist : t.white }}>
             <span style={{ minWidth: 0 }}>
@@ -2759,7 +3001,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
             </span>
             <span style={{ fontFamily: font.display, fontSize: 19, whiteSpace: "nowrap" }}>{fmt(o.price)}</span>
           </button>; })}
-        <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real fares from Duffel · one way · tap to add to your plan</div>
+        <div style={{ fontSize: 11, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2 }}>Real live fares · one way · tap to add to your plan</div>
         </>);
       })()}
       {!live.loading && live.tried && (!live.offers || live.offers.length === 0) && (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
@@ -2910,11 +3152,73 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
         const sel = selectedName && selectedName === r.name;
         const per = r.estRate || null;
         return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
-          sub={`${r.level}${r.band ? " · " + r.band : ""} · ~${fmt(per)}${kind === "hotels" ? "/night est." : "/person est."}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
+          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ~${fmt(per)}${kind === "hotels" ? "/night est." : "/person est."}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
           price={kind === "hotels" && nights ? fmt((per || 0) * nights) : fmt(per)} />;
       })}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · the level shown is our own reading of price band and reputation.</div>
     </div>)}
+  </div>);
+}
+// A curated hotel's photo comes from the app's own places source (the same one the live browse
+// uses), fetched by name and cached — DirectBooker gives us the rate and contacts, not the image.
+// Every outbound hotel link is tagged as coming from us — so the hotel's own analytics
+// sees "voyage-one-world.com" as the source. Keeps the hotel's own functional params
+// (merchant/room codes), strips their tracking, adds ours. This is the source proof.
+function brandedLink(url) {
+  if (!url) return null;
+  var hash = "", u = String(url);
+  var hi = u.indexOf("#"); if (hi >= 0) { hash = u.slice(hi); u = u.slice(0, hi); }
+  var qi = u.indexOf("?");
+  var base = qi >= 0 ? u.slice(0, qi) : u;
+  var qs = qi >= 0 ? u.slice(qi + 1) : "";
+  var parts = qs ? qs.split("&").filter(function (p) { return p && p.slice(0, 4) !== "utm_"; }) : [];
+  parts.push("utm_source=voyage-one-world.com", "utm_medium=referral", "utm_campaign=voyageone");
+  return base + "?" + parts.join("&") + hash;
+}
+const HOTEL_PHOTO_CACHE = {};
+function useHotelInfo(city, name) {
+  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+  const [info, setInfo] = useState(HOTEL_PHOTO_CACHE[key]);
+  useEffect(() => {
+    if (!city || !name) return;
+    if (HOTEL_PHOTO_CACHE[key] !== undefined) { setInfo(HOTEL_PHOTO_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/places?kind=hotels&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null }; if (!dead) setInfo({ photo: null, site: null }); });
+    return () => { dead = true; };
+  }, [key]);
+  return info || { photo: null, site: null };
+}
+// The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
+// opens up — bigger photo, our take, and the contacts.
+function FavHotelCard({ s, city, cur, sel, onClick }) {
+  const info = useHotelInfo(city, s.name);
+  const photo = info.photo;
+  const site = info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  const tier = tierOf(s.name);
+  const [broken, setBroken] = useState(false);
+  const showImg = photo && !broken;
+  const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 44%" : "none", height: sel ? "auto" : 152, minHeight: sel ? 210 : 152, overflow: "hidden" };
+  return (<div role="button" tabIndex={0} onClick={onClick} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+    <div style={photoBox}>
+      {showImg
+        ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
+      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</span>
+    </div>
+    <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
+      <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}</div>
+      {s.area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.area}</div> : null}
+      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
+      {sel ? (<>
+        {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
+        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
+        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
+        <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
+      </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
+    </div>
   </div>);
 }
 function HotelPicker({ city, nights, pick, upd }) {
@@ -2922,33 +3226,45 @@ function HotelPicker({ city, nights, pick, upd }) {
   const remote = useRemote("hotels", city);
   const live = !!remote.items;
   const curated = !!lookup(HOTELS, city);
-  const rows = level ? (live ? (remote.items[level] || []) : (stayData(city)[level] || []).map(([name, nightly, desc]) => ({ name, price: nightly, desc, level }))) : [];
+  // Every hotel — curated, live from Google, or the static fallback — is tiered by the Ultra Lux
+  // canon (isUltraLux), not by the API's guess. So we pool all the live items and re-bucket them.
+  const liveAll = live ? Object.keys(remote.items || {}).reduce((acc, k) => acc.concat(remote.items[k] || []), []) : [];
+  const staticAll = (level && !live) ? Object.keys(stayData(city) || {}).reduce((acc, k) => acc.concat((stayData(city)[k] || []).map(([name, nightly, desc]) => ({ name, price: nightly, desc }))), []) : [];
+  const rows = level ? (live ? liveAll.filter((r) => tierOf(r.name) === level) : staticAll.filter((r) => tierOf(r.name) === level)) : [];
   const favs = lookup(FAVORITES, city) || [];
+  const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
+  const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
+  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
-    {favs.length > 0 && (<div style={{ marginBottom: 18 }}>
-      <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Our picks in {bareCity(city)}</div>
-      {favs.map((s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
-        <PlaceRow key={"fav" + k} item={{ name: s.name, desc: s.desc, band: s.area }} selected={!!sel}
-          onClick={() => upd({ stay: sel ? null : { level: "UltraLux", name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null } })}
-          sub={`${s.rate ? "≈ " + fmt(s.rate) + "/night" : "rate on request"}${nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
-          price={fmt((s.rate || 0) * (nights || 1))} />); })}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Our own favourites, pinned to the top. Indicative rates for now. More options below.</div>
-    </div>)}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}
+      {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{lbl(l)}</button>)}
       <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
     </div>
-    {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a level above to see the hotels — switch levels to compare up or down.</div>}
-    {level && !live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {city || "this city"} yet — showing an indicative rate.</div>}
-    {level && live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true UltraLux property in ${city} — that tier is reserved for the Villa d’Este class, and not every city has one. Try Luxury for the best ${city} offers.` : `Nothing at this level in ${city}. Try another.`}</div>}
-    {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
-      return <PlaceRow key={r.id || k} item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null } })}
-        sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />; })}
-    {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
-    {city && <FindPlace city={city} kind="hotels" nights={nights} label="Already have a hotel in mind? Search for it by name."
+    {!level && <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5 }}>Choose <strong style={{ color: t.ink }}>Ultra Luxury</strong> or <strong style={{ color: t.ink }}>Luxury</strong>{city ? " to see our hotels in " + bareCity(city) : " to see the hotels"}.</div>}
+    {level && levelFavs.length > 0 && (<>
+      <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
+      <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+        {levelFavs.map((s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
+          <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
+            onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} />); })}
+      </div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose. Rates are the direct rate where shown, indicative otherwise — we confirm and book on your behalf.</div>
+    </>)}
+    {level && levelFavs.length === 0 && (<>
+      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
+      {!live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {bareCity(city) || "this city"} yet — showing an indicative rate.</div>}
+      {live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true Ultra Luxury property in ${bareCity(city)} — try Luxury for the best offers.` : `Nothing at this level in ${bareCity(city)}. Try another.`}</div>}
+      {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
+        return (<div key={r.id || k}>
+          <PlaceRow item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null, site: r.site || null } })}
+            sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />
+          {sel && r.site ? <a href={brandedLink(r.site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "0 0 10px 8px", color: t.pineSoft, fontSize: 12.5, textDecoration: "none" }}>Book direct at {r.name} →</a> : null}
+        </div>); })}
+      {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
+    </>)}
+    {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
       selectedName={pick.stay ? pick.stay.name : null}
-      onPick={(r, sel) => upd({ stay: sel ? null : { level: r.level, name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null } })} />}
+      onPick={(r, sel) => upd({ stay: sel ? null : { level: tierOf(r.name), name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null, site: r.site || null } })} />}
   </>);
 }
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
@@ -2961,11 +3277,11 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {LEVELS.map((l) => <button key={l} onClick={() => setLevel(l)} style={chip(level === l)}>{l}</button>)}
+      {DINE_LEVELS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
       <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
     </div>
     {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a level to see restaurants — add as many as you like.</div>}
+    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
     {level && rows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
     {rows.map((r, k) => {
       const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
@@ -3277,6 +3593,13 @@ function useGateway(city) {
     // Hand list wins (it has curated notes and is instant).
     const hand = gatewayFor(bare);
     if (hand) { setLive(null); return; }
+    // A city that IS its own intercontinental airport flies straight in — never route it
+    // through a neighbouring hub. The live nearest-airport service can misjudge a water- or
+    // island-access field (Venice Marco Polo sits across the lagoon), so for these we trust our
+    // own airport table over the computed gateway. Regional own-airports (Florence) still fall
+    // through to the hub path, which is correct for a long-haul.
+    const ownAir = airportFor(bare);
+    if (ownAir && ownAir.scale === "intercontinental" && sameCity(ownAir.city, bare)) { setLive(null); return; }
     const ck = bare.toLowerCase();
     if (GATEWAY_CACHE[ck] !== undefined) { setLive(GATEWAY_CACHE[ck]); return; }
     // Need coordinates first, then the nearest airport to them.
@@ -3974,6 +4297,17 @@ function buildReview(p, sch) {
   // 6b. The last morning is not free — the plane leaves.
   if (sch.valid && sch.end && p.returnFrom && p.homeCity) {
     const dt = departTime(p.returnFrom, p.homeCity);
+    // The ACTUAL chosen flight wins over the generic assumption. departTime only guesses a
+    // typical departure (a mid-morning long-haul); once a real flight is picked, its time is the
+    // truth. A 15:00 flight leaves the morning free — a note that says "up at six and gone" then
+    // is a generic line fighting the pick, which is worse than no note at all.
+    const rf = p.returnPick && p.returnPick.flight;
+    const realDep = (rf && rf.chosen && rf.depart) ? rf.depart : (dt ? dt.time : null);
+    const toMin = (s) => { if (!s) return null; const m = /(\d{1,2}):(\d{2})\s*([AaPp][Mm])?/.exec(s); if (!m) return null; let h = +m[1]; const ap = (m[3] || "").toUpperCase(); if (ap === "PM" && h < 12) h += 12; if (ap === "AM" && h === 12) h = 0; return h * 60 + (+m[2]); };
+    const fmtMin = (x) => { let v = ((x % 1440) + 1440) % 1440; let h = Math.floor(v / 60); const mm = v % 60; const ap = h < 12 ? "am" : "pm"; h = h % 12; if (h === 0) h = 12; return `${h}:${String(mm).padStart(2, "0")}${ap}`; };
+    const depMin = toMin(realDep);
+    const cutoff = depMin != null ? fmtMin(depMin - 150) : null;
+    const hasMorning = depMin != null && depMin >= 720;
     {
       const endKey = sch.end.toISOString().slice(0, 10);
       const clashes = [];
@@ -3982,17 +4316,40 @@ function buildReview(p, sch) {
         [...(pk.sports || []), ...(pk.tours || [])].forEach((x) => { if (x.date === endKey) clashes.push(x.name); });
         (pk.days || []).forEach((x) => { if (x.date === endKey) clashes.push(x.name); });
       });
-      // A lesson booked on the morning you fly home is a problem on a two-hour domestic hop
-      // exactly as much as on a transatlantic crossing. This used to wait for departTime to
-      // have an opinion, and departTime only speaks for long-haul legs — so the warning went
-      // quiet on precisely the short flights where a mistimed booking is easiest to make.
-      // Now it always fires; the only thing distance changes is whether we can name a clock.
-      if (clashes.length) add("stop", `${fmtList(clashes)} on the day you fly home`,
-        dt ? `Your flight leaves ${p.returnFrom} about ${dt.time}, which means the airport by ${clockAdd(dt.time, -150).label}. ${dt.note} There is no morning to play with — move it, or move the flight.`
+      if (clashes.length) add(hasMorning ? "think" : "stop", `${fmtList(clashes)} on the day you fly home`,
+        realDep ? `Your flight leaves ${p.returnFrom} about ${realDep}${cutoff ? `, so you're at the airport by ${cutoff}` : ""}. ${hasMorning ? "A morning plan still works — but anything later than that will clash." : "There is no morning to play with — move it, or move the flight."}`
            : `That is the day you fly out of ${p.returnFrom}, and the airport will take the middle of it whatever time the flight leaves. Move this, or move the flight.`);
-      else if (dt) add("note", "The last day is not a day",
-        `The flight home leaves about ${dt.time}, so you are up at six and gone. Do not plan anything for that morning, and do the goodbyes the night before.`);
+      else if (depMin != null && !hasMorning) add("note", "The last day is not a day",
+        `The flight home leaves about ${realDep}, so you're up early and gone. Keep that morning free, and say the goodbyes the night before.`);
+      else if (depMin != null && hasMorning) add("note", "Your last morning is yours",
+        `The flight home leaves about ${realDep}, so the morning is yours — a final coffee, a last walk, then the airport by ${cutoff}.`);
     }
+  }
+
+  // 6b-ii. Two things the same evening — the clash a good agent always catches. An evening
+  // event (a masked ball, a gala) and a dinner booked the same night cannot both happen, nor
+  // can two dinners. Daytime commitments (a match, a day-out) don't trip this — only genuine
+  // evening overlaps do, which is why the ball carries an `evening` flag and a match does not.
+  {
+    const eveByDate = {}, dineByDate = {};
+    (p.dests || []).forEach((d) => {
+      const pk = d.pick || {};
+      (pk.sports || []).forEach((x) => { if (x.date && x.evening) (eveByDate[x.date] = eveByDate[x.date] || []).push(x.name); });
+      (pk.dines || []).forEach((x) => { if (x.date) (dineByDate[x.date] = dineByDate[x.date] || []).push(x.name || "a dinner"); });
+    });
+    const flagged = {};
+    Object.keys(eveByDate).forEach((date) => {
+      const dines = dineByDate[date] || [];
+      if (dines.length) { flagged[date] = true; const when = fmtDay(new Date(date + "T00:00:00"));
+        add("stop", `${eveByDate[date][0]} and a dinner the same night`,
+          `On ${when} you have ${fmtList(eveByDate[date].concat(dines))} — that is one evening, and an evening event and a dinner cannot both happen. Keep the event, and move the table to another night.`); }
+    });
+    Object.keys(dineByDate).forEach((date) => {
+      if (flagged[date] || (dineByDate[date] || []).length < 2) return;
+      const when = fmtDay(new Date(date + "T00:00:00"));
+      add("think", `Two tables on ${when}`,
+        `You have ${fmtList(dineByDate[date])} the same day. Lunch and dinner is lovely — two dinners is one too many. Worth a look at the times.`);
+    });
   }
 
   // 6c. Moving hotels for a place down the road is a wasted morning.
