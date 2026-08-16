@@ -255,6 +255,10 @@ const DINE_LEVELS = [
   { key: "Refined", label: "Local Gem" },
   { key: "Essential", label: "Café & Casual" },
 ];
+// Michelin-driven dining tiers: Destination = any star (or James Beard winner); Standout = Bib
+// Gourmand / Michelin Selected (or James Beard nominee). Used wherever we have Michelin data.
+const DINE_TIERS = [{ key: "Destination", label: "Destination" }, { key: "Standout", label: "Standout" }];
+function michTier(stars) { return stars >= 1 ? "Destination" : "Standout"; }
 // Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
 // Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
@@ -450,6 +454,7 @@ const FAVORITES = {
     { name: "Leeu Estates", area: "Franschhoek", rate: null, ourTake: "An art-filled wine estate in the Leeu Collection, gardens and a fine spa.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "leeucollection.com" } },
     { name: "Babylonstoren Farm Hotel", area: "Simondium", rate: null, ourTake: "A working Cape Dutch farm with a world-famous garden and farm-to-table table.", contact: { addr: "Klapmuts-Simondium Rd, Simondium", web: "babylonstoren.com" } },
     { name: "Mont Rochelle", area: "Franschhoek", rate: null, ourTake: "Richard Branson's mountain vineyard hotel above the valley.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "virginlimitededition.com" } },
+    { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
   ],
   "Stellenbosch": [
     { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
@@ -1016,6 +1021,111 @@ const EATS = {
   "Évora": { Luxury: [["Fialho", 60, "Alentejo classics served since 1945."]], Refined: [["Origens", 50, "Modern regional tasting menu."]] },
   "Douro Valley": { UltraLux: [["DOC by Rui Paula", 130, "Riverside fine dining on the Douro."]], Luxury: [["The Vintage House Restaurant", 80, "Terraced views and regional wine."]] },
   "Algarve": { UltraLux: [["Bon Bon", 150, "Michelin-starred coastal cuisine near Carvoeiro."]], Essential: [["A Casa do Petisco", 40, "Local petiscos near the marina."]] },
+};
+// Michelin dining — Destination (any star) now; Standout (Bib/Selected) + James Beard to come.
+// Keyed by city; verbatim from Tricia's MICHELIN Guide batches. See michelin_rules.txt.
+const DINING = {
+  "Alba": [{ n: "Piazza Duomo", s: 3 }],
+  "Annecy": [{ n: "Le Clos des Sens", s: 3 }],
+  "Antwerp": [{ n: "Zilte", s: 3 }],
+  "Aughton": [{ n: "Moor Hall", s: 3 }],
+  "Bad Ragaz": [{ n: "Sven Wassmer Memories", s: 3 }],
+  "Baiersbronn": [{ n: "Restaurant Bareiss", s: 3 }, { n: "Schwarzwaldstube", s: 3 }],
+  "Bangkok": [{ n: "Sorn", s: 3 }, { n: "Sühring", s: 3 }],
+  "Barcelona": [{ n: "Disfrutar", s: 3 }, { n: "Lasarte", s: 3 }, { n: "ABaC", s: 3 }, { n: "Cocina Hermanos Torres", s: 3 }],
+  "Basel": [{ n: "Cheval Blanc by Peter Knogl", s: 3 }],
+  "Beijing": [{ n: "Chao Shang Chao (Chaoyang)", s: 3 }, { n: "Xin Rong Ji (Xinyuan South Road)", s: 3 }],
+  "Berlin": [{ n: "Rutz", s: 3 }],
+  "Bray": [{ n: "The Fat Duck", s: 3 }, { n: "The Waterside Inn", s: 3 }],
+  "Brunico": [{ n: "Atelier Moessmer Norbert Niederkofler", s: 3 }],
+  "Brusaporto": [{ n: "Da Vittorio", s: 3 }],
+  "Cartmel": [{ n: "L'Enclume", s: 3 }],
+  "Cassis": [{ n: "La Villa Madie", s: 3 }],
+  "Castel di Sangro": [{ n: "Reale", s: 3 }],
+  "Cenador de Amós": [{ n: "Villaverde de Pontones", s: 3 }],
+  "Chagny": [{ n: "Maison Lameloise", s: 3 }],
+  "Collonges-au-Mont-d'Or": [{ n: "Paul Bocuse", s: 3 }],
+  "Copenhagen": [{ n: "Geranium", s: 3 }, { n: "noma", s: 3 }],
+  "Courchevel": [{ n: "Le 1947 à Cheval Blanc", s: 3 }],
+  "Crissier": [{ n: "Restaurant de l'Hôtel de Ville", s: 3 }],
+  "Cáceres": [{ n: "Atrio", s: 3 }],
+  "Córdoba": [{ n: "Noor", s: 3 }],
+  "Dreis": [{ n: "Waldhotel Sonnora", s: 3 }],
+  "Dubai": [{ n: "FZN by Björn Frantzén", s: 3 }, { n: "Trèsind Studio", s: 3 }],
+  "Dénia": [{ n: "Quique Dacosta", s: 3 }],
+  "El Puerto de Santa María": [{ n: "Aponiente", s: 3 }],
+  "Eugénie-les-Bains": [{ n: "Les Prés d'Eugénie - Michel Guérard", s: 3 }],
+  "Florence": [{ n: "Enoteca Pinchiorri", s: 3 }],
+  "Fontjoncouse": [{ n: "Auberge du Vieux Puits", s: 3 }],
+  "Fürstenau": [{ n: "Schloss Schauenstein", s: 3 }],
+  "Gentofte": [{ n: "Jordnær", s: 3 }],
+  "Girona": [{ n: "El Celler de Can Roca", s: 3 }],
+  "Grassau": [{ n: "ES:SENZ", s: 3 }],
+  "Hamburg": [{ n: "Restaurant Haerlin", s: 3 }, { n: "The Table Kevin Fehling", s: 3 }],
+  "Healdsburg": [{ n: "SingleThread", s: 3 }],
+  "Hollywood": [{ n: "Providence", s: 3 }],
+  "Hong Kong": [{ n: "8 1/2 Otto e Mezzo - Bombana", s: 3 }, { n: "Amber", s: 3 }, { n: "Caprice", s: 3 }, { n: "Forum", s: 3 }, { n: "Sushi Shikon", s: 3 }, { n: "Ta Vie", s: 3 }, { n: "T'ang Court", s: 3 }],
+  "Illhaeusern": [{ n: "Auberge de l'Ill", s: 3 }],
+  "Kaysersberg": [{ n: "La Table d'Olivier Nasti", s: 3 }],
+  "Kobarid": [{ n: "Hiša Franko", s: 3 }],
+  "Kyoto": [{ n: "Mizai", s: 3 }, { n: "Gion Sasaki", s: 3 }, { n: "Isshisoden Nakamura", s: 3 }, { n: "Hyotei", s: 3 }, { n: "Kikunoi Honten", s: 3 }],
+  "La Rochelle": [{ n: "Christopher Coutanceau", s: 3 }],
+  "Laguiole": [{ n: "Bras", s: 3 }],
+  "Larrabetzu": [{ n: "Azurmendi", s: 3 }],
+  "Lasarte-Oria": [{ n: "Martín Berasategui", s: 3 }],
+  "London": [{ n: "Alain Ducasse at The Dorchester", s: 3 }, { n: "The Ledbury", s: 3 }, { n: "Sketch, The Lecture Room & Library", s: 3 }, { n: "CORE by Clare Smyth", s: 3 }, { n: "Hélène Darroze at The Connaught", s: 3 }, { n: "Restaurant Gordon Ramsay", s: 3 }],
+  "Lyon": [{ n: "La Mère Brazier", s: 3 }],
+  "Macau": [{ n: "Jade Dragon", s: 3 }, { n: "Robuchon au Dôme", s: 3 }],
+  "Madrid": [{ n: "DiverXO", s: 3 }],
+  "Manigod": [{ n: "La Maison des Bois - Marc Veyrat", s: 3 }],
+  "Marbella": [{ n: "Skina", s: 3 }],
+  "Marseille": [{ n: "AM par Alexandre Mazzia", s: 3 }],
+  "Megève": [{ n: "Flocons de Sel", s: 3 }],
+  "Menton": [{ n: "Mirazur", s: 3 }],
+  "Milan": [{ n: "Enrico Bartolini al Mudec", s: 3 }],
+  "Modena": [{ n: "Osteria Francescana", s: 3 }],
+  "Monaco": [{ n: "Le Louis XV - Alain Ducasse à l'Hôtel de Paris", s: 3 }],
+  "Munich": [{ n: "JAN", s: 3 }, { n: "Tohru in der Schreiberei", s: 3 }],
+  "Nerano": [{ n: "Quattro Passi", s: 3 }],
+  "New York City": [{ n: "Sushi Sho", s: 3 }, { n: "Le Bernardin", s: 3 }, { n: "Jungsik New York", s: 3 }, { n: "Per Se", s: 3 }, { n: "Eleven Madison Park", s: 3 }],
+  "Noirmoutier-en-l'Île": [{ n: "La Marine", s: 3 }],
+  "Orta San Giulio": [{ n: "Villa Crespi", s: 3 }],
+  "Osaka": [{ n: "HAJIME", s: 3 }, { n: "Taian", s: 3 }, { n: "Kashiwaya Osaka Senriyama", s: 3 }],
+  "Oslo": [{ n: "Maaemo", s: 3 }],
+  "Ouches": [{ n: "Troisgros - Le Bois sans Feuilles", s: 3 }],
+  "Paris": [{ n: "Alléno Paris au Pavillon Ledoyen", s: 3 }, { n: "Arpège", s: 3 }, { n: "Kei", s: 3 }, { n: "L'Ambroisie", s: 3 }, { n: "Le Cinq", s: 3 }, { n: "Le Gabriel", s: 3 }, { n: "Le Pré Catelan", s: 3 }, { n: "Pierre Gagnaire", s: 3 }, { n: "Plénitude - Cheval Blanc Paris", s: 3 }, { n: "Épicure", s: 3 }, { n: "Table - Bruno Verjus", s: 3 }],
+  "Perl": [{ n: "Victor's Fine Dining by Christian Bau", s: 3 }],
+  "Piesport": [{ n: "schanz.restaurant", s: 3 }],
+  "Reims": [{ n: "Le Parc Les Crayères", s: 3 }],
+  "Roeselare": [{ n: "Boury", s: 3 }],
+  "Rome": [{ n: "La Pergola", s: 3 }],
+  "Rottach-Egern": [{ n: "Restaurant Überfahrt Christian Jürgens", s: 3 }],
+  "Rubano": [{ n: "Le Calandre", s: 3 }],
+  "Runate": [{ n: "Dal Pescatore", s: 3 }],
+  "Saint-Bonnet-le-Froid": [{ n: "Régis et Jacques Marcon", s: 3 }],
+  "Saint-Méloir-des-Ondes": [{ n: "Le Coquillage", s: 3 }],
+  "Saint-Tropez": [{ n: "La Vague d'Or - Cheval Blanc St-Tropez", s: 3 }],
+  "San Diego": [{ n: "Addison", s: 3 }],
+  "San Francisco": [{ n: "Benu", s: 3 }, { n: "Quince", s: 3 }, { n: "Atelier Crenn", s: 3 }],
+  "San Sebastián": [{ n: "Arzak", s: 3 }, { n: "Akelarre", s: 3 }],
+  "Senigallia": [{ n: "Uliassi", s: 3 }],
+  "Seoul": [{ n: "Mingles", s: 3 }],
+  "Serralunga d'Alba": [{ n: "La Rei Natura by Michelangelo Mammoliti", s: 3 }],
+  "Shanghai": [{ n: "Taian Table", s: 3 }, { n: "Ultraviolet by Paul Pairet", s: 3 }],
+  "Singapore": [{ n: "Les Amis", s: 3 }, { n: "Odette", s: 3 }, { n: "Zén", s: 3 }],
+  "Stavanger": [{ n: "RE-NAA", s: 3 }],
+  "Stockholm": [{ n: "Frantzén", s: 3 }],
+  "Taichung": [{ n: "JL Studio", s: 3 }],
+  "Taipei": [{ n: "Le Palais", s: 3 }, { n: "Taïrroir", s: 3 }],
+  "Tinqueux": [{ n: "L'Assiette Champenoise", s: 3 }],
+  "Tokyo": [{ n: "Harutaka", s: 3 }, { n: "Kanda", s: 3 }, { n: "Azabu Kadowaki", s: 3 }, { n: "Myojaku", s: 3 }, { n: "L'Effervescence", s: 3 }, { n: "Sazenka", s: 3 }, { n: "Sézanne", s: 3 }, { n: "Joël Robuchon", s: 3 }, { n: "RyuGin", s: 3 }, { n: "Ginza Kondo", s: 3 }, { n: "Ginza Kitagawa", s: 3 }, { n: "Quintessence", s: 3 }],
+  "Verona": [{ n: "Casa Perbellini 12 Apostoli", s: 3 }],
+  "Vienna": [{ n: "Amador", s: 3 }, { n: "Steirereck im Stadtpark", s: 3 }],
+  "Vienne": [{ n: "La Pyramide - Patrick Henriroux", s: 3 }],
+  "Vézelay": [{ n: "L'Espérance", s: 3 }],
+  "West Hollywood": [{ n: "Somni", s: 3 }],
+  "Yountville": [{ n: "The French Laundry", s: 3 }],
+  "Zwolle": [{ n: "De Librije", s: 3 }],
 };
 const TOURS = {
   "New York City": [["Broadway show & premium seats", 260, "A current hit with prime orchestra seats arranged."], ["The Met private highlights", 190, "Two hours of masterpieces with an art historian."], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air."], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
@@ -4011,31 +4121,48 @@ function HotelPicker({ city, nights, pick, upd }) {
   </>);
 }
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
-  const [level, setLevel] = useState("");
+  // Michelin mode where we have the data (Destination = starred); otherwise the old browse.
+  const mich = lookup(DINING, city);
+  const michMode = !!(mich && mich.length);
+  const [level, setLevel] = useState(michMode ? "Destination" : "");
   const remote = useRemote("restaurants", city);
-  const live = !!remote.items;
-  const rows = level ? (live ? (remote.items[level] || []) : (dineData(city)[level] || []).map(([name, price, desc]) => ({ name, price, desc, level }))) : [];
+  const live = !michMode && !!remote.items;
+  const tiers = michMode ? DINE_TIERS : DINE_LEVELS;
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
+  const michRows = michMode && level ? mich.filter((m) => michTier(m.s) === level) : [];
+  const liveRows = !michMode && level ? (live ? (remote.items[level] || []) : (dineData(city)[level] || []).map(([name, price, desc]) => ({ name, price, desc, level }))) : [];
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {DINE_LEVELS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
-      <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
+      {tiers.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
+      {michMode ? <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Michelin</span> : <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>}
     </div>
-    {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
-    {level && rows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
-    {rows.map((r, k) => {
-      const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
-      const pp = live ? (r.estRate || null) : r.price;
-      return (<div key={r.id || k}>
-        <PlaceRow item={r} selected={!!found} onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
-          sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
-        {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.name, level, dt)} label={dayLabel || "Which evening?"} />}
-      </div>);
-    })}
-    {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
+    {michMode ? (<>
+      {michRows.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Standout" ? `Bib Gourmand & recommended tables for ${bareCity(city)} are coming in the next batch.` : `No ${level} restaurants on our list for ${bareCity(city)} yet.`}</div>}
+      {michRows.map((r, k) => {
+        const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level));
+        return (<div key={k}>
+          <PlaceRow item={{ name: r.n }} selected={!!found}
+            onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
+            sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : `MICHELIN ${"★".repeat(r.s)} · ${level}`} price="" />
+          {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.n, level, dt)} label={dayLabel || "Which evening?"} />}
+        </div>); })}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 6, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables. We reserve on your behalf.</div>
+    </>) : (<>
+      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
+      {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
+      {level && liveRows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
+      {liveRows.map((r, k) => {
+        const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
+        const pp = live ? (r.estRate || null) : r.price;
+        return (<div key={r.id || k}>
+          <PlaceRow item={r} selected={!!found} onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
+            sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
+          {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.name, level, dt)} label={dayLabel || "Which evening?"} />}
+        </div>); })}
+      {live && liveRows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
+    </>)}
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
