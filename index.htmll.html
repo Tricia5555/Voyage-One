@@ -87,6 +87,26 @@ const ULTRA_LUX = [
   "Four Seasons George V", "Hôtel Plaza Athénée", "Le Bristol Paris", "Le Meurice", "Ritz Paris",
   "Cheval Blanc Paris", "Hôtel de Crillon", "Mandarin Oriental Paris", "The Peninsula Paris",
   "La Réserve Paris", "Bulgari Hotel Paris",
+  // Cities the master list skipped — filled in batches (Tricia-approved)
+  "Bulgari Hotel Milano", "Mandarin Oriental Milan", "Four Seasons Hotel Milano", "Portrait Milano",
+  "Mandarin Oriental Barcelona",
+  "Four Seasons Hotel Istanbul at the Bosphorus", "Çırağan Palace Kempinski", "Six Senses Kocataş Mansions", "Mandarin Oriental Bosphorus Istanbul", "The Peninsula Istanbul",
+  "Waldorf Astoria Amsterdam", "De L'Europe Amsterdam", "Rosewood Amsterdam",
+  "Hotel Adlon Kempinski", "Rocco Forte Hotel de Rome",
+  "Four Seasons Hotel Prague", "Augustine, a Luxury Collection Hotel",
+  "Four Seasons Hotel Ritz Lisbon",
+  "Four Seasons Hotel Chicago", "The Peninsula Chicago", "Waldorf Astoria Chicago", "The Langham Chicago",
+  "The Merrion",
+  "Villa La Coste", "Airelles Gordes", "Baumanière Les Baux-de-Provence",
+  "Cheval Blanc St-Tropez", "La Réserve Ramatuelle",
+  "Hôtel du Cap-Eden-Roc",
+  "La Residence Franschhoek", "Leeu Estates", "Delaire Graff Estate",
+  "Les Sources de Caudalie", "Royal Champagne Hotel & Spa", "Le K2 Palace", "Airelles Château de Versailles, Le Grand Contrôle", "Saint James Paris",
+  "Beau-Rivage Genève", "Bürgenstock Resort", "Les Trois Rois",
+  "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
+  "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
+  "Taj Lake Palace", "RAAS Devigarh",
+  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "The Peninsula Beverly Hills", "Maybourne Beverly Hills", "Montage Laguna Beach", "Halekulani", "The Setai Miami Beach", "Faena Hotel Miami",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -235,6 +255,10 @@ const DINE_LEVELS = [
   { key: "Refined", label: "Local Gem" },
   { key: "Essential", label: "Café & Casual" },
 ];
+// Michelin-driven dining tiers: Destination = any star (or James Beard winner); Standout = Bib
+// Gourmand / Michelin Selected (or James Beard nominee). Used wherever we have Michelin data.
+const DINE_TIERS = [{ key: "Destination", label: "Destination" }, { key: "Standout", label: "Standout" }];
+function michTier(stars) { return stars >= 1 ? "Destination" : "Standout"; }
 // Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
 // Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
@@ -363,6 +387,129 @@ const FAVORITES = {
     { name: "The Peninsula Paris", area: "16th · Avenue Kléber", rate: null, ourTake: "A restored Haussmann palace near the Arc, with a rooftop and tower views.", contact: { addr: "19 Avenue Kléber, 75116 Paris", web: "peninsula.com" } },
     { name: "La Réserve Paris", area: "8th · Avenue Gabriel", rate: null, ourTake: "An intimate town-house palace near the Champs — grand, discreet, residential.", contact: { addr: "42 Avenue Gabriel, 75008 Paris", web: "lareserve-paris.com" } },
     { name: "Bulgari Hotel Paris", area: "8th · Avenue George V", rate: null, ourTake: "Italian glamour off Avenue Montaigne, with a spectacular spa and pool.", contact: { addr: "30 Avenue George V, 75008 Paris", web: "bulgarihotels.com" } },
+    { name: "Saint James Paris", area: "16th · Bois de Boulogne", rate: null, ourTake: "The only château-hotel in Paris — a hidden garden mansion with a library bar.", contact: { addr: "43 Avenue Bugeaud, 75116 Paris", web: "saintjames-paris.com" } },
+  ],
+  "Milan": [
+    { name: "Bulgari Hotel Milano", area: "Brera", rate: null, ourTake: "A hidden garden oasis in Brera with the city's chicest bar.", contact: { addr: "Via Privata Fratelli Gabba 7b, Milan", web: "bulgarihotels.com" } },
+    { name: "Mandarin Oriental Milan", area: "Quadrilatero", rate: null, ourTake: "Serene interlinked townhouses steps from the fashion quadrilateral.", contact: { addr: "Via Andegari 9, Milan", web: "mandarinoriental.com" } },
+    { name: "Four Seasons Hotel Milano", area: "Quadrilatero", rate: null, ourTake: "A 15th-century convent turned haven off Via Montenapoleone.", contact: { addr: "Via Gesù 6/8, Milan", web: "fourseasons.com/milan" } },
+    { name: "Portrait Milano", area: "Quadrilatero", rate: null, ourTake: "A dramatic restored seminary courtyard, the Ferragamo group's Milan jewel.", contact: { addr: "Corso Venezia 11, Milan", web: "lungarnocollection.com" } },
+  ],
+  "Barcelona": [
+    { name: "Mandarin Oriental Barcelona", area: "Passeig de Gràcia", rate: null, ourTake: "Sleek luxury on the city's grandest boulevard, with a rooftop pool.", contact: { addr: "Passeig de Gràcia 38-40, Barcelona", web: "mandarinoriental.com" } },
+    { name: "Hotel Arts Barcelona", area: "Port Olímpic", rate: null, ourTake: "A Ritz-Carlton tower over the beach, gardens and a seafront pool.", contact: { addr: "Carrer de la Marina 19-21, Barcelona", web: "hotelartsbarcelona.com" } },
+  ],
+  "Istanbul": [
+    { name: "Four Seasons Hotel Istanbul at the Bosphorus", area: "Beşiktaş", rate: null, ourTake: "A 19th-century Ottoman palace right on the water's edge.", contact: { addr: "Çırağan Cd. 28, Istanbul", web: "fourseasons.com/bosphorus" } },
+    { name: "Çırağan Palace Kempinski", area: "Beşiktaş", rate: null, ourTake: "A genuine sultans' palace on the Bosphorus, the grandest address in the city.", contact: { addr: "Çırağan Cd. 32, Istanbul", web: "kempinski.com" } },
+    { name: "Six Senses Kocataş Mansions", area: "Sarıyer", rate: null, ourTake: "Two restored waterside mansions up the Bosphorus, wellness-led and serene.", contact: { addr: "Kocataş, Sarıyer, Istanbul", web: "sixsenses.com" } },
+    { name: "Mandarin Oriental Bosphorus Istanbul", area: "Kuruçeşme", rate: null, ourTake: "A garden resort on the strait with a rare outdoor pool.", contact: { addr: "Kuruçeşme, Istanbul", web: "mandarinoriental.com" } },
+    { name: "The Peninsula Istanbul", area: "Karaköy", rate: null, ourTake: "Four buildings on the Galataport waterfront, the city's newest grande dame.", contact: { addr: "Karaköy, Istanbul", web: "peninsula.com" } },
+    { name: "Raffles Istanbul", area: "Beşiktaş", rate: null, ourTake: "Contemporary art and a superb spa above Zorlu Center.", contact: { addr: "Zorlu Center, Beşiktaş, Istanbul", web: "raffles.com" } },
+    { name: "The St. Regis Istanbul", area: "Nişantaşı", rate: null, ourTake: "Butler-service glamour in the chic Nişantaşı shopping district.", contact: { addr: "Mim Kemal Öke Cd. 35, Istanbul", web: "marriott.com" } },
+    { name: "The Ritz-Carlton Istanbul", area: "Şişli", rate: null, ourTake: "Bosphorus views and a hammam-led spa above the city.", contact: { addr: "Aşıklar Cd. 15, Istanbul", web: "ritzcarlton.com" } },
+    { name: "Shangri-La Bosphorus Istanbul", area: "Beşiktaş", rate: null, ourTake: "A waterside hotel by Dolmabahçe with an Asian-accented spa.", contact: { addr: "Sinanpaşa, Hayrettin İskelesi Sk. 1, Istanbul", web: "shangri-la.com" } },
+    { name: "Park Hyatt Istanbul", area: "Nişantaşı", rate: null, ourTake: "A discreet design hotel in a 1920s building in Nişantaşı.", contact: { addr: "Bronz Sk. 4, Istanbul", web: "hyatt.com" } },
+  ],
+  "Amsterdam": [
+    { name: "Waldorf Astoria Amsterdam", area: "Canal Belt", rate: null, ourTake: "Six merchant palaces on the Herengracht with a canal-side garden.", contact: { addr: "Herengracht 542-556, Amsterdam", web: "waldorfastoria.com" } },
+    { name: "Conservatorium Hotel", area: "Museum Quarter", rate: null, ourTake: "A striking glass-roofed atrium in the old conservatory by the museums.", contact: { addr: "Van Baerlestraat 27, Amsterdam", web: "conservatoriumhotel.com" } },
+    { name: "De L'Europe Amsterdam", area: "Old Centre", rate: null, ourTake: "A riverfront grande dame at the Amstel, family-owned and classic.", contact: { addr: "Nieuwe Doelenstraat 2-14, Amsterdam", web: "deleurope.com" } },
+    { name: "Rosewood Amsterdam", area: "Canal Belt", rate: null, ourTake: "The former Palace of Justice on the Prinsengracht, newly reborn.", contact: { addr: "Prinsengracht 436, Amsterdam", web: "rosewoodhotels.com" } },
+  ],
+  "Berlin": [
+    { name: "Hotel Adlon Kempinski", area: "Brandenburg Gate", rate: null, ourTake: "The legendary grande dame beside the Brandenburg Gate.", contact: { addr: "Unter den Linden 77, Berlin", web: "kempinski.com" } },
+    { name: "Rocco Forte Hotel de Rome", area: "Bebelplatz", rate: null, ourTake: "A former bank on Bebelplatz with a rooftop over the historic centre.", contact: { addr: "Bebelplatz 1, Berlin", web: "roccofortehotels.com" } },
+  ],
+  "Prague": [
+    { name: "Four Seasons Hotel Prague", area: "Old Town", rate: null, ourTake: "Riverside buildings by the Charles Bridge with castle views.", contact: { addr: "Veleslavínova 2a/1098, Prague", web: "fourseasons.com/prague" } },
+    { name: "Augustine, a Luxury Collection Hotel", area: "Lesser Town", rate: null, ourTake: "A 13th-century monastery hotel below the castle.", contact: { addr: "Letenská 12/33, Prague", web: "augustinehotel.com" } },
+  ],
+  "Lisbon": [
+    { name: "Four Seasons Hotel Ritz Lisbon", area: "Avenida", rate: null, ourTake: "A mid-century icon with a rooftop track and museum-grade art.", contact: { addr: "Rua Rodrigo da Fonseca 88, Lisbon", web: "fourseasons.com/lisbon" } },
+    { name: "Olissippo Lapa Palace", area: "Lapa", rate: null, ourTake: "An aristocratic hillside palace with gardens and Tagus views.", contact: { addr: "Rua do Pau de Bandeira 4, Lisbon", web: "olissippohotels.com" } },
+  ],
+  "Chicago": [
+    { name: "Four Seasons Hotel Chicago", area: "Magnificent Mile", rate: null, ourTake: "Refined comfort high above the Mag Mile, with lake views.", contact: { addr: "120 E Delaware Pl, Chicago", web: "fourseasons.com/chicago" } },
+    { name: "The Peninsula Chicago", area: "Magnificent Mile", rate: null, ourTake: "Impeccable Peninsula service and a superb spa off Michigan Avenue.", contact: { addr: "108 E Superior St, Chicago", web: "peninsula.com" } },
+    { name: "Waldorf Astoria Chicago", area: "Gold Coast", rate: null, ourTake: "An Art Deco-inspired tower in the leafy Gold Coast.", contact: { addr: "11 E Walton St, Chicago", web: "waldorfastoria.com" } },
+    { name: "The Langham Chicago", area: "River North", rate: null, ourTake: "Mies van der Rohe modernism over the river, with a lauded spa.", contact: { addr: "330 N Wabash Ave, Chicago", web: "langhamhotels.com" } },
+  ],
+  "San Francisco": [
+    { name: "Four Seasons Hotel San Francisco", area: "Yerba Buena", rate: null, ourTake: "Polished comfort above Yerba Buena, steps from Union Square.", contact: { addr: "757 Market St, San Francisco", web: "fourseasons.com/sanfrancisco" } },
+    { name: "The Ritz-Carlton San Francisco", area: "Nob Hill", rate: null, ourTake: "A neoclassical landmark crowning Nob Hill.", contact: { addr: "600 Stockton St, San Francisco", web: "ritzcarlton.com" } },
+    { name: "The St. Regis San Francisco", area: "SoMa", rate: null, ourTake: "Sleek butler-service luxury by SFMOMA.", contact: { addr: "125 3rd St, San Francisco", web: "marriott.com" } },
+  ],
+  "Dublin": [
+    { name: "The Merrion", area: "Georgian Dublin", rate: null, ourTake: "Four restored Georgian townhouses with a private art collection.", contact: { addr: "Upper Merrion St, Dublin", web: "merrionhotel.com" } },
+    { name: "The Shelbourne", area: "St Stephen's Green", rate: null, ourTake: "The grande dame on St Stephen's Green since 1824.", contact: { addr: "27 St Stephen's Green, Dublin", web: "theshelbourne.com" } },
+  ],
+  "Provence": [
+    { name: "Villa La Coste", area: "Le Puy-Sainte-Réparade", rate: null, ourTake: "Art, architecture and wine on a sculpture-dotted vineyard estate.", contact: { addr: "2750 Route de la Cride, Le Puy-Sainte-Réparade", web: "villalacoste.com" } },
+    { name: "Airelles Gordes", area: "Gordes", rate: null, ourTake: "A grand village château hotel with sweeping Luberon views.", contact: { addr: "Le Village, Gordes", web: "airelles.com" } },
+    { name: "Baumanière Les Baux-de-Provence", area: "Les Baux-de-Provence", rate: null, ourTake: "A Relais & Châteaux legend below the citadel, with Michelin dining.", contact: { addr: "Mas de Baumanière, Les Baux-de-Provence", web: "baumaniere.com" } },
+  ],
+  "Franschhoek": [
+    { name: "La Residence Franschhoek", area: "Franschhoek", rate: null, ourTake: "The Royal Portfolio's opulent vineyard estate — theatrical suites, peacocks, real grandeur.", contact: { addr: "Elandskloof Farm, Franschhoek", web: "theroyalportfolio.com" } },
+    { name: "Leeu Estates", area: "Franschhoek", rate: null, ourTake: "An art-filled wine estate in the Leeu Collection, gardens and a fine spa.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "leeucollection.com" } },
+    { name: "Babylonstoren Farm Hotel", area: "Simondium", rate: null, ourTake: "A working Cape Dutch farm with a world-famous garden and farm-to-table table.", contact: { addr: "Klapmuts-Simondium Rd, Simondium", web: "babylonstoren.com" } },
+    { name: "Mont Rochelle", area: "Franschhoek", rate: null, ourTake: "Richard Branson's mountain vineyard hotel above the valley.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "virginlimitededition.com" } },
+    { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
+  ],
+  "Stellenbosch": [
+    { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
+  ],
+  "Bordeaux": [
+    { name: "Les Sources de Caudalie", area: "Martillac", rate: null, ourTake: "A vineyard retreat at Château Smith Haut Lafitte — the birthplace of vinothérapie.", contact: { web: "sources-caudalie.com" } },
+  ],
+  "Champagne": [
+    { name: "Royal Champagne Hotel & Spa", area: "Champillon", rate: null, ourTake: "A hillside hotel above the vineyards near Épernay — all bubbles and valley views.", contact: { web: "royalchampagne.com" } },
+  ],
+  "Courchevel": [
+    { name: "Le K2 Palace", area: "Courchevel 1850", rate: null, ourTake: "A chalet-palace on the slopes of 1850 — ski-in, ski-out grandeur.", contact: { web: "lek2palace.com" } },
+  ],
+  "Versailles": [
+    { name: "Airelles Château de Versailles, Le Grand Contrôle", area: "Palace grounds", rate: null, ourTake: "Sleeping inside the palace grounds — Marie-Antoinette's world, after the crowds leave.", contact: { web: "airelles.com" } },
+  ],
+  "Bürgenstock": [
+    { name: "Bürgenstock Resort", area: "Lake Lucerne", rate: null, ourTake: "A cliff-top resort 500 metres above Lake Lucerne, with a sky-edge infinity pool.", contact: { web: "buergenstock.ch" } },
+  ],
+  "Basel": [
+    { name: "Les Trois Rois", area: "Old Town", rate: null, ourTake: "One of Europe's oldest city hotels, on the Rhine since 1681.", contact: { web: "lestroisrois.com" } },
+  ],
+  "Ise-Shima": [
+    { name: "Amanemu", area: "Ago Bay", rate: null, ourTake: "An onsen Aman on Ago Bay — hot-spring pavilions among the pines.", contact: { web: "aman.com" } },
+  ],
+  "Izu": [
+    { name: "Asaba", area: "Shuzenji", rate: null, ourTake: "A centuries-old ryokan with a Noh stage set over its own pond.", contact: { web: "relaischateaux.com" } },
+  ],
+  "Chiang Mai": [
+    { name: "Four Seasons Resort Chiang Mai", area: "Mae Rim", rate: null, ourTake: "Pavilions and villas among working rice terraces in the Mae Rim valley.", contact: { web: "fourseasons.com/chiangmai" } },
+  ],
+  "Krabi": [
+    { name: "Phulay Bay, a Ritz-Carlton Reserve", area: "Andaman coast", rate: null, ourTake: "A jungle-and-sea Reserve on the Andaman coast near Krabi.", contact: { web: "ritzcarlton.com" } },
+  ],
+  "Boston": [
+    { name: "Raffles Boston", area: "Back Bay", rate: null, ourTake: "Raffles' first US address — a sky-lobby tower in Back Bay.", contact: { web: "raffles.com" } },
+  ],
+  "Washington, Virginia": [
+    { name: "The Inn at Little Washington", area: "Virginia", rate: null, ourTake: "A three-Michelin-star country inn in the Blue Ridge foothills, theatrical and beloved.", contact: { web: "theinnatlittlewashington.com" } },
+  ],
+  "Montana": [
+    { name: "Sage Lodge", area: "Paradise Valley", rate: null, ourTake: "A lodge on the Yellowstone River near the park's north gate.", contact: { web: "sagelodge.com" } },
+  ],
+  "Laguna Beach": [
+    { name: "Montage Laguna Beach", area: "Laguna Beach", rate: null, ourTake: "A Craftsman-style resort on the bluffs above the Pacific.", contact: { web: "montage.com" } },
+  ],
+  "Honolulu": [
+    { name: "Halekulani", area: "Waikiki", rate: null, ourTake: "The serene Waikiki grande dame — 'house befitting heaven', right on the beach.", contact: { web: "halekulani.com" } },
+  ],
+  "St-Tropez": [
+    { name: "Cheval Blanc St-Tropez", area: "St-Tropez", rate: null, ourTake: "LVMH glamour on the old port, with a three-Michelin-star table.", contact: { addr: "Place des Lices area, St-Tropez", web: "chevalblanc.com" } },
+    { name: "La Réserve Ramatuelle", area: "Ramatuelle", rate: null, ourTake: "A clifftop wellness hideaway above the sea near St-Tropez.", contact: { addr: "Chemin de la Quessine, Ramatuelle", web: "lareserve-ramatuelle.com" } },
+  ],
+  "Antibes": [
+    { name: "Hôtel du Cap-Eden-Roc", area: "Cap d'Antibes", rate: null, ourTake: "The legendary Riviera palace on a pine-clad cape, the seawater pool cut into the rock.", contact: { addr: "Boulevard J.F. Kennedy, Cap d'Antibes", web: "hotel-du-cap-eden-roc.com" } },
   ],
   // ——— WORLDWIDE ULTRA LUXURY ROLLOUT — sourced from the canon (claude/ultra-lux-worldwide-standard.md).
   // Every entry here is on the Ultra Luxury list, so each city's Ultra tab shows exactly these; the
@@ -433,6 +580,7 @@ const FAVORITES = {
     { name: "La Réserve Genève", area: "Bellevue", rate: null, ourTake: "A lakeside resort-and-spa retreat with a Garrell-designed safari-lodge feel." },
     { name: "Four Seasons Hotel des Bergues Geneva", area: "Old Town", rate: null, ourTake: "Geneva's oldest grand hotel, on the lake by the Old Town." },
     { name: "The Woodward Geneva", area: "Lakefront", rate: null, ourTake: "An all-suite Oetker jewel on the water, with a Guerlain spa." },
+    { name: "Beau-Rivage Genève", area: "Lakefront", rate: null, ourTake: "A family-owned lakefront grande dame since 1865.", contact: { web: "beau-rivage.ch" } },
   ],
   "Vienna": [
     { name: "Hotel Sacher Wien", area: "Opera", rate: null, ourTake: "The red-velvet imperial institution behind the Opera — home of the Sachertorte." },
@@ -515,6 +663,8 @@ const FAVORITES = {
   "Udaipur": [
     { name: "The Oberoi Udaivilas", area: "Lake Pichola", rate: null, ourTake: "A palace on the lake, regularly named the best hotel in the world." },
     { name: "The Leela Palace Udaipur", area: "Lake Pichola", rate: null, ourTake: "A lakeside palace with every room facing the City Palace across the water." },
+    { name: "Taj Lake Palace", area: "Lake Pichola", rate: null, ourTake: "The white marble palace that seems to float on Lake Pichola.", contact: { web: "tajhotels.com" } },
+    { name: "RAAS Devigarh", area: "Delwara", rate: null, ourTake: "An 18th-century fort-palace of all-suite marble grandeur outside Udaipur.", contact: { web: "raashotels.com" } },
   ],
   "Agra": [
     { name: "The Oberoi Amarvilas", area: "Taj Mahal", rate: null, ourTake: "Every room framing the Taj Mahal, six hundred metres away." },
@@ -583,6 +733,7 @@ const FAVORITES = {
   ],
   "Koh Samui": [
     { name: "Four Seasons Resort Koh Samui", area: "Laem Yai", rate: null, ourTake: "Hillside villas over a private bay on the quiet north-west coast." },
+    { name: "Samujana", area: "Choeng Mon", rate: null, ourTake: "Cliffside private villas with pools over the Gulf of Thailand.", contact: { web: "samujana.com" } },
   ],
   "Koh Kood": [
     { name: "Soneva Kiri", area: "Koh Kood", rate: null, ourTake: "A remote-island fantasy — treetop dining pods, cinema, barefoot luxury." },
@@ -607,6 +758,7 @@ const FAVORITES = {
     { name: "Mandarin Oriental Tokyo", area: "Nihonbashi", rate: null, ourTake: "Michelin dining and city-wide views from the top of Nihonbashi." },
     { name: "The Peninsula Tokyo", area: "Marunouchi", rate: null, ourTake: "A grande dame facing the Imperial Palace gardens and Ginza." },
     { name: "Four Seasons Hotel Tokyo at Otemachi", area: "Otemachi", rate: null, ourTake: "A jewel-box hotel with a rooftop spa over the skyline." },
+    { name: "Palace Hotel Tokyo", area: "Marunouchi", rate: null, ourTake: "A refined, family-owned hotel over the Imperial Palace gardens and moat.", contact: { web: "palacehoteltokyo.com" } },
   ],
   "Kyoto": [
     { name: "Aman Kyoto", area: "Northern hills", rate: null, ourTake: "A hidden garden sanctuary in a mossy forest below Kinkaku-ji." },
@@ -614,6 +766,8 @@ const FAVORITES = {
     { name: "Park Hyatt Kyoto", area: "Higashiyama", rate: null, ourTake: "On the lanes below Kodai-ji, steps from Kiyomizu — pure Kyoto." },
     { name: "The Ritz-Carlton Kyoto", area: "Kamogawa", rate: null, ourTake: "Riverside elegance with the Higashiyama mountains beyond." },
     { name: "Hoshinoya Kyoto", area: "Arashiyama", rate: null, ourTake: "A riverboat-access ryokan retreat among the Arashiyama maples." },
+    { name: "Hotel The Mitsui Kyoto", area: "Nijō Castle", rate: null, ourTake: "A former Mitsui-family estate by Nijō Castle, with a thermal-spring spa.", contact: { web: "hotelthemitsui.com" } },
+    { name: "The Shinmonzen", area: "Gion", rate: null, ourTake: "A tiny Tadao Ando ryokan-hotel along the Shirakawa canal in Gion.", contact: { web: "theshinmonzen.com" } },
   ],
   "Hakone": [
     { name: "Gora Kadan", area: "Hakone", rate: null, ourTake: "A former imperial retreat, the definitive luxury ryokan with private onsen." },
@@ -753,6 +907,8 @@ const FAVORITES = {
   "Los Angeles": [
     { name: "Hotel Bel-Air", area: "Bel-Air", rate: null, ourTake: "A pink-and-bougainvillea Dorchester hideaway with swans and Wolfgang Puck." },
     { name: "The Beverly Hills Hotel", area: "Beverly Hills", rate: null, ourTake: "The Pink Palace — the Polo Lounge and a century of Hollywood legend." },
+    { name: "The Peninsula Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Forbes-perennial garden hotel a step off Rodeo Drive.", contact: { web: "peninsula.com" } },
+    { name: "Maybourne Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Maybourne group's sleek Beverly Hills flagship.", contact: { web: "maybournebeverlyhills.com" } },
   ],
   "Santa Barbara": [
     { name: "Rosewood Miramar Beach", area: "Montecito", rate: null, ourTake: "A Montecito beach resort with old-Hollywood glamour and its own sand." },
@@ -769,6 +925,8 @@ const FAVORITES = {
   ],
   "Miami": [
     { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "A restored 1930s beach club with a Thomas Keller table and true glamour." },
+    { name: "The Setai Miami Beach", area: "South Beach", rate: null, ourTake: "An Art-Deco-meets-Asia sanctuary on Collins Avenue with three pools.", contact: { web: "thesetaihotel.com" } },
+    { name: "Faena Hotel Miami", area: "Mid-Beach", rate: null, ourTake: "Baz Luhrmann-designed theatrical glamour on Mid-Beach.", contact: { web: "faena.com" } },
   ],
   "Florida Keys": [
     { name: "Little Palm Island Resort and Spa", area: "Little Torch Key", rate: null, ourTake: "A boat-access private-island escape, adults only, castaway-chic." },
@@ -863,6 +1021,359 @@ const EATS = {
   "Évora": { Luxury: [["Fialho", 60, "Alentejo classics served since 1945."]], Refined: [["Origens", 50, "Modern regional tasting menu."]] },
   "Douro Valley": { UltraLux: [["DOC by Rui Paula", 130, "Riverside fine dining on the Douro."]], Luxury: [["The Vintage House Restaurant", 80, "Terraced views and regional wine."]] },
   "Algarve": { UltraLux: [["Bon Bon", 150, "Michelin-starred coastal cuisine near Carvoeiro."]], Essential: [["A Casa do Petisco", 40, "Local petiscos near the marina."]] },
+};
+// Michelin dining — Destination (any star) now; Standout (Bib/Selected) + James Beard to come.
+// Keyed by city; verbatim from Tricia's MICHELIN Guide batches. See michelin_rules.txt.
+const DINING = {
+  "Aarhus": [{ n: "Frederikshøj", s: 2 }],
+  "Adeje": [{ n: "El Rincón de Juan Carlos", s: 2 }],
+  "Alba": [{ n: "Piazza Duomo", s: 3 }],
+  "Albufeira": [{ n: "Vila Joya", s: 2 }],
+  "Almansa": [{ n: "Maralba", s: 2 }],
+  "Amstelveen": [{ n: "Aan de Poel", s: 2 }],
+  "Amsterdam": [{ n: "Ciel Bleu", s: 2 }, { n: "Flore", s: 2 }, { n: "Restaurant 212", s: 2 }, { n: "Spectrum", s: 2 }, { n: "Vinkeles", s: 2 }],
+  "Anacapri": [{ n: "L'Olivo", s: 2 }],
+  "Anderlecht": [{ n: "La Paix", s: 2 }],
+  "Andermatt": [{ n: "IGNIV by Andreas Caminada", s: 2 }, { n: "The Japanese Restaurant", s: 2 }],
+  "Annecy": [{ n: "Le Clos des Sens", s: 3 }, { n: "Maison Benoît Vidal", s: 2 }],
+  "Antwerp": [{ n: "Zilte", s: 3 }, { n: "Hertog Jan at Botanic", s: 2 }],
+  "Arbre": [{ n: "L'Eau Vive", s: 2 }],
+  "Arosa": [{ n: "La Brezza", s: 2 }],
+  "Ascona": [{ n: "Ecco", s: 2 }, { n: "La Brezza", s: 2 }],
+  "Athens": [{ n: "Delta", s: 2 }],
+  "Auchterarder": [{ n: "Restaurant Andrew Fairlie", s: 2 }],
+  "Aughton": [{ n: "Moor Hall", s: 3 }],
+  "Augsburg": [{ n: "AUGUST", s: 2 }],
+  "Aumont-Aubrac": [{ n: "Cyril Attrazic", s: 2 }],
+  "Bad Peterstal-Griesbach": [{ n: "Le Pavillon", s: 2 }],
+  "Bad Ragaz": [{ n: "Sven Wassmer Memories", s: 3 }, { n: "IGNIV by Andreas Caminada", s: 2 }],
+  "Baden-Baden": [{ n: "Maltes hidden kitchen", s: 2 }],
+  "Baiersbronn": [{ n: "Restaurant Bareiss", s: 3 }, { n: "Schwarzwaldstube", s: 3 }],
+  "Baltimore": [{ n: "dede", s: 2 }],
+  "Bangkok": [{ n: "Sorn", s: 3 }, { n: "Sühring", s: 3 }, { n: "Anne-Sophie Pic at Le Normandie", s: 2 }, { n: "Baan Tepa", s: 2 }, { n: "Chef's Table", s: 2 }, { n: "Côte by Mauro Colagreco", s: 2 }, { n: "Gaa", s: 2 }, { n: "INDDEE", s: 2 }, { n: "Mezzaluna", s: 2 }, { n: "R-Haan", s: 2 }],
+  "Barcelona": [{ n: "ABaC", s: 3 }, { n: "Cocina Hermanos Torres", s: 3 }, { n: "Disfrutar", s: 3 }, { n: "Lasarte", s: 3 }, { n: "Aleia", s: 2 }, { n: "Cinc Sentits", s: 2 }, { n: "Enigma", s: 2 }, { n: "Enoteca Paco Pérez", s: 2 }, { n: "Mont Bar", s: 2 }],
+  "Basel": [{ n: "Cheval Blanc by Peter Knogl", s: 3 }, { n: "roots", s: 2 }, { n: "Stucki – Tanja Grandits", s: 2 }],
+  "Baudour": [{ n: "d'Eugénie à Emilie", s: 2 }],
+  "Beijing": [{ n: "Chao Shang Chao (Chaoyang)", s: 3 }, { n: "Xin Rong Ji (Xinyuan South Road)", s: 3 }, { n: "Blackswan", s: 2 }, { n: "Jingji", s: 2 }, { n: "King's Joy", s: 2 }, { n: "Lamdre", s: 2 }, { n: "Lu Shang Lu", s: 2 }, { n: "Shanghai Cuisine", s: 2 }],
+  "Bellvís": [{ n: "La Boscana", s: 2 }],
+  "Berchtesgaden": [{ n: "PUR", s: 2 }],
+  "Bergamo": [{ n: "Villa Elena", s: 2 }],
+  "Bergisch Gladbach": [{ n: "Vendôme", s: 2 }],
+  "Berlin": [{ n: "Rutz", s: 3 }, { n: "CODA Dessert Dining", s: 2 }, { n: "FACIL", s: 2 }, { n: "Horváth", s: 2 }, { n: "Tim Raue", s: 2 }],
+  "Beveren-Leie": [{ n: "Castor", s: 2 }],
+  "Birmingham": [{ n: "Opheem", s: 2 }],
+  "Blackrock": [{ n: "Liath", s: 2 }],
+  "Bonnieux": [{ n: "La Table des Amis", s: 2 }],
+  "Bordeaux": [{ n: "Maison Nouvelle", s: 2 }],
+  "Bray": [{ n: "The Fat Duck", s: 3 }, { n: "The Waterside Inn", s: 3 }],
+  "Brunico": [{ n: "Atelier Moessmer Norbert Niederkofler", s: 3 }],
+  "Brusaporto": [{ n: "Da Vittorio", s: 3 }],
+  "Brusciano": [{ n: "Taverna Estia", s: 2 }],
+  "Brussels": [{ n: "Bozar Restaurant", s: 2 }],
+  "Budapest": [{ n: "Stand", s: 2 }],
+  "Buenos Aires": [{ n: "Aramburu", s: 2 }],
+  "Busnes": [{ n: "La Table de Christophe Dufossé", s: 2 }],
+  "Cáceres": [{ n: "Atrio", s: 3 }],
+  "Cambridge": [{ n: "Midsummer House", s: 2 }],
+  "Canyamel": [{ n: "Voro", s: 2 }],
+  "Carcassonne": [{ n: "La Table de Franck Putelat", s: 2 }],
+  "Carmel-by-the-Sea": [{ n: "Aubergine", s: 2 }],
+  "Cartmel": [{ n: "L'Enclume", s: 3 }],
+  "Cassis": [{ n: "La Villa Madie", s: 3 }],
+  "Castel di Sangro": [{ n: "Reale", s: 3 }],
+  "Castellammare di Stabia": [{ n: "Piazzetta Milù", s: 2 }],
+  "Castlemartyr": [{ n: "Terre", s: 2 }],
+  "Cenador de Amós": [{ n: "Villaverde de Pontones", s: 3 }],
+  "Cervere": [{ n: "Antica Corona Reale", s: 2 }],
+  "Chagny": [{ n: "Maison Lameloise", s: 3 }],
+  "Charolles": [{ n: "Frédéric Doucet", s: 2 }],
+  "Chaudes-Aigues": [{ n: "Serge Vieira", s: 2 }],
+  "Chengdu": [{ n: "Xin Rong Ji", s: 2 }, { n: "Yu Zhi Lan", s: 2 }],
+  "Chicago": [{ n: "Alinea", s: 2 }, { n: "Ever", s: 2 }, { n: "Kasama", s: 2 }],
+  "Chiclana de la Frontera": [{ n: "Alevante", s: 2 }],
+  "Ciboure": [{ n: "Ekaitza", s: 2 }],
+  "Cioccaro": [{ n: "Locanda Sant'Uffizio Enrico Bartolini", s: 2 }],
+  "Cocentaina": [{ n: "L'Escaleta", s: 2 }],
+  "Colle di Val d'Elsa": [{ n: "Arnolfo", s: 2 }],
+  "Collonges-au-Mont-d'Or": [{ n: "Paul Bocuse", s: 3 }],
+  "Colmar": [{ n: "JY'S", s: 2 }],
+  "Cologne": [{ n: "Ox & Klee", s: 2 }],
+  "Constance": [{ n: "Ophelia", s: 2 }],
+  "Copenhagen": [{ n: "Geranium", s: 3 }, { n: "noma", s: 3 }, { n: "Alchemist", s: 2 }, { n: "AOC", s: 2 }, { n: "Kadeau Copenhagen", s: 2 }, { n: "Koan", s: 2 }, { n: "Kong Hans Kælder", s: 2 }],
+  "Corçà": [{ n: "Bo.TiC", s: 2 }],
+  "Córdoba": [{ n: "Noor", s: 3 }],
+  "Cornaredo": [{ n: "D'O", s: 2 }],
+  "Courchevel": [{ n: "Le 1947 à Cheval Blanc", s: 3 }, { n: "Le Chabichou by Stéphane Buron", s: 2 }, { n: "Le Kintessence", s: 2 }, { n: "Le Montgomerie", s: 2 }, { n: "Le Sarkara", s: 2 }, { n: "Sarkara", s: 2 }, { n: "Sylvestre Wahid - Les Grandes Alpes", s: 2 }],
+  "Crieff": [{ n: "The Glenturret Lalique", s: 2 }],
+  "Crissier": [{ n: "Restaurant de l'Hôtel de Ville", s: 3 }],
+  "Culver City": [{ n: "Vespertine", s: 2 }],
+  "Daroca de Rioja": [{ n: "Venta Moncalvillo", s: 2 }],
+  "Deidesheim": [{ n: "L.A. Jordan", s: 2 }],
+  "Dénia": [{ n: "Quique Dacosta", s: 3 }],
+  "Denver": [{ n: "The Wolf's Tailor", s: 2 }],
+  "Dijon": [{ n: "William Frachot", s: 2 }],
+  "Donaueschingen": [{ n: "Ösch Noir", s: 2 }],
+  "Dreis": [{ n: "Waldhotel Sonnora", s: 3 }],
+  "Dubai": [{ n: "FZN by Björn Frantzén", s: 3 }, { n: "Trèsind Studio", s: 3 }, { n: "Il Ristorante – Niko Romito", s: 2 }, { n: "Row on 45", s: 2 }, { n: "STAY by Yannick Alléno", s: 2 }],
+  "Dublin": [{ n: "Chapter One by Mickael Viljanen", s: 2 }, { n: "Patrick Guilbaud", s: 2 }],
+  "Duffel": [{ n: "Nuance", s: 2 }],
+  "Durtol": [{ n: "Le Pré – Xavier Beaudiment", s: 2 }],
+  "Eijsden": [{ n: "Create by Guido Braeken", s: 2 }],
+  "El Palmar": [{ n: "Cabaña Buenavista", s: 2 }],
+  "El Puerto de Santa María": [{ n: "Aponiente", s: 3 }],
+  "Elk": [{ n: "Harbor House", s: 2 }],
+  "Errenteria": [{ n: "Mugaritz", s: 2 }],
+  "Eugénie-les-Bains": [{ n: "Les Prés d'Eugénie - Michel Guérard", s: 3 }],
+  "Ezcaray": [{ n: "El Portal de Echaurren", s: 2 }],
+  "Florence": [{ n: "Enoteca Pinchiorri", s: 3 }, { n: "Santa Elisabetta", s: 2 }],
+  "Fontjoncouse": [{ n: "Auberge du Vieux Puits", s: 3 }],
+  "Frankfurt am Main": [{ n: "Lafleur", s: 2 }],
+  "Freidorf": [{ n: "Mammertsberg", s: 2 }],
+  "Frisange": [{ n: "Léa Linster", s: 2 }],
+  "Funchal": [{ n: "Il Gallo d'Oro", s: 2 }],
+  "Fürstenau": [{ n: "Schloss Schauenstein", s: 3 }],
+  "Gargnano": [{ n: "Villa Feltrinelli", s: 2 }],
+  "Garons": [{ n: "Michel Kayser - Restaurant Alexandre", s: 2 }],
+  "Gemert": [{ n: "GEM. by Soenil Bahadoer", s: 2 }],
+  "Geneva": [{ n: "L'Atelier Robuchon", s: 2 }],
+  "Gentofte": [{ n: "Jordnær", s: 3 }],
+  "Gex": [{ n: "La Table de la Mainaz", s: 2 }],
+  "Ghent": [{ n: "Vrijmoed", s: 2 }],
+  "Giethoorn": [{ n: "De Lindenhof", s: 2 }],
+  "Girona": [{ n: "El Celler de Can Roca", s: 3 }],
+  "Glücksburg": [{ n: "Meierei Dirk Luther", s: 2 }],
+  "Godia": [{ n: "Agli Amici", s: 2 }],
+  "Golling an der Salzach": [{ n: "Döllerer", s: 2 }],
+  "Grassau": [{ n: "ES:SENZ", s: 3 }],
+  "Guangzhou": [{ n: "Imperial Treasure Fine Chinese Cuisine", s: 2 }, { n: "Jiang by Chef Fei", s: 2 }, { n: "Taian Table", s: 2 }],
+  "Guía de Isora": [{ n: "M.B", s: 2 }],
+  "Hall in Tirol": [{ n: "Schwarzer Adler", s: 2 }],
+  "Hallbergmoos": [{ n: "Schwarzer Adler", s: 2 }],
+  "Hamburg": [{ n: "Restaurant Haerlin", s: 3 }, { n: "The Table Kevin Fehling", s: 3 }, { n: "100/200 Kitchen", s: 2 }, { n: "bianc", s: 2 }, { n: "Lakeside", s: 2 }],
+  "Hannover": [{ n: "Jante", s: 2 }, { n: "Votum", s: 2 }],
+  "Harderwijk": [{ n: "'t Nonnetje", s: 2 }],
+  "Healdsburg": [{ n: "SingleThread", s: 3 }],
+  "Heeze": [{ n: "Tribeca", s: 2 }],
+  "Helsinki": [{ n: "Palace", s: 2 }],
+  "Henne": [{ n: "Henne Kirkeby Kro", s: 2 }],
+  "Heroldsberg": [{ n: "SEO Küchenhandwerk", s: 2 }, { n: "Sosein.", s: 2 }],
+  "Hollywood": [{ n: "Providence", s: 3 }],
+  "Hong Kong": [{ n: "8 1/2 Otto e Mezzo - Bombana", s: 3 }, { n: "Amber", s: 3 }, { n: "Caprice", s: 3 }, { n: "Forum", s: 3 }, { n: "Sushi Shikon", s: 3 }, { n: "T'ang Court", s: 3 }, { n: "Ta Vie", s: 3 }, { n: "Arbor", s: 2 }, { n: "Bo Innovation", s: 2 }, { n: "L'Envol", s: 2 }, { n: "Lai Ching Heen", s: 2 }, { n: "Lung King Heen", s: 2 }, { n: "Noi by Paulo Airaudo", s: 2 }, { n: "Octavium", s: 2 }, { n: "Rùn", s: 2 }, { n: "Tate", s: 2 }, { n: "Tin Lung Heen", s: 2 }, { n: "Ying Jee Club", s: 2 }],
+  "Illhaeusern": [{ n: "Auberge de l'Ill", s: 3 }],
+  "Imola": [{ n: "San Domenico", s: 2 }],
+  "Ischgl": [{ n: "Stüva", s: 2 }],
+  "Ischia": [{ n: "daní maison", s: 2 }],
+  "Isola Vulcano": [{ n: "I Tenerumi", s: 2 }],
+  "Istanbul": [{ n: "TURK FATİH TUTAK", s: 2 }],
+  "Izegem": [{ n: "La Durée", s: 2 }],
+  "Jerez de la Frontera": [{ n: "LÚ Cocina y Alma", s: 2 }],
+  "Joigny": [{ n: "La Côte Saint-Jacques", s: 2 }],
+  "Jongieux": [{ n: "Les Morainières", s: 2 }],
+  "Karlsruhe": [{ n: "sein", s: 2 }],
+  "Kaysersberg": [{ n: "La Table d'Olivier Nasti", s: 3 }, { n: "Le Chambard – Olivier Nasti", s: 2 }],
+  "Knokke-Heist": [{ n: "Bartholomeus", s: 2 }],
+  "Kobarid": [{ n: "Hiša Franko", s: 3 }],
+  "Koblenz": [{ n: "Gotthardt's by Yannick Noack", s: 2 }],
+  "Kraków": [{ n: "Bottiglieria 1881", s: 2 }],
+  "Kranjska Gora": [{ n: "Milka", s: 2 }],
+  "Kruiningen": [{ n: "Inter Scaldes", s: 2 }],
+  "Kruishoutem": [{ n: "Hof van Cleve – Floris Van Der Veken", s: 2 }],
+  "Krün": [{ n: "IKIGAI", s: 2 }],
+  "Kuala Lumpur": [{ n: "Dewakan", s: 2 }],
+  "Kyoto": [{ n: "Gion Sasaki", s: 3 }, { n: "Hyotei", s: 3 }, { n: "Isshisoden Nakamura", s: 3 }, { n: "Kikunoi Honten", s: 3 }, { n: "Mizai", s: 3 }, { n: "Gion Maruyama", s: 2 }, { n: "Gion Matayoshi", s: 2 }, { n: "Gion Nishikawa", s: 2 }, { n: "Kenninji Gion Maruyama", s: 2 }, { n: "Kikunoi Roan", s: 2 }, { n: "Kodaiji Jugyuan", s: 2 }, { n: "Kodaiji Wakuden", s: 2 }, { n: "Kyokaiseki Kichisen", s: 2 }, { n: "Miyamaso", s: 2 }, { n: "Ogata", s: 2 }, { n: "Otagi", s: 2 }, { n: "Ryō-shō", s: 2 }, { n: "Sanso Kyoyamato", s: 2 }, { n: "Sojiki Nakahigashi", s: 2 }, { n: "Sumibi Kappo Ifuki", s: 2 }, { n: "Yusokuryori Mankamero", s: 2 }],
+  "La Madelaine-sous-Montreuil": [{ n: "La Grenouillère", s: 2 }],
+  "La Plaine-sur-Mer": [{ n: "Anne de Bretagne", s: 2 }],
+  "La Rochelle": [{ n: "Christopher Coutanceau", s: 3 }],
+  "Laguiole": [{ n: "Bras", s: 3 }],
+  "Larrabetzu": [{ n: "Azurmendi", s: 3 }],
+  "Lasarte-Oria": [{ n: "Martín Berasategui", s: 3 }],
+  "Laubach": [{ n: "La Merise", s: 2 }],
+  "Lausanne": [{ n: "La Table du Lausanne Palace", s: 2 }, { n: "Pic Beau-Rivage Palace", s: 2 }],
+  "Le Noirmont": [{ n: "Maison Wenger", s: 2 }],
+  "Leça da Palmeira": [{ n: "Casa de Chá da Boa Nova", s: 2 }],
+  "Lech am Arlberg": [{ n: "Griggeler Stuba", s: 2 }, { n: "Rote Wand Chef's Table", s: 2 }],
+  "Lembach": [{ n: "Auberge du Cheval Blanc", s: 2 }],
+  "Lenzburg": [{ n: "Skin's – the restaurant", s: 2 }],
+  "Licata": [{ n: "La Madia", s: 2 }],
+  "Liernu": [{ n: "L'Air du Temps", s: 2 }],
+  "Lincoln": [{ n: "Restaurant Pearl Morissette", s: 2 }],
+  "Lincoln, Ontario": [{ n: "Restaurant Pearl Morissette", s: 2 }],
+  "Lisbon": [{ n: "Alma", s: 2 }, { n: "Belcanto", s: 2 }],
+  "Llançà": [{ n: "Miramar", s: 2 }],
+  "Lommel": [{ n: "Cuchara", s: 2 }],
+  "London": [{ n: "Alain Ducasse at The Dorchester", s: 3 }, { n: "CORE by Clare Smyth", s: 3 }, { n: "Hélène Darroze at The Connaught", s: 3 }, { n: "Restaurant Gordon Ramsay", s: 3 }, { n: "Sketch, The Lecture Room & Library", s: 3 }, { n: "The Ledbury", s: 3 }, { n: "A.Wong", s: 2 }, { n: "Alex Dilling at Hotel Café Royal", s: 2 }, { n: "Bonheur by Matt Abé", s: 2 }, { n: "Brooklands by Claude Bosi", s: 2 }, { n: "Da Terra", s: 2 }, { n: "Dinner by Heston Blumenthal", s: 2 }, { n: "Gymkhana", s: 2 }, { n: "Humble Chicken", s: 2 }, { n: "Ikoyi", s: 2 }, { n: "Kitchen Table", s: 2 }, { n: "Restaurant Story", s: 2 }, { n: "Row on 5", s: 2 }, { n: "The Clove Club", s: 2 }, { n: "The Ritz Restaurant", s: 2 }, { n: "Trivet", s: 2 }],
+  "Longiano": [{ n: "Magnolia", s: 2 }],
+  "Lonigo": [{ n: "La Peca", s: 2 }],
+  "Los Angeles": [{ n: "Hayato", s: 2 }],
+  "Lucerne": [{ n: "Colonnade", s: 2 }],
+  "Lughetto": [{ n: "Antica Osteria Cera", s: 2 }],
+  "Lyon": [{ n: "La Mère Brazier", s: 3 }, { n: "Le Neuvième Art", s: 2 }, { n: "Takao Takano", s: 2 }],
+  "Macau": [{ n: "Jade Dragon", s: 3 }, { n: "Robuchon au Dôme", s: 3 }, { n: "Alain Ducasse at Morpheus", s: 2 }, { n: "Chef Tam's Seasons", s: 2 }, { n: "Feng Wei Ju", s: 2 }, { n: "The Eight", s: 2 }, { n: "The Huaiyang Garden", s: 2 }, { n: "Wing Lei", s: 2 }],
+  "Machynlleth": [{ n: "Ynyshir", s: 2 }],
+  "Madrid": [{ n: "DiverXO", s: 3 }, { n: "Coque", s: 2 }, { n: "Deessa", s: 2 }, { n: "DSTAgE", s: 2 }, { n: "Paco Roncero", s: 2 }, { n: "Ramón Freixa Atelier", s: 2 }, { n: "Smoked Room", s: 2 }],
+  "Makati, Metro Manila": [{ n: "Helm", s: 2 }],
+  "Malmö": [{ n: "Vollmers", s: 2 }],
+  "Manigod": [{ n: "La Maison des Bois - Marc Veyrat", s: 3 }],
+  "Mannheim": [{ n: "OPUS V", s: 2 }],
+  "Marbella": [{ n: "Skina", s: 3 }],
+  "Marcq-en-Barœul": [{ n: "Rozó", s: 2 }],
+  "Marlow": [{ n: "Hand and Flowers", s: 2 }],
+  "Marseille": [{ n: "AM par Alexandre Mazzia", s: 3 }],
+  "Martillac": [{ n: "La Grand'Vigne - Les Sources de Caudalie", s: 2 }],
+  "Marzocca": [{ n: "Madonnina del Pescatore", s: 2 }],
+  "Mautern an der Donau": [{ n: "Landhaus Bacher", s: 2 }],
+  "Megève": [{ n: "Flocons de Sel", s: 3 }, { n: "La Table de l'Alpaga", s: 2 }],
+  "Menton": [{ n: "Mirazur", s: 3 }],
+  "Mexico City": [{ n: "Pujol", s: 2 }, { n: "Quintonil", s: 2 }],
+  "Miami": [{ n: "L'Atelier de Joël Robuchon", s: 2 }],
+  "Mieming": [{ n: "Restaurant 141 by Joachim Jaud", s: 2 }],
+  "Milan": [{ n: "Enrico Bartolini al Mudec", s: 3 }, { n: "Andrea Aprea", s: 2 }, { n: "Seta by Antonio Guida", s: 2 }, { n: "Verso Capitaneo", s: 2 }],
+  "Modena": [{ n: "Osteria Francescana", s: 3 }],
+  "Mölnlycke": [{ n: "Signum", s: 2 }],
+  "Monaco": [{ n: "Le Louis XV - Alain Ducasse à l'Hôtel de Paris", s: 3 }],
+  "Montalcino": [{ n: "Campo del Drago", s: 2 }],
+  "Montemerano": [{ n: "Caino", s: 2 }],
+  "Montlivault": [{ n: "La Maison d'à Côté", s: 2 }],
+  "Munich": [{ n: "JAN", s: 3 }, { n: "Tohru in der Schreiberei", s: 3 }, { n: "Alois – Dallmayr Fine Dining", s: 2 }, { n: "Atelier", s: 2 }, { n: "Tantris", s: 2 }],
+  "Naples": [{ n: "George Restaurant", s: 2 }],
+  "Narbonne": [{ n: "La Table Lionel Giraud", s: 2 }],
+  "Naurath/Wald": [{ n: "Rüssel's Landhaus", s: 2 }],
+  "Neerharen": [{ n: "Ralf Berendsen", s: 2 }],
+  "Nerano": [{ n: "Quattro Passi", s: 3 }],
+  "Neufelden": [{ n: "Ois", s: 2 }],
+  "Neunburg vorm Wald": [{ n: "Obendorfers Eisvogel", s: 2 }],
+  "New York City": [{ n: "Eleven Madison Park", s: 3 }, { n: "Jungsik New York", s: 3 }, { n: "Le Bernardin", s: 3 }, { n: "Per Se", s: 3 }, { n: "Sushi Sho", s: 3 }, { n: "Aquavit", s: 2 }, { n: "Aska", s: 2 }, { n: "Atera", s: 2 }, { n: "Atomix", s: 2 }, { n: "César", s: 2 }, { n: "Chef's Table at Brooklyn Fare", s: 2 }, { n: "Gabriel Kreuther", s: 2 }, { n: "Jean-Georges", s: 2 }, { n: "Joo Ok", s: 2 }, { n: "Masa", s: 2 }, { n: "odo", s: 2 }, { n: "Saga", s: 2 }, { n: "Sushi Noz", s: 2 }, { n: "The Modern", s: 2 }],
+  "Nijmegen": [{ n: "De Nieuwe Winkel", s: 2 }],
+  "Nîmes": [{ n: "Duende", s: 2 }],
+  "Noirmoutier-en-l'Île": [{ n: "La Marine", s: 3 }],
+  "Nottingham": [{ n: "Restaurant Sat Bains", s: 2 }],
+  "Nuremberg": [{ n: "Essigbrätlein", s: 2 }, { n: "etz", s: 2 }],
+  "O Grove": [{ n: "Culler de Pau", s: 2 }],
+  "Oakland": [{ n: "Commis", s: 2 }],
+  "Obernai": [{ n: "La Fourchette des Ducs", s: 2 }, { n: "Le Parc Hôtel Obernai – La Table", s: 2 }],
+  "Oetrange": [{ n: "Ma langue sourit", s: 2 }],
+  "Olot": [{ n: "Les Cols", s: 2 }],
+  "Opglabbeek": [{ n: "Slagmolen", s: 2 }],
+  "Oppeano": [{ n: "Famiglia Rana", s: 2 }],
+  "Orlando": [{ n: "Sorekara", s: 2 }],
+  "Orta San Giulio": [{ n: "Villa Crespi", s: 3 }],
+  "Osaka": [{ n: "HAJIME", s: 3 }, { n: "Kashiwaya Osaka Senriyama", s: 3 }, { n: "Taian", s: 3 }, { n: "Fujiya 1935", s: 2 }, { n: "KAHALA", s: 2 }, { n: "Koryu", s: 2 }, { n: "La Cime", s: 2 }, { n: "Miyamoto", s: 2 }, { n: "Numata", s: 2 }, { n: "Oimatsu Hisano", s: 2 }, { n: "Oryori Yamada", s: 2 }, { n: "Shunsaiten Tsuchiya", s: 2 }, { n: "Sushi Harasho", s: 2 }, { n: "Tenjimbashi Aoki", s: 2 }, { n: "Teruya", s: 2 }, { n: "Yugen", s: 2 }],
+  "Oslo": [{ n: "Maaemo", s: 3 }, { n: "Kontrast", s: 2 }],
+  "Ouches": [{ n: "Troisgros - Le Bois sans Feuilles", s: 3 }, { n: "Le Bois sans Feuilles", s: 2 }],
+  "Our": [{ n: "La Table de Maxime", s: 2 }],
+  "Overveen": [{ n: "De Bokkedoorns", s: 2 }],
+  "Paris": [{ n: "Alléno Paris au Pavillon Ledoyen", s: 3 }, { n: "Arpège", s: 3 }, { n: "Épicure", s: 3 }, { n: "Kei", s: 3 }, { n: "L'Ambroisie", s: 3 }, { n: "Le Cinq", s: 3 }, { n: "Le Gabriel", s: 3 }, { n: "Le Pré Catelan", s: 3 }, { n: "Pierre Gagnaire", s: 3 }, { n: "Plénitude - Cheval Blanc Paris", s: 3 }, { n: "Table - Bruno Verjus", s: 3 }, { n: "Blanc", s: 2 }, { n: "David Toutain", s: 2 }, { n: "L'Abysse au Pavillon Ledoyen", s: 2 }, { n: "L'Abysse Paris", s: 2 }, { n: "L'Atelier de Joël Robuchon Saint-Germain", s: 2 }, { n: "L'Oiseau Blanc", s: 2 }, { n: "L'Orangerie", s: 2 }, { n: "La Réserve Paris — Le Gabriel", s: 2 }, { n: "La Scène", s: 2 }, { n: "Le Clarence", s: 2 }, { n: "Le Jules Verne", s: 2 }, { n: "Le Meurice Alain Ducasse", s: 2 }, { n: "Le Taillevent", s: 2 }, { n: "Maison Rostang", s: 2 }, { n: "Marsan par Hélène Darroze", s: 2 }, { n: "Restaurant Guy Savoy", s: 2 }, { n: "Sushi Yoshinaga", s: 2 }, { n: "Virtus", s: 2 }],
+  "Perl": [{ n: "Victor's Fine Dining by Christian Bau", s: 3 }],
+  "Piesport": [{ n: "schanz.restaurant", s: 3 }],
+  "Plomodiern": [{ n: "L'Auberge des Glazicks", s: 2 }],
+  "Porches": [{ n: "Ocean", s: 2 }],
+  "Porto": [{ n: "Antiqvvm", s: 2 }],
+  "Porto-Vecchio": [{ n: "Casadelmar", s: 2 }],
+  "Pyla-sur-Mer": [{ n: "Le Skiff Club", s: 2 }],
+  "Québec City": [{ n: "Tanière³", s: 2 }],
+  "Québec City, Québec": [{ n: "Tanière³", s: 2 }],
+  "Ragusa": [{ n: "Duomo", s: 2 }],
+  "Raxó": [{ n: "Pepe Vieira", s: 2 }],
+  "Reijmerstok": [{ n: "Brut172", s: 2 }],
+  "Reims": [{ n: "Le Parc Les Crayères", s: 3 }, { n: "Arbane", s: 2 }, { n: "Racine", s: 2 }],
+  "Rio de Janeiro": [{ n: "Lasai", s: 2 }, { n: "Oro", s: 2 }],
+  "Roeselare": [{ n: "Boury", s: 3 }],
+  "Rome": [{ n: "La Pergola", s: 3 }, { n: "Acquolina", s: 2 }, { n: "Enoteca La Torre", s: 2 }, { n: "Il Pagliaccio", s: 2 }],
+  "Ronda": [{ n: "Bardal", s: 2 }],
+  "Rottach-Egern": [{ n: "Restaurant Überfahrt Christian Jürgens", s: 3 }, { n: "Restaurant Überfahrt", s: 2 }],
+  "Rotterdam": [{ n: "FG - François Geurds", s: 2 }, { n: "Fred", s: 2 }, { n: "Parkheuvel", s: 2 }],
+  "Rovinj": [{ n: "Agli Amici Rovinj", s: 2 }],
+  "Rubano": [{ n: "Le Calandre", s: 3 }],
+  "Runate": [{ n: "Dal Pescatore", s: 3 }],
+  "Saarbrücken": [{ n: "ESPLANADE", s: 2 }, { n: "GästeHaus Klaus Erfort", s: 2 }],
+  "Saarlouis": [{ n: "Louis Restaurant", s: 2 }],
+  "Saint-Bonnet-le-Froid": [{ n: "Régis et Jacques Marcon", s: 3 }],
+  "Saint-Émilion": [{ n: "La Table de Pavie", s: 2 }],
+  "Saint-Grégoire": [{ n: "Maison Ronan Kervarrec", s: 2 }],
+  "Saint-Martin-d'Uriage": [{ n: "Maison Aribert", s: 2 }],
+  "Saint-Martin-de-Belleville": [{ n: "La Bouitte", s: 2 }, { n: "René et Maxime Meilleur", s: 2 }],
+  "Saint-Méloir-des-Ondes": [{ n: "Le Coquillage", s: 3 }],
+  "Saint-Tropez": [{ n: "La Vague d'Or - Cheval Blanc St-Tropez", s: 3 }],
+  "Saltwood": [{ n: "hide and fox", s: 2 }],
+  "Salzburg": [{ n: "Ikarus", s: 2 }, { n: "SENNS.Restaurant", s: 2 }],
+  "San Diego": [{ n: "Addison", s: 3 }],
+  "San Francisco": [{ n: "Atelier Crenn", s: 3 }, { n: "Benu", s: 3 }, { n: "Quince", s: 3 }, { n: "Acquerello", s: 2 }, { n: "Birdsong", s: 2 }, { n: "Californios", s: 2 }, { n: "Kiln", s: 2 }, { n: "Lazy Bear", s: 2 }, { n: "Saison", s: 2 }, { n: "Sons & Daughters", s: 2 }],
+  "San Sebastián": [{ n: "Akelarre", s: 3 }, { n: "Arzak", s: 3 }, { n: "Amelia by Paulo Airaudo", s: 2 }],
+  "Sankt Ingbert": [{ n: "ATAMA by Martin Stopp", s: 2 }],
+  "Santa Comba": [{ n: "Retiro da Costiña", s: 2 }],
+  "Santa Monica": [{ n: "Mélisse", s: 2 }],
+  "São Paulo": [{ n: "D.O.M.", s: 2 }, { n: "Evvai", s: 2 }, { n: "Tuju", s: 2 }],
+  "Sarentino": [{ n: "Terra The Magic Place", s: 2 }],
+  "Savièse": [{ n: "Gilles Varone", s: 2 }],
+  "Schützen am Gebirge": [{ n: "Taubenkobel", s: 2 }],
+  "Schwyz": [{ n: "Magdalena", s: 2 }],
+  "Senigallia": [{ n: "Uliassi", s: 3 }],
+  "Seoul": [{ n: "Mingles", s: 3 }, { n: "alla prima", s: 2 }, { n: "Eatanic Garden", s: 2 }, { n: "Evett", s: 2 }, { n: "Jungsik", s: 2 }, { n: "Kwonsooksoo", s: 2 }, { n: "Mitou", s: 2 }, { n: "Restaurant Allen", s: 2 }, { n: "Soigné", s: 2 }],
+  "Serralunga d'Alba": [{ n: "La Rei Natura by Michelangelo Mammoliti", s: 3 }],
+  "Shanghai": [{ n: "Taian Table", s: 3 }, { n: "Ultraviolet by Paul Pairet", s: 3 }, { n: "Bao Li Xuan", s: 2 }, { n: "Da Vittorio", s: 2 }, { n: "Fu He Hui", s: 2 }, { n: "Imperial Treasure Fine Chinese Cuisine", s: 2 }, { n: "Ji Pin Court", s: 2 }, { n: "Maison Lameloise", s: 2 }, { n: "Meet the Bund", s: 2 }, { n: "Xin Rong Ji", s: 2 }],
+  "Simrishamn": [{ n: "VYN", s: 2 }],
+  "Singapore": [{ n: "Les Amis", s: 3 }, { n: "Odette", s: 3 }, { n: "Zén", s: 3 }, { n: "Cloudstreet", s: 2 }, { n: "Jaan by Kirk Westaway", s: 2 }, { n: "Meta", s: 2 }, { n: "Saint Pierre", s: 2 }, { n: "Shoukouwa", s: 2 }, { n: "Sushi Sakuta", s: 2 }, { n: "Thevar", s: 2 }],
+  "Sint-Kruis": [{ n: "De Jonkman", s: 2 }],
+  "Sint-Kwintens-Lennik": [{ n: "Sir Kwinten", s: 2 }],
+  "Sonoma": [{ n: "Enclos", s: 2 }],
+  "St. Anton am Arlberg": [{ n: "Gourmetrestaurant Tannenhof", s: 2 }],
+  "St. Gallen": [{ n: "Einstein Gourmet", s: 2 }],
+  "St. Moritz": [{ n: "Da Vittorio", s: 2 }, { n: "Ecco St. Moritz", s: 2 }],
+  "St. Veit im Pongau": [{ n: "Kräuterreich by Vitus Winkler", s: 2 }],
+  "Staphorst": [{ n: "De Groene Lantaarn", s: 2 }],
+  "Stavanger": [{ n: "RE-NAA", s: 3 }],
+  "Stockholm": [{ n: "Frantzén", s: 3 }, { n: "AIRA", s: 2 }, { n: "Aloë", s: 2 }],
+  "Sylt": [{ n: "KAI3", s: 2 }, { n: "Söl'ring Hof", s: 2 }],
+  "Taichung": [{ n: "JL Studio", s: 3 }],
+  "Taipei": [{ n: "Le Palais", s: 3 }, { n: "Taïrroir", s: 3 }, { n: "A", s: 2 }, { n: "Eika", s: 2 }, { n: "L'Atelier de Joël Robuchon", s: 2 }, { n: "logy", s: 2 }, { n: "Molino de Urdániz", s: 2 }, { n: "Mudan", s: 2 }, { n: "Yu Kapo", s: 2 }],
+  "Tallinn": [{ n: "180° by Matthias Diether", s: 2 }],
+  "Talloires-Montmin": [{ n: "Auberge du Père Bise — Jean Sulpice", s: 2 }, { n: "Jean Sulpice", s: 2 }, { n: "L'Auberge de Montmin", s: 2 }],
+  "Taormina": [{ n: "St. George by Heinz Beck", s: 2 }],
+  "Tarrytown": [{ n: "Blue Hill at Stone Barns", s: 2 }],
+  "Tata": [{ n: "Platán Gourmet", s: 2 }],
+  "Teisnach": [{ n: "Oswald's Gourmetstube", s: 2 }],
+  "Telese": [{ n: "Krèsios", s: 2 }],
+  "Tinqueux": [{ n: "L'Assiette Champenoise", s: 3 }],
+  "Tirolo": [{ n: "Castel fine dining", s: 2 }],
+  "Tokyo": [{ n: "Azabu Kadowaki", s: 3 }, { n: "Ginza Kitagawa", s: 3 }, { n: "Ginza Kondo", s: 3 }, { n: "Harutaka", s: 3 }, { n: "Joël Robuchon", s: 3 }, { n: "Kanda", s: 3 }, { n: "L'Effervescence", s: 3 }, { n: "Myojaku", s: 3 }, { n: "Quintessence", s: 3 }, { n: "RyuGin", s: 3 }, { n: "Sazenka", s: 3 }, { n: "Sézanne", s: 3 }, { n: "ASAHINA Gastronome", s: 2 }, { n: "Crony", s: 2 }, { n: "Den", s: 2 }, { n: "Ensui", s: 2 }, { n: "ESqUISSE", s: 2 }, { n: "Florilège", s: 2 }, { n: "Ginza Fukuju", s: 2 }, { n: "GINZA KANOH", s: 2 }, { n: "Ginza Kojyu", s: 2 }, { n: "GINZA KOKORO", s: 2 }, { n: "GINZA KOSO", s: 2 }, { n: "GINZA OISHII", s: 2 }, { n: "GINZA SHINO", s: 2 }, { n: "GINZA YABE", s: 2 }, { n: "Hakuun", s: 2 }, { n: "HOMMAGE", s: 2 }, { n: "Kioicho Fukudaya", s: 2 }, { n: "MAZ", s: 2 }, { n: "NARISAWA", s: 2 }, { n: "Nishiazabu Sushi Shin", s: 2 }, { n: "PRISMA", s: 2 }, { n: "Sukiyabashi Jiro Roppongiten", s: 2 }, { n: "Sushi Kanesaka", s: 2 }, { n: "Tempura Kondo", s: 2 }, { n: "Tempura Motoyoshi", s: 2 }],
+  "Toledo": [{ n: "Iván Cerdeño", s: 2 }],
+  "Tongerlo": [{ n: "Maison Colette", s: 2 }],
+  "Tórshavn": [{ n: "PAZ", s: 2 }],
+  "Toulouse": [{ n: "Michel Sarran", s: 2 }, { n: "Py-r", s: 2 }],
+  "Trieste": [{ n: "Harry's Piccolo", s: 2 }],
+  "Uccle": [{ n: "Le Chalet de la Forêt", s: 2 }],
+  "Urdaitz": [{ n: "El Molino de Urdániz", s: 2 }],
+  "Urla / İzmir": [{ n: "Vino Locale", s: 2 }],
+  "Val-d'Isère": [{ n: "L'Atelier d'Edmond", s: 2 }],
+  "Valencia": [{ n: "El Poblet", s: 2 }, { n: "Ricard Camarena", s: 2 }],
+  "Valletta": [{ n: "ION Harbour by Simon Rogan", s: 2 }],
+  "Vals": [{ n: "7132 Silver", s: 2 }],
+  "Venice": [{ n: "Glam Enrico Bartolini", s: 2 }],
+  "Verona": [{ n: "Casa Perbellini 12 Apostoli", s: 3 }],
+  "Veyrier-du-Lac": [{ n: "La Table de Yoann Conte", s: 2 }, { n: "Yoann Conte", s: 2 }],
+  "Vézelay": [{ n: "L'Espérance", s: 3 }],
+  "Viareggio": [{ n: "Il Piccolo Principe", s: 2 }],
+  "Vico Equense": [{ n: "Torre del Saracino", s: 2 }],
+  "Vienna": [{ n: "Amador", s: 3 }, { n: "Steirereck im Stadtpark", s: 3 }, { n: "Doubek", s: 2 }, { n: "Konstantin Filippou", s: 2 }, { n: "Mraz & Sohn", s: 2 }, { n: "Silvio Nickol Gourmet Restaurant", s: 2 }],
+  "Vienne": [{ n: "La Pyramide - Patrick Henriroux", s: 3 }],
+  "Vila Nova de Gaia": [{ n: "The Yeatman", s: 2 }],
+  "Vitznau": [{ n: "focus ATELIER", s: 2 }],
+  "Vonnas": [{ n: "Georges Blanc", s: 2 }],
+  "Vysoký Újezd": [{ n: "Papilio", s: 2 }],
+  "Waalre": [{ n: "De Treeswijkhoeve", s: 2 }],
+  "Wachenheim an der Weinstraße": [{ n: "Intense", s: 2 }],
+  "Washington": [{ n: "Jônt", s: 2 }],
+  "Weissenhaus": [{ n: "Courtier", s: 2 }],
+  "Werfen": [{ n: "Obauer", s: 2 }],
+  "Wernigerode": [{ n: "Pietsch", s: 2 }],
+  "West Hollywood": [{ n: "Somni", s: 3 }],
+  "Wigoltingen": [{ n: "Taverne zum Schäfli", s: 2 }],
+  "Wingen-sur-Moder": [{ n: "Villa René Lalique", s: 2 }],
+  "Wirsberg": [{ n: "Alexander Herrmann by Tobias Bätz", s: 2 }],
+  "Xàbia": [{ n: "BonAmb", s: 2 }],
+  "Yountville": [{ n: "The French Laundry", s: 3 }],
+  "Zurich": [{ n: "IGNIV Zürich by Andreas Caminada", s: 2 }, { n: "The Counter", s: 2 }, { n: "The Restaurant", s: 2 }, { n: "Widder Restaurant", s: 2 }],
+  "Zwolle": [{ n: "De Librije", s: 3 }],
 };
 const TOURS = {
   "New York City": [["Broadway show & premium seats", 260, "A current hit with prime orchestra seats arranged."], ["The Met private highlights", 190, "Two hours of masterpieces with an art historian."], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air."], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
@@ -1314,7 +1825,34 @@ function seeded(seed) { const x = Math.sin(seed) * 10000; return x - Math.floor(
 function round5(n) { return Math.round(n / 5) * 5; }
 const fmt = (n) => "$" + Math.round(n || 0).toLocaleString();
 const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
-function lookup(map, city) { if (!city) return null; city = bareCity(city); if (map[city]) return map[city]; const k = Object.keys(map).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? map[k] : null; }
+// Common ways a city gets typed → the canonical key our data is filed under. Keeps "NYC",
+// "New York", "New York, NY" all resolving to "New York City", and the like.
+const CITY_ALIASES = {
+  "new york": "New York City", "nyc": "New York City", "manhattan": "New York City", "new york ny": "New York City",
+  "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
+  "sf": "San Francisco", "san fran": "San Francisco",
+  "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
+  "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
+  "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos",
+  "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island",
+  "como": "Lake Como", "firenze": "Florence", "venezia": "Venice", "roma": "Rome", "milano": "Milan", "napoli": "Naples",
+  "wien": "Vienna", "munchen": "Munich", "münchen": "Munich", "geneve": "Geneva", "genève": "Geneva",
+  "marrakesh": "Marrakech", "cdmx": "Mexico City", "rio": "Rio de Janeiro", "sao paulo": "São Paulo",
+  "st moritz": "St Moritz", "saint moritz": "St Moritz",
+};
+function lookup(map, city) {
+  if (!city) return null;
+  const raw = bareCity(city);
+  if (map[raw]) return map[raw];
+  const c = raw.toLowerCase();
+  let k = Object.keys(map).find((x) => x.toLowerCase() === c);
+  if (k) return map[k];
+  const base = c.split(",")[0].trim(); // "New York, NY" → "new york"
+  const al = CITY_ALIASES[c] || CITY_ALIASES[base];
+  if (al && map[al]) return map[al];
+  if (base !== c) { k = Object.keys(map).find((x) => x.toLowerCase() === base); if (k) return map[k]; }
+  return null;
+}
 function regionStops(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(REGION_STOPS).find((x) => x.toLowerCase() === r); return k ? REGION_STOPS[k] : []; }
 function sameCity(a, b) { return !!(a && b && bareCity(a).toLowerCase() === bareCity(b).toLowerCase()); }
 // Whether a place is in the United States. This used to be a fifteen-city list, so
@@ -3830,32 +4368,94 @@ function HotelPicker({ city, nights, pick, upd }) {
       onPick={(r, sel) => upd({ stay: sel ? null : { level: tierOf(r.name), name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null, site: r.site || null } })} />}
   </>);
 }
+// A restaurant's photo, blurb and site come live from the app's places source, by name — same as
+// the hotels. We add the Michelin distinction ourselves; we never invent a description.
+const DINE_PHOTO_CACHE = {};
+function useDineInfo(city, name) {
+  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+  const [info, setInfo] = useState(DINE_PHOTO_CACHE[key]);
+  useEffect(() => {
+    if (!city || !name) return;
+    if (DINE_PHOTO_CACHE[key] !== undefined) { setInfo(DINE_PHOTO_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/places?kind=restaurants&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, desc: (m && m.desc) || null, rating: (m && m.rating) || null }; DINE_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { DINE_PHOTO_CACHE[key] = { photo: null, site: null, desc: null, rating: null }; if (!dead) setInfo({ photo: null, site: null, desc: null, rating: null }); });
+    return () => { dead = true; };
+  }, [key]);
+  return info || { photo: null, site: null, desc: null, rating: null };
+}
+// The restaurant tile — photo, Michelin stars, name, neighbourhood. Selected, it opens up with the
+// blurb, a reserve link, and the "which evening" picker.
+function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
+  const info = useDineInfo(city, r.n);
+  const photo = info.photo;
+  const site = info.site;
+  const [broken, setBroken] = useState(false);
+  const sel = !!found;
+  const showImg = photo && !broken;
+  const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 40%" : "none", height: sel ? "auto" : 150, minHeight: sel ? 190 : 150, overflow: "hidden" };
+  return (<div role="button" tabIndex={0} onClick={onToggle} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
+    style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+    <div style={photoBox}>
+      {showImg
+        ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 190 : 150, color: t.inkFaint, fontFamily: font.display, fontSize: 15, padding: 12, textAlign: "center" }}>{r.n}</div>}
+      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(34,29,25,.62)", color: t.brassLight, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", padding: "4px 9px", borderRadius: 999 }}>{"★".repeat(r.s)} Michelin</span>
+    </div>
+    <div style={{ padding: "13px 15px 15px", flex: 1, minWidth: 0 }}>
+      <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
+      <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {r.city}</div>
+      {sel ? (<>
+        {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
+        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, fontSize: 12.5, color: t.pineSoft, textDecoration: "none" }}>Visit site / reserve →</a> : null}
+        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which evening?" /></div>
+      </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap to add →</div>}
+    </div>
+  </div>);
+}
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
-  const [level, setLevel] = useState("");
+  // Michelin mode where we have the data (Destination = starred); otherwise the old browse.
+  const mich = lookup(DINING, city);
+  const michMode = !!(mich && mich.length);
+  const [level, setLevel] = useState(michMode ? "Destination" : "");
   const remote = useRemote("restaurants", city);
-  const live = !!remote.items;
-  const rows = level ? (live ? (remote.items[level] || []) : (dineData(city)[level] || []).map(([name, price, desc]) => ({ name, price, desc, level }))) : [];
+  const live = !michMode && !!remote.items;
+  const tiers = michMode ? DINE_TIERS : DINE_LEVELS;
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
+  const michRows = michMode && level ? mich.filter((m) => michTier(m.s) === level) : [];
+  const liveRows = !michMode && level ? (live ? (remote.items[level] || []) : (dineData(city)[level] || []).map(([name, price, desc]) => ({ name, price, desc, level }))) : [];
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {DINE_LEVELS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
-      <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
+      {tiers.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
+      {michMode ? <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Michelin</span> : <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>}
     </div>
-    {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-    {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
-    {level && rows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
-    {rows.map((r, k) => {
-      const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
-      const pp = live ? (r.estRate || null) : r.price;
-      return (<div key={r.id || k}>
-        <PlaceRow item={r} selected={!!found} onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
-          sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
-        {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.name, level, dt)} label={dayLabel || "Which evening?"} />}
-      </div>);
-    })}
-    {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
+    {michMode ? (<>
+      {michRows.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Standout" ? `Bib Gourmand & recommended tables for ${bareCity(city)} are coming in the next batch.` : `No ${level} restaurants on our list for ${bareCity(city)} yet.`}</div>}
+      {michRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+        {michRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
+          <DineCard key={k} r={r} city={city} level={level} found={found}
+            onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
+            onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
+      </div>}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables · photo and reservation live. We book on your behalf.</div>
+    </>) : (<>
+      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
+      {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
+      {level && liveRows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
+      {liveRows.map((r, k) => {
+        const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
+        const pp = live ? (r.estRate || null) : r.price;
+        return (<div key={r.id || k}>
+          <PlaceRow item={r} selected={!!found} onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
+            sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
+          {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.name, level, dt)} label={dayLabel || "Which evening?"} />}
+        </div>); })}
+      {live && liveRows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
+    </>)}
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
