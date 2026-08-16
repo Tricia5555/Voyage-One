@@ -34,6 +34,10 @@ const t = {
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
 const LEVELS = ["UltraLux", "Luxury"];
+// Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
+// (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
+// hotel reads "Rate on request" until then. Flip to true once real, dated rates flow.
+const SHOW_RATES = false;
 // THE ULTRA LUXURY CANON — Tricia's definitive worldwide list (see project doc
 // claude/ultra-lux-worldwide-standard.md). Membership here is the tier rule: a hotel that
 // matches this list is Ultra Luxury; every other hotel, in every city, is Luxury. Matching is
@@ -191,6 +195,34 @@ function isUltraLux(name) {
   return false;
 }
 function tierOf(name) { return isUltraLux(name) ? "UltraLux" : "Luxury"; }
+// Do two hotel names refer to the same property? Tolerates Google inserting words in the middle
+// ("Four Seasons Hotel London at Tower Bridge" == "Four Seasons Tower Bridge") — used to de-dupe
+// the live feed against our curated picks.
+function nameMatch(n1, n2) {
+  const a = ulxAlnum(n1), b = ulxAlnum(n2);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.length >= 6 && b.indexOf(a) >= 0) return true;
+  if (b.length >= 6 && a.indexOf(b) >= 0) return true;
+  const ta = ulxTokens(n1), tb = ulxTokens(n2);
+  if (ta.length >= 2 && tb.length >= 2) {
+    const sb = {}; tb.forEach((w) => sb[w] = 1);
+    if (ta.every((w) => sb[w])) return true;
+    const sa = {}; ta.forEach((w) => sa[w] = 1);
+    if (tb.every((w) => sa[w])) return true;
+  }
+  return false;
+}
+// Mass-market chains that have no place in a luxury app. Their genuine ultra sub-brands
+// (Ritz-Carlton, St Regis, Waldorf, Conrad, Bulgari…) have different names and are unaffected.
+const CHAIN_RE = /\b(hilton|hampton|doubletree|embassy suites|garden inn|marriott|courtyard|four points|fairfield|residence inn|springhill|sheraton|le meridien|holiday inn|intercontinental|crowne plaza|voco|indigo|ibis|novotel|mercure|pullman|radisson|park plaza|park inn|premier inn|travelodge|best western|wyndham|ramada|days inn|comfort inn|hyatt place|hyatt regency|motel|leonardo|jurys inn|clayton|ihg|ruby|melia|nh hotel|nh collection|scandic|citizenm|point a|z hotel|montcalm|apex|hub by)\b/i;
+// A live-feed hotel is a luxury candidate only if it isn't a sub-5-star property or a mass chain.
+function isLuxeCandidate(item) {
+  if (!item) return false;
+  if (item.stars != null && item.stars < 5) return false;
+  if (CHAIN_RE.test(item.name || "")) return false;
+  return true;
+}
 // Restaurants get their own, more foodie ladder — and unlike hotels we happily include a great
 // inexpensive find. The labels are what the client sees; the keys map to the underlying data.
 const DINE_LEVELS = [
@@ -3643,9 +3675,10 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
       {state.matches.map((r, k) => {
         const sel = selectedName && selectedName === r.name;
         const per = r.estRate || null;
+        const priceBit = kind === "hotels" ? (SHOW_RATES && per ? "~" + fmt(per) + "/night est." : "Rate on request") : "~" + fmt(per) + "/person est.";
         return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
-          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ~${fmt(per)}${kind === "hotels" ? "/night est." : "/person est."}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
-          price={kind === "hotels" && nights ? fmt((per || 0) * nights) : fmt(per)} />;
+          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ${priceBit}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
+          price={kind === "hotels" ? (SHOW_RATES && per && nights ? fmt(per * nights) : "") : fmt(per)} />;
       })}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · the level shown is our own reading of price band and reputation.</div>
     </div>)}
@@ -3677,18 +3710,21 @@ function useHotelInfo(city, name) {
     let dead = false;
     fetch(`/api/places?kind=hotels&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
-      .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null }; if (!dead) setInfo({ photo: null, site: null }); });
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, rating: (m && m.rating) || null, reviews: (m && m.reviews) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null, rating: null, reviews: null }; if (!dead) setInfo({ photo: null, site: null, rating: null, reviews: null }); });
     return () => { dead = true; };
   }, [key]);
-  return info || { photo: null, site: null };
+  return info || { photo: null, site: null, rating: null, reviews: null };
 }
 // The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
 // opens up — bigger photo, our take, and the contacts.
 function FavHotelCard({ s, city, cur, sel, onClick }) {
-  const info = useHotelInfo(city, s.name);
-  const photo = info.photo;
-  const site = info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
+  // way the presentation is identical — one card for every hotel.
+  const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
+  const photo = s.photo || info.photo;
+  const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  const rating = s.rating || info.rating;
   const tier = tierOf(s.name);
   const [broken, setBroken] = useState(false);
   const showImg = photo && !broken;
@@ -3699,11 +3735,12 @@ function FavHotelCard({ s, city, cur, sel, onClick }) {
         ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
       <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</span>
+      {rating ? <span style={{ position: "absolute", top: 10, right: 10, background: "rgba(34,29,25,.6)", color: t.brassLight, fontSize: 11, fontWeight: 500, padding: "4px 9px", borderRadius: 999 }}>★ {rating}</span> : null}
     </div>
     <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}</div>
       {s.area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.area}</div> : null}
-      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
+      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
@@ -3726,9 +3763,15 @@ function HotelPicker({ city, nights, pick, upd }) {
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
-  // Show our curated picks AND the live feed for this tier (deduped) — so Luxury is never cut short.
-  const favSet = {}; levelFavs.forEach((s) => { favSet[ulxAlnum(s.name)] = 1; });
-  const liveRows = rows.filter((r) => r.name && !favSet[ulxAlnum(r.name)]);
+  // Show our curated picks AND the live feed for this tier — but strip duplicates of our picks,
+  // repeat live entries, sub-5-star properties, and mass-market chains, so the list stays luxury.
+  const seenLive = {};
+  const liveRows = rows.filter((r) => {
+    const a = ulxAlnum(r.name); if (!a) return false;
+    if (seenLive[a]) return false; seenLive[a] = 1;
+    if (!isLuxeCandidate(r)) return false;
+    return !levelFavs.some((f) => nameMatch(r.name, f.name));
+  });
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
@@ -3743,20 +3786,19 @@ function HotelPicker({ city, nights, pick, upd }) {
           <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} />); })}
       </div>
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose. Rates are the direct rate where shown, indicative otherwise — we confirm and book on your behalf.</div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose — we confirm the rate and book direct on your behalf.</div>
     </>)}
     {level && (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
       {!remote.loading && levelFavs.length === 0 && liveRows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No Ultra Luxury hotel on our list for ${bareCity(city) || "this city"} yet.` : `More ${lbl(level)} options for ${bareCity(city) || "this city"} are on the way.`}</div>}
       {liveRows.length > 0 && (<>
         {levelFavs.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More {lbl(level)} in {bareCity(city)}</div>}
-        {liveRows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
-          return (<div key={r.id || k}>
-            <PlaceRow item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level: tierOf(r.name), name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null, site: r.site || null } })}
-              sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />
-            {sel && r.site ? <a href={brandedLink(r.site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "0 0 10px 8px", color: t.pineSoft, fontSize: 12.5, textDecoration: "none" }}>Book direct at {r.name} →</a> : null}
-          </div>); })}
-        {live && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings are real; nightly rate is an estimate until booking is connected.</div>}
+        <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+          {liveRows.map((r, k) => { const c = { name: r.name, area: r.band || null, rate: null, ourTake: r.desc || null, contact: null, photo: r.photo || null, site: r.site || null, rating: r.rating || null }; const sel = pick.stay && pick.stay.name === c.name; return (
+            <FavHotelCard key={r.id || k} s={c} city={city} cur={favCur} sel={!!sel}
+              onClick={() => upd({ stay: sel ? null : { level: tierOf(c.name), name: c.name, nightly: null, band: c.area || null, estimated: true, id: r.id || null, site: c.site || null } })} />); })}
+        </div>
+        {live && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Powered by Google · ratings are real; we confirm the rate and book direct on your behalf.</div>}
       </>)}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
