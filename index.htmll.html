@@ -34,6 +34,10 @@ const t = {
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
 const LEVELS = ["UltraLux", "Luxury"];
+// Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
+// (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
+// hotel reads "Rate on request" until then. Flip to true once real, dated rates flow.
+const SHOW_RATES = false;
 // THE ULTRA LUXURY CANON — Tricia's definitive worldwide list (see project doc
 // claude/ultra-lux-worldwide-standard.md). Membership here is the tier rule: a hotel that
 // matches this list is Ultra Luxury; every other hotel, in every city, is Luxury. Matching is
@@ -285,6 +289,19 @@ const FAVORITES = {
     { name: "The Stafford London", area: "St James's", tier: "Luxury", rate: 790, ourTake: "A hidden gem down a cobbled cul-de-sac — the American Bar, a country-house calm by the Palace.", contact: { addr: "16–18 St James's Place, London SW1A 1NJ", tel: "+44 20 7493 0111", web: "thestaffordlondon.com" } },
     { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", tier: "Luxury", rate: null, ourTake: "Quietly perfect in Chelsea — a Michelin table and gardens at the door, closest of the group to SW19.", contact: { addr: "75 Sloane Street, Chelsea, London SW1X 9SG", web: "belmond.com" } },
     { name: "The Goring", area: "Belgravia", tier: "Luxury", rate: null, ourTake: "The last family-owned grand hotel, beloved by the Palace — impeccably English, with its own garden.", contact: { addr: "15 Beeston Place, Belgravia, London SW1W 0JW", web: "thegoring.com" } },
+    { name: "The Emory", area: "Knightsbridge", tier: "UltraLux", rate: null, ourTake: "Maybourne's all-suite newcomer — the group's most private London address, above Hyde Park.", contact: { addr: "Old Barrack Yard, London SW1X 7NP", web: "the-emory.co.uk" } },
+    { name: "The Dorchester", area: "Park Lane", tier: "UltraLux", rate: null, ourTake: "The Park Lane grande dame, freshly restored — gilded, grand, unmistakably London.", contact: { addr: "53 Park Lane, London W1K 1QA", web: "dorchestercollection.com" } },
+    { name: "45 Park Lane", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The Dorchester's design-led sibling, every room facing Hyde Park — Wolfgang Puck's CUT downstairs.", contact: { addr: "45 Park Lane, London W1K 1PN", web: "dorchestercollection.com" } },
+    { name: "Bulgari Hotel London", area: "Knightsbridge", tier: "UltraLux", rate: null, ourTake: "Jewel-box Italian glamour in Knightsbridge, with one of the finest spas in the city.", contact: { addr: "171 Knightsbridge, London SW7 1DW", web: "bulgarihotels.com" } },
+    { name: "Mandarin Oriental Hyde Park", area: "Knightsbridge", tier: "UltraLux", rate: null, ourTake: "The park-side legend — Dinner by Heston, and a spa looking straight over the greenery.", contact: { addr: "66 Knightsbridge, London SW1X 7LA", web: "mandarinoriental.com" } },
+    { name: "Mandarin Oriental Mayfair", area: "Hanover Square", tier: "UltraLux", rate: null, ourTake: "The brand's sleek 2025 Mayfair debut on Hanover Square — the newest way to stay in the heart of it.", contact: { addr: "22 Hanover Square, London W1S 1JP", web: "mandarinoriental.com" } },
+    { name: "The Lanesborough", area: "Hyde Park Corner", tier: "UltraLux", rate: null, ourTake: "Oetker's Regency palace at Hyde Park Corner — Céleste under the glass dome, butlers for every suite.", contact: { addr: "Hyde Park Corner, London SW1X 7TA", web: "oetkercollection.com" } },
+    { name: "Four Seasons Tower Bridge", area: "The City", tier: "UltraLux", rate: null, ourTake: "A Beaux-Arts landmark at Ten Trinity Square by the Tower, with a rooftop over the river.", contact: { addr: "10 Trinity Square, London EC3N 4AJ", web: "fourseasons.com/tentrinity" } },
+    { name: "Rosewood London", area: "Holborn", tier: "Luxury", rate: null, ourTake: "Edwardian courtyard grandeur — the Mirror Room and a grand-staircase sense of arrival.", contact: { addr: "252 High Holborn, London WC1V 7EN", web: "rosewoodhotels.com" } },
+    { name: "Brown's Hotel", area: "Mayfair", tier: "Luxury", rate: null, ourTake: "Rocco Forte's — London's oldest hotel, quietly grand on Albemarle Street.", contact: { addr: "33 Albemarle Street, Mayfair, London W1S 4BP", web: "roccofortehotels.com" } },
+    { name: "The Beaumont", area: "Mayfair", tier: "Luxury", rate: null, ourTake: "An Art Deco jewel off Grosvenor Square, with a members'-bar hush.", contact: { addr: "Brown Hart Gardens, Mayfair, London W1K 6TF", web: "thebeaumont.com" } },
+    { name: "Corinthia London", area: "Whitehall", tier: "Luxury", rate: null, ourTake: "A modern palace by the river with one of the city's great spas.", contact: { addr: "10 Whitehall Place, London SW1A 2BD", web: "corinthia.com" } },
+    { name: "Hotel Café Royal", area: "Regent Street", tier: "Luxury", rate: null, ourTake: "A Regent Street landmark with the Akasha spa and a glittering past.", contact: { addr: "68 Regent Street, London W1B 4DY", web: "hotelcaferoyal.com" } },
   ],
   "Venice": [
     { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
@@ -301,6 +318,485 @@ const FAVORITES = {
     { name: "Cap Estel", area: "Èze-sur-Mer", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
     { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
     { name: "La Réserve de Beaulieu", area: "Beaulieu", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
+  ],
+  // ——— WORLDWIDE ULTRA LUXURY ROLLOUT — sourced from the canon (claude/ultra-lux-worldwide-standard.md).
+  // Every entry here is on the Ultra Luxury list, so each city's Ultra tab shows exactly these; the
+  // Luxury tab falls back to the live feed. Rates left null (shown "Rate on request") until real ones
+  // are wired. Photos and book-direct links load live by name.
+  "Lake Como": [
+    { name: "Passalacqua", area: "Moltrasio", rate: null, ourTake: "The most coveted address on the lake — an 18th-century villa above the water, all gardens and grandeur." },
+    { name: "Grand Hotel Tremezzo", area: "Tremezzo", rate: null, ourTake: "Art Nouveau grande dame with a floating pool on the lake and Bellagio in view." },
+    { name: "Villa d'Este", area: "Cernobbio", rate: null, ourTake: "The legendary Renaissance villa and gardens — old-world glamour, unchanged and unbeaten." },
+    { name: "Mandarin Oriental Lago di Como", area: "Blevio", rate: null, ourTake: "A sleek lakeside retreat across the water, with a floating pool and a Michelin table." },
+  ],
+  "Florence": [
+    { name: "Four Seasons Hotel Firenze", area: "Florence", rate: null, ourTake: "A Renaissance palazzo wrapped around the city's largest private garden." },
+    { name: "Villa San Michele", area: "Fiesole", rate: null, ourTake: "A 15th-century monastery on a Fiesole hill with an infinity pool over Florence." },
+  ],
+  "Tuscany": [
+    { name: "Rosewood Castiglion del Bosco", area: "Montalcino", rate: null, ourTake: "A 5,000-acre estate in Val d'Orcia with its own Brunello vineyards and golf." },
+    { name: "Borgo Santo Pietro", area: "Chiusdino", rate: null, ourTake: "A romantic farm-to-table hideaway with a celebrated kitchen garden." },
+    { name: "Hotel Il Pellicano", area: "Porto Ercole", rate: null, ourTake: "The chic seaside icon of the Argentario, dolce-vita glamour by the rocks." },
+    { name: "Reschio", area: "Umbria border", rate: null, ourTake: "A 1,000-year-old castle estate, exquisitely restored — a world unto itself." },
+  ],
+  "Rome": [
+    { name: "Hotel de Russie", area: "Piazza del Popolo", rate: null, ourTake: "A Rocco Forte grande dame with the city's most beautiful secret garden." },
+    { name: "Bulgari Hotel Roma", area: "Via Condotti", rate: null, ourTake: "Jewel-box Italian glamour steps from the Spanish Steps, with a rooftop over the rooftops." },
+    { name: "Hotel Eden", area: "Via Veneto", rate: null, ourTake: "A Dorchester Collection classic with the finest rooftop panorama in Rome." },
+    { name: "Six Senses Rome", area: "Historic centre", rate: null, ourTake: "A wellness-led palazzo by the Trevi, with Roman baths reborn." },
+    { name: "Portrait Roma", area: "Via Condotti", rate: null, ourTake: "Ferragamo's chic rooftop suites above the fashion streets." },
+    { name: "Hassler Roma", area: "Spanish Steps", rate: null, ourTake: "The family-owned legend crowning the Spanish Steps, with Imàgo above." },
+  ],
+  "Positano": [
+    { name: "Il San Pietro di Positano", area: "Positano", rate: null, ourTake: "Bougainvillea terraces cut into the cliff, with a lift to a private beach." },
+    { name: "Le Sirenuse", area: "Positano", rate: null, ourTake: "The cliffside icon, family-run since 1951, with a Michelin terrace." },
+  ],
+  "Ravello": [
+    { name: "Caruso, a Belmond Hotel", area: "Ravello", rate: null, ourTake: "An infinity pool that spills toward the sea, a thousand feet up." },
+  ],
+  "Amalfi": [
+    { name: "Borgo Santandrea", area: "Amalfi", rate: null, ourTake: "A design-led cliff hotel with its own beach club on the water." },
+  ],
+  "Amalfi Coast": [
+    { name: "Il San Pietro di Positano", area: "Positano", rate: null, ourTake: "Bougainvillea terraces cut into the cliff, with a lift to a private beach." },
+    { name: "Le Sirenuse", area: "Positano", rate: null, ourTake: "The cliffside icon, family-run since 1951, with a Michelin terrace." },
+    { name: "Caruso, a Belmond Hotel", area: "Ravello", rate: null, ourTake: "An infinity pool that spills toward the sea, a thousand feet up." },
+    { name: "Borgo Santandrea", area: "Amalfi", rate: null, ourTake: "A design-led cliff hotel with its own beach club on the water." },
+  ],
+  "Taormina": [
+    { name: "San Domenico Palace Taormina", area: "Taormina", rate: null, ourTake: "A former convent on the cliff — the Four Seasons of 'White Lotus' fame, with Etna in view." },
+    { name: "Villa Sant'Andrea, a Belmond Hotel", area: "Taormina Mare", rate: null, ourTake: "A garden villa right on the bay at Mazzarò, steps from the sea." },
+  ],
+  "Puglia": [
+    { name: "Borgo Egnazia", area: "Savelletri", rate: null, ourTake: "A village-like resort in whitewashed stone, with golf, spa and a private beach." },
+  ],
+  "Dolomites": [
+    { name: "Aman Rosa Alpina", area: "San Cassiano", rate: null, ourTake: "The Alta Badia legend, reborn as an Aman — alpine luxury at the foot of the peaks." },
+  ],
+  "St Moritz": [
+    { name: "Badrutt's Palace", area: "St Moritz", rate: null, ourTake: "The turreted alpine icon over the lake — where the winter season was invented." },
+    { name: "Kulm Hotel St Moritz", area: "St Moritz", rate: null, ourTake: "The original St Moritz grand hotel, with its own Olympic history and skating." },
+  ],
+  "Gstaad": [
+    { name: "The Alpina Gstaad", area: "Gstaad", rate: null, ourTake: "A modern chalet masterpiece above the village, with a Six Senses spa." },
+    { name: "Gstaad Palace", area: "Gstaad", rate: null, ourTake: "The family-owned fairy-tale castle crowning Gstaad since 1913." },
+  ],
+  "Zurich": [
+    { name: "Baur au Lac", area: "Zurich", rate: null, ourTake: "The discreet lakeside grande dame in its own park, family-run since 1844." },
+  ],
+  "Geneva": [
+    { name: "La Réserve Genève", area: "Bellevue", rate: null, ourTake: "A lakeside resort-and-spa retreat with a Garrell-designed safari-lodge feel." },
+    { name: "Four Seasons Hotel des Bergues Geneva", area: "Old Town", rate: null, ourTake: "Geneva's oldest grand hotel, on the lake by the Old Town." },
+    { name: "The Woodward Geneva", area: "Lakefront", rate: null, ourTake: "An all-suite Oetker jewel on the water, with a Guerlain spa." },
+  ],
+  "Vienna": [
+    { name: "Hotel Sacher Wien", area: "Opera", rate: null, ourTake: "The red-velvet imperial institution behind the Opera — home of the Sachertorte." },
+    { name: "Rosewood Vienna", area: "Petersplatz", rate: null, ourTake: "A polished new address on a quiet square in the historic heart." },
+    { name: "Hotel Imperial Vienna", area: "Ringstrasse", rate: null, ourTake: "A former palace on the Ring, the grandest of Habsburg grandeur." },
+  ],
+  "Munich": [
+    { name: "Rosewood Munich", area: "Old Town", rate: null, ourTake: "A former royal bank and palais, reborn with quiet Bavarian elegance." },
+    { name: "Mandarin Oriental Munich", area: "Old Town", rate: null, ourTake: "An intimate landmark with a rooftop pool over the rooftops." },
+  ],
+  "Baden-Baden": [
+    { name: "Brenners Park-Hotel & Spa Baden-Baden", area: "Lichtentaler Allee", rate: null, ourTake: "The grand spa-town institution in its own park, with a legendary medical spa." },
+  ],
+  "Madrid": [
+    { name: "Mandarin Oriental Ritz Madrid", area: "Retiro", rate: null, ourTake: "The belle-époque icon by the Prado, restored to jewel-box splendour." },
+    { name: "Four Seasons Hotel Madrid", area: "Sol", rate: null, ourTake: "Seven historic buildings reborn with a rooftop pool in the heart of the city." },
+  ],
+  "Marbella": [
+    { name: "Marbella Club", area: "Golden Mile", rate: null, ourTake: "The original Costa del Sol legend — beachfront bungalows and old-world glamour." },
+    { name: "Finca Cortesin", area: "Casares", rate: null, ourTake: "A vast Andalusian estate with championship golf and one of Europe's great spas." },
+  ],
+  "Mallorca": [
+    { name: "Cap Rocat", area: "Cala Blava", rate: null, ourTake: "A former military fortress on the sea, transformed into a dramatic private hideaway." },
+    { name: "La Residencia, a Belmond Hotel", area: "Deià", rate: null, ourTake: "Two manor houses in the artists' village of Deià, gardens tumbling to the coast." },
+  ],
+  "Douro Valley": [
+    { name: "Six Senses Douro Valley", area: "Lamego", rate: null, ourTake: "A 19th-century manor over the terraced vineyards, wellness and wine in equal measure." },
+  ],
+  "Comporta": [
+    { name: "Sublime Comporta", area: "Comporta", rate: null, ourTake: "Barefoot-chic cabanas among the rice paddies and pines, near wild Atlantic beaches." },
+  ],
+  "Athens": [
+    { name: "Four Seasons Astir Palace Athens", area: "Vouliagmeni", rate: null, ourTake: "A pine-clad peninsula on the Riviera with three private beaches, half an hour from the Acropolis." },
+    { name: "One&Only Aesthesis", area: "Glyfada", rate: null, ourTake: "A rare beachfront estate on the Athens Riviera, secluded among the pines." },
+  ],
+  "Porto Heli": [
+    { name: "Amanzoe", area: "Porto Heli", rate: null, ourTake: "A hilltop acropolis of marble pavilions above the Peloponnese coast." },
+  ],
+  "Kea": [
+    { name: "One&Only Kéa Island", area: "Kea", rate: null, ourTake: "A serene Cycladic hideaway on an under-the-radar island, all sea and quiet." },
+  ],
+  "Costa Navarino": [
+    { name: "Mandarin Oriental Costa Navarino", area: "Messinia", rate: null, ourTake: "A beachfront sanctuary on the unspoiled Messinian coast, with dune-framed golf." },
+  ],
+  "Ireland": [
+    { name: "Adare Manor", area: "Adare", rate: null, ourTake: "A neo-Gothic manor on 840 acres, host to the Ryder Cup — Ireland's grandest stay." },
+    { name: "Ballyfin", area: "Laois", rate: null, ourTake: "A Regency demesne of just twenty rooms, the finest country-house hotel in Ireland." },
+    { name: "Ashford Castle", area: "Cong", rate: null, ourTake: "An 800-year-old castle on Lough Corrib — falconry, boats and true grandeur." },
+  ],
+  "England": [
+    { name: "Cliveden House", area: "Berkshire", rate: null, ourTake: "A stately National Trust mansion above the Thames, all history and grand terraces." },
+    { name: "Heckfield Place", area: "Hampshire", rate: null, ourTake: "A Georgian family home on a working farm estate — quietly, impeccably done." },
+    { name: "Gleneagles", area: "Perthshire", rate: null, ourTake: "The glamorous Highland sporting estate — golf, gundogs and a grand hotel." },
+    { name: "The Newt in Somerset", area: "Somerset", rate: null, ourTake: "A cider-and-gardens estate hotel, one of Britain's most talked-about country stays." },
+  ],
+  "Marrakech": [
+    { name: "Royal Mansour Marrakech", area: "Medina", rate: null, ourTake: "A palace of private riads built by the King — the pinnacle of Moroccan craft." },
+    { name: "La Mamounia", area: "Medina", rate: null, ourTake: "The legendary garden palace, Churchill's favourite, unmatched for grandeur." },
+    { name: "Amanjena", area: "Palmeraie", rate: null, ourTake: "A serene ochre oasis of pavilions and pools beyond the city walls." },
+    { name: "Mandarin Oriental Marrakech", area: "Palmeraie", rate: null, ourTake: "Private villas among olive groves and rose gardens, the Atlas on the horizon." },
+    { name: "The Oberoi Marrakech", area: "Palmeraie", rate: null, ourTake: "Andalusian-Moorish splendour on twenty-eight acres of gardens and water." },
+  ],
+  "Dubai": [
+    { name: "Bulgari Resort Dubai", area: "Jumeira Bay", rate: null, ourTake: "An Italian-designed island resort with its own marina and yacht-club glamour." },
+    { name: "Burj Al Arab", area: "Jumeirah", rate: null, ourTake: "The sail-shaped icon — all-suite, gold-leafed, unapologetically spectacular." },
+    { name: "One&Only One Za'abeel", area: "Downtown", rate: null, ourTake: "A sky-bridge landmark with the world's longest cantilever and destination dining." },
+    { name: "One&Only The Palm", area: "Palm Jumeirah", rate: null, ourTake: "An intimate, low-rise beach retreat at the tip of the Palm." },
+    { name: "Mandarin Oriental Jumeira", area: "Jumeira", rate: null, ourTake: "A contemporary beachfront resort minutes from the city, all sea and light." },
+    { name: "Atlantis The Royal", area: "Palm Jumeirah", rate: null, ourTake: "The showstopping newcomer — sky pools, celebrity chefs, pure spectacle." },
+  ],
+  "Abu Dhabi": [
+    { name: "Emirates Palace Mandarin Oriental", area: "Corniche", rate: null, ourTake: "A domed palace on its own beach, gold and grandeur at national scale." },
+  ],
+  "Red Sea": [
+    { name: "Nujuma, a Ritz-Carlton Reserve", area: "Blue Hole", rate: null, ourTake: "An overwater sanctuary in Saudi's pristine Red Sea archipelago." },
+    { name: "Six Senses Southern Dunes", area: "The Red Sea", rate: null, ourTake: "A desert-dune wellness retreat inspired by ancient Nabataean design." },
+    { name: "Desert Rock", area: "The Red Sea", rate: null, ourTake: "Villas carved into a hidden mountain valley — architecture as landscape." },
+    { name: "Four Seasons Resort and Residences Red Sea at Shura Island", area: "Shura Island", rate: null, ourTake: "A dolphin-shaped island resort on the new Red Sea coast." },
+  ],
+  "Udaipur": [
+    { name: "The Oberoi Udaivilas", area: "Lake Pichola", rate: null, ourTake: "A palace on the lake, regularly named the best hotel in the world." },
+    { name: "The Leela Palace Udaipur", area: "Lake Pichola", rate: null, ourTake: "A lakeside palace with every room facing the City Palace across the water." },
+  ],
+  "Agra": [
+    { name: "The Oberoi Amarvilas", area: "Taj Mahal", rate: null, ourTake: "Every room framing the Taj Mahal, six hundred metres away." },
+  ],
+  "Jaipur": [
+    { name: "Rambagh Palace", area: "Jaipur", rate: null, ourTake: "The former Maharaja's palace, all marble corridors and peacock gardens." },
+  ],
+  "Jodhpur": [
+    { name: "Umaid Bhawan Palace", area: "Jodhpur", rate: null, ourTake: "A vast Art Deco palace, still part-royal residence, above the Blue City." },
+  ],
+  "Ranthambore": [
+    { name: "Aman-i-Khás", area: "Ranthambore", rate: null, ourTake: "Luxury tented camp at the edge of the tiger reserve, Mughal-style under canvas." },
+  ],
+  "Alwar": [
+    { name: "Amanbagh", area: "Alwar", rate: null, ourTake: "A Mughal-domed palace-resort in a hidden Rajasthan valley." },
+  ],
+  "Bhutan": [
+    { name: "Amankora", area: "Across the valleys", rate: null, ourTake: "A journey of five Aman lodges through Bhutan's kingdom of valleys." },
+    { name: "Six Senses Bhutan", area: "Across the valleys", rate: null, ourTake: "Five lodges, each a different Himalayan view, wellness woven throughout." },
+    { name: "COMO Uma Paro", area: "Paro", rate: null, ourTake: "A serene retreat near the Tiger's Nest, a base for the trek." },
+    { name: "COMO Uma Punakha", area: "Punakha", rate: null, ourTake: "A tiny lodge above the Mo Chhu river in the warm Punakha valley." },
+  ],
+  "Sri Lanka": [
+    { name: "Amangalla", area: "Galle", rate: null, ourTake: "A colonial landmark within the ramparts of Galle Fort." },
+    { name: "Amanwella", area: "Tangalle", rate: null, ourTake: "Bawa-inspired suites above a curving southern beach." },
+    { name: "Cape Weligama", area: "Weligama", rate: null, ourTake: "A clifftop resort with a crescent infinity pool over the Indian Ocean." },
+    { name: "Ceylon Tea Trails", area: "Hatton", rate: null, ourTake: "Restored planters' bungalows amid the emerald tea hills." },
+  ],
+  "Maldives": [
+    { name: "Soneva Fushi", area: "Baa Atoll", rate: null, ourTake: "The barefoot-luxury original — vast sandy villas, an observatory, cinema in the sand." },
+    { name: "Soneva Jani", area: "Noonu Atoll", rate: null, ourTake: "Overwater villas with retractable roofs and water slides into the lagoon." },
+    { name: "Cheval Blanc Randheli", area: "Noonu Atoll", rate: null, ourTake: "LVMH glamour and a Guerlain spa across a private island archipelago." },
+    { name: "One&Only Reethi Rah", area: "North Malé Atoll", rate: null, ourTake: "One of the largest, most private islands — twelve beaches to yourself." },
+    { name: "Velaa Private Island", area: "Noonu Atoll", rate: null, ourTake: "A jewel-box island with a golf academy and a wine tower." },
+    { name: "Waldorf Astoria Maldives Ithaafushi", area: "South Malé Atoll", rate: null, ourTake: "Three islands of villas, with an overwater sky-high dining pod." },
+    { name: "The Ritz-Carlton Maldives Fari Islands", area: "North Malé Atoll", rate: null, ourTake: "Ring-shaped over the water, a design-forward marina village alongside." },
+    { name: "Four Seasons Resort Maldives at Landaa Giraavaru", area: "Baa Atoll", rate: null, ourTake: "A conservation-led resort in the UNESCO biosphere, manta rays at the door." },
+    { name: "The Nautilus Maldives", area: "Baa Atoll", rate: null, ourTake: "No schedules, no rules — an intimate, deeply personal private-island escape." },
+  ],
+  "Bali": [
+    { name: "Amankila", area: "Manggis", rate: null, ourTake: "Three tiered pools cascading to the sea on Bali's quiet east coast." },
+    { name: "Amandari", area: "Ubud", rate: null, ourTake: "A village-style Aman above the Ayung gorge, the spiritual heart of Ubud." },
+    { name: "Capella Ubud", area: "Ubud", rate: null, ourTake: "Bill Bensley's fantastical tented camp in the rainforest." },
+    { name: "Bulgari Resort Bali", area: "Uluwatu", rate: null, ourTake: "A cliff-edge estate 150 metres above the ocean, with its own beach club." },
+    { name: "Four Seasons Resort Bali at Sayan", area: "Ubud", rate: null, ourTake: "An iconic lily-pond arrival over the jungle river valley." },
+    { name: "Mandapa, a Ritz-Carlton Reserve", area: "Ubud", rate: null, ourTake: "A riverside sanctuary among the rice terraces of the Ayung valley." },
+  ],
+  "Sumba": [
+    { name: "Nihi Sumba", area: "Sumba", rate: null, ourTake: "The wild surf-and-horses legend on a remote Indonesian island." },
+  ],
+  "Java": [
+    { name: "Amanjiwo", area: "Borobudur", rate: null, ourTake: "A limestone amphitheatre of suites facing the great Borobudur temple." },
+  ],
+  "Bangkok": [
+    { name: "Mandarin Oriental Bangkok", area: "Riverside", rate: null, ourTake: "The storied Author's-Wing legend on the Chao Phraya, service beyond compare." },
+    { name: "Capella Bangkok", area: "Riverside", rate: null, ourTake: "An all-riverfront modern icon, repeatedly rated among the world's best." },
+    { name: "Four Seasons Bangkok at Chao Phraya River", area: "Riverside", rate: null, ourTake: "Tiered gardens and pools down to the river, glamorous and calm." },
+    { name: "Aman Nai Lert Bangkok", area: "Nai Lert Park", rate: null, ourTake: "A tower rising from a century-old private garden in the city's heart." },
+  ],
+  "Phuket": [
+    { name: "Amanpuri", area: "Pansea Beach", rate: null, ourTake: "The very first Aman — a coconut-grove sanctuary above a private beach." },
+    { name: "Trisara", area: "Nai Thon", rate: null, ourTake: "Private pool villas cascading to a quiet bay, with a Michelin-green table." },
+  ],
+  "Chiang Rai": [
+    { name: "Four Seasons Tented Camp Golden Triangle", area: "Golden Triangle", rate: null, ourTake: "Luxury tents above the Mekong jungle, with resident rescued elephants." },
+  ],
+  "Koh Samui": [
+    { name: "Four Seasons Resort Koh Samui", area: "Laem Yai", rate: null, ourTake: "Hillside villas over a private bay on the quiet north-west coast." },
+  ],
+  "Koh Kood": [
+    { name: "Soneva Kiri", area: "Koh Kood", rate: null, ourTake: "A remote-island fantasy — treetop dining pods, cinema, barefoot luxury." },
+  ],
+  "Yao Noi": [
+    { name: "Six Senses Yao Noi", area: "Phang Nga Bay", rate: null, ourTake: "Villas facing the limestone karsts of Phang Nga Bay." },
+  ],
+  "Singapore": [
+    { name: "Raffles Singapore", area: "Civic District", rate: null, ourTake: "The colonial grande dame, all-suite and legendary — birthplace of the Sling." },
+    { name: "Capella Singapore", area: "Sentosa", rate: null, ourTake: "A Norman Foster resort in the rainforest of Sentosa, minutes from the city." },
+  ],
+  "Hong Kong": [
+    { name: "The Peninsula Hong Kong", area: "Tsim Sha Tsui", rate: null, ourTake: "The 1928 grande dame with a fleet of green Rolls-Royces and harbour views." },
+    { name: "Rosewood Hong Kong", area: "Victoria Dockside", rate: null, ourTake: "A vertical estate over the harbour, art and glamour throughout." },
+    { name: "The Upper House", area: "Admiralty", rate: null, ourTake: "A serene, design-led sanctuary above the city — no lobby, all calm." },
+    { name: "Mandarin Oriental Hong Kong", area: "Central", rate: null, ourTake: "The beloved Central institution, a legend of service since 1963." },
+    { name: "Four Seasons Hong Kong", area: "Central", rate: null, ourTake: "Harbour-front glamour with two of the city's three-Michelin-star tables." },
+  ],
+  "Tokyo": [
+    { name: "Aman Tokyo", area: "Otemachi", rate: null, ourTake: "A soaring stone-and-paper sanctuary in the sky above the Imperial Palace." },
+    { name: "Bulgari Hotel Tokyo", area: "Yaesu", rate: null, ourTake: "Italian glamour on the top floors of a Tokyo Station tower." },
+    { name: "Mandarin Oriental Tokyo", area: "Nihonbashi", rate: null, ourTake: "Michelin dining and city-wide views from the top of Nihonbashi." },
+    { name: "The Peninsula Tokyo", area: "Marunouchi", rate: null, ourTake: "A grande dame facing the Imperial Palace gardens and Ginza." },
+    { name: "Four Seasons Hotel Tokyo at Otemachi", area: "Otemachi", rate: null, ourTake: "A jewel-box hotel with a rooftop spa over the skyline." },
+  ],
+  "Kyoto": [
+    { name: "Aman Kyoto", area: "Northern hills", rate: null, ourTake: "A hidden garden sanctuary in a mossy forest below Kinkaku-ji." },
+    { name: "Four Seasons Kyoto", area: "Higashiyama", rate: null, ourTake: "Built around an 800-year-old pond garden in the temple district." },
+    { name: "Park Hyatt Kyoto", area: "Higashiyama", rate: null, ourTake: "On the lanes below Kodai-ji, steps from Kiyomizu — pure Kyoto." },
+    { name: "The Ritz-Carlton Kyoto", area: "Kamogawa", rate: null, ourTake: "Riverside elegance with the Higashiyama mountains beyond." },
+    { name: "Hoshinoya Kyoto", area: "Arashiyama", rate: null, ourTake: "A riverboat-access ryokan retreat among the Arashiyama maples." },
+  ],
+  "Hakone": [
+    { name: "Gora Kadan", area: "Hakone", rate: null, ourTake: "A former imperial retreat, the definitive luxury ryokan with private onsen." },
+  ],
+  "Beijing": [
+    { name: "Aman Summer Palace Beijing", area: "Summer Palace", rate: null, ourTake: "Historic courtyards at the gates of the Summer Palace." },
+    { name: "Rosewood Beijing", area: "Chaoyang", rate: null, ourTake: "A polished residential-style landmark in the embassy district." },
+  ],
+  "Shanghai": [
+    { name: "Amanyangyun", area: "Minhang", rate: null, ourTake: "Relocated Ming-dynasty houses and a camphor forest on the city's edge." },
+    { name: "Capella Shanghai", area: "Xuhui", rate: null, ourTake: "Restored 1930s shikumen villas in the French Concession." },
+  ],
+  "Sydney": [
+    { name: "Capella Sydney", area: "Circular Quay", rate: null, ourTake: "A sandstone landmark reborn between the Opera House and the Quay." },
+  ],
+  "Kangaroo Island": [
+    { name: "Southern Ocean Lodge", area: "Kangaroo Island", rate: null, ourTake: "A clifftop lodge over the wild Southern Ocean, rebuilt more beautiful than ever." },
+  ],
+  "Tasmania": [
+    { name: "Saffire Freycinet", area: "Coles Bay", rate: null, ourTake: "A sculptural coastal lodge facing the Hazards and Wineglass Bay." },
+  ],
+  "Hamilton Island": [
+    { name: "Qualia", area: "Whitsundays", rate: null, ourTake: "Secluded pavilions on the tip of Hamilton Island, the Great Barrier Reef beyond." },
+  ],
+  "Uluru": [
+    { name: "Longitude 131", area: "Uluru", rate: null, ourTake: "Luxury tents with Uluru filling every window at dawn." },
+  ],
+  "Queenstown": [
+    { name: "Rosewood Matakauri", area: "Queenstown", rate: null, ourTake: "A lakeside lodge with the Remarkables mirrored in Lake Wakatipu." },
+    { name: "Blanket Bay", area: "Glenorchy", rate: null, ourTake: "A great-room stone lodge deep in Middle-earth country." },
+  ],
+  "Taupo": [
+    { name: "Huka Lodge", area: "Taupo", rate: null, ourTake: "New Zealand's original luxury lodge, on the banks of the Waikato." },
+  ],
+  "Bay of Islands": [
+    { name: "Rosewood Kauri Cliffs", area: "Matauri Bay", rate: null, ourTake: "A clifftop lodge and championship golf above the Pacific." },
+  ],
+  "Hawke's Bay": [
+    { name: "Rosewood Cape Kidnappers", area: "Hawke's Bay", rate: null, ourTake: "A farm-station lodge and dramatic clifftop golf over the sea." },
+  ],
+  "Kruger": [
+    { name: "Singita Lebombo", area: "Kruger", rate: null, ourTake: "Glass-and-steel suites on a cliff over the N'wanetsi river." },
+    { name: "Singita Ebony", area: "Sabi Sand", rate: null, ourTake: "The classic safari-chic lodge on the Sand River, superb game." },
+    { name: "Singita Boulders", area: "Sabi Sand", rate: null, ourTake: "Riverbank suites among the boulders, unhurried and private." },
+    { name: "Royal Malewane", area: "Thornybush", rate: null, ourTake: "The finest guiding team in Africa, sumptuous suites and spa." },
+    { name: "Londolozi Private Granite Suites", area: "Sabi Sand", rate: null, ourTake: "Leopard capital of the world, from a legendary conservation family." },
+  ],
+  "Cape Town": [
+    { name: "Ellerman House", area: "Bantry Bay", rate: null, ourTake: "A clifftop villa of just thirteen rooms, a private art collection and cellar." },
+    { name: "The Silo Hotel", area: "V&A Waterfront", rate: null, ourTake: "Faceted glass suites atop the Zeitz art museum, Table Mountain in view." },
+  ],
+  "Serengeti": [
+    { name: "Singita Sasakwa Lodge", area: "Grumeti", rate: null, ourTake: "Edwardian-style manor cottages over the endless Serengeti plains." },
+    { name: "Singita Sabora Tented Camp", area: "Grumeti", rate: null, ourTake: "Contemporary tented luxury in the heart of the migration route." },
+  ],
+  "Ngorongoro": [
+    { name: "andBeyond Ngorongoro Crater Lodge", area: "Ngorongoro", rate: null, ourTake: "Maasai-meets-Versailles 'stately homes' on the crater rim." },
+  ],
+  "Masai Mara": [
+    { name: "Angama Mara", area: "Masai Mara", rate: null, ourTake: "Glass-fronted tents floating above the Mara from the 'Out of Africa' escarpment." },
+  ],
+  "Laikipia": [
+    { name: "Segera Retreat", area: "Laikipia", rate: null, ourTake: "Art, conservation and villas on a vast plateau below Mount Kenya." },
+  ],
+  "Nairobi": [
+    { name: "Giraffe Manor", area: "Nairobi", rate: null, ourTake: "The 1930s manor where Rothschild giraffes join you for breakfast." },
+  ],
+  "Okavango": [
+    { name: "Wilderness Mombo", area: "Okavango Delta", rate: null, ourTake: "'Place of plenty' on Chief's Island — arguably Africa's greatest game." },
+    { name: "Wilderness Jao", area: "Okavango Delta", rate: null, ourTake: "A sculptural, art-filled camp deep in the water-world of the Delta." },
+  ],
+  "Botswana": [
+    { name: "Great Plains Zarafa Camp", area: "Selinda", rate: null, ourTake: "Four vast tents in a private wilderness, conservation at its soul." },
+  ],
+  "Rwanda": [
+    { name: "One&Only Gorilla's Nest", area: "Volcanoes", rate: null, ourTake: "An eucalyptus-forest lodge at the foot of the gorilla volcanoes." },
+    { name: "One&Only Nyungwe Lodge", area: "Nyungwe", rate: null, ourTake: "A tea-estate lodge on the edge of ancient rainforest and chimpanzees." },
+    { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, ourTake: "Volcano views and deep reforestation beside Volcanoes National Park." },
+    { name: "Wilderness Bisate", area: "Volcanoes", rate: null, ourTake: "Green dome-villas in a reforested volcanic amphitheatre." },
+  ],
+  "Namibia": [
+    { name: "andBeyond Sossusvlei Desert Lodge", area: "Sossusvlei", rate: null, ourTake: "Glass-roofed suites for stargazing among the world's oldest dunes." },
+  ],
+  "Seychelles": [
+    { name: "North Island Seychelles", area: "North Island", rate: null, ourTake: "A whole private island of eleven villas — the ultimate castaway luxury." },
+    { name: "Six Senses Zil Pasyon", area: "Félicité", rate: null, ourTake: "Villas among dramatic granite boulders on a private island." },
+    { name: "Four Seasons Resort Seychelles at Desroches Island", area: "Desroches", rate: null, ourTake: "A remote coral-atoll island with a single, barefoot resort." },
+  ],
+  "Madagascar": [
+    { name: "Miavana by Time and Tide", area: "Nosy Ankao", rate: null, ourTake: "A helicopter-access private-island lodge off Madagascar's wild northeast." },
+  ],
+  "Los Cabos": [
+    { name: "One&Only Palmilla", area: "San José del Cabo", rate: null, ourTake: "The grande dame of Los Cabos — a whitewashed hacienda on a swimmable bay." },
+    { name: "Las Ventanas al Paraíso, a Rosewood Resort", area: "Corridor", rate: null, ourTake: "The romantic Rosewood legend, all telescopes and tequila service." },
+    { name: "Zadún, a Ritz-Carlton Reserve", area: "Puerto Los Cabos", rate: null, ourTake: "Contemporary desert-meets-sea seclusion on the quieter east cape." },
+    { name: "Four Seasons Los Cabos at Costa Palmas", area: "East Cape", rate: null, ourTake: "A rare swimmable beach and marina town on the tranquil East Cape." },
+    { name: "Four Seasons Resort Tamarindo", area: "Jalisco coast", rate: null, ourTake: "A jungle-and-beach resort on a vast private nature reserve." },
+  ],
+  "Riviera Nayarit": [
+    { name: "One&Only Mandarina", area: "Riviera Nayarit", rate: null, ourTake: "Treehouse and beach villas in the jungle above a wild Pacific cove." },
+  ],
+  "Riviera Maya": [
+    { name: "Hotel Esencia", area: "Xpu-Ha", rate: null, ourTake: "A former duchess's beachfront estate, understated and impossibly chic." },
+    { name: "Maroma, a Belmond Hotel", area: "Riviera Maya", rate: null, ourTake: "A jungle-and-beach hideaway on one of the Caribbean's best stretches of sand." },
+  ],
+  "St Barth": [
+    { name: "Cheval Blanc St-Barth", area: "Flamands Beach", rate: null, ourTake: "LVMH glamour on Flamands Beach, the island's most polished address." },
+    { name: "Eden Rock St Barths", area: "St Jean", rate: null, ourTake: "The iconic rock over St Jean Bay — the heart of Barthélemy chic." },
+    { name: "Le Toiny", area: "Anse de Toiny", rate: null, ourTake: "Private pool villas on a wild, quiet corner of the island." },
+  ],
+  "Anguilla": [
+    { name: "Cap Juluca, a Belmond Hotel", area: "Maundays Bay", rate: null, ourTake: "Moorish-white villas along a flawless crescent of sand." },
+    { name: "Malliouhana", area: "Meads Bay", rate: null, ourTake: "The clifftop original above two of Anguilla's best beaches." },
+  ],
+  "Turks & Caicos": [
+    { name: "Amanyara", area: "Providenciales", rate: null, ourTake: "A serene Aman on a remote nature reserve, all black-timber pavilions and reef." },
+    { name: "COMO Parrot Cay", area: "Parrot Cay", rate: null, ourTake: "A private-island wellness legend on a mile of powder beach." },
+  ],
+  "British Virgin Islands": [
+    { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's storied bay, elegantly reborn." },
+  ],
+  "Antigua": [
+    { name: "Jumby Bay Island", area: "Jumby Bay", rate: null, ourTake: "A whole private island resort, Oetker Collection, off Antigua's coast." },
+  ],
+  "Bahamas": [
+    { name: "The Ocean Club, a Four Seasons Resort", area: "Paradise Island", rate: null, ourTake: "The legendary former One&Only — cloistered gardens and a famous beach." },
+  ],
+  "New York City": [
+    { name: "Aman New York", area: "Fifth Avenue", rate: null, ourTake: "A serene three-floor spa sanctuary above Fifth Avenue, with a jazz club below." },
+    { name: "The Mark", area: "Upper East Side", rate: null, ourTake: "Bold uptown design steps from the Met and Central Park." },
+    { name: "The Carlyle", area: "Upper East Side", rate: null, ourTake: "Old-world Manhattan glamour and the legendary Bemelmans Bar." },
+    { name: "The Lowell", area: "Upper East Side", rate: null, ourTake: "A discreet townhouse of wood-burning fireplaces and old-New-York calm." },
+    { name: "The Greenwich Hotel", area: "TriBeCa", rate: null, ourTake: "De Niro's downtown hideaway, all handcrafted rooms and a lantern-lit pool." },
+    { name: "The Fifth Avenue Hotel", area: "NoMad", rate: null, ourTake: "A theatrical landmark blending a Gilded Age mansion with a modern tower." },
+    { name: "Casa Cipriani", area: "Battery", rate: null, ourTake: "Italian glamour in the landmark Battery Maritime Building, members'-club chic." },
+  ],
+  "Los Angeles": [
+    { name: "Hotel Bel-Air", area: "Bel-Air", rate: null, ourTake: "A pink-and-bougainvillea Dorchester hideaway with swans and Wolfgang Puck." },
+    { name: "The Beverly Hills Hotel", area: "Beverly Hills", rate: null, ourTake: "The Pink Palace — the Polo Lounge and a century of Hollywood legend." },
+  ],
+  "Santa Barbara": [
+    { name: "Rosewood Miramar Beach", area: "Montecito", rate: null, ourTake: "A Montecito beach resort with old-Hollywood glamour and its own sand." },
+  ],
+  "Big Sur": [
+    { name: "Post Ranch Inn", area: "Big Sur", rate: null, ourTake: "Cliff-edge cabins 1,200 feet above the Pacific — no TVs, all wonder." },
+  ],
+  "Napa Valley": [
+    { name: "Auberge du Soleil", area: "Rutherford", rate: null, ourTake: "A hillside olive-grove inn with a Michelin table over the vineyards." },
+    { name: "Meadowood Napa Valley", area: "St Helena", rate: null, ourTake: "A country-club estate hidden in the oaks of a private valley." },
+  ],
+  "Healdsburg": [
+    { name: "SingleThread", area: "Sonoma", rate: null, ourTake: "A five-room inn above a three-Michelin-star farm restaurant." },
+  ],
+  "Miami": [
+    { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "A restored 1930s beach club with a Thomas Keller table and true glamour." },
+  ],
+  "Florida Keys": [
+    { name: "Little Palm Island Resort and Spa", area: "Little Torch Key", rate: null, ourTake: "A boat-access private-island escape, adults only, castaway-chic." },
+  ],
+  "Palm Beach": [
+    { name: "Four Seasons Palm Beach", area: "Palm Beach", rate: null, ourTake: "An intimate oceanfront resort at the quiet south end of the island." },
+  ],
+  "Big Island": [
+    { name: "Kona Village, a Rosewood Resort", area: "Kohala Coast", rate: null, ourTake: "The beloved hideaway reborn as a Rosewood, all hale bungalows by the sea." },
+    { name: "Four Seasons Hualalai", area: "Kohala Coast", rate: null, ourTake: "The benchmark Hawaii resort on the Kona coast, effortless and warm." },
+  ],
+  "Lanai": [
+    { name: "Sensei Lanai, a Four Seasons Resort", area: "Lanai", rate: null, ourTake: "An adults-only wellness retreat in the cool uplands of Larry Ellison's island." },
+    { name: "Four Seasons Lanai", area: "Manele Bay", rate: null, ourTake: "A clifftop resort above Hulopo'e Bay's dolphins and snorkelling." },
+  ],
+  "Utah": [
+    { name: "Amangiri", area: "Canyon Point", rate: null, ourTake: "The desert Aman folded into the mesas — the most photographed pool in America." },
+  ],
+  "Big Sky": [
+    { name: "One&Only Moonlight Basin", area: "Big Sky", rate: null, ourTake: "One&Only's first US resort, ski-in on a vast Montana mountain." },
+  ],
+  "Jackson Hole": [
+    { name: "Caldera House", area: "Teton Village", rate: null, ourTake: "An eight-suite ski lodge at the base of Jackson Hole's tram." },
+  ],
+  "Colorado": [
+    { name: "Dunton Hot Springs", area: "Dolores", rate: null, ourTake: "A restored ghost-town of cabins around natural hot springs." },
+  ],
+  "Blackberry Farm": [
+    { name: "Blackberry Farm", area: "Great Smoky Mountains", rate: null, ourTake: "A Relais & Châteaux farm estate in the Smokies, a foothills of taste." },
+  ],
+  "Palmetto Bluff": [
+    { name: "Montage Palmetto Bluff", area: "Bluffton", rate: null, ourTake: "A Lowcountry village on the May River between Savannah and Hilton Head." },
+  ],
+  "Sea Island": [
+    { name: "The Cloister at Sea Island", area: "Sea Island", rate: null, ourTake: "A Forbes five-star Georgia coast institution, gracious and grand." },
+  ],
+  "Vermont": [
+    { name: "Twin Farms", area: "Barnard", rate: null, ourTake: "An all-inclusive, all-suite estate on 300 private Vermont acres." },
+  ],
+  "Adirondacks": [
+    { name: "The Point", area: "Saranac Lake", rate: null, ourTake: "A former Rockefeller Great Camp — house-party luxury on a private lake." },
+  ],
+  "Tofino": [
+    { name: "Clayoquot Wilderness Lodge", area: "Vancouver Island", rate: null, ourTake: "A luxury tented camp reached by float-plane in a coastal rainforest." },
+  ],
+  "Fogo Island": [
+    { name: "Fogo Island Inn", area: "Newfoundland", rate: null, ourTake: "A stilted architectural marvel on the wild edge of the North Atlantic." },
+  ],
+  "French Polynesia": [
+    { name: "The Brando", area: "Tetiaroa", rate: null, ourTake: "Marlon Brando's own atoll — a carbon-neutral private-island paradise." },
+  ],
+  "Bora Bora": [
+    { name: "Four Seasons Bora Bora", area: "Bora Bora", rate: null, ourTake: "Overwater bungalows in the world's most famous turquoise lagoon." },
+  ],
+  "Fiji": [
+    { name: "Kokomo Private Island Fiji", area: "Kadavu", rate: null, ourTake: "A private-island resort with a great reef and a farm-to-table soul." },
+    { name: "COMO Laucala Island", area: "Laucala", rate: null, ourTake: "One of the world's most exclusive private islands, twenty-five villas only." },
+  ],
+  "Patagonia": [
+    { name: "Awasi Patagonia", area: "Torres del Paine", rate: null, ourTake: "Private villas each with your own guide and 4x4, facing the Towers." },
+    { name: "Explora Patagonia", area: "Torres del Paine", rate: null, ourTake: "The original explorers' lodge inside the national park, all-inclusive." },
+  ],
+  "Atacama": [
+    { name: "Awasi Atacama", area: "San Pedro de Atacama", rate: null, ourTake: "A private-guide desert lodge among the world's clearest skies." },
+  ],
+  "Chile": [
+    { name: "Vik Chile", area: "Millahue", rate: null, ourTake: "An art-and-architecture wine estate under a titanium roof." },
+  ],
+  "São Paulo": [
+    { name: "Rosewood São Paulo", area: "Cidade Matarazzo", rate: null, ourTake: "A tower-and-garden landmark rising from a restored maternity palace." },
+  ],
+  "Rio de Janeiro": [
+    { name: "Copacabana Palace, a Belmond Hotel", area: "Copacabana", rate: null, ourTake: "The 1923 Art Deco legend on Copacabana beach — Rio's grande dame." },
   ],
 };
 const EATS = {
@@ -3151,9 +3647,10 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
       {state.matches.map((r, k) => {
         const sel = selectedName && selectedName === r.name;
         const per = r.estRate || null;
+        const priceBit = kind === "hotels" ? (SHOW_RATES && per ? "~" + fmt(per) + "/night est." : "Rate on request") : "~" + fmt(per) + "/person est.";
         return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
-          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ~${fmt(per)}${kind === "hotels" ? "/night est." : "/person est."}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
-          price={kind === "hotels" && nights ? fmt((per || 0) * nights) : fmt(per)} />;
+          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ${priceBit}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
+          price={kind === "hotels" ? (SHOW_RATES && per && nights ? fmt(per * nights) : "") : fmt(per)} />;
       })}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · the level shown is our own reading of price band and reputation.</div>
     </div>)}
@@ -3185,18 +3682,21 @@ function useHotelInfo(city, name) {
     let dead = false;
     fetch(`/api/places?kind=hotels&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
-      .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null }; if (!dead) setInfo({ photo: null, site: null }); });
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, rating: (m && m.rating) || null, reviews: (m && m.reviews) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null, rating: null, reviews: null }; if (!dead) setInfo({ photo: null, site: null, rating: null, reviews: null }); });
     return () => { dead = true; };
   }, [key]);
-  return info || { photo: null, site: null };
+  return info || { photo: null, site: null, rating: null, reviews: null };
 }
 // The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
 // opens up — bigger photo, our take, and the contacts.
 function FavHotelCard({ s, city, cur, sel, onClick }) {
-  const info = useHotelInfo(city, s.name);
-  const photo = info.photo;
-  const site = info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
+  // way the presentation is identical — one card for every hotel.
+  const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
+  const photo = s.photo || info.photo;
+  const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  const rating = s.rating || info.rating;
   const tier = tierOf(s.name);
   const [broken, setBroken] = useState(false);
   const showImg = photo && !broken;
@@ -3207,11 +3707,12 @@ function FavHotelCard({ s, city, cur, sel, onClick }) {
         ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
       <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</span>
+      {rating ? <span style={{ position: "absolute", top: 10, right: 10, background: "rgba(34,29,25,.6)", color: t.brassLight, fontSize: 11, fontWeight: 500, padding: "4px 9px", borderRadius: 999 }}>★ {rating}</span> : null}
     </div>
     <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}</div>
       {s.area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.area}</div> : null}
-      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
+      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
@@ -3234,6 +3735,15 @@ function HotelPicker({ city, nights, pick, upd }) {
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
+  // Show our curated picks AND the live feed for this tier (deduped) — so Luxury is never cut short.
+  const favAlnums = levelFavs.map((s) => ulxAlnum(s.name)).filter(Boolean);
+  const seenLive = {};
+  const liveRows = rows.filter((r) => {
+    const a = ulxAlnum(r.name); if (!a) return false;
+    if (seenLive[a]) return false; seenLive[a] = 1; // no duplicate live rows
+    // drop anything that is really one of our curated picks under a different spelling
+    return !favAlnums.some((c) => a === c || (c.length >= 6 && a.indexOf(c) >= 0) || (a.length >= 6 && c.indexOf(a) >= 0));
+  });
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
@@ -3248,19 +3758,20 @@ function HotelPicker({ city, nights, pick, upd }) {
           <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} />); })}
       </div>
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose. Rates are the direct rate where shown, indicative otherwise — we confirm and book on your behalf.</div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose — we confirm the rate and book direct on your behalf.</div>
     </>)}
-    {level && levelFavs.length === 0 && (<>
-      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-      {!live && !curated && <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 8, lineHeight: 1.5 }}>No named hotels for {bareCity(city) || "this city"} yet — showing an indicative rate.</div>}
-      {live && rows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No true Ultra Luxury property in ${bareCity(city)} — try Luxury for the best offers.` : `Nothing at this level in ${bareCity(city)}. Try another.`}</div>}
-      {rows.map((r, k) => { const sel = pick.stay && pick.stay.level === level && pick.stay.name === r.name; const nightly = live ? (r.estRate || null) : r.price;
-        return (<div key={r.id || k}>
-          <PlaceRow item={r} selected={sel} onClick={() => upd({ stay: sel ? null : { level, name: r.name, nightly, band: r.band || null, estimated: live, id: r.id || null, site: r.site || null } })}
-            sub={live ? `${r.band ? r.band + " · " : ""}~${fmt(nightly)}/night est. · ${nights} ${nights === 1 ? "night" : "nights"}` : `${fmt(r.price)}/night · ${nights} ${nights === 1 ? "night" : "nights"}`} price={fmt((nightly || 0) * nights)} />
-          {sel && r.site ? <a href={brandedLink(r.site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "0 0 10px 8px", color: t.pineSoft, fontSize: 12.5, textDecoration: "none" }}>Book direct at {r.name} →</a> : null}
-        </div>); })}
-      {live && rows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · ratings and band are real; nightly rate is an estimate until booking is connected.</div>}
+    {level && (<>
+      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
+      {!remote.loading && levelFavs.length === 0 && liveRows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No Ultra Luxury hotel on our list for ${bareCity(city) || "this city"} yet.` : `More ${lbl(level)} options for ${bareCity(city) || "this city"} are on the way.`}</div>}
+      {liveRows.length > 0 && (<>
+        {levelFavs.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More {lbl(level)} in {bareCity(city)}</div>}
+        <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+          {liveRows.map((r, k) => { const c = { name: r.name, area: r.band || null, rate: null, ourTake: r.desc || null, contact: null, photo: r.photo || null, site: r.site || null, rating: r.rating || null }; const sel = pick.stay && pick.stay.name === c.name; return (
+            <FavHotelCard key={r.id || k} s={c} city={city} cur={favCur} sel={!!sel}
+              onClick={() => upd({ stay: sel ? null : { level: tierOf(c.name), name: c.name, nightly: null, band: c.area || null, estimated: true, id: r.id || null, site: c.site || null } })} />); })}
+        </div>
+        {live && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Powered by Google · ratings are real; we confirm the rate and book direct on your behalf.</div>}
+      </>)}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
       selectedName={pick.stay ? pick.stay.name : null}
