@@ -67,6 +67,19 @@ function estRate(kind, level, band) {
   return Math.round(v / 5) * 5;
 }
 
+// The neighbourhood, pulled from Google's address components — "Mayfair", "Tribeca", "Ginza".
+// A restaurant card can then read "Destination · Mayfair, London", just as the hotel cards
+// carry an area. We prefer a true neighbourhood, then a sublocality, so something sensible
+// shows in cities that name their districts differently.
+function neighborhoodOf(p) {
+  const comps = (p && p.addressComponents) || [];
+  const pick = (type) => {
+    const c = comps.find((x) => Array.isArray(x.types) && x.types.includes(type));
+    return c ? (c.longText || c.shortText || null) : null;
+  };
+  return pick("neighborhood") || pick("sublocality_level_1") || pick("sublocality") || null;
+}
+
 
 
 export default async function handler(req, res) {
@@ -122,6 +135,12 @@ export default async function handler(req, res) {
           "places.photos",
           "places.websiteUri",
           "places.googleMapsUri",
+          // Location and contact, for the card and the itinerary. formattedAddress is the full
+          // street line; addressComponents gives us the neighbourhood; internationalPhoneNumber
+          // is shown as plain text (no link) so the guest never leaves the app.
+          "places.formattedAddress",
+          "places.addressComponents",
+          "places.internationalPhoneNumber",
         ].join(","),
       },
       body: JSON.stringify({ textQuery, maxResultCount: find ? 5 : 20 }),
@@ -258,6 +277,9 @@ export default async function handler(req, res) {
         photo: photo ? `/api/photo?name=${encodeURIComponent(photo)}&h=420` : null,
         site: p.websiteUri || null,
         maps: p.googleMapsUri || null,
+        area: neighborhoodOf(p),                    // neighbourhood, e.g. "Mayfair"
+        address: p.formattedAddress || null,        // full street line for the itinerary
+        phone: p.internationalPhoneNumber || null,  // shown as plain text, no link
       });
     });
     // A named search answers a different question, so it gets a different shape: one flat
