@@ -3193,10 +3193,12 @@ function CityBox({ value, onChange, placeholder, inputStyle }) {
       ))}
       {live.length > 0 && matches.length > 0 && <div style={{ height: 1, background: t.line }} />}
       {live.map((r, i) => {
-        // Airport-cities carry a code and become "City (CODE)". Google-fallback places have
-        // no airport of their own, so they're picked by plain name; flights route from the
-        // nearest airport automatically.
-        const label = r.code ? `${r.city} (${r.code})` : r.city;
+        // Airport-cities carry a code and become "City (CODE)". Places with no airport of their
+        // own must STILL carry a disambiguator or two same-named towns collapse to one bare word
+        // — "Birmingham, MI" became just "Birmingham", which then geocoded to England. So keep the
+        // state (US) or country in the label: "Birmingham, MI", "Harbour Island, The Bahamas".
+        // geoKey keeps them distinct; flights route from the nearest airport automatically.
+        const label = r.code ? `${r.city} (${r.code})` : (r.region ? `${r.city}, ${r.region}` : (r.country ? `${r.city}, ${r.country}` : r.city));
         return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label, r); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
           <span style={{ minWidth: 0 }}>
             <span>{r.city}</span>
@@ -3921,7 +3923,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M7</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M8</span></footer>
   </div>);
 }
 
