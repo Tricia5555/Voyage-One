@@ -130,6 +130,12 @@ export default async function handler(req, res) {
         "X-Goog-Api-Key": key,
         "X-Goog-FieldMask": [
           "places.id",
+          // The listing TYPE, so we can tell a real hotel from a treehouse Airbnb, a B&B or a
+          // vacation rental — Google's text search happily returns all of them for "best hotels
+          // in X". primaryType is the single canonical type; types is the full list. Used to keep
+          // the hotel feed to actual hotels. Costs nothing extra — same field-mask billing tier.
+          "places.primaryType",
+          "places.types",
           "places.displayName",
           "places.rating",
           "places.userRatingCount",
@@ -275,6 +281,8 @@ export default async function handler(req, res) {
         id: p.id,
         name: p.displayName.text,
         level,
+        primaryType: p.primaryType || null,   // e.g. "hotel", "bed_and_breakfast", "cottage"
+        types: p.types || null,                // full type list, for diagnosing what to keep/drop
         stars: kind === "hotels" ? starClass(p) : null,
         band,
         bandNote: p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].note : null,
