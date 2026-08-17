@@ -3898,7 +3898,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M2</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M3</span></footer>
   </div>);
 }
 
@@ -4836,11 +4836,11 @@ function FlightPicker({ from, to, pick, upd, date }) {
         const groups = new Map();
         live.offers.forEach((o) => {
           const k = viaKey(o);
-          const g = groups.get(k) || { via: k, count: 0, lowest: null, fastest: null, worstLayover: 0, carriers: new Set() };
+          const g = groups.get(k) || { via: k, count: 0, lowest: null, fastest: null, worstLayover: 0, bestLayover: null, carriers: new Set() };
           g.count += 1;
           if (o.price != null && (g.lowest == null || o.price < g.lowest)) g.lowest = o.price;
           if (o.totalMin != null && (g.fastest == null || o.totalMin < g.fastest)) g.fastest = o.totalMin;
-          if (o.maxLayoverMin) g.worstLayover = Math.max(g.worstLayover, o.maxLayoverMin);
+          if (o.maxLayoverMin) { g.worstLayover = Math.max(g.worstLayover, o.maxLayoverMin); g.bestLayover = (g.bestLayover == null ? o.maxLayoverMin : Math.min(g.bestLayover, o.maxLayoverMin)); }
           (o.carriers && o.carriers.length ? o.carriers : [o.airline]).forEach((c) => c && g.carriers.add(c));
           groups.set(k, g);
         });
@@ -4862,7 +4862,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
                 <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>
                   {g.fastest != null ? `${hrs(g.fastest)} best` : ""}{g.lowest != null ? ` · from ${fmt(g.lowest)}` : ""}
                 </span>
-                {g.worstLayover >= 240 ? <span style={{ display: "block", fontSize: 11, color: "#B0563A", marginTop: 2 }}>{`up to ${hrs(g.worstLayover)} on the ground`}</span> : null}
+                {g.bestLayover != null ? <span style={{ display: "block", fontSize: 11, color: g.bestLayover >= 240 ? "#B0563A" : t.inkFaint, marginTop: 2 }}>{`${g.count > 1 ? "as little as " : ""}${hrs(g.bestLayover)} on the ground`}</span> : null}
                 <span style={{ display: "block", fontSize: 11, color: t.brass, marginTop: 2 }}>{Array.from(g.carriers).slice(0, 2).join(", ")}</span>
               </button>); })}
           </div>
