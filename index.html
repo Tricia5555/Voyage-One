@@ -33,7 +33,7 @@ const t = {
   line: "#E4DDD0", card: "#F3EEE4", mist: "#EDE9E0", white: "#FFFFFF",
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
-const LEVELS = ["UltraLux", "Luxury"];
+const LEVELS = ["UltraLux", "Luxury", "Best"];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
 // hotel reads "Rate on request" until then. Flip to true once real, dated rates flow.
@@ -239,13 +239,32 @@ function nameMatch(n1, n2) {
 }
 // Mass-market chains that have no place in a luxury app. Their genuine ultra sub-brands
 // (Ritz-Carlton, St Regis, Waldorf, Conrad, Bulgari…) have different names and are unaffected.
-const CHAIN_RE = /\b(hilton|hampton|doubletree|embassy suites|garden inn|marriott|courtyard|four points|fairfield|residence inn|springhill|sheraton|le meridien|holiday inn|intercontinental|crowne plaza|voco|indigo|ibis|novotel|mercure|pullman|radisson|park plaza|park inn|premier inn|travelodge|best western|wyndham|ramada|days inn|comfort inn|hyatt place|hyatt regency|motel|leonardo|jurys inn|clayton|ihg|ruby|melia|nh hotel|nh collection|scandic|citizenm|point a|z hotel|montcalm|apex|hub by)\b/i;
+const CHAIN_RE = /\b(hilton|hampton inn|hampton by hilton|doubletree|embassy suites|garden inn|marriott|courtyard|four points|fairfield|residence inn|springhill|sheraton|le meridien|holiday inn|intercontinental|crowne plaza|voco|indigo|ibis|novotel|mercure|pullman|radisson|park plaza|park inn|premier inn|travelodge|best western|wyndham|ramada|days inn|comfort inn|hyatt place|hyatt regency|motel|leonardo|jurys inn|clayton|ihg|ruby|melia|nh hotel|nh collection|scandic|citizenm|point a|z hotel|montcalm|apex|hub by)\b/i;
 // A live-feed hotel is a luxury candidate only if it isn't a sub-5-star property or a mass chain.
 function isLuxeCandidate(item) {
   if (!item) return false;
   if (item.stars != null && item.stars < 5) return false;
   if (CHAIN_RE.test(item.name || "")) return false;
   return true;
+}
+// Soft / luxury sub-brands that carry a chain word but ARE luxury — never treat these as mass
+// market. Without this, "Curio Collection by Hilton" and "Hampton Manor" (a real country-house
+// hotel) get thrown out alongside the Hampton Inns.
+const SOFT_BRAND = /\b(autograph|curio|tapestry|luxury collection|unbound collection|tribute portfolio|kimpton|edition|st\.? ?regis|ritz[- ]?carlton|waldorf|conrad|jw marriott|w hotel)\b/i;
+function isMassChain(name) { const n = name || ""; return CHAIN_RE.test(n) && !SOFT_BRAND.test(n); }
+// Below this review count a "5-star" is almost always a tiny B&B, inn or novelty rental (a
+// treehouse Airbnb with 231 reviews, a barn with 26) rather than a hotel to book a client into.
+const HOTEL_MIN_REVIEWS = 300;
+// Which picker tier a live hotel belongs in. Luxury = a genuine five-star; Best = a real four-star,
+// for cities whose ceiling is below five-star. Review count is the reality check because the star
+// class is only a rating proxy — a 5.0-rated Airbnb would otherwise read as a five-star hotel.
+function liveHotelTier(item) {
+  if (!item || !item.name || isMassChain(item.name)) return null;
+  const reviews = item.reviews || 0, stars = item.stars || 0, rating = item.rating || 0;
+  if (reviews < HOTEL_MIN_REVIEWS) return null;
+  if (stars >= 5) return "Luxury";
+  if (stars === 4 || rating >= 4.4) return "Best";
+  return null;
 }
 // Restaurants get their own, more foodie ladder — and unlike hotels we happily include a great
 // inexpensive find. The labels are what the client sees; the keys map to the underlying data.
@@ -265,7 +284,10 @@ const DINE_LEVELS = [
 const DINE_TIERS = [{ key: "Destination", label: "Destination" }, { key: "Standout", label: "Standout" }];
 // City-density rule: 2★/3★ are always Destination; a 1★ is Standout only in a high-density
 // city (20+ combined 1★+2★), which the build flags per-entry as so:1. Everything else is Destination.
-function michTier(m) { const s = (m && typeof m === "object") ? m.s : m; if (s >= 2) return "Destination"; return (m && m.so) ? "Standout" : "Destination"; }
+// A star is a Destination by default — even a lone 1★ in a town. ONLY in a city dense with top
+// stars (20+ combined 2★+3★: Tokyo, Paris, London, Kyoto) do the 1★ step down to Standout, leaving
+// Destination to the 2★/3★. `dense` is decided by the caller from the city's own data.
+function michTier(m, dense) { const s = (m && typeof m === "object") ? m.s : m; if (s >= 2) return "Destination"; return dense ? "Standout" : "Destination"; }
 // Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
 // Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
@@ -3923,7 +3945,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M8</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M10</span></footer>
   </div>);
 }
 
@@ -5117,14 +5139,14 @@ function useHotelInfo(city, name) {
 }
 // The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
 // opens up — bigger photo, our take, and the contacts.
-function FavHotelCard({ s, city, cur, sel, onClick }) {
+function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
   // way the presentation is identical — one card for every hotel.
   const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
   const photo = s.photo || info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
   const rating = s.rating || info.rating;
-  const tier = tierOf(s.name);
+  const tier = tierProp || tierOf(s.name);
   const [broken, setBroken] = useState(false);
   const showImg = photo && !broken;
   const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 44%" : "none", height: sel ? "auto" : 152, minHeight: sel ? 210 : 152, overflow: "hidden" };
@@ -5133,7 +5155,7 @@ function FavHotelCard({ s, city, cur, sel, onClick }) {
       {showImg
         ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
-      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</span>
+      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : tier}</span>
       {rating ? <span style={{ position: "absolute", top: 10, right: 10, background: "rgba(34,29,25,.6)", color: t.brassLight, fontSize: 11, fontWeight: 500, padding: "4px 9px", borderRadius: 999 }}>★ {rating}</span> : null}
     </div>
     <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
@@ -5154,29 +5176,22 @@ function HotelPicker({ city, nights, pick, upd }) {
   const remote = useRemote("hotels", city);
   const live = !!remote.items;
   const curated = !!lookup(HOTELS, city);
-  // Every hotel — curated, live from Google, or the static fallback — is tiered by the Ultra Lux
-  // canon (isUltraLux), not by the API's guess. So we pool all the live items and re-bucket them.
   const liveAll = live ? Object.keys(remote.items || {}).reduce((acc, k) => acc.concat(remote.items[k] || []), []) : [];
-  const staticAll = (level && !live) ? Object.keys(stayData(city) || {}).reduce((acc, k) => acc.concat((stayData(city)[k] || []).map(([name, nightly, desc]) => ({ name, price: nightly, desc }))), []) : [];
-  const rows = level ? (live ? liveAll.filter((r) => tierOf(r.name) === level) : staticAll.filter((r) => tierOf(r.name) === level)) : [];
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
-  // THE LOCK: Ultra Luxury is ONLY our curated list — the live feed never adds to it. So nothing is
-  // ever called Ultra unless it's on the list (or hand-picked into FAVORITES later). The live feed
-  // only ever fills the Luxury tab, minus our picks, duplicates, sub-5-star and mass-market chains.
+  // THE LOCK stays: Ultra Luxury is ONLY our curated list — the live feed never adds to it. Luxury
+  // and Best are filled from the live feed by liveHotelTier: a genuine five-star is Luxury, a real
+  // four-star is Best. Mass chains and thin-review novelties (a 5.0-rated treehouse Airbnb with 231
+  // reviews) are excluded — review count is the reality check the synthesized star class can't give.
   let liveRows = [];
-  if (level === "Luxury") {
+  if (level === "Luxury" || level === "Best") {
     const seen = {};
-    const base = rows.filter((r) => {
-      const a = ulxAlnum(r.name); if (!a) return false;
-      if (seen[a]) return false; seen[a] = 1;
+    liveRows = liveAll.filter((r) => {
+      if (liveHotelTier(r) !== level) return false;
+      const a = ulxAlnum(r.name); if (!a || seen[a]) return false; seen[a] = 1;
       return !levelFavs.some((f) => nameMatch(r.name, f.name));
     });
-    const luxe = base.filter(isLuxeCandidate);
-    // Small-town fallback: if nothing clears the luxury bar (e.g. a town whose best is a 4-star),
-    // show the best available rather than an empty list. We refine the small-town rule later.
-    liveRows = luxe.length > 0 ? luxe : base;
   }
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
   return (<>
@@ -5201,8 +5216,8 @@ function HotelPicker({ city, nights, pick, upd }) {
         {levelFavs.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More {lbl(level)} in {bareCity(city)}</div>}
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
           {liveRows.map((r, k) => { const c = { name: r.name, area: r.band || null, rate: null, ourTake: r.desc || null, contact: null, photo: r.photo || null, site: r.site || null, rating: r.rating || null }; const sel = pick.stay && pick.stay.name === c.name; return (
-            <FavHotelCard key={r.id || k} s={c} city={city} cur={favCur} sel={!!sel}
-              onClick={() => upd({ stay: sel ? null : { level: tierOf(c.name), name: c.name, nightly: null, band: c.area || null, estimated: true, id: r.id || null, site: c.site || null } })} />); })}
+            <FavHotelCard key={r.id || k} s={c} city={city} cur={favCur} sel={!!sel} tier={level}
+              onClick={() => upd({ stay: sel ? null : { level, name: c.name, nightly: null, band: c.area || null, estimated: true, id: r.id || null, site: c.site || null } })} />); })}
         </div>
         {live && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Powered by Google · ratings are real; we confirm the rate and book direct on your behalf.</div>}
       </>)}
@@ -5306,6 +5321,9 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // Michelin mode where we have the data (Destination = starred); otherwise the old browse.
   const mich = lookup(DINING, city);
   const michMode = !!(mich && mich.length) && dineGeoOk(city, !!lookup(DINING_US, city));
+  // "Dense" = 20+ two-and-three-star tables (Tokyo, Paris, London, Kyoto). In those cities the 1★
+  // step down to Standout; everywhere else every star stays a Destination. From the data itself.
+  const dense = !!(mich && mich.filter((m) => m.s >= 2).length >= 20);
   const [level, setLevel] = useState(michMode ? "Destination" : "");
   const remote = useRemote("restaurants", city);
   const live = !michMode && !!remote.items;
@@ -5313,7 +5331,14 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
-  const michRows = michMode && level ? mich.filter((m) => michTier(m) === level) : [];
+  const michRows = michMode && level ? mich.filter((m) => michTier(m, dense) === level) : [];
+  // Standout also fills with the great non-starred tables Google knows — the "previously named
+  // Destination" restaurants — so a Michelin city's Standout is rich, not just a handful of stars.
+  const nrm = (s) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+  const michNames = new Set((mich || []).map((m) => nrm(m.n)));
+  const liveStandout = (michMode && level === "Standout" && remote.items)
+    ? [].concat(remote.items.UltraLux || [], remote.items.Luxury || []).filter((r) => r && r.name && !michNames.has(nrm(r.name)))
+    : [];
   const liveRows = !michMode && level ? (live ? (remote.items[level] || []) : (dineData(city)[level] || []).map(([name, price, desc]) => ({ name, price, desc, level }))) : [];
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
@@ -5321,14 +5346,22 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
       {michMode ? <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Michelin</span> : <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>}
     </div>
     {michMode ? (<>
-      {michRows.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Standout" ? `Bib Gourmand & recommended tables for ${bareCity(city)} are coming in the next batch.` : `No ${level} restaurants on our list for ${bareCity(city)} yet.`}</div>}
       {michRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {michRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
           <DineCard key={k} r={r} city={city} level={level} found={found}
             onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
             onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
       </div>}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables · photo and reservation live. We book on your behalf.</div>
+      {level === "Standout" && liveStandout.length > 0 && (<>
+        {michRows.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More great tables in {bareCity(city)}</div>}
+        <div>{liveStandout.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level)); const pp = r.estRate || null; return (
+          <LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
+            onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: true, id: r.id || null }] })}
+            onDate={(dt) => setDate(r.name, level, dt)}
+            sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.`} price={fmt(pp)} />); })}</div>
+      </>)}
+      {michRows.length === 0 && !(level === "Standout" && liveStandout.length > 0) && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Standout" ? (remote.loading ? `Finding great tables in ${bareCity(city)}…` : `More standout tables for ${bareCity(city)} are on the way.`) : `No ${level} restaurants on our list for ${bareCity(city)} yet.`}</div>}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables · Standout = 1★ in the great capitals plus standout local tables · booked on your behalf.</div>
     </>) : (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
       {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
