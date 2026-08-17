@@ -2928,6 +2928,9 @@ function buildPrep(p) {
 function addDays(date, n) { const d = new Date(date.getTime()); d.setDate(d.getDate() + n); return d; }
 function fmtShort(d) { return d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""; }
 function fmtDay(d) { return d ? d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : ""; }
+// The hour a flight lands (0-23), read from a stored arrival time like "10:35" or "9:05 PM".
+// Returns null if unknown (no flight chosen, or arriving by train/car) so callers stay gentle.
+function arrHourOf(s) { if (!s) return null; const m = String(s).match(/(\d{1,2}):(\d{2})/); if (!m) return null; let h = +m[1]; if (/pm/i.test(s) && h < 12) h += 12; if (/am/i.test(s) && h === 12) h = 0; return h; }
 function legNights(d) {
   if (d.mode === "open") {
     if (d.pick && d.pick.exploreMode === "roam") {
@@ -3895,7 +3898,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M1</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M2</span></footer>
   </div>);
 }
 
@@ -5122,7 +5125,7 @@ function FavHotelCard({ s, city, cur, sel, onClick }) {
   </div>);
 }
 function HotelPicker({ city, nights, pick, upd }) {
-  const [level, setLevel] = useState(pick.stay ? pick.stay.level : "");
+  const [level, setLevel] = useState(pick.stay ? pick.stay.level : "UltraLux");
   const remote = useRemote("hotels", city);
   const live = !!remote.items;
   const curated = !!lookup(HOTELS, city);
@@ -5269,7 +5272,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
         const pp = live ? (r.estRate || null) : r.price;
         return (<div key={r.id || k}>
           <PlaceRow item={r} selected={!!found} onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
-            sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
+            sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
           {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.name, level, dt)} label={dayLabel || "Which evening?"} />}
         </div>); })}
       {live && liveRows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
@@ -5313,7 +5316,7 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
   const info = useVenueInfo(city, (opts && opts.find) || name, !!found);
   const bookUrl = (opts && opts.book) || info.site;
   return (<div>
-    <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={price != null ? fmt(price) : ""} />
+    <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={price != null ? fmt(price) : ""} />
     {found && (info.address || info.phone || bookUrl) ? (
       <div style={{ margin: "2px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
         {info.address ? <div>{info.address}</div> : null}
@@ -6288,17 +6291,38 @@ function buildReview(p, sch) {
     // was the second stop. What matters is that THIS leg leaves the US and lands outside it.
     const longHaul = !!(from && isLongHaul(from, d.city));
 
-    // 1b. A fixed, dated commitment on the very day you land. The classic mistake: fly in and
-    // go straight to the event with no time to clear the airport, drop bags, or shake off the
-    // flight. Universal — any dated sport, tour or dinner on or before the arrival day, and
-    // sharper still off a long-haul. Catches both seeded event trips and hand-built ones.
+    // 1b. A dated commitment on arrival day — but judged by ACTUAL landing time, not blanket.
+    // The old rule told people to "leave a day or two earlier," which is wrong: if you land in
+    // the morning, a museum or dinner that same day is perfectly fine. We only flag it when the
+    // flight genuinely gets in too late — and then we move the RESERVATION, never the flight.
     const ls0 = sch.legs[i];
     if (ls0 && ls0.arrive) {
       const arriveISO = ls0.arrive.toISOString().slice(0, 10);
       const pk0 = d.pick || {};
-      const dated = [...(pk0.sports || []), ...(pk0.tours || []), ...(pk0.dines || [])].filter((x) => x && x.date && x.date <= arriveISO);
-      if (dated.length) add("stop", `You land in ${d.city} and have ${fmtList(dated.map((x) => x.name))} the same day`,
-        `You arrive ${fmtDay(ls0.arrive)} — the very day ${dated.length === 1 ? "that is" : "those are"} booked.${longHaul ? " After an overnight crossing that means going straight there on no sleep." : ""} Leave home a day or two earlier so you land with time to clear the airport, settle in and be at your best. Add the nights on the dates step.`);
+      const fl0 = pk0.flight || null;
+      const arrH = (d.arriveBy === "Flight" && fl0 && fl0.arrive) ? arrHourOf(fl0.arrive) : null;
+      const dines0 = pk0.dines || [];
+      const items = [...(pk0.sports || []), ...(pk0.tours || []), ...dines0];
+      // (a) Dated BEFORE you even land — always wrong, whatever the time. Move it to a day you're there.
+      const before = items.filter((x) => x && x.date && x.date < arriveISO);
+      if (before.length) add("stop", `${fmtList(before.map((x) => x.name))} ${before.length === 1 ? "is" : "are"} set before you reach ${d.city}`,
+        `You arrive ${fmtDay(ls0.arrive)}, but ${before.length === 1 ? "that reservation is" : "those reservations are"} dated earlier. Move ${before.length === 1 ? "it" : "them"} to a day you are actually in ${d.city}.`);
+      // (b) On the arrival day — only a problem if the landing time makes it tight.
+      const sameDay = items.filter((x) => x && x.date === arriveISO);
+      if (sameDay.length) {
+        const dinners = sameDay.filter((x) => dines0.includes(x));
+        const daytime = sameDay.filter((x) => !dines0.includes(x));
+        const tightDinner = dinners.length > 0 && arrH !== null && arrH >= 16;   // land 4pm+ → dinner is tight after bags & check-in
+        const tightDay = daytime.length > 0 && arrH !== null && arrH >= 13;       // land afternoon → a full museum/tour that day is a stretch
+        if (tightDinner || tightDay) {
+          add("think", `${fmtList(sameDay.map((x) => x.name))} the day you land in ${d.city}`,
+            `Your flight gets in around ${fl0.arrive} — after clearing the airport and checking in, ${tightDinner ? "a dinner that evening is tight" : "that is a lot for arrival day"}. It sits better on another day while you are in ${d.city} — move the reservation, not the flight.`);
+        } else if (arrH === null) {
+          add("think", `${fmtList(sameDay.map((x) => x.name))} on the day you arrive in ${d.city}`,
+            `That is your arrival day. If you get in by early afternoon it is easy; if you land in the evening, move ${sameDay.length === 1 ? "it" : "them"} to another day while you are there.${daytime.length ? " A big museum is often nicer once you have settled in." : ""}`);
+        }
+        // Morning / early-afternoon arrival with a known time: no warning — it works.
+      }
     }
 
     // 2. The Florence problem: a regional airport quoted as a long-haul destination.
@@ -6503,10 +6527,10 @@ function ItineraryView(p) {
         if (pk.baseTown) rows.push(<div key="bt" style={{ fontSize: 12, color: t.brass, marginBottom: 2 }}>Based in {pk.baseTown} — one hotel, days out</div>);
         if (pk.transfer) rows.push(<ItinLine key="tr" label={`${pk.transfer.mode} from ${gatewayFor(d.city) ? gatewayFor(d.city).air : "the airport"}`} sub="both ways" price={pk.transfer.price * 2} />);
         if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={`${d.days} nights · ${pk.stay.level}`} price={pk.stay.nightly != null ? pk.stay.nightly * d.days : null} />);
-        (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
-        (pk.sports || []).forEach((x, k) => rows.push(<ItinLine key={"spb" + k} label={x.name} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "sport · date TBC"} price={x.price} />));
+        (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
+        (pk.sports || []).forEach((x, k) => rows.push(<ItinLine key={"spb" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "sport · date TBC"} price={x.price} />));
         (pk.days || []).forEach((x, k) => {
-          rows.push(<ItinLine key={"dt" + k} label={x.name} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "day out · date TBC"} price={x.price} />);
+          rows.push(<ItinLine key={"dt" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "day out · date TBC"} price={x.price} />);
           (x.dines || []).forEach((dn, j) => rows.push(<ItinLine key={"dtd" + k + j} label={dn.name || "Dining"} sub={dn.date ? `${fmtDay(new Date(dn.date + "T00:00:00"))} · in ${x.town}` : `in ${x.town} · date TBC`} price={dn.price} />));
         });
       } else if (pk.exploreMode === "roam") {
@@ -6519,17 +6543,17 @@ function ItineraryView(p) {
             <div style={{ fontFamily: font.display, fontSize: 19, color: t.pine }}>{st.name}{ss ? <span style={{ fontFamily: font.ui, fontSize: 11.5, color: t.inkFaint, marginLeft: 8 }}>{fmtDay(ss.arrive)} – {fmtDay(ss.depart)}</span> : null}</div>
           </div>);
           if (st.stay) rows.push(<ItinLine key={"ss" + k} label={st.stay.name || st.stay.level} sub={`${st.nights || 1} nights · ${st.stay.level}`} price={st.stay.nightly != null ? st.stay.nightly * (st.nights || 1) : null} />);
-          (st.dines || []).forEach((x, j) => rows.push(<ItinLine key={"sd" + k + j} label={x.name || "Dining"} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
+          (st.dines || []).forEach((x, j) => rows.push(<ItinLine key={"sd" + k + j} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
         });
       } else rows.push(<div key="none" style={{ fontSize: 13, color: t.inkFaint }}>Not yet decided.</div>);
     } else {
       if (pk.onward) rows.push(<ItinLine key="ow" label={`${pk.onward.mode} · ${pk.hub} → ${d.city}`} sub={pk.onward.label} price={pk.onward.price} />);
       if (pk.transfer) rows.push(<ItinLine key="tr" label={`${pk.transfer.mode} from ${gatewayFor(d.city) ? gatewayFor(d.city).air : "the airport"}`} sub="both ways" price={pk.transfer.price * 2} />);
       if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={`${destNights(d)} nights · ${pk.stay.level}`} price={pk.stay.nightly * destNights(d)} />);
-      (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
+      (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
       (pk.spas || []).forEach((x, k) => rows.push(<ItinLine key={"sp" + k} label={x.name} sub="spa" price={x.price} />));
-      (pk.tours || []).forEach((x, k) => rows.push(<ItinLine key={"tr" + k} label={x.name} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "tour · date TBC"} price={x.price} />));
-      (pk.sports || []).forEach((x, k) => rows.push(<ItinLine key={"sp2" + k} label={x.name} sub={x.date ? fmtDay(new Date(x.date + "T00:00:00")) : "sport · date TBC"} price={x.price} />));
+      (pk.tours || []).forEach((x, k) => rows.push(<ItinLine key={"tr" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "tour · date TBC"} price={x.price} />));
+      (pk.sports || []).forEach((x, k) => rows.push(<ItinLine key={"sp2" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "sport · date TBC"} price={x.price} />));
     }
     const ls = sch.legs[i];
     const baseMeta = d.mode === "open" ? `${d.days}-day explore` : d.mode === "flights" ? `${destNights(d)} nights · flights only` : `${destNights(d)} nights`;
