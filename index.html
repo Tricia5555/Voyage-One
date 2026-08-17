@@ -249,10 +249,15 @@ function isLuxeCandidate(item) {
 }
 // Restaurants get their own, more foodie ladder — and unlike hotels we happily include a great
 // inexpensive find. The labels are what the client sees; the keys map to the underlying data.
+// Tiers for cities with NO Michelin star (the "old list" browse + live Google). "Destination" is
+// reserved for cities that actually have a starred table — a starless city's very best is a
+// Standout, not a Destination — so these are all a notch below the Michelin set. Consistent with
+// michMode: Standout is the shared word for "excellent, but not a Destination." James Beard winners
+// will later lift specific tables here to Destination/Standout by name.
 const DINE_LEVELS = [
-  { key: "UltraLux", label: "Destination" },
-  { key: "Luxury", label: "Standout" },
-  { key: "Refined", label: "Local Gem" },
+  { key: "UltraLux", label: "Standout" },
+  { key: "Luxury", label: "Local Gem" },
+  { key: "Refined", label: "Neighborhood" },
   { key: "Essential", label: "Café & Casual" },
 ];
 // Michelin-driven dining tiers: Destination = any star (or James Beard winner); Standout = Bib
@@ -2189,6 +2194,11 @@ const DINING = {
   "Zurich": [{ n: "IGNIV Zürich by Andreas Caminada", s: 2 }, { n: "The Counter", s: 2 }, { n: "The Restaurant", s: 2 }, { n: "Widder Restaurant", s: 2 }, { n: "Eden Kitchen & Bar", s: 1 }, { n: "elmira", s: 1 }, { n: "EquiTable", s: 1 }, { n: "KLE", s: 1 }, { n: "La Rôtisserie", s: 1 }, { n: "Neue Taverne", s: 1 }, { n: "ORSINI", s: 1 }, { n: "Shin", s: 1 }, { n: "Wirtschaft im FRANZ", s: 1 }, { n: "Wöschi", s: 1 }],
   "Zwolle": [{ n: "De Librije", s: 3 }],
 };
+// Which DINING cities are in the United States. DINING is keyed by bare city name, so without
+// this "Birmingham (BHM)" (Alabama) would match our "Birmingham" (England) Michelin list. This
+// lets the lookup refuse a foreign list for a US city and vice-versa. Generated from the raw
+// Michelin country column — not a hand list.
+const DINING_US = { "Atherton": 1, "Atlanta": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
 const TOURS = {
   "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
   "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
@@ -2687,6 +2697,19 @@ function isUS(city) {
   const ap = airportFor(raw);
   if (ap && US_AIRPORT_CODES.has(ap.code)) return true;
   return false;
+}
+// A curated Michelin list is keyed by bare city name, so "Birmingham (BHM)" (Alabama) would
+// otherwise match our "Birmingham" (England) list, and Naples FL would pull Naples, Italy. Guard:
+// if the city we're asked about is clearly in the US but the matched Michelin city is not — or the
+// reverse — the names collide across countries, so DON'T serve the foreign list; fall through to
+// the live local feed. Universal: fixes every US/foreign same-name pair at once, no city list.
+function dineGeoOk(city, entryIsUS) {
+  const code = codeOf(city);
+  const qUS = isUS(city);
+  const qForeign = !!code && !US_AIRPORT_CODES.has(code); // a real foreign airport code
+  if (qUS && !entryIsUS) return false;
+  if (qForeign && entryIsUS) return false;
+  return true;
 }
 function stayBands(city) { const seed = hashStr("stay" + (bareCity(city) || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
 function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
@@ -3898,7 +3921,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M3</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M7</span></footer>
   </div>);
 }
 
@@ -5205,6 +5228,47 @@ function useDineInfo(city, name) {
   }, [key]);
   return info || { photo: null, site: null, desc: null, rating: null, area: null, address: null, phone: null };
 }
+// The bookable contact for a NON-Michelin restaurant — neighbourhood, address, phone, website —
+// pulled live from Google by name, exactly as the Michelin cards do. Gated on `enabled` so it only
+// fires once a table is actually selected: a browse list can be twenty rows, and we don't spend an
+// API call per row just to show a phone number nobody has asked for yet. Universal: works for the
+// curated by-tier lists AND the live Google browse, in any city, with nothing hard-coded.
+const DINE_CONTACT_CACHE = {};
+function useDineContact(city, name, enabled) {
+  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+  const [info, setInfo] = useState(DINE_CONTACT_CACHE[key]);
+  useEffect(() => {
+    if (!enabled || !city || !name) return;
+    if (DINE_CONTACT_CACHE[key] !== undefined) { setInfo(DINE_CONTACT_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/places?kind=restaurants&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { site: (m && m.site) || null, address: (m && m.address) || null, phone: (m && m.phone) || null, area: (m && m.area) || null }; DINE_CONTACT_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { DINE_CONTACT_CACHE[key] = { site: null, address: null, phone: null, area: null }; if (!dead) setInfo({ site: null, address: null, phone: null, area: null }); });
+    return () => { dead = true; };
+  }, [key, enabled]);
+  return info || { site: null, address: null, phone: null, area: null };
+}
+// A non-Michelin restaurant row. Looks exactly like PlaceRow when browsing; once selected it opens
+// the same contact block the Michelin cards show — neighbourhood, address, phone, and a "Visit site
+// / reserve" link — so every table on the site is bookable in one tap, not just the starred ones.
+function LiveDineRow({ item, city, found, onToggle, onDate, nights, sub, price, dayLabel }) {
+  const info = useDineContact(city, item.name, !!found);
+  const area = item.area || info.area;
+  const site = info.site;
+  return (<div>
+    <PlaceRow item={item} selected={!!found} onClick={onToggle} sub={sub} price={price} />
+    {found && (area || info.address || info.phone || site) ? (
+      <div style={{ margin: "-4px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
+        {area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 3 }}>{area}, {bareCity(city)}</div> : null}
+        {info.address ? <div>{info.address}</div> : null}
+        {info.phone ? <div>{info.phone}</div> : null}
+        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 3, color: t.pineSoft, textDecoration: "none" }}>Visit site / reserve →</a> : null}
+      </div>
+    ) : null}
+    {found && <DateChips nights={nights} value={found.date} onPick={onDate} label={dayLabel || "Which evening?"} />}
+  </div>);
+}
 // The restaurant tile — photo, Michelin stars, name, neighbourhood. Selected, it opens up with the
 // blurb, a reserve link, and the "which evening" picker.
 function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
@@ -5239,7 +5303,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // Michelin mode where we have the data (Destination = starred); otherwise the old browse.
   const mich = lookup(DINING, city);
-  const michMode = !!(mich && mich.length);
+  const michMode = !!(mich && mich.length) && dineGeoOk(city, !!lookup(DINING_US, city));
   const [level, setLevel] = useState(michMode ? "Destination" : "");
   const remote = useRemote("restaurants", city);
   const live = !michMode && !!remote.items;
@@ -5270,11 +5334,10 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
       {liveRows.map((r, k) => {
         const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
         const pp = live ? (r.estRate || null) : r.price;
-        return (<div key={r.id || k}>
-          <PlaceRow item={r} selected={!!found} onClick={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
-            sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />
-          {found && <DateChips nights={nights} value={found.date} onPick={(dt) => setDate(r.name, level, dt)} label={dayLabel || "Which evening?"} />}
-        </div>); })}
+        return (<LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
+          onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
+          onDate={(dt) => setDate(r.name, level, dt)}
+          sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />); })}
       {live && liveRows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
     </>)}
   </>);
@@ -5668,7 +5731,12 @@ function useGateway(city) {
     // through to the hub path, which is correct for a long-haul.
     const ownAir = airportFor(bare);
     if (ownAir && ownAir.scale === "intercontinental" && sameCity(ownAir.city, bare)) { setLive(null); return; }
-    const ck = bare.toLowerCase();
+    // Key the gateway/coord cache by geoKey, NOT bare name — geoKey keeps the airport code, so
+    // "Birmingham (BHM)" and "Birmingham (BHX)" get separate slots. Keying by bare name let every
+    // same-named city share one cache entry, and bare "Birmingham" geocodes to England — which is
+    // how a flight to Birmingham, Alabama could be sent to the wrong Birmingham. Universal fix:
+    // every ambiguous city on earth now resolves to the one the traveller actually picked.
+    const ck = geoKey(city);
     if (GATEWAY_CACHE[ck] !== undefined) { setLive(GATEWAY_CACHE[ck]); return; }
     // Need coordinates first, then the nearest airport to them.
     const coords = coordsFor(bare) || GEO_CACHE[ck];
@@ -5704,7 +5772,7 @@ function useGateway(city) {
       }).catch(() => { GATEWAY_CACHE[ck] = null; if (!dead) setLive(null); });
     }
     return () => { dead = true; };
-  }, [bare]);
+  }, [city]);
   // Hand list first (curated), then the live-computed one.
   return gatewayFor(bare) || live || null;
 }
