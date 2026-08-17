@@ -91,6 +91,8 @@ export default async function handler(req, res) {
   // Florence. When a traveller already knows the name, asking Google for THAT is both
   // cheaper and more useful than widening the browse list for everyone.
   const find = (req.query.find || "").toString().trim().slice(0, 120);
+  // For a generic-place BROWSE, an optional topic steers the search: "spas", "things to do".
+  const topic = (req.query.topic || "").toString().trim().slice(0, 40);
 
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
@@ -113,7 +115,7 @@ export default async function handler(req, res) {
     ? [`best hotels in ${city}`, `luxury 5 star hotels in ${city}`]
     : kind === "restaurants"
     ? [`best restaurants in ${city}`, `fine dining restaurants in ${city}`]
-    : [`top things to do in ${city}`];
+    : [topic ? `best ${topic} in ${city}` : `top things to do in ${city}`];
   // For a named lookup we search the venue plus its city. Hotels/restaurants add a kind word to
   // keep a hotel search off a same-named restaurant; a generic place (a golf club, a tennis
   // academy, a theatre, a museum) adds no kind word — the venue name is specific enough on its own.
