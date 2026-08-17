@@ -94,7 +94,7 @@ export default async function handler(req, res) {
 
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
-  if (!["hotels", "restaurants"].includes(kind)) return res.status(200).json({ ok: false, reason: "bad-kind" });
+  if (!["hotels", "restaurants", "place"].includes(kind)) return res.status(200).json({ ok: false, reason: "bad-kind" });
 
   // The city stays in the query so "Cipriani" finds the Venice one, not the New York one.
   // The kind word keeps a hotel search off restaurants of the same name, and vice versa.
@@ -111,8 +111,14 @@ export default async function handler(req, res) {
   // call per city, which is the honest price of a top tier that contains the top hotels.
   const browseQueries = kind === "hotels"
     ? [`best hotels in ${city}`, `luxury 5 star hotels in ${city}`]
-    : [`best restaurants in ${city}`, `fine dining restaurants in ${city}`];
-  const queries = find ? [`${find} ${kind === "hotels" ? "hotel" : "restaurant"} ${city}`] : browseQueries;
+    : kind === "restaurants"
+    ? [`best restaurants in ${city}`, `fine dining restaurants in ${city}`]
+    : [`top things to do in ${city}`];
+  // For a named lookup we search the venue plus its city. Hotels/restaurants add a kind word to
+  // keep a hotel search off a same-named restaurant; a generic place (a golf club, a tennis
+  // academy, a theatre, a museum) adds no kind word — the venue name is specific enough on its own.
+  const kindWord = kind === "hotels" ? "hotel" : kind === "restaurants" ? "restaurant" : "";
+  const queries = find ? [`${find} ${kindWord} ${city}`.replace(/\s+/g, " ").trim()] : browseQueries;
 
   try {
     const ask = (textQuery) => fetch("https://places.googleapis.com/v1/places:searchText", {
@@ -230,6 +236,7 @@ export default async function handler(req, res) {
     const STAR_TIER = { 5: "UltraLux", 4: "Luxury", 3: "Refined", 2: "Essential", 1: "Essential" };
     function classify(p) {
       if (kind === "restaurants") return classifyDining(p);
+      if (kind === "place") return "Luxury"; // experiences aren't tiered — the find path flattens all groups, so the bucket is irrelevant
       return STAR_TIER[starClass(p)];
     }
 
