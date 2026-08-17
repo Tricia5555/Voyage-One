@@ -3079,7 +3079,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·N</span></footer>
   </div>);
 }
 
@@ -4380,11 +4380,11 @@ function useDineInfo(city, name) {
     let dead = false;
     fetch(`/api/places?kind=restaurants&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, desc: (m && m.desc) || null, rating: (m && m.rating) || null }; DINE_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
-      .catch(() => { DINE_PHOTO_CACHE[key] = { photo: null, site: null, desc: null, rating: null }; if (!dead) setInfo({ photo: null, site: null, desc: null, rating: null }); });
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, desc: (m && m.desc) || null, rating: (m && m.rating) || null, area: (m && m.area) || null, address: (m && m.address) || null, phone: (m && m.phone) || null }; DINE_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { DINE_PHOTO_CACHE[key] = { photo: null, site: null, desc: null, rating: null, area: null, address: null, phone: null }; if (!dead) setInfo({ photo: null, site: null, desc: null, rating: null, area: null, address: null, phone: null }); });
     return () => { dead = true; };
   }, [key]);
-  return info || { photo: null, site: null, desc: null, rating: null };
+  return info || { photo: null, site: null, desc: null, rating: null, area: null, address: null, phone: null };
 }
 // The restaurant tile — photo, Michelin stars, name, neighbourhood. Selected, it opens up with the
 // blurb, a reserve link, and the "which evening" picker.
@@ -4406,9 +4406,11 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
     </div>
     <div style={{ padding: "13px 15px 15px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
-      <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {r.city}</div>
+      <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {info.area ? info.area + ", " : ""}{r.city}</div>
       {sel ? (<>
         {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
+        {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
+        {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
         {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, fontSize: 12.5, color: t.pineSoft, textDecoration: "none" }}>Visit site / reserve →</a> : null}
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which evening?" /></div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap to add →</div>}
