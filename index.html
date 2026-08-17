@@ -1376,7 +1376,7 @@ const DINING = {
   "Zwolle": [{ n: "De Librije", s: 3 }],
 };
 const TOURS = {
-  "New York City": [["Broadway show & premium seats", 260, "A current hit with prime orchestra seats arranged."], ["The Met private highlights", 190, "Two hours of masterpieces with an art historian."], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air."], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
+  "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
   "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
   "Palermo": [["Ballarò & Vucciria street food", 95, "Graze Palermo's raucous markets with a local guide."], ["Monreale golden mosaics", 150, "Private visit to the dazzling Norman cathedral above the city."], ["Baroque Palermo & Cappella Palatina", 140, "Palaces, oratories and the glittering royal chapel."], ["Cefalù seaside day trip", 260, "Medieval lanes and a golden beach an hour east."]],
   "Lisbon": [["Sintra palaces, private driver", 300, "Pena Palace and Quinta da Regaleira, door to door."], ["Alfama fado & tram evening", 150, "Old-quarter wandering ending with live fado and dinner."], ["Belém: pastéis & Jerónimos", 120, "Manueline monastery, monument and the original custard tarts."], ["Óbidos & wine country day", 280, "A walled medieval town and cellar tastings north of the city."]],
@@ -1384,12 +1384,12 @@ const TOURS = {
   "Madrid": [["Prado & Reina Sofía art walk", 220, "Velázquez, Goya and Picasso's Guernica with an expert."], ["La Latina tapas crawl", 120, "Hop the classic taverns with wine and jamón."], ["Toledo day trip", 280, "Imperial city of three cultures, an hour south."], ["Flamenco in an intimate tablao", 110, "Front-row passion at a storied Madrid stage."]],
 };
 const SPAS = {
-  "New York City": [["Aman Spa half-day", 400, "Three floors of calm with a signature spa journey."], ["The Peninsula spa ritual", 260, "Sky-high sanctuary above Fifth Avenue."], ["Express city reset", 150, "A restorative 60-minute massage between plans."]],
-  "Florence": [["Four Seasons garden spa ritual", 260, "Tuscan olive-and-wine treatment beside the private garden."], ["Helvetia & Bristol hammam", 180, "Underground marble spa in the centro storico."], ["Couples signature ritual", 320, "Side-by-side treatment with a glass of Chianti."]],
+  "New York City": [["Aman Spa", 400, "Three floors of calm above Fifth Avenue.", { find: "Aman New York" }], ["The Peninsula Spa", 260, "Sky-high sanctuary above Fifth Avenue.", { find: "The Peninsula New York" }]],
+  "Florence": [["Four Seasons garden spa ritual", 260, "Tuscan olive-and-wine treatment beside the private garden."], ["Helvetia & Bristol hammam", 180, "Underground marble spa in the centro storico.", { find: "Helvetia & Bristol Firenze" }]],
   "Palermo": [["Villa Igiea seaside spa", 200, "Sea-view rituals in Rocco Forte's art-nouveau villa."], ["Sicilian citrus body ritual", 140, "Local orange-and-almond scrub and massage."]],
-  "Lisbon": [["Four Seasons Ritz spa", 220, "Marble sanctuary with a signature Portuguese ritual."], ["Hammam & Vichy at The Lumiares", 160, "Steam, scrub and warm-shower ritual in Bairro Alto."], ["Couples escape", 260, "A two-hour ritual for two with downtime."]],
+  "Lisbon": [["Four Seasons Ritz spa", 220, "Marble sanctuary with a signature Portuguese ritual."], ["Hammam & Vichy at The Lumiares", 160, "Steam, scrub and warm-shower ritual in Bairro Alto.", { find: "The Lumiares Hotel Lisbon" }]],
   "Porto": [["Caudalie Vinothérapie, The Yeatman", 240, "Grape-and-wine treatments with valley views."], ["Riverside relaxation ritual", 150, "Warm-stone massage after a day on the Douro."]],
-  "Madrid": [["Mandarin Oriental Ritz spa", 260, "Opulent thermal circuit and signature massage."], ["Natura Bissé ritual at URSO", 180, "Cult Spanish skincare in a townhouse spa."], ["Couples ritual & thermal", 300, "Two treatments plus thermal-suite time."]],
+  "Madrid": [["Mandarin Oriental Ritz spa", 260, "Opulent thermal circuit and signature massage."], ["Natura Bissé ritual at URSO", 180, "Cult Spanish skincare in a townhouse spa.", { find: "URSO Hotel & Spa Madrid" }]],
 };
 const IDEA_SETTING = ["Beach & islands","Mountains & alpine","Big city","Countryside & wine","Coast & seaside","Desert","Lakes","Safari & wild"];
 const IDEA_DOING = ["Food & wine","Art & history","Shopping","Skiing","Diving & water","Hiking & nature","Wellness & spa","Nightlife","Golf","Wildlife"];
@@ -1580,23 +1580,23 @@ const SPORTS = {
   "Sorrento": [["Deep-sea fishing off the peninsula", 380, "Half a day out with a skipper who knows the ground."], ["Tennis at Sorrento Sport Club", 55, "Clay, and a pro if you want a lesson."], ["Dive Punta Campanella", 160, "The marine reserve at the tip of the peninsula."]],
   "Amalfi": [["Kayak the coast to Furore", 95, "The fjord and the sea caves, at water level."], ["Sailing charter for the day", 890, "Skippered, with lunch aboard."]],
   "Ravello": [["Tennis at the Ravello Club", 45, "Two courts, 1,000 feet above the sea."], ["Guided walk, the Valle delle Ferriere", 110, "Waterfalls and ferns in the gorge behind town."]],
-  "Lisbon": [["Padel at a city club", 60, "Europe's fastest-growing sport, courts all over Lisbon."], ["Sail the Tagus at sunset", 140, "Two hours out under the bridge and back."], ["Surf lesson at Costa da Caparica", 95, "Gentle beach breaks, 25 minutes south."], ["Tennis at Clube VII", 55, "Clay courts in the middle of the city."]],
-  "Cascais": [["Golf at Oitavos Dunes", 260, "Links land above the Atlantic, consistently ranked among Europe's best."], ["Golf at Quinta da Marinha", 190, "Pines, dunes and an easier walk than Oitavos."], ["Padel by the marina", 55, "Courts a few minutes from the old town."], ["Surf at Guincho", 110, "Serious Atlantic wind and swell — lessons or board hire."]],
+  "Lisbon": [["Sail the Tagus at sunset", 140, "Two hours out under the bridge and back."], ["Surf lesson at Costa da Caparica", 95, "Gentle beach breaks, 25 minutes south."], ["Tennis at Clube VII", 55, "Clay courts in the middle of the city.", { find: "Clube VII Lisboa" }]],
+  "Cascais": [["Golf at Oitavos Dunes", 260, "Links land above the Atlantic, consistently ranked among Europe's best."], ["Golf at Quinta da Marinha", 190, "Pines, dunes and an easier walk than Oitavos."], ["Surf at Guincho", 110, "Serious Atlantic wind and swell — lessons or board hire."]],
   "Algarve": [["Golf at Monte Rei", 340, "A Jack Nicklaus Signature course, and the Algarve's finest."], ["Golf at Quinta do Lago (South)", 290, "The tournament course, through pine and lake."], ["Golf at San Lorenzo", 250, "Along the Ria Formosa lagoon — the classic."], ["Big-game fishing from Vilamoura", 420, "Half a day out for tuna, marlin or bream."], ["Tennis at the Vale do Lobo academy", 70, "Fourteen courts and serious coaching."], ["Padel at Vale do Lobo", 50, "Courts beside the tennis academy."]],
   "Comporta": [["Horse riding on the beach", 120, "Along the sand at Carvalhal — the thing to do here."], ["Surf lesson at Praia do Pego", 85, "Long, empty Atlantic beach breaks."], ["Padel at the Comporta courts", 45, "Under the pines near the village."]],
   "Sintra": [["Golf at Penha Longa (Atlantic)", 230, "A Robert Trent Jones Jr. course through the Sintra hills."], ["Horse riding in the Sintra hills", 110, "Through the cork oaks above the palaces."]],
   "Óbidos": [["Golf at Royal Óbidos", 180, "A Seve Ballesteros design above the lagoon."], ["Golf at Praia D'El Rey", 210, "Clifftop links and pine, ten minutes away."], ["Surf at Peniche", 95, "Supertubos, and gentler beaches nearby."]],
-  "Porto": [["Surf at Matosinhos", 90, "The city beach break, boards and lessons on site."], ["Padel in Boavista", 50, "Indoor courts, five minutes from the centre."], ["Kayak the Douro under the bridges", 75, "Two hours on the water beneath the six bridges."]],
+  "Porto": [["Surf at Matosinhos", 90, "The city beach break, boards and lessons on site."], ["Kayak the Douro under the bridges", 75, "Two hours on the water beneath the six bridges."]],
   "Douro Valley": [["Kayak the river below the quintas", 80, "Flat water, terraced vines on both sides."], ["Boat the Douro on a rabelo", 120, "The old port boats, now carrying people not barrels."]],
-  "Madrid": [["Padel — the sport was made here", 55, "Madrid is padel's world capital; courts everywhere, coaches better."], ["Golf at Club de Campo", 180, "A Javier Arana classic inside the city."], ["Tennis at a city club", 60, "Clay, and coaching in English."]],
+  "Madrid": [["Padel at Club de Campo Villa de Madrid", 55, "Play padel in padel's home city, at Madrid's great multi-sport club.", { find: "Club de Campo Villa de Madrid" }], ["Golf at Club de Campo Villa de Madrid", 180, "A Javier Arana classic inside the city.", { find: "Club de Campo Villa de Madrid" }], ["Tennis at Club de Campo Villa de Madrid", 60, "Clay courts and English-speaking coaching.", { find: "Club de Campo Villa de Madrid" }]],
   "Florence": [["Golf dell'Ugolino", 150, "Italy's oldest course, through olives and cypress."], ["Cycle the Chianti hills", 130, "Road or gravel, with a guide who knows the gradients."], ["Tennis at Circolo del Tennis Firenze", 55, "Clay by the Arno, founded 1898."]],
   "Palermo": [["Sail out of Mondello", 480, "The bay, the cliffs and a swim off the boat."], ["Dive the Capo Gallo reserve", 140, "Clear water and walls, twenty minutes from town."], ["Fishing with a Sferracavallo crew", 260, "Out with the boats that supply the markets."]],
-  "New York City": [["Tennis at the USTA Billie Jean King Center", 90, "Play where the Open is played."], ["Padel in Brooklyn", 70, "The sport is arriving in the city, fast."]],
+  "New York City": [["John McEnroe Tennis Academy", 120, "Play at John McEnroe's academy at SPORTIME on Randall's Island.", { find: "John McEnroe Tennis Academy SPORTIME Randall's Island" }], ["USTA Billie Jean King Tennis Center", 90, "Hit where the US Open is played, in Flushing Meadows.", { find: "USTA Billie Jean King National Tennis Center" }], ["Padel Haus (Williamsburg)", 70, "The Brooklyn club that brought padel to the city.", { find: "Padel Haus Williamsburg Brooklyn" }]],
   "Évora": [["Horse riding in the Alentejo", 100, "Lusitanos, cork oaks and long empty country."]],
   "Mallorca": [["Cycle the Tramuntana", 140, "The climbs the professionals use for winter training."], ["Golf at Son Gual", 200, "The island's best-regarded modern course."], ["Sail the west coast", 620, "Out of Port d'Andratx to the coves."]],
   "Santorini": [["Sail the caldera", 480, "Catamaran to the hot springs and Red Beach, sunset return."], ["Dive the caldera wall", 150, "Volcanic rock, straight down into blue."]],
   "Mykonos": [["Windsurf at Kalafatis", 90, "The reliable Meltemi wind, boards and lessons."], ["Sail to Delos and Rhenia", 520, "The sacred island, then a swim off Rhenia."]],
-  "Barcelona": [["Padel in Eixample", 50, "Indoor courts in the middle of the city."], ["Sail the Mediterranean at sunset", 130, "Two hours out of Port Vell."]],
+  "Barcelona": [["Sail the Mediterranean at sunset", 130, "Two hours out of Port Vell."]],
 };
 function sportsFor(city) { if (!city) return []; const k = Object.keys(SPORTS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? SPORTS[k] : []; }
 const DAYTRIPS = {
@@ -1877,8 +1877,10 @@ function isUS(city) {
 function stayBands(city) { const seed = hashStr("stay" + (bareCity(city) || "x")); const ess = round5(140 + seeded(seed) * 90); return { UltraLux: round5(ess * 9.2), Luxury: round5(ess * 4.3), Refined: round5(ess * 2.1), Essential: ess }; }
 function stayData(city) { const d = lookup(HOTELS, city); if (d) return d; const b = stayBands(city); const o = {}; LEVELS.forEach((l) => { o[l] = [[null, b[l], ""]]; }); return o; }
 function dineData(city) { const d = lookup(EATS, city); if (d) return d; const per = { UltraLux: 200, Luxury: 110, Refined: 65, Essential: 30 }; const o = {}; Object.keys(per).forEach((l) => { o[l] = [[null, per[l], ""]]; }); return o; }
-function toursData(city) { const d = lookup(TOURS, city); if (d) return d; const seed = hashStr("tour" + (city || "x")); const b = round5(120 + seeded(seed) * 120); return [["Half-day private guide", b, "A local expert shapes a half-day around what you love."], ["Full-day private tour", round5(b * 1.9), "A full day of sights, tastes and stories, tailored to you."], ["Day trip with driver", round5(b * 2.3), "An out-of-town highlight with door-to-door comfort."]]; }
-function spasData(city) { const d = lookup(SPAS, city); if (d) return d; return [["Signature spa ritual", 200, "A restorative treatment at a leading local spa."], ["Couples escape", 300, "Side-by-side treatments and downtime for two."]]; }
+// Real or nothing. No invented "half-day private guide" / "signature spa ritual" filler for a
+// city we have not curated — an empty list hides the panel entirely (see the render sites).
+function toursData(city) { return lookup(TOURS, city) || []; }
+function spasData(city) { return lookup(SPAS, city) || []; }
 function groundOption(mode, from, to) {
   // Give the traveller the real time for the mode they chose, not a blank card. Train uses the
   // rail estimate, ferry the crossing time, drive/chauffeur the road estimate (curated where we
@@ -3079,7 +3081,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·N</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·E</span></footer>
   </div>);
 }
 
@@ -4468,14 +4470,50 @@ function DateChips({ nights, value, onPick, label }) {
       return <button key={k} onClick={() => onPick(on ? "" : k)} style={{ padding: "6px 11px", borderRadius: 999, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : t.white, color: on ? t.paper : t.inkSoft, fontSize: 12 }}>{fmtShort(d)}</button>; })}
   </div>);
 }
-function ListPicker({ rows, chosen, onToggle, nights, onDate, label }) {
-  return (<>{rows.map(([name, price, desc], k) => {
-    const found = chosen.find((x) => x.name === name);
-    return (<div key={k}>
-      <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={fmt(price)} />
-      {found && onDate && <DateChips nights={nights} value={found.date} onPick={(dt) => onDate(name, dt)} label={label || "Which day?"} />}
-    </div>);
-  })}</>);
+// The real, bookable details for an experience venue — address, phone, website — pulled live
+// from Google (kind=place), exactly as the restaurants do. Only fetched once a suggestion is
+// SELECTED, so browsing a city costs nothing. A venue Google cannot find simply shows no
+// contact rather than a fake one.
+const VENUE_CACHE = {};
+function useVenueInfo(city, name, enabled) {
+  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+  const [info, setInfo] = useState(VENUE_CACHE[key]);
+  useEffect(() => {
+    if (!enabled || !city || !name) return;
+    if (VENUE_CACHE[key] !== undefined) { setInfo(VENUE_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/places?kind=place&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { site: (m && m.site) || null, address: (m && m.address) || null, phone: (m && m.phone) || null }; VENUE_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .catch(() => { VENUE_CACHE[key] = { site: null, address: null, phone: null }; if (!dead) setInfo({ site: null, address: null, phone: null }); });
+    return () => { dead = true; };
+  }, [key, enabled]);
+  return info || { site: null, address: null, phone: null };
+}
+// One experience row. A row is [name, price, desc] with an optional 4th object { find, book }:
+// `find` overrides the Google search text; `book` is an explicit booking link for when the venue
+// itself is not where you book (Broadway tickets, a private tour operator).
+function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
+  const name = row[0], price = row[1], desc = row[2], opts = row[3] || null;
+  const found = chosen.find((x) => x.name === name);
+  const info = useVenueInfo(city, (opts && opts.find) || name, !!found);
+  const bookUrl = (opts && opts.book) || info.site;
+  return (<div>
+    <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Booked for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={fmt(price)} />
+    {found && (info.address || info.phone || bookUrl) ? (
+      <div style={{ margin: "2px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
+        {info.address ? <div>{info.address}</div> : null}
+        {info.phone ? <div>{info.phone}</div> : null}
+        {bookUrl ? <a href={brandedLink(bookUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>Visit site / book →</a> : null}
+      </div>
+    ) : null}
+    {found && onDate && <DateChips nights={nights} value={found.date} onPick={(dt) => onDate(name, dt)} label={label || "Which day?"} />}
+  </div>);
+}
+function ListPicker({ rows, chosen, onToggle, nights, onDate, label, city }) {
+  return (<>{rows.map((row, k) => (
+    <VenueRow key={k} row={row} city={city} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+  ))}</>);
 }
 
 function StopCard({ stop, idx, stops, setStops, prevPlace, sched, setUndo }) {
@@ -4590,7 +4628,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
         {transferOptions(gwNote.air, baseTown).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
       </Panel>}
       {baseTown && <Panel icon={Utensils} title={`Dining in ${baseTown}`}><DinePicker city={baseTown} pick={pick} upd={upd} nights={legSched ? nightsIn(legSched) : []} /></Panel>}
-      {baseTown && sportsFor(baseTown).length > 0 && <Panel icon={Trophy} title={`Sport in ${baseTown}`}><ListPicker rows={sportsFor(baseTown)} chosen={pick.sports || []} onToggle={(name, price, sel) => upd({ sports: sel ? (pick.sports || []).filter((x) => x.name !== name) : [...(pick.sports || []), { name, price, date: "" }] })} nights={legSched ? daysIn(legSched) : []} label="Which day?" onDate={(name, dt) => upd({ sports: (pick.sports || []).map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
+      {baseTown && sportsFor(baseTown).length > 0 && <Panel icon={Trophy} title={`Sport in ${baseTown}`}><ListPicker city={baseTown} rows={sportsFor(baseTown)} chosen={pick.sports || []} onToggle={(name, price, sel) => upd({ sports: sel ? (pick.sports || []).filter((x) => x.name !== name) : [...(pick.sports || []), { name, price, date: "" }] })} nights={legSched ? daysIn(legSched) : []} label="Which day?" onDate={(name, dt) => upd({ sports: (pick.sports || []).map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       {baseTown && outTrips.length > 0 && (<Panel icon={Compass} title={`Days out from ${baseTown}`}>
         <div style={{ fontSize: 13, color: t.inkFaint, marginBottom: 10 }}>Out and back the same day — your room at {pick.stay ? pick.stay.name || baseTown : baseTown} stays yours.</div>
         {outTrips.map(([name, note, why, price, town]) => {
@@ -4900,9 +4938,9 @@ function CitySection({ d, i, p, from, legSched }) {
       </Panel>}
       {d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} /></Panel>}
       <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>
-      <Panel icon={Flower2} title={`Spa in ${d.city || "this city"}`}><ListPicker rows={spasData(d.city)} chosen={spas} onToggle={(name, price, sel) => upd({ spas: sel ? spas.filter((x) => x.name !== name) : [...spas, { name, price }] })} /></Panel>
-      {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
-      <Panel icon={Compass} title={`Days out from ${d.city || "this city"}`}><ListPicker rows={toursData(d.city)} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>
+      {spasData(d.city).length > 0 && <Panel icon={Flower2} title={`Spa in ${d.city || "this city"}`}><ListPicker city={d.city} rows={spasData(d.city)} chosen={spas} onToggle={(name, price, sel) => upd({ spas: sel ? spas.filter((x) => x.name !== name) : [...spas, { name, price }] })} /></Panel>}
+      {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
+      {toursData(d.city).length > 0 && <Panel icon={Compass} title={`Days out from ${d.city || "this city"}`}><ListPicker city={d.city} rows={toursData(d.city)} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
     </>}
     </div>
   </div>);
