@@ -3945,7 +3945,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M10</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M12</span></footer>
   </div>);
 }
 
@@ -5317,64 +5317,55 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
     </div>
   </div>);
 }
+const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Standout", label: "Standout" }, { key: "Neighborhood", label: "Neighborhood" }, { key: "Cafe", label: "Café & Casual" }];
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
-  // Michelin mode where we have the data (Destination = starred); otherwise the old browse.
+  // Four tabs, everywhere. Destination = Michelin stars only (a star is a Destination; in a dining
+  // capital dense with top stars — 20+ combined 2★+3★ — the 1★ step down to Standout). Standout =
+  // the top, truly great tables (plus those demoted 1★). Neighborhood and Café & Casual = the rest,
+  // from Google, all with live click-through. Destination is always shown, even empty — it is the
+  // aspiration. ("Local Gem" is gone: it implied local and kept out great non-local tables.)
   const mich = lookup(DINING, city);
   const michMode = !!(mich && mich.length) && dineGeoOk(city, !!lookup(DINING_US, city));
-  // "Dense" = 20+ two-and-three-star tables (Tokyo, Paris, London, Kyoto). In those cities the 1★
-  // step down to Standout; everywhere else every star stays a Destination. From the data itself.
   const dense = !!(mich && mich.filter((m) => m.s >= 2).length >= 20);
-  const [level, setLevel] = useState(michMode ? "Destination" : "");
+  const [level, setLevel] = useState("Destination");
   const remote = useRemote("restaurants", city);
-  const live = !michMode && !!remote.items;
-  const tiers = michMode ? DINE_TIERS : DINE_LEVELS;
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
-  const michRows = michMode && level ? mich.filter((m) => michTier(m, dense) === level) : [];
-  // Standout also fills with the great non-starred tables Google knows — the "previously named
-  // Destination" restaurants — so a Michelin city's Standout is rich, not just a handful of stars.
   const nrm = (s) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
   const michNames = new Set((mich || []).map((m) => nrm(m.n)));
-  const liveStandout = (michMode && level === "Standout" && remote.items)
-    ? [].concat(remote.items.UltraLux || [], remote.items.Luxury || []).filter((r) => r && r.name && !michNames.has(nrm(r.name)))
-    : [];
-  const liveRows = !michMode && level ? (live ? (remote.items[level] || []) : (dineData(city)[level] || []).map(([name, price, desc]) => ({ name, price, desc, level }))) : [];
+  const michRows = michMode && (level === "Destination" || level === "Standout") ? mich.filter((m) => michTier(m, dense) === level) : [];
+  // Live tables by band (Google), with the curated EATS list as a fallback when Google is down.
+  // Standout draws the top two bands, Neighborhood the next, Café & Casual the last.
+  const usingLive = !!remote.items;
+  const bands = usingLive ? remote.items : dineData(city);
+  const bandRows = (keys) => { const out = []; keys.forEach((k) => (bands[k] || []).forEach((x) => { const row = usingLive ? x : { name: x[0], price: x[1], desc: x[2] }; if (row && row.name && !michNames.has(nrm(row.name))) out.push(row); })); return out; };
+  const liveRows = level === "Standout" ? bandRows(["UltraLux", "Luxury"]) : level === "Neighborhood" ? bandRows(["Refined"]) : level === "Cafe" ? bandRows(["Essential"]) : [];
+  const nothingHere = michRows.length === 0 && liveRows.length === 0;
+  const tabLabel = (DINE_TABS.find((x) => x.key === level) || {}).label || level;
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
-      {tiers.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
-      {michMode ? <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Michelin</span> : <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>}
+      {DINE_TABS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
+      <span style={{ marginLeft: "auto" }}>{michMode ? <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Michelin</span> : <LiveBadge live={usingLive} />}</span>
     </div>
-    {michMode ? (<>
-      {michRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-        {michRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
-          <DineCard key={k} r={r} city={city} level={level} found={found}
-            onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
-            onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
-      </div>}
-      {level === "Standout" && liveStandout.length > 0 && (<>
-        {michRows.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More great tables in {bareCity(city)}</div>}
-        <div>{liveStandout.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level)); const pp = r.estRate || null; return (
-          <LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
-            onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: true, id: r.id || null }] })}
-            onDate={(dt) => setDate(r.name, level, dt)}
-            sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.`} price={fmt(pp)} />); })}</div>
-      </>)}
-      {michRows.length === 0 && !(level === "Standout" && liveStandout.length > 0) && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Standout" ? (remote.loading ? `Finding great tables in ${bareCity(city)}…` : `More standout tables for ${bareCity(city)} are on the way.`) : `No ${level} restaurants on our list for ${bareCity(city)} yet.`}</div>}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Michelin Guide · Destination = starred tables · Standout = 1★ in the great capitals plus standout local tables · booked on your behalf.</div>
-    </>) : (<>
-      {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Looking up {city}…</div>}
-      {!level && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Pick a style to see restaurants — from a destination table to a great little café. Add as many as you like.</div>}
-      {level && liveRows.length === 0 && !remote.loading && <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing at this level in {city || "this city"}. Try another.</div>}
-      {liveRows.map((r, k) => {
-        const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level));
-        const pp = live ? (r.estRate || null) : r.price;
-        return (<LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
-          onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: live, id: r.id || null }] })}
+    {michRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+      {michRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
+        <DineCard key={k} r={r} city={city} level={level} found={found}
+          onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
+          onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
+    </div>}
+    {liveRows.length > 0 && (<>
+      {michRows.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More great tables in {bareCity(city)}</div>}
+      <div>{liveRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level)); const pp = usingLive ? (r.estRate || null) : (r.price || null); return (
+        <LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
+          onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: usingLive, id: r.id || null }] })}
           onDate={(dt) => setDate(r.name, level, dt)}
-          sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (live ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={fmt(pp)} />); })}
-      {live && liveRows.length > 0 && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.1em", marginTop: 2 }}>Powered by Google · book direct or through the restaurant</div>}
+          sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (pp ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={pp ? fmt(pp) : ""} />); })}</div>
     </>)}
+    {nothingHere && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Destination"
+      ? `No starred restaurant in ${bareCity(city)} yet — a Michelin star is the bar for Destination. See Standout for its great tables.`
+      : (remote.loading ? `Finding ${tabLabel.toLowerCase()} tables in ${bareCity(city)}…` : `More ${tabLabel.toLowerCase()} tables for ${bareCity(city)} are on the way.`)}</div>}
+    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin-starred · Standout = the top, truly great tables · Neighborhood & Café/Casual from Google · all booked on your behalf.</div>
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
