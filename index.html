@@ -293,7 +293,7 @@ const DINE_TIERS = [{ key: "Destination", label: "Destination" }, { key: "Stando
 // carries one of the other credentials, which keeps it a Destination. Everything else = Recommended.
 function michTier(m, dense) {
   const s = (m && typeof m === "object") ? (m.s || 0) : (m || 0);
-  const cred = m && typeof m === "object" && (m.jb || (m.w && m.w <= 100) || (m.ll && m.ll >= 95));
+  const cred = m && typeof m === "object" && (m.jb || (m.w && m.w <= 100) || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19));
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
 }
@@ -2406,6 +2406,13 @@ function dnrm(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/
 function accoladesFor(city){const a=ACCOLADES[dnrm(bareCity(city))]; if(!a)return []; return a.filter(x=>dineGeoOk(city,!!x.us));}
 // Accolades layered onto a restaurant we already hold via Michelin (keyed name|city).
 function credOf(name,city){return CRED[dnrm(name)+"|"+dnrm(bareCity(city))]||null;}
+// Local Favorites — hand-filled by Tricia, city by city. Keyed by bare city name; each entry is
+// { n: "Restaurant name" } (add us:1 for a US city that shares a name with a foreign one, e.g.
+// Birmingham). These are the ONLY hand-curated tier; nothing here is algorithmic.
+const LOCALFAV = {
+  // "Birmingham": [{ n: "Highlands Bar & Grill", us:1 }],   // ← example of the format
+};
+function localFavFor(city){const a=LOCALFAV[dnrm(bareCity(city))]; if(!a)return []; return a.filter(x=>x.us===undefined?true:dineGeoOk(city,!!x.us)).map(x=>({ ...x, lf:1 }));}
 const TOURS = {
   "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
   "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
@@ -4130,7 +4137,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M13</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M14</span></footer>
   </div>);
 }
 
@@ -5493,11 +5500,14 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
       <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {info.area ? info.area + ", " : ""}{r.city}</div>
       {sel ? (<>
-        {(r.s >= 1 || r.jb || r.w || r.ll) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
+        {(r.s >= 1 || r.jb || r.w || r.ll || r.gm || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
           {r.s >= 1 ? <div>{"★".repeat(r.s)} Michelin</div> : null}
           {r.w && r.w <= 100 ? <div>World's 50 Best · #{r.w}{r.wy ? " (" + r.wy + ")" : ""}</div> : null}
           {r.jb ? <div>James Beard Award</div> : null}
           {r.ll >= 95 ? <div>La Liste {r.ll}</div> : null}
+          {r.gm >= 19 ? <div>Gault&Millau {r.gm}</div> : null}
+          {r.bib ? <div>Michelin Bib Gourmand</div> : null}
+          {r.lf ? <div>Local Favorite · our pick</div> : null}
         </div> : null}
         {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
         {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
@@ -5508,14 +5518,17 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
     </div>
   </div>);
 }
-const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recommended", label: "Recommended" }, { key: "Cafe", label: "Café & Casual" }];
+const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recommended", label: "Recommended" }, { key: "Local", label: "Local Favorite" }];
 // The accolade badge for a card — Michelin stars if starred, else the top non-Michelin credential.
 function accoladeBadge(r) {
   if (r.s >= 1) return "★".repeat(r.s) + " Michelin";
   if (r.w && r.w <= 100) return "World's 50 Best · #" + r.w;
   if (r.jb) return "James Beard";
   if (r.ll >= 95) return "La Liste " + r.ll;
-  return "Destination";
+  if (r.gm >= 19) return "Gault&Millau " + r.gm;
+  if (r.bib) return "Michelin Bib Gourmand";
+  if (r.lf) return "Local Favorite";
+  return "Recommended";
 }
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // Three categories, everywhere. DESTINATION = Michelin star (1–3) + James Beard + World's 50 Best
@@ -5527,50 +5540,36 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // Fold accolades onto our Michelin records so a 1★ that is also 50 Best/JB stays a Destination and
   // its credentials show on the card.
   const mich = michOK ? michRaw.map((m) => ({ ...m, ...(credOf(m.n, city) || {}) })) : [];
-  const acc = accoladesFor(city);            // accolade-only Destinations (James Beard / 50 Best / La Liste)
+  const acc = accoladesFor(city);
   const dense = !!(michRaw.length && michRaw.filter((m) => m.s >= 2).length >= 20);
   const [level, setLevel] = useState("Destination");
-  const remote = useRemote("restaurants", city);
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
   const nrm = (s) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
-  // Cards on the Destination and Recommended tabs come from our starred/credentialed data.
-  let cardRows = [];
-  if (level === "Destination") cardRows = mich.filter((m) => michTier(m, dense) === "Destination").concat(acc);
-  else if (level === "Recommended") cardRows = mich.filter((m) => michTier(m, dense) === "Recommended");
-  const cardNames = new Set(cardRows.map((r) => nrm(r.n)).concat(mich.map((m) => nrm(m.n))).concat(acc.map((a) => nrm(a.n))));
-  // Live tables: Recommended draws the top three Google bands, Café & Casual the last, deduped
-  // against everything we already show as a card. EATS is the fallback when Google is unavailable.
-  const usingLive = !!remote.items;
-  const bands = usingLive ? remote.items : dineData(city);
-  const bandRows = (keys) => { const out = []; keys.forEach((k) => (bands[k] || []).forEach((x) => { const row = usingLive ? x : { name: x[0], price: x[1], desc: x[2] }; if (row && row.name && !cardNames.has(nrm(row.name))) out.push(row); })); return out; };
-  const liveRows = level === "Recommended" ? bandRows(["UltraLux", "Luxury", "Refined"]) : level === "Cafe" ? bandRows(["Essential"]) : [];
-  const nothingHere = cardRows.length === 0 && liveRows.length === 0;
-  const tabLabel = (DINE_TABS.find((x) => x.key === level) || {}).label || level;
+  // Pool Michelin + accolade records once, dedupe by name, then split by tier. Local Favorite is a
+  // separate hand-filled list. No live-Google tables anywhere — every card is professionally or
+  // hand curated.
+  const seen = new Set(); const pool = [];
+  mich.concat(acc).forEach((r) => { const k = nrm(r.n); if (!seen.has(k)) { seen.add(k); pool.push(r); } });
+  const cardRows = level === "Local" ? localFavFor(city) : pool.filter((r) => michTier(r, dense) === level);
+  const empty = {
+    Destination: `No Destination table in ${bareCity(city)} yet — a Michelin star, James Beard, World's 50 Best or La Liste 95+ is the bar.`,
+    Recommended: `No Michelin Bib Gourmand in ${bareCity(city)} yet.`,
+    Local: `No Local Favorite in ${bareCity(city)} yet — these are hand-picked.`,
+  };
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {DINE_TABS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
-      <span style={{ marginLeft: "auto" }}>{(mich.length || acc.length) ? <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span> : <LiveBadge live={usingLive} />}</span>
+      <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span>
     </div>
-    {cardRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+    {cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
         <DineCard key={k} r={r} city={city} level={level} found={found}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
           onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
-    </div>}
-    {liveRows.length > 0 && (<>
-      {cardRows.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More great tables in {bareCity(city)}</div>}
-      <div>{liveRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level)); const pp = usingLive ? (r.estRate || null) : (r.price || null); return (
-        <LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
-          onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: usingLive, id: r.id || null }] })}
-          onDate={(dt) => setDate(r.name, level, dt)}
-          sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (pp ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={pp ? fmt(pp) : ""} />); })}</div>
-    </>)}
-    {nothingHere && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Destination"
-      ? `No Destination-level table in ${bareCity(city)} yet — a Michelin star, James Beard win, or World's 50 Best / La Liste ranking is the bar. See Recommended for its great tables.`
-      : (remote.loading ? `Finding ${tabLabel.toLowerCase()} tables in ${bareCity(city)}…` : `More ${tabLabel.toLowerCase()} tables for ${bareCity(city)} are on the way.`)}</div>}
-    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Recommended = the great tables · booked on your behalf.</div>
+    </div> : <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty[level]}</div>}
+    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Gault&Millau 19+ · Recommended = Michelin Bib Gourmand · Local Favorite = our own picks · booked on your behalf.</div>
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
