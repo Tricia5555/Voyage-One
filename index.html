@@ -287,7 +287,16 @@ const DINE_TIERS = [{ key: "Destination", label: "Destination" }, { key: "Stando
 // A star is a Destination by default — even a lone 1★ in a town. ONLY in a city dense with top
 // stars (20+ combined 2★+3★: Tokyo, Paris, London, Kyoto) do the 1★ step down to Standout, leaving
 // Destination to the 2★/3★. `dense` is decided by the caller from the city's own data.
-function michTier(m, dense) { const s = (m && typeof m === "object") ? m.s : m; if (s >= 2) return "Destination"; return dense ? "Standout" : "Destination"; }
+// A restaurant is a DESTINATION if it has a Michelin star (1–3), OR a James Beard win, OR a World's
+// 50 Best top-100 rank, OR a La Liste score of 95+. The one demotion: a 1★ in a city dense with top
+// stars (>20 combined 2★+3★: Tokyo, Paris, London, Kyoto) drops to RECOMMENDED — UNLESS it also
+// carries one of the other credentials, which keeps it a Destination. Everything else = Recommended.
+function michTier(m, dense) {
+  const s = (m && typeof m === "object") ? (m.s || 0) : (m || 0);
+  const cred = m && typeof m === "object" && (m.jb || (m.w && m.w <= 100) || (m.ll && m.ll >= 95));
+  if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
+  return "Recommended";
+}
 // Above this, a leg genuinely needs long-haul aircraft and a regional field can't take it.
 // Below it, narrow-bodies fly the route all day. 3,000 km sits in clear air between the two:
 // the longest intra-Europe pairings (Lisbon–Athens ~2,860 km) fall under, and the shortest
@@ -2221,6 +2230,182 @@ const DINING = {
 // lets the lookup refuse a foreign list for a US city and vice-versa. Generated from the raw
 // Michelin country column — not a hand list.
 const DINING_US = { "Atherton": 1, "Atlanta": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
+
+const ACCOLADES = {
+  "amity": [{ n: "Antica Terra", us:1, jb:1 }],
+  "asheville": [{ n: "Chai Pani", us:1, jb:1 }, { n: "Cúrate", us:1, jb:1 }],
+  "atlanta": [{ n: "Miller Union", us:1, jb:1 }],
+  "aurora": [{ n: "Annette", us:1, jb:1 }],
+  "baltimore": [{ n: "Charleston", us:1, jb:1 }],
+  "birmingham": [{ n: "Automatic Seafood and Oysters", us:1, jb:1 }],
+  "bogota": [{ n: "El Chato", w:54, wy:2025 }, { n: "Leo", w:76, wy:2025 }],
+  "boise": [{ n: "KIN", us:1, jb:1 }],
+  "boston": [{ n: "Uni", us:1, jb:1 }, { n: "Myers + Chang", us:1, jb:1 }],
+  "boulder": [{ n: "Frasca Food and Wine", us:1, jb:1 }],
+  "breckenridge": [{ n: "Rootstalk", us:1, jb:1 }],
+  "brooklyn": [{ n: "Lilia", us:1, jb:1 }],
+  "caldwell": [{ n: "Amano", us:1, jb:1 }],
+  "cape town": [{ n: "La Colombe", w:55, wy:2025 }, { n: "Fyn", w:82, wy:2025 }, { n: "Salsify at the Roundhouse", w:88, wy:2025 }],
+  "cartagena": [{ n: "Celele", w:48, wy:2025 }],
+  "charleston": [{ n: "1010 Bridge", us:1, jb:1 }, { n: "Rodney Scott's Whole Hog BBQ", us:1, jb:1 }, { n: "FIG", us:1, jb:1 }],
+  "chicago": [{ n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1 }, { n: "Monteverde", us:1, jb:1 }],
+  "columbia": [{ n: "Lula Drake Wine Parlour", us:1, jb:1 }],
+  "cusco": [{ n: "Mil", w:75, wy:2025 }],
+  "decatur": [{ n: "The Deer and the Dove", us:1, jb:1 }],
+  "denver": [{ n: "Yuan Wonton", us:1, jb:1 }, { n: "Mercantile Dining & Provision", us:1, jb:1 }],
+  "dover": [{ n: "Stages at One Washington", us:1, jb:1 }],
+  "durham": [{ n: "SALTBOX Seafood Joint", us:1, jb:1 }],
+  "easton": [{ n: "Bas Rouge", us:1, jb:1 }],
+  "guadalajara": [{ n: "Alcalde", w:51, wy:2025 }],
+  "hong kong": [{ n: "Wing", w:11, wy:2025 }],
+  "honolulu": [{ n: "Fête", us:1, jb:1 }],
+  "houston": [{ n: "JŪN", us:1, jb:1 }, { n: "Street to Kitchen", us:1, jb:1 }, { n: "Hugo's", us:1, jb:1 }],
+  "las vegas": [{ n: "Casa Playa", us:1, jb:1 }],
+  "leicester": [{ n: "Montgomery Sky Farm", us:1, jb:1 }],
+  "lima": [{ n: "Maido", w:1, wy:2025 }, { n: "Kjolle", w:9, wy:2025 }, { n: "Mérito", w:26, wy:2025 }, { n: "Mayta", w:39, wy:2025 }],
+  "los angeles": [{ n: "Kato", us:1, jb:1 }, { n: "Kuya Lord", us:1, jb:1 }, { n: "OTOTO", us:1, jb:1 }],
+  "madison": [{ n: "Fairchild", us:1, jb:1 }],
+  "merida": [{ n: "Huniik", w:89, wy:2025 }],
+  "milwaukee": [{ n: "The Diplomat", us:1, jb:1 }],
+  "minneapolis": [{ n: "Bûcheron", us:1, jb:1 }, { n: "Hai Hai", us:1, jb:1 }, { n: "Young Joni", us:1, jb:1 }, { n: "Spoon and Stable", us:1, jb:1 }],
+  "mission": [{ n: "Ana Liz Taqueria", us:1, jb:1 }],
+  "monson": [{ n: "The Quarry", us:1, jb:1 }],
+  "mumbai": [{ n: "Masque", w:68, wy:2025 }],
+  "mystic": [{ n: "The Shipwright's Daughter", us:1, jb:1 }],
+  "nashville": [{ n: "Peninsula", us:1, jb:1 }],
+  "new orleans": [{ n: "Dakar NOLA", us:1, jb:1 }, { n: "Compère Lapin", us:1, jb:1 }, { n: "Herbsaint", us:1, jb:1 }],
+  "new york": [{ n: "Lei", us:1, jb:1 }, { n: "Dhamaka", us:1, jb:1 }, { n: "Frenchette", us:1, jb:1 }, { n: "Via Carota", us:1, jb:1 }, { n: "Hearth", us:1, jb:1 }],
+  "oklahoma city": [{ n: "Grey Sweater", us:1, jb:1 }],
+  "oudenburg": [{ n: "Willem Hiele", w:62, wy:2025 }],
+  "oxford": [{ n: "Snackbar", us:1, jb:1 }],
+  "philadelphia": [{ n: "Kalaya", us:1, jb:1 }, { n: "Royal Sushi & Izakaya", us:1, jb:1 }, { n: "South Philly Barbacoa", us:1, jb:1 }, { n: "Zahav", us:1, jb:1 }, { n: "Vernick Food & Drink", us:1, jb:1 }],
+  "phoenix": [{ n: "Lom Wong", us:1, jb:1 }, { n: "Bacanora", us:1, jb:1 }],
+  "portland": [{ n: "Nodoguro", us:1, jb:1 }, { n: "Langbaan", us:1, jb:1 }, { n: "Kann", us:1, jb:1 }, { n: "Eventide Oyster Co.", us:1, jb:1 }, { n: "Ox", us:1, jb:1 }],
+  "providence": [{ n: "Gift Horse", us:1, jb:1 }],
+  "queenstown": [{ n: "Amisfield Restaurant", w:99, wy:2025 }],
+  "quito": [{ n: "Nuema", w:61, wy:2025 }],
+  "raleigh": [{ n: "Poole's Diner", us:1, jb:1 }],
+  "randolph": [{ n: "Saap", us:1, jb:1 }],
+  "rio de janeiro": [{ n: "Oteque", w:81, wy:2025 }],
+  "saint vrain": [{ n: "Le Doyenné", w:77, wy:2025 }],
+  "san francisco": [{ n: "Zuni Café", us:1, jb:1 }],
+  "san juan": [{ n: "Cocina al Fondo", us:1, jb:1 }],
+  "santa fe": [{ n: "Sazón", us:1, jb:1 }],
+  "santa monica": [{ n: "Seline", us:1, jb:1 }],
+  "santiago": [{ n: "Boragó", w:23, wy:2025 }],
+  "sao paulo": [{ n: "A Casa do Porco", w:83, wy:2025 }],
+  "savannah": [{ n: "The Grey", us:1, jb:1 }],
+  "scottsdale": [{ n: "FnB", us:1, jb:1 }],
+  "seattle": [{ n: "Canlis", us:1, jb:1 }],
+  "sherman oaks": [{ n: "Anajak Thai", us:1, jb:1 }],
+  "spring": [{ n: "Belly of the Beast", us:1, jb:1 }],
+  "st louis": [{ n: "Sidney Street Cafe", us:1, jb:1 }],
+  "st paul": [{ n: "Myriel", us:1, jb:1 }],
+  "sydney": [{ n: "Saint Peter", w:66, wy:2025 }],
+  "tulum": [{ n: "Arca", w:67, wy:2025 }],
+  "washington": [{ n: "Causa", us:1, jb:1 }, { n: "Albi", us:1, jb:1 }, { n: "Oyster Oyster", us:1, jb:1 }, { n: "The Dabney", us:1, jb:1 }],
+  "webster groves": [{ n: "Balkan Treat Box", us:1, jb:1 }],
+};
+
+const CRED = {
+  "al gatto verde|modena": { w:92, wy:2025 },
+  "alchemist|copenhagen": { w:5, wy:2025 },
+  "aponiente|el puerto de santa maria": { w:84, wy:2025 },
+  "arpege|paris": { w:45, wy:2025 },
+  "asador etxebarri|atxondo": { w:2, wy:2025 },
+  "atelier crenn|san francisco": { jb:1, w:96, wy:2025 },
+  "atelier moessmer norbert niederkofler|brunico": { w:20, wy:2025 },
+  "atomix|new york": { jb:1, w:12, wy:2025 },
+  "belcanto|lisbon": { w:42, wy:2025 },
+  "benu|san francisco": { jb:1 },
+  "blue hill at stone barns|pocantico hills": { jb:1 },
+  "bozar|brussels": { w:63, wy:2025 },
+  "burnt ends|singapore": { w:93, wy:2025 },
+  "cesar|new york": { w:98, wy:2025 },
+  "chef tam s seasons|macau": { w:72, wy:2025 },
+  "cocina hermanos torres|barcelona": { w:78, wy:2025 },
+  "coda|berlin": { w:79, wy:2025 },
+  "den|tokyo": { w:53, wy:2025 },
+  "diverxo|madrid": { w:4, wy:2025 },
+  "don julio|buenos aires": { w:10, wy:2025 },
+  "elkano|getaria": { w:24, wy:2025 },
+  "enigma|barcelona": { w:34, wy:2025 },
+  "evvai|sao paulo": { w:95, wy:2025 },
+  "feld|chicago": { jb:1 },
+  "florilege|tokyo": { w:36, wy:2025 },
+  "frantzen|stockholm": { w:38, wy:2025 },
+  "friday saturday sunday|philadelphia": { jb:1 },
+  "fu he hui|shanghai": { w:64, wy:2025 },
+  "gaggan|bangkok": { w:6, wy:2025 },
+  "hisa franko|kobarid": { w:69, wy:2025 },
+  "ikoyi|london": { w:15, wy:2025 },
+  "jordn r|copenhagen": { w:56, wy:2025 },
+  "jungsik|new york": { jb:1 },
+  "kadeau|copenhagen": { w:41, wy:2025 },
+  "kasama|chicago": { jb:1 },
+  "koan|copenhagen": { w:91, wy:2025 },
+  "kol|london": { w:49, wy:2025 },
+  "la cime|osaka": { w:44, wy:2025 },
+  "labyrinth|singapore": { w:97, wy:2025 },
+  "lasai|rio de janeiro": { w:28, wy:2025 },
+  "le bernardin|new york": { w:90, wy:2025 },
+  "le calandre|rubano": { w:31, wy:2025 },
+  "le coucou|new york": { jb:1 },
+  "le du|bangkok": { w:30, wy:2025 },
+  "lido 84|gardone riviera": { w:16, wy:2025 },
+  "meet the bund|shanghai": { w:94, wy:2025 },
+  "meju|new york": { jb:1 },
+  "mingles|seoul": { w:29, wy:2025 },
+  "mister jiu s|san francisco": { jb:1 },
+  "mountain|london": { w:74, wy:2025 },
+  "mugaritz|san sebastian": { w:87, wy:2025 },
+  "narisawa|tokyo": { w:21, wy:2025 },
+  "neolokal|istanbul": { w:100, wy:2025 },
+  "nobelhart and schmutzig|berlin": { w:59, wy:2025 },
+  "nusara|bangkok": { w:35, wy:2025 },
+  "odette|singapore": { w:25, wy:2025 },
+  "onjium|seoul": { w:57, wy:2025 },
+  "orfali bros bistro|dubai": { w:37, wy:2025 },
+  "piazza duomo|alba": { w:32, wy:2025 },
+  "plenitude|paris": { w:14, wy:2025 },
+  "potong|bangkok": { w:13, wy:2025 },
+  "providence|los angeles": { jb:1 },
+  "pujol|mexico city": { w:60, wy:2025 },
+  "quince|san francisco": { jb:1 },
+  "quintonil|mexico city": { w:3, wy:2025 },
+  "quique dacosta|denia": { w:65, wy:2025 },
+  "reale|castel di sangro": { w:18, wy:2025 },
+  "restaurant jan|munich": { w:50, wy:2025 },
+  "restaurant tim raue|berlin": { w:58, wy:2025 },
+  "rosetta|mexico city": { w:46, wy:2025 },
+  "sazenka|tokyo": { w:71, wy:2025 },
+  "schloss schauenstein|furstenau": { w:52, wy:2025 },
+  "semma|new york": { jb:1 },
+  "septime|paris": { w:40, wy:2025 },
+  "sezanne|tokyo": { w:7, wy:2025 },
+  "singlethread|healdsburg": { w:80, wy:2025 },
+  "sorn|bangkok": { w:17, wy:2025 },
+  "steirereck|vienna": { w:33, wy:2025 },
+  "suhring|bangkok": { w:22, wy:2025 },
+  "table by bruno verjus|paris": { w:8, wy:2025 },
+  "tantris|munich": { w:73, wy:2025 },
+  "the chairman|hong kong": { w:19, wy:2025 },
+  "the clove club|london": { w:86, wy:2025 },
+  "the four horsemen|brooklyn": { jb:1 },
+  "topolobampo|chicago": { jb:1 },
+  "tresind studio|dubai": { w:27, wy:2025 },
+  "tuju|sao paulo": { w:70, wy:2025 },
+  "txispa|atxondo": { w:85, wy:2025 },
+  "uliassi|senigallia": { w:43, wy:2025 },
+  "vyn|skillinge": { w:47, wy:2025 }
+};
+
+function dnrm(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g," ").trim();}
+// Accolade-only restaurants (James Beard / World's 50 Best) that Michelin does not reach.
+// Country-aware so Birmingham AL (us:1) never surfaces for Birmingham, England and vice-versa.
+function accoladesFor(city){const a=ACCOLADES[dnrm(bareCity(city))]; if(!a)return []; return a.filter(x=>dineGeoOk(city,!!x.us));}
+// Accolades layered onto a restaurant we already hold via Michelin (keyed name|city).
+function credOf(name,city){return CRED[dnrm(name)+"|"+dnrm(bareCity(city))]||null;}
 const TOURS = {
   "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
   "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
@@ -3945,7 +4130,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M12</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M13</span></footer>
   </div>);
 }
 
@@ -5302,12 +5487,18 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
       {showImg
         ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 190 : 150, color: t.inkFaint, fontFamily: font.display, fontSize: 15, padding: 12, textAlign: "center" }}>{r.n}</div>}
-      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(34,29,25,.62)", color: t.brassLight, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", padding: "4px 9px", borderRadius: 999 }}>{"★".repeat(r.s)} Michelin</span>
+      <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(34,29,25,.62)", color: t.brassLight, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", padding: "4px 9px", borderRadius: 999 }}>{accoladeBadge(r)}</span>
     </div>
     <div style={{ padding: "13px 15px 15px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
       <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {info.area ? info.area + ", " : ""}{r.city}</div>
       {sel ? (<>
+        {(r.s >= 1 || r.jb || r.w || r.ll) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
+          {r.s >= 1 ? <div>{"★".repeat(r.s)} Michelin</div> : null}
+          {r.w && r.w <= 100 ? <div>World's 50 Best · #{r.w}{r.wy ? " (" + r.wy + ")" : ""}</div> : null}
+          {r.jb ? <div>James Beard Award</div> : null}
+          {r.ll >= 95 ? <div>La Liste {r.ll}</div> : null}
+        </div> : null}
         {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
         {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
         {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
@@ -5317,45 +5508,59 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
     </div>
   </div>);
 }
-const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Standout", label: "Standout" }, { key: "Neighborhood", label: "Neighborhood" }, { key: "Cafe", label: "Café & Casual" }];
+const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recommended", label: "Recommended" }, { key: "Cafe", label: "Café & Casual" }];
+// The accolade badge for a card — Michelin stars if starred, else the top non-Michelin credential.
+function accoladeBadge(r) {
+  if (r.s >= 1) return "★".repeat(r.s) + " Michelin";
+  if (r.w && r.w <= 100) return "World's 50 Best · #" + r.w;
+  if (r.jb) return "James Beard";
+  if (r.ll >= 95) return "La Liste " + r.ll;
+  return "Destination";
+}
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
-  // Four tabs, everywhere. Destination = Michelin stars only (a star is a Destination; in a dining
-  // capital dense with top stars — 20+ combined 2★+3★ — the 1★ step down to Standout). Standout =
-  // the top, truly great tables (plus those demoted 1★). Neighborhood and Café & Casual = the rest,
-  // from Google, all with live click-through. Destination is always shown, even empty — it is the
-  // aspiration. ("Local Gem" is gone: it implied local and kept out great non-local tables.)
-  const mich = lookup(DINING, city);
-  const michMode = !!(mich && mich.length) && dineGeoOk(city, !!lookup(DINING_US, city));
-  const dense = !!(mich && mich.filter((m) => m.s >= 2).length >= 20);
+  // Three categories, everywhere. DESTINATION = Michelin star (1–3) + James Beard + World's 50 Best
+  // top 100 + La Liste 95+ (a 1★ in a capital dense with top stars drops to Recommended UNLESS it
+  // also holds another credential). RECOMMENDED = those demoted 1★ plus the great non-starred
+  // tables. CAFÉ & CASUAL = everyday spots. Destination is always shown, even empty — the aspiration.
+  const michRaw = lookup(DINING, city) || [];
+  const michOK = michRaw.length && dineGeoOk(city, !!lookup(DINING_US, city));
+  // Fold accolades onto our Michelin records so a 1★ that is also 50 Best/JB stays a Destination and
+  // its credentials show on the card.
+  const mich = michOK ? michRaw.map((m) => ({ ...m, ...(credOf(m.n, city) || {}) })) : [];
+  const acc = accoladesFor(city);            // accolade-only Destinations (James Beard / 50 Best / La Liste)
+  const dense = !!(michRaw.length && michRaw.filter((m) => m.s >= 2).length >= 20);
   const [level, setLevel] = useState("Destination");
   const remote = useRemote("restaurants", city);
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
   const nrm = (s) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
-  const michNames = new Set((mich || []).map((m) => nrm(m.n)));
-  const michRows = michMode && (level === "Destination" || level === "Standout") ? mich.filter((m) => michTier(m, dense) === level) : [];
-  // Live tables by band (Google), with the curated EATS list as a fallback when Google is down.
-  // Standout draws the top two bands, Neighborhood the next, Café & Casual the last.
+  // Cards on the Destination and Recommended tabs come from our starred/credentialed data.
+  let cardRows = [];
+  if (level === "Destination") cardRows = mich.filter((m) => michTier(m, dense) === "Destination").concat(acc);
+  else if (level === "Recommended") cardRows = mich.filter((m) => michTier(m, dense) === "Recommended");
+  const cardNames = new Set(cardRows.map((r) => nrm(r.n)).concat(mich.map((m) => nrm(m.n))).concat(acc.map((a) => nrm(a.n))));
+  // Live tables: Recommended draws the top three Google bands, Café & Casual the last, deduped
+  // against everything we already show as a card. EATS is the fallback when Google is unavailable.
   const usingLive = !!remote.items;
   const bands = usingLive ? remote.items : dineData(city);
-  const bandRows = (keys) => { const out = []; keys.forEach((k) => (bands[k] || []).forEach((x) => { const row = usingLive ? x : { name: x[0], price: x[1], desc: x[2] }; if (row && row.name && !michNames.has(nrm(row.name))) out.push(row); })); return out; };
-  const liveRows = level === "Standout" ? bandRows(["UltraLux", "Luxury"]) : level === "Neighborhood" ? bandRows(["Refined"]) : level === "Cafe" ? bandRows(["Essential"]) : [];
-  const nothingHere = michRows.length === 0 && liveRows.length === 0;
+  const bandRows = (keys) => { const out = []; keys.forEach((k) => (bands[k] || []).forEach((x) => { const row = usingLive ? x : { name: x[0], price: x[1], desc: x[2] }; if (row && row.name && !cardNames.has(nrm(row.name))) out.push(row); })); return out; };
+  const liveRows = level === "Recommended" ? bandRows(["UltraLux", "Luxury", "Refined"]) : level === "Cafe" ? bandRows(["Essential"]) : [];
+  const nothingHere = cardRows.length === 0 && liveRows.length === 0;
   const tabLabel = (DINE_TABS.find((x) => x.key === level) || {}).label || level;
   return (<>
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {DINE_TABS.map((dl) => <button key={dl.key} onClick={() => setLevel(dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
-      <span style={{ marginLeft: "auto" }}>{michMode ? <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Michelin</span> : <LiveBadge live={usingLive} />}</span>
+      <span style={{ marginLeft: "auto" }}>{(mich.length || acc.length) ? <span style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span> : <LiveBadge live={usingLive} />}</span>
     </div>
-    {michRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-      {michRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
+    {cardRows.length > 0 && <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+      {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
         <DineCard key={k} r={r} city={city} level={level} found={found}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
           onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
     </div>}
     {liveRows.length > 0 && (<>
-      {michRows.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More great tables in {bareCity(city)}</div>}
+      {cardRows.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More great tables in {bareCity(city)}</div>}
       <div>{liveRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.name, level)); const pp = usingLive ? (r.estRate || null) : (r.price || null); return (
         <LiveDineRow key={r.id || k} item={r} city={city} found={found} nights={nights} dayLabel={dayLabel}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.name, level)) : [...dines, { name: r.name, price: pp, level, date: "", estimated: usingLive, id: r.id || null }] })}
@@ -5363,9 +5568,9 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
           sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : (pp ? `${r.band ? r.band + " · " : ""}~${fmt(pp)}/person est.` : "per person")} price={pp ? fmt(pp) : ""} />); })}</div>
     </>)}
     {nothingHere && <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{level === "Destination"
-      ? `No starred restaurant in ${bareCity(city)} yet — a Michelin star is the bar for Destination. See Standout for its great tables.`
+      ? `No Destination-level table in ${bareCity(city)} yet — a Michelin star, James Beard win, or World's 50 Best / La Liste ranking is the bar. See Recommended for its great tables.`
       : (remote.loading ? `Finding ${tabLabel.toLowerCase()} tables in ${bareCity(city)}…` : `More ${tabLabel.toLowerCase()} tables for ${bareCity(city)} are on the way.`)}</div>}
-    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin-starred · Standout = the top, truly great tables · Neighborhood & Café/Casual from Google · all booked on your behalf.</div>
+    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Recommended = the great tables · booked on your behalf.</div>
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
