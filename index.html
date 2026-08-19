@@ -5651,7 +5651,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M137</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M139</span></footer>
   </div>);
 }
 
@@ -5890,7 +5890,7 @@ const ONE_LIST = {
       { title: "The Vienna Opera Ball", city: "Vienna", airport: "VIE", airportName: "Vienna Intl", start: "2027-02-03", end: "2027-02-06", dateLabel: "February 4, 2027", nights: 3, blurb: "White tie beneath the chandeliers of the Staatsoper — the most elegant night in Europe." },
     ],
     "Spectacle & Pageantry": [
-      { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 3, blurb: "The bareback race around the Campo, from a private palazzo — medieval Siena at fever pitch." },
+      { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 3, photo: "Piazza del Campo Siena Palio", blurb: "The bareback race around the Campo, from a private palazzo — medieval Siena at fever pitch." },
       { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-07", dateLabel: "Jan 30–Feb 9, 2027", nights: 4, arriveDaysBefore: 2, blurb: "A masked ball in a Grand Canal palazzo, a whole city dressed for the 18th century — Carnival at its most mysterious and theatrical.", guide: {
         daysTitle: "Your evening",
         pickStep: "Step one · choose your Carnival evening",
@@ -6230,13 +6230,21 @@ function OneList({ onPick, onBack, onHome }) {
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
     const pattern = EVENT_ROWS[type];
-    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }} style={pattern ? { ...tile, flex: "1 1 300px", maxWidth: 372 } : tile}>
-      <span style={{ fontFamily: font.display, fontSize: 28, color: t.paper, lineHeight: 1.12 }}>{ev.title}</span>
-      <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
-      <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
-      <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
-      {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
-      <span style={cArw}>Plan this trip →</span>
+    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }} style={{ ...tile, padding: 0, overflow: "hidden", ...(pattern ? { flex: "1 1 300px", maxWidth: 372 } : {}) }}>
+      {/* Live hero photo. ev.photo lets an event override the query for a truer shot (the Palio's
+          flag-lined Campo rather than a generic Siena view); otherwise the title searches well. */}
+      <span style={{ position: "relative", display: "block", height: 152 }}>
+        <Photo query={ev.photo || ev.title || ev.city} h={152} radius={0} />
+        <span style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(34,29,25,.74), rgba(34,29,25,.04) 62%)" }} />
+        <span style={{ position: "absolute", left: 20, right: 20, bottom: 12, fontFamily: font.display, fontSize: 25, color: t.paper, lineHeight: 1.14 }}>{ev.title}</span>
+      </span>
+      <span style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, padding: "16px 24px 22px" }}>
+        <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
+        <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
+        <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
+        {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
+        <span style={cArw}>Plan this trip →</span>
+      </span>
     </button>);
     return (<div style={shell}>
       {back(() => setType(null), "back to " + cat)}
