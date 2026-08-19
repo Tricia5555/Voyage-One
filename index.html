@@ -239,7 +239,7 @@ function nameMatch(n1, n2) {
 }
 // Mass-market chains that have no place in a luxury app. Their genuine ultra sub-brands
 // (Ritz-Carlton, St Regis, Waldorf, Conrad, Bulgari…) have different names and are unaffected.
-const CHAIN_RE = /\b(hilton|hampton inn|hampton by hilton|doubletree|embassy suites|garden inn|marriott|courtyard|four points|fairfield|residence inn|springhill|sheraton|le meridien|holiday inn|intercontinental|crowne plaza|voco|indigo|ibis|novotel|mercure|pullman|radisson|park plaza|park inn|premier inn|travelodge|best western|wyndham|ramada|days inn|comfort inn|hyatt place|hyatt regency|motel|leonardo|jurys inn|clayton|ihg|ruby|melia|nh hotel|nh collection|scandic|citizenm|point a|z hotel|montcalm|apex|hub by)\b/i;
+const CHAIN_RE = /\b(hilton|hampton inn|hampton by hilton|doubletree|embassy suites|garden inn|marriott|courtyard|four points|fairfield|residence inn|springhill|sheraton|le meridien|holiday inn|intercontinental|crowne plaza|voco|indigo|ibis|novotel|mercure|pullman|radisson|park plaza|park inn|premier inn|travelodge|best western|wyndham|ramada|days inn|comfort inn|comfort suites|drury|hyatt place|hyatt regency|motel|leonardo|jurys inn|clayton|ihg|ruby|melia|nh hotel|nh collection|scandic|citizenm|point a|z hotel|montcalm|apex|hub by)\b/i;
 // A live-feed hotel is a luxury candidate only if it isn't a sub-5-star property or a mass chain.
 function isLuxeCandidate(item) {
   if (!item) return false;
@@ -3938,6 +3938,7 @@ const SPAS = {
   "Lisbon": [["Four Seasons Ritz spa", 220, "Marble sanctuary with a signature Portuguese ritual."], ["Hammam & Vichy at The Lumiares", 160, "Steam, scrub and warm-shower ritual in Bairro Alto.", { find: "The Lumiares Hotel Lisbon" }]],
   "Porto": [["Caudalie Vinothérapie, The Yeatman", 240, "Grape-and-wine treatments with valley views."], ["Riverside relaxation ritual", 150, "Warm-stone massage after a day on the Douro."]],
   "Madrid": [["Mandarin Oriental Ritz spa", 260, "Opulent thermal circuit and signature massage."], ["Natura Bissé ritual at URSO", 180, "Cult Spanish skincare in a townhouse spa.", { find: "URSO Hotel & Spa Madrid" }]],
+  "Birmingham (BHM)": [["Speed Spa", null, "Local favorite for facials, IV therapy and aesthetic treatments.", { find: "Speed Spa Birmingham AL" }], ["Poseidon Spa, Grand Bohemian", null, "The spa at the Grand Bohemian in Mountain Brook.", { find: "Poseidon Spa Grand Bohemian Mountain Brook" }], ["The Spa at Ross Bridge", null, "Resort spa at the Renaissance Ross Bridge.", { find: "The Spa at Ross Bridge Renaissance Hoover" }]],
 };
 const IDEA_SETTING = ["Beach & islands","Mountains & alpine","Big city","Countryside & wine","Coast & seaside","Desert","Lakes","Safari & wild"];
 const IDEA_DOING = ["Food & wine","Art & history","Shopping","Skiing","Diving & water","Hiking & nature","Wellness & spa","Nightlife","Golf","Wildlife"];
@@ -4441,7 +4442,10 @@ function dineData(city) { const d = lookup(EATS, city); if (d) return d; const p
 // Real or nothing. No invented "half-day private guide" / "signature spa ritual" filler for a
 // city we have not curated — an empty list hides the panel entirely (see the render sites).
 function toursData(city) { return lookup(TOURS, city) || []; }
-function spasData(city) { return lookup(SPAS, city) || []; }
+// Code-aware: check the full picked name (airport code and all) FIRST, so "Birmingham (BHM)"
+// (Alabama) gets its own curated spas without leaking to "Birmingham" (England), then fall back
+// to the normal bare-city lookup. Same reason requestGeo/geoKey keep the code.
+function spasData(city) { if (city && SPAS[city]) return SPAS[city]; return lookup(SPAS, city) || []; }
 function groundOption(mode, from, to) {
   // Give the traveller the real time for the mode they chose, not a blank card. Train uses the
   // rail estimate, ferry the crossing time, drive/chauffeur the road estimate (curated where we
@@ -5647,7 +5651,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M128</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M131</span></footer>
   </div>);
 }
 
@@ -7179,7 +7183,9 @@ function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
 function SpaPanel({ city, chosen, onToggle }) {
   const curated = spasData(city);
   const live = useCityThings(city, "spas");
-  const rows = curated.length ? curated : live;
+  // Cap the spa list at 3 per city — a short, curated feel rather than a long directory.
+  // Things to do stays at its fuller list; only spas are trimmed.
+  const rows = (curated.length ? curated : live).slice(0, 3);
   if (!rows.length) return null;
   return (<Panel icon={Flower2} title={`Spa in ${city || "this city"}`}>
     <ListPicker city={city} rows={rows} chosen={chosen} onToggle={onToggle} />
