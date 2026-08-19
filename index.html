@@ -4988,20 +4988,31 @@ function OptionRow({ selected, onClick, title, desc, sub, price }) {
   </button>);
 }
 const CITY_PHOTO_CACHE = {};
-function Photo({ query, h = 180, radius = 0 }) {
+// A direct image — our own uploaded photo (e.g. "/images/wimbledon.jpg") or a licensed URL —
+// versus a search term to look up live. If it looks like a file path or URL, we show it as-is;
+// otherwise we ask the place-photo service. This lets curated, inspiring photos (yours, or
+// properly licensed ones) override the generic place shots per event.
+function isDirectImage(q) {
+  return /^(https?:)?\/\//i.test(q) || q.charAt(0) === "/" || /\.(jpe?g|png|webp|avif|gif)(\?.*)?$/i.test(q);
+}
+function Photo({ query, h = 180, radius = 0, raw = false }) {
   const city = (query || "").trim();
-  const [src, setSrc] = useState(null);
+  const direct = isDirectImage(city);
+  const [src, setSrc] = useState(direct ? city : null);
   useEffect(() => {
+    if (direct) { setSrc(city); return; }
     let alive = true;
     setSrc(null);
     if (!city) return;
-    if (CITY_PHOTO_CACHE[city]) { setSrc(CITY_PHOTO_CACHE[city]); return; }
-    fetch(`/api/cityphoto?city=${encodeURIComponent(city)}`)
+    // raw searches the exact query (events/venues); default appends "famous landmark" (cities).
+    const ck = (raw ? "raw|" : "") + city;
+    if (CITY_PHOTO_CACHE[ck]) { setSrc(CITY_PHOTO_CACHE[ck]); return; }
+    fetch(`/api/cityphoto?city=${encodeURIComponent(city)}${raw ? "&raw=1" : ""}`)
       .then((r) => r.json())
-      .then((j) => { if (j && j.ok && j.url) { CITY_PHOTO_CACHE[city] = j.url; if (alive) setSrc(j.url); } })
+      .then((j) => { if (j && j.ok && j.url) { CITY_PHOTO_CACHE[ck] = j.url; if (alive) setSrc(j.url); } })
       .catch(() => {});
     return () => { alive = false; };
-  }, [city]);
+  }, [city, raw]);
   if (!src) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
   return <img src={src} alt={city} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
 }
@@ -5651,7 +5662,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M141</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M144</span></footer>
   </div>);
 }
 
@@ -5787,7 +5798,7 @@ const ONE_LIST = {
       { title: "The Ryder Cup", city: "Adare, Ireland", airport: "SNN", airportName: "Shannon", start: "2027-09-16", end: "2027-09-20", dateLabel: "Sep 17–19, 2027", nights: 4, blurb: "Europe and America at Adare Manor — a castle estate, roaring galleries and an Irish welcome." },
     ],
     "Tennis": [
-      { title: "Wimbledon", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-10", end: "2027-07-11", dateLabel: "June 28–July 11, 2027", nights: 5, blurb: "Strawberries and cream, the ivy running up the walls, the sound of the ball on the grass — it is all simply elevated at the All England Club.", guide: {
+      { title: "Wimbledon", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-10", end: "2027-07-11", dateLabel: "June 28–July 11, 2027", nights: 5, photo: "/images/wimbledon-centre-court.jpg", gallery: ["/images/wimbledon-centre-court.jpg", "All England Lawn Tennis Club", "Wimbledon grounds", "Wimbledon London"], blurb: "Strawberries and cream, the ivy running up the walls, the sound of the ball on the grass — it is all simply elevated at the All England Club.", guide: {
         daysIntro: "First, the days. A Wimbledon trip begins here — not with flights, but with which days at the AEC you want. Choose a stretch of the fortnight, then tell us the exact day or days you want to be there: those are the ones we buy Debentures for. How long you stay in London is a separate question, and we'll ask it next.",
         dayPicks: [
           { label: "The First Week", dates: "Mon Jun 28 – Fri Jul 2, 2027", band: "Debentures from ≈ £4,400 / Centre Court day", note: "Busy and gloriously alive — not the quiet secret people imagine. But every top seed is in action, and it is the single best chance to see all your favourites. Few empty seats on Centre or No.1, if any.", days: [
@@ -6128,8 +6139,8 @@ function OneList({ onPick, onBack, onHome }) {
       {/* Editorial photo spread — a big hero plus a row of supporting shots, live from the photo
           service, so opening an event feels like the event and builds the excitement to book. */}
       {(() => { const gal = evGallery(ev); if (!gal.length) return null; return (<div style={{ maxWidth: 900, margin: "0 auto 30px" }}>
-        <Photo query={gal[0]} h={300} radius={18} />
-        {gal.length > 1 ? <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(gal.length - 1, 3)}, 1fr)`, gap: 12, marginTop: 12 }}>{gal.slice(1, 4).map((q, gi) => <Photo key={gi} query={q} h={160} radius={12} />)}</div> : null}
+        <Photo query={gal[0]} h={300} radius={18} raw />
+        {gal.length > 1 ? <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(gal.length - 1, 3)}, 1fr)`, gap: 12, marginTop: 12 }}>{gal.slice(1, 4).map((q, gi) => <Photo key={gi} query={q} h={160} radius={12} raw />)}</div> : null}
       </div>); })()}
       <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 26 }}>
         <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
@@ -6247,7 +6258,7 @@ function OneList({ onPick, onBack, onHome }) {
       {/* Live hero photo. ev.photo lets an event override the query for a truer shot (the Palio's
           flag-lined Campo rather than a generic Siena view); otherwise the title searches well. */}
       <span style={{ position: "relative", display: "block", height: 152 }}>
-        <Photo query={ev.photo || ev.title || ev.city} h={152} radius={0} />
+        <Photo query={ev.photo || ev.title || ev.city} h={152} radius={0} raw />
         <span style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(34,29,25,.74), rgba(34,29,25,.04) 62%)" }} />
         <span style={{ position: "absolute", left: 20, right: 20, bottom: 12, fontFamily: font.display, fontSize: 25, color: t.paper, lineHeight: 1.14 }}>{ev.title}</span>
       </span>
