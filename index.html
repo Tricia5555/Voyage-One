@@ -5651,7 +5651,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M135</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M136</span></footer>
   </div>);
 }
 
@@ -6550,6 +6550,18 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const [stopsFilter, setStopsFilter] = useState("0");
   const [whenFilter, setWhenFilter] = useState("");
   const [viaFilter, setViaFilter] = useState("");
+  // Delta side-panel: Delta blocks being embedded, so we open their search in a companion tab and
+  // let the client jot the flight they picked straight back into the itinerary here.
+  const [deltaOpen, setDeltaOpen] = useState(false);
+  const [dNo, setDNo] = useState("");
+  const [dDep, setDDep] = useState("");
+  const [dArr, setDArr] = useState("");
+  const [dPrice, setDPrice] = useState("");
+  const [dCabin, setDCabin] = useState("Economy");
+  const saveDelta = () => {
+    upd({ flight: { cabin: dCabin, price: dPrice ? Number(dPrice) : null, airline: "Delta", flightNo: (dNo || "").trim(), depart: (dDep || "").trim(), arrive: (dArr || "").trim(), stops: 0, chosen: true, real: false, source: "delta" } });
+    setDeltaOpen(false);
+  };
   const live = useLiveFlights(from, to, date, cabin, stopsFilter, whenFilter);
   // Choosing a cabin keeps the selection but clears any specific chosen flight until you pick one.
   const chooseCabin = (c) => { upd({ flight: { cabin: c, price: null, chosen: false } }); };
@@ -6579,8 +6591,37 @@ function FlightPicker({ from, to, pick, upd, date }) {
         guess, and the traveller is better placed to judge than we are. */}
     <div style={{ fontSize: 11.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
       Delta is not among the airlines we can currently price — and on many routes they fly the best, or only, nonstop. Check them directly for this exact route:
-      <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "8px 14px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 12.5, textDecoration: "none", fontWeight: 500 }}><Plane size={13} /> Check Delta · {bareCity(from)} → {bareCity(to)} ↗</a>
+      <button onClick={() => setDeltaOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "8px 14px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 12.5, fontWeight: 500, cursor: "pointer" }}><Plane size={13} /> Check Delta · {bareCity(from)} → {bareCity(to)}</button>
     </div>
+    {deltaOpen && (<>
+      <div onClick={() => setDeltaOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(28,26,23,.38)", zIndex: 1400 }} />
+      <div style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "min(390px, 92vw)", background: t.white, borderLeft: `1px solid ${t.line}`, boxShadow: "-10px 0 40px rgba(0,0,0,.18)", zIndex: 1401, display: "flex", flexDirection: "column", overflowY: "auto", padding: "18px 18px 26px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <Plane size={16} color={t.pine} />
+          <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink }}>Check Delta</span>
+          <button onClick={() => setDeltaOpen(false)} style={{ marginLeft: "auto", width: 30, height: 30, borderRadius: 999, border: "none", background: t.mist, color: t.ink, display: "grid", placeItems: "center", cursor: "pointer" }}><X size={16} /></button>
+        </div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{bareCity(from)} → {bareCity(to)}{date ? ` · ${date}` : ""}</div>
+        <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, margin: "14px 0 6px", padding: "13px 16px", borderRadius: 12, border: "none", background: t.pine, color: t.paper, fontSize: 14.5, textDecoration: "none", fontWeight: 500 }}>Open Delta search in a new tab ↗</a>
+        <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5 }}>Opens in a separate tab so Voyage One stays right here — flip back anytime. Delta won't let their site show inside ours, so this is the closest thing to a side window.</div>
+        <div style={{ height: 1, background: t.line, margin: "16px 0" }} />
+        <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Save the flight you picked</div>
+        <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginBottom: 12 }}>Jot what you found on Delta and it goes straight into this leg's itinerary — nothing here is required.</div>
+        {[["Flight #", dNo, setDNo, "DL 1234"], ["Departs", dDep, setDDep, "7:05 AM"], ["Arrives", dArr, setDArr, "8:35 AM"], ["Price (one way)", dPrice, setDPrice, "189"]].map(([lab, val, setter, ph]) => (
+          <label key={lab} style={{ display: "block", marginBottom: 10 }}>
+            <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginBottom: 4 }}>{lab}</span>
+            <input value={val} onChange={(e) => setter(e.target.value)} placeholder={ph} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.line}`, fontSize: 14, color: t.ink, background: t.white }} />
+          </label>
+        ))}
+        <div style={{ marginBottom: 12 }}>
+          <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginBottom: 6 }}>Cabin</span>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {CABINS.map((c) => (<button key={c} onClick={() => setDCabin(c)} style={{ padding: "8px 13px", borderRadius: 999, fontSize: 12.5, border: `1px solid ${dCabin === c ? t.pine : t.line}`, background: dCabin === c ? t.mist : t.white, color: t.ink, cursor: "pointer" }}>{c}</button>))}
+          </div>
+        </div>
+        <button onClick={saveDelta} style={{ width: "100%", padding: "13px 16px", borderRadius: 12, border: "none", background: t.brass, color: t.ink, fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Add this Delta flight to my plan</button>
+      </div>
+    </>)}
     {cabin && (<div style={{ marginTop: 14 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Narrow it down</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 6 }}>
