@@ -5651,7 +5651,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M131</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M132</span></footer>
   </div>);
 }
 
@@ -6678,7 +6678,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
                 const how = dr ? `${dr.label}${dr.km ? ` (${dr.km} km)` : ""} by road` : "a short hop by road";
                 return (<>These airports are too close to fly — {bareCity(to)} is only about {how} from {bareCity(from)}, so airlines don't sell it as a flight. Choose <strong style={{ color: t.ink }}>Train</strong> or <strong style={{ color: t.ink }}>Self-drive</strong> above for real door-to-door times.</>);
               }
-              return (<>No live {cabin} fares came back for this route and date{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} {date ? <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a> : null}</>);
+              return (<>No live {cabin} fares came back for this route{date ? " and date" : ""}{stopsFilter === "0" ? " with nonstop only — try “Up to 1 stop” or “Any routing”" : ""}.{est ? ` Estimated ~${fmt(est)} one way.` : ""} <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>Compare on Google ↗</a></>);
             })()}</div>
       </div>)}
     </div>)}
