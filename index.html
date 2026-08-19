@@ -5651,7 +5651,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M134</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M135</span></footer>
   </div>);
 }
 
@@ -6524,11 +6524,18 @@ function flightSearchUrl(from, to, date, cabin) {
 // prefilled with the exact route and date, so the client can check Delta directly and record what
 // they choose. Codes only — Delta wants IATA (BHM, ATL); falls back to the city name if unknown.
 function deltaSearchUrl(from, to, date) {
-  const f = iataFor(from), t2 = iataFor(to);
-  if (!f || !t2) return null;                 // no clean airport codes → don't send a broken deep link
-  const parts = ["tripType=ONE_WAY", "paxCount=1", `originCity=${f}`, `destinationCity=${t2}`];
-  if (date) parts.push(`departureDate=${encodeURIComponent(date)}`);
-  return `https://www.delta.com/flight-search/book-a-flight?${parts.join("&")}`;
+  // Prefer the curated airport table, but fall back to the IATA code carried IN the city string —
+  // "Birmingham (BHM)" — which covers every US city the table doesn't list. Only if neither yields
+  // a code do we hand off to a Delta-filtered flight view that works from plain city names.
+  const f = iataFor(from) || codeOf(from);
+  const t2 = iataFor(to) || codeOf(to);
+  if (f && t2) {
+    const parts = ["tripType=ONE_WAY", "paxCount=1", `originCity=${f}`, `destinationCity=${t2}`];
+    if (date) parts.push(`departureDate=${encodeURIComponent(date)}`);
+    return `https://www.delta.com/flight-search/book-a-flight?${parts.join("&")}`;
+  }
+  const q = `Delta flights from ${bareCity(from)} to ${bareCity(to)}${date ? " on " + date : ""}`;
+  return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
 }
 function FlightPicker({ from, to, pick, upd, date }) {
   useGeoTick(); // a coordinate arriving late must repaint this panel, so the too-close-to-fly note can appear
@@ -6572,9 +6579,7 @@ function FlightPicker({ from, to, pick, upd, date }) {
         guess, and the traveller is better placed to judge than we are. */}
     <div style={{ fontSize: 11.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
       Delta is not among the airlines we can currently price — and on many routes they fly the best, or only, nonstop. Check them directly for this exact route:
-      {deltaSearchUrl(from, to, date)
-        ? <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "8px 14px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 12.5, textDecoration: "none", fontWeight: 500 }}><Plane size={13} /> Check Delta · {bareCity(from)} → {bareCity(to)} ↗</a>
-        : <span style={{ display: "block", marginTop: 6, color: t.inkFaint }}>Name both cities to check Delta for this route.</span>}
+      <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "8px 14px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 12.5, textDecoration: "none", fontWeight: 500 }}><Plane size={13} /> Check Delta · {bareCity(from)} → {bareCity(to)} ↗</a>
     </div>
     {cabin && (<div style={{ marginTop: 14 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Narrow it down</div>
