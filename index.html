@@ -3938,7 +3938,7 @@ const SPAS = {
   "Lisbon": [["Four Seasons Ritz spa", 220, "Marble sanctuary with a signature Portuguese ritual."], ["Hammam & Vichy at The Lumiares", 160, "Steam, scrub and warm-shower ritual in Bairro Alto.", { find: "The Lumiares Hotel Lisbon" }]],
   "Porto": [["Caudalie Vinothérapie, The Yeatman", 240, "Grape-and-wine treatments with valley views."], ["Riverside relaxation ritual", 150, "Warm-stone massage after a day on the Douro."]],
   "Madrid": [["Mandarin Oriental Ritz spa", 260, "Opulent thermal circuit and signature massage."], ["Natura Bissé ritual at URSO", 180, "Cult Spanish skincare in a townhouse spa.", { find: "URSO Hotel & Spa Madrid" }]],
-  "Birmingham (BHM)": [["Speed Spa", null, "Local favorite for facials, IV therapy and aesthetic treatments.", { find: "Speed Spa Birmingham AL" }], ["Poseidon Spa, Grand Bohemian", null, "The spa at the Grand Bohemian in Mountain Brook.", { find: "Poseidon Spa Grand Bohemian Mountain Brook" }], ["The Spa at Ross Bridge", null, "Resort spa at the Renaissance Ross Bridge.", { find: "The Spa at Ross Bridge Renaissance Hoover" }]],
+  "Birmingham (BHM)": [["Speed Spa", null, "The best for hair, face and nails.", { find: "Speed Spa Birmingham AL" }], ["Poseidon Spa, Grand Bohemian", null, "The spa at the Grand Bohemian in Mountain Brook.", { find: "Poseidon Spa Grand Bohemian Mountain Brook" }], ["The Spa at Ross Bridge", null, "Resort spa at the Renaissance Ross Bridge.", { find: "The Spa at Ross Bridge Renaissance Hoover" }]],
 };
 const IDEA_SETTING = ["Beach & islands","Mountains & alpine","Big city","Countryside & wine","Coast & seaside","Desert","Lakes","Safari & wild"];
 const IDEA_DOING = ["Food & wine","Art & history","Shopping","Skiing","Diving & water","Hiking & nature","Wellness & spa","Nightlife","Golf","Wildlife"];
@@ -5651,7 +5651,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M132</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M134</span></footer>
   </div>);
 }
 
@@ -6519,6 +6519,17 @@ function flightSearchUrl(from, to, date, cabin) {
   const q = `${cabinWord ? cabinWord + " " : ""}flights from ${f} to ${t2}${date ? " on " + date : ""}`;
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
 }
+// Delta is the one carrier our fare feed can't see, and on a lot of routes (Birmingham→Atlanta,
+// most of the Southeast) Delta flies the only nonstop. This deep-links Delta's own one-way search
+// prefilled with the exact route and date, so the client can check Delta directly and record what
+// they choose. Codes only — Delta wants IATA (BHM, ATL); falls back to the city name if unknown.
+function deltaSearchUrl(from, to, date) {
+  const f = iataFor(from), t2 = iataFor(to);
+  if (!f || !t2) return null;                 // no clean airport codes → don't send a broken deep link
+  const parts = ["tripType=ONE_WAY", "paxCount=1", `originCity=${f}`, `destinationCity=${t2}`];
+  if (date) parts.push(`departureDate=${encodeURIComponent(date)}`);
+  return `https://www.delta.com/flight-search/book-a-flight?${parts.join("&")}`;
+}
 function FlightPicker({ from, to, pick, upd, date }) {
   useGeoTick(); // a coordinate arriving late must repaint this panel, so the too-close-to-fly note can appear
   const f = pick.flight || null;
@@ -6560,7 +6571,10 @@ function FlightPicker({ from, to, pick, upd, date }) {
         continent: we cannot see Delta at all, so any claim about where they win would be a
         guess, and the traveller is better placed to judge than we are. */}
     <div style={{ fontSize: 11.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
-      Delta is not among the airlines we can currently price. We recommend checking their offerings with our best choices.
+      Delta is not among the airlines we can currently price — and on many routes they fly the best, or only, nonstop. Check them directly for this exact route:
+      {deltaSearchUrl(from, to, date)
+        ? <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "8px 14px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 12.5, textDecoration: "none", fontWeight: 500 }}><Plane size={13} /> Check Delta · {bareCity(from)} → {bareCity(to)} ↗</a>
+        : <span style={{ display: "block", marginTop: 6, color: t.inkFaint }}>Name both cities to check Delta for this route.</span>}
     </div>
     {cabin && (<div style={{ marginTop: 14 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Narrow it down</div>
@@ -6725,7 +6739,11 @@ function useGround(from, to) {
 const MODE_KEY = { Flight: "fly", Train: "rail", Chauffeur: "chauffeur", "Self-drive": "drive", Ferry: "ferry" };
 function feasibleModes(ground) {
   if (!ground || !ground.modes) return null;           // unknown — show everything
-  const on = ARRIVE.filter((m) => ground.modes[MODE_KEY[m.key]]);
+  // Flight is ALWAYS offered between two different cities — the client decides plane vs car, even
+  // on a short drivable hop (Birmingham→Atlanta, Charleston→Charlotte). The ground verdict may say
+  // "drivable" and drop fly; that hid dozens of daily flights. If no fares exist, the flight panel
+  // says so honestly. Other modes (rail, ferry, chauffeur) stay gated by what actually exists.
+  const on = ARRIVE.filter((m) => m.key === "Flight" || ground.modes[MODE_KEY[m.key]]);
   return on.length ? on : null;                         // never leave the traveller with nothing
 }
 function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate }) {
@@ -7419,8 +7437,15 @@ function LiveRoute({ from, to, fallbackKnown }) {
   if (r.loading) return (<div style={{ fontSize: 12.5, color: t.inkFaint, margin: "14px 0 0" }}>Finding real routes from {from} to {to}…</div>);
   // Live modes came back with something real to show.
   if (r.modes && r.modes.length) {
-    const transit = r.modes.find((m) => m.mode === "Transit");
-    const drive = r.modes.find((m) => m.mode === "Drive");
+    const tRaw = r.modes.find((m) => m.mode === "Transit");
+    // Greyhound and intercity coaches are not our market — surface transit ONLY when it's rail or a
+    // ferry, never a bus. A US city-to-city "transit" result is almost always a coach; we drop it.
+    const railFerry = /RAIL|TRAIN|SUBWAY|METRO|HIGH_SPEED|HEAVY|TRAM|MONORAIL|FERRY/i;
+    const isRailFerry = tRaw && (railFerry.test(tRaw.vehicle || "") || (tRaw.legs || []).some((l) => railFerry.test(l.vehicle || "")));
+    const transit = isRailFerry ? tRaw : null;
+    let drive = r.modes.find((m) => m.mode === "Drive");
+    if (!drive) { const dr = driveEstimate(from, to); if (dr) drive = { mode: "Drive", label: dr.label, km: dr.km }; }
+    if (!transit && !drive) return null;
     return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px", margin: "14px 0 0" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <span style={{ fontSize: 10.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>How to get there</span>
@@ -7444,9 +7469,17 @@ function LiveRoute({ from, to, fallbackKnown }) {
   }
   // Live returned nothing (or no backend). If we also lack curated data, be honest.
   if (r.tried && (!r.modes || !r.modes.length)) {
+    // LiveRoute only renders for drivable pairs, so if live routing came back empty we can still
+    // show the real drive rather than a confusing "no route" note. Only when even a drive can't be
+    // computed do we say — plainly — that this leg is best flown.
+    const dr = driveEstimate(from, to);
+    if (dr) return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px", margin: "14px 0 0" }}>
+      <div style={{ fontSize: 10.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>How to get there</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 7 }}><Car size={15} color={t.inkSoft} /><span style={{ fontSize: 14, color: t.inkSoft }}>Drive · {dr.label}{dr.km ? ` · ${dr.km} km` : ""}</span></div>
+    </div>);
     return (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
       <Compass size={15} color={t.inkFaint} style={{ marginTop: 2, flexShrink: 0 }} />
-      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>No direct ground route between {from} and {to} — this is likely a flight, or a sea crossing. We'd rather say so than invent a train.</div>
+      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>This leg is best flown — see the flight options above.</div>
     </div>);
   }
   // No backend at all (GitHub Pages) and no curated data: quiet honest note.
