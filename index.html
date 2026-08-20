@@ -5664,7 +5664,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M154</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M156</span></footer>
   </div>);
 }
 
@@ -5865,7 +5865,73 @@ const ONE_LIST = {
     ],
     "Horse Racing & Polo": [
       { title: "The Kentucky Derby", city: "Louisville", airport: "SDF", airportName: "Louisville Muhammad Ali Intl", start: "2027-04-30", end: "2027-05-02", dateLabel: "May 1, 2027", nights: 2, blurb: "The most exciting two minutes in sport — a box on Millionaires' Row, juleps and hats." },
-      { title: "Royal Ascot", city: "Ascot, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King in the procession." },
+      { title: "Royal Ascot", city: "Ascot, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", guide: {
+        cur: "£",
+        daysTitle: "Choose your day & your enclosure",
+        pickStep: "Step one · choose your day & your enclosure",
+        recapLabel: "Your day",
+        pickSettle: "We land you in England a day or two ahead — time to settle, collect the morning dress and the hat, and be unhurried on the morning of the races. You'll set your exact nights next.",
+        daysIntro: "First, the day. Royal Ascot runs five days, Tuesday to Saturday, and they are not equal — Thursday is Ladies' Day and the Gold Cup, the grandest of them all. Choose your day, then the enclosure: for our clientele that means the Royal Enclosure, with the Queen Anne as the alternative when Royal Enclosure sponsorship can't be arranged in time. Prices are estimates; we confirm before anything is committed.",
+        dayPicks: [
+          { label: "Tuesday · Opening Day", dates: "Tue 15 Jun 2027", date: "2027-06-15", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The week begins — the first Royal Procession up the straight, the Queen Anne Stakes and the St James's Palace Stakes. The purest racing crowd of the five.", tiers: [
+            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
+            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          ] },
+          { label: "Wednesday", dates: "Wed 16 Jun 2027", date: "2027-06-16", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The Prince of Wales's Stakes, one of the finest middle-distance races in the world — a connoisseur's day, a little quieter than Thursday.", tiers: [
+            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
+            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          ] },
+          { label: "Thursday · Ladies' Day & the Gold Cup", dates: "Thu 17 Jun 2027", date: "2027-06-17", band: "Royal Enclosure ≈ £115–£135 · est.", note: "The marquee. The Gold Cup, the great hats, the fashion — the day the whole week is built around. If you go once, go Thursday.", tiers: [
+            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £115–£135 pp est." },
+            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          ] },
+          { label: "Friday", dates: "Fri 18 Jun 2027", date: "2027-06-18", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The Coronation Stakes and the Commonwealth Cup — brilliant racing, a lighter, celebratory mood as the week nears its close.", tiers: [
+            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
+            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          ] },
+          { label: "Saturday · Finale", dates: "Sat 19 Jun 2027", date: "2027-06-19", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The Diamond Jubilee Stakes closes the week, and the crowd gathers at the bandstand to sing — the most festive day of the five.", tiers: [
+            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
+            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          ] },
+        ],
+        daysSubTitle: "The week",
+        days: "Five days, Tuesday to Saturday, each opened at two o'clock by the Royal Procession — the King and the royal party in horse-drawn landaus up the straight mile. Thursday is Ladies' Day and the Gold Cup, the grandest; Saturday the most festive, ending with the singing round the bandstand. The racing is Flat racing at its highest level, but Ascot is as much occasion as sport.",
+        ticketsTitle: "Getting in, the right way",
+        tickets: "The Voyage One standard is the Royal Enclosure — Ascot's most exclusive, with its private lawn by the parade ring, the fine-dining restaurants, and the fourth-floor grandstand vantage. It is the one part of Ascot you cannot simply buy your way into: entry is by badge, and a first-time badge requires sponsorship by an existing Royal Enclosure member. That relationship is exactly what we arrange for you — the sponsorship, the badges, and a table in one of the Enclosure's restaurants. It has to be set in motion months ahead, so the earlier we start, the better. Where the timing doesn't allow it, the Queen Anne Enclosure is the excellent alternative — its own lawns, Champagne lounges and parade-ring access, formal but a touch less rarefied.",
+        ticketBands: [
+          { label: "Royal Enclosure badge (per person, per day)", price: "≈ £105–£135 est." },
+          { label: "Fine-dining restaurant, Royal Enclosure (per person)", price: "≈ £700–£1,400 est." },
+          { label: "Queen Anne Champagne lounge & seafood (per person)", price: "≈ £300 est." },
+          { label: "Private balcony box (per group, per day, if arranged)", price: "from ≈ £15,000 est." },
+        ],
+        ticketNote: "All figures are estimates and per person unless noted. The Royal Enclosure badge itself is modest; the cost and the value are in the sponsorship arrangement, the dining and the week around it. Royal Enclosure sponsorship must be arranged well ahead — start early.",
+        stayNote: "Two ways to do it: a country-house base near the course, or London with a car out each day (about 50 minutes). We lean country-house for Ascot week — you arrive unhurried and in the mood.",
+        stay: [
+          { name: "Coworth Park", area: "Ascot · 10 min to the course", rate: 850, note: "Dorchester Collection's country estate minutes from the racecourse — spa, its own polo fields, and the natural Ascot base. (Ascot-week rate; estimated.)" },
+          { name: "Cliveden House", area: "Taplow · ~30 min", rate: 800, note: "The grand Italianate house above the Thames, a National Trust estate steeped in history — for those who want the full country-house occasion. (Estimated.)" },
+        ],
+        beyondTitle: "Beyond the racing",
+        beyond: [
+          { name: "The Royal Procession", note: "At two o'clock each day the King and the royal party come up the straight mile in horse-drawn landaus — Ascot's signature moment, and best seen from the Royal Enclosure lawn." },
+          { name: "Ladies' Day", note: "Thursday — the hats, the fashion, the Gold Cup. The most photographed day in British racing; dressing for it is half the pleasure." },
+          { name: "Singing at the bandstand", note: "After the last race, the crowd gathers round the bandstand for a rousing sing-along — pure Ascot, and at its best on Saturday." },
+          { name: "Windsor & the Thames", note: "Windsor Castle and the river are minutes away — an easy, beautiful afternoon on either side of the racing days." },
+        ],
+        notes: [
+          "Dress is part of it. Royal Enclosure: men in morning dress — black, grey or navy coat, waistcoat and tie, with a top hat; women in formal daywear at or below the knee, straps at least an inch, and a hat (or a headpiece with a solid base of four inches / 10cm). Queen Anne is formal too, but a headpiece or fascinator suffices and top hats aren't required.",
+          "Thursday is the day if you go once — Ladies' Day and the Gold Cup. Tuesday is the purest for the racing itself; Saturday the most festive.",
+          "Royal Enclosure access is the long lead item. The sponsorship has to be arranged months ahead, so this is the piece to lock first.",
+          "We can arrange the morning dress and the hat — hire or made — so nothing about the dress code is a scramble.",
+        ],
+        stepsTitle: "The ideal days",
+        steps: [
+          { h: "Day 1 · Arrive & settle", b: "Into the country house near the course. A quiet afternoon, a fitting for the morning dress and the hat if you're hiring, and dinner — unhurried, so race morning is a pleasure and not a rush." },
+          { h: "Day 2 · Race day", b: "Late breakfast, then to Ascot for the Royal Procession at two, an afternoon of racing from the Royal Enclosure, lunch in one of the Enclosure restaurants, and the bandstand at the end. The heart of it." },
+          { h: "Day 3 · A second day, or the country", b: "A second day at the races — many take Thursday and one other — or a day at Windsor, on the Thames, or in London before dinner." },
+          { h: "Day 4 · Depart", b: "A last English breakfast and home, or on to another stop in Europe." },
+        ],
+        handoff: "Next, in the trip builder: we'll set your dates around your Ascot days, arrange the Royal Enclosure badges and dining, book your hotel, and sort the morning dress — every detail confirmed with you.",
+      } },
       { title: "Melbourne Cup", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2026-11-01", end: "2026-11-04", dateLabel: "November 3, 2026", nights: 3, blurb: "The race that stops a nation — the Birdcage at Flemington, champagne and fascinators." },
       { title: "The Grand National", city: "Liverpool", airport: "MAN", airportName: "Manchester", start: "2027-04-08", end: "2027-04-11", dateLabel: "April 10, 2027", nights: 3, blurb: "The world's greatest steeplechase — Aintree at its most thrilling, hospitality above the last fence." },
       { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-10", end: "2026-12-14", dateLabel: "December 12, 2026", nights: 4, blurb: "The Cathedral of Polo at Palermo — the Argentine Open final, the sport at its very highest level." },
@@ -5903,6 +5969,9 @@ const ONE_LIST = {
       { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 4, photo: "Piazza del Campo Siena Palio", gallery: ["https://upload.wikimedia.org/wikipedia/commons/8/83/Siena_Piazza_del_Campo_Palio.jpg", "Piazza del Campo Siena", "Torre del Mangia Siena", "Siena Cathedral Duomo"], blurb: "Inside Siena during the Palio — the contrada dinners, the blessing, and the race from a private balcony over the Campo.", guide: {
         cur: "€",
         daysTitle: "Choose your Palio & your balcony",
+        pickStep: "Step one · choose your race & your balcony",
+        recapLabel: "Your balcony",
+        pickSettle: "We build you into Siena for the days around the race — the trials and the contrada dinner are the heart of it, and we never land you on race day itself. You'll set your exact nights next.",
         daysIntro: "First, choose the race and your position on the Campo — that sets your date and your view. Prices are per person and estimated; we confirm exact figures with our Siena contacts when we hold the balcony. How many nights in Siena is a separate question we ask next.",
         dayPicks: [
           { label: "Palio di Provenzano · July", dates: "July 2, 2027", date: "2027-07-02", band: "Balconies ≈ €575–1,250 pp · est.", note: "Our slightly preferred date — kinder weather, fits a broader European summer, less August congestion.", tiers: [
