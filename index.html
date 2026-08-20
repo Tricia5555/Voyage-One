@@ -5667,7 +5667,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M162</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M163</span></footer>
   </div>);
 }
 
@@ -5863,7 +5863,74 @@ const ONE_LIST = {
           "The ritual: strawberries and cream with a glass of English sparkling, taken at the top of the hill.",
         ],
       } },
-      { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, photo: "/images/french-open-roland-garros.jpg", gallery: ["/images/french-open-roland-garros.jpg", "/images/french-open-court.jpg", "/images/french-open-eiffel.jpg", "/images/french-open-arc.jpg"], blurb: "The clay-court classic at Roland-Garros — Paris in early summer, a joy on any day of the tournament." },
+      { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, photo: "/images/french-open-roland-garros.jpg", gallery: ["/images/french-open-roland-garros.jpg", "/images/french-open-court.jpg", "/images/french-open-eiffel.jpg", "/images/french-open-arc.jpg"], blurb: "The clay-court Grand Slam at Roland-Garros — Paris in early summer, the red clay and the roar under the Chatrier roof.", guide: {
+        cur: "€",
+        daysTitle: "Choose your day & your seats",
+        pickStep: "Step one · choose your day & your seats",
+        recapLabel: "Your day",
+        pickSettle: "We build you into Paris a day or two ahead — time to settle into the city before the tennis. You'll set your exact nights next; the city itself is half the trip.",
+        daysIntro: "First, the day. Roland-Garros runs a fortnight, but the days are far from equal — the first week lets you roam every court and catch a dozen stars in an afternoon, while the second week concentrates the drama on Court Philippe-Chatrier. Choose the day that suits you, then your seats: for our clientele that means Category 1 on Chatrier, or the Club des Loges hospitality courtside. Prices are estimates, per person; we confirm before anything is committed.",
+        dayPicks: [
+          { label: "A first-week day", dates: "Late May 2027", date: "2027-05-26", band: "Chatrier Cat 1 ≈ €150 · est.", note: "The grounds at their liveliest — every court in play, the biggest names scattered across them, and room to wander. The connoisseur's secret: more tennis, fewer crowds, lower prices.", tiers: [
+            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €150 pp est." },
+            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €850 pp est." },
+          ] },
+          { label: "Round of 16", dates: "Sun May 30, 2027", date: "2027-05-30", band: "Chatrier Cat 1 ≈ €200 · est.", note: "The last sixteen — four matches a day on Chatrier, every remaining contender still in the draw. The sweet spot of star power and value.", tiers: [
+            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €200 pp est." },
+            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €1,000 pp est." },
+          ] },
+          { label: "Quarter-finals", dates: "Tue Jun 1, 2027", date: "2027-06-01", band: "Chatrier Cat 1 ≈ €280 · est.", note: "Eight players left, a full day of high drama on Chatrier — often the best quality-to-occasion day of the whole fortnight.", tiers: [
+            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €280 pp est." },
+            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €1,200 pp est." },
+          ] },
+          { label: "Women's Final", dates: "Sat Jun 5, 2027", date: "2027-06-05", band: "Chatrier Cat 1 ≈ €600 · est.", note: "The women's championship on Chatrier — a single, charged afternoon and a champion crowned.", tiers: [
+            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €600 pp est." },
+            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €2,500 pp est." },
+          ] },
+          { label: "Men's Final", dates: "Sun Jun 6, 2027", date: "2027-06-06", band: "Chatrier Cat 1 ≈ €800 · est.", note: "The men's final — the last day, the trophy, the summit of the clay season. The hardest ticket at Roland-Garros.", tiers: [
+            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €800 pp est." },
+            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €3,500 pp est." },
+          ] },
+        ],
+        daysSubTitle: "The fortnight",
+        days: "Fifteen days, no rest day, on the red clay of the Bois de Boulogne. The first week is for roaming — all three show courts and the outer courts in play at once, stars everywhere. The second week narrows onto Court Philippe-Chatrier, where the roof and the lights mean play never stops. The clay makes for the longest, most physical tennis of the year — rallies that the grass never gives you.",
+        ticketsTitle: "Where to watch",
+        tickets: "The Voyage One standard is Court Philippe-Chatrier — the main stadium, with its retractable roof and night lights — in Category 1, the lower bowl, or in the Club des Loges hospitality, which puts you in the first rows with courtside dining, an open bar and concierge service through the day. The two other show courts are worth knowing: Suzanne-Lenglen, the elegant second stadium (now roofed too), and Simonne-Mathieu, the sunken court ringed by greenhouses — the most beautiful place to watch tennis in Paris. A day-session ticket on Chatrier gives you three matches; a night session is a single marquee match under the lights. Unlike Wimbledon and Ascot, there is no dress code — it is simply, effortlessly, a stylish Parisian crowd.",
+        ticketBands: [
+          { label: "Court Philippe-Chatrier, Category 1 (per person, per day)", price: "≈ €150–€800 est." },
+          { label: "Club des Loges hospitality — courtside & dining (per person)", price: "≈ €850–€3,500 est." },
+          { label: "Night session on Chatrier — one marquee match under lights (pp)", price: "≈ €90–€300 est." },
+          { label: "Grounds pass — roam the outer courts (per person)", price: "≈ €30 est." },
+        ],
+        ticketNote: "All figures are estimates, per person. Second-week and finals seats on Chatrier are the scarce ones — arranged months ahead through our brokers. The finals, and the men's final above all, are the hardest tickets; start early.",
+        stayNote: "Roland-Garros sits in the leafy 16th, by the Bois de Boulogne — but the joy of this trip is Paris itself, so we base you in the city and car you out (about 20 minutes). One option sits closest to the courts; the other two are the great central palaces.",
+        stay: [
+          { name: "Saint James Paris", area: "16th · closest to the courts", rate: 1100, note: "A château-hotel with a garden in the 16th — the nearest luxury address to Roland-Garros, and a hideaway in its own right. (Estimated.)" },
+          { name: "Le Bristol Paris", area: "8th · Rue du Faubourg Saint-Honoré", rate: 1600, note: "A palace hotel on the great shopping street, rooftop pool and a legendary garden — quintessential Paris. (Estimated.)" },
+          { name: "The Ritz Paris", area: "1st · Place Vendôme", rate: 2200, note: "The Ritz — Place Vendôme, the bar, the history. For those who want the most storied address in the city. (Estimated.)" },
+        ],
+        beyondTitle: "Beyond the tennis",
+        beyond: [
+          { name: "A night session on Chatrier", note: "One marquee match under the roof and lights — the most theatrical way to see the tennis, and a different crowd from the day." },
+          { name: "The practice courts", note: "In the first week you can stand feet from the very top players as they warm up — the most intimate access in the sport, and free with a grounds pass." },
+          { name: "Court Simonne-Mathieu", note: "The sunken court ringed by four glasshouses of botanical gardens — worth a session of its own, simply for where you're sitting." },
+          { name: "Paris in late spring", note: "The real reason to come: the city at its most beautiful. We build in the dinners, the museums and the walks around the tennis." },
+        ],
+        notes: [
+          "The clay makes the longest, most physical tennis of the year — five-set epics that grass and hard courts rarely give. Come for a full day and let it unfold.",
+          "First week to roam, second week for the drama. A first-week day lets you see a dozen stars across the courts; the second week concentrates them on Chatrier.",
+          "No dress code — this is Paris, not Wimbledon. Smart, comfortable, and stylish; a hat and sunglasses for the day sessions on the clay.",
+          "Chatrier and Lenglen both have roofs now, so rain no longer stops your day — but late-May Paris can swing from hot to cool, so bring a layer.",
+        ],
+        stepsTitle: "The ideal days",
+        steps: [
+          { h: "Day 1 · Arrive in Paris", b: "Into the city and settle. An evening walk, a first dinner — no tennis yet, just Paris in late spring." },
+          { h: "Day 2 · A day at Roland-Garros", b: "Out to the Bois de Boulogne for your day on Chatrier — the matches, lunch in the Club des Loges or a wander of the outer courts, and the red clay up close." },
+          { h: "Day 3 · Paris, and perhaps a night session", b: "A day for the city — a museum, the shopping, a long lunch — and, if you like, back to Roland-Garros for a marquee match under the lights." },
+          { h: "Day 4 · Depart, or on through Europe", b: "A last Parisian morning before you go home, or on to another stop." },
+        ],
+        handoff: "Next, in the trip builder: we'll set your dates around your Roland-Garros day, arrange the Chatrier seats or Club des Loges hospitality, book your Paris hotel, and fill the days around the tennis — every detail confirmed with you.",
+      } },
       { title: "The Italian Open", city: "Rome", airport: "FCO", airportName: "Rome Fiumicino", start: "2027-05-06", end: "2027-05-16", dateLabel: "Early–mid May 2027", nights: 5, photo: "Foro Italico Rome", blurb: "Clay-court theatre at the Foro Italico — marble statues, umbrella pines and courtside seats close enough to hear the players breathe." },
     ],
     "Horse Racing & Polo": [
