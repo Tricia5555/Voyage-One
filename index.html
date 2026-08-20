@@ -5667,7 +5667,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M166</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M167</span></footer>
   </div>);
 }
 
@@ -5911,7 +5911,7 @@ const ONE_LIST = {
         ],
         beyondTitle: "Beyond the tennis",
         beyond: [
-          { name: "Add Mallorca — play at Rafa's academy", note: "The ultimate bookend for a tennis lover: pair Roland-Garros with a few days at the Rafa Nadal Academy in Manacor, a two-hour flight from Paris. Play on the academy's own courts, tour the Rafa Nadal Museum, dine at his 'Roland Garros' restaurant, and stay at the on-site residence — before or after Paris. We arrange the whole extension." },
+          { name: "Add Mallorca — play at Rafa's academy", note: "The ultimate bookend for a tennis lover: pair Roland-Garros with a few days at the Rafa Nadal Academy in Manacor, a two-hour flight from Paris. Play on the academy's own courts, tour the Rafa Nadal Museum, dine at his 'Roland Garros' restaurant, and stay at the on-site residence — before or after Paris. We arrange the whole extension.", link: "https://www.rafanadalacademy.com/en/", linkLabel: "Explore the academy" },
           { name: "A night session on Chatrier", note: "One marquee match under the roof and lights — the most theatrical way to see the tennis, and a different crowd from the day." },
           { name: "The practice courts", note: "In the first week you can stand feet from the very top players as they warm up — the most intimate access in the sport, and free with a grounds pass." },
           { name: "Court Simonne-Mathieu", note: "The sunken court ringed by four glasshouses of botanical gardens — worth a session of its own, simply for where you're sitting." },
@@ -6303,7 +6303,7 @@ function OneList({ onPick, onBack, onHome }) {
   const secHead = (title) => (<div style={{ fontFamily: font.display, fontSize: 27, color: t.ink, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.09em", textAlign: "center", marginBottom: 12 }}>{title}</div>);
   const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
   const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div></div>))}</div>);
-  const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong> — {b.note}</div>))}</div>);
+  const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong> — {b.note}{b.link ? <> <a href={b.link} target="_blank" rel="noopener noreferrer" style={{ color: t.brass, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>{b.linkLabel || "Visit the site"} →</a></> : null}</div>))}</div>);
   const bul = (arr) => (<ul style={{ margin: 0, paddingLeft: 20, color: t.inkSoft, fontSize: 15, lineHeight: 1.65 }}>{(arr || []).map((x, k) => (<li key={k} style={{ marginBottom: 8 }}>{x}</li>))}</ul>);
   const bandTable = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 0, border: `1px solid ${t.line}`, borderRadius: 12, overflow: "hidden", marginTop: 12 }}>{(arr || []).map((b, k) => (<div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "11px 15px", background: k % 2 ? t.card : t.white, borderTop: k ? `1px solid ${t.line}` : "none" }}><span style={{ fontSize: 14.5, color: t.ink }}>{b.label}</span><span style={{ fontFamily: font.display, fontSize: 17, color: t.pine, fontWeight: 600, whiteSpace: "nowrap" }}>{b.price}</span></div>))}</div>);
   if (sel) {
