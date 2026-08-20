@@ -5662,7 +5662,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M144</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M146</span></footer>
   </div>);
 }
 
@@ -5858,7 +5858,7 @@ const ONE_LIST = {
           "The ritual: strawberries and cream with a glass of English sparkling, taken at the top of the hill.",
         ],
       } },
-      { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, blurb: "The clay-court classic at Roland-Garros — Paris in early summer, a joy on any day of the tournament." },
+      { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, photo: "/images/french-open-roland-garros.jpg", gallery: ["/images/french-open-roland-garros.jpg", "Roland Garros Paris", "Court Philippe Chatrier", "Paris France"], blurb: "The clay-court classic at Roland-Garros — Paris in early summer, a joy on any day of the tournament." },
       { title: "The Italian Open", city: "Rome", airport: "FCO", airportName: "Rome Fiumicino", start: "2027-05-06", end: "2027-05-16", dateLabel: "Early–mid May 2027", nights: 5, photo: "Foro Italico Rome", blurb: "Clay-court theatre at the Foro Italico — marble statues, umbrella pines and courtside seats close enough to hear the players breathe." },
     ],
     "Horse Racing & Polo": [
@@ -5898,7 +5898,42 @@ const ONE_LIST = {
       { title: "The Vienna Opera Ball", city: "Vienna", airport: "VIE", airportName: "Vienna Intl", start: "2027-02-03", end: "2027-02-06", dateLabel: "February 4, 2027", nights: 3, blurb: "White tie beneath the chandeliers of the Staatsoper — the most elegant night in Europe." },
     ],
     "Spectacle & Pageantry": [
-      { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 3, photo: "Piazza del Campo Siena Palio", gallery: ["Piazza del Campo Siena", "Torre del Mangia Siena", "Siena Cathedral Duomo", "Siena Italy old town"], blurb: "The bareback race around the Campo, from a private palazzo — medieval Siena at fever pitch." },
+      { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 4, photo: "Piazza del Campo Siena Palio", gallery: ["Piazza del Campo Siena", "Torre del Mangia Siena", "Siena Cathedral Duomo", "Siena Italy old town"], blurb: "Inside Siena during the Palio — the contrada dinners, the blessing, and the race from a private balcony over the Campo.", guide: {
+        daysTitle: "The rhythm",
+        days: "Four nights, five days, lived inside the walls of Siena. The 90-second race is the climax — but the trials, the contrada dinners and the city at fever pitch are the real experience. July is slightly preferred; both the July 2 (Provenzano) and August 16 (Assunta) Palii can be arranged.",
+        ticketsTitle: "Where to watch",
+        tickets: "The Voyage One standard is a private first-floor balcony or window overlooking the Piazza del Campo — never the standing centre, general admission, or ordinary bleachers. Where you sit on the square is everything. Our first choice is the Mossa, the start-finish rope, where the horses line up and the tension, false starts and strategy all play out. Next is San Martino, the dramatic corner the horses take at speed, close enough to feel it. Then Casato, an elevated view over more of the track; and Fonte Gaia, a beautiful panoramic vantage across the whole Campo.",
+        ticketNote: "Balconies over the Mossa are the most coveted and the first to go — arranged months ahead through our Siena contacts. Book early.",
+        stayNote: "Stay inside Siena itself for the Palio. The great Tuscan countryside resorts are wonderful another week — but here, the walled city is the experience, and you want to walk everywhere.",
+        stay: [
+          { name: "Grand Hotel Continental Siena", area: "Historic centre", rate: null, note: "Siena's five-star, inside the walls and a short walk from the Piazza del Campo — the natural base for the Palio." },
+          { name: "Palazzo Ravizza", area: "Historic centre", rate: null, note: "More intimate and historic, less conventionally five-star — for those who prefer character and a real Sienese address over full resort service." },
+        ],
+        beyondTitle: "Beyond the race",
+        beyond: [
+          { name: "The trial races (prove)", note: "Six run over the days before, morning and evening, in the same Campo with the same horses — free, far less crowded, and the best way to learn the race." },
+          { name: "The contrada dinner", note: "The Cena della Prova Generale the night before — hundreds at long tables in the contrada's own street. The single most authentic evening you can have here; we seek an invitation rather than a restaurant." },
+          { name: "The blessing of the horse", note: "Race-day morning, inside the contrada church, the horse led to the altar. A solemn, unforgettable moment." },
+          { name: "The Corteo Storico", note: "The 15th-century costumed procession before the race — drummers and flag-throwers filling the square." },
+          { name: "The contrada museum", note: "Each contrada keeps its own museum of banners and history — a private window into the world you're stepping into." },
+          { name: "The celebration", note: "Follow the winning contrada through the streets afterward — a year of devotion released in one night." },
+        ],
+        notes: [
+          "Come already caring who wins. Your local expert walks you through the 17 contrade, which 10 are racing, the historic rivalries and alliances, the jockeys and the horses — and helps you choose a contrada to follow. By race day it should matter to you who crosses first.",
+          "July is slightly preferred: the Palio di Provenzano (July 2) fits a broader European summer, avoids peak-August congestion, and usually brings kinder weather. The Palio dell'Assunta (August 16) is offered too.",
+          "Four nights, five days. The Palio is not race day alone — the trials, contrada life and dinners are what create the emotional connection.",
+          "Wear the contrada scarf. A small gesture, and you stop being a spectator.",
+        ],
+        stepsTitle: "The ideal five days",
+        steps: [
+          { h: "Day 1 · Enter the world", b: "Arrive Siena and settle inside the walls. A private Palio historian, a contrada museum, and an aperitivo with a knowledgeable Sienese local — then the evening trial in the Campo." },
+          { h: "Day 2 · Understand the rivalries", b: "The morning trial, a private walk through the contrade, lunch, the afternoon trial, and dinner in the city — a day to learn the alliances, the jockeys and the horses." },
+          { h: "Day 3 · The night before", b: "The morning trial, a free afternoon, then the Cena della Prova Generale — the contrada's street dinner on the eve of the race. If access can be arranged, this is where you spend the evening. The heart of the whole experience." },
+          { h: "Day 4 · Palio day", b: "A late breakfast, a walk through your contrada, the blessing of the horse, the Corteo Storico procession, and the race itself from a private first-floor balcony over the Campo — then follow the winning contrada into the streets." },
+          { h: "Day 5 · Depart", b: "A late breakfast and a last walk through a quieter Siena before you go." },
+        ],
+        handoff: "Next, in the trip builder: we'll set your dates around the Palio, add your Siena hotel, and arrange the balcony, the contrada dinner and your local expert — every detail confirmed with you.",
+      } },
       { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-07", dateLabel: "Jan 30–Feb 9, 2027", nights: 4, arriveDaysBefore: 2, blurb: "A masked ball in a Grand Canal palazzo, a whole city dressed for the 18th century — Carnival at its most mysterious and theatrical.", guide: {
         daysTitle: "Your evening",
         pickStep: "Step one · choose your Carnival evening",
