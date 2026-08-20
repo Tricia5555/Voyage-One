@@ -5018,7 +5018,7 @@ function Photo({ query, h = 180, radius = 0, raw = false, contain = false }) {
   if (!src || bad) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
   // contain: keep the photo's real shape (never crop) — a tall photo stays tall, a wide one
   // stays wide — capped to height h and centred. cover: fill the box and crop (heroes/cards).
-  if (contain) return <img src={src} onError={() => setBad(true)} alt={city} style={{ display: "block", margin: "0 auto", maxWidth: "100%", maxHeight: h, width: "auto", height: "auto", borderRadius: radius, background: t.mist }} />;
+  if (contain) return <img src={src} onError={() => setBad(true)} alt={city} style={{ display: "block", width: "100%", height: "auto", borderRadius: radius, background: t.mist }} />;
   return <img src={src} onError={() => setBad(true)} alt={city} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
 }
 function CityHero({ query, index, title, label, right, h = 180 }) {
@@ -5667,7 +5667,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M161</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M162</span></footer>
   </div>);
 }
 
@@ -5732,7 +5732,7 @@ function Planner(p) {
 const ONE_LIST = {
   "Sport": {
     "Motorsport": [
-      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, arriveDaysBefore: 3, blurb: "The crown jewel of Formula 1, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour.", photo: "/images/monaco-harbour-f1.jpg", gallery: ["/images/monaco-harbour-f1.jpg", "/images/monaco-bay.jpg", "/images/monaco-passage.jpg", "Monte Carlo Monaco harbour"], guide: {
+      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, arriveDaysBefore: 3, blurb: "The crown jewel of Formula 1, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour.", photo: "/images/monaco-harbour-f1.jpg", gallery: ["/images/monaco-harbour-f1.jpg", "/images/monaco-bay.jpg", "/images/monaco-passage.jpg", "Monte Carlo Monaco harbour"], galleryW: { 2: "min(46vw, 340px)" }, guide: {
         daysTitle: "How you'll watch",
         pickStep: "Step one · choose how you watch",
         pickPrompt: "Which level?",
@@ -5868,7 +5868,7 @@ const ONE_LIST = {
     ],
     "Horse Racing & Polo": [
       { title: "The Kentucky Derby", city: "Louisville", airport: "SDF", airportName: "Louisville Muhammad Ali Intl", start: "2027-04-30", end: "2027-05-02", dateLabel: "May 1, 2027", nights: 2, blurb: "The most exciting two minutes in sport — a box on Millionaires' Row, juleps and hats." },
-      { title: "Royal Ascot", city: "Ascot, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", guide: {
+      { title: "Royal Ascot", city: "Ascot, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", heroContain: true, bandW: "min(74vw, 640px)", guide: {
         cur: "£",
         daysTitle: "Choose your day & your enclosure",
         pickStep: "Step one · choose your day & your enclosure",
@@ -6267,7 +6267,14 @@ function OneList({ onPick, onBack, onHome }) {
     // Photos: a big hero at the top, then the rest of the gallery woven BETWEEN the body
     // sections so the page stays alive as you read — rather than one block of thumbnails up top.
     const gal = evGallery(ev);
-    const photoBand = (i, h = 430) => (gal[i] ? (<div style={{ margin: "2px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain /></div>) : null);
+    // Body photos: wider than the text column (about two-thirds of the page), centred, and always
+    // keeping their real shape. A landscape fills the width; a tall portrait stays tall but bigger.
+    // An event can nudge its own size with bandW / bandH (Royal Ascot runs a touch larger).
+    const bandW = (ev && ev.bandW) || "min(72vw, 600px)";
+    const bandH = (ev && ev.bandH) || 540;
+    // Per-photo width overrides by gallery index (e.g. Monaco keeps its corner shot small).
+    const galW = (ev && ev.galleryW) || {};
+    const photoBand = (i, h = bandH) => (gal[i] ? (<div style={{ alignSelf: "center", width: (galW[i] || bandW), maxWidth: "94vw", margin: "8px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain /></div>) : null);
     return (<div style={shell}>
       {back(() => { setSel(null); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
@@ -6276,7 +6283,9 @@ function OneList({ onPick, onBack, onHome }) {
         {ev.airport ? <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</div> : null}
       </div>
       {/* A single big hero here; the remaining gallery shots are woven through the body below. */}
-      {gal.length ? (<div style={{ maxWidth: 900, margin: "0 auto 30px" }}><Photo query={gal[0]} h={340} radius={18} raw /></div>) : null}
+      {gal.length ? (ev.heroContain
+        ? (<div style={{ width: bandW, maxWidth: "94vw", margin: "0 auto 30px" }}><Photo query={gal[0]} h={bandH} radius={18} raw contain /></div>)
+        : (<div style={{ maxWidth: 900, margin: "0 auto 30px" }}><Photo query={gal[0]} h={340} radius={18} raw /></div>)) : null}
       <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 26 }}>
         <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
         {g ? (<>
