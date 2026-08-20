@@ -5664,7 +5664,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M148</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M151</span></footer>
   </div>);
 }
 
@@ -6640,7 +6640,14 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const fc = iataFor(from), tc = iataFor(to);
   const cabin = (f && f.cabin) || "";
   const est = cabin ? fareEstimate(from, to, cabin) : null;
-  const [stopsFilter, setStopsFilter] = useState("0");
+  // Default to nonstop-only, EXCEPT when the destination is a regional airport that no long-haul
+  // aircraft can reach nonstop (Florence FLR, Pisa, Naples…). There, "nonstop only" guarantees an
+  // empty list — so we start on "Any routing" and the real connecting fares appear.
+  // Regional destinations (Florence FLR, Pisa…) have no nonstop from far away, so default to
+  // "up to 1 stop" — the realistic hub connection. NOT "any routing", which makes the fare engine
+  // build every multi-stop combination and can take minutes. One-stop returns fast and is enough.
+  const toRegional = !!(airportFor(to) && airportFor(to).scale === "regional");
+  const [stopsFilter, setStopsFilter] = useState(toRegional ? "1" : "0");
   const [whenFilter, setWhenFilter] = useState("");
   const [viaFilter, setViaFilter] = useState("");
   // Delta side-panel: Delta blocks being embedded, so we open their search in a companion tab and
@@ -6730,7 +6737,11 @@ function FlightPicker({ from, to, pick, upd, date }) {
       <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Loosen these to see more.{live.meta && live.meta.totalFound ? ` ${live.meta.nonstopCount} nonstop of ${live.meta.totalFound} flights on this route.` : ""}</div>
       {live.meta && live.meta.narrowedToNothing && <div style={{ fontSize: 12.5, color: "#B0563A", marginTop: 7, lineHeight: 1.5 }}>Nothing matched those filters, so every flight is shown below.</div>}
       <div style={{ height: 14 }} />
-      {live.loading && <div style={{ fontSize: 13, color: t.inkFaint, padding: "10px 2px" }}>Finding real {cabin} flights…</div>}
+      {live.loading && <div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "16px 18px", background: t.mist }}>
+        <div style={{ fontSize: 14.5, color: t.ink, fontWeight: 500 }}>Searching live {cabin} fares, {bareCity(from)} → {bareCity(to)}…</div>
+        <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{toRegional ? `${bareCity(to)} is a small airport, so real flights connect through a European hub — building those routings can take up to a minute. Hang tight; it's working.` : "Pulling real airline fares — this can take up to a minute. Hang tight; it's working."}{est ? ` Estimated around ${fmt(est)} one way.` : ""}</div>
+        <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 10, fontSize: 12.5, color: t.pine, fontWeight: 500 }}>Or compare on Google while you wait ↗</a>
+      </div>}
       {!live.loading && live.offers && live.offers.length > 0 && (() => {
         // ── The routing survey ────────────────────────────────────────────────
         // A search for Birmingham to Milan comes back routed through Philadelphia, Miami and
