@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M176</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M177</span></footer>
   </div>);
 }
 
@@ -7489,7 +7489,10 @@ function HotelPicker({ city, nights, pick, upd }) {
     liveRows = liveAll.filter((r) => {
       if (liveHotelTier(r) !== level) return false;
       const a = ulxAlnum(r.name); if (!a || seen[a]) return false; seen[a] = 1;
-      return !levelFavs.some((f) => nameMatch(r.name, f.name));
+      // Dedup against EVERY curated pick for the city, not just this tier's — otherwise a hotel
+      // we feature in Ultra (e.g. Portrait) can reappear from the live feed under Luxury, showing
+      // the same hotel in two categories. A curated favourite is never re-listed by the feed.
+      return !favs.some((f) => nameMatch(r.name, f.name));
     });
   }
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
