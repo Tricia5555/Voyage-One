@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M177</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M180</span></footer>
   </div>);
 }
 
@@ -5870,44 +5870,125 @@ const ONE_LIST = {
       } },
       { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, photo: "/images/french-open-roland-garros.jpg", gallery: ["/images/french-open-roland-garros.jpg", "/images/french-open-court.jpg", "/images/french-open-eiffel.jpg", "/images/french-open-arc.jpg"], blurb: "The clay-court Grand Slam at Roland-Garros — Paris in early summer, the red clay and the roar under the Chatrier roof.", guide: {
         cur: "€",
-        daysTitle: "Choose your day & your seats",
-        pickStep: "Step one · choose your day & your seats",
+        daysTitle: "Choose your session, day & restaurant",
+        pickStep: "Step one · choose your day, then your session & restaurant",
         recapLabel: "Your day",
-        pickSettle: "We build you into Paris a day or two ahead — time to settle into the city before the tennis. You'll set your exact nights next; the city itself is half the trip.",
-        daysIntro: "First, the day. Roland-Garros runs a fortnight, but the days are far from equal — the first week lets you roam every court and catch a dozen stars in an afternoon, while the second week concentrates the drama on Court Philippe-Chatrier. Choose the day that suits you, then your seats: for our clientele that means Category 1 on Chatrier, or the Club des Loges hospitality courtside. Prices are estimates, per person; we confirm before anything is committed.",
+        pickSettle: "We build you into Paris a day or two ahead — the city is half the trip. You'll set your exact nights next.",
+        daysIntro: "First the day, then — beneath it — your session and restaurant. Every Voyage One ticket is a Category 1 seat on Court Philippe-Chatrier, sold with French hospitality in one of three restaurants: L'Orangerie (seated dining, and the only one upgradable to Category Gold on request), La Mezzanine (its bright buffet lounge upstairs), or Le Pavillon (buffet then seated dining, beside the practice courts). A day session runs 10am to the last match with three matches on Chatrier; a night session is one marquee match under the lights. Prices are per person, invoiced in GBP at booking.",
         dayPicks: [
-          { label: "A first-week day", dates: "Late May 2027", date: "2027-05-26", band: "Chatrier Cat 1 ≈ €150 · est.", note: "The grounds at their liveliest — every court in play, the biggest names scattered across them, and room to wander. The connoisseur's secret: more tennis, fewer crowds, lower prices.", tiers: [
-            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €150 pp est." },
-            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €850 pp est." },
+          { label: "Sun 23 May", dates: "1st Round", date: "2027-05-23", band: "Day €715–€950 · Night €475–€580 · pp", note: "The grounds at their liveliest — every court in play, stars everywhere, and the best value of the fortnight.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €950 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €760 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €715 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €580 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €515 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €475 pp" },
           ] },
-          { label: "Round of 16", dates: "Sun May 30, 2027", date: "2027-05-30", band: "Chatrier Cat 1 ≈ €200 · est.", note: "The last sixteen — four matches a day on Chatrier, every remaining contender still in the draw. The sweet spot of star power and value.", tiers: [
-            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €200 pp est." },
-            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €1,000 pp est." },
+          { label: "Mon 24 May", dates: "1st Round", date: "2027-05-24", band: "Day €870–€1,150 · Night €555–€645 · pp", note: "The grounds at their liveliest — every court in play, stars everywhere, and the best value of the fortnight.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,150 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €930 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €870 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €645 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €565 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €555 pp" },
           ] },
-          { label: "Quarter-finals", dates: "Tue Jun 1, 2027", date: "2027-06-01", band: "Chatrier Cat 1 ≈ €280 · est.", note: "Eight players left, a full day of high drama on Chatrier — often the best quality-to-occasion day of the whole fortnight.", tiers: [
-            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €280 pp est." },
-            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €1,200 pp est." },
+          { label: "Tue 25 May", dates: "1st Round", date: "2027-05-25", band: "Day €1,005–€1,340 · Night €625–€845 · pp", note: "The grounds at their liveliest — every court in play, stars everywhere, and the best value of the fortnight.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,340 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,075 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,005 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €845 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €665 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €625 pp" },
           ] },
-          { label: "Women's Final", dates: "Sat Jun 5, 2027", date: "2027-06-05", band: "Chatrier Cat 1 ≈ €600 · est.", note: "The women's championship on Chatrier — a single, charged afternoon and a champion crowned.", tiers: [
-            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €600 pp est." },
-            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €2,500 pp est." },
+          { label: "Wed 26 May", dates: "2nd Round", date: "2027-05-26", band: "Day €1,235–€1,640 · Night €810–€1,100 · pp", note: "The draw tightening, still a dozen big names spread across the courts — a superb balance of star power and value.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,640 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,315 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,235 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,100 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €865 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €810 pp" },
           ] },
-          { label: "Men's Final", dates: "Sun Jun 6, 2027", date: "2027-06-06", band: "Chatrier Cat 1 ≈ €800 · est.", note: "The men's final — the last day, the trophy, the summit of the clay season. The hardest ticket at Roland-Garros.", tiers: [
-            { tier: "Court Philippe-Chatrier · Category 1", label: "Chatrier Cat 1 · ≈ €800 pp est." },
-            { tier: "Club des Loges · courtside & dining", label: "Club des Loges hospitality · ≈ €3,500 pp est." },
+          { label: "Thu 27 May", dates: "2nd Round", date: "2027-05-27", band: "Day €1,230–€1,640 · Night €810–€1,100 · pp", note: "The draw tightening, still a dozen big names spread across the courts — a superb balance of star power and value.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,640 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,315 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,230 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,100 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €865 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €810 pp" },
+          ] },
+          { label: "Fri 28 May", dates: "3rd Round", date: "2027-05-28", band: "Day €1,325–€1,760 · Night €920–€1,255 · pp", note: "Into the heart of week one — the field narrowing toward the real contenders, the show courts filling.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,760 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,410 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,325 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,255 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €985 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €920 pp" },
+          ] },
+          { label: "Sat 29 May", dates: "3rd Round", date: "2027-05-29", band: "Day €1,165–€1,540 · Night €800–€1,080 · pp", note: "Into the heart of week one — the field narrowing toward the real contenders, the show courts filling.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,540 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,235 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,165 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,080 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €915 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €800 pp" },
+          ] },
+          { label: "Sun 30 May", dates: "4th Round", date: "2027-05-30", band: "Day €1,165–€1,540 · Night €765–€1,040 · pp", note: "The last sixteen — every remaining contender, the drama concentrating on Chatrier.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €1,540 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,235 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,165 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,040 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €815 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €765 pp" },
+          ] },
+          { label: "Mon 31 May", dates: "4th Round", date: "2027-05-31", band: "Day €1,690–€2,075 · Night €1,220–€1,395 · pp", note: "The last sixteen — every remaining contender, the drama concentrating on Chatrier.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €2,075 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,535 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,690 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,395 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €1,090 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €1,220 pp" },
+          ] },
+          { label: "Tue 1 Jun", dates: "Quarter-finals", date: "2027-06-01", band: "Day €1,985–€2,465 · Night €1,580–€1,890 · pp", note: "Eight left — a full day of high drama on Chatrier, and the connoisseur's pick of the tournament.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €2,465 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,780 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,985 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,890 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €1,475 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €1,580 pp" },
+          ] },
+          { label: "Wed 2 Jun", dates: "Quarter-finals", date: "2027-06-02", band: "Day €1,985–€2,465 · Night €1,580–€1,890 · pp", note: "Eight left — a full day of high drama on Chatrier, and the connoisseur's pick of the tournament.", tiers: [
+            { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €2,465 pp" },
+            { tier: "Day · La Mezzanine (buffet lounge)", label: "Day session · La Mezzanine · €1,780 pp" },
+            { tier: "Day · Le Pavillon (buffet/seated · practice-court views)", label: "Day session · Le Pavillon · €1,985 pp" },
+            { tier: "Night · L'Orangerie (seated · Gold-upgradable)", label: "Night session · L'Orangerie · €1,890 pp" },
+            { tier: "Night · La Mezzanine (buffet lounge)", label: "Night session · La Mezzanine · €1,475 pp" },
+            { tier: "Night · Le Pavillon (buffet/seated · practice-court views)", label: "Night session · Le Pavillon · €1,580 pp" },
+          ] },
+          { label: "Semi-finals", dates: "Thu 3 – Fri 4 Jun 2027", date: "2027-06-04", band: "€1,355–€7,070 pp · by package", note: "Sold as packages — except the Ladies semis, which can be bought on their own. Each price below is per person, shown for all three restaurants (Orangerie / Mezzanine / Pavillon); the restaurant is settled at booking.", tiers: [
+            { tier: "Ladies semis only (Thu 3 Jun)", label: "2 Ladies semis · Orangerie €1,810 / Mezzanine €1,355 / Pavillon €1,585 pp" },
+            { tier: "Pack 3 · 1 Men's semi (7pm, Fri 4)", label: "Pack 3 · Orangerie €2,915 / Mezzanine €2,125 / Pavillon €2,295 pp" },
+            { tier: "Pack 1 · 2 Ladies semis + Men's semi (2pm)", label: "Pack 1 · Orangerie €4,950 / Mezzanine €3,455 / Pavillon €3,860 pp" },
+            { tier: "Pack 2 · 2 Ladies semis + Men's semi (7pm)", label: "Pack 2 · Orangerie €4,725 / Mezzanine €3,480 / Pavillon €3,880 pp" },
+            { tier: "Pack 4 · 2 Ladies semis + 2 Men's semis", label: "Pack 4 · Orangerie €7,070 / Mezzanine €5,560 / Pavillon €6,135 pp" },
+          ] },
+          { label: "The Finals", dates: "Sat 5 – Sun 6 Jun 2027", date: "2027-06-06", band: "Ladies Final €1,355–€1,810 · both finals €4,545–€5,550 pp", note: "The Ladies Final (Sat) can be bought on its own; the Men's Final (Sun) is sold only in the two-day finals package. Per person, all three restaurants shown; restaurant settled at booking.", tiers: [
+            { tier: "Ladies Final only (Sat 5 Jun)", label: "Ladies Final · Orangerie €1,810 / Mezzanine €1,355 / Pavillon €1,585 pp" },
+            { tier: "Finals package · Ladies (Sat) + Men's (Sun)", label: "Both finals · Orangerie €5,550 / Mezzanine €4,545 / Pavillon €5,030 pp" },
           ] },
         ],
         daysSubTitle: "The fortnight",
-        days: "Fifteen days, no rest day, on the red clay of the Bois de Boulogne. The first week is for roaming — all three show courts and the outer courts in play at once, stars everywhere. The second week narrows onto Court Philippe-Chatrier, where the roof and the lights mean play never stops. The clay makes for the longest, most physical tennis of the year — rallies that the grass never gives you.",
-        ticketsTitle: "Where to watch",
-        tickets: "The Voyage One standard is Court Philippe-Chatrier — the main stadium, with its retractable roof and night lights — in Category 1, the lower bowl, or in the Club des Loges hospitality, which puts you in the first rows with courtside dining, an open bar and concierge service through the day. The two other show courts are worth knowing: Suzanne-Lenglen, the elegant second stadium (now roofed too), and Simonne-Mathieu, the sunken court ringed by greenhouses — the most beautiful place to watch tennis in Paris. A day-session ticket on Chatrier gives you three matches; a night session is a single marquee match under the lights. Unlike Wimbledon and Ascot, there is no dress code — it is simply, effortlessly, a stylish Parisian crowd.",
+        days: "A fortnight on the red clay of the Bois de Boulogne — the longest, most physical tennis of the year. The first week is for roaming (every court in play, stars everywhere, the best value); the second week concentrates the drama on Chatrier under the roof and lights. Do both a day session and a night session if you can — they feel completely different.",
+        ticketsTitle: "Your seats & hospitality",
+        tickets: "Every seat is Category 1 — the yellow tier, with excellent views over Court Philippe-Chatrier — sold together with French hospitality in your chosen restaurant, each with its own designated seating zone. L'Orangerie is seated dining in a beautiful 19th-century pavilion with a patio, and the only restaurant whose tickets upgrade to Category Gold (lower seating) on request; La Mezzanine is its stylish buffet lounge one floor up; Le Pavillon, out by the practice courts, is a buffet in week one and seated dining in week two, with a large outdoor terrace. A day session (gates 10am, lunch 11:30–2:30, afternoon tea at 4, drinks to 5:30) gives three matches on Chatrier and free access to the outside courts; a night session (gates 6pm, dinner 6:45–8:30, play from 8:30) is a single marquee match under the lights.",
         ticketBands: [
-          { label: "Court Philippe-Chatrier, Category 1 (per person, per day)", price: "≈ €150–€800 est." },
-          { label: "Club des Loges hospitality — courtside & dining (per person)", price: "≈ €850–€3,500 est." },
-          { label: "Night session on Chatrier — one marquee match under lights (pp)", price: "≈ €90–€300 est." },
-          { label: "Grounds pass — roam the outer courts (per person)", price: "≈ €30 est." },
+          { label: "First round (Sun 23 – Tue 25 May) · day session", price: "€715–€1,340 pp" },
+          { label: "Second & third round (Wed 26 – Sat 29 May) · day", price: "€1,165–€1,760 pp" },
+          { label: "Fourth round & quarter-finals (Sun 30 May – Wed 2 Jun) · day", price: "€1,165–€2,465 pp" },
+          { label: "Night sessions (any day)", price: "€475–€1,890 pp" },
+          { label: "Semi-finals · by package (Ladies semis sold singly)", price: "€1,355–€7,070 pp" },
+          { label: "Finals · Ladies Final singly, or the two-final package", price: "€1,355–€5,550 pp" },
         ],
-        ticketNote: "All figures are estimates, per person. Second-week and finals seats on Chatrier are the scarce ones — arranged months ahead through our brokers. The finals, and the men's final above all, are the hardest tickets; start early.",
+        ticketNote: "All prices are per person and invoiced in GBP at the time of booking; the exact figure depends on the day, session and restaurant you choose above. Every seat is Category 1 on Chatrier (Gold upgrade via L'Orangerie on request), valid all day with access to the outside courts, and sold in a designated hospitality zone. Semis and finals are sold as packages — except the Ladies semis and the Ladies Final, which can be bought individually — with the full package prices shown above; we secure those early.",
         stayNote: "Here's the insider move: the players' Paris is the leafy 16th, out by the Bois de Boulogne — not the central palaces. So we base you in fabulous hotels on that side of the city, closer to the courts than most (roughly 10–20 minutes) without sacrificing an ounce of glamour. Prefer the thick of central Paris? We'll happily place you at the Ritz or Le Bristol instead — just say.",
         stay: [
           { name: "Saint James Paris", area: "16th · château-hotel, closest luxury", rate: 1100, note: "A hôtel particulier with its own garden in the 16th — the nearest true luxury address to Roland-Garros, and a hideaway in its own right. (Estimated.)" },
@@ -7010,6 +7091,14 @@ function emiratesSearchUrl(from, to, date) {
   const q = `Emirates flights from ${bareCity(from)} to ${bareCity(to)}${date ? " on " + date : ""}`;
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
 }
+// Europe's regional and low-cost carriers (ITA, easyJet, Ryanair, Vueling, Wizz) fly countless
+// direct routes our fare feed can't see — the reason a client ends up connecting through Milan
+// when a nonstop exists. This opens Google Flights, nudged to NONSTOP, showing every airline for
+// the exact route and date, so the direct option is never missed.
+function directFlightsUrl(from, to, date) {
+  const q = `Nonstop flights from ${bareCity(from)} to ${bareCity(to)}${date ? " on " + date : ""}`;
+  return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
+}
 function FlightPicker({ from, to, pick, upd, date }) {
   useGeoTick(); // a coordinate arriving late must repaint this panel, so the too-close-to-fly note can appear
   const f = pick.flight || null;
@@ -7088,6 +7177,10 @@ function FlightPicker({ from, to, pick, upd, date }) {
     <div style={{ fontSize: 11, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
       Emirates isn't in our fare feed either — but for First-class suites and routes like JFK↔Milan, they're worth checking directly:
       <button onClick={() => setEmiratesOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer" }}><Plane size={12} /> Check Emirates · {bareCity(from)} → {bareCity(to)}</button>
+    </div>
+    <div style={{ fontSize: 11, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
+      Flying within Europe? Regional and low-cost carriers (ITA, easyJet, Ryanair, Vueling) fly many direct routes we can't price — often a nonstop where we'd otherwise connect. See every direct option:
+      <a href={directFlightsUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer", textDecoration: "none" }}><Plane size={12} /> All direct flights · {bareCity(from)} → {bareCity(to)} ↗</a>
     </div>
     {deltaOpen && (<>
       <div onClick={() => setDeltaOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(28,26,23,.38)", zIndex: 1400 }} />
