@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M180</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M181</span></footer>
   </div>);
 }
 
@@ -5870,11 +5870,12 @@ const ONE_LIST = {
       } },
       { title: "The French Open", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-01", end: "2027-06-07", dateLabel: "May 23–June 6, 2027", nights: 6, photo: "/images/french-open-roland-garros.jpg", gallery: ["/images/french-open-roland-garros.jpg", "/images/french-open-court.jpg", "/images/french-open-eiffel.jpg", "/images/french-open-arc.jpg"], blurb: "The clay-court Grand Slam at Roland-Garros — Paris in early summer, the red clay and the roar under the Chatrier roof.", guide: {
         cur: "€",
-        daysTitle: "Choose your session, day & restaurant",
-        pickStep: "Step one · choose your day, then your session & restaurant",
+        multiPick: true,
+        daysTitle: "Build your days at Roland-Garros",
+        pickStep: "Pick any days you like — each with its own session & restaurant",
         recapLabel: "Your day",
         pickSettle: "We build you into Paris a day or two ahead — the city is half the trip. You'll set your exact nights next.",
-        daysIntro: "First the day, then — beneath it — your session and restaurant. Every Voyage One ticket is a Category 1 seat on Court Philippe-Chatrier, sold with French hospitality in one of three restaurants: L'Orangerie (seated dining, and the only one upgradable to Category Gold on request), La Mezzanine (its bright buffet lounge upstairs), or Le Pavillon (buffet then seated dining, beside the practice courts). A day session runs 10am to the last match with three matches on Chatrier; a night session is one marquee match under the lights. Prices are per person, invoiced in GBP at booking.",
+        daysIntro: "Come for one day or the whole fortnight — tap any day to open it, choose its session and restaurant, and add it; repeat for as many days as you like, each priced on its own. Every Voyage One ticket is a Category 1 seat on Court Philippe-Chatrier, sold with French hospitality in one of three restaurants: L'Orangerie (seated dining, and the only one upgradable to Category Gold on request), La Mezzanine (its bright buffet lounge upstairs), or Le Pavillon (buffet then seated dining, beside the practice courts). A day session runs 10am to the last match with three matches on Chatrier; a night session is one marquee match under the lights. Prices are per person, invoiced in GBP at booking.",
         dayPicks: [
           { label: "Sun 23 May", dates: "1st Round", date: "2027-05-23", band: "Day €715–€950 · Night €475–€580 · pp", note: "The grounds at their liveliest — every court in play, stars everywhere, and the best value of the fortnight.", tiers: [
             { tier: "Day · L'Orangerie (seated · Gold-upgradable)", label: "Day session · L'Orangerie · €950 pp" },
@@ -6578,6 +6579,10 @@ function OneList({ onPick, onBack, onHome }) {
   const [aecPick, setAecPick] = useState(null);
   const [aecDays, setAecDays] = useState([]);
   const [ballTier, setBallTier] = useState(null);
+  // multiPick events (French Open): pick MANY days, each with its own session+restaurant.
+  // multiSel maps a date -> { tier, tierLabel, label }; openDay is which day's options are expanded.
+  const [multiSel, setMultiSel] = useState({});
+  const [openDay, setOpenDay] = useState(null);
   const [costumePick, setCostumePick] = useState(null);
   const [stayPick, setStayPick] = useState(null);
   const [stayType, setStayType] = useState("");
@@ -6612,7 +6617,10 @@ function OneList({ onPick, onBack, onHome }) {
     // A bucket is either "tier-select" (Venice: pick a ball level, one date) or "day-select"
     // (Wimbledon: tick which match days). selDays is the resulting dated highlight either way.
     const tierMode = !!(aecPick && aecPick.tiers);
-    const selDays = tierMode
+    const multiMode = !!(g && g.multiPick && picks);
+    const selDays = multiMode
+      ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label }))
+      : tierMode
       ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: true }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
     const ready = !needPick || selDays.length > 0;
@@ -6645,7 +6653,7 @@ function OneList({ onPick, onBack, onHome }) {
     const galW = (ev && ev.galleryW) || {};
     const photoBand = (i, h = bandH) => (gal[i] ? (<div style={{ alignSelf: "center", width: (galW[i] || bandW), maxWidth: "94vw", margin: "8px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain /></div>) : null);
     return (<div style={shell}>
-      {back(() => { setSel(null); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }, "back to " + type)}
+      {back(() => { setSel(null); setAecPick(null); setAecDays([]); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.ink, lineHeight: 1.05 }}>{ev.title}</div>
         <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city} · {ev.dateLabel}</div>
@@ -6658,7 +6666,31 @@ function OneList({ onPick, onBack, onHome }) {
       <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 26 }}>
         <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
         {g ? (<>
-          {picks ? (<div>
+          {picks && multiMode ? (<div>
+            {secHead(L.daysTitle)}
+            <div style={secTitle}>{L.pickStep}</div>
+            {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {picks.map((p, k) => { const chosen = multiSel[p.date]; const open = openDay === p.date; return (
+                <div key={k} style={{ border: `1.5px solid ${chosen ? t.pine : t.line}`, borderRadius: 14, overflow: "hidden", background: chosen ? t.pine : t.white }}>
+                  <button onClick={() => setOpenDay(open ? null : p.date)} style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "14px 16px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                      <span style={{ fontFamily: font.display, fontSize: 20, color: chosen ? t.paper : t.ink }}>{p.label}</span>
+                      <span style={{ fontSize: 12.5, color: chosen ? t.brassLight : t.brass, fontWeight: 500 }}>{p.dates}</span>
+                    </div>
+                    {chosen ? <span style={{ fontSize: 13.5, color: t.brassLight, fontWeight: 600 }}>✓ {chosen.tierLabel}</span> : <span style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{p.band}{open ? "" : " · tap to choose"}</span>}
+                  </button>
+                  {open ? (<div style={{ padding: "2px 12px 12px", display: "flex", flexDirection: "column", gap: 7, background: chosen ? t.pine : t.card }}>
+                    {p.tiers.map((tr, ti) => { const on = chosen && chosen.tier === tr.tier; return (
+                      <button key={ti} onClick={() => setMultiSel((prev) => { const n = { ...prev }; if (on) delete n[p.date]; else n[p.date] = { tier: tr.tier, tierLabel: tr.label, label: p.label + " · " + tr.tier }; return n; })} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.brass : t.white, border: `1.5px solid ${on ? t.brass : t.line}`, borderRadius: 11, padding: "11px 13px", cursor: "pointer" }}>
+                        <span style={{ fontSize: 14, color: t.ink }}>{tr.label}</span>
+                        <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? t.ink : t.brass }}>{on ? "✓ Added" : "Add"}</span>
+                      </button>); })}
+                  </div>) : null}
+                </div>); })}
+            </div>
+            {L.pickSettle ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div> : null}
+          </div>) : picks ? (<div>
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
             {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
@@ -6761,7 +6793,7 @@ function OneList({ onPick, onBack, onHome }) {
             {costumePick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: stayPick ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Costume · </span><strong>{costumePick.name}</strong></div> : null}
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
           </div>) : null}
-          {!ready ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin."}</div> : null}
+          {!ready ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{multiMode ? "Choose one or more days above — tap a day, then its session & restaurant. Add as many as you like." : (aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin.")}</div> : null}
           <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
           {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
         </div>
@@ -6771,7 +6803,7 @@ function OneList({ onPick, onBack, onHome }) {
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
     const pattern = EVENT_ROWS[type];
-    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setBallTier(null); setCostumePick(null); setStayPick(null); setStayType(""); }} style={{ ...tile, padding: 0, overflow: "hidden", ...(pattern ? { flex: "1 1 300px", maxWidth: 372 } : {}) }}>
+    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); }} style={{ ...tile, padding: 0, overflow: "hidden", ...(pattern ? { flex: "1 1 300px", maxWidth: 372 } : {}) }}>
       {/* Live hero photo. ev.photo lets an event override the query for a truer shot (the Palio's
           flag-lined Campo rather than a generic Siena view); otherwise the title searches well. */}
       <span style={{ position: "relative", display: "block", height: 152 }}>
