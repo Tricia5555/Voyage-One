@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M188</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M189</span></footer>
   </div>);
 }
 
@@ -6750,47 +6750,40 @@ function OneList({ onPick, onBack, onHome }) {
             {g.costumeMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.costumeMore}</div> : null}</div>) : null}
           {g.stay ? (() => {
             const stayCard = (s, k) => { const on = stayPick && stayPick.name === s.name; return (
-                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note, contact: s.contact || null })} style={{ textAlign: "left", background: t.pine, border: `2px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: "16px 18px", cursor: "pointer" }}>
+                <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note, contact: s.contact || null })} style={{ textAlign: "left", background: t.pine, border: `${on ? 2.5 : 2}px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: on ? "22px 24px" : "16px 18px", cursor: "pointer", boxShadow: on ? "0 6px 24px rgba(0,0,0,0.14)" : "none" }}>
+                  {on ? <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brassLight, fontWeight: 600, marginBottom: 7 }}>✓ Your hotel</div> : null}
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                    <div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>
+                    <div style={{ fontFamily: font.display, fontSize: on ? 27 : 22, color: t.paper }}>{s.name}</div>
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
                   </div>
-                  <div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
+                  <div style={{ fontSize: on ? 15 : 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
-                    <span style={{ fontFamily: font.display, fontSize: 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
+                    <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.email ? <div>{s.contact.email}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
+                  {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We confirm the booking when we build your trip — tap any hotel below to change.</div> : null}
                 </button>); };
             const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
             const isKnown = (nm) => g.stay.some((s) => s.name === nm) || collection.some((s) => s.name === nm);
+            const selName = stayPick ? stayPick.name : null;
+            const inFeat = selName && g.stay.some((s) => s.name === selName);
+            const inColl = selName && collection.some((s) => s.name === selName);
+            const isCustom = selName && !inFeat && !inColl;
+            // The selected hotel always renders FIRST — a big card at the very top of the list.
+            const featOrdered = inFeat ? [g.stay.find((s) => s.name === selName), ...g.stay.filter((s) => s.name !== selName)] : g.stay;
+            const collOrdered = inColl ? [collection.find((s) => s.name === selName), ...collection.filter((s) => s.name !== selName)] : collection;
             return (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
-            {stayPick ? (<div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Your hotel</div>
-              <div style={{ background: t.pine, border: `2.5px solid ${t.brass}`, borderRadius: 16, padding: "22px 24px", boxShadow: "0 6px 24px rgba(0,0,0,0.14)" }}>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                  <div style={{ fontFamily: font.display, fontSize: 27, color: t.paper }}>{stayPick.name}</div>
-                  {stayPick.area ? <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{stayPick.area}</div> : null}
-                </div>
-                {stayPick.note ? <div style={{ fontSize: 15, color: "#E4DFD5", lineHeight: 1.6, marginTop: 7 }}>{stayPick.note}</div> : null}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
-                  <span style={{ fontFamily: font.display, fontSize: 20, color: t.brassLight }}>{stayPick.rate ? `≈ ${L.cur}${stayPick.rate.toLocaleString()} / night` : "Rate on request"}</span>
-                  <span style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>✓ Your choice</span>
-                </div>
-                {stayPick.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 12, paddingTop: 9, borderTop: "1px solid rgba(255,255,255,0.14)" }}>{stayPick.contact.addr ? <div>{stayPick.contact.addr}</div> : null}{stayPick.contact.web ? <div>{stayPick.contact.web}</div> : null}</div> : null}
-                <div style={{ fontSize: 12.5, color: "#B6C0B6", fontStyle: "italic", marginTop: 12 }}>We confirm the booking when we build your trip — change to any hotel below anytime.</div>
-              </div>
-            </div>) : null}
-            {(() => { const feat = g.stay.filter((s) => !(stayPick && stayPick.name === s.name)); return feat.length ? (<>
-            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>{stayPick ? "Also closest to the courts" : "Closest to the courts"}</div> : null}
+            {isCustom ? <div style={{ marginBottom: 16 }}>{stayCard({ name: stayPick.name, area: stayPick.area, rate: stayPick.rate, note: stayPick.note, contact: stayPick.contact }, "custom")}</div> : null}
+            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>Closest to the courts</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {feat.map((s, k) => stayCard(s, k))}
-            </div></>) : null; })()}
+              {featOrdered.map((s, k) => stayCard(s, k))}
+            </div>
             {collection.length ? (<div style={{ marginTop: 18 }}>
               <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>The full Paris collection</div>
               <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10 }}>Every palace and grande-dame we book in Paris — choose any of them and we'll arrange the cars out to Roland-Garros.</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {collection.filter((s) => !(stayPick && stayPick.name === s.name)).map((s, k) => stayCard(s, k + 100))}
+                {collOrdered.map((s, k) => stayCard(s, k + 100))}
               </div>
             </div>) : null}
             <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — final rates confirmed with you.</div>
