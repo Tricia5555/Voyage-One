@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M184</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M186</span></footer>
   </div>);
 }
 
@@ -5984,20 +5984,6 @@ const ONE_LIST = {
         stay: [
           { name: "Saint James Paris", area: "16th · château-hotel, closest luxury", rate: 1100, note: "A hôtel particulier with its own garden in the 16th — the nearest true luxury address to Roland-Garros, and a hideaway in its own right. (Estimated.)" },
           { name: "The Peninsula Paris", area: "16th · Avenue Kléber", rate: 2000, note: "A palace hotel steps from the Arc de Triomphe, on the western side closer to the courts — rooftop dining and flawless service. (Estimated.)" },
-        ],
-        dineTitle: "Tables to book",
-        dineNote: "Pick as many as you like — we hold each reservation for you. These are our Paris favourites for a tennis fortnight: the two grand pavilions in the Bois de Boulogne minutes from the courts, a chic local lunch, an Eiffel-view dinner, and the great starred tables of the city.",
-        dine: [
-          { name: "Le Pré Catelan", area: "Bois de Boulogne · by the courts", stars: 3, note: "Frédéric Anton's three-star pavilion set in the Bois de Boulogne — the finest table minutes from Roland-Garros, magical for a long lunch or a celebration dinner." },
-          { name: "La Grande Cascade", area: "Bois de Boulogne · by the courts", stars: 0, note: "A Belle Époque jewel beside the waterfall in the Bois — grand, romantic and a few minutes from the tennis." },
-          { name: "L'Avenue", area: "8th · Avenue Montaigne", stars: 0, note: "Chic, buzzy and very local, on couture's Avenue Montaigne — our pick for a stylish lunch between matches." },
-          { name: "Café de l'Homme", area: "16th · Trocadéro", stars: 0, note: "One of the great Eiffel-Tower views in Paris, set over dinner on the Trocadéro terrace." },
-          { name: "Le Cinq", area: "8th · Four Seasons George V", stars: 3, note: "Christian Le Squer's three stars in the George V — Parisian haute cuisine at its most opulent." },
-          { name: "Épicure", area: "8th · Le Bristol", stars: 3, note: "Le Bristol's three-star dining room opening onto the garden — classic, luminous, unforgettable." },
-          { name: "Plénitude - Cheval Blanc Paris", area: "1st · over the Seine", stars: 3, note: "Arnaud Donckele's three stars at Cheval Blanc, with sweeping views over the Seine and the Pont Neuf." },
-          { name: "Arpège", area: "7th · Rue de Varenne", stars: 3, note: "Alain Passard's temple to the vegetable — three stars, and one of the most personal tables in Paris." },
-          { name: "Le Meurice Alain Ducasse", area: "1st · facing the Tuileries", stars: 2, note: "Ducasse's grand dining room at Le Meurice, in a Versailles-inspired salon over the Tuileries." },
-          { name: "Restaurant Guy Savoy", area: "6th · Monnaie de Paris", stars: 2, note: "Guy Savoy's tables in the Monnaie de Paris on the Left Bank, overlooking the Seine." },
         ],
         beyondTitle: "Beyond the tennis",
         beyond: [
@@ -6624,7 +6610,7 @@ function OneList({ onPick, onBack, onHome }) {
     const tierMode = !!(aecPick && aecPick.tiers);
     const multiMode = !!(g && g.multiPick && picks);
     const selDays = multiMode
-      ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label }))
+      ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label, evening: /night/i.test(multiSel[date].tier || "") }))
       : tierMode
       ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: true }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
