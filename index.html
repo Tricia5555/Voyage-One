@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M186</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M187</span></footer>
   </div>);
 }
 
@@ -6644,6 +6644,13 @@ function OneList({ onPick, onBack, onHome }) {
     // Per-photo width overrides by gallery index (e.g. Monaco keeps its corner shot small).
     const galW = (ev && ev.galleryW) || {};
     const photoBand = (i, h = bandH) => (gal[i] ? (<div style={{ alignSelf: "center", width: (galW[i] || bandW), maxWidth: "94vw", margin: "8px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain /></div>) : null);
+    // Never fly in on a day you hold tickets. Shown above the day list and again at the flights
+    // step, so the client sets an arrival day before their first event day.
+    const arriveMsg = (g && g.arriveNote) || `Plan to arrive in ${ev.city} at least the day before your first day. From the US an overnight flight lands you the next morning, with time to settle — never fly in on a day you hold tickets. We build your arrival day in automatically.`;
+    const arriveCallout = picks ? (<div style={{ display: "flex", gap: 11, alignItems: "flex-start", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 15px", marginBottom: 14 }}>
+      <span style={{ fontSize: 16, lineHeight: 1.3 }}>✈</span>
+      <span style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{arriveMsg}</span>
+    </div>) : null;
     return (<div style={shell}>
       {back(() => { setSel(null); setAecPick(null); setAecDays([]); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
@@ -6662,6 +6669,7 @@ function OneList({ onPick, onBack, onHome }) {
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
             {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
+            {arriveCallout}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const chosen = multiSel[p.date]; const open = openDay === p.date; return (
                 <div key={k} style={{ border: `1.5px solid ${chosen ? t.pine : t.line}`, borderRadius: 14, overflow: "hidden", background: chosen ? t.pine : t.white }}>
@@ -6686,6 +6694,7 @@ function OneList({ onPick, onBack, onHome }) {
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
             {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
+            {arriveCallout}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
                 <button key={k} onClick={() => { setAecPick(p); setAecDays([]); setBallTier(null); }} style={{ textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 14, padding: "15px 17px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 5 }}>
@@ -6772,15 +6781,16 @@ function OneList({ onPick, onBack, onHome }) {
                 <div style={{ fontSize: 12.5, color: "#B6C0B6", fontStyle: "italic", marginTop: 12 }}>We confirm the booking when we build your trip — change to any hotel below anytime.</div>
               </div>
             </div>) : null}
-            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>Closest to the courts</div> : null}
+            {(() => { const feat = g.stay.filter((s) => !(stayPick && stayPick.name === s.name)); return feat.length ? (<>
+            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>{stayPick ? "Also closest to the courts" : "Closest to the courts"}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {g.stay.map((s, k) => stayCard(s, k))}
-            </div>
+              {feat.map((s, k) => stayCard(s, k))}
+            </div></>) : null; })()}
             {collection.length ? (<div style={{ marginTop: 18 }}>
               <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>The full Paris collection</div>
               <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10 }}>Every palace and grande-dame we book in Paris — choose any of them and we'll arrange the cars out to Roland-Garros.</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {collection.map((s, k) => stayCard(s, k + 100))}
+                {collection.filter((s) => !(stayPick && stayPick.name === s.name)).map((s, k) => stayCard(s, k + 100))}
               </div>
             </div>) : null}
             <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — final rates confirmed with you.</div>
@@ -7217,7 +7227,9 @@ function FlightPicker({ from, to, pick, upd, date }) {
   const chooseFlight = (o) => { upd({ flight: { cabin, price: o.price, airline: o.airline, depart: o.depart, arrive: o.arrive, depAirport: o.depAirport, arrAirport: o.arrAirport, stops: o.stops, totalMin: o.totalMin, maxLayoverMin: o.maxLayoverMin, dayOffset: o.dayOffset, flightNo: o.flightNo, offerId: o.offerId, chosen: true, real: true } }); };
   if (!from || !to) return <div style={{ fontSize: 13, color: t.inkFaint }}>Name both cities and the route appears here.</div>;
   const chosen = f && f.chosen ? f : null;
+  const ticketedDay = (pick.sports || []).some((s) => s && s.date);
   return (<>
+    {ticketedDay ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 14px", marginBottom: 12 }}><span style={{ fontSize: 15, lineHeight: 1.3 }}>✈</span><span style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>You hold tickets on this trip — arrive at least the day before your first event day so you're settled, never on the day itself. We've set your dates to land you ahead; keep it that way as you choose your flight.</span></div>) : null}
     <div style={{ background: t.card, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
       {/* Show the bare town plus one code. The city string often already carries its code —
           "Boston (BOS)" — and appending the looked-up code to that produced "Boston (BOS) (BOS)". */}
