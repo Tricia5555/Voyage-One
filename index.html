@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M189</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M192</span></footer>
   </div>);
 }
 
@@ -8478,6 +8478,129 @@ function ItinLeg({ n, title, meta, children }) {
     </div>
   </div>);
 }
+// Real, verified contact details for the places we put on an itinerary — matched to an item by a
+// distinctive lowercase fragment of its name. Addresses and direct lines only; never invented.
+const PLACE_CONTACTS = {
+  "le cinq": { addr: "31 Avenue George V, 75008 Paris", tel: "+33 1 49 52 71 54", web: "fourseasons.com/paris" },
+  "pré catelan": { addr: "Route de Suresnes, Bois de Boulogne, 75016 Paris", tel: "+33 1 44 14 41 14", web: "leprecatelan.paris" },
+  "épicure": { addr: "112 Rue du Faubourg Saint-Honoré, 75008 Paris", tel: "+33 1 53 43 43 40", web: "oetkercollection.com" },
+  "arpège": { addr: "84 Rue de Varenne, 75007 Paris", tel: "+33 1 47 05 09 06", web: "alain-passard.com" },
+  "guy savoy": { addr: "Monnaie de Paris, 11 Quai de Conti, 75006 Paris", tel: "+33 1 43 80 40 61", web: "guysavoy.com" },
+  "meurice alain ducasse": { addr: "228 Rue de Rivoli, 75001 Paris", tel: "+33 1 44 58 10 55", web: "alainducasse-meurice.com" },
+  "plénitude": { addr: "8 Quai du Louvre, 75001 Paris", tel: "+33 1 79 35 50 11", web: "chevalblanc.com" },
+  "grande cascade": { addr: "Allée de Longchamp, Bois de Boulogne, 75016 Paris", tel: "+33 1 45 27 33 51", web: "restaurantsparisiens.com" },
+  "l'avenue": { addr: "41 Avenue Montaigne, 75008 Paris", tel: "+33 1 40 70 14 91", web: "avenue-restaurant.com" },
+  "café de l'homme": { addr: "17 Place du Trocadéro, 75116 Paris", tel: "+33 1 44 05 30 15", web: "cafedelhomme.com" },
+  "peninsula": { addr: "19 Avenue Kléber, 75116 Paris", tel: "+33 1 58 12 28 88", web: "peninsula.com" },
+  "saint james": { addr: "43 Avenue Bugeaud, 75116 Paris", tel: "+33 1 44 05 81 81", web: "saintjames-paris.com" },
+  "french open": { addr: "Stade Roland-Garros, 2 Avenue Gordon Bennett, 75016 Paris", tel: "+33 1 47 43 48 00", web: "rolandgarros.com" },
+};
+function placeContact(name) { const n = (name || "").toLowerCase(); for (const key of Object.keys(PLACE_CONTACTS)) { if (n.includes(key)) return PLACE_CONTACTS[key]; } return null; }
+// Airport codes spelled out where we know them, so the itinerary reads "Charles de Gaulle (CDG)".
+const AIRPORT_NAMES = { CDG: "Charles de Gaulle", ORY: "Orly", LHR: "Heathrow", LGW: "Gatwick", JFK: "JFK", EWR: "Newark", LGA: "LaGuardia", FCO: "Fiumicino", MXP: "Malpensa", LIN: "Linate", NCE: "Nice Côte d'Azur", VCE: "Marco Polo", FLR: "Florence", NAP: "Naples", GVA: "Geneva", BCN: "Barcelona", MAD: "Barajas", AMS: "Schiphol", ZRH: "Zurich" };
+function airportLabel(code) { if (!code) return ""; return AIRPORT_NAMES[code] ? `${AIRPORT_NAMES[code]} (${code})` : code; }
+// One itinerary line's contact block — address, phone, website — grabbed live from /api/places
+// exactly as the pickers do (restaurants via kind=restaurants, hotels & venues via kind=place),
+// with our verified constants as the offline fallback. Both hooks run every render (gated by
+// `enabled`) so the Rules of Hooks hold regardless of the line's kind.
+function ItemContact({ kind, city, name, fallback }) {
+  const dine = useDineContact(city, name, kind === "dine");
+  const venue = useVenueInfo(city, name, kind === "hotel" || kind === "venue");
+  const live = kind === "dine" ? dine : (kind === "hotel" || kind === "venue") ? venue : null;
+  const addr = (live && live.address) || (fallback && fallback.addr) || null;
+  const phone = (live && live.phone) || (fallback && fallback.tel) || null;
+  const site = (live && live.site) || (fallback && fallback.web) || null;
+  if (!addr && !phone && !site) return null;
+  return (<div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 4 }}>
+    {addr ? <div>{addr}</div> : null}
+    {phone ? <div>{phone}</div> : null}
+    {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" style={{ color: t.pineSoft, textDecoration: "none" }}>Visit / reserve →</a> : null}
+  </div>);
+}
+// The itinerary as a true day-by-day flow: the outbound flight, the hotel(s), then one card per
+// calendar date from arrival to departure — each with the day of the week, the date, and whatever
+// is planned; an empty day says so plainly. Dates are compared as LOCAL yyyy-mm-dd so a European
+// timezone can't shift a day across midnight (toISOString would).
+function DayByDay({ p, sch }) {
+  const isoOf = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const start = p.dates && p.dates.depart ? new Date(p.dates.depart + "T00:00:00") : null;
+  const ret = p.dates && p.dates.ret ? new Date(p.dates.ret + "T00:00:00") : null;
+  if (!start || !ret || ret < start) return <div style={{ fontSize: 13.5, color: t.inkFaint }}>Set your travel dates and the day-by-day plan appears here.</div>;
+  const dayMap = {};
+  const add = (dt, item) => { if (!dt) return; (dayMap[dt] = dayMap[dt] || []).push(item); };
+  const dests = p.dests || [];
+  const cityFor = (dObj) => { for (let i = sch.legs.length - 1; i >= 0; i--) { const lg = sch.legs[i]; if (lg && dObj >= lg.arrive && dObj <= lg.depart) return (dests[i] && dests[i].city) || ""; } return ""; };
+  dests.forEach((d, i) => {
+    const pk = d.pick || {}; const lg = sch.legs[i]; const city = d.city || "";
+    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"}` });
+    (pk.sports || []).forEach((x) => add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: x.evening ? "Evening session" : "Daytime" }));
+    (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: x.name || "Dinner", sub: "Dinner reservation" }));
+    (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Experience" }));
+    (pk.spas || []).forEach((x) => add(x.date, { icon: "spa", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Spa" }));
+    (pk.days || []).forEach((x) => { add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Day out" }); (x.dines || []).forEach((dn) => add(dn.date, { icon: "dine", kind: "dine", city, name: dn.name, fallback: placeContact(dn.name), label: dn.name || "Dinner", sub: "Dinner" })); });
+  });
+  // Outbound: a DEPART line on the day you leave, and an ARRIVE line on the day you land — each
+  // naming the airport and the time, from the chosen flight where we have it, otherwise the
+  // curated long-haul estimate (marked est.).
+  if (dests[0]) {
+    const f = dests[0].pick && dests[0].pick.flight;
+    const lg0 = sch.legs[0];
+    const depAir = (f && f.depAirport) || iataFor(p.fromCity) || (dests[0] ? null : null);
+    const dtEst = departTime(p.fromCity, dests[0].city);
+    const depTime = (f && f.depart) || (dtEst ? dtEst.time + " (est.)" : null);
+    const airBit = f && f.airline ? `${f.airline}${f.flightNo ? " " + f.flightNo : ""}` : "Airline to be chosen";
+    const cabinBit = f && f.cabin ? f.cabin : "cabin TBC";
+    add(isoOf(start), { icon: "plane", label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} → ${bareCity(dests[0].city) || "destination"}` });
+    if (lg0) {
+      const arrAir = (f && f.arrAirport) || iataFor(dests[0].city) || dests[0].airport;
+      const arrTime = f && f.arrive ? f.arrive : null;
+      add(isoOf(lg0.arrive), { icon: "plane", label: `Arrive ${bareCity(dests[0].city) || ""}${arrAir ? ` — ${airportLabel(arrAir)}` : ""}${arrTime ? ` at ${arrTime}` : ""}`, sub: f && f.dayOffset > 0 ? "Overnight flight — you land the next morning" : "" });
+    }
+  }
+  const rf = p.returnPick && p.returnPick.flight;
+  const lastCity = dests.length ? (dests[dests.length - 1].city || "") : "";
+  const rFrom = p.returnFrom || lastCity;
+  const rDepAir = (rf && rf.depAirport) || iataFor(rFrom);
+  const rEst = departTime(rFrom, p.homeCity);
+  const rTime = (rf && rf.depart) || (rEst ? rEst.time + " (est.)" : null);
+  const rAir = rf && rf.airline ? `${rf.airline}${rf.flightNo ? " " + rf.flightNo : ""}` : "Airline to be chosen";
+  add(isoOf(ret), { icon: "plane", label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} → ${bareCity(p.homeCity) || "home"}` });
+  const days = [];
+  for (let dt = new Date(start.getTime()); dt <= ret; dt = addDays(dt, 1)) days.push(new Date(dt.getTime()));
+  // Never fly in on a ticketed day. If the first ticketed day is on or before the arrival day, say so.
+  const sportDates = [];
+  dests.forEach((d) => ((d.pick && d.pick.sports) || []).forEach((x) => { if (x.date) sportDates.push(x.date); }));
+  sportDates.sort();
+  const firstSport = sportDates[0] || null;
+  const arrivalIso = sch.legs[0] ? isoOf(sch.legs[0].arrive) : isoOf(start);
+  const sameDayWarn = firstSport && firstSport <= arrivalIso;
+  const rank = (ic) => ic === "plane" ? 0 : ic === "hotel" ? 1 : 2;
+  const iconEl = (ic) => ic === "plane" ? <Plane size={15} color={t.brass} /> : ic === "hotel" ? <BedDouble size={15} color={t.brass} /> : ic === "trophy" ? <Trophy size={15} color={t.brass} /> : ic === "dine" ? <Utensils size={15} color={t.brass} /> : ic === "spa" ? <Flower2 size={15} color={t.brass} /> : <Sparkles size={15} color={t.brass} />;
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+    {sameDayWarn ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.brass}`, borderRadius: 12, padding: "13px 15px" }}>
+      <AlertTriangle size={16} color={t.brass} style={{ marginTop: 1, flexShrink: 0 }} />
+      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>Your first ticketed day falls on the day you arrive. We strongly recommend flying in at least a day earlier so you're rested — open <strong>Edit</strong> and move your departure a day sooner.</div>
+    </div>) : null}
+    {days.map((dObj, k) => {
+      const items = (dayMap[isoOf(dObj)] || []).slice().sort((a, b) => rank(a.icon) - rank(b.icon));
+      const city = cityFor(dObj);
+      const weekday = dObj.toLocaleDateString("en-US", { weekday: "long" });
+      const dateline = dObj.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+      return (<div key={k} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "15px 18px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 12 : 0 }}>
+          <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink }}>{weekday}, {dateline}</div>
+          {city ? <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 500 }}>{city}</div> : null}
+        </div>
+        {items.length ? (<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {items.map((it, j) => (<div key={j} style={{ display: "flex", gap: 11, alignItems: "flex-start" }}>
+            <span style={{ marginTop: 2, flexShrink: 0 }}>{iconEl(it.icon)}</span>
+            <div style={{ flex: 1 }}><div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.4 }}>{it.label}</div>{it.sub ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 1 }}>{it.sub}</div> : null}{it.kind ? <ItemContact kind={it.kind} city={it.city} name={it.name} fallback={it.fallback} /> : null}</div>
+          </div>))}
+        </div>) : <div style={{ fontSize: 13.5, color: t.inkFaint, fontStyle: "italic" }}>Nothing planned yet{city ? ` — a free day in ${city}` : ""}.</div>}
+      </div>);
+    })}
+  </div>);
+}
 // Coordinates we were not born knowing. The curated list stays the fast path; anything else
 // is looked up once from Google so no city is silently dropped off the map.
 // ── Live coordinates for any place on Earth ───────────────────────────────────
@@ -9221,14 +9344,10 @@ function ItineraryView(p) {
         const pts = [...start, ...mapPoints, ...exitLeg, ...backHome];
         return <div style={{ marginTop: 30 }}><JourneyMap points={pts} /></div>;
       })()}
+      {/* legEls above is still computed (its loop populates grand + mapPoints); the trip now
+          renders as a single day-by-day flow instead of leg blocks. */}
       <div style={{ marginTop: 40 }}>
-        {legEls}
-        {(rc.items.length > 0 || p.homeCity) && (<ItinLeg n={<Home size={15} />} title="Heading home" meta={p.homeCity ? `to ${p.homeCity}` : ""}>
-          {rc.needLeg && p.returnPick.ground && <ItinLine label={`${p.returnMode} to ${p.returnFrom}`} price={p.returnPick.ground.price} />}
-          {!p.returnFrom && p.returnPick.homeTransfer && <ItinLine label={`${p.returnPick.homeTransfer.mode} to the airport`} sub="no airport in your last town — transfer to the nearest one, then fly" price={p.returnPick.homeTransfer.price} />}
-          {p.returnPick.flight && <ItinLine label={`Fly · ${p.returnPick.flight.airline || "airline TBC"}${p.returnPick.flight.flightNo ? " " + p.returnPick.flight.flightNo : ""}`} sub={`${p.returnPick.flight.cabin || "cabin TBC"}${p.returnPick.flight.depart ? " · departs " + p.returnPick.flight.depart : ""}${p.returnPick.flight.totalMin ? ` · ${Math.floor(p.returnPick.flight.totalMin / 60)}h ${p.returnPick.flight.totalMin % 60}m total` : ""}`} price={p.returnPick.flight.price != null ? p.returnPick.flight.price : null} />}
-          {rc.items.length === 0 && <div style={{ fontSize: 13, color: t.inkFaint }}>Flight home not yet chosen.</div>}
-        </ItinLeg>)}
+        <DayByDay p={p} sch={sch} />
       </div>
       {p.returnFrom && p.homeCity && (() => { const dt = departTime(p.returnFrom, p.homeCity); const end = sch.end;
         return (<div style={{ marginTop: 22, background: t.card, borderRadius: 16, padding: "18px 20px" }}>
