@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M192</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M193</span></footer>
   </div>);
 }
 
@@ -8533,7 +8533,7 @@ function DayByDay({ p, sch }) {
   dests.forEach((d, i) => {
     const pk = d.pick || {}; const lg = sch.legs[i]; const city = d.city || "";
     if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"}` });
-    (pk.sports || []).forEach((x) => add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: x.evening ? "Evening session" : "Daytime" }));
+    (pk.sports || []).forEach((x) => add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: x.evening ? "Evening session" : "Daytime", evening: !!x.evening }));
     (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: x.name || "Dinner", sub: "Dinner reservation" }));
     (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Experience" }));
     (pk.spas || []).forEach((x) => add(x.date, { icon: "spa", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Spa" }));
@@ -8575,10 +8575,14 @@ function DayByDay({ p, sch }) {
   const arrivalIso = sch.legs[0] ? isoOf(sch.legs[0].arrive) : isoOf(start);
   const sameDayWarn = firstSport && firstSport <= arrivalIso;
   const rank = (ic) => ic === "plane" ? 0 : ic === "hotel" ? 1 : 2;
-  const iconEl = (ic) => ic === "plane" ? <Plane size={15} color={t.brass} /> : ic === "hotel" ? <BedDouble size={15} color={t.brass} /> : ic === "trophy" ? <Trophy size={15} color={t.brass} /> : ic === "dine" ? <Utensils size={15} color={t.brass} /> : ic === "spa" ? <Flower2 size={15} color={t.brass} /> : <Sparkles size={15} color={t.brass} />;
+  // A little colour, kept refined: each kind gets its own accent, shown as a soft tinted chip
+  // behind the icon and a matching rail down the left of the day.
+  const ACC = { plane: "#20463F", hotel: "#8C6E37", trophy: "#B0563A", dine: "#8A3A54", spa: "#5C7A5C", star: "#7A5CA0" };
+  const accOf = (ic) => ACC[ic] || t.brass;
+  const iconEl = (ic) => { const c = accOf(ic); const I = ic === "plane" ? Plane : ic === "hotel" ? BedDouble : ic === "trophy" ? Trophy : ic === "dine" ? Utensils : ic === "spa" ? Flower2 : Sparkles; return (<span style={{ display: "grid", placeItems: "center", width: 30, height: 30, borderRadius: 9, background: c + "1A", flexShrink: 0 }}><I size={15} color={c} /></span>); };
   return (<div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-    {sameDayWarn ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.brass}`, borderRadius: 12, padding: "13px 15px" }}>
-      <AlertTriangle size={16} color={t.brass} style={{ marginTop: 1, flexShrink: 0 }} />
+    {sameDayWarn ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#B0563A14", border: `1px solid #B0563A`, borderRadius: 12, padding: "13px 15px" }}>
+      <AlertTriangle size={16} color="#B0563A" style={{ marginTop: 1, flexShrink: 0 }} />
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>Your first ticketed day falls on the day you arrive. We strongly recommend flying in at least a day earlier so you're rested — open <strong>Edit</strong> and move your departure a day sooner.</div>
     </div>) : null}
     {days.map((dObj, k) => {
@@ -8586,14 +8590,24 @@ function DayByDay({ p, sch }) {
       const city = cityFor(dObj);
       const weekday = dObj.toLocaleDateString("en-US", { weekday: "long" });
       const dateline = dObj.toLocaleDateString("en-US", { month: "long", day: "numeric" });
-      return (<div key={k} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "15px 18px" }}>
-        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: items.length ? 12 : 0 }}>
+      // Conflict: an evening event and a dinner cannot share one night. Flag it right on the day.
+      const eveEvents = items.filter((it) => it.evening).map((it) => it.label);
+      const dinners = items.filter((it) => it.icon === "dine").map((it) => it.label);
+      const clash = eveEvents.length && dinners.length;
+      const hasItems = items.length;
+      const railColor = hasItems ? (clash ? "#B0563A" : accOf(items[0].icon)) : t.line;
+      return (<div key={k} style={{ background: t.white, border: `1px solid ${clash ? "#B0563A" : t.line}`, borderLeft: `4px solid ${railColor}`, borderRadius: 14, padding: "15px 18px" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: hasItems ? 12 : 0 }}>
           <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink }}>{weekday}, {dateline}</div>
           {city ? <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 500 }}>{city}</div> : null}
         </div>
-        {items.length ? (<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {clash ? (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: "#B0563A14", border: `1px solid #B0563A`, borderRadius: 10, padding: "10px 12px", marginBottom: 12 }}>
+          <AlertTriangle size={15} color="#B0563A" style={{ marginTop: 1, flexShrink: 0 }} />
+          <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>Conflict: <strong>{eveEvents.join(", ")}</strong> is an evening event and <strong>{dinners.join(", ")}</strong> is booked the same night — one evening can't hold both. Keep the event and move the table to another night.</div>
+        </div>) : null}
+        {hasItems ? (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>
           {items.map((it, j) => (<div key={j} style={{ display: "flex", gap: 11, alignItems: "flex-start" }}>
-            <span style={{ marginTop: 2, flexShrink: 0 }}>{iconEl(it.icon)}</span>
+            {iconEl(it.icon)}
             <div style={{ flex: 1 }}><div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.4 }}>{it.label}</div>{it.sub ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 1 }}>{it.sub}</div> : null}{it.kind ? <ItemContact kind={it.kind} city={it.city} name={it.name} fallback={it.fallback} /> : null}</div>
           </div>))}
         </div>) : <div style={{ fontSize: 13.5, color: t.inkFaint, fontStyle: "italic" }}>Nothing planned yet{city ? ` — a free day in ${city}` : ""}.</div>}
