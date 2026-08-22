@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M193</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M194</span></footer>
   </div>);
 }
 
@@ -8496,6 +8496,12 @@ const PLACE_CONTACTS = {
   "french open": { addr: "Stade Roland-Garros, 2 Avenue Gordon Bennett, 75016 Paris", tel: "+33 1 47 43 48 00", web: "rolandgarros.com" },
 };
 function placeContact(name) { const n = (name || "").toLowerCase(); for (const key of Object.keys(PLACE_CONTACTS)) { if (n.includes(key)) return PLACE_CONTACTS[key]; } return null; }
+// Scheduled session times per event, matched by a fragment of the item name. Day/night as the
+// itinerary needs; exact order of play is confirmed nearer the tournament.
+const EVENT_TIMES = {
+  "french open": { day: "Gates 10:00 · day matches from 11:00", night: "Gates 18:00 · night match from 20:15" },
+};
+function eventTimes(name) { const n = (name || "").toLowerCase(); for (const key of Object.keys(EVENT_TIMES)) { if (n.includes(key)) return EVENT_TIMES[key]; } return null; }
 // Airport codes spelled out where we know them, so the itinerary reads "Charles de Gaulle (CDG)".
 const AIRPORT_NAMES = { CDG: "Charles de Gaulle", ORY: "Orly", LHR: "Heathrow", LGW: "Gatwick", JFK: "JFK", EWR: "Newark", LGA: "LaGuardia", FCO: "Fiumicino", MXP: "Malpensa", LIN: "Linate", NCE: "Nice Côte d'Azur", VCE: "Marco Polo", FLR: "Florence", NAP: "Naples", GVA: "Geneva", BCN: "Barcelona", MAD: "Barajas", AMS: "Schiphol", ZRH: "Zurich" };
 function airportLabel(code) { if (!code) return ""; return AIRPORT_NAMES[code] ? `${AIRPORT_NAMES[code]} (${code})` : code; }
@@ -8533,7 +8539,7 @@ function DayByDay({ p, sch }) {
   dests.forEach((d, i) => {
     const pk = d.pick || {}; const lg = sch.legs[i]; const city = d.city || "";
     if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"}` });
-    (pk.sports || []).forEach((x) => add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: x.evening ? "Evening session" : "Daytime", evening: !!x.evening }));
+    (pk.sports || []).forEach((x) => { const et = eventTimes(x.name); add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: et ? (x.evening ? et.night : et.day) : (x.evening ? "Evening session" : "Daytime"), evening: !!x.evening }); });
     (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: x.name || "Dinner", sub: "Dinner reservation" }));
     (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Experience" }));
     (pk.spas || []).forEach((x) => add(x.date, { icon: "spa", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Spa" }));
@@ -8595,8 +8601,7 @@ function DayByDay({ p, sch }) {
       const dinners = items.filter((it) => it.icon === "dine").map((it) => it.label);
       const clash = eveEvents.length && dinners.length;
       const hasItems = items.length;
-      const railColor = hasItems ? (clash ? "#B0563A" : accOf(items[0].icon)) : t.line;
-      return (<div key={k} style={{ background: t.white, border: `1px solid ${clash ? "#B0563A" : t.line}`, borderLeft: `4px solid ${railColor}`, borderRadius: 14, padding: "15px 18px" }}>
+      return (<div key={k} style={{ background: t.white, border: `1.5px solid ${t.pine}`, borderRadius: 14, padding: "15px 18px" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: hasItems ? 12 : 0 }}>
           <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink }}>{weekday}, {dateline}</div>
           {city ? <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 500 }}>{city}</div> : null}
