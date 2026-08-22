@@ -5676,7 +5676,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M187</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M188</span></footer>
   </div>);
 }
 
@@ -7509,7 +7509,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   const o = arriveBy !== "Flight" ? { ...groundOption(arriveBy, from, to), ...((pick.ground && pick.ground.mode === arriveBy) ? pick.ground : {}) } : null;
   return (<Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
     <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>
-    {ground && ground.note && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
+    {ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} />)
@@ -8830,7 +8830,7 @@ function onwardOptions(hub, city) {
   const seed = hashStr("ow" + hub + city);
   if (rail != null) out.push({ mode: "Fast train", label: `${minsLabel(rail)} centre to centre`, why: `The airport train into ${hub}, then the fast service. Puts you in the middle of ${city} with no car to park.`, mins: rail + 50, price: null });
   if (dr) out.push({ mode: "Private driver", label: `${dr.label} · ${dr.km} km`, why: "Met at arrivals, door to door. Easiest on no sleep, and you can stop on the way.", mins: Math.round((dr.km / 72) * 60) + 20, price: null });
-  if (link && link.mode === "Ferry") out.push({ mode: "Ferry", label: link.label, why: `There is no road — the crossing from ${hub} is the way in, and it is the pleasant part of the day.`, mins: (link.mins || 120) + 60, price: null });
+  if (link && link.mode === "Ferry") out.push({ mode: "Ferry", label: link.label, why: `The crossing from ${hub} is the way in — and it's the pleasant part of the day.`, mins: (link.mins || 120) + 60, price: null });
   const ap = airportFor(city);
   if (ap) out.push({ mode: "Connecting flight", label: "~1 hr in the air, ~3 hr all in", why: "A short hop on regional metal. Cheap in air time, expensive in airport time — and a second chance to lose a bag.", mins: 230, price: null });
   if (dr && dr.km < 120) out.push({ mode: "Hire car here", label: `${dr.label} · ${dr.km} km`, why: "Only worth it if you want the car for what comes after.", mins: Math.round((dr.km / 72) * 60) + 40, price: null });
