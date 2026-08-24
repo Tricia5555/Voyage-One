@@ -360,7 +360,7 @@ const HOTELS = {
   "Porto": { UltraLux: [["The Yeatman", 750, "Wine-themed luxury above Gaia with Michelin dining and a Caudalie spa."], ["Maison Albar Le Monumental Palace", 500, "Restored 1920s palace on the Avenida dos Aliados."]], Luxury: [["The Rebello", 450, "Stone-warehouse conversion on the Douro's Gaia bank."], ["Vila Foz Hotel & Spa", 430, "Seaside 19th-century manor in Foz do Douro."], ["InterContinental Porto – Palácio das Cardosas", 420, "Grand 18th-century palace on Liberdade square."], ["Torel Avantgarde", 400, "Art-inspired hillside suites with river views."]], Refined: [["Infante Sagres", 330, "Old-world elegance in the heart of downtown."], ["PortoBay Flores", 320, "16th-century palace with a garden on Rua das Flores."], ["Pestana Vintage Porto", 300, "Colourful Ribeira houses right on the riverfront."]], Essential: [["Hotel Carris Porto Ribeira", 170, "Connected townhouses in the UNESCO old town."], ["Descobertas Boutique Hotel", 160, "Explorer-themed rooms near the river."]] },
   "Madrid": { UltraLux: [["Mandarin Oriental Ritz Madrid", 1100, "Belle-époque icon by the Prado, restored to jewel-box splendour."], ["Four Seasons Hotel Madrid", 950, "Seven historic buildings reborn with a rooftop pool near Sol."], ["Rosewood Villa Magna", 900, "Sleek Golden-Mile glamour on the Castellana."]], Luxury: [["The Madrid EDITION", 600, "Cool marble-and-green design with a rooftop scene near Sol."], ["BLESS Hotel Madrid", 520, "Fashion-forward Salamanca stay with a rooftop pool."], ["The Palace, a Luxury Collection", 520, "Belle-époque grande dame under a stained-glass dome."], ["Gran Meliá Fénix", 500, "Classic luxury by Plaza de Colón."]], Refined: [["Hotel Único Madrid", 360, "Intimate Salamanca townhouse with a garden and Michelin dining."], ["The Principal Madrid", 350, "Rooftop-view boutique atop Gran Vía."], ["URSO Hotel & Spa", 340, "Palatial townhouse with a Natura Bissé spa."], ["Only YOU Boutique", 330, "Design-led social hub in Chueca."]], Essential: [["Hotel Preciados", 170, "Comfortable classic steps from Sol."], ["Catalonia Puerta del Sol", 160, "Restored building with a plunge pool near the center."]] },
   "Sintra": { UltraLux: [["Tivoli Palácio de Seteais", 600, "18th-century palace with frescoed halls and formal garden views."]], Luxury: [["Penha Longa Resort", 450, "Sprawling estate with golf, a big spa and Michelin dining."]], Refined: [["Sintra Boutique Hotel", 220, "Central boutique steps from the historic core."]], Essential: [["Chalet Saudade", 140, "Romantic guesthouse near the train station."]] },
-  "Cascais": { Luxury: [["Hotel Cascais Miragem", 420, "Glossy sea-view landmark on the bay."], ["The Oitavos", 400, "Modern design hotel over dunes and Atlantic."], ["Farol Hotel", 380, "Clifftop design hotel with a sea-deck pool."]], Refined: [["Pergola Boutique Hotel", 200, "Charming garden villa in town."]], Essential: [["Casa Vela Guest House", 130, "Simple comfort near the marina."]] },
+  "Cascais": { Luxury: [["Hotel Albatroz", 400, "A former royal summer house on the rocks above the bay, in the old town."], ["Hotel Cascais Miragem", 420, "Glossy sea-view landmark on the bay."], ["The Oitavos", 400, "Modern design hotel over dunes and Atlantic."], ["Farol Hotel", 380, "Clifftop design hotel with a sea-deck pool."]], Refined: [["Pergola Boutique Hotel", 200, "Charming garden villa in town."]], Essential: [["Casa Vela Guest House", 130, "Simple comfort near the marina."]] },
   "Óbidos": { Luxury: [["Pousada Castelo de Óbidos", 350, "Sleep inside the medieval castle walls."]], Refined: [["The Literary Man", 170, "Book-filled boutique in a former convent."]], Essential: [["Casa das Senhoras Rainhas", 150, "Cozy inn within the town walls."]] },
   "Comporta": { UltraLux: [["Sublime Comporta", 700, "Cabanas hidden in umbrella pines, a black pool, and a long sandy track down to an empty Atlantic beach."]], Luxury: [["Quinta da Comporta", 450, "Whitewashed wellness retreat with a pool that looks out over the water meadows — the view Lisbon weekends here for."]], Refined: [["Casa da Comporta", 250, "Simple, bright rooms a short walk from the sand."]] },
   "Évora": { Luxury: [["Convento do Espinheiro", 350, "15th-century convent with a spa just outside town."], ["M'AR De AR Aqueduto", 300, "Sleek hotel beside the Roman aqueduct."]], Refined: [["Vitória Stone Hotel", 160, "Contemporary comfort in the old town."]] },
@@ -4375,6 +4375,16 @@ function sportLayers() {
 // should follow it everywhere — so someone who simply types "Paris" is told it is one of our
 // premier shopping cities, without having gone anywhere near the inspiration questions.
 let _bestLists = null;
+// After a change that resizes a card, hold the card the traveller was working on in view. The
+// browser keeps its scroll offset, so a card that suddenly gets shorter slides up and the next
+// one takes its place — which feels exactly like the tap not registering.
+function keepInView(i) {
+  if (typeof window === "undefined") return;
+  setTimeout(() => {
+    const el = document.getElementById("vo-dest-" + i);
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 80);
+}
 function bestListsFor(city) {
   // "Paris (CDG)" and "Paris" are the same city. bareCity already strips the airport code and is
   // the one place that rule lives — reuse it rather than writing a second version here.
@@ -5216,7 +5226,12 @@ function legNights(d) {
       // No stops chosen yet? The leg still occupies its days — otherwise the whole
       // schedule collapses and every later date is wrong.
       if (!stops.length) return d.days || 0;
-      return stops.reduce((a, st) => a + (st.nights || 1), 0);
+      // The days stepper is the time set aside for this country; the stops are how much of it
+      // has been planned so far. Taking the stops alone made the leg shrink as soon as one was
+      // added — five days in Portugal became three because only three had been assigned, and
+      // every later date moved with it. Hold the time asked for, and let the stops fill it.
+      const spent = stops.reduce((a, st) => a + (st.nights || 1), 0);
+      return Math.max(spent, d.days || 0);
     }
     return d.days;
   }
@@ -6223,7 +6238,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M240</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M242</span></footer>
   </div>);
 }
 
@@ -6266,7 +6281,7 @@ function Planner(p) {
     {p.step > 0 && (p.dates.depart || p.dates.ret) && (<div style={{ background: t.card, borderBottom: `1px solid ${t.line}` }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "9px clamp(16px,4vw,34px)", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
         <span style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint }}>Your dates</span>
-        <span style={{ fontFamily: font.display, fontSize: 17, color: t.ink }}>{fmtRange(p.dates.depart, p.dates.ret)}</span>
+        <span style={{ fontFamily: font.display, fontSize: 19, fontWeight: 600, color: t.ink }}>{fmtRange(p.dates.depart, p.dates.ret)}</span>
         {tripNights(p) > 0 && <span style={{ fontSize: 12.5, color: t.pine }}>{tripNights(p)} {tripNights(p) === 1 ? "night" : "nights"} away</span>}
         {partySize(p) > 1 && <span style={{ fontSize: 12.5, color: t.inkFaint }}>{partySize(p)} travellers</span>}
         <button onClick={() => p.setStep(0)} style={{ background: "none", border: "none", padding: 0, color: t.brass, fontSize: 12.5, textDecoration: "underline", marginLeft: "auto" }}>Change</button>
@@ -7995,7 +8010,7 @@ function DestCard({ d, i, p }) {
   // The actual days this leg falls on, worked out from the dates given at the start. A stepper
   // saying "2 nights" tells you nothing about which two.
   const lg = schedule(p).legs[i];
-  return (<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, padding: "22px" }}>
+  return (<div id={`vo-dest-${i}`} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, padding: "22px" }}>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
         <span style={{ fontSize: 12, color: t.inkFaint, minWidth: 20 }}>{String(i + 1).padStart(2, "0")}</span>
@@ -8008,11 +8023,17 @@ function DestCard({ d, i, p }) {
         <button onClick={() => p.removeDest(i)} style={{ background: "none", border: "none", color: t.inkFaint, marginLeft: 2 }}><X size={18} /></button>
       </div>
     </div>
-    {lg && <div style={{ marginTop: 8, marginLeft: 30, fontSize: 12.5, color: t.pine }}>{fmtDay(lg.arrive)} – {fmtDay(lg.depart)}</div>}
+    {lg && <div style={{ marginTop: 8, marginLeft: 30, fontSize: 14.5, fontWeight: 600, color: t.pine }}>{fmtDay(lg.arrive)} – {fmtDay(lg.depart)}</div>}
+    {lg && d.mode === "open" && d.pick && d.pick.exploreMode === "roam" && (d.pick.stops || []).length > 0 && (() => {
+      const spent = (d.pick.stops || []).reduce((a, st) => a + (st.nights || 1), 0);
+      const total = d.days || 0;
+      if (spent >= total) return null;
+      return <div style={{ marginTop: 4, marginLeft: 30, fontSize: 12.5, color: t.brass }}>{spent} of {total} nights assigned to stops — {total - spent} still to place.</div>;
+    })()}
     {bestListsFor(d.city).length > 0 && (<div style={{ marginTop: 9, marginLeft: 30, display: "flex", flexWrap: "wrap", gap: 6 }}>
       {bestListsFor(d.city).map((a) => (<span key={a} style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: t.brass, border: `1px solid ${t.brassLight}`, borderRadius: 999, padding: "4px 10px" }}>Voyage One premier {a}</span>))}
     </div>)}
-    <div style={{ marginTop: 16 }}><Chips options={MODES} value={d.mode} onChange={(m) => p.setDest(i, { mode: m })} /></div>
+    <div style={{ marginTop: 16 }}><Chips options={MODES} value={d.mode} onChange={(m) => { p.setDest(i, { mode: m }); keepInView(i); }} /></div>
     {d.mode === "full" && <div style={{ marginTop: 18 }}><Stepper value={d.nights} onChange={(v) => p.setDest(i, { nights: v })} unit="night" onRemove={() => p.removeDest(i)} removeLabel={`one more minus drops ${d.city || "this stop"}`} /></div>}
     {d.mode === "open" && <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}><Stepper value={d.days} onChange={(v) => p.setDest(i, { days: v })} unit="day" max={21} /><span style={{ fontSize: 13.5, color: t.inkSoft, maxWidth: 340 }}>When you build this leg, I’ll ask whether to stay put or roam — then suggest real stops.</span></div>}
     {d.mode === "flights" && <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: "16px 32px", alignItems: "center" }}><Stepper value={d.nights} onChange={(v) => p.setDest(i, { nights: v })} unit="night" /><span style={{ fontSize: 13, color: t.inkSoft, display: "flex", alignItems: "center", gap: 7 }}><Users size={15} color={t.pine} /> Flights in & out only</span></div>}
@@ -8768,7 +8789,26 @@ function LiveDineRow({ item, city, found, onToggle, onDate, nights, sub, price, 
 }
 // The restaurant tile — photo, Michelin stars, name, neighbourhood. Selected, it opens up with the
 // blurb, a reserve link, and the "which evening" picker.
-function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
+// Booked or not, and at what time. Everything on this site is planned rather than reserved, so
+// the traveller needs somewhere to record what they have actually secured — otherwise the plan
+// and the reality drift apart and nobody knows which tables still need a phone call.
+function BookingRow({ item, onSet, timeLabel }) {
+  const booked = !!(item && item.booked);
+  const pill = (on) => ({ border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : "transparent", color: on ? t.paper : t.inkSoft, borderRadius: 999, padding: "7px 15px", fontSize: 13, fontWeight: on ? 600 : 400 });
+  return (<div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
+    <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>Status</span>
+    <button onClick={() => onSet({ booked: false })} style={pill(!booked)}>Not booked</button>
+    <button onClick={() => onSet({ booked: true })} style={pill(booked)}>Booked</button>
+    {timeLabel ? (<label style={{ display: "flex", alignItems: "center", gap: 7, marginLeft: 4 }}>
+      <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>{timeLabel}</span>
+      <input type="time" value={(item && item.time) || ""} onChange={(e) => onSet({ time: e.target.value })}
+        style={{ border: `1px solid ${t.line}`, borderRadius: 10, padding: "7px 10px", fontSize: 13.5, color: t.ink, background: "#fff", fontFamily: "inherit" }} />
+    </label>) : null}
+    {booked ? (<input value={(item && item.ref) || ""} onChange={(e) => onSet({ ref: e.target.value })} placeholder="Confirmation no."
+      style={{ border: `1px solid ${t.line}`, borderRadius: 10, padding: "7px 10px", fontSize: 13.5, color: t.ink, background: "#fff", width: 150, fontFamily: "inherit" }} />) : null}
+  </div>);
+}
+function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
   const info = useDineInfo(city, r.n);
   const photo = info.photo;
   const site = info.site;
@@ -8803,6 +8843,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, nights }) {
         {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
         {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which evening?" /></div>
+        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 10 }}><BookingRow item={found} onSet={onSet} timeLabel="What time?" /></div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap to add →</div>}
     </div>
   </div>);
@@ -8836,6 +8877,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const dines = pick.dines || [];
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
+  const setField = (name, lvl, patch) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, ...patch } : x)) });
   const nrm = (s) => (s || "").toLowerCase().replace(/\s+/g, " ").trim();
   // Pool Michelin + accolade records once, dedupe by name, then split by tier. Local Favorite is a
   // separate hand-filled list. No live-Google tables anywhere — every card is professionally or
@@ -8857,7 +8899,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
         <DineCard key={k} r={r} city={city} level={level} found={found}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines, { name: r.n, price: null, level, date: "", michelin: true }] })}
-          onDate={(dt) => setDate(r.n, level, dt)} nights={nights} />); })}
+          onDate={(dt) => setDate(r.n, level, dt)} onSet={(patch) => setField(r.n, level, patch)} nights={nights} />); })}
     </div> : <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty[level]}</div>}
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Gault&Millau 19+ · Recommended = Michelin Bib Gourmand · Local Favorite = our own picks · booked on your behalf.</div>
   </>);
@@ -9590,11 +9632,11 @@ function DayByDay({ p, sch }) {
         const ss = lg.stops && lg.stops[k];
         if (!ss || !st) return;
         if (st.stay) add(isoOf(ss.arrive), { icon: "hotel", kind: "hotel", city: st.name, name: st.stay.name, fallback: st.stay.contact || placeContact(st.stay.name), label: `Check in · ${st.stay.name || st.stay.level}`, sub: `${ss.nights} ${ss.nights === 1 ? "night" : "nights"} in ${st.name}` });
-        (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: x.name || "Dinner", sub: "Dinner reservation" }));
+        (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
       });
     }
     (pk.sports || []).forEach((x) => { const et = eventTimes(x.name); add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: et ? (x.evening ? et.night : et.day) : (x.evening ? "Evening session" : "Daytime"), evening: !!x.evening }); });
-    (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: x.name || "Dinner", sub: "Dinner reservation" }));
+    (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
     (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Experience" }));
     (pk.spas || []).forEach((x) => add(x.date, { icon: "spa", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Spa" }));
     (pk.days || []).forEach((x) => { add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Day out" }); (x.dines || []).forEach((dn) => add(dn.date, { icon: "dine", kind: "dine", city, name: dn.name, fallback: placeContact(dn.name), label: dn.name || "Dinner", sub: "Dinner" })); });
@@ -10361,7 +10403,7 @@ function ItineraryView(p) {
           const link = prev ? connection(prev, st.name) : null;
           rows.push(<div key={"st" + k} style={{ marginTop: k ? 14 : 0 }}>
             {link && <div style={{ fontSize: 11.5, color: t.brass, display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>{link.mode === "Ferry" ? <Ship size={12} /> : <Route size={12} />} {prev} → {st.name} · {link.label}{link.km ? ` · ${link.km} km` : ""}</div>}
-            <div style={{ fontFamily: font.display, fontSize: 19, color: t.pine }}>{st.name}{ss ? <span style={{ fontFamily: font.ui, fontSize: 11.5, color: t.inkFaint, marginLeft: 8 }}>{fmtDay(ss.arrive)} – {fmtDay(ss.depart)}</span> : null}</div>
+            <div style={{ fontFamily: font.display, fontSize: 19, color: t.pine }}>{st.name}{ss ? <span style={{ fontFamily: font.ui, fontSize: 13, fontWeight: 600, color: t.pine, marginLeft: 8 }}>{fmtDay(ss.arrive)} – {fmtDay(ss.depart)}</span> : null}</div>
           </div>);
           if (st.stay) rows.push(<ItinLine key={"ss" + k} label={st.stay.name || st.stay.level} sub={`${st.nights || 1} nights · ${st.stay.level}`} price={st.stay.nightly != null ? st.stay.nightly * (st.nights || 1) : null} />);
           (st.dines || []).forEach((x, j) => rows.push(<ItinLine key={"sd" + k + j} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
@@ -10428,7 +10470,7 @@ function ItineraryView(p) {
         <div style={{ height: 1, background: "rgba(201,175,126,.45)", margin: "14px auto", maxWidth: 190 }} />
         <div style={{ fontFamily: font.display, fontSize: 27, lineHeight: 1.15, letterSpacing: "0.02em" }}>Private Travel Atelier</div>
         <div style={{ height: 1, background: "rgba(201,175,126,.45)", margin: "14px auto", maxWidth: 190 }} />
-        <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(251,250,246,.72)" }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
+        <div style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: t.paper }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
       </div>
       <div style={{ marginTop: 14, background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 14, padding: "13px 16px" }}>
         <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Nothing here is booked yet</div>
@@ -10443,7 +10485,7 @@ function ItineraryView(p) {
         {p.tripName ? <div style={{ fontFamily: font.display, fontSize: 22, color: t.brass, letterSpacing: "0.02em" }}>{p.tripName}</div> : null}
         <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(34px,6vw,58px)", lineHeight: 1.05 }}>Curated for<br />{nameLine(p.travelers)}</h1>
         <Rule w={56} />
-        <div style={{ fontSize: 14, letterSpacing: "0.06em", color: t.inkSoft }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
+        <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: "0.06em", color: t.ink }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
         {route && <div style={{ fontSize: 12.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, maxWidth: 560, lineHeight: 1.8 }}>{route}</div>}
       </div>
       <ExpertPanel p={p} sch={sch} />
