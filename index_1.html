@@ -6217,7 +6217,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M237</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M238</span></footer>
   </div>);
 }
 
@@ -7836,9 +7836,9 @@ function IdeasPicker({ d, i, p }) {
     {onPlace
       ? <Group label="Type of place" options={IDEA_SETTING} group="set" />
       : <Group label="What you'll do" options={IDEA_DOING} group="act" />}
-    <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+    <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap", alignItems: "center", justifyContent: "center", textAlign: "center", flexDirection: onPlace ? "column" : "row" }}>
       {onPlace
-        ? <button onClick={goNext} disabled={!chosenSet} style={{ background: chosenSet ? t.pine : "transparent", color: chosenSet ? t.paper : t.inkFaint, border: chosenSet ? "none" : `1px solid ${t.line}`, borderRadius: 999, padding: "12px 26px", fontSize: 14.5, fontWeight: 500, display: "flex", alignItems: "center", gap: 8 }}>Next<ArrowRight size={16} /></button>
+        ? <button onClick={goNext} disabled={!chosenSet} style={{ background: chosenSet ? "#16332E" : "transparent", color: chosenSet ? t.paper : t.inkFaint, border: chosenSet ? "none" : `1px solid ${t.line}`, borderRadius: 999, padding: "16px 40px", fontSize: 17, fontWeight: 600, letterSpacing: "0.02em", display: "flex", alignItems: "center", gap: 10, boxShadow: chosenSet ? "0 2px 10px rgba(22,51,46,.22)" : "none" }}>Next<ArrowRight size={19} /></button>
         : <button onClick={goBack} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, fontSize: 13.5 }}>Back to type of place</button>}
       {onPlace && !chosenSet && <span style={{ fontSize: 12.5, color: t.inkFaint }}>Choose at least one to carry on.</span>}
       {onPlace && chosenSet && <span style={{ fontSize: 12.5, color: t.inkFaint }}>{(sel.set || []).join(" · ")}</span>}
