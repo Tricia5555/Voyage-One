@@ -80,6 +80,35 @@ function neighborhoodOf(p) {
   return pick("neighborhood") || pick("sublocality_level_1") || pick("sublocality") || null;
 }
 
+// The TOWN a result actually sits in, from Google's address components. This is the field that
+// tells Palm Beach from West Palm Beach, and it is the one signal that does the job: distance
+// cannot, because Palm Beach island runs 26 km end to end while West Palm Beach sits 2 km away.
+// A result at the far north of the island is far from the centre and still in Palm Beach; Konro
+// is close and still in another town. Only the locality knows the difference.
+//
+// postal_town is checked first for the UK, where Google files the useful name there rather than
+// in locality. Falls back through the administrative levels for places that are not incorporated
+// towns at all — a comune, an unparished village, a district that names itself differently.
+function localityOf(p) {
+  const comps = (p && p.addressComponents) || [];
+  const pick = (type) => {
+    const c = comps.find((x) => Array.isArray(x.types) && x.types.includes(type));
+    return c ? (c.longText || c.shortText || null) : null;
+  };
+  return pick("postal_town") || pick("locality") || pick("administrative_area_level_3")
+      || pick("administrative_area_level_2") || null;
+}
+
+// Straight-line km. Same maths as citysearch.js — enough to say "2 km away", never used to
+// route anything.
+function km(a, b) {
+  if (!a || !b || a[0] == null || b[0] == null || a[1] == null || b[1] == null) return null;
+  const R = 6371, rad = (x) => (x * Math.PI) / 180;
+  const dLat = rad(b[0] - a[0]), dLon = rad(b[1] - a[1]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
 
 
 export default async function handler(req, res) {
@@ -93,6 +122,13 @@ export default async function handler(req, res) {
   const find = (req.query.find || "").toString().trim().slice(0, 120);
   // For a generic-place BROWSE, an optional topic steers the search: "spas", "things to do".
   const topic = (req.query.topic || "").toString().trim().slice(0, 40);
+  // OPTIONAL destination coordinates. When the caller sends them, every result comes back with
+  // a distanceKm; without them the response is exactly what it has always been. Nothing in the
+  // app passes these yet, which is deliberate — this file ships first and changes nothing, so
+  // the numbers can be checked before any panel depends on them.
+  const qLat = parseFloat(req.query.lat);
+  const qLng = parseFloat(req.query.lng);
+  const anchor = Number.isFinite(qLat) && Number.isFinite(qLng) ? [qLat, qLng] : null;
 
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
@@ -155,6 +191,9 @@ export default async function handler(req, res) {
           "places.formattedAddress",
           "places.addressComponents",
           "places.internationalPhoneNumber",
+          // Where the result actually is. Needed to say "2 km away" beside a result that sits
+          // in the next town. Same field-mask billing tier as the fields above, so free.
+          "places.location",
         ].join(","),
       },
       body: JSON.stringify({ textQuery, maxResultCount: find ? 5 : 20 }),
@@ -297,6 +336,17 @@ export default async function handler(req, res) {
         area: neighborhoodOf(p),                    // neighbourhood, e.g. "Mayfair"
         address: p.formattedAddress || null,        // full street line for the itinerary
         phone: p.internationalPhoneNumber || null,  // shown as plain text, no link
+        // The town this result is actually in, and how far that is from the destination. town
+        // is what separates Palm Beach from West Palm Beach; distanceKm is only the label beside
+        // it. distanceKm is null unless the caller sent lat/lng.
+        town: localityOf(p),
+        lat: (p.location && p.location.latitude) != null ? p.location.latitude : null,
+        lng: (p.location && p.location.longitude) != null ? p.location.longitude : null,
+        distanceKm: (() => {
+          if (!anchor || !p.location) return null;
+          const d = km(anchor, [p.location.latitude, p.location.longitude]);
+          return d == null ? null : Math.round(d * 10) / 10;
+        })(),
       });
     });
     // A named search answers a different question, so it gets a different shape: one flat
