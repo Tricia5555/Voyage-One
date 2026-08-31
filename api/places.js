@@ -196,7 +196,13 @@ export default async function handler(req, res) {
           "places.location",
         ].join(","),
       },
-      body: JSON.stringify({ textQuery, maxResultCount: find ? 5 : 20 }),
+      // languageCode is what makes the town field usable worldwide. Without it Google answers in
+      // the local language — Florence comes back as "Firenze" — and a town test against the city
+      // name the traveller picked would fail for Munich, Venice, Naples, Lisbon, Rome, Vienna,
+      // Prague, Cologne and every other city whose English name differs. Asking for English is a
+      // rule that covers all of them; a translation table would be a list that never ends.
+      // Note this also anglicises addresses and editorial summaries, which suits an English app.
+      body: JSON.stringify({ textQuery, maxResultCount: find ? 5 : 20, languageCode: "en" }),
     });
 
     // In parallel — two sequential round trips would be felt on every city opened.
