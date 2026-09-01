@@ -71,6 +71,10 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Croatia — Sept 2026. Six only. Split and Lake Bled are deliberately absent: their ceiling
+  // is Luxury and saying so is the point of the tier.
+  "Villa Dubrovnik", "Hotel Excelsior Dubrovnik", "Maslina Resort",
+  "Grand Park Hotel Rovinj", "Monte Mulini", "Boutique Hotel Alhambra",
   // Egypt, Jordan & Oman — Sept 2026. Named individually, as everything in this canon is:
   // a brand rule would sweep in every Four Seasons and Ritz-Carlton on earth, and the point of
   // the list is that membership is decided property by property.
@@ -801,6 +805,42 @@ const FAVORITES = {
     { name: "Heckfield Place", area: "Hampshire", rate: null, ourTake: "A Georgian family home on a working farm estate — quietly, impeccably done." },
     { name: "Gleneagles", area: "Perthshire", rate: null, ourTake: "The glamorous Highland sporting estate — golf, gundogs and a grand hotel." },
     { name: "The Newt in Somerset", area: "Somerset", rate: null, ourTake: "A cider-and-gardens estate hotel, one of Britain's most talked-about country stays." },
+  ],
+  // ── CROATIA & SLOVENIA ──────────────────────────────────────────────────────────────
+  // The largest gap in the app before this: one curated destination in the whole of eastern
+  // Europe. Dubrovnik already existed as a NAME in the coordinate and zone tables but had no
+  // hotels behind it, so it could be routed to and not stayed in.
+  //
+  // Two deliberate absences, both from the curation notes and both worth keeping. Split has no
+  // Ultra Luxury tier: the city is magnificent and its hotels are not, and inventing a top tier
+  // to fill the tab would be the exact dishonesty this canon exists to prevent. Lake Bled is the
+  // same. Where the ceiling is Luxury, Luxury is what shows.
+  "Dubrovnik": [
+    { name: "Villa Dubrovnik", area: "Sveti Jakov", rate: null, ourTake: "Cut into the cliff below the old town, with a private jetty and the best sunsets in the Adriatic." },
+    { name: "Hotel Excelsior Dubrovnik", area: "Ploče", rate: null, ourTake: "The classic address, walking distance to the walls, with the city framed from every terrace." },
+    { name: "Hotel Bellevue Dubrovnik", area: "Miramare", rate: null, ourTake: "Built down a cliff face above its own pebble cove, ten minutes from the gate." },
+    { name: "Sun Gardens Dubrovnik", area: "Orašac", rate: null, ourTake: "Resort scale up the coast \u2014 the right answer for a family, less so for a couple." },
+  ],
+  "Split": [
+    { name: "Hotel Ambasador Split", area: "Waterfront", rate: null, ourTake: "The best room in Split, on the water and a short walk from Diocletian's Palace." },
+    { name: "Le Méridien Lav", area: "Podstrana", rate: null, ourTake: "Out of town on its own beach, with the space the old city cannot offer." },
+    { name: "Hotel Park Split", area: "Bačvice", rate: null, ourTake: "A restored 1920s house above the bay, quieter than the waterfront and better run." },
+  ],
+  "Hvar": [
+    { name: "Maslina Resort", area: "Stari Grad", rate: null, ourTake: "Pine woods down to a private bay on the island's quiet side \u2014 barefoot, serious, and a world from Hvar Town." },
+    { name: "Palace Elisabeth", area: "Hvar Town", rate: null, ourTake: "The oldest hotel in Croatia, on the main square, if you want to be in the middle of it." },
+  ],
+  "Rovinj": [
+    { name: "Grand Park Hotel Rovinj", area: "Rovinj", rate: null, ourTake: "Terraced above the marina looking straight at the old town \u2014 the finest hotel on the Istrian coast." },
+    { name: "Monte Mulini", area: "Rovinj", rate: null, ourTake: "Adults only, in the Golden Cape forest park, a short walk along the sea to town." },
+    { name: "Meneghetti Wine Hotel", area: "Bale", rate: null, ourTake: "A working estate inland \u2014 stone villas, olive groves and a very good cellar." },
+  ],
+  "Mali Lošinj": [
+    { name: "Boutique Hotel Alhambra", area: "Čikat Bay", rate: null, ourTake: "A restored Austro-Hungarian villa in the pines above the bay \u2014 small, exact, and barely known outside Croatia." },
+  ],
+  "Lake Bled": [
+    { name: "Grand Hotel Toplice", area: "Lakeside", rate: null, ourTake: "On the water facing the island church \u2014 the view everyone comes to Slovenia for, from the bed." },
+    { name: "Vila Bled", area: "Lakeside", rate: null, ourTake: "Tito's summer residence, still faintly grand, in its own park above the lake." },
   ],
   // ── JORDAN ──────────────────────────────────────────────────────────────────────────
   // The natural companion to Egypt: Cairo, Luxor and Aswan, then Amman, Petra and Wadi Rum.
@@ -5021,6 +5061,10 @@ const GATEWAY = {
   "Comporta": { air: "Lisbon", note: "Lisbon (LIS) is the gateway — about 1 hr 30 south." },
   "Cinque Terre": { air: "Florence", note: "No airport of its own — Florence or Pisa, then the train along the coast." },
   "Santorini": { air: "Santorini", note: "Santorini (JTR) has its own airport, with seasonal European connections." },
+  "Hvar": { air: "Split", note: "Fly to Split (SPU), then the fast catamaran to Hvar Town \u2014 about an hour, and the crossing is part of the pleasure. Cars are not worth taking." },
+  "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
+  "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
+  "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
   "Petra": { air: "Amman", note: "Fly to Amman (AMM), then about three hours by road down the Desert Highway." },
   "Wadi Rum": { air: "Amman", note: "Fly to Amman (AMM), then roughly four hours by road \u2014 or an hour from Aqaba (AQJ) if you are coming up from the Red Sea." },
   "Dead Sea": { air: "Amman", note: "Fly to Amman (AMM); the resorts are under an hour away, mostly downhill." },
@@ -5074,6 +5118,10 @@ const REGION_STOPS = {
 // What an airport actually is. "Regional" means no long-haul metal lands there —
 // any transatlantic fare quoted to it is really a hub plus a connection.
 const AIRPORTS = {
+  // CROATIA & SLOVENIA. Dubrovnik and Split fly; Rovinj is served by Pula, Lake Bled by
+  // Ljubljana, and Hvar not at all — it is reached by ferry from Split, which is the whole
+  // character of getting there.
+  "Dubrovnik": { code: "DBV", scale: "regional" }, "Split": { code: "SPU", scale: "regional" },
   // JORDAN & OMAN. Amman and Muscat are the gates; everything else is reached by road, which is
   // how these countries are actually travelled — Petra is three hours from Amman and the drive
   // through the Desert Highway is part of the trip.
@@ -5206,7 +5254,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // You can only drive between places on the same landmass. Distance alone is not enough:
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
-  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Istanbul","Geneva","Lyon"],
+  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Istanbul","Geneva","Lyon"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo"],
@@ -5225,6 +5273,10 @@ const ZONE = {
   // Egypt is its own zone. It is neither Maghreb nor sub-Saharan, and filing it with Morocco
   // would let the app treat Marrakech and Aswan as a short hop. They are 4,000 km apart.
   "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna"],
+  // Croatian islands get their own zones, as Capri and Mallorca do: reaching them means a
+  // crossing, and the ground logic needs to know that rather than assume a road.
+  "hvar": ["Hvar"],
+  "mali-losinj": ["Mali Lošinj"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
   "oman": ["Muscat","Musandam","Jabal Akhdar","Wahiba Sands"],
   "southern-africa": ["Cape Town","Kruger"],
@@ -5262,6 +5314,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Split": [43.51,16.44], "Hvar": [43.17,16.44], "Rovinj": [45.08,13.64], "Mali Lošinj": [44.53,14.47], "Lake Bled": [46.36,14.11],
   "Amman": [31.95,35.93], "Petra": [30.32,35.48], "Wadi Rum": [29.57,35.42], "Dead Sea": [31.50,35.58], "Aqaba": [29.53,35.01],
   "Muscat": [23.59,58.41], "Musandam": [25.98,56.31], "Jabal Akhdar": [23.07,57.66], "Wahiba Sands": [22.20,58.80],
   "Cairo": [30.04,31.24], "Luxor": [25.69,32.64], "Aswan": [24.09,32.90], "Sharm El Sheikh": [27.92,34.33], "El Gouna": [27.40,33.68], "Tokyo": [35.68,139.65], "Kyoto": [35.01,135.77], "Niseko": [42.80,140.69],
@@ -6828,7 +6881,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M292</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M293</span></footer>
   </div>);
 }
 
