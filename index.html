@@ -6715,7 +6715,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M287</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M289</span></footer>
   </div>);
 }
 
@@ -9810,6 +9810,12 @@ const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recomme
 function accoladeBadge(r) {
   if (r.s >= 1) return "★".repeat(r.s) + " Michelin";
   if (r.w && r.w <= 100) return "World's 50 Best · #" + r.w;
+  // REGIONAL 50 Best — MENA, Asia, Latin America. Separate rankings from the World's list and
+  // never to be labelled as it: Khufu's is first in the Middle East and North Africa, not first
+  // on earth. Without these two lines a MENA entry fell through to the "Recommended" fallback,
+  // which names the bucket instead of the reason — the one thing this badge exists to avoid.
+  if (r.r50) return (r.r50n || "Regional") + "'s 50 Best · #" + r.r50;
+  if (r.r50a) return (r.r50n || "Regional") + "'s 50 Best · " + r.r50a;
   if (r.jb) return "James Beard";
   if (r.ll >= 95) return "La Liste " + r.ll;
   if (r.gm >= 19) return "Gault&Millau " + r.gm + "/20";
