@@ -43,7 +43,22 @@ const LEVELS = ["UltraLux", "Luxury", "ExpLux", "Best"];
 // Curated ONLY, exactly like Ultra Luxury. The live Google feed can never place a hotel here —
 // no amount of star rating or review count can tell you that a camp is the right answer for
 // Wadi Rum. That judgement is the whole point of the tier, and it is made by a person.
+// BEST AVAILABLE LUXURY. For a destination that matters but has no property meeting the normal
+// standard, and never will — Petra is an archaeological park, not a resort town. The Movenpick
+// is carried because it stands five minutes from the Siq, and that access outweighs the hotel.
+// Filed honestly as Best rather than dressed up as Luxury: a client who arrives expecting the
+// Four Seasons and finds a conference hotel has been misled, and the location was the point.
+//
+// Curated only, like the two tiers above it. The live feed already produces its own Best tier
+// for towns whose ceiling is genuinely four-star; this is the hand-picked equivalent.
+const BEST_AVAILABLE = [
+  "M\u00f6venpick Resort Petra", "Petra Marriott Hotel",
+];
 const EXPERIENCE_LUX = [
+  // Jordan and Oman, Sept 2026 — the first entries in this tier. None of these is a hotel and
+  // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
+  // Luxury or Best would misdescribe it in opposite directions.
+  "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -56,6 +71,14 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Egypt, Jordan & Oman — Sept 2026. Named individually, as everything in this canon is:
+  // a brand rule would sweep in every Four Seasons and Ritz-Carlton on earth, and the point of
+  // the list is that membership is decided property by property.
+  "Four Seasons Hotel Cairo at Nile Plaza", "Marriott Mena House", "Old Cataract Aswan",
+  "Al Moudira Hotel", "Four Seasons Resort Sharm El Sheikh",
+  "Four Seasons Hotel Amman", "The Ritz-Carlton Amman",
+  "Mandarin Oriental Muscat", "The Chedi Muscat", "Shangri-La Al Husn",
+  "Six Senses Zighy Bay", "Alila Jabal Akhdar", "Anantara Al Jabal Al Akhdar Resort",
   // United Kingdom — London
   "Claridge's", "The Connaught", "The Berkeley", "The Emory", "The Dorchester", "45 Park Lane",
   "The Peninsula London", "Raffles London at The OWO", "Bulgari Hotel London",
@@ -213,6 +236,8 @@ function ulxTokens(s) { return (s || "").toLowerCase().normalize("NFD").replace(
 const ULX_ALNUM = ULTRA_LUX.map(ulxAlnum);
 const ULX_TOKENSETS = ULTRA_LUX.map(ulxTokens);
 const EXP_ALNUM = EXPERIENCE_LUX.map(ulxAlnum);
+const BEST_ALNUM = BEST_AVAILABLE.map(ulxAlnum);
+const BEST_TOKENSETS = BEST_AVAILABLE.map(ulxTokens);
 const EXP_TOKENSETS = EXPERIENCE_LUX.map(ulxTokens);
 // The canon matcher, shared by Ultra Luxury and Experience Luxury so the two tiers can never
 // drift apart in how forgivingly they match a name. Was inline in isUltraLux; lifted out
@@ -269,7 +294,8 @@ function isUltraLux(name) {
 // Google returning it with extra words. Ordered deliberately: Ultra first, because a property in
 // both lists is an Ultra Luxury hotel that happens to sit somewhere remarkable.
 function isExperienceLux(name) { return matchesCanon(name, EXP_ALNUM, EXP_TOKENSETS); }
-function tierOf(name) { return isUltraLux(name) ? "UltraLux" : isExperienceLux(name) ? "ExpLux" : "Luxury"; }
+function isBestAvailable(name) { return matchesCanon(name, BEST_ALNUM, BEST_TOKENSETS); }
+function tierOf(name) { return isUltraLux(name) ? "UltraLux" : isExperienceLux(name) ? "ExpLux" : isBestAvailable(name) ? "Best" : "Luxury"; }
 // Do two hotel names refer to the same property? Tolerates Google inserting words in the middle
 // ("Four Seasons Hotel London at Tower Bridge" == "Four Seasons Tower Bridge") — used to de-dupe
 // the live feed against our curated picks.
@@ -771,6 +797,57 @@ const FAVORITES = {
     { name: "Heckfield Place", area: "Hampshire", rate: null, ourTake: "A Georgian family home on a working farm estate — quietly, impeccably done." },
     { name: "Gleneagles", area: "Perthshire", rate: null, ourTake: "The glamorous Highland sporting estate — golf, gundogs and a grand hotel." },
     { name: "The Newt in Somerset", area: "Somerset", rate: null, ourTake: "A cider-and-gardens estate hotel, one of Britain's most talked-about country stays." },
+  ],
+  // ── JORDAN ──────────────────────────────────────────────────────────────────────────
+  // The natural companion to Egypt: Cairo, Luxor and Aswan, then Amman, Petra and Wadi Rum.
+  //
+  // Petra and Wadi Rum are the first real use of EXPERIENCE LUXURY and BEST AVAILABLE. Petra
+  // has no five-star hotel and will not have one — it is an archaeological park. The Movenpick
+  // is carried because it stands at the gate, a five-minute walk from the Siq, and that access
+  // outweighs everything else about it. It is filed as Best, honestly, not dressed as Luxury.
+  // Wadi Rum has no hotels at all; a Bedouin camp is not a compromise there, it is the correct
+  // way to be in that place, which is precisely what Experience Luxury exists to say.
+  "Amman": [
+    { name: "Four Seasons Hotel Amman", area: "Abdoun", rate: null, ourTake: "The city's best address, on the hill above the embassies, and the easiest landing in Jordan." },
+    { name: "The Ritz-Carlton Amman", area: "Abdoun", rate: null, ourTake: "Newer, quieter and beautifully finished, with the best spa in the city." },
+    { name: "The St. Regis Amman", area: "Abdoun", rate: null, ourTake: "Butler service and a rooftop over the old hills \u2014 the most formal of the three." },
+    { name: "Fairmont Amman", area: "Fifth Circle", rate: null, ourTake: "Central and reliable, convenient for a single night before the drive south." },
+  ],
+  "Petra": [
+    { name: "M\u00f6venpick Resort Petra", area: "Wadi Musa", rate: null, ourTake: "Five minutes' walk from the Siq \u2014 the location is the entire argument, and it is a strong one." },
+    { name: "Petra Marriott Hotel", area: "Wadi Musa", rate: null, ourTake: "Up on the ridge with the valley views the gate hotels do not get." },
+  ],
+  "Wadi Rum": [
+    { name: "Discovery Bedu", area: "Wadi Rum", rate: null, ourTake: "Private Bedouin camp deep in the protected area \u2014 dinner under the escarpment, silence, and the sky." },
+    { name: "Memories Aicha Luxury Camp", area: "Wadi Rum", rate: null, ourTake: "Bubble suites facing the rock, for sleeping under the stars without giving up a bed." },
+  ],
+  "Dead Sea": [
+    { name: "Kempinski Hotel Ishtar Dead Sea", area: "Sweimeh", rate: null, ourTake: "Terraced gardens and pools stepping down to the shore \u2014 the best of the Dead Sea resorts." },
+    { name: "M\u00f6venpick Resort & Spa Dead Sea", area: "Sweimeh", rate: null, ourTake: "Built as a stone village around courtyards, with a serious spa." },
+  ],
+  "Aqaba": [
+    { name: "Al Manara, a Luxury Collection Hotel", area: "Ayla", rate: null, ourTake: "The Red Sea end of a Jordan itinerary, with reef diving from the door." },
+    { name: "Kempinski Hotel Aqaba", area: "Aqaba", rate: null, ourTake: "On the water in town, straightforward and well run." },
+  ],
+  // ── OMAN ────────────────────────────────────────────────────────────────────────────
+  // Four quite different Omans: the capital, a fjord reached by boat or dune drive, mountains
+  // at 2,000 metres, and the sand. Zighy Bay and the Jabal Akhdar lodges are genuine Ultra
+  // Luxury; Wahiba Sands is Experience Luxury for the same reason as Wadi Rum.
+  "Muscat": [
+    { name: "Mandarin Oriental Muscat", area: "Shatti Al Qurum", rate: null, ourTake: "The newest and best in the capital, on the beach with the mountains behind." },
+    { name: "The Chedi Muscat", area: "Al Ghubra", rate: null, ourTake: "Long serene pools and pared-back rooms in walled gardens \u2014 the quiet classic." },
+    { name: "Shangri-La Al Husn", area: "Barr Al Jissah", rate: null, ourTake: "Adults-only clifftop wing above its own cove, apart from the resort below." },
+    { name: "Al Bustan Palace, a Ritz-Carlton Hotel", area: "Al Bustan", rate: null, ourTake: "A palace between mountains and sea, with the grandest atrium in the Gulf." },
+  ],
+  "Musandam": [
+    { name: "Six Senses Zighy Bay", area: "Zighy Bay", rate: null, ourTake: "Reached by boat, mountain road or paraglider \u2014 stone villas on a beach between cliffs and sea." },
+  ],
+  "Jabal Akhdar": [
+    { name: "Alila Jabal Akhdar", area: "Jabal Akhdar", rate: null, ourTake: "Cut into the canyon rim at 2,000 metres, built of local stone and genuinely dramatic." },
+    { name: "Anantara Al Jabal Al Akhdar Resort", area: "Jabal Akhdar", rate: null, ourTake: "The highest resort in the region, with cliff-edge dining and cool nights in high summer." },
+  ],
+  "Wahiba Sands": [
+    { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
   ],
   // ── EGYPT ───────────────────────────────────────────────────────────────────────────
   // Loaded Sept 2026 from the curated gap-fill list. Egypt was entirely absent before this —
@@ -4923,6 +5000,12 @@ const GATEWAY = {
   "Comporta": { air: "Lisbon", note: "Lisbon (LIS) is the gateway — about 1 hr 30 south." },
   "Cinque Terre": { air: "Florence", note: "No airport of its own — Florence or Pisa, then the train along the coast." },
   "Santorini": { air: "Santorini", note: "Santorini (JTR) has its own airport, with seasonal European connections." },
+  "Petra": { air: "Amman", note: "Fly to Amman (AMM), then about three hours by road down the Desert Highway." },
+  "Wadi Rum": { air: "Amman", note: "Fly to Amman (AMM), then roughly four hours by road \u2014 or an hour from Aqaba (AQJ) if you are coming up from the Red Sea." },
+  "Dead Sea": { air: "Amman", note: "Fly to Amman (AMM); the resorts are under an hour away, mostly downhill." },
+  "Musandam": { air: "Dubai", note: "Fly to Dubai (DXB), then about two hours by road to the coast \u2014 or arrive by boat. Musandam is an Omani exclave and is not reached overland from Muscat." },
+  "Jabal Akhdar": { air: "Muscat", note: "Fly to Muscat (MCT), then two hours and a mountain road. Four-wheel drive is required at the checkpoint, not optional." },
+  "Wahiba Sands": { air: "Muscat", note: "Fly to Muscat (MCT), then about two and a half hours; the last stretch is soft sand and the camp will meet you." },
   "Serengeti": { air: "Kilimanjaro", note: "Fly to Kilimanjaro (JRO), then a light aircraft into the bush strips." },
   "Dolomites": { air: "Venice", note: "Venice (VCE) is the usual gateway — about 2 hr by car into the mountains." },
   "Provence": { air: "Marseille", note: "Marseille (MRS) or Nice (NCE) — then a car is essential." },
@@ -4970,6 +5053,11 @@ const REGION_STOPS = {
 // What an airport actually is. "Regional" means no long-haul metal lands there —
 // any transatlantic fare quoted to it is really a hub plus a connection.
 const AIRPORTS = {
+  // JORDAN & OMAN. Amman and Muscat are the gates; everything else is reached by road, which is
+  // how these countries are actually travelled — Petra is three hours from Amman and the drive
+  // through the Desert Highway is part of the trip.
+  "Amman": { code: "AMM", scale: "intercontinental" }, "Aqaba": { code: "AQJ", scale: "regional" },
+  "Muscat": { code: "MCT", scale: "intercontinental" },
   // EGYPT. Cairo is the only intercontinental gate; Luxor, Aswan and the Red Sea fields take
   // regional aircraft, so a long-haul from the US routes through CAI and connects. That is the
   // real shape of an Egyptian trip and the hub panel handles it without a special case.
@@ -5116,6 +5204,8 @@ const ZONE = {
   // Egypt is its own zone. It is neither Maghreb nor sub-Saharan, and filing it with Morocco
   // would let the app treat Marrakech and Aswan as a short hop. They are 4,000 km apart.
   "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna"],
+  "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
+  "oman": ["Muscat","Musandam","Jabal Akhdar","Wahiba Sands"],
   "southern-africa": ["Cape Town","Kruger"],
   "east-africa": ["Serengeti","Kilimanjaro"],
   "japan-honshu": ["Tokyo","Kyoto"],
@@ -5151,6 +5241,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Amman": [31.95,35.93], "Petra": [30.32,35.48], "Wadi Rum": [29.57,35.42], "Dead Sea": [31.50,35.58], "Aqaba": [29.53,35.01],
+  "Muscat": [23.59,58.41], "Musandam": [25.98,56.31], "Jabal Akhdar": [23.07,57.66], "Wahiba Sands": [22.20,58.80],
   "Cairo": [30.04,31.24], "Luxor": [25.69,32.64], "Aswan": [24.09,32.90], "Sharm El Sheikh": [27.92,34.33], "El Gouna": [27.40,33.68], "Tokyo": [35.68,139.65], "Kyoto": [35.01,135.77], "Niseko": [42.80,140.69],
   "Singapore": [1.35,103.82], "Hong Kong": [22.32,114.17], "Bangkok": [13.76,100.50], "Bali": [-8.34,115.09], "Maldives": [3.20,73.22],
   "Sydney": [-33.87,151.21], "Queenstown": [-45.03,168.66], "Cape Town": [-33.92,18.42], "Kruger": [-24.01,31.49],
@@ -6715,7 +6807,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M290</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M291</span></footer>
   </div>);
 }
 
@@ -9629,7 +9721,12 @@ function HotelPicker({ city, nights, pick, upd }) {
   // Best still means "this town's ceiling is below five-star", so it stays hidden while ANYTHING
   // above it has content — Experience Luxury now counts. Wadi Rum has no five-star hotel, but a
   // Bedouin camp is the right answer there, not a fallback, so Best must not appear beside it.
-  const showBest = remote.tried && !ultraHas && !luxHas && !expHas;
+  // A hand-picked Best (Petra) must appear even though the usual rule hides Best whenever
+  // something better exists — because in Petra nothing better exists and never will. So the
+  // curated case shows unconditionally; the live-feed case keeps the old "only when the tiers
+  // above are empty" rule, which is what stops a good four-star cluttering a five-star city.
+  const bestCurated = favs.some((s2) => tierOf(s2.name) === "Best");
+  const showBest = bestCurated || (remote.tried && !ultraHas && !luxHas && !expHas);
   const tiers = LEVELS.filter((l) => (l === "Best" ? showBest : l === "ExpLux" ? expHas : true));
   useEffect(() => { if (level === "Best" && !showBest) setLevel("Luxury"); if (level === "ExpLux" && !expHas) setLevel("Luxury"); }, [showBest, expHas, level]);
   const collapsed = !!chosen && !openList;
