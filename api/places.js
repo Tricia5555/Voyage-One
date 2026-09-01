@@ -229,7 +229,42 @@ export default async function handler(req, res) {
     }
     const data = { places: Array.from(byId.values()) };
 
-    const places = (data.places || []).filter((p) => p.displayName && p.displayName.text);
+    // WHAT IS ACTUALLY A THING TO DO. Asked for "top things to do in Positano", Google returns
+    // Il San Pietro (a hotel), a boat charter, and a pin named "Viewpoint" with no description
+    // and no reviews. None of those is an answer to the question. Hotels already have their own
+    // panel, and a traveller offered their own hotel as an outing is being told nothing.
+    //
+    // The gate is on Google's own primaryType, the same field isRealHotel uses, so it is a rule
+    // rather than a list of bad names and it holds in every city. The unnamed-pin test is
+    // separate: a genuine attraction accumulates reviews, so no rating AND no editorial summary
+    // means Google has a map marker and nothing more.
+    const NOT_A_THING_TO_DO = {
+      hotel: 1, lodging: 1, motel: 1, hostel: 1, resort_hotel: 1, bed_and_breakfast: 1,
+      guest_house: 1, inn: 1, cottage: 1, campground: 1, rv_park: 1, apartment_complex: 1,
+      real_estate_agency: 1, travel_agency: 1, car_rental: 1, parking: 1, atm: 1, bank: 1,
+      storage: 1, moving_company: 1, insurance_agency: 1,
+    };
+    // Restaurants need their own gate for the same reason: "best restaurants in Palm Beach"
+    // returned Palm Beach Meats, a butcher. Google files shops under food, so food alone is not
+    // enough — the primary type has to be somewhere you sit down and eat.
+    const NOT_A_RESTAURANT = {
+      food_store: 1, grocery_store: 1, supermarket: 1, convenience_store: 1, butcher_shop: 1,
+      liquor_store: 1, wholesaler: 1, market: 1, gas_station: 1, hotel: 1, lodging: 1,
+      shopping_mall: 1, department_store: 1,
+    };
+    const places = (data.places || [])
+      .filter((p) => p.displayName && p.displayName.text)
+      .filter((p) => {
+        const pt = p.primaryType || "";
+        if (kind === "place") {
+          if (NOT_A_THING_TO_DO[pt]) return false;
+          const hasSignal = (p.rating != null && p.rating > 0) || (p.editorialSummary && p.editorialSummary.text);
+          if (!hasSignal) return false;   // an unnamed map pin, not an attraction
+          return true;
+        }
+        if (kind === "restaurants" && NOT_A_RESTAURANT[pt]) return false;
+        return true;
+      });
 
     // UltraLux is a GLOBAL standard — Villa d'Este, San Pietro — not "priciest in town".
     // So we tier on absolute class, never on local rank. A very good hotel in a second-tier
