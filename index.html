@@ -379,7 +379,11 @@ const DINE_TIERS = [{ key: "Destination", label: "Destination" }, { key: "Stando
 // carries one of the other credentials, which keeps it a Destination. Everything else = Recommended.
 function michTier(m, dense) {
   const s = (m && typeof m === "object") ? (m.s || 0) : (m || 0);
-  const cred = m && typeof m === "object" && (m.jb || (m.w && m.w <= 100) || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
+  // A regional 50 Best placing counts as a Destination credential exactly as the World's list
+  // does. Number one in the Middle East and North Africa is a destination table by any measure,
+  // and Egypt has no Michelin coverage at all, so without this Cairo would show an empty
+  // Destination tier while holding five internationally ranked restaurants.
+  const cred = m && typeof m === "object" && (m.jb || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
 }
@@ -1228,24 +1232,6 @@ const FAVORITES = {
   ],
 };
 const EATS = {
-  // ── EGYPT ───────────────────────────────────────────────────────────────────────────
-  // AWARD WINNERS ONLY. Egypt has no Michelin coverage at all, so no Michelin category is
-  // manufactured for it — every entry here is placed on MENA's 50 Best 2026 and nothing else
-  // qualifies yet. Fame, expense and a luxury-hotel address are explicitly not qualifications.
-  //
-  // Khufu's is in Giza, which is filed as an AREA of Cairo rather than its own destination,
-  // so it sits in the Cairo list. Luxor, Aswan, Sharm and El Gouna are deliberately absent:
-  // nothing in them holds a qualifying award, and an empty list is the honest answer.
-  //
-  // The per-person figures are ESTIMATES, as everywhere else in this table. Egyptian prices
-  // sit well below European ones and these are set accordingly — correct them if they are off.
-  "Cairo": {
-    UltraLux: [["Khufu's", 90, "Number one in the Middle East and North Africa, contemporary Egyptian, inside the pyramid complex with the Great Pyramid filling the view."]],
-    Luxury: [["Reif Kushiyaki", 60, "Japanese skewers and robata \u2014 #20 in MENA and its Highest Climber this year."],
-             ["Kazoku", 65, "Contemporary Japanese, #25 in MENA."],
-             ["Sachi", 55, "Mediterranean with a Japanese hand, #37 in MENA and #27 the year before."]],
-    Refined: [["Zooba \u2014 Zamalek", 15, "Egyptian street food done properly, and the only one of its kind on MENA's 50 Best at #32. Far more casual than the rest of this list, and worth it."]],
-  },
   "Positano": { UltraLux: [["La Sponda", 250, "Candlelit by 400 candles, Michelin dining above the bay."], ["Zass", 220, "Michelin terrace at Il San Pietro, right over the water."]], Luxury: [["Next2", 110, "Modern Campanian cooking on a candlelit terrace."]], Refined: [["Chez Black", 70, "Beachfront institution for seafood pasta."], ["Da Vincenzo", 65, "Family-run classics just off the main street."]], Essential: [["C'era Una Volta", 35, "Honest trattoria up the hill, away from the crowds."]] },
   "Ravello": { UltraLux: [["Rossellinis", 200, "Michelin dining at Palazzo Avino with the coast far below."]], Luxury: [["Belvedere at Caruso", 150, "Terrace tables beside the infinity pool."]], Refined: [["Da Salvatore", 70, "Panoramic terrace, and excellent wood-fired pizza."]], Essential: [["Cumpa' Cosimo", 45, "Beloved family trattoria, serving since 1929."]] },
   "Amalfi": { UltraLux: [["Glicine", 180, "Michelin-starred and citrus-scented at Santa Caterina."]], Luxury: [["Sensi", 120, "Michelin cooking right on the harbour."]], Refined: [["Da Gemma", 80, "Historic address just above the piazza."]], Essential: [["Trattoria da Ciccio", 45, "Coastal home cooking, no fuss."]] },
@@ -2443,6 +2429,16 @@ const ACCOLADES = {
   "aberdeen": [{ n: "Mara", bib:1 }],
   "abergavenny": [{ n: "The Gaff", bib:1 }],
   "abrantes": [{ n: "Casa Chef Victor Felisberto", bib:1 }],
+  // EGYPT — MENA's 50 Best 2026. Egypt has no Michelin coverage, so nothing here is filed under
+  // a Michelin category: inventing one would be worse than an empty tier. Khufu's is in Giza,
+  // which is an AREA of Cairo rather than its own destination, so it sits under the Cairo key.
+  "cairo": [
+    { n: "Khufu's", r50: 1, r50n: "Middle East & North Africa", r50y: 2026 },
+    { n: "Reif Kushiyaki", r50: 20, r50n: "Middle East & North Africa", r50y: 2026, r50a: "Highest Climber" },
+    { n: "Kazoku", r50: 25, r50n: "Middle East & North Africa", r50y: 2026 },
+    { n: "Zooba", r50: 32, r50n: "Middle East & North Africa", r50y: 2026 },
+    { n: "Sachi", r50: 37, r50n: "Middle East & North Africa", r50y: 2026 },
+  ],
   "abu dhabi": [{ n: "3Fils Abu Dhabi", bib:1 }, { n: "Al Mzrab", bib:1 }, { n: "Almayass", bib:1 }, { n: "Beirut Sur Mer", bib:1 }, { n: "Bua Thai Café", bib:1 }, { n: "Goldfish", bib:1 }, { n: "Mika", bib:1 }, { n: "Otoro", bib:1 }, { n: "Ryba", bib:1 }, { n: "t'azal", bib:1 }],
   "achenkirch": [{ n: "Gründler's Genießer Wirtshaus", bib:1 }],
   "achet": [{ n: "Au gré des Saisons", bib:1 }],
@@ -6719,7 +6715,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M286</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M287</span></footer>
   </div>);
 }
 
@@ -9783,10 +9779,16 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
       <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {info.area ? info.area + ", " : ""}{r.city}</div>
       {sel ? (<>
-        {(r.s >= 1 || r.jb || r.w || r.ll || r.gm || r.gmc || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
+        {(r.s >= 1 || r.jb || r.w || r.wa || r.r50 || r.r50a || r.ll || r.gm || r.gmc || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
           {r.s >= 1 ? <div>{"★".repeat(r.s)} Michelin</div> : null}
           {r.w && r.w <= 100 ? <div>World's 50 Best · #{r.w}{r.wy ? " (" + r.wy + ")" : ""}</div> : null}
           {r.wa ? <div>World's 50 Best · {r.wa} ({r.wy || 2025})</div> : null}
+          {/* REGIONAL 50 Best lists — MENA, Asia, Latin America. These are separate rankings from
+              the World's 50 Best and must never be labelled as it: Khufu's is number one in the
+              Middle East and North Africa, not number one on earth. r50n carries the region name
+              so one field serves every regional list as they are added. */}
+          {r.r50 ? <div>{r.r50n || "Regional"}'s 50 Best · #{r.r50}{r.r50y ? " (" + r.r50y + ")" : ""}</div> : null}
+          {r.r50a ? <div>{r.r50n || "Regional"}'s 50 Best · {r.r50a}{r.r50y ? " (" + r.r50y + ")" : ""}</div> : null}
           {r.jb ? <div>James Beard Award</div> : null}
           {r.ll >= 95 ? <div>La Liste {r.ll}/100{r.lly ? " (" + r.lly + ")" : ""}</div> : null}
           {(r.gm >= 19 || r.gmc) ? <div>Gault&Millau — {r.gm >= 19 ? r.gm + "/20" + (r.gt ? " · " + r.gt + " Toques" : "") : r.gmc}{r.gy ? " · " + r.gy : ""}</div> : null}
