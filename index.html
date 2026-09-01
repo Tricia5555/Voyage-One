@@ -33,7 +33,18 @@ const t = {
   line: "#E4DDD0", card: "#F3EEE4", mist: "#EDE9E0", white: "#FFFFFF",
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
-const LEVELS = ["UltraLux", "Luxury", "Best"];
+const LEVELS = ["UltraLux", "Luxury", "ExpLux", "Best"];
+// EXPERIENCE LUXURY. A tier for places where the right way to be there is not a hotel at all —
+// a Wadi Rum desert camp, a tented lodge on the migration route, a riad with six rooms. These
+// are not compromises and must not be filed as Best, which means "the ceiling here is below
+// five-star". Nor are they Ultra Luxury: calling a Bedouin camp a palace hotel because the rate
+// is high is the same dishonesty in the other direction.
+//
+// Curated ONLY, exactly like Ultra Luxury. The live Google feed can never place a hotel here —
+// no amount of star rating or review count can tell you that a camp is the right answer for
+// Wadi Rum. That judgement is the whole point of the tier, and it is made by a person.
+const EXPERIENCE_LUX = [
+];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
 // hotel reads "Rate on request" until then. Flip to true once real, dated rates flow.
@@ -201,6 +212,35 @@ function ulxAlnum(s) { return (s || "").toLowerCase().normalize("NFD").replace(/
 function ulxTokens(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, " and ").split(/[^a-z0-9]+/).filter(function (w) { return w && !ULX_STOP[w]; }); }
 const ULX_ALNUM = ULTRA_LUX.map(ulxAlnum);
 const ULX_TOKENSETS = ULTRA_LUX.map(ulxTokens);
+const EXP_ALNUM = EXPERIENCE_LUX.map(ulxAlnum);
+const EXP_TOKENSETS = EXPERIENCE_LUX.map(ulxTokens);
+// The canon matcher, shared by Ultra Luxury and Experience Luxury so the two tiers can never
+// drift apart in how forgivingly they match a name. Was inline in isUltraLux; lifted out
+// unchanged when Experience Luxury was added.
+function matchesCanon(name, alnums, tokensets) {
+  if (!name) return false;
+  const a = ulxAlnum(name);
+  if (!a) return false;
+  for (let i = 0; i < alnums.length; i++) {
+    const c = alnums[i];
+    if (a === c) return true;
+    if (c.length >= 9 && a.indexOf(c) >= 0) return true;
+    if (a.length >= 9 && c.indexOf(a) >= 0) return true;
+  }
+  const nt = ulxTokens(name);
+  if (nt.length) {
+    const nset = {};
+    for (let j = 0; j < nt.length; j++) nset[nt[j]] = 1;
+    for (let i = 0; i < tokensets.length; i++) {
+      const ct = tokensets[i];
+      if (ct.length < 2) continue;
+      let all = true;
+      for (let k = 0; k < ct.length; k++) { if (!nset[ct[k]]) { all = false; break; } }
+      if (all) return true;
+    }
+  }
+  return false;
+}
 function isUltraLux(name) {
   if (!name) return false;
   const a = ulxAlnum(name);
@@ -225,7 +265,11 @@ function isUltraLux(name) {
   }
   return false;
 }
-function tierOf(name) { return isUltraLux(name) ? "UltraLux" : "Luxury"; }
+// Experience Luxury is checked with the same matcher as Ultra Luxury, so a curated name survives
+// Google returning it with extra words. Ordered deliberately: Ultra first, because a property in
+// both lists is an Ultra Luxury hotel that happens to sit somewhere remarkable.
+function isExperienceLux(name) { return matchesCanon(name, EXP_ALNUM, EXP_TOKENSETS); }
+function tierOf(name) { return isUltraLux(name) ? "UltraLux" : isExperienceLux(name) ? "ExpLux" : "Luxury"; }
 // Do two hotel names refer to the same property? Tolerates Google inserting words in the middle
 // ("Four Seasons Hotel London at Tower Bridge" == "Four Seasons Tower Bridge") — used to de-dupe
 // the live feed against our curated picks.
@@ -6616,7 +6660,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M283</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M284</span></footer>
   </div>);
 }
 
@@ -9509,7 +9553,7 @@ function HotelPicker({ city, nights, pick, upd }) {
       return !favs.some((f) => nameMatch(r.name, f.name));
     });
   }
-  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l);
+  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l === "ExpLux" ? "Experience Luxury" : l);
   // Once a hotel is chosen the rest are noise: a stay is decided once and rarely revisited, unlike
   // a restaurant. Show the choice and fold the others away. Tapping a tier chip brings the full
   // list straight back, which is how anyone would expect to change their mind.
@@ -9523,9 +9567,16 @@ function HotelPicker({ city, nights, pick, upd }) {
   const ultraHas = favs.some((s2) => tierOf(s2.name) === "UltraLux");
   const luxHas = favs.some((s2) => tierOf(s2.name) === "Luxury")
     || liveAll.some((r) => liveHotelTier(r) === "Luxury" && !favs.some((f) => nameMatch(r.name, f.name)));
-  const showBest = remote.tried && !ultraHas && !luxHas;
-  const tiers = showBest ? LEVELS : LEVELS.filter((l) => l !== "Best");
-  useEffect(() => { if (level === "Best" && !showBest) setLevel("Luxury"); }, [showBest, level]);
+  // Experience Luxury is curated-only, so unlike Luxury it cannot be filled by the feed. The chip
+  // appears only where a person has put something in it — Wadi Rum, Musandam, the Serengeti camps
+  // — and is simply absent everywhere else rather than showing an empty tab.
+  const expHas = favs.some((s2) => tierOf(s2.name) === "ExpLux");
+  // Best still means "this town's ceiling is below five-star", so it stays hidden while ANYTHING
+  // above it has content — Experience Luxury now counts. Wadi Rum has no five-star hotel, but a
+  // Bedouin camp is the right answer there, not a fallback, so Best must not appear beside it.
+  const showBest = remote.tried && !ultraHas && !luxHas && !expHas;
+  const tiers = LEVELS.filter((l) => (l === "Best" ? showBest : l === "ExpLux" ? expHas : true));
+  useEffect(() => { if (level === "Best" && !showBest) setLevel("Luxury"); if (level === "ExpLux" && !expHas) setLevel("Luxury"); }, [showBest, expHas, level]);
   const collapsed = !!chosen && !openList;
   const showLevel = (l) => { setLevel(l); setOpenList(true); };
   return (<>
