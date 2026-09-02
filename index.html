@@ -7349,7 +7349,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M307</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M308</span></footer>
   </div>);
 }
 
@@ -9551,16 +9551,18 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   // two thousand dollars, and that is their call to make, not ours. Everything else collapses
   // behind one line they can tap. Nothing is ever removed: we decide the default, not the menu.
   const quickest = routingsAll.reduce((m, g) => (g.fastest != null && (m == null || g.fastest < m) ? g.fastest : m), null);
-  const cheapest = routingsAll.reduce((m, g) => (g.lowest != null && (m == null || g.lowest < m) ? g.lowest : m), null);
+  // TIME IS THE ONLY TEST. Price plays no part: at this level a client's hours are worth more
+  // than the fare, and a cheap routing that costs a day is not a bargain. An earlier version kept
+  // the lowest fare visible however slow it was — that was the wrong instinct and is gone.
+  //
+  // BOTH tests must fail before anything is hidden. A percentage alone is far too harsh on a
+  // short route: Santiago to Buenos Aires is a 2-hour nonstop, so 1.6x is 3h20 and every possible
+  // connection would vanish, including a perfectly reasonable one through Lima. The four-hour
+  // allowance keeps normal connections on the page while still burying Madrid, which is twenty
+  // hours because it crosses the Atlantic twice.
   const sensible = (g) => {
     if (g.via === "") return true;                                  // a nonstop is never silly
     if (quickest == null || g.fastest == null) return true;         // no basis to judge — keep it
-    if (cheapest != null && g.lowest != null && g.lowest <= cheapest) return true;  // the cheapest fare always shows
-    // BOTH tests must fail before anything is hidden. A percentage alone is far too harsh on a
-    // short route: Santiago to Buenos Aires is a 2-hour nonstop, so 1.6x is 3h20 and every
-    // possible connection would vanish, including a perfectly reasonable one through Lima. The
-    // four-hour allowance is what keeps normal connections on the page while still burying
-    // Madrid, which is twenty hours because it crosses the Atlantic twice.
     if (g.fastest <= quickest * 1.6) return true;
     if (g.fastest <= quickest + 240) return true;
     return false;
@@ -9581,7 +9583,9 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
               return (<button key={g.via || "nonstop"} onClick={() => setViaFilter(on ? "" : g.via)} style={{ padding: "10px 15px", borderRadius: 12, textAlign: "left", border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.mist : t.white, color: t.ink, fontSize: 13, minWidth: 148 }}>
                 <span style={{ fontWeight: 500 }}>{g.via ? `via ${g.via}` : "Nonstop"}</span>
                 <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>
-                  {g.fastest != null ? `${hrs(g.fastest)} best` : ""}{g.lowest != null ? ` · from ${fmt(g.lowest)}` : ""}
+                  {/* Hours lead — the time a routing costs is what decides it. Fare follows, quieter. */}
+                  {g.fastest != null ? <span style={{ fontSize: 13.5, fontWeight: 600, color: t.ink }}>{hrs(g.fastest)}</span> : null}
+                  {g.lowest != null ? <span style={{ opacity: 0.72 }}>{g.fastest != null ? " · " : ""}from {fmt(g.lowest)}</span> : null}
                 </span>
                 {g.bestLayover != null ? <span style={{ display: "block", fontSize: 11, color: g.bestLayover >= 240 ? "#B0563A" : t.inkFaint, marginTop: 2 }}>{`${g.count > 1 ? "as little as " : ""}${hrs(g.bestLayover)} on the ground`}</span> : null}
                 <span style={{ display: "block", fontSize: 11, color: t.brass, marginTop: 2 }}>{Array.from(g.carriers).slice(0, 2).join(", ")}</span>
