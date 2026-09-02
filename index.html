@@ -7250,7 +7250,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M304</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M305</span></footer>
   </div>);
 }
 
@@ -9587,7 +9587,7 @@ const MODE_KEY = { Flight: "fly", Train: "rail", Chauffeur: "chauffeur", "Self-d
 // to Barcelona — and those are journeys someone might genuinely choose. Anything past it is
 // noise, and noise on a page like this costs credibility.
 const MAX_DRIVE_MINS = 600;
-function feasibleModes(ground) {
+function feasibleModes(ground, apartKm) {
   if (!ground || !ground.modes) return null;           // unknown — show everything
   // Drop the road options when the drive is absurd. Flight and rail are untouched: a long train
   // is still a real answer, and the flight is always offered.
@@ -9605,7 +9605,11 @@ function feasibleModes(ground) {
   // nonsense: Santiago to Zapallar rendered as "Santiago (SCL) → Santiago (SCL)" because the
   // gateway for a town with no airport resolves to the city you just left. Drop the chip entirely
   // and the leg opens on the road, which is the only way anyone has ever made that journey.
-  if (ground.drive && ground.drive.km != null && ground.drive.km <= TOO_CLOSE_TO_FLY_KM) {
+  // NOTE the measure: STRAIGHT-LINE km between the two cities, passed in by the caller — not
+  // ground.drive.km, which is ROAD distance and always longer. Santiago to Zapallar is 124 km
+  // apart and 175 km by road; testing the road figure against a 90-mile rule meant the rule
+  // never fired. Airlines price by how far apart places are, so that is what this measures.
+  if (apartKm != null && apartKm <= TOO_CLOSE_TO_FLY_KM) {
     const near = ARRIVE.filter((m) => m.key !== "Flight" && ground.modes[MODE_KEY[m.key]]);
     if (near.length) return near;
   }
@@ -9963,7 +9967,7 @@ function RentalPanel({ city, destination, compact }) {
 function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate, pax }) {
   const grounds = ["Train", "Chauffeur", "Self-drive"];
   const ground = useGround(from, to);
-  const allowed = feasibleModes(ground);
+  const allowed = feasibleModes(ground, distanceKm(from, to));
   const options = allowed || ARRIVE;
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
   // If the current choice turns out to be impossible for this leg, move to a sensible one.
