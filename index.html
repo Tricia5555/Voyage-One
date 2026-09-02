@@ -7250,7 +7250,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M303</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M304</span></footer>
   </div>);
 }
 
@@ -9600,6 +9600,15 @@ function feasibleModes(ground) {
   // on a short drivable hop (Birmingham→Atlanta, Charleston→Charlotte). The ground verdict may say
   // "drivable" and drop fly; that hid dozens of daily flights. If no fares exist, the flight panel
   // says so honestly. Other modes (rail, ferry, chauffeur) stay gated by what actually exists.
+  // TOO CLOSE TO FLY. Flight is normally always offered — the client decides plane versus car
+  // even on a short hop — but under 90 miles no airline sells the route, and offering it produces
+  // nonsense: Santiago to Zapallar rendered as "Santiago (SCL) → Santiago (SCL)" because the
+  // gateway for a town with no airport resolves to the city you just left. Drop the chip entirely
+  // and the leg opens on the road, which is the only way anyone has ever made that journey.
+  if (ground.drive && ground.drive.km != null && ground.drive.km <= TOO_CLOSE_TO_FLY_KM) {
+    const near = ARRIVE.filter((m) => m.key !== "Flight" && ground.modes[MODE_KEY[m.key]]);
+    if (near.length) return near;
+  }
   const on = ARRIVE.filter((m) => m.key === "Flight" || ground.modes[MODE_KEY[m.key]]);
   return on.length ? on : null;                         // never leave the traveller with nothing
 }
