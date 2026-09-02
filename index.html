@@ -61,6 +61,11 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Ecuador, Sept 2026. An expedition yacht, three Amazon lodges, and a hacienda built inside an
+  // Inca palace. Ecoventura is not a hotel at all — the curation is explicit that Galápagos must
+  // offer a cruise path as well as a land-based one, and this is it.
+  "Ecoventura – Galápagos", "Napo Wildlife Center", "La Selva Amazon Ecolodge & Retreat",
+  "Sacha Lodge", "Hacienda San Agustín de Callo",
   // Colombia, Sept 2026. A design-led nature hotel in the coffee hills, cabins in protected
   // Antioquia forest, and two houses on the Tayrona coast where no five-star exists and none is
   // needed — the beach and the Sierra Nevada behind it are the whole proposition.
@@ -99,6 +104,10 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Ecuador in full — Sept 2026. Five. Mashpi and Zuleta sit here rather than in Experience
+  // Luxury: the curation offers either, and both are buildings of real quality that would hold
+  // their own against a city hotel. See the note in FAVORITES.
+  "Casa Gangotena", "Mashpi Lodge", "Pikaia Lodge", "Hacienda Zuleta", "Hotel del Parque",
   // Colombia in full — Sept 2026. Seven, four of them in Cartagena, which is where the country's
   // real concentration is. Bio Habitat is deliberately NOT here: the curation offers it as Ultra
   // or Experience and says to use Experience where the distinction exists. It does, so it is.
@@ -990,6 +999,46 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── ECUADOR, IN FULL ────────────────────────────────────────────────────────────────
+  // Two judgement calls, both flagged because the curation offers either tier and a property can
+  // only sit in one. MASHPI LODGE and HACIENDA ZULETA are filed as ULTRA LUXURY, not Experience:
+  // both are buildings of real quality rather than camps, both hold their own against a city
+  // hotel, and both lead the Ultra list in the source document. The precedent already in this
+  // canon agrees — Awasi and Explora are Ultra, while tents and domes are Experience. Say the
+  // word and either moves.
+  //
+  // Galápagos is deliberately TWO paths, as rule 3 requires: a land-based stay on Santa Cruz, and
+  // Ecoventura's expedition yachts, which are not a hotel at all and are filed as Experience.
+  "Quito": [
+    { name: "Casa Gangotena", area: "Plaza San Francisco", rate: null, keys: 1, ourTake: "A restored mansion on the plaza in the UNESCO old town \u2014 Relais & Châteaux, and the only address in Quito that matters." },
+    { name: "Illa Experience Hotel", area: "San Marcos", rate: null, ourTake: "A 19th-century house in San Marcos, each floor a different era. The intelligent alternative." },
+  ],
+  "Mashpi": [
+    { name: "Mashpi Lodge", area: "Mashpi Reserve", rate: null, keys: 2, ourTake: "Glass and steel in 3,000 acres of private cloud forest, with resident biologists and a gondola through the canopy. One of the most extraordinary places to sleep on earth." },
+  ],
+  "Galápagos": [
+    { name: "Pikaia Lodge", area: "Santa Cruz Island", rate: null, keys: 2, ourTake: "On an extinct volcano above its own giant-tortoise reserve, with a private yacht for the islands. Relais & Châteaux, and the clear land-based lead." },
+    { name: "Ecoventura – Galápagos", area: "Expedition yacht", rate: null, ourTake: "Twenty guests, private naturalists, Relais & Châteaux at sea. A cruise rather than a hotel \u2014 and for many travellers the better way to see the archipelago." },
+    { name: "Finch Bay Galapagos Hotel", area: "Puerto Ayora", rate: null, ourTake: "On the beach at Academy Bay with daily excursions and its own yacht \u2014 the relaxed coastal base." },
+    { name: "Montemar Eco Luxury Villas", area: "Santa Cruz Island", rate: null, ourTake: "Villas on the cliffs at Puerto Ayora, quiet and private, for a longer stay." },
+  ],
+  "Ecuadorian Amazon": [
+    { name: "Napo Wildlife Center", area: "Yasuní", rate: null, ourTake: "Community-owned, on a black-water lagoon deep in Yasuní, with two canopy towers and parrot clay licks. The best Amazon lodge in Ecuador." },
+    { name: "La Selva Amazon Ecolodge & Retreat", area: "Río Napo", rate: null, ourTake: "On Garzacocha lagoon with a spa and a serious birding list \u2014 the most comfortable of the three." },
+    { name: "Sacha Lodge", area: "Río Napo", rate: null, ourTake: "A 275-metre canopy walkway 36 m up, and a private reserve around it." },
+  ],
+  "Hacienda Zuleta": [
+    { name: "Hacienda Zuleta", area: "Imbabura", rate: null, ourTake: "A 17th-century working hacienda, home of a former president, twenty-one rooms. Horses, a condor project, the embroidery workshop \u2014 the most culturally alive property in Ecuador." },
+  ],
+  "Cotopaxi": [
+    { name: "Hacienda San Agustín de Callo", area: "Cotopaxi", rate: null, ourTake: "Built into an Inca palace \u2014 you dine between original mortarless stone walls with Cotopaxi through the window. Nowhere else is like it." },
+  ],
+  "Cuenca": [
+    { name: "Mansión Alcázar", area: "Centro Histórico", rate: null, ourTake: "A restored republican mansion with a walled garden in the old town. One excellent house is all Cuenca needs." },
+  ],
+  "Guayaquil": [
+    { name: "Hotel del Parque", area: "Parque Histórico", rate: null, ourTake: "A 19th-century building moved and rebuilt inside a ten-acre botanical park \u2014 Relais & Châteaux, and nothing like the airport hotels." },
   ],
   // ── COLOMBIA, IN FULL ───────────────────────────────────────────────────────────────
   // This supersedes the shorter Cartagena list loaded earlier: Casa del Gobernador is out, and
@@ -5578,6 +5627,11 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "Mashpi": { air: "Quito", note: "Fly to Quito (UIO), then about three hours by road down into the cloud forest. The lodge runs the transfer and the last stretch is unpaved." },
+  "Galápagos": { air: "Quito", note: "Fly to Quito (UIO) or Guayaquil (GYE), then a domestic flight to Baltra or San Cristóbal. No other route exists, and the park entry and transit card are handled at the airport." },
+  "Ecuadorian Amazon": { air: "Coca", note: "Fly to Quito (UIO), then a short flight to Coca (OCC), then two to three hours by motorised canoe. The river is the only way in." },
+  "Hacienda Zuleta": { air: "Quito", note: "Fly to Quito (UIO), then about two hours north through the Andes." },
+  "Cotopaxi": { air: "Quito", note: "Fly to Quito (UIO), then roughly ninety minutes south down the Avenue of the Volcanoes." },
   "Barú": { air: "Cartagena", note: "Fly to Cartagena (CTG), then about an hour by road across the new bridge \u2014 or twenty-five minutes by boat, which the resorts prefer and which is far nicer." },
   "Antioquia": { air: "Medellín", note: "Fly to Medellín (MDE), then about an hour east into the hills." },
   "Tayrona": { air: "Santa Marta", note: "Fly to Santa Marta (SMR), then forty minutes to an hour up the coast road towards the park." },
@@ -5667,6 +5721,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ECUADOR. Quito and Guayaquil are the gates. Galápagos is a domestic flight from either and
+  // nothing else — there is no other way to reach the islands.
+  "Quito": { code: "UIO", scale: "intercontinental" }, "Guayaquil": { code: "GYE", scale: "intercontinental" },
+  "Galápagos": { code: "GPS", scale: "regional" }, "Cuenca": { code: "CUE", scale: "regional" },
   // COLOMBIA. Bogotá is the gate. Cartagena and Medellín take regional aircraft; the Coffee
   // Region has three small fields and Armenia is usually the right one.
   "Bogotá": { code: "BOG", scale: "intercontinental" }, "Medellín": { code: "MDE", scale: "regional" },
@@ -5852,6 +5910,9 @@ const ZONE = {
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
+  "ecuador": ["Quito","Mashpi","Ecuadorian Amazon","Hacienda Zuleta","Cotopaxi","Cuenca","Guayaquil"],
+  // The Galápagos are 900 km out in the Pacific. Their own zone, or the app will offer a drive.
+  "galapagos": ["Galápagos"],
   "colombia": ["Cartagena","Barú","Bogotá","Medellín","Coffee Country","Antioquia","Tayrona"],
   "brazil": ["Rio de Janeiro","São Paulo","Trancoso","Salvador","Iguaçu Falls","Fernando de Noronha","Santa Catarina","Alagoas","Angra dos Reis","Porto Feliz","Brazilian Amazon","Pantanal","Lençóis Maranhenses","Paraty","Vale dos Vinhedos"],
   "argentina": ["Buenos Aires","Mendoza","Uco Valley","Iguazú","El Calafate","El Chaltén","Bariloche","Villa La Angostura","Salta","Jujuy","Córdoba","Pampas","Ushuaia"],
@@ -5897,6 +5958,9 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Quito": [-0.18,-78.47], "Mashpi": [0.16,-78.87], "Galápagos": [-0.74,-90.31],
+  "Ecuadorian Amazon": [-0.48,-76.38], "Hacienda Zuleta": [0.20,-78.06], "Cotopaxi": [-0.68,-78.58],
+  "Cuenca": [-2.90,-79.00], "Guayaquil": [-2.17,-79.92],
   "Barú": [10.17,-75.66], "Bogotá": [4.71,-74.07], "Medellín": [6.24,-75.58],
   "Coffee Country": [4.53,-75.68], "Antioquia": [6.17,-75.34], "Tayrona": [11.31,-73.91],
     "Trancoso": [-16.59,-39.09], "Salvador": [-12.97,-38.51], "Iguaçu Falls": [-25.69,-54.44],
@@ -7511,7 +7575,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M311</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M312</span></footer>
   </div>);
 }
 
