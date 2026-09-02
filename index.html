@@ -6585,7 +6585,14 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const showAny = open && (matches.length > 0 || live.length > 0);
 
   return (<div style={{ position: "relative" }}>
-    <input value={value} placeholder={placeholder} onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 160)} style={inputStyle} />
+    {/* autoComplete="off" alone is ignored by Safari and Chrome on anything they judge to be an
+          address field, and they then offer saved form entries above our own suggestions — a
+          stray "catalog" sitting on top of "Zapallar, Valparaíso". A non-standard token defeats
+          the heuristic because there is no saved-value bucket to match it against. name and id
+          are deliberately absent for the same reason: both are what the browser keys its
+          autofill store on. */}
+      <input value={value} placeholder={placeholder} autoComplete="voyage-one-city" autoCorrect="off" autoCapitalize="words" spellCheck={false}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 160)} style={inputStyle} />
     {showAny && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 30, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, marginTop: 6, overflow: "hidden", boxShadow: "0 10px 28px rgba(0,0,0,.10)", maxHeight: 320, overflowY: "auto" }}>
       {matches.map((c) => (
         <button key={"c" + c} onMouseDown={(e) => { e.preventDefault(); choose(c); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>{c}</button>
@@ -7342,7 +7349,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M306</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M307</span></footer>
   </div>);
 }
 
@@ -9521,7 +9528,8 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
         // So: group by WHERE it connects, and let her pick the routing first, the flight
         // second. That is the decision a travel agent actually makes for a client.
         const viaKey = (o) => (o.segments && o.segments.length > 1 ? (o.segments[0].toCity || o.segments[0].to) : "");
-        const groups = new Map();
+        const [showAllRoutings, setShowAllRoutings] = useState(false);
+  const groups = new Map();
         live.offers.forEach((o) => {
           const k = viaKey(o);
           const g = groups.get(k) || { via: k, count: 0, lowest: null, fastest: null, worstLayover: 0, bestLayover: null, carriers: new Set() };
@@ -9533,7 +9541,32 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
           groups.set(k, g);
         });
         // Nonstop first if it exists, then quickest.
-        const routings = Array.from(groups.values()).sort((a, b) => (a.via === "" ? -1 : b.via === "" ? 1 : (a.fastest || 1e9) - (b.fastest || 1e9)));
+        const routingsAll = Array.from(groups.values()).sort((a, b) => (a.via === "" ? -1 : b.via === "" ? 1 : (a.fastest || 1e9) - (b.fastest || 1e9)));
+  // SILLY ROUTINGS ARE HIDDEN, NOT DELETED. Santiago to Buenos Aires is a two-hour hop across
+  // the Andes; Duffel offered it via MADRID, which is a 20-hour crossing of the Atlantic and back.
+  // Offering that as a serious option costs the page its credibility.
+  //
+  // Two ways to survive. Be within 60% of the quickest routing on the board, OR be under half its
+  // price — because a client with a pile of airline points may well take five extra hours to save
+  // two thousand dollars, and that is their call to make, not ours. Everything else collapses
+  // behind one line they can tap. Nothing is ever removed: we decide the default, not the menu.
+  const quickest = routingsAll.reduce((m, g) => (g.fastest != null && (m == null || g.fastest < m) ? g.fastest : m), null);
+  const cheapest = routingsAll.reduce((m, g) => (g.lowest != null && (m == null || g.lowest < m) ? g.lowest : m), null);
+  const sensible = (g) => {
+    if (g.via === "") return true;                                  // a nonstop is never silly
+    if (quickest == null || g.fastest == null) return true;         // no basis to judge — keep it
+    if (cheapest != null && g.lowest != null && g.lowest <= cheapest) return true;  // the cheapest fare always shows
+    // BOTH tests must fail before anything is hidden. A percentage alone is far too harsh on a
+    // short route: Santiago to Buenos Aires is a 2-hour nonstop, so 1.6x is 3h20 and every
+    // possible connection would vanish, including a perfectly reasonable one through Lima. The
+    // four-hour allowance is what keeps normal connections on the page while still burying
+    // Madrid, which is twenty hours because it crosses the Atlantic twice.
+    if (g.fastest <= quickest * 1.6) return true;
+    if (g.fastest <= quickest + 240) return true;
+    return false;
+  };
+  const routings = showAllRoutings ? routingsAll : routingsAll.filter(sensible);
+  const hiddenCount = routingsAll.length - routings.length;
         const shown = viaFilter ? live.offers.filter((o) => viaKey(o) === viaFilter) : live.offers;
         const hrs = (m) => `${Math.floor(m / 60)}h ${m % 60}m`;
         return (<>
@@ -9554,7 +9587,10 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
                 <span style={{ display: "block", fontSize: 11, color: t.brass, marginTop: 2 }}>{Array.from(g.carriers).slice(0, 2).join(", ")}</span>
               </button>); })}
           </div>
-          <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Same trip, same cabin — the difference is where you change and how long you sit there. Pick a routing to see only those flights.</div>
+          {hiddenCount > 0 && <button onClick={() => setShowAllRoutings(true)} style={{ background: "none", border: "none", padding: 0, marginTop: 9, fontSize: 12, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>
+        {hiddenCount === 1 ? "1 much slower routing hidden" : `${hiddenCount} much slower routings hidden`} — show anyway
+      </button>}
+      <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 7, lineHeight: 1.5 }}>Same trip, same cabin — the difference is where you change and how long you sit there. Pick a routing to see only those flights.</div>
         </div>)}
         {/* Once a flight is chosen there is no reason to keep twenty others on screen. Show the
             one that was picked and a way back to the rest — the page becomes readable and the
