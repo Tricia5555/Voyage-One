@@ -61,6 +61,10 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Argentina, Sept 2026. Three Pristine camps, and two Relais & Châteaux estancias whose value
+  // is the horses and the countryside rather than the thread count.
+  "Pristine Iguazú Luxury Camp", "Pristine Glaciers Luxury Camp",
+  "Pristine Salinas Grandes Luxury Camp", "El Colibrí Estancia de Charme", "La Bamba de Areco",
   // Chile, Sept 2026. Yurts, a design camp, four casitas above a vineyard, a lodge in a private
   // park, an observatory in the Elqui, and Portillo — which is not five-star and is one of the
   // great ski experiences on earth. Destination significance over conventional styling.
@@ -86,6 +90,13 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Argentina in full — Sept 2026. Twelve, and only four are in Buenos Aires. The curation is
+  // explicit that the capital is one part of the inventory, not the whole of it.
+  "Four Seasons Hotel Buenos Aires", "Palacio Duhau – Park Hyatt Buenos Aires",
+  "Alvear Palace Hotel", "Faena Hotel Buenos Aires",
+  "Awasi Mendoza", "Susana Balbo Winemaker's House & Spa Suites",
+  "Casa de Uco Vineyards & Wine Resort", "Awasi Iguazú", "EOLO – Patagonia's Spirit",
+  "Explora El Chaltén", "Llao Llao Resort, Golf-Spa", "Las Balsas",
   // Chile in full — Sept 2026. Thirteen, and only two are in Santiago: the curation is explicit
   // that the capital is not the centre of Chilean luxury, and the list bears it out. The Singular
   // Santiago moves up here from Luxury on the full country cross-check.
@@ -954,6 +965,71 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── ARGENTINA, IN FULL ──────────────────────────────────────────────────────────────
+  // Patagonia is filed by SUBREGION, not as one word — El Calafate, El Chaltén, Bariloche, Villa
+  // La Angostura and Ushuaia are five days apart and nothing like each other. Labelling them all
+  // "Patagonia" would let the app suggest a drive between places separated by an ice field.
+  //
+  // Mendoza is likewise split: Luján de Cuyo and Chacras de Coria sit under Mendoza, while the
+  // Uco Valley is its own destination an hour and a half further south.
+  "Buenos Aires": [
+    { name: "Four Seasons Hotel Buenos Aires", area: "Recoleta", rate: null, ourTake: "A belle époque mansion joined to a modern tower \u2014 the mansion suites are the best rooms in the city." },
+    { name: "Palacio Duhau – Park Hyatt Buenos Aires", area: "Recoleta", rate: null, ourTake: "A 1930s palace with a terraced garden between it and the new wing, and the best cheese room in South America." },
+    { name: "Alvear Palace Hotel", area: "Recoleta", rate: null, ourTake: "Louis XV and a great deal of marble \u2014 the old grand hotel of Buenos Aires, and still where the city takes tea." },
+    { name: "Faena Hotel Buenos Aires", area: "Puerto Madero", rate: null, ourTake: "Starck in a converted grain mill: red velvet, unicorns, a cabaret. Not for everyone, unforgettable for the right client." },
+    { name: "Casa Lucía", area: "Retiro", rate: null, ourTake: "The best new hotel in the city \u2014 modernist, art-filled, and run with more warmth than the palaces." },
+    { name: "Sofitel Buenos Aires Recoleta", area: "Recoleta", rate: null, ourTake: "A 1929 tower with a garden courtyard, quieter than its neighbours and beautifully restored." },
+    { name: "Park Tower, a Luxury Collection Hotel", area: "Retiro", rate: null, ourTake: "Butler service on every floor and views over the plaza to the river." },
+    { name: "Alvear Icon Hotel", area: "Puerto Madero", rate: null, ourTake: "The Alvear's modern sister on the docks, with a rooftop pool over the water." },
+    { name: "Alvear Art Hotel", area: "Retiro", rate: null, ourTake: "Smaller and more central, for being in the middle of the city rather than above it." },
+  ],
+  "Mendoza": [
+    { name: "Awasi Mendoza", area: "Luján de Cuyo", rate: null, ourTake: "Eight casitas, and a private guide and vehicle for each \u2014 you design the day and they open the cellar doors. Essential." },
+    { name: "Susana Balbo Winemaker's House & Spa Suites", area: "Chacras de Coria", rate: null, ourTake: "Argentina's first female winemaker's own house, run as eight suites. The food alone justifies the stay." },
+    { name: "Entre Cielos Luxury Wine Hotel & Spa", area: "Luján de Cuyo", rate: null, ourTake: "Cubes on stilts among the Malbec vines, with a six-stage hammam that is the best spa in the region." },
+  ],
+  "Uco Valley": [
+    { name: "Casa de Uco Vineyards & Wine Resort", area: "Uco Valley", rate: null, keys: 1, ourTake: "A long low building of stone and glass in its own vineyard under the Andes \u2014 the finest design hotel in Argentine wine country." },
+    { name: "The Vines Resort & Spa", area: "Uco Valley", rate: null, ourTake: "Villas above private vineyard lots, with Francis Mallmann's fire kitchen next door." },
+  ],
+  "Iguazú": [
+    { name: "Awasi Iguazú", area: "Puerto Iguazú", rate: null, ourTake: "Fourteen villas with plunge pools in the jungle, each with its own guide and 4x4 \u2014 the falls without the crowd." },
+    { name: "Gran Meliá Iguazú", area: "Iguazú National Park", rate: null, ourTake: "The only hotel inside the park, looking straight at the falls. You are there at dawn before the gates open." },
+    { name: "Pristine Iguazú Luxury Camp", area: "Misiones", rate: null, ourTake: "Tented suites in the Atlantic rainforest, the jungle audible all night. Not a resort, and not trying to be." },
+  ],
+  "El Calafate": [
+    { name: "EOLO – Patagonia's Spirit", area: "El Calafate", rate: null, ourTake: "A Relais & Châteaux estancia alone on 10,000 acres between the town and the Perito Moreno glacier. Mandatory." },
+    { name: "Pristine Glaciers Luxury Camp", area: "El Calafate", rate: null, ourTake: "Domes facing the ice field, with nothing between you and it." },
+    { name: "Los Ponchos Hotel", area: "El Calafate", rate: null, ourTake: "In town, comfortable and well run \u2014 the practical night either side of the glacier." },
+  ],
+  "El Chaltén": [
+    { name: "Explora El Chaltén", area: "Los Huemules Reserve", rate: null, ourTake: "Inside a private conservation reserve at the foot of Fitz Roy, guided walks from the door. An exploration lodge, not a hotel." },
+  ],
+  "Bariloche": [
+    { name: "Llao Llao Resort, Golf-Spa", area: "Nahuel Huapi", rate: null, ourTake: "The great Argentine landmark hotel, on a spit between two lakes with the Andes behind. Traditional, and irreplaceable." },
+    { name: "Villa Beluno Hotel & Spa", area: "Bariloche", rate: null, ourTake: "Small and modern above the lake, for anyone who finds Llao Llao too grand." },
+  ],
+  "Villa La Angostura": [
+    { name: "Las Balsas", area: "Villa La Angostura", rate: null, ourTake: "A Relais & Châteaux lodge of fifteen rooms on its own bay of Nahuel Huapi \u2014 Argentina's most intimate lake retreat." },
+    { name: "Correntoso Lake & River Hotel", area: "Villa La Angostura", rate: null, ourTake: "A 1917 fishing lodge where the shortest river in the world meets the lake, and the fly fishing is serious." },
+  ],
+  "Salta": [
+    { name: "House of Jasmines", area: "La Merced", rate: null, ourTake: "An estancia founded by Robert Duvall in the foothills, jasmine everywhere \u2014 the most atmospheric room in the north." },
+    { name: "Legado Mítico Salta", area: "Salta", rate: null, ourTake: "Eleven rooms in a colonial house in town, each given to a figure from Salta's history." },
+  ],
+  "Jujuy": [
+    { name: "Pristine Salinas Grandes Luxury Camp", area: "Salinas Grandes", rate: null, ourTake: "Camped on the salt flat itself at 3,400 m. No hotel exists out there and none should \u2014 this is the way to see it." },
+  ],
+  "Córdoba": [
+    { name: "El Colibrí Estancia de Charme", area: "Santa Catalina", rate: null, ourTake: "A Relais & Châteaux estancia with a serious stable \u2014 the real gaucho and horse country, done properly." },
+  ],
+  "Pampas": [
+    { name: "La Bamba de Areco", area: "San Antonio de Areco", rate: null, ourTake: "A 1830s red estancia with its own polo field and criollo horses. The classic Argentine countryside, an hour and a half from the city." },
+  ],
+  "Ushuaia": [
+    { name: "Arakur Ushuaia Resort & Spa", area: "Cerro Alarkén", rate: null, ourTake: "High on the ridge above the town with the Beagle Channel below \u2014 the best base before an Antarctic sailing." },
+    { name: "Los Cauquenes Resort + Spa + Experiences", area: "Bahía Cauquén", rate: null, ourTake: "On the channel shore itself, quieter and closer to the water." },
   ],
   // ── CHILE, IN FULL ──────────────────────────────────────────────────────────────────
   // The curation is emphatic that Santiago is NOT the centre of Chilean luxury, and the list
@@ -5369,6 +5445,11 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "Uco Valley": { air: "Mendoza", note: "Fly to Mendoza (MDZ), then about an hour and a half south. A car is essential \u2014 the wineries are far apart." },
+  "El Chaltén": { air: "El Calafate", note: "Fly to El Calafate (FTE), then three hours north by road. There is no airport at El Chaltén and the drive along Lago Viedma is worth doing in daylight." },
+  "Villa La Angostura": { air: "Bariloche", note: "Fly to Bariloche (BRC), then about an hour around the lake." },
+  "Jujuy": { air: "Salta", note: "Fly to Salta (SLA), then two hours to Purmamarca and up to the salt flats. Jujuy has its own field (JUJ) but Salta has far more service." },
+  "Pampas": { air: "Buenos Aires", note: "Fly to Buenos Aires (EZE), then about an hour and a half to San Antonio de Areco. An easy day trip, and better as a night." },
   "Atacama": { air: "Calama", note: "Fly to Calama (CJC) from Santiago, then about an hour and a half across the desert to San Pedro. Every lodge meets the flight." },
   "Torres del Paine": { air: "Punta Arenas", note: "Fly to Punta Arenas (PUQ), then four to five hours by road. Puerto Natales (PNT) has a seasonal airport that halves it when it is running." },
   "Puerto Natales": { air: "Punta Arenas", note: "Fly to Punta Arenas (PUQ), then about three hours north. The seasonal Puerto Natales field (PNT) is far quicker when open." },
@@ -5441,6 +5522,12 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ARGENTINA. Buenos Aires is the gate; everything else is a domestic flight from it, which is
+  // how the country is actually travelled — Ushuaia is 3,000 km from the capital.
+  "Buenos Aires": { code: "EZE", scale: "intercontinental" }, "Mendoza": { code: "MDZ", scale: "regional" },
+  "Iguazú": { code: "IGR", scale: "regional" }, "El Calafate": { code: "FTE", scale: "regional" },
+  "Bariloche": { code: "BRC", scale: "regional" }, "Salta": { code: "SLA", scale: "regional" },
+  "Ushuaia": { code: "USH", scale: "regional" }, "Córdoba": { code: "COR", scale: "regional" },
   "Arequipa": { code: "AQP", scale: "regional" },
   // SOUTH AMERICA. Lima and Santiago are the intercontinental gates. Cusco takes regional
   // aircraft only and sits at 3,400 m — almost every itinerary reaches it through Lima, which
@@ -5612,6 +5699,7 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "colombia": ["Cartagena"],
+  "argentina": ["Buenos Aires","Mendoza","Uco Valley","Iguazú","El Calafate","El Chaltén","Bariloche","Villa La Angostura","Salta","Jujuy","Córdoba","Pampas","Ushuaia"],
   "chile": ["Santiago","Atacama","Torres del Paine","Puerto Natales","Chilean Wine Country","Puerto Varas","Futangue","Chiloé","Elqui Valley","Valparaíso","Zapallar","Portillo"],
   // Rapa Nui is 3,700 km off the Chilean coast — its own zone, or the app will treat it as a drive.
   "rapa-nui": ["Easter Island"],
@@ -5654,6 +5742,10 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Mendoza": [-32.89,-68.84], "Uco Valley": [-33.68,-69.20], "Iguazú": [-25.60,-54.57],
+  "El Calafate": [-50.34,-72.27], "El Chaltén": [-49.33,-72.89], "Bariloche": [-41.13,-71.31],
+  "Villa La Angostura": [-40.76,-71.65], "Salta": [-24.78,-65.41], "Jujuy": [-23.63,-65.70],
+  "Córdoba": [-31.42,-64.19], "Pampas": [-34.25,-59.47], "Ushuaia": [-54.80,-68.30],
   "Atacama": [-22.91,-68.20], "Torres del Paine": [-51.06,-72.99], "Puerto Natales": [-51.73,-72.51],
   "Chilean Wine Country": [-34.44,-71.35], "Puerto Varas": [-41.32,-72.99], "Futangue": [-40.30,-72.35],
   "Chiloé": [-42.48,-73.76], "Easter Island": [-27.15,-109.43], "Elqui Valley": [-30.03,-70.71],
@@ -7250,7 +7342,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M305</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M306</span></footer>
   </div>);
 }
 
