@@ -59,6 +59,11 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Chile, Sept 2026. Yurts, a design camp, four casitas above a vineyard, a lodge in a private
+  // park, an observatory in the Elqui, and Portillo — which is not five-star and is one of the
+  // great ski experiences on earth. Destination significance over conventional styling.
+  "Our Habitas Atacama", "Patagonia Camp", "Clos Apalta Residence",
+  "Futangue Hotel & Spa", "CasaMolle", "Hotel Portillo",
   // Peru, Sept 2026. A river cruise, an island lodge reached by boat, a treehouse in Madre de
   // Dios, domes under a dark sky, and a jungle lodge on the Madre de Dios. None is a hotel and
   // none is a compromise — every one is chosen for the access, which is what this tier means.
@@ -79,6 +84,12 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Chile in full — Sept 2026. Thirteen, and only two are in Santiago: the curation is explicit
+  // that the capital is not the centre of Chilean luxury, and the list bears it out. The Singular
+  // Santiago moves up here from Luxury on the full country cross-check.
+  "The Singular Santiago", "Awasi Atacama", "Nayara Alto Atacama", "Tierra Atacama Hotel & Spa",
+  "Explora Atacama", "Awasi Patagonia", "Tierra Patagonia Hotel & Spa", "Explora Patagonia",
+  "The Singular Patagonia", "VIK Chile", "Refugia Chiloé", "Explora Rapa Nui",
   // Peru in full — Sept 2026. Twelve Ultra Luxury across seven destinations, which is a lot for
   // one country and reflects how deep Peru actually runs. Inkaterra La Casona sits here rather
   // than in Luxury: the full country cross-check promotes it, and eleven suites in a 16th-century
@@ -942,6 +953,60 @@ const FAVORITES = {
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
   ],
+  // ── CHILE, IN FULL ──────────────────────────────────────────────────────────────────
+  // The curation is emphatic that Santiago is NOT the centre of Chilean luxury, and the list
+  // proves it: eleven of the thirteen Ultra Luxury houses are outside the capital. Patagonia and
+  // Atacama carry deeper inventory than a city would, because in both places the hotel IS the
+  // experience — Awasi and Tierra are the reason people go, not where they sleep afterwards.
+  //
+  // Michelin Keys are recorded on each record as `keys`. The app does not display them yet; the
+  // curation asks that hotel awards be kept in the underlying record, so they are kept.
+  //
+  // Refugia Chiloé was Tierra Chiloé. ONE entry, current name, former name noted here only.
+  "Atacama": [
+    { name: "Awasi Atacama", area: "San Pedro de Atacama", rate: null, keys: 2, ourTake: "Ten suites, and a private guide and vehicle for every one of them \u2014 you go where you want, when you want. The finest thing in the desert." },
+    { name: "Nayara Alto Atacama", area: "San Pedro de Atacama", rate: null, keys: 2, ourTake: "Built low into the Catarpe valley walls with six pools and its own observatory." },
+    { name: "Tierra Atacama Hotel & Spa", area: "San Pedro de Atacama", rate: null, keys: 1, ourTake: "On an old cattle corral facing Licancabur, all-inclusive and guided, with the best spa in the north." },
+    { name: "Explora Atacama", area: "San Pedro de Atacama", rate: null, keys: 1, ourTake: "The original exploration lodge \u2014 forty guided routes from the door and a horse ranch attached." },
+    { name: "Our Habitas Atacama", area: "San Pedro de Atacama", rate: null, ourTake: "Lower-key and more design-led than the four above, for travellers who want the desert without the ceremony." },
+  ],
+  "Torres del Paine": [
+    { name: "Awasi Patagonia", area: "Torres del Paine", rate: null, keys: 3, ourTake: "Fourteen villas, each with its own guide and 4x4. Among the very best hotels in South America, and it is not close." },
+    { name: "Tierra Patagonia Hotel & Spa", area: "Torres del Paine", rate: null, keys: 3, ourTake: "A great curved shell of weathered timber on the lake shore facing the towers \u2014 one of the continent's architectural destinations." },
+    { name: "Explora Patagonia", area: "Torres del Paine", rate: null, keys: 2, ourTake: "Alone by the Salto Chico waterfall inside the park itself, and essential for anyone who came to walk." },
+    { name: "Patagonia Camp", area: "Lago Toro", rate: null, ourTake: "Yurts on raised walkways above the lake \u2014 canvas, wood stoves, and the wind on the roof at night." },
+  ],
+  "Puerto Natales": [
+    { name: "The Singular Patagonia", area: "Puerto Bories", rate: null, keys: 2, ourTake: "A converted 1915 lamb-processing plant on the fjord, machinery intact as a museum below \u2014 a destination rather than a staging post for the park." },
+    { name: "Remota Patagonia Lodge", area: "Puerto Natales", rate: null, ourTake: "Germán del Sol's black timber lodge on the edge of town, all-inclusive and quietly excellent." },
+  ],
+  "Chilean Wine Country": [
+    { name: "VIK Chile", area: "Millahue", rate: null, keys: 2, ourTake: "A titanium roof floating over the hill above its own vineyard, every room by a different artist. Mandatory." },
+    { name: "Clos Apalta Residence", area: "Colchagua Valley", rate: null, ourTake: "Four casitas above the Apalta bowl at Lapostolle \u2014 small, private, and the wine is the point." },
+    { name: "Casa Real Hotel at Viña Santa Rita", area: "Maipo Valley", rate: null, ourTake: "A 19th-century manor in a park of century-old trees, forty minutes from Santiago." },
+  ],
+  "Puerto Varas": [
+    { name: "Hotel AWA", area: "Lake Llanquihue", rate: null, keys: 1, ourTake: "Every room faces the lake and the Osorno volcano across it \u2014 the clear choice in the Lake District." },
+  ],
+  "Futangue": [
+    { name: "Futangue Hotel & Spa", area: "Lake Ranco", rate: null, keys: 1, ourTake: "A lodge inside its own 130 sq km private park \u2014 northern Patagonia with no one else in it." },
+  ],
+  "Chiloé": [
+    { name: "Refugia Chiloé", area: "Chiloé Island", rate: null, keys: 2, ourTake: "Twenty-four rooms on a headland over the inland sea, guided and all-inclusive. Formerly Tierra Chiloé." },
+  ],
+  "Easter Island": [
+    { name: "Explora Rapa Nui", area: "Rapa Nui", rate: null, keys: 1, ourTake: "Alone on a hill above the Pacific with guides who know the archaeology \u2014 a destination experience rather than a hotel stay." },
+    { name: "Nayara Hangaroa", area: "Hanga Roa", rate: null, ourTake: "Built in the Rapa Nui vernacular near the village, and the practical choice for a shorter stay." },
+  ],
+  "Elqui Valley": [
+    { name: "CasaMolle", area: "Vicuña", rate: null, keys: 1, ourTake: "In the clearest night sky on earth \u2014 a private observatory, a golf course, and complete quiet." },
+  ],
+  "Valparaíso": [
+    { name: "Casa Higueras", area: "Cerro Alegre", rate: null, ourTake: "A 1920s house terraced down the hill with the harbour below. Valparaíso does not need more than this." },
+  ],
+  "Portillo": [
+    { name: "Hotel Portillo", area: "Ski Portillo", rate: null, ourTake: "The yellow hotel on Laguna del Inca at 2,880 m \u2014 not conventional five-star, and one of the great ski experiences on earth. Every national team trains here in August." },
+  ],
   // ── PERU, IN FULL ───────────────────────────────────────────────────────────────────
   // Six more destinations, and they change the shape of a Peru itinerary completely. Lima and
   // Cusco alone make a city trip; with the Sacred Valley, Machu Picchu, Arequipa, Colca, Titicaca
@@ -1518,16 +1583,6 @@ const FAVORITES = {
   "Fiji": [
     { name: "Kokomo Private Island Fiji", area: "Kadavu", rate: null, ourTake: "A private-island resort with a great reef and a farm-to-table soul." },
     { name: "COMO Laucala Island", area: "Laucala", rate: null, ourTake: "One of the world's most exclusive private islands, twenty-five villas only." },
-  ],
-  "Patagonia": [
-    { name: "Awasi Patagonia", area: "Torres del Paine", rate: null, ourTake: "Private villas each with your own guide and 4x4, facing the Towers." },
-    { name: "Explora Patagonia", area: "Torres del Paine", rate: null, ourTake: "The original explorers' lodge inside the national park, all-inclusive." },
-  ],
-  "Atacama": [
-    { name: "Awasi Atacama", area: "San Pedro de Atacama", rate: null, ourTake: "A private-guide desert lodge among the world's clearest skies." },
-  ],
-  "Chile": [
-    { name: "Vik Chile", area: "Millahue", rate: null, ourTake: "An art-and-architecture wine estate under a titanium roof." },
   ],
   "São Paulo": [
     { name: "Rosewood São Paulo", area: "Cidade Matarazzo", rate: null, ourTake: "A tower-and-garden landmark rising from a restored maternity palace." },
@@ -5304,6 +5359,17 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "Atacama": { air: "Calama", note: "Fly to Calama (CJC) from Santiago, then about an hour and a half across the desert to San Pedro. Every lodge meets the flight." },
+  "Torres del Paine": { air: "Punta Arenas", note: "Fly to Punta Arenas (PUQ), then four to five hours by road. Puerto Natales (PNT) has a seasonal airport that halves it when it is running." },
+  "Puerto Natales": { air: "Punta Arenas", note: "Fly to Punta Arenas (PUQ), then about three hours north. The seasonal Puerto Natales field (PNT) is far quicker when open." },
+  "Chilean Wine Country": { air: "Santiago", note: "Fly to Santiago (SCL); Maipo is under an hour, Colchagua and Millahue two to three." },
+  "Puerto Varas": { air: "Puerto Montt", note: "Fly to Puerto Montt (PMC) \u2014 the lake is twenty minutes away." },
+  "Futangue": { air: "Valdivia", note: "Fly to Valdivia (ZAL) or Osorno, then roughly two hours to Lake Ranco." },
+  "Chiloé": { air: "Puerto Montt", note: "Fly to Puerto Montt (PMC), then the ferry across the Chacao channel. Castro has a small field for private aircraft." },
+  "Easter Island": { air: "Santiago", note: "One route only: LATAM from Santiago (SCL), five and a half hours over open Pacific. There is no alternative and no connection \u2014 book it before anything else." },
+  "Elqui Valley": { air: "La Serena", note: "Fly to La Serena (LSC), then about an hour inland up the valley." },
+  "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
+  "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
   "Sacred Valley": { air: "Cusco", note: "Fly to Cusco (CUZ), then about an hour down into the valley. Worth doing on arrival rather than sleeping in Cusco \u2014 the valley is 600 m lower and the altitude is much kinder." },
   "Machu Picchu": { air: "Cusco", note: "Fly to Cusco (CUZ), then the train from Ollantaytambo or Poroy. There is no road to Machu Picchu \u2014 the train is the only way in, and it should be booked long before the hotel." },
   "Colca Canyon": { air: "Arequipa", note: "Fly to Arequipa (AQP), then three to four hours by road over a 4,900 m pass. Spend a night in Arequipa first; going straight up is a mistake." },
@@ -5535,7 +5601,9 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "colombia": ["Cartagena"],
-  "chile": ["Santiago"],
+  "chile": ["Santiago","Atacama","Torres del Paine","Puerto Natales","Chilean Wine Country","Puerto Varas","Futangue","Chiloé","Elqui Valley","Valparaíso","Portillo"],
+  // Rapa Nui is 3,700 km off the Chilean coast — its own zone, or the app will treat it as a drive.
+  "rapa-nui": ["Easter Island"],
   "qatar": ["Doha"],
   "saudi": ["AlUla"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
@@ -5575,6 +5643,10 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Atacama": [-22.91,-68.20], "Torres del Paine": [-51.06,-72.99], "Puerto Natales": [-51.73,-72.51],
+  "Chilean Wine Country": [-34.44,-71.35], "Puerto Varas": [-41.32,-72.99], "Futangue": [-40.30,-72.35],
+  "Chiloé": [-42.48,-73.76], "Easter Island": [-27.15,-109.43], "Elqui Valley": [-30.03,-70.71],
+  "Valparaíso": [-33.05,-71.62], "Portillo": [-32.83,-70.13],
   "Sacred Valley": [-13.31,-72.11], "Machu Picchu": [-13.16,-72.55], "Arequipa": [-16.41,-71.54],
   "Colca Canyon": [-15.61,-71.86], "Lake Titicaca": [-15.84,-69.93], "Peruvian Amazon": [-12.59,-69.19],
     "Cusco": [-13.53,-71.97], "Lima": [-12.05,-77.04], "Cartagena": [10.39,-75.51], "Santiago": [-33.45,-70.67],
@@ -7147,7 +7219,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M300</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M301</span></footer>
   </div>);
 }
 
