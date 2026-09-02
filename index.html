@@ -5267,6 +5267,7 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  "Zagreb": { code: "ZAG", scale: "regional" },
   "Doha": { code: "DOH", scale: "intercontinental" }, "Budapest": { code: "BUD", scale: "intercontinental" },
   "AlUla": { code: "ULH", scale: "regional" }, "Fez": { code: "FEZ", scale: "regional" },
   "Essaouira": { code: "ESU", scale: "regional" },
@@ -5468,6 +5469,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Zagreb": [45.81,15.98],
   "Doha": [25.29,51.53], "AlUla": [26.61,37.92], "Fez": [34.04,-5.00], "Essaouira": [31.51,-9.77], "Budapest": [47.50,19.04],
   "Split": [43.51,16.44], "Hvar": [43.17,16.44], "Rovinj": [45.08,13.64], "Mali Lošinj": [44.53,14.47], "Lake Bled": [46.36,14.11],
   "Amman": [31.95,35.93], "Petra": [30.32,35.48], "Wadi Rum": [29.57,35.42], "Dead Sea": [31.50,35.58], "Aqaba": [29.53,35.01],
@@ -7036,7 +7038,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M297</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M298</span></footer>
   </div>);
 }
 
@@ -9366,8 +9368,22 @@ function useGround(from, to) {
 }
 // Map our button names onto the verdict's mode flags.
 const MODE_KEY = { Flight: "fly", Train: "rail", Chauffeur: "chauffeur", "Self-drive": "drive", Ferry: "ferry" };
+// The longest drive worth putting in front of a traveller. Beyond this a car is not a way of
+// getting there, it is a different holiday: Fez to Zagreb was offered as a 33-hour drive and
+// Doha to Fez as 83 hours, which is three and a half days at the wheel across the Sahara.
+// Ten hours is roughly the outer edge of a single long day on the road — Rome to Munich, Paris
+// to Barcelona — and those are journeys someone might genuinely choose. Anything past it is
+// noise, and noise on a page like this costs credibility.
+const MAX_DRIVE_MINS = 600;
 function feasibleModes(ground) {
   if (!ground || !ground.modes) return null;           // unknown — show everything
+  // Drop the road options when the drive is absurd. Flight and rail are untouched: a long train
+  // is still a real answer, and the flight is always offered.
+  if (ground.drive && ground.drive.minutes && ground.drive.minutes > MAX_DRIVE_MINS) {
+    const road = ARRIVE.filter((m) => m.key !== "Chauffeur" && m.key !== "Self-drive"
+      && (m.key === "Flight" || ground.modes[MODE_KEY[m.key]]));
+    if (road.length) return road;
+  }
   // Flight is ALWAYS offered between two different cities — the client decides plane vs car, even
   // on a short drivable hop (Birmingham→Atlanta, Charleston→Charlotte). The ground verdict may say
   // "drivable" and drop fly; that hid dozens of daily flights. If no fares exist, the flight panel
