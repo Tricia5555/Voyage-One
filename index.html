@@ -51,6 +51,21 @@ const LEVELS = ["UltraLux", "Luxury", "ExpLux", "Best"];
 //
 // Curated only, like the two tiers above it. The live feed already produces its own Best tier
 // for towns whose ceiling is genuinely four-star; this is the hand-picked equivalent.
+// WHEN TO GO. Not a weather table — a note about when a place is actually itself, and what that
+// means for getting there. Punta del Este in November returns a Copa flight through Panama with
+// an eight-hour layover, because American's Miami nonstop follows the season and the season has
+// not started. In January the same search gives the 787 nonstop, cheaper and eight hours quicker.
+// That is the difference between a good first day and a wasted one, and a traveller who is told
+// in advance can move the dates.
+//
+// HAND-WRITTEN ONLY, one destination at a time, exactly like the hotels. There is no algorithm
+// for "when is this place good" — it is the thing an agent knows and a database does not. An
+// entry appears only where someone has decided it. Everywhere else stays silent, which is honest.
+const SEASON = {
+  "Punta del Este": { window: "December to February", note: "Punta is a summer town and it is emphatic about it. From December the crowd arrives, the restaurants open and American flies its Miami nonstop into Montevideo. Outside those months the town is quiet and pretty, but flights thin out to a connection through Panama — the same trip takes eight hours longer." },
+  "José Ignacio": { window: "December to February", note: "The season is short and it is the point. In January the village is at its best and the Miami nonstop into Montevideo is running; in the shoulder months many of the good tables close and the flights get considerably worse." },
+};
+function seasonFor(city) { if (!city) return null; const k = Object.keys(SEASON).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? SEASON[k] : null; }
 const BEST_AVAILABLE = [
   "M\u00f6venpick Resort Petra", "Petra Marriott Hotel",
   // Zapallar has no five-star hotel and will not have one. Isla Seca is the right answer there.
@@ -7626,7 +7641,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M313</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M314</span></footer>
   </div>);
 }
 
@@ -11520,7 +11535,15 @@ function CitySection({ d, i, p, from, legSched }) {
           filling the answer with whatever the live feed found in the village — is the app
           forgetting what the traveller just told it. Confirm the property instead, and leave a
           quiet way to change it for the rare case where they want to. */}
-      {d.city && <GettingAroundPanel city={d.city} />}
+      {(() => {
+      const sn = seasonFor(d.city);
+      if (!sn) return null;
+      return (<div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px", background: t.mist, marginBottom: 14 }}>
+        <div style={{ fontSize: 10.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 5 }}>When to go · {sn.window}</div>
+        <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55 }}>{sn.note}</div>
+      </div>);
+    })()}
+    {d.city && <GettingAroundPanel city={d.city} />}
       {d.arriveBy !== "Self-drive" && d.city && <RentalPanel city={d.city} destination={d.city} compact />}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
