@@ -74,6 +74,9 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // South America — Sept 2026. Four only. Three are Belmond, which is worth noticing.
+  "Palacio Nazarenas", "Monasterio, A Belmond Hotel", "Miraflores Park",
+  "Casa San Agustín", "Sofitel Legend Santa Clara", "Mandarin Oriental Santiago",
   // Qatar, Saudi, Morocco & Hungary — Sept 2026. Doha's six, AlUla's two, Marrakech's seven,
   // and Budapest's two. Fez and Essaouira have none: the curation is explicit that Essaouira
   // gets no Ultra Luxury tier unless a qualifying house opens, and Palais Jamai's status is
@@ -926,6 +929,42 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── SOUTH AMERICA ───────────────────────────────────────────────────────────────────
+  // Four cities, and the continent badly needed them: Rio was the only place on it with curated
+  // hotels. The ground panel for South America — five verified chauffeur operators — has been
+  // sitting in the code with almost no destinations to attach itself to. Peru and Colombia now
+  // have somewhere for FFGR, Tourevo, Vippers and Colombia Luxury Services to serve.
+  //
+  // Belmond is unusually dominant here: three of the four Ultra Luxury houses across Cusco and
+  // Lima are theirs, which is worth knowing when the partnership conversations start. Bellini
+  // Club is on the hotel-groups sheet.
+  "Cusco": [
+    { name: "Palacio Nazarenas, A Belmond Hotel", area: "Centro Histórico", rate: null, ourTake: "A former convent behind the cathedral \u2014 all suites, oxygen piped to the rooms, and the finest thing in the Andes." },
+    { name: "Monasterio, A Belmond Hotel", area: "Centro Histórico", rate: null, ourTake: "Built in 1592 around a cloister with a cedar tree in the middle. Choirboys sing at breakfast, which sounds absurd and is not." },
+    { name: "Inkaterra La Casona", area: "Plaza Nazarenas", rate: null, ourTake: "Eleven suites in a 16th-century manor \u2014 the smallest and most personal room in Cusco." },
+    { name: "Palacio del Inka, a Luxury Collection Hotel", area: "Centro Histórico", rate: null, ourTake: "Opposite the Qorikancha sun temple, with five centuries of building history in the walls." },
+    { name: "JW Marriott El Convento Cusco", area: "Centro Histórico", rate: null, ourTake: "Another converted convent, with Inca foundations under glass in the lobby and the easiest beds in town." },
+  ],
+  "Lima": [
+    { name: "Miraflores Park, A Belmond Hotel", area: "Miraflores", rate: null, ourTake: "On the clifftop above the Pacific, with a rooftop pool over the malecón \u2014 the address in Lima." },
+    { name: "Country Club Lima Hotel", area: "San Isidro", rate: null, ourTake: "A 1927 house full of colonial art beside the golf club, and quieter than anything in Miraflores." },
+    { name: "Hotel B", area: "Barranco", rate: null, ourTake: "A belle époque mansion in the arts quarter, walking distance to Central and Mayta. The interesting choice." },
+    { name: "The Westin Lima", area: "San Isidro", rate: null, ourTake: "The tall one in the business district \u2014 straightforward, and the best gym in the city." },
+  ],
+  "Cartagena": [
+    { name: "Casa San Agustín", area: "Centro Histórico", rate: null, ourTake: "Three 17th-century houses joined behind one door, with the old aqueduct running through the pool. The best hotel in Colombia." },
+    { name: "Sofitel Legend Santa Clara", area: "San Diego", rate: null, ourTake: "A 1621 convent with a cloistered courtyard \u2014 grand, storied, and where everyone wants to have dinner." },
+    { name: "Charleston Santa Teresa", area: "Centro Histórico", rate: null, ourTake: "On the plaza by the walls, with the rooftop pool that looks over the whole old city." },
+    { name: "Hotel Casa del Gobernador", area: "Centro Histórico", rate: null, ourTake: "A small colonial house on a quiet street \u2014 the one to choose when the grand hotels feel like too much." },
+    { name: "Hotel Quadrifolio", area: "Centro Histórico", rate: null, ourTake: "Seven rooms in a restored mansion, run like a private house." },
+  ],
+  "Santiago": [
+    { name: "Mandarin Oriental Santiago", area: "Las Condes", rate: null, ourTake: "The best room in Chile, with the Andes filling the window on a clear morning." },
+    { name: "The Ritz-Carlton Santiago", area: "El Golf", rate: null, ourTake: "In the financial district with a glass-domed pool on the roof \u2014 the reliable choice." },
+    { name: "The Singular Santiago", area: "Lastarria", rate: null, ourTake: "In the Lastarria quarter among the galleries and cafés \u2014 a proper city hotel rather than a tower, and the sophisticated alternative to the international brands." },
+    { name: "Hotel Magnolia", area: "Centro", rate: null, ourTake: "A restored 1929 house downtown, forty-two rooms and a great deal of charm." },
+    { name: "W Santiago", area: "El Golf", rate: null, ourTake: "The loud one, with the rooftop bar Santiago actually goes to." },
   ],
   // ── QATAR, SAUDI ARABIA & MOROCCO (FEZ, ESSAOUIRA) ──────────────────────────────────
   // Doha carries an unusually deep bench for a city its size — six properties at the top tier,
@@ -5267,6 +5306,11 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // SOUTH AMERICA. Lima and Santiago are the intercontinental gates. Cusco takes regional
+  // aircraft only and sits at 3,400 m — almost every itinerary reaches it through Lima, which
+  // is also the acclimatisation everyone should have and few plan for.
+  "Lima": { code: "LIM", scale: "intercontinental" }, "Santiago": { code: "SCL", scale: "intercontinental" },
+  "Cusco": { code: "CUZ", scale: "regional" }, "Cartagena": { code: "CTG", scale: "regional" },
   "Zagreb": { code: "ZAG", scale: "regional" },
   "Doha": { code: "DOH", scale: "intercontinental" }, "Budapest": { code: "BUD", scale: "intercontinental" },
   "AlUla": { code: "ULH", scale: "regional" }, "Fez": { code: "FEZ", scale: "regional" },
@@ -5430,6 +5474,9 @@ const ZONE = {
   // crossing, and the ground logic needs to know that rather than assume a road.
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
+  "peru": ["Cusco","Lima"],
+  "colombia": ["Cartagena"],
+  "chile": ["Santiago"],
   "qatar": ["Doha"],
   "saudi": ["AlUla"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
@@ -5469,6 +5516,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Cusco": [-13.53,-71.97], "Lima": [-12.05,-77.04], "Cartagena": [10.39,-75.51], "Santiago": [-33.45,-70.67],
   "Zagreb": [45.81,15.98],
   "Doha": [25.29,51.53], "AlUla": [26.61,37.92], "Fez": [34.04,-5.00], "Essaouira": [31.51,-9.77], "Budapest": [47.50,19.04],
   "Split": [43.51,16.44], "Hvar": [43.17,16.44], "Rovinj": [45.08,13.64], "Mali Lošinj": [44.53,14.47], "Lake Bled": [46.36,14.11],
@@ -7038,7 +7086,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M298</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M299</span></footer>
   </div>);
 }
 
