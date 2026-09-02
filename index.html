@@ -61,6 +61,11 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Brazil, Sept 2026. Four Amazon lodges, a Pantanal ranch and a house by the Lençóis dunes.
+  // Rate is explicitly NOT the test here — the curation says so outright. What these buy is
+  // wildlife access, private guiding and remoteness, which is what the tier is for.
+  "Cristalino Lodge", "Anavilhanas Jungle Lodge", "Juma Amazon Lodge",
+  "Amazon Premium Lodge", "Caiman", "OIA Casa Lençóis",
   // Argentina, Sept 2026. Three Pristine camps, and two Relais & Châteaux estancias whose value
   // is the horses and the countryside rather than the thread count.
   "Pristine Iguazú Luxury Camp", "Pristine Glaciers Luxury Camp",
@@ -90,6 +95,14 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Brazil in full — Sept 2026. Fourteen, and only six are in Rio and São Paulo. Fasano appears
+  // five times across the country, which is unusual for a single Brazilian group and reflects how
+  // consistently good they are.
+  "Copacabana Palace, A Belmond Hotel", "Hotel Fasano Rio de Janeiro", "Emiliano Rio",
+  "Rosewood São Paulo", "Hotel Fasano São Paulo", "Emiliano São Paulo",
+  "UXUA Casa Hotel & Spa", "Hotel Fasano Trancoso", "Hotel das Cataratas, A Belmond Hotel",
+  "NANNAI Noronha", "Ponta dos Ganchos Exclusive Resort", "Kenoa Exclusive Beach Spa & Resort",
+  "Hotel Fasano Angra dos Reis", "Hotel Fasano Boa Vista",
   // Argentina in full — Sept 2026. Twelve, and only four are in Buenos Aires. The curation is
   // explicit that the capital is one part of the inventory, not the whole of it.
   "Four Seasons Hotel Buenos Aires", "Palacio Duhau – Park Hyatt Buenos Aires",
@@ -966,6 +979,79 @@ const FAVORITES = {
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
   ],
+  // ── BRAZIL, IN FULL ─────────────────────────────────────────────────────────────────
+  // Rio and São Paulo held one property each before this — Copacabana Palace and Rosewood — which
+  // is not a country. The curation is explicit that Brazil is not Rio plus São Paulo: Trancoso,
+  // Iguaçu, Noronha, the Santa Catarina coast, the Amazon and the Pantanal all carry weight.
+  //
+  // The independents matter here more than anywhere. UXUA, Ponta dos Ganchos, Kenoa and Casa
+  // Turquesa are the properties that stop this becoming a list of international chains.
+  //
+  // RENOVATION: Copacabana Palace has been in phased works through 2026. The curation says keep
+  // it and hold a status flag, so it stays — but confirm the state of the rooms before booking.
+  "Rio de Janeiro": [
+    { name: "Copacabana Palace, A Belmond Hotel", area: "Copacabana", rate: null, keys: 1, ourTake: "The 1923 Art Deco legend on the beach \u2014 Rio's grande dame, and still the address. Phased renovation through 2026: confirm room status." },
+    { name: "Hotel Fasano Rio de Janeiro", area: "Ipanema", rate: null, ourTake: "Philippe Starck on Ipanema, with the rooftop pool that looks straight down the beach to Dois Irmãos." },
+    { name: "Emiliano Rio", area: "Copacabana", rate: null, ourTake: "Small, modern and impeccably run, with a rooftop over the same sand and a fraction of the fuss." },
+    { name: "Janeiro Hotel", area: "Leblon", rate: null, ourTake: "In Leblon, which is where Rio actually lives \u2014 quieter, and the best neighbourhood in the city." },
+    { name: "Fairmont Rio de Janeiro Copacabana", area: "Copacabana", rate: null, ourTake: "At the Ipanema end of Copacabana, with two pools and rooms facing the water." },
+    { name: "Santa Teresa Hotel RJ – MGallery", area: "Santa Teresa", rate: null, ourTake: "A converted coffee plantation house up in the hills, away from the beach and full of character." },
+  ],
+  "São Paulo": [
+    { name: "Rosewood São Paulo", area: "Cidade Matarazzo", rate: null, ourTake: "A restored maternity hospital beside Jean Nouvel's vertical-garden tower, filled with commissioned Brazilian art. One of the great city hotels anywhere." },
+    { name: "Hotel Fasano São Paulo", area: "Jardins", rate: null, ourTake: "Isay Weinfeld's dark wood and leather in the Jardins \u2014 the restaurant is a São Paulo institution." },
+    { name: "Emiliano São Paulo", area: "Jardins", rate: null, ourTake: "On Oscar Freire with a helipad and the most attentive service in the city." },
+    { name: "Palácio Tangará", area: "Panamby", rate: null, ourTake: "An Oetker Collection house in the Burle Marx park \u2014 green quiet, twenty minutes from everything." },
+    { name: "JW Marriott Hotel São Paulo", area: "Parque da Cidade", rate: null, ourTake: "Newer, in the business park, and the dependable choice for a working trip." },
+  ],
+  "Trancoso": [
+    { name: "UXUA Casa Hotel & Spa", area: "Quadrado", rate: null, ourTake: "Fishermen's houses on the Quadrado restored by a former Diesel creative director \u2014 an aquamarine pool lined in quartz, and nothing else like it in Brazil." },
+    { name: "Hotel Fasano Trancoso", area: "Praia de Itapororoca", rate: null, ourTake: "Forty bungalows and villas above an empty beach, with an Isay Weinfeld clubhouse. Brazil's best beach resort." },
+    { name: "Etnia Casa Hotel", area: "Trancoso", rate: null, ourTake: "Small, colourful and owner-run near the Quadrado \u2014 the intimate alternative." },
+  ],
+  "Salvador": [
+    { name: "Fasano Salvador", area: "Centro Histórico", rate: null, ourTake: "A 1930s newspaper building on Praça Castro Alves, looking over the bay from the old city." },
+    { name: "Fera Palace Hotel", area: "Centro Histórico", rate: null, ourTake: "An art deco tower restored with a rooftop pool over the Baía de Todos os Santos." },
+  ],
+  "Iguaçu Falls": [
+    { name: "Hotel das Cataratas, A Belmond Hotel", area: "Iguaçu National Park", rate: null, keys: 3, ourTake: "The only hotel inside the park. Guests walk to the falls before the gates open and after they close, alone. There is no substitute and no alternative." },
+  ],
+  "Fernando de Noronha": [
+    { name: "NANNAI Noronha", area: "Fernando de Noronha", rate: null, ourTake: "The most comfortable rooms on the island, and the island is the point \u2014 one of the great marine environments on earth." },
+    { name: "Pousada Maravilha", area: "Fernando de Noronha", rate: null, ourTake: "Bungalows on the cliff above Baía do Sueste, with the best view on Noronha." },
+    { name: "Pousada Maria Flor Noronha", area: "Fernando de Noronha", rate: null, ourTake: "Small and modern near Vila dos Remédios, well run and close to the boats." },
+  ],
+  "Santa Catarina": [
+    { name: "Ponta dos Ganchos Exclusive Resort", area: "Governador Celso Ramos", rate: null, ourTake: "Twenty-five bungalows on a private peninsula with a private island for dinner. The most romantic address in Brazil." },
+  ],
+  "Alagoas": [
+    { name: "Kenoa Exclusive Beach Spa & Resort", area: "Barra de São Miguel", rate: null, ourTake: "Twenty-three suites of raw wood and stone on the sand \u2014 design-led, adults-only, and quite unlike the northeast's resorts." },
+  ],
+  "Angra dos Reis": [
+    { name: "Hotel Fasano Angra dos Reis", area: "Angra dos Reis", rate: null, ourTake: "On the Costa Verde among the islands, with a marina \u2014 the natural base between Rio and a yacht." },
+    { name: "Hotel do Frade", area: "Angra dos Reis", rate: null, ourTake: "The established resort on the bay, with golf and a long beach." },
+  ],
+  "Porto Feliz": [
+    { name: "Hotel Fasano Boa Vista", area: "Porto Feliz", rate: null, ourTake: "A countryside estate ninety minutes from São Paulo \u2014 golf, horses and space. A resort escape rather than a destination." },
+  ],
+  "Brazilian Amazon": [
+    { name: "Cristalino Lodge", area: "Alta Floresta", rate: null, ourTake: "In a private reserve on the southern Amazon with two canopy towers \u2014 the finest wildlife lodge in Brazil and a serious conservation project." },
+    { name: "Anavilhanas Jungle Lodge", area: "Rio Negro", rate: null, ourTake: "On the Rio Negro facing the Anavilhanas archipelago, close enough to Manaus to be easy." },
+    { name: "Juma Amazon Lodge", area: "Amazonas", rate: null, ourTake: "Stilted bungalows over flooded forest, reached by boat \u2014 remote in the way people imagine the Amazon." },
+    { name: "Amazon Premium Lodge", area: "Amazonas", rate: null, ourTake: "Simpler and further out on the Rio Urubu, for travellers who want the forest and not the lodge." },
+  ],
+  "Pantanal": [
+    { name: "Caiman", area: "Southern Pantanal", rate: null, ourTake: "A 53,000-hectare ranch with its own jaguar project \u2014 the best big-cat viewing in the Americas, and mandatory for wildlife." },
+  ],
+  "Lençóis Maranhenses": [
+    { name: "OIA Casa Lençóis", area: "Barreirinhas", rate: null, ourTake: "The one genuinely high-end house near the dunes \u2014 a landscape of white sand and turquoise lagoons that exists nowhere else." },
+  ],
+  "Paraty": [
+    { name: "Casa Turquesa", area: "Centro Histórico", rate: null, ourTake: "Nine rooms in a colonial house on the cobbles \u2014 intimate, sophisticated, and exactly the scale Paraty asks for." },
+  ],
+  "Vale dos Vinhedos": [
+    { name: "Hotel & Spa do Vinho, Autograph Collection", area: "Vale dos Vinhedos", rate: null, ourTake: "In Brazil's wine valley among the Italian-settled hills \u2014 a vinotherapy spa and a genuinely good cellar." },
+  ],
   // ── ARGENTINA, IN FULL ──────────────────────────────────────────────────────────────
   // Patagonia is filed by SUBREGION, not as one word — El Calafate, El Chaltén, Bariloche, Villa
   // La Angostura and Ushuaia are five days apart and nothing like each other. Labelling them all
@@ -1669,12 +1755,6 @@ const FAVORITES = {
   "Fiji": [
     { name: "Kokomo Private Island Fiji", area: "Kadavu", rate: null, ourTake: "A private-island resort with a great reef and a farm-to-table soul." },
     { name: "COMO Laucala Island", area: "Laucala", rate: null, ourTake: "One of the world's most exclusive private islands, twenty-five villas only." },
-  ],
-  "São Paulo": [
-    { name: "Rosewood São Paulo", area: "Cidade Matarazzo", rate: null, ourTake: "A tower-and-garden landmark rising from a restored maternity palace." },
-  ],
-  "Rio de Janeiro": [
-    { name: "Copacabana Palace, a Belmond Hotel", area: "Copacabana", rate: null, ourTake: "The 1923 Art Deco legend on Copacabana beach — Rio's grande dame." },
   ],
 };
 const EATS = {
@@ -5445,6 +5525,15 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "Trancoso": { air: "Porto Seguro", note: "Fly to Porto Seguro (BPS), then about an hour and a half by road including a short ferry. Most hotels arrange the transfer, and it is worth letting them." },
+  "Santa Catarina": { air: "Florianópolis", note: "Fly to Florianópolis (FLN), then an hour north up the coast." },
+  "Alagoas": { air: "Maceió", note: "Fly to Maceió (MCZ), then about forty minutes south to Barra de São Miguel." },
+  "Angra dos Reis": { air: "Rio de Janeiro", note: "Fly to Rio (GIG), then two to three hours down the Costa Verde. The coast road is beautiful and slow; allow more time than the map suggests." },
+  "Porto Feliz": { air: "São Paulo", note: "Fly to São Paulo (GRU), then about ninety minutes into the countryside." },
+  "Pantanal": { air: "Campo Grande", note: "Fly to Campo Grande (CGR), then roughly three and a half hours by road to the southern Pantanal. Some lodges arrange a light aircraft instead." },
+  "Lençóis Maranhenses": { air: "São Luís", note: "Fly to São Luís (SLZ), then four hours to Barreirinhas — or take the light aircraft, which is short and spectacular over the dunes." },
+  "Paraty": { air: "Rio de Janeiro", note: "Fly to Rio (GIG), then about four hours down the coast. São Paulo (GRU) is a similar distance from the other side." },
+  "Vale dos Vinhedos": { air: "Porto Alegre", note: "Fly to Porto Alegre (POA), then about two hours north into the hills. Caxias do Sul (CXJ) is closer with less service." },
   "Uco Valley": { air: "Mendoza", note: "Fly to Mendoza (MDZ), then about an hour and a half south. A car is essential \u2014 the wineries are far apart." },
   "El Chaltén": { air: "El Calafate", note: "Fly to El Calafate (FTE), then three hours north by road. There is no airport at El Chaltén and the drive along Lago Viedma is worth doing in daylight." },
   "Villa La Angostura": { air: "Bariloche", note: "Fly to Bariloche (BRC), then about an hour around the lake." },
@@ -5522,6 +5611,11 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // BRAZIL. A country the size of a continent — Manaus is closer to Miami than to Rio, and
+  // Noronha is 350 km out in the Atlantic. Almost every leg here is a flight.
+  "São Paulo": { code: "GRU", scale: "intercontinental" }, "Salvador": { code: "SSA", scale: "regional" },
+  "Iguaçu Falls": { code: "IGU", scale: "regional" }, "Fernando de Noronha": { code: "FEN", scale: "regional" },
+  "Brazilian Amazon": { code: "MAO", scale: "regional" },
   // ARGENTINA. Buenos Aires is the gate; everything else is a domestic flight from it, which is
   // how the country is actually travelled — Ushuaia is 3,000 km from the capital.
   "Buenos Aires": { code: "EZE", scale: "intercontinental" }, "Mendoza": { code: "MDZ", scale: "regional" },
@@ -5699,6 +5793,7 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "colombia": ["Cartagena"],
+  "brazil": ["Rio de Janeiro","São Paulo","Trancoso","Salvador","Iguaçu Falls","Fernando de Noronha","Santa Catarina","Alagoas","Angra dos Reis","Porto Feliz","Brazilian Amazon","Pantanal","Lençóis Maranhenses","Paraty","Vale dos Vinhedos"],
   "argentina": ["Buenos Aires","Mendoza","Uco Valley","Iguazú","El Calafate","El Chaltén","Bariloche","Villa La Angostura","Salta","Jujuy","Córdoba","Pampas","Ushuaia"],
   "chile": ["Santiago","Atacama","Torres del Paine","Puerto Natales","Chilean Wine Country","Puerto Varas","Futangue","Chiloé","Elqui Valley","Valparaíso","Zapallar","Portillo"],
   // Rapa Nui is 3,700 km off the Chilean coast — its own zone, or the app will treat it as a drive.
@@ -5742,6 +5837,11 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Trancoso": [-16.59,-39.09], "Salvador": [-12.97,-38.51], "Iguaçu Falls": [-25.69,-54.44],
+  "Fernando de Noronha": [-3.85,-32.42], "Santa Catarina": [-27.31,-48.56], "Alagoas": [-9.83,-35.90],
+  "Angra dos Reis": [-23.01,-44.32], "Porto Feliz": [-23.21,-47.52], "Brazilian Amazon": [-3.10,-60.02],
+  "Pantanal": [-19.95,-56.62], "Lençóis Maranhenses": [-2.75,-42.83], "Paraty": [-23.22,-44.71],
+  "Vale dos Vinhedos": [-29.17,-51.53],
   "Mendoza": [-32.89,-68.84], "Uco Valley": [-33.68,-69.20], "Iguazú": [-25.60,-54.57],
   "El Calafate": [-50.34,-72.27], "El Chaltén": [-49.33,-72.89], "Bariloche": [-41.13,-71.31],
   "Villa La Angostura": [-40.76,-71.65], "Salta": [-24.78,-65.41], "Jujuy": [-23.63,-65.70],
@@ -7349,7 +7449,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M308</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M309</span></footer>
   </div>);
 }
 
