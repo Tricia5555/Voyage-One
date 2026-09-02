@@ -59,6 +59,11 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Peru, Sept 2026. A river cruise, an island lodge reached by boat, a treehouse in Madre de
+  // Dios, domes under a dark sky, and a jungle lodge on the Madre de Dios. None is a hotel and
+  // none is a compromise — every one is chosen for the access, which is what this tier means.
+  "PUQIO by Andean", "Amantica Lodge", "Inkaterra Reserva Amazónica",
+  "Delfin Amazon Cruises", "Alta Sanctuary Treehouse",
   // AlUla, Sept 2026. Neither is a conventional hotel and neither is a compromise: mudbrick
   // houses in the old town and a camp in the canyon are the right way to be in this landscape.
   "Our Habitas AlUla", "Dar Tantora The House Hotel",
@@ -74,6 +79,13 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Peru in full — Sept 2026. Twelve Ultra Luxury across seven destinations, which is a lot for
+  // one country and reflects how deep Peru actually runs. Inkaterra La Casona sits here rather
+  // than in Luxury: the full country cross-check promotes it, and eleven suites in a 16th-century
+  // manor on Plaza Nazarenas is the right call.
+  "Inkaterra La Casona", "Explora Valle Sagrado", "Inkaterra Hacienda Urubamba",
+  "Rio Sagrado, A Belmond Hotel", "Sol y Luna, Relais & Châteaux",
+  "Sanctuary Lodge, A Belmond Hotel", "CIRQA", "Las Casitas, A Belmond Hotel", "Titilaka",
   // South America — Sept 2026. Four only. Three are Belmond, which is worth noticing.
   "Palacio Nazarenas", "Monasterio, A Belmond Hotel", "Miraflores Park",
   "Casa San Agustín", "Sofitel Legend Santa Clara", "Mandarin Oriental Santiago",
@@ -930,6 +942,47 @@ const FAVORITES = {
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
   ],
+  // ── PERU, IN FULL ───────────────────────────────────────────────────────────────────
+  // Six more destinations, and they change the shape of a Peru itinerary completely. Lima and
+  // Cusco alone make a city trip; with the Sacred Valley, Machu Picchu, Arequipa, Colca, Titicaca
+  // and the Amazon it becomes the three-week journey people actually take.
+  //
+  // Experience Luxury does heavy lifting here. A river cruise on the Amazon, a lodge on an island
+  // in Titicaca and a treehouse in Madre de Dios are not hotels and should never be filed as
+  // Luxury or Best — the whole point of them is the access, which is what the tier says.
+  "Sacred Valley": [
+    { name: "Explora Valle Sagrado", area: "Urubamba", rate: null, ourTake: "An exploration lodge rather than a resort \u2014 guided walks from the door every day, and the best beds in the valley." },
+    { name: "Inkaterra Hacienda Urubamba", area: "Urubamba", rate: null, ourTake: "Casitas scattered across a working farm, with the Andes on every side and the best air in Peru for acclimatising." },
+    { name: "Rio Sagrado, A Belmond Hotel", area: "Urubamba", rate: null, ourTake: "On the riverbank in terraced gardens \u2014 the gentlest place to spend the first night after Lima." },
+    { name: "Sol y Luna, Relais & Châteaux", area: "Urubamba", rate: null, ourTake: "Owner-run casitas in a garden of sculpture, funding a school next door. Peru's most personal hotel." },
+    { name: "Tambo del Inka, a Luxury Collection Resort & Spa", area: "Urubamba", rate: null, ourTake: "The only hotel with its own station for the Machu Picchu train, which matters more than it sounds." },
+    { name: "Aranwa Sacred Valley Hotel & Wellness", area: "Sacred Valley", rate: null, ourTake: "A 17th-century hacienda on the river with a large spa \u2014 the resort option in the valley." },
+  ],
+  "Machu Picchu": [
+    { name: "Sanctuary Lodge, A Belmond Hotel", area: "Machu Picchu", rate: null, ourTake: "The only hotel at the gates of the citadel. You walk in at sunrise before the trains arrive, and there is no substitute for that." },
+    { name: "Inkaterra Machu Picchu Pueblo Hotel", area: "Aguas Calientes", rate: null, ourTake: "Whitewashed casitas in cloud forest gardens beside the river \u2014 orchids, spectacled bears, and the best rooms in the town below." },
+    { name: "SUMAQ Machu Picchu Hotel", area: "Aguas Calientes", rate: null, ourTake: "In the town by the station, straightforward and well run, close to the first bus up." },
+  ],
+  "Arequipa": [
+    { name: "CIRQA", area: "Centro Histórico", rate: null, ourTake: "Eleven rooms in a 16th-century sillar convent \u2014 raw stone, almost no ornament, and quite unlike anything else in Peru." },
+    { name: "Palacio Guaqui by Ananay", area: "Centro Histórico", rate: null, ourTake: "A restored colonial palace off the Plaza de Armas, with the volcanoes over the rooftops." },
+    { name: "Casa Andina Premium Arequipa", area: "Centro Histórico", rate: null, ourTake: "In an 18th-century mint house \u2014 the dependable choice, and central." },
+  ],
+  "Colca Canyon": [
+    { name: "Las Casitas, A Belmond Hotel", area: "Colca Valley", rate: null, ourTake: "Casitas with private plunge pools on a working farm at the canyon's edge \u2014 condors overhead at breakfast." },
+    { name: "PUQIO by Andean", area: "Colca Valley", rate: null, ourTake: "Domes and cabins built into the hillside with no light pollution for miles \u2014 the sky is the reason to come." },
+    { name: "Colca Lodge Spa & Hot Springs", area: "Colca Valley", rate: null, ourTake: "Thermal pools straight on the riverbank, which after a day at 4,000 metres is exactly right." },
+  ],
+  "Lake Titicaca": [
+    { name: "Titilaka", area: "Titilaka Peninsula", rate: null, ourTake: "Alone on its own peninsula, all-inclusive and guided \u2014 the lake without the town, and the reason to come to Titicaca at all." },
+    { name: "Amantica Lodge", area: "Amantaní Island", rate: null, ourTake: "On an island the boats rarely reach, run by the community. Simple, remote, and the real thing." },
+    { name: "GHL Hotel Lago Titicaca", area: "Puno", rate: null, ourTake: "On its own island by the causeway at Puno \u2014 the practical choice for a single night." },
+  ],
+  "Peruvian Amazon": [
+    { name: "Delfin Amazon Cruises", area: "Iquitos", rate: null, ourTake: "A river cruise rather than a hotel \u2014 four suites on the Pacaya-Samiria, and the best way to see the upper Amazon." },
+    { name: "Inkaterra Reserva Amazónica", area: "Puerto Maldonado", rate: null, ourTake: "Cabañas on the Madre de Dios with a canopy walkway through the treetops \u2014 the easiest serious Amazon lodge to reach." },
+    { name: "Alta Sanctuary Treehouse", area: "Madre de Dios", rate: null, ourTake: "A treehouse in the canopy, properly built and properly remote. Not for everyone, unforgettable for the right client." },
+  ],
   // ── SOUTH AMERICA ───────────────────────────────────────────────────────────────────
   // Four cities, and the continent badly needed them: Rio was the only place on it with curated
   // hotels. The ground panel for South America — five verified chauffeur operators — has been
@@ -950,7 +1003,7 @@ const FAVORITES = {
     { name: "Miraflores Park, A Belmond Hotel", area: "Miraflores", rate: null, ourTake: "On the clifftop above the Pacific, with a rooftop pool over the malecón \u2014 the address in Lima." },
     { name: "Country Club Lima Hotel", area: "San Isidro", rate: null, ourTake: "A 1927 house full of colonial art beside the golf club, and quieter than anything in Miraflores." },
     { name: "Hotel B", area: "Barranco", rate: null, ourTake: "A belle époque mansion in the arts quarter, walking distance to Central and Mayta. The interesting choice." },
-    { name: "The Westin Lima", area: "San Isidro", rate: null, ourTake: "The tall one in the business district \u2014 straightforward, and the best gym in the city." },
+    { name: "JW Marriott Hotel Lima", area: "Miraflores", rate: null, ourTake: "On the malecón facing the Pacific, with the Larcomar cliffs below \u2014 the reliable Miraflores choice." },
   ],
   "Cartagena": [
     { name: "Casa San Agustín", area: "Centro Histórico", rate: null, ourTake: "Three 17th-century houses joined behind one door, with the old aqueduct running through the pool. The best hotel in Colombia." },
@@ -5251,6 +5304,11 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "Sacred Valley": { air: "Cusco", note: "Fly to Cusco (CUZ), then about an hour down into the valley. Worth doing on arrival rather than sleeping in Cusco \u2014 the valley is 600 m lower and the altitude is much kinder." },
+  "Machu Picchu": { air: "Cusco", note: "Fly to Cusco (CUZ), then the train from Ollantaytambo or Poroy. There is no road to Machu Picchu \u2014 the train is the only way in, and it should be booked long before the hotel." },
+  "Colca Canyon": { air: "Arequipa", note: "Fly to Arequipa (AQP), then three to four hours by road over a 4,900 m pass. Spend a night in Arequipa first; going straight up is a mistake." },
+  "Lake Titicaca": { air: "Juliaca", note: "Fly to Juliaca (JUL), then about an hour to Puno and the lake. The overland route from Cusco is a full day and one of the great drives in South America." },
+  "Peruvian Amazon": { air: "Puerto Maldonado", note: "Fly to Puerto Maldonado (PEM) from Lima or Cusco, then by boat. For the upper Amazon and the river cruises, fly to Iquitos (IQT) instead \u2014 a city reachable only by air or water." },
   "Petra": { air: "Amman", note: "Fly to Amman (AMM), then about three hours by road down the Desert Highway." },
   "Wadi Rum": { air: "Amman", note: "Fly to Amman (AMM), then roughly four hours by road \u2014 or an hour from Aqaba (AQJ) if you are coming up from the Red Sea." },
   "Dead Sea": { air: "Amman", note: "Fly to Amman (AMM); the resorts are under an hour away, mostly downhill." },
@@ -5306,6 +5364,7 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  "Arequipa": { code: "AQP", scale: "regional" },
   // SOUTH AMERICA. Lima and Santiago are the intercontinental gates. Cusco takes regional
   // aircraft only and sits at 3,400 m — almost every itinerary reaches it through Lima, which
   // is also the acclimatisation everyone should have and few plan for.
@@ -5474,7 +5533,7 @@ const ZONE = {
   // crossing, and the ground logic needs to know that rather than assume a road.
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
-  "peru": ["Cusco","Lima"],
+  "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "colombia": ["Cartagena"],
   "chile": ["Santiago"],
   "qatar": ["Doha"],
@@ -5516,7 +5575,9 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "Cusco": [-13.53,-71.97], "Lima": [-12.05,-77.04], "Cartagena": [10.39,-75.51], "Santiago": [-33.45,-70.67],
+  "Sacred Valley": [-13.31,-72.11], "Machu Picchu": [-13.16,-72.55], "Arequipa": [-16.41,-71.54],
+  "Colca Canyon": [-15.61,-71.86], "Lake Titicaca": [-15.84,-69.93], "Peruvian Amazon": [-12.59,-69.19],
+    "Cusco": [-13.53,-71.97], "Lima": [-12.05,-77.04], "Cartagena": [10.39,-75.51], "Santiago": [-33.45,-70.67],
   "Zagreb": [45.81,15.98],
   "Doha": [25.29,51.53], "AlUla": [26.61,37.92], "Fez": [34.04,-5.00], "Essaouira": [31.51,-9.77], "Budapest": [47.50,19.04],
   "Split": [43.51,16.44], "Hvar": [43.17,16.44], "Rovinj": [45.08,13.64], "Mali Lošinj": [44.53,14.47], "Lake Bled": [46.36,14.11],
@@ -7086,7 +7147,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M299</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M300</span></footer>
   </div>);
 }
 
