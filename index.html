@@ -104,6 +104,10 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Uruguay in full — Sept 2026. Six, four of them in José Ignacio. Montevideo has none by
+  // design: the curation says the capital is allowed zero, and it is.
+  "Bahia Vik José Ignacio", "Playa Vik José Ignacio", "Estancia Vik José Ignacio",
+  "Posada Ayana", "Hotel Fasano Punta del Este", "Narbona Wine Lodge",
   // Ecuador in full — Sept 2026. Five. Mashpi and Zuleta sit here rather than in Experience
   // Luxury: the curation offers either, and both are buildings of real quality that would hold
   // their own against a city hotel. See the note in FAVORITES.
@@ -999,6 +1003,44 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── URUGUAY, IN FULL ────────────────────────────────────────────────────────────────
+  // A small country whose strength is a short list of exceptional houses, and the curation says
+  // so outright: Uruguay does not need a large inventory. Six Ultra Luxury properties, four of
+  // them in José Ignacio, and Montevideo deliberately has none.
+  //
+  // THE THREE VIK PROPERTIES ARE SEPARATE RECORDS, as rule 2 requires. They are not variants of
+  // one hotel: Bahia is the beachfront resort, Playa is six suites of art and architecture, and
+  // Estancia is a 1,500-hectare working estate inland. A client choosing between them is choosing
+  // between three different holidays.
+  //
+  // ESTANCIA VIK and NARBONA appear in both Ultra and Experience in the source. Filed as Ultra,
+  // matching the Ecuador decision — both lead the Ultra master list and both are houses rather
+  // than camps. Either moves on one line.
+  //
+  // GARZÓN IS DELIBERATELY ABSENT. The curation flags it as a major experience destination but
+  // says to verify operating status before publishing any accommodation there. Unverified means
+  // out, as with Palais Jamaï in Fez.
+  "José Ignacio": [
+    { name: "Bahia Vik José Ignacio", area: "Playa Mansa", rate: null, ourTake: "Beachfront bungalows, each by a different Uruguayan artist, around a titanium-roofed main house. The easiest first answer in José Ignacio." },
+    { name: "Playa Vik José Ignacio", area: "Playa Mansa", rate: null, ourTake: "Six suites in a sculpted bronze-and-glass house on the sand \u2014 the most designed thing in Uruguay, and the most private." },
+    { name: "Estancia Vik José Ignacio", area: "Pampas", rate: null, ourTake: "Twelve individually made suites on 1,500 hectares inland \u2014 horses, gaucho country and an art collection. A different holiday from the beach houses." },
+    { name: "Posada Ayana", area: "José Ignacio", rate: null, ourTake: "White cubes among the pines with a James Turrell skyspace in the grounds. Quiet, and unlike anything else on the coast." },
+  ],
+  "Punta del Este": [
+    { name: "Hotel Fasano Punta del Este", area: "La Barra", rate: null, ourTake: "Isay Weinfeld bungalows across 490 hectares above the Maldonado river, with the Locanda kitchen. The strongest resort on this coast." },
+  ],
+  "Montevideo": [
+    { name: "Sofitel Montevideo Casino Carrasco & Spa", area: "Carrasco", rate: null, ourTake: "The restored 1921 Belle Époque landmark by the sea in Carrasco \u2014 the city's grand hotel, and its only real one." },
+    { name: "Hotel Montevideo", area: "Pocitos", rate: null, ourTake: "Contemporary, on the rambla with the river below, and the practical modern choice." },
+    { name: "Alma Histórica Boutique Hotel", area: "Ciudad Vieja", rate: null, ourTake: "Fifteen rooms in a restored house on Plaza Zabala, each named for a Uruguayan figure." },
+  ],
+  "Carmelo": [
+    { name: "Narbona Wine Lodge", area: "Carmelo", rate: null, ourTake: "Five rooms above the vines on a farm that has made wine and cheese since 1909. Small scale is the point, not a limitation." },
+    { name: "Carmelo Resort & Spa", area: "Carmelo", rate: null, ourTake: "Bungalows in the eucalyptus by the Río de la Plata, with golf and a spa \u2014 the resort answer in wine country." },
+  ],
+  "Colonia del Sacramento": [
+    { name: "Charco Hotel", area: "Barrio Histórico", rate: null, ourTake: "On the water in the UNESCO old town, small and atmospheric. Colonia needs nothing more than this." },
   ],
   // ── ECUADOR, IN FULL ────────────────────────────────────────────────────────────────
   // Two judgement calls, both flagged because the curation offers either tier and a property can
@@ -5627,6 +5669,9 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "José Ignacio": { air: "Punta del Este", note: "Fly to Punta del Este (PDP) in season, then about forty minutes east along the coast. Out of season fly to Montevideo (MVD) and allow two hours \u2014 or come by ferry from Buenos Aires to Colonia and drive, which many people prefer." },
+  "Carmelo": { air: "Montevideo", note: "Fly to Montevideo (MVD), then about three hours northwest. From Buenos Aires the ferry to Colonia and an hour by road is quicker and far nicer." },
+  "Colonia del Sacramento": { air: "Montevideo", note: "Fly to Montevideo (MVD), then two and a half hours west \u2014 or take the ferry direct from Buenos Aires, which is an hour and the way to arrive." },
   "Mashpi": { air: "Quito", note: "Fly to Quito (UIO), then about three hours by road down into the cloud forest. The lodge runs the transfer and the last stretch is unpaved." },
   "Galápagos": { air: "Quito", note: "Fly to Quito (UIO) or Guayaquil (GYE), then a domestic flight to Baltra or San Cristóbal. No other route exists, and the park entry and transit card are handled at the airport." },
   "Ecuadorian Amazon": { air: "Coca", note: "Fly to Quito (UIO), then a short flight to Coca (OCC), then two to three hours by motorised canoe. The river is the only way in." },
@@ -5721,6 +5766,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // URUGUAY. Montevideo is the gate; Punta del Este has its own field with seasonal service, and
+  // José Ignacio is reached from either by road.
+  "Montevideo": { code: "MVD", scale: "intercontinental" }, "Punta del Este": { code: "PDP", scale: "regional" },
   // ECUADOR. Quito and Guayaquil are the gates. Galápagos is a domestic flight from either and
   // nothing else — there is no other way to reach the islands.
   "Quito": { code: "UIO", scale: "intercontinental" }, "Guayaquil": { code: "GYE", scale: "intercontinental" },
@@ -5910,6 +5958,7 @@ const ZONE = {
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
+  "uruguay": ["José Ignacio","Punta del Este","Montevideo","Carmelo","Colonia del Sacramento"],
   "ecuador": ["Quito","Mashpi","Ecuadorian Amazon","Hacienda Zuleta","Cotopaxi","Cuenca","Guayaquil"],
   // The Galápagos are 900 km out in the Pacific. Their own zone, or the app will offer a drive.
   "galapagos": ["Galápagos"],
@@ -5958,7 +6007,9 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "Quito": [-0.18,-78.47], "Mashpi": [0.16,-78.87], "Galápagos": [-0.74,-90.31],
+  "José Ignacio": [-34.84,-54.63], "Punta del Este": [-34.95,-54.93], "Montevideo": [-34.90,-56.16],
+  "Carmelo": [-34.00,-58.28], "Colonia del Sacramento": [-34.47,-57.84],
+    "Quito": [-0.18,-78.47], "Mashpi": [0.16,-78.87], "Galápagos": [-0.74,-90.31],
   "Ecuadorian Amazon": [-0.48,-76.38], "Hacienda Zuleta": [0.20,-78.06], "Cotopaxi": [-0.68,-78.58],
   "Cuenca": [-2.90,-79.00], "Guayaquil": [-2.17,-79.92],
   "Barú": [10.17,-75.66], "Bogotá": [4.71,-74.07], "Medellín": [6.24,-75.58],
@@ -7575,7 +7626,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M312</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M313</span></footer>
   </div>);
 }
 
