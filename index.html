@@ -61,6 +61,10 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Colombia, Sept 2026. A design-led nature hotel in the coffee hills, cabins in protected
+  // Antioquia forest, and two houses on the Tayrona coast where no five-star exists and none is
+  // needed — the beach and the Sierra Nevada behind it are the whole proposition.
+  "Bio Habitat Hotel", "Cannúa", "Gitana del Mar", "Casa Tayrona Los Naranjos",
   // Brazil, Sept 2026. Four Amazon lodges, a Pantanal ranch and a house by the Lençóis dunes.
   // Rate is explicitly NOT the test here — the curation says so outright. What these buy is
   // wildlife access, private guiding and remoteness, which is what the tier is for.
@@ -95,6 +99,14 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Colombia in full — Sept 2026. Seven, four of them in Cartagena, which is where the country's
+  // real concentration is. Bio Habitat is deliberately NOT here: the curation offers it as Ultra
+  // or Experience and says to use Experience where the distinction exists. It does, so it is.
+  "Four Seasons Hotel and Residences Cartagena", "Casa San Agustín",
+  "Sofitel Legend Santa Clara Cartagena", "Casa Pestagua",
+  "Sofitel Barú Calablanca Beach Resort",
+  "Four Seasons Hotel Casa Medina Bogotá", "Four Seasons Hotel Bogotá",
+  "Hacienda Bambusa",
   // Brazil in full — Sept 2026. Fourteen, and only six are in Rio and São Paulo. Fasano appears
   // five times across the country, which is unusual for a single Brazilian group and reflects how
   // consistently good they are.
@@ -979,6 +991,54 @@ const FAVORITES = {
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
   ],
+  // ── COLOMBIA, IN FULL ───────────────────────────────────────────────────────────────
+  // This supersedes the shorter Cartagena list loaded earlier: Casa del Gobernador is out, and
+  // the Four Seasons, Casa Pestagua and Bastión are in.
+  //
+  // Cartagena carries deeper inventory than the rest of the country because it genuinely has the
+  // concentration — and it stays independent-led rather than collapsing into international
+  // brands. Casa San Agustín stays despite the Four Seasons opening: 31 rooms across three
+  // historic houses is a different proposition from a resort, and the curation says so outright.
+  //
+  // San Andrés and Providencia are deliberately ABSENT. The islands are beautiful and the hotels
+  // are not, and padding the Caribbean with nominal luxury would be the exact failure this canon
+  // exists to prevent.
+  "Cartagena": [
+    { name: "Four Seasons Hotel and Residences Cartagena", area: "Getsemaní", rate: null, ourTake: "Opened April 2026 in a run of restored houses in Getsemaní, right beside the walls \u2014 the biggest arrival in Colombian hospitality in a decade." },
+    { name: "Casa San Agustín", area: "Walled City", rate: null, keys: 1, ourTake: "Three 17th-century houses joined behind one door, the old aqueduct running through the pool. Thirty-one rooms, Leading Hotels, and still the most romantic address in the city." },
+    { name: "Sofitel Legend Santa Clara Cartagena", area: "Walled City", rate: null, ourTake: "A 1621 convent around a cloistered courtyard \u2014 grand, storied, and where everyone wants to have dinner." },
+    { name: "Casa Pestagua", area: "Walled City", rate: null, ourTake: "A restored colonial palace of eleven suites, courtyards and palms. The quietest grand house inside the walls." },
+    { name: "Charleston Santa Teresa Cartagena", area: "Walled City", rate: null, ourTake: "On the plaza by the ramparts, with the rooftop pool that looks over the whole old city." },
+    { name: "Hotel Quadrifolio", area: "Walled City", rate: null, ourTake: "Seven rooms in a restored mansion, run like a private house." },
+    { name: "Bastión Luxury Hotel", area: "Walled City", rate: null, ourTake: "A colonial house near the clock tower with a rooftop terrace \u2014 central and well judged." },
+  ],
+  "Barú": [
+    { name: "Sofitel Barú Calablanca Beach Resort", area: "Isla Barú", rate: null, ourTake: "The beach half of a Cartagena trip \u2014 white sand an hour from the walls, and a genuine resort rather than a day boat." },
+    { name: "Hotel Las Islas", area: "Barú", rate: null, ourTake: "Treehouse and beach bungalows in dry forest on the water, deliberately low-key." },
+  ],
+  "Bogotá": [
+    { name: "Four Seasons Hotel Casa Medina Bogotá", area: "Zona G", rate: null, ourTake: "A protected 1940s building of hand-carved beams and stone, sixty-two rooms, in the restaurant quarter. Far more character than any tower in the city." },
+    { name: "Four Seasons Hotel Bogotá", area: "Zona Rosa", rate: null, ourTake: "The contemporary sister, in the middle of the shopping and the nightlife." },
+    { name: "Grand Hyatt Bogotá", area: "Ciudad Empresarial", rate: null, ourTake: "Big, modern and well run, with the best hotel gym and pool in the city." },
+    { name: "Sofitel Bogotá Victoria Regia", area: "Zona T", rate: null, ourTake: "Small and French in Zona T, walking distance to the restaurants." },
+    { name: "JW Marriott Hotel Bogotá", area: "Calle 73", rate: null, ourTake: "Reliable, central and geared to a working trip." },
+  ],
+  "Medellín": [
+    { name: "Elcielo Hotel & Restaurant", area: "El Poblado", rate: null, ourTake: "The hotel attached to Juan Manuel Barrientos's kitchen \u2014 you stay for the table, and the table is worth the trip." },
+    { name: "Marriott Medellín", area: "El Poblado", rate: null, ourTake: "Straightforward and central in El Poblado, with the city below." },
+  ],
+  "Coffee Country": [
+    { name: "Hacienda Bambusa", area: "Quindío", rate: null, ourTake: "A working cacao and cattle farm turned eight-room house, alone in the hills. Private guiding, coffee country properly \u2014 exactly what this region should mean." },
+    { name: "Bio Habitat Hotel", area: "Circasia", rate: null, ourTake: "Twenty-eight units set between mountain and forest habitat, several with private pools. Design-led and immersive rather than a conventional hotel." },
+    { name: "Casa San Carlos Lodge", area: "Pereira", rate: null, ourTake: "A quieter colonial-style lodge in the hills near Pereira, with the bamboo forest around it." },
+  ],
+  "Antioquia": [
+    { name: "Cannúa", area: "Marinilla", rate: null, ourTake: "Cabins built into protected forest an hour from Medellín \u2014 a serious sustainability project, not a spa with plants." },
+  ],
+  "Tayrona": [
+    { name: "Gitana del Mar", area: "Caribbean coast", rate: null, ourTake: "Bungalows on an empty beach beside the Tayrona park, with the Sierra Nevada behind. No conventional five-star exists here and this is the reason to come anyway." },
+    { name: "Casa Tayrona Los Naranjos", area: "Los Naranjos", rate: null, ourTake: "Above the river mouth at Los Naranjos, simple and beautifully placed for the park." },
+  ],
   // ── BRAZIL, IN FULL ─────────────────────────────────────────────────────────────────
   // Rio and São Paulo held one property each before this — Copacabana Palace and Rosewood — which
   // is not a country. The curation is explicit that Brazil is not Rio plus São Paulo: Trancoso,
@@ -1241,13 +1301,6 @@ const FAVORITES = {
     { name: "Country Club Lima Hotel", area: "San Isidro", rate: null, ourTake: "A 1927 house full of colonial art beside the golf club, and quieter than anything in Miraflores." },
     { name: "Hotel B", area: "Barranco", rate: null, ourTake: "A belle époque mansion in the arts quarter, walking distance to Central and Mayta. The interesting choice." },
     { name: "JW Marriott Hotel Lima", area: "Miraflores", rate: null, ourTake: "On the malecón facing the Pacific, with the Larcomar cliffs below \u2014 the reliable Miraflores choice." },
-  ],
-  "Cartagena": [
-    { name: "Casa San Agustín", area: "Centro Histórico", rate: null, ourTake: "Three 17th-century houses joined behind one door, with the old aqueduct running through the pool. The best hotel in Colombia." },
-    { name: "Sofitel Legend Santa Clara", area: "San Diego", rate: null, ourTake: "A 1621 convent with a cloistered courtyard \u2014 grand, storied, and where everyone wants to have dinner." },
-    { name: "Charleston Santa Teresa", area: "Centro Histórico", rate: null, ourTake: "On the plaza by the walls, with the rooftop pool that looks over the whole old city." },
-    { name: "Hotel Casa del Gobernador", area: "Centro Histórico", rate: null, ourTake: "A small colonial house on a quiet street \u2014 the one to choose when the grand hotels feel like too much." },
-    { name: "Hotel Quadrifolio", area: "Centro Histórico", rate: null, ourTake: "Seven rooms in a restored mansion, run like a private house." },
   ],
   "Santiago": [
     { name: "Mandarin Oriental Santiago", area: "Las Condes", rate: null, ourTake: "The best room in Chile, with the Andes filling the window on a clear morning." },
@@ -5525,6 +5578,9 @@ const GATEWAY = {
   "Rovinj": { air: "Pula", note: "Fly to Pula (PUY), then forty minutes by road down the Istrian coast. Venice and Trieste are also within reach by road or seasonal ferry." },
   "Lake Bled": { air: "Ljubljana", note: "Fly to Ljubljana (LJU) \u2014 the lake is barely half an hour away, which makes Bled one of the easiest arrivals in Europe." },
   "Mali Lošinj": { air: "Rijeka", note: "Fly to Rijeka (RJK) or Zagreb, then road and a short bridge crossing. There is a small island airfield for private aircraft." },
+  "Barú": { air: "Cartagena", note: "Fly to Cartagena (CTG), then about an hour by road across the new bridge \u2014 or twenty-five minutes by boat, which the resorts prefer and which is far nicer." },
+  "Antioquia": { air: "Medellín", note: "Fly to Medellín (MDE), then about an hour east into the hills." },
+  "Tayrona": { air: "Santa Marta", note: "Fly to Santa Marta (SMR), then forty minutes to an hour up the coast road towards the park." },
   "Trancoso": { air: "Porto Seguro", note: "Fly to Porto Seguro (BPS), then about an hour and a half by road including a short ferry. Most hotels arrange the transfer, and it is worth letting them." },
   "Santa Catarina": { air: "Florianópolis", note: "Fly to Florianópolis (FLN), then an hour north up the coast." },
   "Alagoas": { air: "Maceió", note: "Fly to Maceió (MCZ), then about forty minutes south to Barra de São Miguel." },
@@ -5611,6 +5667,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // COLOMBIA. Bogotá is the gate. Cartagena and Medellín take regional aircraft; the Coffee
+  // Region has three small fields and Armenia is usually the right one.
+  "Bogotá": { code: "BOG", scale: "intercontinental" }, "Medellín": { code: "MDE", scale: "regional" },
+  "Coffee Country": { code: "AXM", scale: "regional" },
   // BRAZIL. A country the size of a continent — Manaus is closer to Miami than to Rio, and
   // Noronha is 350 km out in the Atlantic. Almost every leg here is a flight.
   "São Paulo": { code: "GRU", scale: "intercontinental" }, "Salvador": { code: "SSA", scale: "regional" },
@@ -5792,7 +5852,7 @@ const ZONE = {
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
-  "colombia": ["Cartagena"],
+  "colombia": ["Cartagena","Barú","Bogotá","Medellín","Coffee Country","Antioquia","Tayrona"],
   "brazil": ["Rio de Janeiro","São Paulo","Trancoso","Salvador","Iguaçu Falls","Fernando de Noronha","Santa Catarina","Alagoas","Angra dos Reis","Porto Feliz","Brazilian Amazon","Pantanal","Lençóis Maranhenses","Paraty","Vale dos Vinhedos"],
   "argentina": ["Buenos Aires","Mendoza","Uco Valley","Iguazú","El Calafate","El Chaltén","Bariloche","Villa La Angostura","Salta","Jujuy","Córdoba","Pampas","Ushuaia"],
   "chile": ["Santiago","Atacama","Torres del Paine","Puerto Natales","Chilean Wine Country","Puerto Varas","Futangue","Chiloé","Elqui Valley","Valparaíso","Zapallar","Portillo"],
@@ -5837,7 +5897,9 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "Trancoso": [-16.59,-39.09], "Salvador": [-12.97,-38.51], "Iguaçu Falls": [-25.69,-54.44],
+  "Barú": [10.17,-75.66], "Bogotá": [4.71,-74.07], "Medellín": [6.24,-75.58],
+  "Coffee Country": [4.53,-75.68], "Antioquia": [6.17,-75.34], "Tayrona": [11.31,-73.91],
+    "Trancoso": [-16.59,-39.09], "Salvador": [-12.97,-38.51], "Iguaçu Falls": [-25.69,-54.44],
   "Fernando de Noronha": [-3.85,-32.42], "Santa Catarina": [-27.31,-48.56], "Alagoas": [-9.83,-35.90],
   "Angra dos Reis": [-23.01,-44.32], "Porto Feliz": [-23.21,-47.52], "Brazilian Amazon": [-3.10,-60.02],
   "Pantanal": [-19.95,-56.62], "Lençóis Maranhenses": [-2.75,-42.83], "Paraty": [-23.22,-44.71],
@@ -7449,7 +7511,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M309</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M311</span></footer>
   </div>);
 }
 
@@ -9450,6 +9512,12 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   const [showAll, setShowAll] = useState(false);
   const [whenFilter, setWhenFilter] = useState("");
   const [viaFilter, setViaFilter] = useState("");
+  // MUST be declared here, at the top of the component beside the other hooks. It was briefly
+  // inside the routing-survey IIFE further down — a function that only runs once offers exist, so
+  // the hook count changed the moment flights loaded and React threw, taking the whole page with
+  // it. That was the flash-and-quit on Start Building. Hooks are counted per render and can never
+  // sit behind a condition.
+  const [showAllRoutings, setShowAllRoutings] = useState(false);
   // Delta side-panel: Delta blocks being embedded, so we open their search in a companion tab and
   // let the client jot the flight they picked straight back into the itinerary here.
   const [deltaOpen, setDeltaOpen] = useState(false);
@@ -9628,7 +9696,6 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
         // So: group by WHERE it connects, and let her pick the routing first, the flight
         // second. That is the decision a travel agent actually makes for a client.
         const viaKey = (o) => (o.segments && o.segments.length > 1 ? (o.segments[0].toCity || o.segments[0].to) : "");
-        const [showAllRoutings, setShowAllRoutings] = useState(false);
   const groups = new Map();
         live.offers.forEach((o) => {
           const k = viaKey(o);
