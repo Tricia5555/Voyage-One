@@ -59,6 +59,9 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // AlUla, Sept 2026. Neither is a conventional hotel and neither is a compromise: mudbrick
+  // houses in the old town and a camp in the canyon are the right way to be in this landscape.
+  "Our Habitas AlUla", "Dar Tantora The House Hotel",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -71,6 +74,15 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Qatar, Saudi, Morocco & Hungary — Sept 2026. Doha's six, AlUla's two, Marrakech's seven,
+  // and Budapest's two. Fez and Essaouira have none: the curation is explicit that Essaouira
+  // gets no Ultra Luxury tier unless a qualifying house opens, and Palais Jamai's status is
+  // unverified. An empty top tier is the honest reading of both.
+  "Raffles Doha", "Rosewood Doha", "Mandarin Oriental Doha", "Four Seasons Hotel Doha",
+  "Four Seasons Resort at The Pearl", "The Ned Doha",
+  "Banyan Tree AlUla", "The Chedi Hegra",
+  "Selman Marrakech", "Park Hyatt Marrakech",
+  "Four Seasons Hotel Gresham Palace Budapest", "Matild Palace",
   // Croatia — Sept 2026. Six only. Split and Lake Bled are deliberately absent: their ceiling
   // is Luxury and saying so is the point of the tier.
   "Villa Dubrovnik", "Hotel Excelsior Dubrovnik", "Maslina Resort",
@@ -413,6 +425,9 @@ function michTier(m, dense) {
   // does. Number one in the Middle East and North Africa is a destination table by any measure,
   // and Egypt has no Michelin coverage at all, so without this Cairo would show an empty
   // Destination tier while holding five internationally ranked restaurants.
+  // msel (Michelin Selected) and a bare gt (Toques with no score) are ABSENT from this test for
+  // the same reason as the two below: both qualify a restaurant for the list, neither makes it
+  // worth planning a day around. A starred restaurant reaches Destination through m.s instead.
   // r50d (Discovery) and r50p (previously ranked) are deliberately ABSENT from this test. They
   // are genuine credentials and they qualify a restaurant for the list, but neither is
   // destination-defining: a Discovery listing is not a Top 50 place, and a ranking held three
@@ -816,26 +831,36 @@ const FAVORITES = {
   // to fill the tab would be the exact dishonesty this canon exists to prevent. Lake Bled is the
   // same. Where the ceiling is Luxury, Luxury is what shows.
   "Dubrovnik": [
+    { name: "Dubrovnik Palace", area: "Lapad", rate: null, ourTake: "Out on the Lapad peninsula facing the Elaphiti islands \u2014 sunsets over water rather than over the walls." },
+
     { name: "Villa Dubrovnik", area: "Sveti Jakov", rate: null, ourTake: "Cut into the cliff below the old town, with a private jetty and the best sunsets in the Adriatic." },
     { name: "Hotel Excelsior Dubrovnik", area: "Ploče", rate: null, ourTake: "The classic address, walking distance to the walls, with the city framed from every terrace." },
     { name: "Hotel Bellevue Dubrovnik", area: "Miramare", rate: null, ourTake: "Built down a cliff face above its own pebble cove, ten minutes from the gate." },
     { name: "Sun Gardens Dubrovnik", area: "Orašac", rate: null, ourTake: "Resort scale up the coast \u2014 the right answer for a family, less so for a couple." },
   ],
   "Split": [
+    { name: "Cornaro Hotel", area: "Old Town", rate: null, ourTake: "Inside the old walls with a rooftop over the rooftops \u2014 the closest you can sleep to Diocletian's Palace." },
+
     { name: "Hotel Ambasador Split", area: "Waterfront", rate: null, ourTake: "The best room in Split, on the water and a short walk from Diocletian's Palace." },
     { name: "Le Méridien Lav", area: "Podstrana", rate: null, ourTake: "Out of town on its own beach, with the space the old city cannot offer." },
     { name: "Hotel Park Split", area: "Bačvice", rate: null, ourTake: "A restored 1920s house above the bay, quieter than the waterfront and better run." },
   ],
   "Hvar": [
+    { name: "Moeesy, Blue & Green Oasis", area: "Hvar Town", rate: null, ourTake: "Above the town in gardens, adults only, and quieter than anything on the harbour." },
+
     { name: "Maslina Resort", area: "Stari Grad", rate: null, ourTake: "Pine woods down to a private bay on the island's quiet side \u2014 barefoot, serious, and a world from Hvar Town." },
     { name: "Palace Elisabeth", area: "Hvar Town", rate: null, ourTake: "The oldest hotel in Croatia, on the main square, if you want to be in the middle of it." },
   ],
   "Rovinj": [
+    { name: "San Canzian Hotel & Residences", area: "Istria", rate: null, ourTake: "A restored inland hamlet turned hotel \u2014 stone houses, a village square, and no coast road." },
+
     { name: "Grand Park Hotel Rovinj", area: "Rovinj", rate: null, ourTake: "Terraced above the marina looking straight at the old town \u2014 the finest hotel on the Istrian coast." },
     { name: "Monte Mulini", area: "Rovinj", rate: null, ourTake: "Adults only, in the Golden Cape forest park, a short walk along the sea to town." },
     { name: "Meneghetti Wine Hotel", area: "Bale", rate: null, ourTake: "A working estate inland \u2014 stone villas, olive groves and a very good cellar." },
   ],
   "Mali Lošinj": [
+    { name: "Hotel Bellevue", area: "\u010cikat Bay", rate: null, ourTake: "The Alhambra's larger sister in the same pine bay, with the island's best spa." },
+
     { name: "Boutique Hotel Alhambra", area: "Čikat Bay", rate: null, ourTake: "A restored Austro-Hungarian villa in the pines above the bay \u2014 small, exact, and barely known outside Croatia." },
   ],
   "Lake Bled": [
@@ -852,6 +877,8 @@ const FAVORITES = {
   // Wadi Rum has no hotels at all; a Bedouin camp is not a compromise there, it is the correct
   // way to be in that place, which is precisely what Experience Luxury exists to say.
   "Amman": [
+    { name: "W Amman", area: "Abdali", rate: null, ourTake: "The loud one, in the new downtown \u2014 a rooftop bar and a younger room than the hill hotels." },
+
     { name: "Four Seasons Hotel Amman", area: "Abdoun", rate: null, ourTake: "The city's best address, on the hill above the embassies, and the easiest landing in Jordan." },
     { name: "The Ritz-Carlton Amman", area: "Abdoun", rate: null, ourTake: "Newer, quieter and beautifully finished, with the best spa in the city." },
     { name: "The St. Regis Amman", area: "Abdoun", rate: null, ourTake: "Butler service and a rooftop over the old hills \u2014 the most formal of the three." },
@@ -866,10 +893,14 @@ const FAVORITES = {
     { name: "Memories Aicha Luxury Camp", area: "Wadi Rum", rate: null, ourTake: "Bubble suites facing the rock, for sleeping under the stars without giving up a bed." },
   ],
   "Dead Sea": [
+    { name: "Dead Sea Marriott Resort & Spa", area: "Sweimeh", rate: null, ourTake: "Straightforward and well placed on the shore, with direct access to the water." },
+
     { name: "Kempinski Hotel Ishtar Dead Sea", area: "Sweimeh", rate: null, ourTake: "Terraced gardens and pools stepping down to the shore \u2014 the best of the Dead Sea resorts." },
     { name: "M\u00f6venpick Resort & Spa Dead Sea", area: "Sweimeh", rate: null, ourTake: "Built as a stone village around courtyards, with a serious spa." },
   ],
   "Aqaba": [
+    { name: "Hyatt Regency Aqaba Ayla Resort", area: "Ayla", rate: null, ourTake: "On the Ayla lagoon with its own beach \u2014 the easiest base for diving the Red Sea." },
+
     { name: "Al Manara, a Luxury Collection Hotel", area: "Ayla", rate: null, ourTake: "The Red Sea end of a Jordan itinerary, with reef diving from the door." },
     { name: "Kempinski Hotel Aqaba", area: "Aqaba", rate: null, ourTake: "On the water in town, straightforward and well run." },
   ],
@@ -878,6 +909,9 @@ const FAVORITES = {
   // at 2,000 metres, and the sand. Zighy Bay and the Jabal Akhdar lodges are genuine Ultra
   // Luxury; Wahiba Sands is Experience Luxury for the same reason as Wadi Rum.
   "Muscat": [
+    { name: "Jumeirah Muscat Bay", area: "Bandar Jissah", rate: null, ourTake: "In a cove between the mountains and the sea, newer than the classics and built for families." },
+    { name: "Kempinski Hotel Muscat", area: "Al Mouj", rate: null, ourTake: "On the beach at Al Mouj beside the marina and the golf, with the longest private stretch of sand in the city." },
+
     { name: "Mandarin Oriental Muscat", area: "Shatti Al Qurum", rate: null, ourTake: "The newest and best in the capital, on the beach with the mountains behind." },
     { name: "The Chedi Muscat", area: "Al Ghubra", rate: null, ourTake: "Long serene pools and pared-back rooms in walled gardens \u2014 the quiet classic." },
     { name: "Shangri-La Al Husn", area: "Barr Al Jissah", rate: null, ourTake: "Adults-only clifftop wing above its own cove, apart from the resort below." },
@@ -892,6 +926,54 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── QATAR, SAUDI ARABIA & MOROCCO (FEZ, ESSAOUIRA) ──────────────────────────────────
+  // Doha carries an unusually deep bench for a city its size — six properties at the top tier,
+  // which is the Gulf's building boom made visible. The curation names four preferred; the rest
+  // are real and stay, but the order matters.
+  "Doha": [
+    { name: "Raffles Doha", area: "Lusail", rate: null, ourTake: "All-suite, inside the scimitar towers \u2014 the most theatrical arrival in the Gulf and the best service in Qatar." },
+    { name: "Rosewood Doha", area: "Lusail", rate: null, ourTake: "The newest of the top tier, sharp and quiet, with the marina below." },
+    { name: "Mandarin Oriental Doha", area: "Msheireb", rate: null, ourTake: "In the rebuilt old downtown rather than a tower district \u2014 the one address in Doha with a street outside it." },
+    { name: "Four Seasons Hotel Doha", area: "West Bay", rate: null, ourTake: "The established grande dame, private beach and marina, and still where the city does business." },
+    { name: "Four Seasons Resort at The Pearl", area: "The Pearl", rate: null, ourTake: "Resort rather than city hotel, out on the reclaimed island with the water on three sides." },
+    { name: "The Ned Doha", area: "Doha", rate: null, ourTake: "A converted ministry building, members' club downstairs, and the most interesting rooms in the city." },
+    { name: "Park Hyatt Doha", area: "Msheireb", rate: null, ourTake: "Restrained and low-rise in the old quarter, for anyone tired of towers." },
+    { name: "Sharq Village & Spa, a Ritz-Carlton Hotel", area: "Doha", rate: null, ourTake: "Built as a Qatari village on its own beach \u2014 the Six Senses spa is the reason to come." },
+    { name: "The Ritz-Carlton Doha", area: "West Bay Lagoon", rate: null, ourTake: "On the lagoon with a private marina, the classic family choice." },
+    { name: "Marsa Malaz Kempinski", area: "The Pearl", rate: null, ourTake: "A palace on its own island at the head of The Pearl, gilded and unembarrassed about it." },
+    { name: "Banyan Tree Doha", area: "Doha", rate: null, ourTake: "High floors, city views and the calmest spa in the centre." },
+    { name: "Waldorf Astoria Doha West Bay", area: "West Bay", rate: null, ourTake: "Straightforward and well run, in the middle of the business district." },
+    { name: "The St. Regis Doha", area: "West Bay", rate: null, ourTake: "Butler service and a long private beach, one of the earliest of the modern arrivals." },
+  ],
+  // AlUla is the newest luxury destination on this list and the only one built around
+  // archaeology. Two genuine top-tier houses and two that exist to put you in the landscape.
+  "AlUla": [
+    { name: "Banyan Tree AlUla", area: "Ashar Valley", rate: null, ourTake: "Tented villas on the valley floor with sandstone cliffs on every side \u2014 the finest thing in Saudi Arabia." },
+    { name: "The Chedi Hegra", area: "Hegra", rate: null, ourTake: "Inside the UNESCO site itself, in restored 1930s buildings \u2014 nobody else sleeps within the tombs." },
+    { name: "Our Habitas AlUla", area: "Ashar Valley", rate: null, ourTake: "Lower-key than the Banyan Tree and better for it if you want the canyon and not the ceremony." },
+    { name: "Dar Tantora The House Hotel", area: "AlUla Old Town", rate: null, ourTake: "Mudbrick houses in the old town, candlelit at night \u2014 no televisions, deliberately." },
+  ],
+  "Fez": [
+    { name: "Palais Jama\u00ef", area: "Fes el Bali", rate: null, ourTake: "The historic house above the medina, in Andalusian gardens. VERIFY OPERATING STATUS \u2014 long restoration, confirm before offering." },
+    { name: "Riad F\u00e8s, Relais & Ch\u00e2teaux", area: "Medina", rate: null, ourTake: "Several riads joined behind one door, with a black-water pool and a roof over the whole medina." },
+    { name: "Palais Amani", area: "Medina", rate: null, ourTake: "An art deco merchant's palace around an orange-tree courtyard, quietly the best-run house in Fez." },
+    { name: "Hotel Sahrai", area: "Ville Nouvelle", rate: null, ourTake: "Modern, on the hillside looking back at the old city \u2014 the alternative to a riad, with a proper pool." },
+  ],
+  "Essaouira": [
+    { name: "Heure Bleue Palais, Relais & Ch\u00e2teaux", area: "Medina", rate: null, ourTake: "The one serious hotel inside the ramparts \u2014 a rooftop pool over the Atlantic and the ocean noise all night." },
+    { name: "Villa Maroc", area: "Medina", rate: null, ourTake: "Four merchants' houses joined together, the original Essaouira riad and still full of character." },
+    { name: "Sofitel Essaouira Mogador Golf & Spa", area: "Diabat", rate: null, ourTake: "Out by the golf and the dunes, for space and a beach rather than the medina." },
+  ],
+  // ── HUNGARY ─────────────────────────────────────────────────────────────────────────
+  "Budapest": [
+    { name: "Four Seasons Hotel Gresham Palace Budapest", area: "Pest", rate: null, ourTake: "The art nouveau palace at the foot of the Chain Bridge \u2014 the best hotel in central Europe, and it knows it." },
+    { name: "Matild Palace, a Luxury Collection Hotel", area: "Pest", rate: null, ourTake: "The Gresham's twin across the river, restored with a serious bar and a lighter touch." },
+    { name: "Dorothea Hotel, Autograph Collection", area: "Pest", rate: null, ourTake: "Three historic buildings knocked together off V\u00f6r\u00f6smarty Square \u2014 the newest good thing in the city." },
+    { name: "W Budapest", area: "Andr\u00e1ssy \u00fat", rate: null, ourTake: "In the old Drechsler Palace on Andr\u00e1ssy \u2014 loud, young, and the most fun room in Budapest." },
+    { name: "The Ritz-Carlton Budapest", area: "Erzs\u00e9betv\u00e1ros", rate: null, ourTake: "Behind a 1910s facade on Erzs\u00e9bet Square, with the largest rooms of the central hotels." },
+    { name: "Kempinski Hotel Corvinus Budapest", area: "Deak Ferenc", rate: null, ourTake: "Central and reliable, long the business address, with a good spa." },
+    { name: "Corinthia Budapest", area: "Erzs\u00e9betv\u00e1ros", rate: null, ourTake: "Grand hotel scale on the ring road, and the Royal Spa is the best thermal bath in any hotel here." },
   ],
   // ── EGYPT ───────────────────────────────────────────────────────────────────────────
   // Loaded Sept 2026 from the curated gap-fill list. Egypt was entirely absent before this —
@@ -922,9 +1004,20 @@ const FAVORITES = {
     { name: "Four Seasons Resort Sharm El Sheikh", area: "Red Sea", rate: null, ourTake: "Terraced gardens down to a private reef \u2014 the best of the Red Sea resorts by some distance." },
   ],
   "El Gouna": [
+    { name: "Steigenberger Resort Ras Soma", area: "Soma Bay", rate: null, ourTake: "Soma Bay rather than El Gouna \u2014 quieter still, with a Gary Player links course and a serious thalasso spa." },
+
     { name: "The Chedi El Gouna", area: "El Gouna", rate: null, ourTake: "Spare, calm and adult, on a quiet stretch of Red Sea coast north of Hurghada." },
   ],
   "Marrakech": [
+    { name: "Selman Marrakech", area: "Route d'Amizmiz", rate: null, ourTake: "Arabian horses in the stables and a 90-metre pool facing the Atlas \u2014 an estate rather than a hotel." },
+    { name: "Park Hyatt Marrakech", area: "Palmeraie", rate: null, ourTake: "Newest of the palmeraie houses, on the golf, with the mountains behind." },
+    { name: "Four Seasons Resort Marrakech", area: "Hivernage", rate: null, ourTake: "Gardens and pools between the medina and the Menara \u2014 the easy, generous choice for a family." },
+    { name: "Nobu Hotel Marrakech", area: "Hivernage", rate: null, ourTake: "The loud one, with the restaurant everyone books and a rooftop to match." },
+    { name: "El Fenn", area: "Medina", rate: null, ourTake: "Riads knocked together behind the Koutoubia \u2014 art on every wall, and the best rooftop in the medina." },
+    { name: "Villa des Orangers", area: "Medina", rate: null, ourTake: "A Relais & Ch\u00e2teaux riad inside the walls, small enough that they learn your name by lunch." },
+    { name: "Ksar Char-Bagh", area: "Palmeraie", rate: null, ourTake: "Built as a Moorish palace in the palm grove \u2014 twelve suites and complete quiet." },
+    { name: "Les Deux Tours", area: "Palmeraie", rate: null, ourTake: "Charles Boccara's pise villas among the palms, unchanged and still the connoisseur's pick." },
+    { name: "Fairmont Royal Palm Marrakech", area: "Route d'Amizmiz", rate: null, ourTake: "Out towards the mountains on its own golf course, with room the city hotels cannot offer." },
     { name: "Royal Mansour Marrakech", area: "Medina", rate: null, ourTake: "A palace of private riads built by the King — the pinnacle of Moroccan craft." },
     { name: "La Mamounia", area: "Medina", rate: null, ourTake: "The legendary garden palace, Churchill's favourite, unmatched for grandeur." },
     { name: "Amanjena", area: "Palmeraie", rate: null, ourTake: "A serene ochre oasis of pavilions and pools beyond the city walls." },
@@ -2553,6 +2646,61 @@ const ACCOLADES = {
   // EGYPT — MENA's 50 Best 2026. Egypt has no Michelin coverage, so nothing here is filed under
   // a Michelin category: inventing one would be worse than an empty tier. Khufu's is in Giza,
   // which is an AREA of Cairo rather than its own destination, so it sits under the Cairo key.
+  // CROATIA & SLOVENIA \u2014 Sept 2026. Michelin operates in both countries, so unlike Egypt and
+  // Jordan these are filed on stars and guide entries rather than regional rankings.
+  //
+  // Keys exist here for cities that are NOT yet Voyage One destinations \u2014 \u0160ibenik, Kor\u010dula,
+  // Pore\u010d, Zagreb, Ljubljana and the rest. They cost nothing sitting unused and mean the dining
+  // is already in place the day a destination is added, rather than being a second job.
+  //
+  // Split, Hvar and Lake Bled have NO Destination restaurant. That is the curation's judgement
+  // and it holds: none of the three has a starred table, and inventing one to fill the tab is
+  // exactly what the award-only rule exists to prevent.
+  "hvar": [
+    { n: "Terra Restaurant by Maslina Resort", msel: 1 },
+  ],
+  "rovinj": [
+    { n: "Agli Amici Rovinj", s: 2 },
+    { n: "Monte", s: 1 },
+    { n: "Cap Aureo", s: 1 },
+    { n: "Meneghetti", msel: 1 },
+  ],
+  "mali losinj": [
+    { n: "Alfred Keller", s: 1 },
+  ],
+  // Vila Muhr is in Bohinj, half an hour from Bled. The town is carried in the name so the card
+  // cannot imply it is walkable from the lake hotels.
+  "lake bled": [
+    { n: "Vila Muhr (Bohinj)", gt: 4, gy: 2026 },
+  ],
+  // Croatia \u2014 destinations not yet carried.
+  "sibenik": [{ n: "Pelegrini", s: 1 }],
+  "porec": [{ n: "Harry's Piccolo Pore\u010d", s: 1 }, { n: "JAZ by Ana Ro\u0161", msel: 1 }, { n: "Spinnaker", msel: 1 }],
+  "novalja": [{ n: "Bo\u0161kinac", s: 1 }],
+  "rijeka": [{ n: "Nebo", s: 1 }],
+  "novigrad": [{ n: "Damir & Ornella", msel: 1 }, { n: "Marina", msel: 1 }],
+  // Slovenia.
+  "kobarid": [{ n: "Hi\u0161a Franko", s: 3, gt: 5, gy: 2026 }],
+  "kranjska gora": [{ n: "Milka", s: 2, gt: 4, gy: 2026 }],
+  "ljubljana": [
+    { n: "Restavracija Strelec", s: 1, gt: 4, gy: 2026 },
+    { n: "JB", gt: 4, gy: 2026 },
+    { n: "Gostilna AS", msel: 1 },
+    { n: "PEN Klub Restavracija", msel: 1 },
+    { n: "TaBar", msel: 1, gt: 3, gy: 2026 },
+  ],
+  "vipava": [{ n: "Gostilna pri Lojzetu", s: 1, gt: 4, gy: 2026 }],
+  "nova gorica": [{ n: "Dam", s: 1, gt: 4, gy: 2026 }],
+  "sentjost nad horjulom": [{ n: "Gri\u010d", s: 1, gt: 4, gy: 2026 }],
+  "zgornja kungota": [{ n: "Hi\u0161a Denk", s: 1, gt: 4, gy: 2026 }],
+  "portoroz": [{ n: "COB", s: 1 }, { n: "Sophia", msel: 1 }, { n: "Rizibizi", msel: 1 }],
+  "piran": [{ n: "Stara Gostilna", msel: 1 }],
+  "bohinj": [{ n: "Vila Muhr", gt: 4, gy: 2026 }],
+  "brezice": [{ n: "O\u0161terija Debeluh", gt: 4, gy: 2026 }],
+  "kozina": [{ n: "Gostilna Mahor\u010di\u010d", msel: 1, gt: 4, gy: 2026 }],
+  "sentjanz": [{ n: "Gostilna Repov\u017e", gt: 4, gy: 2026 }],
+  "maribor": [{ n: "Mak", gt: 4, gy: 2026 }],
+  "petrovce": [{ n: "Galerija Okusov", gt: 4, gy: 2026 }],
   // JORDAN. Three current Top 50 entries, and two long-standing Amman houses that held Top 50
   // places in earlier years — filed as previously ranked so they sit in Recommended and cannot
   // outrank a restaurant on the list today.
@@ -2969,7 +3117,7 @@ const ACCOLADES = {
   "dresden": [{ n: "DELI", bib:1 }, { n: "ElbUferei", bib:1 }],
   "dubai": [{ n: "21 Grams", bib:1 }, { n: "3Fils", bib:1 }, { n: "Aamara", bib:1 }, { n: "Al Khayma Heritage Restaurant", bib:1 }, { n: "Bait Maryam", bib:1 }, { n: "Berenjak", bib:1 }, { n: "DUO Gastrobar - Creek Harbour", bib:1 }, { n: "DUO Gastrobar - Dubai Hills", bib:1 }, { n: "Goldfish", bib:1 }, { n: "Harummanis", bib:1 }, { n: "Hawkerboi", bib:1 }, { n: "Hoe Lee Kow", bib:1 }, { n: "Indya by Vineet", bib:1 }, { n: "Khadak", bib:1 }, { n: "Kinoya", bib:1 }, { n: "Konjiki Hototogisu", bib:1 }, { n: "REIF Japanese Kushiyaki - Dar Wasl", bib:1 }, { n: "REIF Japanese Kushiyaki - Dubai Hills", bib:1 }, { n: "Revelry", bib:1 }, { n: "Shabestan", bib:1 }, { n: "Sufret Maryam", bib:1 }],
   "dublin": [{ n: "Amy Austin", bib:1 }, { n: "BIGFAN", bib:1 }, { n: "BORGO", bib:1 }, { n: "Forêt", bib:1 }, { n: "Richmond", bib:1 }, { n: "Spitalfields", bib:1 }, { n: "Uno Mas", bib:1 }],
-  "dubrovnik": [{ n: "Taj Mahal", bib:1 }],
+  "dubrovnik": [{ n: "Restaurant 360", s: 1 }, { n: "Stara Loza", msel: 1 }, { n: "Taj Mahal", bib:1 }],
   "dudelange": [{ n: "Parc Le'h", bib:1 }],
   "duluth": [{ n: "Masterpiece", us:1, bib:1 }],
   "duncannon": [{ n: "Aldridge Lodge", bib:1 }],
@@ -3202,7 +3350,7 @@ const ACCOLADES = {
   "knightdale": [{ n: "Prime Barbecue", us:1, bib:1 }],
   "konjevrate": [{ n: "Konoba Vinko", bib:1 }],
   "konstanz": [{ n: "Brasserie Colette Tim Raue", bib:1 }],
-  "korcula": [{ n: "Konoba Mate", bib:1 }],
+  "korcula": [{ n: "LD Restaurant", s: 1 }, { n: "Konoba Mate", bib:1 }],
   "kraainem": [{ n: "Station 3", bib:1 }],
   "krakow": [{ n: "Folga", bib:1 }, { n: "MOLÁM", bib:1 }, { n: "NOAH", bib:1 }, { n: "Bufet KRK", bib:1 }, { n: "Nat Bistro", bib:1 }],
   "krapina": [{ n: "Vuglec Breg", bib:1 }],
@@ -3410,7 +3558,7 @@ const ACCOLADES = {
   "morales de rey": [{ n: "Brigecio", bib:1 }],
   "morlaix": [{ n: "Le 21ème Commis", bib:1 }],
   "morrano nuovo": [{ n: "Da Gregorio", bib:1 }],
-  "moscenicka draga": [{ n: "Konoba Pescaria", bib:1 }],
+  "moscenicka draga": [{ n: "Konoba Zijavica", gt: 3, gy: 2026 }, { n: "Konoba Pescaria", bib:1 }],
   "mosciano sant angelo": [{ n: "Borgo Spoltino", bib:1 }],
   "mugla": [{ n: "Arka Ristorante Pizzeria", bib:1 }, { n: "Bağarası", bib:1 }, { n: "İki Sandal", bib:1 }, { n: "Otantik Ocakbaşı", bib:1 }],
   "muhlhausen": [{ n: "Die Bürgermeisterei 1728", bib:1 }],
@@ -3777,7 +3925,7 @@ const ACCOLADES = {
   "sopot": [{ n: "Vinissimo", bib:1 }],
   "sowerby bridge": [{ n: "Engine Social Dining", bib:1 }],
   "spalt": [{ n: "Gasthof Blumenthal", bib:1 }],
-  "split": [{ n: "K.užina", bib:1 }],
+  "split": [{ n: "Konoba Fetivi", msel: 1 }, { n: "\u0160ug", msel: 1 }, { n: "K.užina", bib:1 }],
   "spring": [{ n: "Belly of the Beast", us:1, jb:1, bib:1 }, { n: "Rosemeyer Bar-B-Q", us:1, bib:1 }],
   "st leonards on sea": [{ n: "The Royal", bib:1 }],
   "st louis": [{ n: "Sidney Street Cafe", us:1, jb:1 }],
@@ -3976,7 +4124,7 @@ const ACCOLADES = {
   "ystad": [{ n: "JH matbar", bib:1 }],
   "yvoir": [{ n: "Mona Lisa", bib:1 }],
   "zafra": [{ n: "Acebuche", bib:1 }],
-  "zagreb": [{ n: "Beštija", bib:1 }, { n: "Izakaya", bib:1 }, { n: "Nuré", bib:1 }],
+  "zagreb": [{ n: "Korak", s: 1, mgs: 1 }, { n: "NAV", gt: 4, gy: 2026 }, { n: "ManO2", gt: 4, gy: 2026 }, { n: "Dubravkin Put", msel: 1 }, { n: "Beštija", bib:1 }, { n: "Izakaya", bib:1 }, { n: "Nuré", bib:1 }],
   "zakopane": [{ n: "Stary Niedźwiedź", bib:1 }],
   "zarautz": [{ n: "Masta", bib:1 }],
   "zermatt": [{ n: "Bazaar", bib:1 }],
@@ -5118,6 +5266,11 @@ const REGION_STOPS = {
 // What an airport actually is. "Regional" means no long-haul metal lands there —
 // any transatlantic fare quoted to it is really a hub plus a connection.
 const AIRPORTS = {
+  // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
+  // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  "Doha": { code: "DOH", scale: "intercontinental" }, "Budapest": { code: "BUD", scale: "intercontinental" },
+  "AlUla": { code: "ULH", scale: "regional" }, "Fez": { code: "FEZ", scale: "regional" },
+  "Essaouira": { code: "ESU", scale: "regional" },
   // CROATIA & SLOVENIA. Dubrovnik and Split fly; Rovinj is served by Pula, Lake Bled by
   // Ljubljana, and Hvar not at all — it is reached by ferry from Split, which is the whole
   // character of getting there.
@@ -5254,7 +5407,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // You can only drive between places on the same landmass. Distance alone is not enough:
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
-  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Istanbul","Geneva","Lyon"],
+  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo"],
@@ -5269,7 +5422,7 @@ const ZONE = {
   "galapagos": ["Galápagos"],
   "caribbean-tci": ["Turks & Caicos"],
   "arabia": ["Dubai"],
-  "morocco": ["Marrakech"],
+  "morocco": ["Marrakech","Fez","Essaouira"],
   // Egypt is its own zone. It is neither Maghreb nor sub-Saharan, and filing it with Morocco
   // would let the app treat Marrakech and Aswan as a short hop. They are 4,000 km apart.
   "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna"],
@@ -5277,6 +5430,8 @@ const ZONE = {
   // crossing, and the ground logic needs to know that rather than assume a road.
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
+  "qatar": ["Doha"],
+  "saudi": ["AlUla"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
   "oman": ["Muscat","Musandam","Jabal Akhdar","Wahiba Sands"],
   "southern-africa": ["Cape Town","Kruger"],
@@ -5314,6 +5469,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Doha": [25.29,51.53], "AlUla": [26.61,37.92], "Fez": [34.04,-5.00], "Essaouira": [31.51,-9.77], "Budapest": [47.50,19.04],
   "Split": [43.51,16.44], "Hvar": [43.17,16.44], "Rovinj": [45.08,13.64], "Mali Lošinj": [44.53,14.47], "Lake Bled": [46.36,14.11],
   "Amman": [31.95,35.93], "Petra": [30.32,35.48], "Wadi Rum": [29.57,35.42], "Dead Sea": [31.50,35.58], "Aqaba": [29.53,35.01],
   "Muscat": [23.59,58.41], "Musandam": [25.98,56.31], "Jabal Akhdar": [23.07,57.66], "Wahiba Sands": [22.20,58.80],
@@ -6881,7 +7037,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M293</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M296</span></footer>
   </div>);
 }
 
@@ -9758,22 +9914,19 @@ function HotelPicker({ city, nights, pick, upd }) {
   const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
-  // THE LOCK stays: Ultra Luxury is ONLY our curated list — the live feed never adds to it. Luxury
-  // and Best are filled from the live feed by liveHotelTier: a genuine five-star is Luxury, a real
-  // four-star is Best. Mass chains and thin-review novelties (a 5.0-rated treehouse Airbnb with 231
-  // reviews) are excluded — review count is the reality check the synthesized star class can't give.
-  let liveRows = [];
-  if (level === "Luxury" || level === "Best") {
-    const seen = {};
-    liveRows = liveAll.filter((r) => {
-      if (liveHotelTier(r) !== level) return false;
-      const a = ulxAlnum(r.name); if (!a || seen[a]) return false; seen[a] = 1;
-      // Dedup against EVERY curated pick for the city, not just this tier's — otherwise a hotel
-      // we feature in Ultra (e.g. Portrait) can reappear from the live feed under Luxury, showing
-      // the same hotel in two categories. A curated favourite is never re-listed by the feed.
-      return !favs.some((f) => nameMatch(r.name, f.name));
-    });
-  }
+  // THE LOCK NOW COVERS EVERY TIER. Ultra Luxury was always curated-only; Luxury and Best used
+  // to be filled from the live Google feed, tiered by a star class synthesised from price band
+  // and review count. That is how Zagreb — a city nobody has curated — came to offer hotels
+  // under a Luxury heading that no one at Voyage One had ever seen, with photographs to match.
+  //
+  // A review count cannot tell you whether a hotel is worth a client's money. Only a person can,
+  // and the dining panel has always worked this way: professionally or hand curated, no live
+  // tables anywhere. Hotels now follow the same rule. An uncurated city shows nothing, which is
+  // the honest answer and infinitely better than a wrong one.
+  //
+  // The feed is still fetched, because it supplies PHOTOGRAPHS and addresses for hotels we have
+  // already chosen. It no longer decides what appears.
+  const liveRows = [];
   const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l === "ExpLux" ? "Experience Luxury" : l);
   // Once a hotel is chosen the rest are noise: a stay is decided once and rarely revisited, unlike
   // a restaurant. Show the choice and fold the others away. Tapping a tier chip brings the full
@@ -9786,8 +9939,7 @@ function HotelPicker({ city, nights, pick, upd }) {
   // page when the two tiers above it are empty. Hidden while the feed is still loading, so
   // it never flashes up and then vanishes.
   const ultraHas = favs.some((s2) => tierOf(s2.name) === "UltraLux");
-  const luxHas = favs.some((s2) => tierOf(s2.name) === "Luxury")
-    || liveAll.some((r) => liveHotelTier(r) === "Luxury" && !favs.some((f) => nameMatch(r.name, f.name)));
+  const luxHas = favs.some((s2) => tierOf(s2.name) === "Luxury");
   // Experience Luxury is curated-only, so unlike Luxury it cannot be filled by the feed. The chip
   // appears only where a person has put something in it — Wadi Rum, Musandam, the Serengeti camps
   // — and is simply absent everywhere else rather than showing an empty tab.
@@ -9800,7 +9952,8 @@ function HotelPicker({ city, nights, pick, upd }) {
   // curated case shows unconditionally; the live-feed case keeps the old "only when the tiers
   // above are empty" rule, which is what stops a good four-star cluttering a five-star city.
   const bestCurated = favs.some((s2) => tierOf(s2.name) === "Best");
-  const showBest = bestCurated || (remote.tried && !ultraHas && !luxHas && !expHas);
+  // Best appears only where it has been curated — there is no longer a feed to fall back on.
+  const showBest = bestCurated;
   const tiers = LEVELS.filter((l) => (l === "Best" ? showBest : l === "ExpLux" ? expHas : true));
   useEffect(() => { if (level === "Best" && !showBest) setLevel("Luxury"); if (level === "ExpLux" && !expHas) setLevel("Luxury"); }, [showBest, expHas, level]);
   const collapsed = !!chosen && !openList;
@@ -9842,7 +9995,11 @@ function HotelPicker({ city, nights, pick, upd }) {
             <FavHotelCard key={r.id || k} s={c} city={city} cur={favCur} sel={!!sel} tier={level}
               onClick={() => upd({ stay: sel ? null : { level, name: c.name, nightly: null, band: c.area || null, estimated: true, id: r.id || null, site: c.site || null } })} />); })}
         </div>
-        {live && <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Powered by Google · ratings are real; we confirm the rate and book direct on your behalf.</div>}
+        {/* The "Powered by Google" line went with the live feed. Google no longer decides which
+            hotels appear here — every one is curated — so crediting it for the selection would
+            be untrue. Google still supplies photographs and addresses for hotels already chosen,
+            which the photo endpoint attributes where it is used. */}
+        <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Every property here is chosen by us. We confirm the rate and book direct on your behalf.</div>
       </>)}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
@@ -9950,7 +10107,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
       <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {info.area ? info.area + ", " : ""}{r.city}</div>
       {sel ? (<>
-        {(r.s >= 1 || r.jb || r.w || r.wa || r.r50 || r.r50a || r.r50d || r.r50p || r.ll || r.gm || r.gmc || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
+        {(r.s >= 1 || r.jb || r.w || r.wa || r.r50 || r.r50a || r.r50d || r.r50p || r.msel || r.mgs || r.gt || r.ll || r.gm || r.gmc || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
           {r.s >= 1 ? <div>{"★".repeat(r.s)} Michelin</div> : null}
           {r.w && r.w <= 100 ? <div>World's 50 Best · #{r.w}{r.wy ? " (" + r.wy + ")" : ""}</div> : null}
           {r.wa ? <div>World's 50 Best · {r.wa} ({r.wy || 2025})</div> : null}
@@ -9961,6 +10118,9 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
           {r.r50 ? <div>{r.r50n || "Regional"}'s 50 Best · #{r.r50}{r.r50y ? " (" + r.r50y + ")" : ""}</div> : null}
           {r.r50a ? <div>{r.r50n || "Regional"}'s 50 Best · {r.r50a}{r.r50y ? " (" + r.r50y + ")" : ""}</div> : null}
           {r.r50d ? <div>50 Best Discovery</div> : null}
+          {r.msel ? <div>Michelin Guide</div> : null}
+          {r.mgs ? <div>Michelin Green Star</div> : null}
+          {(r.gt && !(r.gm >= 19) && !r.gmc) ? <div>Gault&Millau — {r.gt} Toques{r.gy ? " · " + r.gy : ""}</div> : null}
           {r.r50p ? <div>{r.r50n || "Regional"}'s 50 Best · previously ranked</div> : null}
           {r.jb ? <div>James Beard Award</div> : null}
           {r.ll >= 95 ? <div>La Liste {r.ll}/100{r.lly ? " (" + r.lly + ")" : ""}</div> : null}
@@ -9995,6 +10155,12 @@ function accoladeBadge(r) {
   // Neither should outrank a restaurant currently on the list, and michTier keeps them out of
   // Destination for exactly that reason.
   if (r.r50d) return "50 Best Discovery";
+  // Michelin SELECTED — in the guide, not starred and not a Bib. A real credential and a
+  // Recommended one: it means the inspectors rate the place, not that it is worth the journey.
+  if (r.msel) return "Michelin Guide";
+  // Gault&Millau Toques with no score attached. Four Toques is excellent and still Recommended;
+  // the score-based route to Destination (gm >= 19) is deliberately separate and untouched.
+  if (r.gt) return "Gault&Millau · " + r.gt + " Toques";
   if (r.r50p) return (r.r50n || "Regional") + "'s 50 Best · previously ranked";
   if (r.jb) return "James Beard";
   if (r.ll >= 95) return "La Liste " + r.ll;
