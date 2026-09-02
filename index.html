@@ -53,6 +53,8 @@ const LEVELS = ["UltraLux", "Luxury", "ExpLux", "Best"];
 // for towns whose ceiling is genuinely four-star; this is the hand-picked equivalent.
 const BEST_AVAILABLE = [
   "M\u00f6venpick Resort Petra", "Petra Marriott Hotel",
+  // Zapallar has no five-star hotel and will not have one. Isla Seca is the right answer there.
+  "Hotel Isla Seca",
 ];
 const EXPERIENCE_LUX = [
   // Jordan and Oman, Sept 2026 — the first entries in this tier. None of these is a hotel and
@@ -1000,6 +1002,14 @@ const FAVORITES = {
   ],
   "Elqui Valley": [
     { name: "CasaMolle", area: "Vicuña", rate: null, keys: 1, ourTake: "In the clearest night sky on earth \u2014 a private observatory, a golf course, and complete quiet." },
+  ],
+  // Zapallar — hand-added Sept 2026 at Tricia's request. An hour and a half up the coast from
+  // Santiago and the closest thing Chile has to the Hamptons: the houses are extraordinary and
+  // the town is where Santiago's families have summered for a century. No five-star hotel exists
+  // and none is coming, so this is BEST AVAILABLE — Hotel Isla Seca is where people actually
+  // stay, and saying so plainly beats an empty panel or a hotel dressed up as something it is not.
+  "Zapallar": [
+    { name: "Hotel Isla Seca", area: "Zapallar", rate: null, ourTake: "Above the bay looking down on the cove and the pines \u2014 the place to stay in Zapallar, and the terrace at lunch is the whole point." },
   ],
   "Valparaíso": [
     { name: "Casa Higueras", area: "Cerro Alegre", rate: null, ourTake: "A 1920s house terraced down the hill with the harbour below. Valparaíso does not need more than this." },
@@ -5368,6 +5378,7 @@ const GATEWAY = {
   "Chiloé": { air: "Puerto Montt", note: "Fly to Puerto Montt (PMC), then the ferry across the Chacao channel. Castro has a small field for private aircraft." },
   "Easter Island": { air: "Santiago", note: "One route only: LATAM from Santiago (SCL), five and a half hours over open Pacific. There is no alternative and no connection \u2014 book it before anything else." },
   "Elqui Valley": { air: "La Serena", note: "Fly to La Serena (LSC), then about an hour inland up the valley." },
+  "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
   "Sacred Valley": { air: "Cusco", note: "Fly to Cusco (CUZ), then about an hour down into the valley. Worth doing on arrival rather than sleeping in Cusco \u2014 the valley is 600 m lower and the altitude is much kinder." },
@@ -5601,7 +5612,7 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "colombia": ["Cartagena"],
-  "chile": ["Santiago","Atacama","Torres del Paine","Puerto Natales","Chilean Wine Country","Puerto Varas","Futangue","Chiloé","Elqui Valley","Valparaíso","Portillo"],
+  "chile": ["Santiago","Atacama","Torres del Paine","Puerto Natales","Chilean Wine Country","Puerto Varas","Futangue","Chiloé","Elqui Valley","Valparaíso","Zapallar","Portillo"],
   // Rapa Nui is 3,700 km off the Chilean coast — its own zone, or the app will treat it as a drive.
   "rapa-nui": ["Easter Island"],
   "qatar": ["Doha"],
@@ -5646,7 +5657,8 @@ const COORDS = {
   "Atacama": [-22.91,-68.20], "Torres del Paine": [-51.06,-72.99], "Puerto Natales": [-51.73,-72.51],
   "Chilean Wine Country": [-34.44,-71.35], "Puerto Varas": [-41.32,-72.99], "Futangue": [-40.30,-72.35],
   "Chiloé": [-42.48,-73.76], "Easter Island": [-27.15,-109.43], "Elqui Valley": [-30.03,-70.71],
-  "Valparaíso": [-33.05,-71.62], "Portillo": [-32.83,-70.13],
+  "Zapallar": [-32.55,-71.46], "Valparaíso": [-33.05,-71.62],
+ "Portillo": [-32.83,-70.13],
   "Sacred Valley": [-13.31,-72.11], "Machu Picchu": [-13.16,-72.55], "Arequipa": [-16.41,-71.54],
   "Colca Canyon": [-15.61,-71.86], "Lake Titicaca": [-15.84,-69.93], "Peruvian Amazon": [-12.59,-69.19],
     "Cusco": [-13.53,-71.97], "Lima": [-12.05,-77.04], "Cartagena": [10.39,-75.51], "Santiago": [-33.45,-70.67],
@@ -5771,7 +5783,12 @@ const DRIVE_LIMIT_KM = 300;
 // and the like. Anything longer lets the real search speak (flights, or a neutral "no fares").
 // Kept apart from DRIVE_LIMIT_KM (300), which still governs where trains/drives are OFFERED
 // (Florence→Rome, Lisbon→Porto) — that must not be suppressed.
-const TOO_CLOSE_TO_FLY_KM = 97;
+// 90 miles. Raised from 97 km (60 miles) in Sept 2026: Santiago to Zapallar is 124 km / 77 miles
+// and no airline has ever sold it, but the old threshold let the app offer flights anyway. Ninety
+// miles is about the point past which a scheduled flight becomes plausible — LA to San Diego at
+// 180 km is flown daily, New York to Philadelphia at 130 km is not. Under this, the app stops
+// offering flights and points at the road instead, which is the honest answer.
+const TOO_CLOSE_TO_FLY_KM = 145;
 function drivable(a, b) {
   // Unknown place? We cannot claim a road exists. Better honest "no" than an invented drive.
   if (!known(a) || !known(b)) return ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN ? true : false;
@@ -6420,12 +6437,23 @@ function bareCity(s) { return (s || "").replace(/\s*\([A-Z]{3}\)\s*$/, "").trim(
 function codeOf(s) { const m = /\(([A-Z]{3})\)\s*$/.exec(s || ""); return m ? m[1] : null; }
 
 const CITY_SUGGEST_CACHE = {};
-function CityBox({ value, onChange, placeholder, inputStyle }) {
+// curatedOnly restricts the suggestions to places Voyage One can actually send someone — a city
+// with hotels in FAVORITES. It is passed on the DESTINATION picker and deliberately not on the
+// departure one: people fly from wherever they live, and a home airport needs no curation.
+//
+// Why this matters. Suggestions come from Google Places autocomplete, which knows every city on
+// earth. Typing "Chile" returned Concepción — a real city with nothing curated behind it — and a
+// traveller who picked it landed on an empty page. Offering a destination we cannot serve is a
+// promise the app then breaks. Someone determined to visit somewhere uncurated already knows the
+// name and can type it in full; what they should not get is the app suggesting it.
+function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState([]);
   const raw = value || "";
   const q = bareCity(raw).toLowerCase();
-  const matches = q ? CITIES.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q).slice(0, 5) : [];
+  const servable = (name) => { const f = lookup(FAVORITES, name); return !!(f && f.length); };
+  const matches = q ? CITIES.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q)
+    .filter((c) => !curatedOnly || servable(c)).slice(0, 5) : [];
 
   useEffect(() => {
     let dead = false;
@@ -6436,7 +6464,10 @@ function CityBox({ value, onChange, placeholder, inputStyle }) {
       fetch(`/api/citysearch?q=${encodeURIComponent(term)}`)
         .then((r) => r.json())
         .then((j) => {
-          const rs = j && j.ok && j.results ? j.results : [];
+          const all = j && j.ok && j.results ? j.results : [];
+          // Filter on the CITY name — the row for "Santiago (SCL)" survives because Santiago is
+          // curated. lookup() strips the airport code itself.
+          const rs = curatedOnly ? all.filter((r) => servable(r.city)) : all;
           CITY_SUGGEST_CACHE[term.toLowerCase()] = rs;
           if (!dead) setLive(rs);
         })
@@ -7219,7 +7250,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M301</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M303</span></footer>
   </div>);
 }
 
@@ -9013,7 +9044,7 @@ function DestCard({ d, i, p }) {
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
         <span style={{ fontSize: 12, color: t.inkFaint, minWidth: 20 }}>{String(i + 1).padStart(2, "0")}</span>
         <MapPin size={18} color={t.pine} />
-        <div style={{ flex: 1 }}><CityBox value={d.city} onChange={(v) => p.setDest(i, { city: v })} placeholder={d.mode === "open" ? "Region or country (e.g. Portugal)" : "City"} inputStyle={{ fontFamily: font.display, fontSize: 26, color: t.ink, background: "none", border: "none", outline: "none", width: "100%" }} /></div>
+        <div style={{ flex: 1 }}><CityBox curatedOnly value={d.city} onChange={(v) => p.setDest(i, { city: v })} placeholder={d.mode === "open" ? "Region or country (e.g. Portugal)" : "City"} inputStyle={{ fontFamily: font.display, fontSize: 26, color: t.ink, background: "none", border: "none", outline: "none", width: "100%" }} /></div>
       </div>
       <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
         <button onClick={() => p.moveDest(i, -1)} disabled={i === 0} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, width: 30, height: 30, display: "grid", placeItems: "center", color: t.inkSoft, opacity: i === 0 ? 0.3 : 1 }}><ArrowUp size={15} /></button>
