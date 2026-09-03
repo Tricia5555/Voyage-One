@@ -64,6 +64,35 @@ const LEVELS = ["UltraLux", "Luxury", "ExpLux", "Best"];
 const SEASON = {
   "Punta del Este": { window: "December to February", note: "Punta is a summer town and it is emphatic about it. From December the crowd arrives, the restaurants open and American flies its Miami nonstop into Montevideo. Outside those months the town is quiet and pretty, but flights thin out to a connection through Panama — the same trip takes eight hours longer." },
   "José Ignacio": { window: "December to February", note: "The season is short and it is the point. In January the village is at its best and the Miami nonstop into Montevideo is running; in the shoulder months many of the good tables close and the flights get considerably worse." },
+  // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
+  // first pass to correct. Only destinations where the month materially changes the trip get an
+  // entry; a city that works all year stays silent rather than filling space.
+  "Torres del Paine": { window: "November to March", note: "The Patagonian summer, and effectively the only window — most lodges close entirely from May. December and January bring the long light and the wind, which is relentless and part of the place. March is the quiet secret: less wind, autumn colour on the lenga, and the towers to yourself." },
+  "El Calafate": { window: "October to April", note: "The glacier is there all year but the light and the boats are not. December to February is high season and busy at the walkways; October and March give you the same ice with room to breathe." },
+  "El Chaltén": { window: "November to March", note: "Fitz Roy makes its own weather and hides for days at a time. Give it four nights in summer rather than two — the mountain shows itself when it chooses, and people who allow one day usually never see it." },
+  "Ushuaia": { window: "November to March", note: "Antarctic sailings run November to March and the town moves to their rhythm. Outside that it is a working port in the cold, with the Beagle Channel and not much else." },
+  "Bariloche": { window: "December to March, or July to September", note: "Two quite different holidays. Summer is the lakes, the walks and Llao Llao's golf; winter is Cerro Catedral and the best skiing in South America. April to June and October are neither, and the town knows it." },
+  "Villa La Angostura": { window: "December to March", note: "The Andean lake summer, when the Correntoso fishing is at its best and the roads through the Seven Lakes are open and worth the drive." },
+  "Mendoza": { window: "March to April", note: "Harvest. The vendimia runs late February through April and the valleys are at their most alive — though the vineyards are lovely from October. Avoid deep winter: the Uco Valley is cold and much of it shuts." },
+  "Uco Valley": { window: "March to April", note: "Harvest again, and the reason to come. Everything is being picked and the winemakers are on the estate rather than travelling." },
+  "Iguazú": { window: "March to May, or August to October", note: "The falls are extraordinary all year, so the choice is comfort. December to February is intensely hot and humid; June and July are cool but the flow is lower. The shoulder months give you strong water without the heat." },
+  "Atacama": { window: "Year-round, best March to May and September to November", note: "The driest desert on earth, so weather is barely the question — altitude is. San Pedro sits at 2,400 m and the geysers at 4,300, so build in a slow first day. The Bolivian winter brings brief afternoon rain in January and February." },
+  "Easter Island": { window: "October to March", note: "Warmest and driest in the southern summer, though the island is temperate all year. February brings Tapati, the two-week festival — spectacular, and everything books a year out." },
+  "Chiloé": { window: "December to March", note: "The southern summer. Chiloé is famously wet and it rains in every season; summer simply rains less and the ferries and the little churches are easier to reach." },
+  "Peruvian Amazon": { window: "May to October", note: "The dry season, which means less rain and better trail walking. The wet months from November bring higher water — worse for hiking, better for reaching creeks by canoe and often better for wildlife. Neither is wrong; they are different trips." },
+  "Brazilian Amazon": { window: "June to November", note: "The dry season, with lower rivers and better forest walking. From December the flood comes and the canoes go where you would otherwise walk — the forest is at its most extraordinary then, and hardest to move through." },
+  "Pantanal": { window: "June to October", note: "Jaguar season, and the only serious answer. The water retreats, the animals concentrate on the remaining rivers, and sightings become reliable rather than lucky. From December the wetland floods and most of it is unreachable." },
+  "Fernando de Noronha": { window: "August to November", note: "The dry months, with the clearest water for diving and the calmest crossings. January to April is the rain, and the island caps visitor numbers all year, so book far ahead whenever you go." },
+  "Trancoso": { window: "December to March", note: "The Bahian summer, when the Quadrado comes alive at night. April to June is the wet season and much of the town closes." },
+  "Machu Picchu": { window: "April to May, or September to October", note: "The shoulder either side of the dry season: clear skies without the June-to-August crowds. February is the wettest month and the Inca Trail closes entirely." },
+  "Sacred Valley": { window: "April to October", note: "The dry season. April and May are the best of it — everything still green from the rains, the skies clear, and far fewer people than July." },
+  "Colca Canyon": { window: "April to November", note: "The dry months. Condors fly the canyon year-round but the morning thermals are most reliable in the dry season, and the road over the pass is far better without rain." },
+  "Lake Titicaca": { window: "May to October", note: "The dry season, with cold clear nights at 3,800 m and reliable sun. The rains from December make the island crossings less pleasant." },
+  "Galápagos": { window: "Year-round, with two distinct seasons", note: "There is no bad month, only a choice. December to May is warm with calm seas and the best snorkelling. June to November is cooler and rougher, but the Humboldt current brings the water alive — this is when you see the most, and when the albatross are on Española." },
+  "Mashpi": { window: "Year-round", note: "Cloud forest: it rains in every month and that is the point. April to June are the wettest. The reserve is at its most active in the drier stretch from July to December, though the difference is one of degree." },
+  "Tayrona": { window: "December to March, or July to August", note: "The dry windows. The park closes for several weeks each year for indigenous ceremonies, and the dates move — check before committing." },
+  "Coffee Country": { window: "December to March, or July to August", note: "The drier months between the two rainy seasons. Coffee is picked twice a year, with the main harvest around October and November if seeing it matters to you." },
+  "Cartagena": { window: "December to April", note: "The dry season, and hot regardless. From May the humidity becomes heavy and the afternoon rain arrives; October is the wettest month of the year." },
 };
 function seasonFor(city) { if (!city) return null; const k = Object.keys(SEASON).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? SEASON[k] : null; }
 const BEST_AVAILABLE = [
@@ -524,7 +553,7 @@ function michTier(m, dense) {
   // are genuine credentials and they qualify a restaurant for the list, but neither is
   // destination-defining: a Discovery listing is not a Top 50 place, and a ranking held three
   // years ago is not a ranking held now. They carry a restaurant into Recommended and no further.
-  const cred = m && typeof m === "object" && (m.jb || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
+  const cred = m && typeof m === "object" && (m.bob || m.jb || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
 }
@@ -3172,6 +3201,24 @@ const ACCOLADES = {
   "sentjanz": [{ n: "Gostilna Repov\u017e", gt: 4, gy: 2026 }],
   "maribor": [{ n: "Mak", gt: 4, gy: 2026 }],
   "petrovce": [{ n: "Galerija Okusov", gt: 4, gy: 2026 }],
+  // ── WORLD'S 50 BEST — BEST OF THE BEST, and the 2025 TOP 10 ─────────────────────────
+  // BEST OF THE BEST never expires. A restaurant that reaches World number one is withdrawn from
+  // future voting and disappears from the annual list — Central has not been ranked since 2023
+  // and is not diminished by it. bob:1 makes that permanent and the badge explains it.
+  //
+  // EL BULLI IS DELIBERATELY ABSENT: it closed permanently in 2011, and the master rule says
+  // retain unless the restaurant closes. It closed.
+  //
+  // NOMA needs watching — it ceased operating as a restaurant at the end of 2024 to become a food
+  // laboratory, with pop-ups since. Carried as the curation lists it; verify before it is offered.
+  //
+  // The 2026 global ranking lands 4 November 2026. Until then 2025 is current.
+  "bray": [{ n: "The Fat Duck", bob: 1, bobY: 2005 }],
+  "girona": [{ n: "El Celler de Can Roca", bob: 1, bobY: 2013 }],
+  "menton": [{ n: "Mirazur", bob: 1, bobY: 2019 }],
+  "atxondo": [{ n: "Asador Etxebarri", w: 2, wy: 2025 }],
+  "mexico city": [{ n: "Quintonil", w: 3, wy: 2025 }],
+  "buenos aires": [{ n: "Don Julio", w: 10, wy: 2025 }],
   // JORDAN. Three current Top 50 entries, and two long-standing Amman houses that held Top 50
   // places in earlier years — filed as previously ranked so they sit in Recommended and cannot
   // outrank a restaurant on the list today.
@@ -3309,10 +3356,10 @@ const ACCOLADES = {
   "balma": [{ n: "L'Équilibre", bib:1 }],
   "baltimore": [{ n: "Charleston", us:1, jb:1 }, { n: "Baba'de", bib:1 }],
   "bandol": [{ n: "Au Clair de la Vigne", bib:1 }],
-  "bangkok": [{ n: "Bunloet (Pom Prap Sattru Phai)", bib:1 }, { n: "Somsak Pu Ob (Charoen Rat)", bib:1 }, { n: "Janhom", bib:1 }, { n: "K. Panich", bib:1 }, { n: "Aunglo by Yangrak", bib:1 }, { n: "Pad Thai Fai Ta Lu (Phra Nakhon)", bib:1 }, { n: "Krua Apsorn (Dusit)", bib:1 }, { n: "Beer Hima (Chatuchak)", bib:1 }, { n: "Keawloon", bib:1 }, { n: "Rung Rueang Pork Noodle", bib:1 }, { n: "Burapa", bib:1 }, { n: "Jidori Cuisine Ken", bib:1 }, { n: "Ten Suns", bib:1 }, { n: "Mae Thum Padthai Kheng", bib:1 }, { n: "Aheesah Roddee", bib:1 }, { n: "Thai Tham", bib:1 }, { n: "Kolun.h", bib:1 }, { n: "Nai Ho Chicken Rice", bib:1 }, { n: "Wattana Panich", bib:1 }, { n: "Polo Fried Chicken", bib:1 }, { n: "Krua Porn Lamai", bib:1 }, { n: "Nai Mong Hoi Thod", bib:1 }, { n: "Sanguan Sri", bib:1 }, { n: "Lay Lao", bib:1 }, { n: "Somtum Khun Kan", bib:1 }],
+  "bangkok": [{ n: "Gaggan", w: 6, wy: 2025 }, { n: "Bunloet (Pom Prap Sattru Phai)", bib:1 }, { n: "Somsak Pu Ob (Charoen Rat)", bib:1 }, { n: "Janhom", bib:1 }, { n: "K. Panich", bib:1 }, { n: "Aunglo by Yangrak", bib:1 }, { n: "Pad Thai Fai Ta Lu (Phra Nakhon)", bib:1 }, { n: "Krua Apsorn (Dusit)", bib:1 }, { n: "Beer Hima (Chatuchak)", bib:1 }, { n: "Keawloon", bib:1 }, { n: "Rung Rueang Pork Noodle", bib:1 }, { n: "Burapa", bib:1 }, { n: "Jidori Cuisine Ken", bib:1 }, { n: "Ten Suns", bib:1 }, { n: "Mae Thum Padthai Kheng", bib:1 }, { n: "Aheesah Roddee", bib:1 }, { n: "Thai Tham", bib:1 }, { n: "Kolun.h", bib:1 }, { n: "Nai Ho Chicken Rice", bib:1 }, { n: "Wattana Panich", bib:1 }, { n: "Polo Fried Chicken", bib:1 }, { n: "Krua Porn Lamai", bib:1 }, { n: "Nai Mong Hoi Thod", bib:1 }, { n: "Sanguan Sri", bib:1 }, { n: "Lay Lao", bib:1 }, { n: "Somtum Khun Kan", bib:1 }],
   "bar": [{ n: "L'Épicurieux", bib:1 }],
   "barbastro": [{ n: "La Oveja Negra", bib:1 }],
-  "barcelona": [{ n: "Oníric", bib:1 }, { n: "Avenir", bib:1 }, { n: "Saó", bib:1 }, { n: "Cruix", bib:1 }, { n: "Bardeni-Caldeni", bib:1 }, { n: "Glug", bib:1 }, { n: "Bacaro", bib:1 }, { n: "Berbena", bib:1 }],
+  "barcelona": [{ n: "Disfrutar", bob: 1, bobY: 2024 }, { n: "Oníric", bib:1 }, { n: "Avenir", bib:1 }, { n: "Saó", bib:1 }, { n: "Cruix", bib:1 }, { n: "Bardeni-Caldeni", bib:1 }, { n: "Glug", bib:1 }, { n: "Bacaro", bib:1 }, { n: "Berbena", bib:1 }],
   "barneville carteret": [{ n: "Le Restaurant des Isles", bib:1 }],
   "basel": [{ n: "au violon", bib:1 }],
   "basse goulaine": [{ n: "Restaurant du Pont", bib:1 }],
@@ -3534,7 +3581,7 @@ const ACCOLADES = {
   "combeaufontaine": [{ n: "Le Balcon", bib:1 }],
   "comblain au pont": [{ n: "Un Max de Goût", bib:1 }],
   "conques en rouergue": [{ n: "Bistrot Le Héron", bib:1 }],
-  "copenhagen": [{ n: "Anarki", bib:1 }, { n: "Bistro Lupa", bib:1 }, { n: "Bobe", bib:1 }, { n: "Botschaft", bib:1 }, { n: "Calma", bib:1 }, { n: "démodé", bib:1 }, { n: "Enomania", bib:1 }, { n: "Gabrielle", bib:1 }, { n: "Graziano", bib:1 }, { n: "Hærværk", bib:1 }, { n: "Koefoed", bib:1 }, { n: "Levi", bib:1 }, { n: "Marv & Ben", bib:1 }, { n: "Mêlée", bib:1 }, { n: "no.2", bib:1 }, { n: "Norrlyst", bib:1 }, { n: "Paesàno", bib:1 }, { n: "Petra Bar & Restaurant", bib:1 }, { n: "Pluto", bib:1 }, { n: "Radio", bib:1 }, { n: "Rebel", bib:1 }, { n: "Restaurant Frank", bib:1 }, { n: "Restaurant VIE", bib:1 }, { n: "Sanchez", bib:1 }, { n: "Selma", bib:1 }, { n: "Uformel", bib:1 }, { n: "Silberbauers Bistro", bib:1 }],
+  "copenhagen": [{ n: "Noma", bob: 1, bobY: 2021 }, { n: "Geranium", bob: 1, bobY: 2022 }, { n: "Alchemist", w: 5, wy: 2025 }, { n: "Anarki", bib:1 }, { n: "Bistro Lupa", bib:1 }, { n: "Bobe", bib:1 }, { n: "Botschaft", bib:1 }, { n: "Calma", bib:1 }, { n: "démodé", bib:1 }, { n: "Enomania", bib:1 }, { n: "Gabrielle", bib:1 }, { n: "Graziano", bib:1 }, { n: "Hærværk", bib:1 }, { n: "Koefoed", bib:1 }, { n: "Levi", bib:1 }, { n: "Marv & Ben", bib:1 }, { n: "Mêlée", bib:1 }, { n: "no.2", bib:1 }, { n: "Norrlyst", bib:1 }, { n: "Paesàno", bib:1 }, { n: "Petra Bar & Restaurant", bib:1 }, { n: "Pluto", bib:1 }, { n: "Radio", bib:1 }, { n: "Rebel", bib:1 }, { n: "Restaurant Frank", bib:1 }, { n: "Restaurant VIE", bib:1 }, { n: "Sanchez", bib:1 }, { n: "Selma", bib:1 }, { n: "Uformel", bib:1 }, { n: "Silberbauers Bistro", bib:1 }],
   "coral gables": [{ n: "Tinta y Cafe", us:1, bib:1 }, { n: "Zitz Sum", us:1, bib:1 }],
   "corbion": [{ n: "Des Ardennes", bib:1 }],
   "cordoba": [{ n: "Terra Olea", bib:1 }, { n: "Regadera", bib:1 }, { n: "El Envero", bib:1 }, { n: "La Cuchara de San Lorenzo", bib:1 }, { n: "La Taberna de Almodóvar", bib:1 }],
@@ -3899,7 +3946,7 @@ const ACCOLADES = {
   "liege": [{ n: "La Cuisine de Yannick", bib:1 }, { n: "Héliport Brasserie", bib:1 }, { n: "¡Toma!", bib:1 }, { n: "Enoteca", bib:1 }],
   "ligist": [{ n: "Wörgötter - Wirtshaus", bib:1 }],
   "lille": [{ n: "Saisons - Cave à Manger", bib:1 }, { n: "Rouge Barre", bib:1 }],
-  "lima": [{ n: "Maido", w:1, wy:2025, wa:"The World's Best Restaurant" }, { n: "Kjolle", w:9, wy:2025 }, { n: "Mérito", w:26, wy:2025 }, { n: "Mayta", w:39, wy:2025 }],
+  "lima": [{ n: "Central", bob: 1, bobY: 2023 }, { n: "Maido", w:1, wy:2025, wa:"The World's Best Restaurant" }, { n: "Kjolle", w:9, wy:2025 }, { n: "Mérito", w:26, wy:2025 }, { n: "Mayta", w:39, wy:2025 }],
   "limatola": [{ n: "La Taverna delle Follie", bib:1 }],
   "linares": [{ n: "Los Sentidos", bib:1 }],
   "linares de la sierra": [{ n: "Arrieros", bib:1 }],
@@ -3936,7 +3983,7 @@ const ACCOLADES = {
   "macanet de cabrenys": [{ n: "Els Caçadors", bib:1 }],
   "macau": [{ n: "A Lorcha", bib:1 }, { n: "Cheong Kei", bib:1 }, { n: "Chan Seng Kei", bib:1 }, { n: "Lou Kei", bib:1 }, { n: "Lok Kei Noodles (Patane)", bib:1 }, { n: "Nok Song", bib:1 }, { n: "O Castiço (Taipa)", bib:1 }, { n: "Restaurant Litoral (Taipa)", bib:1 }, { n: "UTM Educational Restaurant", bib:1 }, { n: "Kapok", bib:1 }, { n: "Tou Tou Koi", bib:1 }, { n: "Din Tai Fung", bib:1 }, { n: "IFTM Educational Restaurant", bib:1 }],
   "madison": [{ n: "Fairchild", us:1, jb:1 }],
-  "madrid": [{ n: "La Barra de la Tasquería", bib:1 }, { n: "In-Pulso", bib:1 }, { n: "La MaMá", bib:1 }, { n: "Manifesto 13", bib:1 }, { n: "Trèsde", bib:1 }, { n: "Varra", bib:1 }, { n: "La Montería", bib:1 }, { n: "Bacira", bib:1 }, { n: "Treze", bib:1 }, { n: "Tres por Cuatro", bib:1 }, { n: "Sisapo", bib:1 }, { n: "Gala", bib:1 }, { n: "Las Tortillas de Gabino", bib:1 }, { n: "Quinqué", bib:1 }, { n: "Vinoteca Moratín", bib:1 }],
+  "madrid": [{ n: "DiverXO", w: 4, wy: 2025 }, { n: "La Barra de la Tasquería", bib:1 }, { n: "In-Pulso", bib:1 }, { n: "La MaMá", bib:1 }, { n: "Manifesto 13", bib:1 }, { n: "Trèsde", bib:1 }, { n: "Varra", bib:1 }, { n: "La Montería", bib:1 }, { n: "Bacira", bib:1 }, { n: "Treze", bib:1 }, { n: "Tres por Cuatro", bib:1 }, { n: "Sisapo", bib:1 }, { n: "Gala", bib:1 }, { n: "Las Tortillas de Gabino", bib:1 }, { n: "Quinqué", bib:1 }, { n: "Vinoteca Moratín", bib:1 }],
   "madrigal de la vera": [{ n: "El Molino", bib:1 }],
   "madulain": [{ n: "Colani Bistrot", bib:1 }],
   "maia": [{ n: "Machado", bib:1 }],
@@ -3996,7 +4043,7 @@ const ACCOLADES = {
   "mizunami": [{ n: "Yanagiya", ll:97, lly:2026 }],
   "mobile": [{ n: "The Noble South", us:1, bib:1 }],
   "modave": [{ n: "La Roseraie", bib:1 }],
-  "modena": [{ n: "Antica Moka", bib:1 }, { n: "Trattoria Pomposa - Al Re gras", bib:1 }],
+  "modena": [{ n: "Osteria Francescana", bob: 1, bobY: 2016 }, { n: "Antica Moka", bib:1 }, { n: "Trattoria Pomposa - Al Re gras", bib:1 }],
   "moena": [{ n: "Ostaria Tyrol", bib:1 }, { n: "Foresta", bib:1 }, { n: "Agritur El Mas", bib:1 }],
   "moggiona": [{ n: "Il Cedro", bib:1 }],
   "moira": [{ n: "Wine & Brine", bib:1 }],
@@ -4062,7 +4109,7 @@ const ACCOLADES = {
   "new alresford": [{ n: "Pulpo Negro", bib:1 }],
   "new orleans": [{ n: "Dakar NOLA", us:1, jb:1 }, { n: "Compère Lapin", us:1, jb:1 }, { n: "Herbsaint", us:1, jb:1 }, { n: "Acamaya", us:1, bib:1 }, { n: "Cochon", us:1, bib:1 }, { n: "Cochon Butcher", us:1, bib:1 }, { n: "Domilise's Po-Boy & Bar", us:1, bib:1 }, { n: "Dooky Chase", us:1, bib:1 }, { n: "Hungry Eyes", us:1, bib:1 }, { n: "Lufu Nola", us:1, bib:1 }, { n: "Mister Mao", us:1, bib:1 }, { n: "Parkway Bakery & Tavern", us:1, bib:1 }, { n: "Saba", us:1, bib:1 }, { n: "Turkey and the Wolf", us:1, bib:1 }],
   "new taipei": [{ n: "Yonghe Chia Hsiang Soy Milk", bib:1 }, { n: "SÒNG JHAO", bib:1 }, { n: "Dian Xiao Er (Datong North Road)", bib:1 }, { n: "San Tung", bib:1 }, { n: "Guang Xing Pork Knuckle", bib:1 }, { n: "San Chieh Mei Nung Chia Le", bib:1 }, { n: "Yeh Chia Pork Ribs Medicinal Herbs Soup", bib:1 }, { n: "Jhen Pin", bib:1 }, { n: "Lai Kang Shan", bib:1 }],
-  "new york": [{ n: "Lei", us:1, jb:1 }, { n: "Dhamaka", us:1, jb:1, bib:1 }, { n: "Frenchette", us:1, jb:1 }, { n: "Via Carota", us:1, jb:1 }, { n: "Hearth", us:1, jb:1 }, { n: "Dim Sum Go Go", us:1, bib:1 }, { n: "Nyonya", us:1, bib:1 }, { n: "Thai Diner", us:1, bib:1 }, { n: "Cervo's", us:1, bib:1 }, { n: "Potluck Club", us:1, bib:1 }, { n: "Tolo", us:1, bib:1 }, { n: "Pinch Chinese", us:1, bib:1 }, { n: "Russ & Daughters Cafe", us:1, bib:1 }, { n: "8282", us:1, bib:1 }, { n: "Laliko", us:1, bib:1 }, { n: "C as in Charlie", us:1, bib:1 }, { n: "Una Pizza Napoletana", us:1, bib:1 }, { n: "Sami & Susu", us:1, bib:1 }, { n: "Nami Nori", us:1, bib:1 }, { n: "Katz's Delicatessen", us:1, bib:1 }, { n: "Bungalow", us:1, bib:1 }, { n: "Little Myanmar", us:1, bib:1 }, { n: "CheLi", us:1, bib:1 }, { n: "Soda Club", us:1, bib:1 }, { n: "MáLà Project", us:1, bib:1 }, { n: "Ruffian", us:1, bib:1 }, { n: "Noreetuh", us:1, bib:1 }, { n: "Sobaya", us:1, bib:1 }, { n: "Superiority Burger", us:1, bib:1 }, { n: "Pranakhon", us:1, bib:1 }, { n: "Momofuku Noodle Bar", us:1, bib:1 }, { n: "Bánh Anh Em", us:1, bib:1 }, { n: "Yellow Rose", us:1, bib:1 }, { n: "Odre", us:1, bib:1 }, { n: "Ishq", us:1, bib:1 }, { n: "La Dong", us:1, bib:1 }, { n: "Coqodaq", us:1, bib:1 }, { n: "Norma Gastronomia Siciliana", us:1, bib:1 }, { n: "HanGawi", us:1, bib:1 }, { n: "Cho Dang Gol", us:1, bib:1 }, { n: "Tonchin", us:1, bib:1 }, { n: "Little Alley", us:1, bib:1 }, { n: "Peppercorn Station", us:1, bib:1 }, { n: "Bohemian Spirit", us:1, bib:1 }, { n: "Atla", us:1, bib:1 }, { n: "Fish Cheeks", us:1, bib:1 }, { n: "Hav & Mar", us:1, bib:1 }, { n: "Kimika", us:1, bib:1 }, { n: "Bayon", us:1, bib:1 }, { n: "Oso", us:1, bib:1 }, { n: "Tha Phraya", us:1, bib:1 }, { n: "Kung Fu Little Steamed Buns Ramen", us:1, bib:1 }, { n: "Chalong", us:1, bib:1 }, { n: "Covacha", us:1, bib:1 }, { n: "Lungi", us:1, bib:1 }],
+  "new york": [{ n: "Eleven Madison Park", bob: 1, bobY: 2017 }, { n: "Lei", us:1, jb:1 }, { n: "Dhamaka", us:1, jb:1, bib:1 }, { n: "Frenchette", us:1, jb:1 }, { n: "Via Carota", us:1, jb:1 }, { n: "Hearth", us:1, jb:1 }, { n: "Dim Sum Go Go", us:1, bib:1 }, { n: "Nyonya", us:1, bib:1 }, { n: "Thai Diner", us:1, bib:1 }, { n: "Cervo's", us:1, bib:1 }, { n: "Potluck Club", us:1, bib:1 }, { n: "Tolo", us:1, bib:1 }, { n: "Pinch Chinese", us:1, bib:1 }, { n: "Russ & Daughters Cafe", us:1, bib:1 }, { n: "8282", us:1, bib:1 }, { n: "Laliko", us:1, bib:1 }, { n: "C as in Charlie", us:1, bib:1 }, { n: "Una Pizza Napoletana", us:1, bib:1 }, { n: "Sami & Susu", us:1, bib:1 }, { n: "Nami Nori", us:1, bib:1 }, { n: "Katz's Delicatessen", us:1, bib:1 }, { n: "Bungalow", us:1, bib:1 }, { n: "Little Myanmar", us:1, bib:1 }, { n: "CheLi", us:1, bib:1 }, { n: "Soda Club", us:1, bib:1 }, { n: "MáLà Project", us:1, bib:1 }, { n: "Ruffian", us:1, bib:1 }, { n: "Noreetuh", us:1, bib:1 }, { n: "Sobaya", us:1, bib:1 }, { n: "Superiority Burger", us:1, bib:1 }, { n: "Pranakhon", us:1, bib:1 }, { n: "Momofuku Noodle Bar", us:1, bib:1 }, { n: "Bánh Anh Em", us:1, bib:1 }, { n: "Yellow Rose", us:1, bib:1 }, { n: "Odre", us:1, bib:1 }, { n: "Ishq", us:1, bib:1 }, { n: "La Dong", us:1, bib:1 }, { n: "Coqodaq", us:1, bib:1 }, { n: "Norma Gastronomia Siciliana", us:1, bib:1 }, { n: "HanGawi", us:1, bib:1 }, { n: "Cho Dang Gol", us:1, bib:1 }, { n: "Tonchin", us:1, bib:1 }, { n: "Little Alley", us:1, bib:1 }, { n: "Peppercorn Station", us:1, bib:1 }, { n: "Bohemian Spirit", us:1, bib:1 }, { n: "Atla", us:1, bib:1 }, { n: "Fish Cheeks", us:1, bib:1 }, { n: "Hav & Mar", us:1, bib:1 }, { n: "Kimika", us:1, bib:1 }, { n: "Bayon", us:1, bib:1 }, { n: "Oso", us:1, bib:1 }, { n: "Tha Phraya", us:1, bib:1 }, { n: "Kung Fu Little Steamed Buns Ramen", us:1, bib:1 }, { n: "Chalong", us:1, bib:1 }, { n: "Covacha", us:1, bib:1 }, { n: "Lungi", us:1, bib:1 }],
   "newlyn": [{ n: "argoe", bib:1 }],
   "newnham": [{ n: "Post", bib:1 }],
   "newport beach": [{ n: "Fable & Spirit", us:1, bib:1 }],
@@ -4133,7 +4180,7 @@ const ACCOLADES = {
   "palo alto": [{ n: "iTalico", us:1, bib:1 }],
   "pamplona": [{ n: "El Merca'o", bib:1 }],
   "papendrecht": [{ n: "Bistro De Ertepeller", bib:1 }],
-  "paris": [{ n: "Le Grand Restaurant – Jean-François Piège", ll:97.5, lly:2026, gm:19, gt:5, gy:2026 }],
+  "paris": [{ n: "Table by Bruno Verjus", w: 8, wy: 2025 }, { n: "Le Grand Restaurant – Jean-François Piège", ll:97.5, lly:2026, gm:19, gt:5, gy:2026 }],
   "parma": [{ n: "Brisla Trattoria", bib:1 }, { n: "I Tri Siochètt", bib:1 }],
   "pasadena": [{ n: "Union", us:1, bib:1 }],
   "pau": [{ n: "Omnivore", bib:1 }],
@@ -4457,7 +4504,7 @@ const ACCOLADES = {
   "tilburg": [{ n: "Hofstede de Blaak", bib:1 }, { n: "Te Koop in Tilburg", bib:1 }, { n: "Brasserie Kok Verhoeven", bib:1 }],
   "tisbury": [{ n: "Pythouse Kitchen Garden", bib:1 }],
   "tivoli": [{ n: "Li Somari", bib:1 }],
-  "tokyo": [{ n: "Matsukawa", ll:99.5, lly:2026 }, { n: "L'Osier", ll:98.5, lly:2026 }, { n: "Hoshino", ll:98.5, lly:2026 }, { n: "Sugita", ll:98.5, lly:2026 }, { n: "Makimura", ll:97.5, lly:2026 }, { n: "Aoyagi", ll:97.5, lly:2026 }, { n: "Takiya", ll:97, lly:2026 }, { n: "Sugalabo", ll:95, lly:2026 }, { n: "Sushi Arai", ll:95, lly:2026 }],
+  "tokyo": [{ n: "S\u00e9zanne", w: 7, wy: 2025 }, { n: "Matsukawa", ll:99.5, lly:2026 }, { n: "L'Osier", ll:98.5, lly:2026 }, { n: "Hoshino", ll:98.5, lly:2026 }, { n: "Sugita", ll:98.5, lly:2026 }, { n: "Makimura", ll:97.5, lly:2026 }, { n: "Aoyagi", ll:97.5, lly:2026 }, { n: "Takiya", ll:97, lly:2026 }, { n: "Sugalabo", ll:95, lly:2026 }, { n: "Sushi Arai", ll:95, lly:2026 }],
   "tomball": [{ n: "Tejas Chocolate + Barbecue", us:1, bib:1 }],
   "tonda": [{ n: "3 Pipos", bib:1 }],
   "torano nuovo": [{ n: "Osteria dei Maltagliati", bib:1 }],
@@ -4591,7 +4638,7 @@ const ACCOLADES = {
   "yens": [{ n: "Auberge de la Croix d'Or - Bistro", bib:1 }],
   "yerres": [{ n: "Bird", bib:1 }],
   "york": [{ n: "Skosh", bib:1 }],
-  "yountville": [{ n: "Ciccio", us:1, bib:1 }],
+  "yountville": [{ n: "The French Laundry", bob: 1, bobY: 2003 }, { n: "Ciccio", us:1, bib:1 }],
   "ystad": [{ n: "JH matbar", bib:1 }],
   "yvoir": [{ n: "Mona Lisa", bib:1 }],
   "zafra": [{ n: "Acebuche", bib:1 }],
@@ -7641,7 +7688,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M314</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M316</span></footer>
   </div>);
 }
 
@@ -10776,8 +10823,9 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 24 : 19, color: t.ink, lineHeight: 1.06 }}>{r.n}</div>
       <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{level} · {info.area ? info.area + ", " : ""}{r.city}</div>
       {sel ? (<>
-        {(r.s >= 1 || r.jb || r.w || r.wa || r.r50 || r.r50a || r.r50d || r.r50p || r.msel || r.mgs || r.gt || r.ll || r.gm || r.gmc || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
+        {(r.s >= 1 || r.bob || r.jb || r.w || r.wa || r.r50 || r.r50a || r.r50d || r.r50p || r.msel || r.mgs || r.gt || r.ll || r.gm || r.gmc || r.bib || r.lf) ? <div style={{ fontSize: 11.5, color: t.brass, fontWeight: 500, lineHeight: 1.55, marginTop: 7 }}>
           {r.s >= 1 ? <div>{"★".repeat(r.s)} Michelin</div> : null}
+          {r.bob ? <div>World's 50 Best · Best of the Best{r.bobY ? " · #1 in " + r.bobY : ""}</div> : null}
           {r.w && r.w <= 100 ? <div>World's 50 Best · #{r.w}{r.wy ? " (" + r.wy + ")" : ""}</div> : null}
           {r.wa ? <div>World's 50 Best · {r.wa} ({r.wy || 2025})</div> : null}
           {/* REGIONAL 50 Best lists — MENA, Asia, Latin America. These are separate rankings from
@@ -10810,6 +10858,11 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
 const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recommended", label: "Recommended" }, { key: "Local", label: "Local Favorite" }];
 // The accolade badge for a card — Michelin stars if starred, else the top non-Michelin credential.
 function accoladeBadge(r) {
+  // BEST OF THE BEST is permanent and outranks everything else on the card. A former World
+  // number one is removed from future voting, so it vanishes from the annual list — that is the
+  // rule of the award, not a judgement on the restaurant. Central has not been ranked since 2023
+  // and a client should be told why rather than left to assume it slipped.
+  if (r.bob) return "World's 50 Best · Best of the Best";
   if (r.s >= 1) return "★".repeat(r.s) + " Michelin";
   if (r.w && r.w <= 100) return "World's 50 Best · #" + r.w;
   // REGIONAL 50 Best — MENA, Asia, Latin America. Separate rankings from the World's list and
