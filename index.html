@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── BRITISH VIRGIN ISLANDS. Drafted Sept 2026 — mine, not Tricia's.
+  "British Virgin Islands": { window: "December to April \u2014 and the Spring Regatta at the end of March", note: "The dry, breezy sailing season, with the Spring Regatta filling Tortola for a week around the turn of April. Necker's individual-stay weeks are few and go early. Most of the resorts close from late August into October \u2014 Little Dix among them \u2014 and hurricane season is June to November; the islands took Irma directly in 2017 and everything on this list has been rebuilt since." },
   // ── BARBADOS. Drafted Sept 2026 — mine, not Tricia's.
   "Barbados": { window: "December to April \u2014 and Christmas at Sandy Lane is its own thing", note: "The dry season, and the west coast at its calmest. Christmas and New Year at Sandy Lane are booked a year ahead by people who have been coming since the sixties. The island stays open through the summer more than its neighbours \u2014 a wetter, greener, much quieter time and the rates say so. Hurricane season is June to November, though Barbados sits east of most of it." },
   // ── ST LUCIA. Drafted Sept 2026 — mine, not Tricia's.
@@ -450,7 +452,13 @@ const ULTRA_LUX = [
   // Anguilla in full — 3 Sept 2026, on the strict standard. One. Malliouhana was here and is
   // now Luxury by instruction; Four Seasons, Aurora and Zemi never were.
   "Cap Juluca, a Belmond Hotel",
-  "Amanyara", "Rosewood Little Dix Bay",
+  "Amanyara",
+  // British Virgin Islands in full — 3 Sept 2026, on the strict standard. Three: Rockefeller's
+  // bay under Rosewood, Branson's island, and Branson's estate on the island next to it — the
+  // last two are not hotels, they are taken whole or by the villa, and the cards say so. Oil Nut
+  // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
+  // be Ultra on their own, but the resort is classified as a whole.
+  "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
   // Barbados in full — 3 Sept 2026, on the strict standard. One. Cobblers Cove, Coral Reef
   // Club, The Sandpiper and Fairmont Royal Pavilion are Luxury by instruction.
   "Sandy Lane",
@@ -2185,8 +2193,19 @@ const FAVORITES = {
     { name: "The Ritz-Carlton, Turks & Caicos", area: "Grace Bay", rate: null, ourTake: "A polished, large beach resort on Grace Bay with everything a brand of this size brings. Reliable rather than rare." },
     { name: "Salterra, a Luxury Collection Resort & Spa", area: "South Caicos", rate: null, ourTake: "The new resort on a much quieter island \u2014 an empty beach, real diving and bonefishing, and none of Provo's traffic. Reached by a short flight from Providenciales to South Caicos's own strip." },
   ],
+  // ── BRITISH VIRGIN ISLANDS, IN FULL ─────────────────────────────────────────────────
+  // Six properties under the existing country key. Every one of them is on a different island
+  // and every one is reached by boat from Beef Island (EIS), where the airport is — so one key,
+  // one door, the area field naming the island, and CITY_ARRIVAL explaining the boats and the
+  // St Thomas alternative. The fishing card already pointed at "Virgin Gorda", which had no
+  // alias and resolved to nothing; it lands here now.
   "British Virgin Islands": [
-    { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's storied bay, elegantly reborn." },
+    { name: "Necker Island", area: "Necker Island \u2014 exclusive use, and a few individual-stay weeks", rate: null, ourTake: "Branson's seventy-four acres, taken whole most of the year and opened to individual stays for a handful of weeks in it. Everything included, twenty-four-hour kitchen, tennis, padel and every kind of boat. The most famous private island there is, and priced like it." },
+    { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's crescent of sand, rebuilt for Rosewood \u2014 low, private, and refined to a degree nothing else in these islands reaches. Villas up to six bedrooms with their own butlers. The conventional Ultra Luxury resort of the BVI, and one of the few in the Caribbean that clears the bar." },
+    { name: "The Branson Beach Estate", area: "Moskito Island \u2014 by the villa or exclusive use", rate: null, ourTake: "Three villas, eleven bedrooms and about twenty-two guests at most, on the island next to Necker, with a resident chef, a private beach and three infinity pools. Not a hotel: a family or a group takes a villa or takes it all." },
+    { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
+    { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
+    { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
   ],
   // ── BARBADOS, IN FULL ───────────────────────────────────────────────────────────────
   // Five properties under one key, all on the west coast within twenty minutes of each other.
@@ -5962,6 +5981,7 @@ const PLACE_REGION = {
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
   "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
+  "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6320,6 +6340,11 @@ const CITY_ARRIVAL = {
     { mode: "Private water taxi (motoscafo)", why: "A private launch straight to your hotel's water door — the right arrival, and essential in costume or with luggage. Booked ahead through the hotel.", price: 140 },
     { mode: "Alilaguna water bus", why: "The shared public boat from the airport to the San Marco and Rialto stops, then a short walk or hotel porter. Slower, a fraction of the cost.", price: 15 },
   ] },
+  "British Virgin Islands": { icon: "boat", note: "Every hotel here is on its own island and the last leg is always by water. Fly to Beef Island (EIS) \u2014 American nonstop from Miami, or through San Juan \u2014 and the resort's boat is waiting at Trellis Bay beside the terminal. The other way in is St Thomas (STT), which has far more flights from the US, then an hour by boat with the border at each end.", modes: [
+    { mode: "Fly to Beef Island \u2014 resort boat", why: "The simplest door. Little Dix is thirty minutes across to Virgin Gorda, Scrub Island ten, Oil Nut Bay about thirty-five, Necker and Moskito by their own boat or helicopter. Booked through the hotel.", price: null },
+    { mode: "Via St Thomas \u2014 private boat", why: "Land at STT, clear in, and the hotel's boat takes you across \u2014 about an hour to Tortola or Virgin Gorda, and the border formalities are done at the dock. The way from the US when Beef Island's one flight does not fit.", price: null },
+    { mode: "Via St Thomas \u2014 public ferry", why: "Charlotte Amalie or Red Hook to Road Town, then a second boat or the resort's tender onward. Fine for a couple travelling light; slow with a family.", price: null },
+  ] },
   "St Lucia": { icon: "plane", note: "Long-haul lands at Hewanorra (UVF) at the southern tip. Soufri\u00e8re and the Pitons are under an hour up the coast; Cap Estate is at the opposite end, an hour and a half to two on a winding road \u2014 or twelve minutes by helicopter, which the northern hotels will arrange.", modes: [
     { mode: "Private transfer by road", why: "Met at Hewanorra and driven \u2014 under an hour to Soufri\u00e8re, closer to two to Cap Estate. The road is slow and the views are the compensation.", price: null },
     { mode: "Helicopter to the north", why: "Twelve minutes from Hewanorra to George Charles by Castries, then twenty by road to Cap Estate. Booked through the hotel; the way to arrive at the northern end after a transatlantic flight.", price: null },
@@ -6363,6 +6388,13 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // BRITISH VIRGIN ISLANDS. Beef Island (EIS), joined to Tortola by a bridge, takes American
+  // nonstop from Miami and the regional carriers from San Juan and St Thomas — sellable, so it
+  // is listed and the search targets it. No hub on the ground; intercontinental for the app.
+  // St Thomas (STT) is the other door — far more US service, then the ferry — and is listed so
+  // the crossing in FERRIES has an airport to hang off. It carries no hotels.
+  "British Virgin Islands": { code: "EIS", scale: "intercontinental" },
+  "St Thomas": { code: "STT", scale: "intercontinental" },
   // BARBADOS. Grantley Adams (BGI): British Airways and Virgin from London, the US carriers from
   // the east coast, Air Canada — intercontinental, and the flight search targets it.
   "Barbados": { code: "BGI", scale: "intercontinental" },
@@ -6666,6 +6698,11 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // BRITISH VIRGIN ISLANDS. One zone for the group — nothing drives between the islands, and no
+  // two of them are separate destinations in this file. St Thomas is its own zone, with the
+  // ferry to the BVI in FERRIES.
+  "bvi": ["British Virgin Islands","Virgin Gorda","Tortola"],
+  "st-thomas": ["St Thomas"],
   // BARBADOS. Its own zone.
   "barbados": ["Barbados"],
   // ST LUCIA. Its own zone.
@@ -6756,6 +6793,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
   "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
@@ -6916,6 +6954,10 @@ const FERRIES = [
   // Anguilla. Marigot to Blowing Point, about twenty-five minutes on a calm channel, and the
   // way most of the world arrives. The resorts arrange private boats on the same crossing.
   ["Anguilla", "St Maarten", 25],
+  // British Virgin Islands. The public ferries from Charlotte Amalie or Red Hook on St Thomas to
+  // Road Town, about an hour with the border at each end; Virgin Gorda is longer. The resorts run
+  // private boats on the same water, which is how it is best done. Written down by me.
+  ["British Virgin Islands", "St Thomas", 60],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
@@ -7002,6 +7044,10 @@ const CITY_ALIASES = {
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
+  "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
+  "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
+  "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "st. thomas": "St Thomas", "saint thomas": "St Thomas", "charlotte amalie": "St Thomas",
   "bridgetown": "Barbados", "holetown": "Barbados", "speightstown": "Barbados", "platinum coast": "Barbados", "st james, barbados": "Barbados",
   "saint lucia": "St Lucia", "st. lucia": "St Lucia", "saint-lucia": "St Lucia", "st lucia, caribbean": "St Lucia",
   "soufri\u00e8re": "St Lucia", "soufriere": "St Lucia", "cap estate": "St Lucia", "castries": "St Lucia", "rodney bay": "St Lucia", "the pitons": "St Lucia",
