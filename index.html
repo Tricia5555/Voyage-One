@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── ANGUILLA. Drafted Sept 2026 — mine, not Tricia's.
+  "Anguilla": { window: "November to April", note: "The season, dry and breezy, with Christmas to New Year booked far ahead at Cap Juluca. Most of the island's hotels close for September and October \u2014 Cap Juluca and Malliouhana among them \u2014 so check before you count on a date. Hurricane season is June to November." },
   // ── ST BARTS. Drafted Sept 2026 — mine, not Tricia's.
   "St Barth": { window: "November to April \u2014 and the ten days over New Year, which are their own market", note: "The season, and the most expensive ten days in the Caribbean fall in it: Christmas to New Year is booked a year out at every hotel on this list, with minimum stays and rates to match, and Gustavia harbour is where the yachts come to be looked at. January to April is the calm, perfect version. Most of the island closes from late August through October." },
   // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
@@ -434,8 +436,10 @@ const ULTRA_LUX = [
   // not one of them: the curation calls it "a very close call" and puts it at the very top of
   // Luxury, not to be moved without an explicit decision. It was here before and is now Luxury.
   "Cheval Blanc St-Barth", "Eden Rock \u2013 St Barths", "Rosewood Le Guanahani St. Barth",
+  // Anguilla in full — 3 Sept 2026, on the strict standard. One. Malliouhana was here and is
+  // now Luxury by instruction; Four Seasons, Aurora and Zemi never were.
   "Cap Juluca, a Belmond Hotel",
-  "Malliouhana", "Amanyara", "Rosewood Little Dix Bay", "Jumby Bay Island",
+  "Amanyara", "Rosewood Little Dix Bay", "Jumby Bay Island",
   // Turks & Caicos in full — 3 Sept 2026, on the strict standard. Two: the Aman, and a private
   // island. COMO Parrot Cay was here and is now Luxury by instruction. "Ambergris Cay" is the
   // Turks & Caicos private island, not Belize's Ambergris Caye — no Belizean hotel carries the
@@ -2122,9 +2126,20 @@ const FAVORITES = {
     { name: "Le Sereno", area: "Grand Cul-de-Sac", rate: null, ourTake: "Small, sleek and quiet on the lagoon, with beach suites and villas that face the water and very little to distract from it. For understated rather than showy." },
     { name: "Gyp Sea Hotel", area: "Colombier", rate: null, ourTake: "Bohemian and relaxed above Flamands Bay \u2014 the boutique alternative for a client who wants the island without the palaces." },
   ],
+  // ── ANGUILLA, IN FULL ───────────────────────────────────────────────────────────────
+  // Five properties under the existing "Anguilla" key — one island, one destination. It had two
+  // hotels and no geography; it now has coordinates, a zone, its own airport, a season and an
+  // arrival note. THE AIRPORT IS ANGUILLA'S OWN (AXA), not St Maarten: American flies it nonstop
+  // from Miami and that is the luxury arrival from the US, so the flight search targets it
+  // directly. The St Maarten route — long-haul into SXM, then twenty-five minutes across the
+  // channel by boat — is described in CITY_ARRIVAL and the crossing is in FERRIES, so a client
+  // coming from Europe is told how it is done rather than shown an American via Miami.
   "Anguilla": [
-    { name: "Cap Juluca, a Belmond Hotel", area: "Maundays Bay", rate: null, ourTake: "Moorish-white villas along a flawless crescent of sand." },
-    { name: "Malliouhana", area: "Meads Bay", rate: null, ourTake: "The clifftop original above two of Anguilla's best beaches." },
+    { name: "Cap Juluca, a Belmond Hotel", area: "Maundays Bay", rate: null, keys: 2, ourTake: "Moorish-white villas the length of a flawless mile of sand, every room on or facing the beach, pool villas up to five bedrooms and a Guerlain spa. Two Michelin Keys, and the one address on the island that stands with the world's best." },
+    { name: "Four Seasons Resort and Residences Anguilla", area: "Barnes Bay & Meads Bay", rate: null, ourTake: "Thirty-five acres across two beaches, with an extraordinary villa and residence estate behind the hotel. A big, polished Four Seasons \u2014 the full-service answer, and Luxury as a whole even where a single villa is not." },
+    { name: "Malliouhana", area: "Meads Bay", rate: null, ourTake: "The original \u2014 the clifftop between Meads Bay and Turtle Cove where Anguillan luxury began, with unusually large rooms and suites and a separate villa collection. The classic, boutique-feeling choice." },
+    { name: "Zemi Beach House, LXR Hotels & Resorts", area: "Shoal Bay East", rate: null, ourTake: "Refined and beachfront on Shoal Bay East, which many people think is the island's best beach \u2014 a spa, pool suites and multi-bedroom penthouses. The Shoal Bay address." },
+    { name: "Aurora Anguilla Resort & Golf Club", area: "Rendezvous Bay", rate: null, ourTake: "A 380-acre resort with an eighteen-hole championship course, a second nine, tennis, a spa and very large villas and estates. The opposite of scarce, and exactly right for golf, families and anyone who wants things to do." },
   ],
   // ── TURKS & CAICOS, IN FULL ─────────────────────────────────────────────────────────
   // Ten properties under one key, and the key stays the country: everything arrives through
@@ -5886,7 +5901,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean",
+  "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6245,8 +6260,13 @@ const CITY_ARRIVAL = {
     { mode: "Private water taxi (motoscafo)", why: "A private launch straight to your hotel's water door — the right arrival, and essential in costume or with luggage. Booked ahead through the hotel.", price: 140 },
     { mode: "Alilaguna water bus", why: "The shared public boat from the airport to the San Marco and Rialto stops, then a short walk or hotel porter. Slower, a fraction of the cost.", price: 15 },
   ] },
+  "Anguilla": { icon: "boat", note: "Anguilla has its own strip: American flies it nonstop from Miami and Tradewind from San Juan, and from the US that is the arrival. From Europe you fly to St Maarten (SXM) and cross the channel — twenty-five minutes, and the resorts arrange it.", modes: [
+    { mode: "Fly straight in (AXA)", why: "The nonstop from Miami, or the connection through San Juan. Twenty minutes to any hotel on the island.", price: null },
+    { mode: "Via St Maarten — private boat", why: "Met at SXM, a short taxi to the dock, and twenty-five minutes across to Blowing Point with your hotel's boat waiting. The way to do it from Europe; book it through the hotel.", price: null },
+    { mode: "Via St Maarten — public ferry", why: "Marigot to Blowing Point, roughly every forty-five minutes through the day, then a taxi. Fine on a calm day with light luggage.", price: null },
+  ] },
 };
-function cityArrival(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(CITY_ARRIVAL).find((x) => x.toLowerCase() === r); return k ? CITY_ARRIVAL[k] : null; }
+function cityArrival(place) { const r = resolvePlace(place); if (!r) return null; const k = Object.keys(CITY_ARRIVAL).find((x) => x.toLowerCase() === r.toLowerCase()); return k ? CITY_ARRIVAL[k] : null; }
 const REGION_STOPS = {
   "Amalfi Coast": [
     ["Positano", "1 hr 15 from Naples", "The postcard — pastel houses tumbling to a beach, best for glamour and boats."],
@@ -6279,6 +6299,11 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ANGUILLA. Clayton Lloyd (AXA) takes American nonstop from Miami and Tradewind from San Juan
+  // — real scheduled service, sellable — so it is listed and the flight search targets it. No
+  // hub is reachable on the ground; intercontinental for the app's purposes. Europe arrives via
+  // St Maarten and the boat, which CITY_ARRIVAL explains.
+  "Anguilla": { code: "AXA", scale: "intercontinental" },
   // ST BARTS. The island's strip (SBH) is one of the shortest in the world and takes only the
   // small aircraft — Winair, St Barth Commuter, Tradewind — none of which sell through Duffel, so
   // it is NOT listed. The door is Princess Juliana on St Maarten (SXM): KLM and Air France from
@@ -6566,6 +6591,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // ANGUILLA. Its own zone; the channel to St Maarten is in FERRIES.
+  "anguilla": ["Anguilla"],
   // ST BARTS. Two islands, two zones, one ferry between them in FERRIES.
   "st-barth": ["St Barth"],
   "st-maarten": ["St Maarten"],
@@ -6648,7 +6675,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
+  "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
   "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
@@ -6805,6 +6832,9 @@ const FERRIES = [
   // It stays in the table so the app knows the islands are connected and does not tell a client
   // they cannot get there when the strip is closed, but the transfer copy says what it is like.
   ["St Barth", "St Maarten", 45],
+  // Anguilla. Marigot to Blowing Point, about twenty-five minutes on a calm channel, and the
+  // way most of the world arrives. The resorts arrange private boats on the same crossing.
+  ["Anguilla", "St Maarten", 25],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
@@ -6891,6 +6921,7 @@ const CITY_ALIASES = {
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
+  "the valley, anguilla": "Anguilla", "meads bay": "Anguilla", "shoal bay": "Anguilla", "maundays bay": "Anguilla",
   "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "philipsburg": "St Maarten",
   "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
@@ -10441,6 +10472,10 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   // Collapsed by default once a flight is chosen; the traveller can reopen the full list.
   const [showAll, setShowAll] = useState(false);
   const [whenFilter, setWhenFilter] = useState("");
+  // Sort order for the list — the client's choice, like any fare site. Quickest is the default
+  // and matches the server's own ranking; Cheapest puts fare first. Every flight is in both
+  // orders; only the top of the list changes, and the routing survey above is unaffected.
+  const [sortBy, setSortBy] = useState("quickest");
   const [viaFilter, setViaFilter] = useState("");
   // MUST be declared here, at the top of the component beside the other hooks. It was briefly
   // inside the routing-survey IIFE further down — a function that only runs once offers exist, so
@@ -10666,7 +10701,11 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   };
   const routings = showAllRoutings ? routingsAll : routingsAll.filter(sensible);
   const hiddenCount = routingsAll.length - routings.length;
-        const shown = viaFilter ? live.offers.filter((o) => viaKey(o) === viaFilter) : live.offers;
+        const mins = (o) => (Number.isFinite(o.totalMin) && o.totalMin > 0 ? o.totalMin : 1e9);
+        const bySort = sortBy === "cheapest"
+          ? (a, b) => ((a.price ?? 1e12) - (b.price ?? 1e12)) || (mins(a) - mins(b))
+          : (a, b) => (mins(a) - mins(b)) || ((a.price ?? 1e12) - (b.price ?? 1e12));
+        const shown = (viaFilter ? live.offers.filter((o) => viaKey(o) === viaFilter) : live.offers).slice().sort(bySort);
         const hrs = (m) => `${Math.floor(m / 60)}h ${m % 60}m`;
         return (<>
         {routings.length > 1 && (<div style={{ marginBottom: 16 }}>
@@ -10698,6 +10737,11 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
             decision stays reversible. Nothing is discarded; the list is one tap away. */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 8, flexWrap: "wrap" }}>
           <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>{live.noDate ? "Add your dates first" : (chosen && !showAll ? "Your flight" : <>Choose your flight · <span style={{ color: t.pine }}>live fares</span></>)}</div>
+          {!live.noDate && !(chosen && !showAll) && shown.length > 1 && (<div style={{ display: "flex", gap: 6 }}>
+            {[["quickest", "Quickest"], ["cheapest", "Cheapest"]].map(([v, lab]) => (
+              <button key={"sort" + v} onClick={() => setSortBy(v)} style={{ padding: "5px 11px", borderRadius: 999, fontSize: 11.5, border: `1px solid ${sortBy === v ? t.pine : t.line}`, background: sortBy === v ? t.mist : t.white, color: t.ink }}>{lab}</button>
+            ))}
+          </div>)}
           {chosen && <button onClick={() => setShowAll(!showAll)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "6px 14px", color: t.inkSoft, fontSize: 12.5 }}>{showAll ? "Hide the others" : "Change flight"}</button>}
         </div>
         {(chosen && !showAll ? shown.filter((o) => o.offerId === chosen.offerId) : shown).map((o, k) => { const sel = chosen && chosen.offerId === o.offerId;
