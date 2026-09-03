@@ -7592,7 +7592,9 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
         onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 160)} style={inputStyle} />
     {showAny && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 30, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, marginTop: 6, overflow: "hidden", boxShadow: "0 10px 28px rgba(0,0,0,.10)", maxHeight: 320, overflowY: "auto" }}>
       {matches.map((c) => (
-        <button key={"c" + c} onMouseDown={(e) => { e.preventDefault(); choose(c); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>{c}</button>
+        <button key={"c" + c} onMouseDown={(e) => { e.preventDefault(); choose(c); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
+          <span>{c}</span>{regionOf(c) ? <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{"  " + regionOf(c)}</span> : null}
+        </button>
       ))}
       {live.length > 0 && matches.length > 0 && <div style={{ height: 1, background: t.line }} />}
       {live.map((r, i) => {
@@ -12219,7 +12221,7 @@ function CitySection({ d, i, p, from, legSched }) {
   const legNightsList = legSched ? nightsIn(legSched) : [];
   const legDaysList = legSched ? daysIn(legSched) : [];
   return (<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 18, padding: "14px 14px 22px", overflow: "hidden" }}>
-    <CityHero query={d.city} index={String(i + 1).padStart(2, "0")} title={d.city || "Untitled leg"} label={label} />
+    <CityHero query={d.city} index={String(i + 1).padStart(2, "0")} title={d.city ? placeLine(d.city) : "Untitled leg"} label={label} />
     <div style={{ padding: "0 8px" }}>
     {from && surfaceTarget && !sameCity(from, surfaceTarget) && drivable(from, surfaceTarget) && <LiveRoute from={from} to={surfaceTarget} fallbackKnown={known(from) && known(surfaceTarget)} />}
     {surface && d.arriveBy === "Flight" && drivable(from, surfaceTarget) && (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
