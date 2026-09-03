@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── BARBADOS. Drafted Sept 2026 — mine, not Tricia's.
+  "Barbados": { window: "December to April \u2014 and Christmas at Sandy Lane is its own thing", note: "The dry season, and the west coast at its calmest. Christmas and New Year at Sandy Lane are booked a year ahead by people who have been coming since the sixties. The island stays open through the summer more than its neighbours \u2014 a wetter, greener, much quieter time and the rates say so. Hurricane season is June to November, though Barbados sits east of most of it." },
   // ── ST LUCIA. Drafted Sept 2026 — mine, not Tricia's.
   "St Lucia": { window: "December to April", note: "The dry season and the clearest water for the Pitons and the diving off Anse Chastanet. The jazz festival in May fills the north for a week. The wettest months are September to November, and several of the southern resorts close for part of September. Hurricane season is June to November." },
   // ── ANTIGUA. Drafted Sept 2026 — mine, not Tricia's.
@@ -449,6 +451,9 @@ const ULTRA_LUX = [
   // now Luxury by instruction; Four Seasons, Aurora and Zemi never were.
   "Cap Juluca, a Belmond Hotel",
   "Amanyara", "Rosewood Little Dix Bay",
+  // Barbados in full — 3 Sept 2026, on the strict standard. One. Cobblers Cove, Coral Reef
+  // Club, The Sandpiper and Fairmont Royal Pavilion are Luxury by instruction.
+  "Sandy Lane",
   // St Lucia in full — 3 Sept 2026, on the strict standard. NONE. Sugar Beach sits at the very
   // top of Luxury by instruction; Jade Mountain and BodyHoliday are Experience Luxury; Cap
   // Maison and Anse Chastanet are Luxury. Famous and expensive is not the test.
@@ -2182,6 +2187,17 @@ const FAVORITES = {
   ],
   "British Virgin Islands": [
     { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's storied bay, elegantly reborn." },
+  ],
+  // ── BARBADOS, IN FULL ───────────────────────────────────────────────────────────────
+  // Five properties under one key, all on the west coast within twenty minutes of each other.
+  // Nothing existed for the island before — no card, no key, no geography. Grantley Adams (BGI)
+  // is genuinely intercontinental and forty minutes from the Platinum Coast.
+  "Barbados": [
+    { name: "Sandy Lane", area: "St James, Platinum Coast", rate: null, ourTake: "The Caribbean's defining grand hotel \u2014 butlers in the top suites, a villa with its own gate, pool and staff of four, the Green Monkey course reserved for guests, and a clientele that has been coming for generations. The one Barbadian address that stands with the world's best." },
+    { name: "Cobblers Cove", area: "Speightstown, St Peter", rate: null, ourTake: "An English country house that happens to be on a Caribbean beach \u2014 family-owned, forty suites, a serious kitchen and a clubbable, unhurried air. The small, characterful one." },
+    { name: "Coral Reef Club", area: "Holetown, St James", rate: null, ourTake: "The O'Hara family's gardens on the west coast, with cottages, plantation suites and villas scattered through them and a following that books the same fortnight every year. The classic Barbados." },
+    { name: "The Sandpiper", area: "Holetown, St James", rate: null, ourTake: "Coral Reef's smaller sister on the beach next door \u2014 intimate, private and very well run. For a couple who want the west coast without a big house around them." },
+    { name: "Fairmont Royal Pavilion", area: "Porters, St James", rate: null, ourTake: "Seventy-two rooms and suites, every one of them on the beach facing west \u2014 the conventional, polished, all-beachfront choice on the Platinum Coast." },
   ],
   // ── ST LUCIA, IN FULL ───────────────────────────────────────────────────────────────
   // Five properties under one key and no Ultra Luxury at all, by instruction. The island is one
@@ -5945,7 +5961,7 @@ const PLACE_REGION = {
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
   "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
-  "antigua": "Antigua & Barbuda", "st lucia": "Caribbean",
+  "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6347,6 +6363,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // BARBADOS. Grantley Adams (BGI): British Airways and Virgin from London, the US carriers from
+  // the east coast, Air Canada — intercontinental, and the flight search targets it.
+  "Barbados": { code: "BGI", scale: "intercontinental" },
   // ST LUCIA. Hewanorra (UVF), at the southern end, takes British Airways and Virgin from London
   // and the US carriers — genuinely intercontinental, and the flight search targets it. George
   // Charles (SLU) by Castries is the small northern field, regional aircraft only, not listed;
@@ -6647,6 +6666,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // BARBADOS. Its own zone.
+  "barbados": ["Barbados"],
   // ST LUCIA. Its own zone.
   "st-lucia": ["St Lucia"],
   // ANTIGUA. Its own zone. Jumby Bay's crossing is the resort's own boat, not a ferry.
@@ -6735,7 +6756,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
+  "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
   "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
@@ -6981,6 +7002,7 @@ const CITY_ALIASES = {
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
+  "bridgetown": "Barbados", "holetown": "Barbados", "speightstown": "Barbados", "platinum coast": "Barbados", "st james, barbados": "Barbados",
   "saint lucia": "St Lucia", "st. lucia": "St Lucia", "saint-lucia": "St Lucia", "st lucia, caribbean": "St Lucia",
   "soufri\u00e8re": "St Lucia", "soufriere": "St Lucia", "cap estate": "St Lucia", "castries": "St Lucia", "rodney bay": "St Lucia", "the pitons": "St Lucia",
   "antigua & barbuda": "Antigua", "antigua and barbuda": "Antigua", "st john's, antigua": "Antigua", "english harbour": "Antigua", "jumby bay": "Antigua",
