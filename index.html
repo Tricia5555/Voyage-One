@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── ST BARTS. Drafted Sept 2026 — mine, not Tricia's.
+  "St Barth": { window: "November to April \u2014 and the ten days over New Year, which are their own market", note: "The season, and the most expensive ten days in the Caribbean fall in it: Christmas to New Year is booked a year out at every hotel on this list, with minimum stays and rates to match, and Gustavia harbour is where the yachts come to be looked at. January to April is the calm, perfect version. Most of the island closes from late August through October." },
   // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
   "Turks & Caicos": { window: "December to April", note: "The dry, breezy season, and Grace Bay at its most booked \u2014 Christmas, New Year and Easter go a year ahead at the small islands. Humpback whales pass through the Columbus Passage from January to March, best seen from Salt Cay and South Caicos. Hurricane season is June to November; several resorts close for September and October, and Amanyara is closed for works until 20 October 2026." },
   // ── BAHAMAS. Drafted Sept 2026 — mine, not Tricia's. High season is Christmas to Easter and
@@ -428,7 +430,11 @@ const ULTRA_LUX = [
   "Zadún, a Ritz-Carlton Reserve", "Four Seasons Los Cabos at Costa Palmas",
   "Four Seasons Resort Tamarindo", "Hotel Esencia", "Maroma, a Belmond Hotel",
   // Caribbean
-  "Cheval Blanc St-Barth", "Eden Rock St Barths", "Le Toiny", "Cap Juluca, a Belmond Hotel",
+  // St Barts in full — 3 Sept 2026, on the strict standard. Three, and Le Toiny is deliberately
+  // not one of them: the curation calls it "a very close call" and puts it at the very top of
+  // Luxury, not to be moved without an explicit decision. It was here before and is now Luxury.
+  "Cheval Blanc St-Barth", "Eden Rock \u2013 St Barths", "Rosewood Le Guanahani St. Barth",
+  "Cap Juluca, a Belmond Hotel",
   "Malliouhana", "Amanyara", "Rosewood Little Dix Bay", "Jumby Bay Island",
   // Turks & Caicos in full — 3 Sept 2026, on the strict standard. Two: the Aman, and a private
   // island. COMO Parrot Cay was here and is now Luxury by instruction. "Ambergris Cay" is the
@@ -2099,10 +2105,22 @@ const FAVORITES = {
     { name: "Hotel Esencia", area: "Xpu-Ha", rate: null, ourTake: "A former duchess's beachfront estate, understated and impossibly chic." },
     { name: "Maroma, a Belmond Hotel", area: "Riviera Maya", rate: null, ourTake: "A jungle-and-beach hideaway on one of the Caribbean's best stretches of sand." },
   ],
+  // ── ST BARTS, IN FULL ───────────────────────────────────────────────────────────────
+  // Eight properties under the existing "St Barth" key — the whole island is one destination,
+  // fifteen minutes end to end. It had three hotels and no geography at all: no coordinates, no
+  // zone, no airport, no gateway. It has them now. The gateway is St Maarten (SXM), which is
+  // where the long-haul lands; the island's own strip (SBH) takes only the small aircraft and is
+  // deliberately not in AIRPORTS. FOUQUET'S SAINT-BARTH is one record, not two — it was Hôtel
+  // Barrière Le Carl Gustaf until 2025 and the card says so, so nobody adds the old name back.
   "St Barth": [
-    { name: "Cheval Blanc St-Barth", area: "Flamands Beach", rate: null, ourTake: "LVMH glamour on Flamands Beach, the island's most polished address." },
-    { name: "Eden Rock St Barths", area: "St Jean", rate: null, ourTake: "The iconic rock over St Jean Bay — the heart of Barthélemy chic." },
-    { name: "Le Toiny", area: "Anse de Toiny", rate: null, ourTake: "Private pool villas on a wild, quiet corner of the island." },
+    { name: "Cheval Blanc St-Barth", area: "Flamands Beach", rate: null, ourTake: "The island's only Palace, and the benchmark \u2014 sixty-one rooms, suites and villas on the best beach, majordomes in the top accommodations, and the five-bedroom Villa de France on the sand itself. LVMH at its most complete." },
+    { name: "Eden Rock \u2013 St Barths", area: "St Jean", rate: null, ourTake: "Thirty-seven rooms, suites and villas on the rock in the middle of St Jean bay, Oetker-run, and one of the hotels that made the island. Villa Rockstar is sixteen thousand square feet. Nothing else here has its history or its position." },
+    { name: "Rosewood Le Guanahani St. Barth", area: "Grand Cul-de-Sac", rate: null, ourTake: "An eighteen-acre private peninsula with two beaches and sixty-six rooms and suites, rebuilt from the ground up for Rosewood. Larger and less scarce than the two above, and the most private resort on the island by a distance." },
+    { name: "H\u00f4tel Le Toiny", area: "Anse de Toiny", rate: null, ourTake: "Twenty-two villa suites, each with its own heated pool, on a forty-two-acre estate above the wild side of the island, with a private beach club below. Relais & Ch\u00e2teaux, and the top of the Luxury list by a whisker \u2014 the closest call in the Caribbean." },
+    { name: "Fouquet\u2019s Saint-Barth", area: "Gustavia", rate: null, ourTake: "Twenty-one suites, lofts and villas on the hill above the harbour, most with their own pool, and the town two minutes below. Until 2025 this was H\u00f4tel Barri\u00e8re Le Carl Gustaf; same house, same Barri\u00e8re service, new name." },
+    { name: "Le Barth\u00e9lemy Hotel & Spa", area: "Grand Cul-de-Sac", rate: null, ourTake: "Full-service and beautifully done on the lagoon \u2014 a real spa, a good table, and calm water for the children. The polished all-rounder on this side of the island." },
+    { name: "Le Sereno", area: "Grand Cul-de-Sac", rate: null, ourTake: "Small, sleek and quiet on the lagoon, with beach suites and villas that face the water and very little to distract from it. For understated rather than showy." },
+    { name: "Gyp Sea Hotel", area: "Colombier", rate: null, ourTake: "Bohemian and relaxed above Flamands Bay \u2014 the boutique alternative for a client who wants the island without the palaces." },
   ],
   "Anguilla": [
     { name: "Cap Juluca, a Belmond Hotel", area: "Maundays Bay", rate: null, ourTake: "Moorish-white villas along a flawless crescent of sand." },
@@ -5868,7 +5886,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "turks & caicos": "Caribbean",
+  "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6167,6 +6185,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "St Barth": { air: "St Maarten", note: "Fly to St Maarten (SXM), then ten minutes in a small aircraft to Gustave III \u2014 Winair or St Barth Commuter, several times an hour in season, and a landing worth being awake for. The hotels book the hop; ask them to. Tradewind also flies in from San Juan if that is the better connection. There is a ferry, and we do not recommend it: it is a thirty-minute taxi from the airport to the dock before you start, and the crossing is usually rough. Take the plane." },
   "Harbour Island": { air: "Eleuthera", note: "Fly to North Eleuthera (ELH) \u2014 nonstops from Miami, Fort Lauderdale, Atlanta and Charlotte \u2014 then two minutes by taxi to the dock and ten minutes across by water taxi. Every hotel meets the boat, and there are no cars on the other side worth the name; you will be in a golf cart." },
   "Andros, Bahamas": { air: "Nassau", note: "Fly to Nassau (NAS), then twenty minutes on Western Air or Bahamasair to Andros Town for Kamalame or Congo Town for Caerula Mar \u2014 or direct from Fort Lauderdale on the same carriers. Both resorts arrange the last leg, and Kamalame is a five-minute ferry from its own dock." },
   "Lake Coatepeque": { air: "San Salvador", note: "Fly to San Salvador (SAL), then a little over an hour west \u2014 the airport is south of the city near the coast, so you skirt the capital rather than cross it." },
@@ -6260,6 +6279,12 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ST BARTS. The island's strip (SBH) is one of the shortest in the world and takes only the
+  // small aircraft — Winair, St Barth Commuter, Tradewind — none of which sell through Duffel, so
+  // it is NOT listed. The door is Princess Juliana on St Maarten (SXM): KLM and Air France from
+  // Europe, the US carriers from the east coast, genuinely intercontinental. Then ten minutes in
+  // the air or forty-five on the water, described in GATEWAY.
+  "St Maarten": { code: "SXM", scale: "intercontinental" },
   // TURKS & CAICOS. Providenciales (PLS) is the country's door and British Airways flies it from
   // Gatwick, so intercontinental is literally true. The key is the country because that is the
   // destination key in FAVORITES; "providenciales" is aliased to it. South Caicos (XSC) and the
@@ -6492,6 +6517,12 @@ const DAYTRIPS = {
 //   · both (Naples to Sorrento) → all three.
 // Where the zone is unknown for either end, a road is assumed, which is the old behaviour.
 // Nothing here is priced and none of the copy claims a season or a coast road it has not seen.
+// A ferry can be real and still be the wrong advice. FERRY_WARN holds, per crossing, the one
+// sentence a client should read before choosing it — written from experience, not inferred.
+const FERRY_WARN = {
+  "st barth|st maarten": "Not recommended: a thirty-minute taxi from the airport to the dock, then a crossing that is usually rough. The ten-minute flight is the way.",
+};
+function ferryWarn(a, b) { const A = placeName(a), B = placeName(b); return FERRY_WARN[A + "|" + B] || FERRY_WARN[B + "|" + A] || null; }
 function transferOptions(from, to) {
   const ferry = ferryBetween(from, to);
   const za = zoneOf(from), zb = zoneOf(to);
@@ -6502,7 +6533,7 @@ function transferOptions(from, to) {
   if (road) out.push({ mode: "Private transfer", why: `Met at arrivals and driven door to door.${drTxt}`, price: null });
   else if (ferry) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock, and across by boat — your hotel will usually arrange the whole chain.`, price: null });
   else out.push({ mode: "Private transfer", why: `No road from ${bareCity(from)} — the onward leg is by air or sea, and your hotel arranges it. The note above says how.`, price: null });
-  if (ferry) out.push({ mode: "Ferry", why: `About ${ferry} minutes across the water, with a taxi at each end.`, price: null });
+  if (ferry) out.push({ mode: "Ferry", why: ferryWarn(from, to) || `About ${ferry} minutes across the water, with a taxi at each end.`, price: null });
   if (road) out.push({ mode: "Hire car", why: `Your own car from the airport — freedom, at the cost of finding your own way.${drTxt}`, price: null });
   return out;
 }
@@ -6535,6 +6566,9 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // ST BARTS. Two islands, two zones, one ferry between them in FERRIES.
+  "st-barth": ["St Barth"],
+  "st-maarten": ["St Maarten"],
   // BAHAMAS. Five islands, five zones. Nothing drives between any of them; Harbour Island to
   // Eleuthera is the one crossing short enough to be a ferry, and it is in FERRIES. The extra
   // spellings under each are the labels Duffel and Google are known to produce — the zone table
@@ -6614,6 +6648,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
   "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
@@ -6766,6 +6801,10 @@ const FERRIES = [
   // Bahamas. The water taxi from the North Eleuthera dock, ten minutes. Both labels for the
   // island side that the picker can produce.
   ["Harbour Island", "Eleuthera", 10], ["Harbour Island", "North Eleuthera", 10],
+  // St Barts. Tricia has ridden it: a thirty-minute taxi to the dock, then a rough crossing.
+  // It stays in the table so the app knows the islands are connected and does not tell a client
+  // they cannot get there when the strip is closed, but the transfer copy says what it is like.
+  ["St Barth", "St Maarten", 45],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
@@ -6851,6 +6890,8 @@ const CITY_ALIASES = {
   "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
+  "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
+  "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "philipsburg": "St Maarten",
   "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
