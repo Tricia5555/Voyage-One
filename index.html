@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M321";
+const BUILD = "M322";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,9 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── CAYMAN ISLANDS. Drafted Sept 2026 — mine, not Tricia's.
+  "Grand Cayman": { window: "December to April", note: "The dry season and the calmest sea for Seven Mile Beach and Stingray City. Cayman sits far enough west that the water is often clearest in the spring. Hurricane season is June to November, and September and October are the months to avoid." },
+  "Little Cayman": { window: "November to May for the wall", note: "Bloody Bay Wall dives well most of the year, but the calmest, clearest water is from late autumn through spring; summer is hot and still and the mosquitoes are real. Hurricane season is June to November and the club closes for part of it." },
   // ── US VIRGIN ISLANDS. Drafted Sept 2026 — mine, not Tricia's.
   "St Thomas": { window: "December to April", note: "The dry season. Cruise ships fill Charlotte Amalie most days of the winter; the east end and the Ritz-Carlton are well away from it. Hurricane season is June to November \u2014 these islands took Irma and Maria directly in 2017 \u2014 and September and October are the months to avoid." },
   "St John": { window: "December to April", note: "The dry season for the National Park's beaches and the water round Lovango. St John has no cruise ships, which is most of its charm. Hurricane season is June to November." },
@@ -263,6 +266,9 @@ const EXPERIENCE_LUX = [
   // US Virgin Islands, Sept 2026. A private cay ten minutes off St John with villas, treehouses
   // and tents — the island and the water are the product, and the curation files it here.
   "Lovango Resort + Beach Club",
+  // Little Cayman, Sept 2026. A dive-and-bonefish club on an island of two hundred people, with
+  // Bloody Bay Wall off the beach. The curation is explicit that the rooms are not the point.
+  "Southern Cross Club",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -473,6 +479,9 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Cayman Islands in full — 3 Sept 2026, on the strict standard. NONE. The Ritz-Carlton, Palm
+  // Heights and Kimpton Seafire are Luxury; Southern Cross Club is Experience. Seven South at
+  // the Ritz-Carlton may be an Ultra Luxury suite; the hotel is classified as a whole.
   // US Virgin Islands in full — 3 Sept 2026, on the strict standard. NONE. The Ritz-Carlton
   // and The Buccaneer are Luxury; Lovango is Experience. Caneel Bay is not listed at all — it
   // has been closed since Irma and Maria in 2017 and the Park Service is still choosing an
@@ -2224,6 +2233,22 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── CAYMAN ISLANDS, IN FULL ─────────────────────────────────────────────────────────
+  // Four properties, two keys, no Ultra Luxury, by instruction. Grand Cayman holds the three
+  // Seven Mile Beach hotels; Little Cayman holds the club, and routes through Grand Cayman
+  // because its strip takes only Cayman Airways Express. LE SOLEIL D'OR ON CAYMAN BRAC IS NOT
+  // HERE: the curation lists it as Experience Luxury "if currently bookable" and asks for that
+  // to be verified. I cannot verify it, so it is withheld, the same way Coral Caye was. Once
+  // someone confirms it takes bookings, it is one line under a "Cayman Brac" key. The fishing
+  // card already pointed at "Grand Cayman", which had nothing behind it until now.
+  "Grand Cayman": [
+    { name: "The Ritz-Carlton, Grand Cayman", area: "Seven Mile Beach", rate: null, ourTake: "The full-service classic on Seven Mile Beach \u2014 Club Level, a serious spa, golf, tennis, and at the top of the building a nine-bedroom penthouse with its own elevator and cabana. That suite is Ultra Luxury on its own; the hotel is Luxury as a whole, by instruction." },
+    { name: "Palm Heights", area: "Seven Mile Beach", rate: null, ourTake: "All suites, all facing the sea, on the best stretch of the beach, with a design sense and a crowd that belong in Miami or Tulum rather than on a bank-and-diving island. The coolest hotel in Cayman, and Luxury because cool is not the test." },
+    { name: "Kimpton Seafire Resort + Spa", area: "Seven Mile Beach", rate: null, ourTake: "Contemporary, family-friendly and well run, with bungalows and beach houses for a group and a good spa. Two hundred and sixty-odd rooms, which is the reason it sits where it sits." },
+  ],
+  "Little Cayman": [
+    { name: "Southern Cross Club", area: "South Hole Sound, Little Cayman", rate: null, ourTake: "A dozen cottages on a beach on an island of two hundred people, with Bloody Bay Wall \u2014 one of the great dives in the hemisphere \u2014 and the bonefish flats a few minutes away. Relaxed, unpolished and exactly right for what it is for." },
   ],
   // ── US VIRGIN ISLANDS, IN FULL ──────────────────────────────────────────────────────
   // Three properties on three islands, three keys, no Ultra Luxury, by instruction. St Thomas
@@ -6016,7 +6041,7 @@ const PLACE_REGION = {
   "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
-  "st john": "US Virgin Islands", "st croix": "US Virgin Islands",
+  "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6315,6 +6340,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Little Cayman": { air: "Grand Cayman", note: "Fly to Grand Cayman (GCM), then thirty-five minutes on Cayman Airways Express \u2014 a Twin Otter, a couple of times a day, and the club books it for you. There is no other way in and no reason to want one." },
   "St Barth": { air: "St Maarten", note: "Fly to St Maarten (SXM), then ten minutes in a small aircraft to Gustave III \u2014 Winair or St Barth Commuter, several times an hour in season, and a landing worth being awake for. The hotels book the hop; ask them to. Tradewind also flies in from San Juan if that is the better connection. There is a ferry, and we do not recommend it: it is a thirty-minute taxi from the airport to the dock before you start, and the crossing is usually rough. Take the plane." },
   "Harbour Island": { air: "Eleuthera", note: "Fly to North Eleuthera (ELH) \u2014 nonstops from Miami, Fort Lauderdale, Atlanta and Charlotte \u2014 then two minutes by taxi to the dock and ten minutes across by water taxi. Every hotel meets the boat, and there are no cars on the other side worth the name; you will be in a golf cart." },
   "Andros, Bahamas": { air: "Nassau", note: "Fly to Nassau (NAS), then twenty minutes on Western Air or Bahamasair to Andros Town for Kamalame or Congo Town for Caerula Mar \u2014 or direct from Fort Lauderdale on the same carriers. Both resorts arrange the last leg, and Kamalame is a five-minute ferry from its own dock." },
@@ -6423,6 +6449,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // CAYMAN ISLANDS. Owen Roberts (GCM) takes British Airways from London and the US carriers
+  // from most of the east coast — intercontinental, and the search targets it. Little Cayman
+  // (LYB) is Cayman Airways Express only, not in Duffel, not listed; it is a GATEWAY hop.
+  "Grand Cayman": { code: "GCM", scale: "intercontinental" },
   // BRITISH VIRGIN ISLANDS. Beef Island (EIS), joined to Tortola by a bridge, takes American
   // nonstop from Miami and the regional carriers from San Juan and St Thomas — sellable, so it
   // is listed and the search targets it. No hub on the ground; intercontinental for the app.
@@ -6737,6 +6767,9 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // CAYMAN ISLANDS. Two islands, two zones, ninety miles of sea between them and no ferry.
+  "grand-cayman": ["Grand Cayman"],
+  "little-cayman": ["Little Cayman"],
   // BRITISH VIRGIN ISLANDS. One zone for the group — nothing drives between the islands, and no
   // two of them are separate destinations in this file. St Thomas is its own zone, with the
   // ferry to the BVI in FERRIES.
@@ -6834,6 +6867,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Grand Cayman": [19.32,-81.24], "Little Cayman": [19.69,-80.05],
   "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
   "St John": [18.33,-64.74], "St Croix": [17.73,-64.75],
   "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
@@ -7093,6 +7127,7 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "cayman islands": "Grand Cayman", "cayman": "Grand Cayman", "seven mile beach": "Grand Cayman", "george town, cayman islands": "Grand Cayman", "grand cayman, cayman islands": "Grand Cayman",
   "st. thomas": "St Thomas", "saint thomas": "St Thomas", "charlotte amalie": "St Thomas", "red hook": "St Thomas",
   "st. john": "St John", "saint john, usvi": "St John", "cruz bay": "St John", "lovango cay": "St John", "lovango": "St John",
   "st. croix": "St Croix", "saint croix": "St Croix", "christiansted": "St Croix", "frederiksted": "St Croix",
