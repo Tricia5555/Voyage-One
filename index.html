@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── ST LUCIA. Drafted Sept 2026 — mine, not Tricia's.
+  "St Lucia": { window: "December to April", note: "The dry season and the clearest water for the Pitons and the diving off Anse Chastanet. The jazz festival in May fills the north for a week. The wettest months are September to November, and several of the southern resorts close for part of September. Hurricane season is June to November." },
   // ── ANTIGUA. Drafted Sept 2026 — mine, not Tricia's.
   "Antigua": { window: "December to April \u2014 and Sailing Week, at the end of April", note: "The dry season, and the island fills for Christmas and again for Antigua Sailing Week in late April, when English Harbour is the place to be and Curtain Bluff and Carlisle Bay are close to it. Several resorts close for September and October; Curtain Bluff among them. Hurricane season is June to November." },
   // ── ANGUILLA. Drafted Sept 2026 — mine, not Tricia's.
@@ -238,6 +240,11 @@ const EXPERIENCE_LUX = [
   // resort in the Exumas where the boat is half the point. Kamalame is Luxury: the curation
   // allows either and, as with Yemaya and Nayara Bocas, the default is the conservative one.
   "The Other Side", "Fowl Cay Resort",
+  // St Lucia, Sept 2026. Jade Mountain on the curation's explicit word — the open fourth wall
+  // and the view are the product, and Experience here is a description, not a demotion.
+  // BodyHoliday for the wellness programme, which is the entire reason to go; the rooms are not.
+  // Anse Chastanet is Luxury: the corrections allow either, and the default is the conservative one.
+  "Jade Mountain", "BodyHoliday",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -442,6 +449,9 @@ const ULTRA_LUX = [
   // now Luxury by instruction; Four Seasons, Aurora and Zemi never were.
   "Cap Juluca, a Belmond Hotel",
   "Amanyara", "Rosewood Little Dix Bay",
+  // St Lucia in full — 3 Sept 2026, on the strict standard. NONE. Sugar Beach sits at the very
+  // top of Luxury by instruction; Jade Mountain and BodyHoliday are Experience Luxury; Cap
+  // Maison and Anse Chastanet are Luxury. Famous and expensive is not the test.
   // Antigua & Barbuda in full — 3 Sept 2026, on the strict standard. One: a 300-acre private
   // island reached by the resort's own boat. Hermitage Bay, Curtain Bluff, Carlisle Bay and
   // Hammock Cove are Luxury by instruction. Barbuda has NO hotel entry by instruction — its
@@ -2172,6 +2182,20 @@ const FAVORITES = {
   ],
   "British Virgin Islands": [
     { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's storied bay, elegantly reborn." },
+  ],
+  // ── ST LUCIA, IN FULL ───────────────────────────────────────────────────────────────
+  // Five properties under one key and no Ultra Luxury at all, by instruction. The island is one
+  // destination with two ends: Soufrière and the Pitons in the south, an hour from Hewanorra
+  // (UVF); Cap Estate at the northern tip, nearer two, or twelve minutes by helicopter. The area
+  // field says which end, and CITY_ARRIVAL explains the choice. The golf card already pointed at
+  // "Cap Estate", which resolves here now. CABOT SAINT LUCIA, which that card names as the place
+  // to stay, is NOT in the curation and is not in this list.
+  "St Lucia": [
+    { name: "Sugar Beach, A Viceroy Resort", area: "Between the Pitons, Soufri\u00e8re", rate: null, ourTake: "The setting nothing else on the island can answer \u2014 a white beach directly between the two Pitons, bungalows and pool villas in the forest behind it, and residences up to nine bedrooms with their own butler teams. The very top of Luxury here, and Luxury as a whole by instruction." },
+    { name: "Jade Mountain", area: "Above Anse Chastanet, Soufri\u00e8re", rate: null, ourTake: "Twenty-nine sanctuaries with no fourth wall, most with an infinity pool the size of a room, all of them looking straight at the Pitons across the water. Architecture and view are the product \u2014 which is exactly why it is filed as Experience, and why it is one of the most important hotels on the island." },
+    { name: "Cap Maison", area: "Cap Estate, north", rate: null, ourTake: "Forty-nine rooms, suites and villas on a cliff at the island's quiet northern tip, Relais & Ch\u00e2teaux, with a serious cellar and a small-house feel. The traditional, small-scale luxury choice." },
+    { name: "BodyHoliday", area: "Cap Estate, north", rate: null, ourTake: "The wellness resort the Caribbean measures others against: a treatment a day in the rate, a vast programme of yoga, Pilates, sport and diagnostics, and a real welcome for people travelling alone. The rooms are conventional; the programme is not." },
+    { name: "Anse Chastanet", area: "Soufri\u00e8re", rate: null, ourTake: "Two beaches under the Pitons, the best diving on the island straight off the sand, and rooms scattered up the hillside in the forest. Nature first; the sister property above it is the architecture." },
   ],
   // ── ANTIGUA & BARBUDA, IN FULL ──────────────────────────────────────────────────────
   // Five properties under the existing "Antigua" key. The key is the island, and it is why
@@ -5918,10 +5942,10 @@ const PLACE_REGION = {
   "stellenbosch": "Cape Winelands, South Africa", "franschhoek": "Cape Winelands, South Africa",
   "somerset west": "South Africa", "george": "South Africa", "monsaraz": "Alentejo, Portugal",
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
-  "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
+  "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
   "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
-  "antigua": "Antigua & Barbuda",
+  "antigua": "Antigua & Barbuda", "st lucia": "Caribbean",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6280,6 +6304,10 @@ const CITY_ARRIVAL = {
     { mode: "Private water taxi (motoscafo)", why: "A private launch straight to your hotel's water door — the right arrival, and essential in costume or with luggage. Booked ahead through the hotel.", price: 140 },
     { mode: "Alilaguna water bus", why: "The shared public boat from the airport to the San Marco and Rialto stops, then a short walk or hotel porter. Slower, a fraction of the cost.", price: 15 },
   ] },
+  "St Lucia": { icon: "plane", note: "Long-haul lands at Hewanorra (UVF) at the southern tip. Soufri\u00e8re and the Pitons are under an hour up the coast; Cap Estate is at the opposite end, an hour and a half to two on a winding road \u2014 or twelve minutes by helicopter, which the northern hotels will arrange.", modes: [
+    { mode: "Private transfer by road", why: "Met at Hewanorra and driven \u2014 under an hour to Soufri\u00e8re, closer to two to Cap Estate. The road is slow and the views are the compensation.", price: null },
+    { mode: "Helicopter to the north", why: "Twelve minutes from Hewanorra to George Charles by Castries, then twenty by road to Cap Estate. Booked through the hotel; the way to arrive at the northern end after a transatlantic flight.", price: null },
+  ] },
   "Anguilla": { icon: "boat", note: "Anguilla has its own strip: American flies it nonstop from Miami and Tradewind from San Juan, and from the US that is the arrival. From Europe you fly to St Maarten (SXM) and cross the channel — twenty-five minutes, and the resorts arrange it.", modes: [
     { mode: "Fly straight in (AXA)", why: "The nonstop from Miami, or the connection through San Juan. Twenty minutes to any hotel on the island.", price: null },
     { mode: "Via St Maarten — private boat", why: "Met at SXM, a short taxi to the dock, and twenty-five minutes across to Blowing Point with your hotel's boat waiting. The way to do it from Europe; book it through the hotel.", price: null },
@@ -6319,6 +6347,11 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ST LUCIA. Hewanorra (UVF), at the southern end, takes British Airways and Virgin from London
+  // and the US carriers — genuinely intercontinental, and the flight search targets it. George
+  // Charles (SLU) by Castries is the small northern field, regional aircraft only, not listed;
+  // the helicopter link between the two is in CITY_ARRIVAL.
+  "St Lucia": { code: "UVF", scale: "intercontinental" },
   // ANTIGUA. V.C. Bird (ANU) takes British Airways and Virgin Atlantic from London and the US
   // carriers from the east coast — genuinely intercontinental, and the flight search targets it.
   "Antigua": { code: "ANU", scale: "intercontinental" },
@@ -6614,6 +6647,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // ST LUCIA. Its own zone.
+  "st-lucia": ["St Lucia"],
   // ANTIGUA. Its own zone. Jumby Bay's crossing is the resort's own boat, not a ferry.
   "antigua": ["Antigua"],
   // ANGUILLA. Its own zone; the channel to St Maarten is in FERRIES.
@@ -6700,7 +6735,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
+  "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
   "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
@@ -6946,6 +6981,8 @@ const CITY_ALIASES = {
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
+  "saint lucia": "St Lucia", "st. lucia": "St Lucia", "saint-lucia": "St Lucia", "st lucia, caribbean": "St Lucia",
+  "soufri\u00e8re": "St Lucia", "soufriere": "St Lucia", "cap estate": "St Lucia", "castries": "St Lucia", "rodney bay": "St Lucia", "the pitons": "St Lucia",
   "antigua & barbuda": "Antigua", "antigua and barbuda": "Antigua", "st john's, antigua": "Antigua", "english harbour": "Antigua", "jumby bay": "Antigua",
   "the valley, anguilla": "Anguilla", "meads bay": "Anguilla", "shoal bay": "Anguilla", "maundays bay": "Anguilla",
   "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "philipsburg": "St Maarten",
