@@ -7743,7 +7743,20 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
           const all = j && j.ok && j.results ? j.results : [];
           // Filter on the CITY name — the row for "Santiago (SCL)" survives because Santiago is
           // curated. lookup() strips the airport code itself.
-          const rs = curatedOnly ? all.filter((r) => servable(r.city)) : all;
+          // A curated NAME is not enough — the row has to be the curated PLACE. Google returns
+          // St Lucia in South Africa and St Lucia in Queensland beside the island, and all
+          // three passed on the name alone; picking the wrong one served Sugar Beach to someone
+          // going to Brisbane. Every row carries coordinates, and every curated key has them,
+          // so: the name must be curated AND the row must sit within 150 km of the place that
+          // name resolves to. Same test resolvePlace applies after picking, applied before.
+          const nearCurated = (r) => {
+            if (!servable(r.city)) return false;
+            if (r.lat == null || r.lng == null) return true;
+            const f = lookup(FAVORITES, r.city); const key = Object.keys(FAVORITES).find((k) => FAVORITES[k] === f);
+            const c = key && COORDS[key]; if (!c) return true;
+            return kmBetween([r.lat, r.lng], c) <= RESOLVE_NAME_KM;
+          };
+          const rs = curatedOnly ? all.filter(nearCurated) : all;
           CITY_SUGGEST_CACHE[term.toLowerCase()] = rs;
           if (!dead) setLive(rs);
         })
