@@ -12284,7 +12284,17 @@ function CitySection({ d, i, p, from, legSched }) {
   // Only fires once geocoding has RESOLVED to "not found" (not while still loading), so it never
   // disturbs a normal city — and it means every curated experience always produces flights.
   const geoFailed = d.air && GEO_CACHE[geoKey(d.city)] === null;
-  const flyTo = gw ? gw.air : (geoFailed ? d.air : d.city);
+  // SEND THE GATEWAY WITH ITS CODE. The flights endpoint resolves a bare name by asking Duffel,
+  // and Duffel's spelling is not ours — "St Maarten" found nothing because Duffel calls it Sint
+  // Maarten, so every St Barts search died before it started. Eleuthera only survived because
+  // "Eleuthera" is inside "North Eleuthera". A gateway is an airport we chose, and its code is in
+  // AIRPORTS, so it goes across as "St Maarten (SXM)", exactly the form a Google-sourced pick
+  // already takes — and the endpoint uses a code as given, no guessing. This is done for the
+  // GATEWAY only, never for the destination itself: a destination can be a metro ("London" must
+  // stay LON so Gatwick and City survive), but a gateway is by definition one field. Every
+  // gateway in the table has been checked against that — none is a metro city.
+  const withCode = (name) => { const ap = name && !codeOf(name) ? airportFor(name) : null; return ap && ap.code ? `${bareCity(name)} (${ap.code})` : name; };
+  const flyTo = gw ? withCode(gw.air) : (geoFailed ? d.air : d.city);
   // If you can reach it on the ground, flying is usually the wrong answer.
   const surfaceTarget = gw ? gw.air : d.city;
   const surface = from && surfaceTarget && !sameCity(from, surfaceTarget) ? connection(from, surfaceTarget) : null;
