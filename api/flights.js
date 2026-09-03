@@ -368,9 +368,19 @@ export default async function handler(req, res) {
       "Alitalia", "Delta", "United", "American Airlines",
     ];
     const rank = (name) => { const i = PREFERRED.findIndex((p) => (name || "").toLowerCase().includes(p.toLowerCase())); return i === -1 ? 999 : i; };
-    // A connection has to come from a dramatically better airline to beat a nonstop.
-    const score = (o) => rank(o.airline) + o.stops * 40;
-    const byRank = (a, b) => { const d = score(a) - score(b); return d !== 0 ? d : a.price - b.price; };
+    // RANKING, 3 SEPT 2026, ON TRICIA'S INSTRUCTION: QUICKEST FIRST, THEN PRICE. Total journey
+    // time decides — door to door, layovers included — and among journeys of the same length the
+    // lower fare wins. The airline preference list above is kept only as a final tie-break for
+    // two journeys of identical time and price, so it can never lift a slower or dearer journey
+    // above a faster or cheaper one. Before this the order was airline quality plus a penalty per
+    // stop, which put a preferred carrier's slower nonstop ahead of a quicker one. "recommended"
+    // is the first journey in this order; "cheapest" is still the cheapest, unchanged.
+    const mins = (o) => (Number.isFinite(o.totalMin) && o.totalMin > 0 ? o.totalMin : 1e9);
+    const byRank = (a, b) => {
+      const dt = mins(a) - mins(b); if (dt !== 0) return dt;
+      const dp = (a.price ?? 1e12) - (b.price ?? 1e12); if (dp !== 0) return dp;
+      return rank(a.airline) - rank(b.airline);
+    };
 
     res.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=43200");
 
@@ -457,7 +467,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true, from: origin, to: destination, date: dep, cabin: cabinClass,
       resolved,
-      // The best journey we'd put in front of a client: quality carrier, sensible routing.
+      // The best journey we'd put in front of a client: the quickest, and at equal time the cheaper.
       recommended: spread[0] || distinct[0] || null,
       // The lowest fare on the route, whatever it is. This field means what it says.
       cheapest: trueCheapest,
