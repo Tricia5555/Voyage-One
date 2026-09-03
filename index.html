@@ -7529,8 +7529,20 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const raw = value || "";
   const q = bareCity(raw).toLowerCase();
   const servable = (name) => { const f = lookup(FAVORITES, name); return !!(f && f.length); };
-  const matches = q ? CITIES.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q)
-    .filter((c) => !curatedOnly || servable(c)).slice(0, 5) : [];
+  // THE DESTINATION PICKER SUGGESTS FROM OUR OWN CURATED LIST FIRST. It used to match only the
+  // short static CITIES list, and rely on Google for everything else — and Google's rows are
+  // filtered in citysearch.js to towns, districts and attractions. Islands, lakes and reserves
+  // are natural features to Google, so Harbour Island, Ambergris Caye, Exuma, Lake Atitlán and
+  // Mountain Pine Ridge were being dropped before they reached the app, with their hotels sitting
+  // unreachable behind them. Every FAVORITES key is a place Voyage One can send someone; a client
+  // typing its name should be offered it, from us, whatever Google thinks it is. Starts-with
+  // matches first, then contains, so "harb" lists Harbour Island before anything merely containing
+  // the letters. The departure picker keeps the small list — a home airport needs no curation.
+  const pool = curatedOnly ? Array.from(new Set(CITIES.concat(Object.keys(FAVORITES)))) : CITIES;
+  const matches = q ? pool.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q)
+    .filter((c) => !curatedOnly || servable(c))
+    .sort((a, b) => (b.toLowerCase().startsWith(q) ? 1 : 0) - (a.toLowerCase().startsWith(q) ? 1 : 0) || a.localeCompare(b))
+    .slice(0, 5) : [];
 
   useEffect(() => {
     let dead = false;
