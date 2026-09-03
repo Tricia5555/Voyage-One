@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M323";
+const BUILD = "M325";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,10 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── DOMINICAN REPUBLIC. Drafted Sept 2026 — mine, not Tricia's.
+  "Punta Cana": { window: "December to April", note: "The dry season and the calm sea on the east coast. Christmas and Easter are the peaks; May and June are warm, quiet and good value. Hurricane season is June to November." },
+  "La Romana": { window: "December to April", note: "Dry, and the golf at its best \u2014 Teeth of the Dog is booked ahead in the winter. The polo season at Casa de Campo runs through the winter months. Hurricane season is June to November." },
+  "Playa Grande": { window: "January to April \u2014 and the whales, January to March", note: "The north coast is wetter than the east and its rains run November into January, so the reliable window starts a little later. Humpbacks gather in Saman\u00e1 Bay, an hour east, from mid-January to March; Amanera will arrange the boat. Hurricane season is June to November." },
   // ── JAMAICA. Drafted Sept 2026 — mine, not Tricia's.
   "Montego Bay": { window: "December to April", note: "The dry season. Reggae Sumfest fills Montego Bay for a week in July, which is either the reason to come or the reason not to. Hurricane season is June to November." },
   "Negril": { window: "December to April", note: "Dry, and the sunsets off the cliffs are the point. Negril is quieter and slower than the north coast in any month. Hurricane season is June to November." },
@@ -489,6 +493,11 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Dominican Republic in full — 3 Sept 2026, on the strict standard. Two: the Aman on the north
+  // coast, and ÀNI — a fourteen-suite peninsula taken by one group only, not a hotel, which the
+  // card makes plain. Eden Roc, Tortuga Bay, Casa de Campo and Playa Grande Beach Club are
+  // Luxury by instruction; Casa de Campo's best villas may be Ultra on their own, resort as a whole.
+  "Amanera", "\u00c0NI Dominican Republic",
   // Jamaica in full — 3 Sept 2026, on the strict standard. NONE, and the curation says not to
   // promote an iconic house on history alone. Round Hill, Half Moon, GoldenEye, Jamaica Inn,
   // Trident and Geejam are Luxury; The Caves and Strawberry Hill are Experience.
@@ -2246,6 +2255,26 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── DOMINICAN REPUBLIC, IN FULL ─────────────────────────────────────────────────────
+  // Six properties in three places. The country is big and the coasts are different trips:
+  // Punta Cana and Cap Cana in the east off PUJ; La Romana an hour west of it with its own
+  // field; Playa Grande on the north coast off Puerto Plata (POP), a gateway only. ÀNI at
+  // Cabrera sits under Playa Grande — fifteen minutes apart, same door, and the three north-coast
+  // houses belong on one page. Samaná has nothing by instruction. Santo Domingo is in the
+  // geography as a road hub and carries no hotel. The fishing, golf and tennis cards already
+  // pointed at Punta Cana, La Romana and Playa Grande with nothing behind them.
+  "Punta Cana": [
+    { name: "Eden Roc Cap Cana", area: "Cap Cana", rate: null, ourTake: "Sixty-five suites, bungalows and villas, most with their own pools, inside the Cap Cana estate with a private beach club and Nicklaus golf \u2014 Relais & Ch\u00e2teaux, and the very top of Luxury on this coast. Small by Punta Cana standards, and by instruction not Ultra." },
+    { name: "Tortuga Bay Puntacana Resort & Club", area: "Puntacana Resort & Club", rate: null, ourTake: "Oscar de la Renta's villas inside the Puntacana club \u2014 smaller, quieter and better mannered than anything else in Punta Cana, with the golf and the beach at the door. The sophisticated choice here." },
+  ],
+  "La Romana": [
+    { name: "Casa de Campo Resort & Villas", area: "La Romana", rate: null, ourTake: "Seven thousand acres: Teeth of the Dog, Dye Fore, polo, a marina, tennis and hundreds of private villas, some with butlers. Vast, and everything in it. The best villas are Ultra Luxury on their own; the resort is classified as a whole, and Luxury." },
+  ],
+  "Playa Grande": [
+    { name: "Amanera", area: "Playa Grande, R\u00edo San Juan", rate: null, ourTake: "Aman on a cliff above a mile of empty north-coast beach \u2014 casitas with their own pools, the golf course along the headland, and a stillness the rest of the country does not have. The one Dominican address that stands with the world's best." },
+    { name: "\u00c0NI Dominican Republic", area: "Cabrera \u2014 exclusive use only", rate: null, ourTake: "A private peninsula with fourteen suites and more than thirty staff, taken by one group and nobody else \u2014 chefs, daily spa, excursions, all of it included. Not a hotel: a house for up to twenty-eight people, at a rate that says so." },
+    { name: "Playa Grande Beach Club", area: "Playa Grande, R\u00edo San Juan", rate: null, ourTake: "Nine bungalows by Celerie Kemble on two thousand acres, each one different and all of them lovely \u2014 the small, design-led house on the north coast, and a natural buyout for a family or a wedding." },
   ],
   // ── JAMAICA, IN FULL ────────────────────────────────────────────────────────────────
   // Eight properties in five places, no Ultra Luxury, by instruction. Jamaica is big enough to
@@ -6083,6 +6112,7 @@ const PLACE_REGION = {
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
+  "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
   "montego bay": "Jamaica", "negril": "Jamaica", "ocho rios": "Jamaica", "port antonio": "Jamaica", "kingston": "Jamaica",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
@@ -6382,6 +6412,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Playa Grande": { air: "Puerto Plata", note: "Fly to Puerto Plata (POP), then about an hour and a quarter east along the coast \u2014 Amanera and the Beach Club both send a car. Santo Domingo (SDQ) is the other way in, three hours over the mountains, and worth it only if the flight is much better. \u00c0NI is fifteen minutes further on at Cabrera." },
   "Negril": { air: "Montego Bay", note: "Fly to Montego Bay (MBJ), then about an hour and a half west along the coast. The Caves sends a car." },
   "Ocho Rios": { air: "Montego Bay", note: "Fly to Montego Bay (MBJ), then a little under two hours east on the new highway \u2014 or into Kingston (KIN) and the same again north over the mountains, which is the prettier road and the slower one. GoldenEye and Jamaica Inn both send a driver." },
   "Port Antonio": { air: "Kingston", note: "Fly to Kingston (KIN), then about two hours east along the coast \u2014 or twenty minutes by helicopter, which Trident will arrange. From Montego Bay it is four hours, and not the way to do it." },
@@ -6447,6 +6478,11 @@ const CITY_ARRIVAL = {
     { mode: "Private water taxi (motoscafo)", why: "A private launch straight to your hotel's water door — the right arrival, and essential in costume or with luggage. Booked ahead through the hotel.", price: 140 },
     { mode: "Alilaguna water bus", why: "The shared public boat from the airport to the San Marco and Rialto stops, then a short walk or hotel porter. Slower, a fraction of the cost.", price: 15 },
   ] },
+  "La Romana": { icon: "plane", note: "Casa de Campo has its own airport (LRM) five minutes from the gate \u2014 American flies it from Miami. When that does not fit, Punta Cana (PUJ) is an hour east by motorway and Santo Domingo (SDQ) an hour and a half west, and both have far more flights.", modes: [
+    { mode: "Fly to La Romana (LRM)", why: "Five minutes to the resort. The way in when the Miami flight lines up.", price: null },
+    { mode: "Via Punta Cana \u2014 private transfer", why: "An hour on the motorway from the busiest airport in the Caribbean; the resort sends a car.", price: null },
+    { mode: "Via Santo Domingo \u2014 private transfer", why: "An hour and a half from the capital, with the widest choice of European flights.", price: null },
+  ] },
   "British Virgin Islands": { icon: "boat", note: "Every hotel here is on its own island and the last leg is always by water. Fly to Beef Island (EIS) \u2014 American nonstop from Miami, or through San Juan \u2014 and the resort's boat is waiting at Trellis Bay beside the terminal. The other way in is St Thomas (STT), which has far more flights from the US, then an hour by boat with the border at each end.", modes: [
     { mode: "Fly to Beef Island \u2014 resort boat", why: "The simplest door. Little Dix is thirty minutes across to Virgin Gorda, Scrub Island ten, Oil Nut Bay about thirty-five, Necker and Moskito by their own boat or helicopter. Booked through the hotel.", price: null },
     { mode: "Via St Thomas \u2014 private boat", why: "Land at STT, clear in, and the hotel's boat takes you across \u2014 about an hour to Tortola or Virgin Gorda, and the border formalities are done at the dock. The way from the US when Beef Island's one flight does not fit.", price: null },
@@ -6495,6 +6531,14 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // DOMINICAN REPUBLIC. Punta Cana (PUJ) takes Iberia, Air France, British Airways and every US
+  // carrier — the busiest airport in the Caribbean and intercontinental in every sense. La
+  // Romana (LRM) takes American from Miami, five minutes from Casa de Campo, sellable and
+  // listed. Puerto Plata (POP) is the north-coast door, US carriers and Condor, listed as the
+  // gateway for Playa Grande. Santo Domingo (SDQ) is listed as a road hub. Samaná's El Catey is
+  // seasonal and not listed.
+  "Punta Cana": { code: "PUJ", scale: "intercontinental" }, "La Romana": { code: "LRM", scale: "intercontinental" },
+  "Puerto Plata": { code: "POP", scale: "intercontinental" }, "Santo Domingo": { code: "SDQ", scale: "intercontinental" },
   // JAMAICA. Sangster (MBJ) at Montego Bay takes British Airways and Virgin from London and the
   // US carriers in numbers — the island's main door. Norman Manley (KIN) at Kingston takes
   // British Airways too and is the door to the east. Both intercontinental. Ian Fleming (OCJ)
@@ -6819,6 +6863,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // DOMINICAN REPUBLIC. One island (the western two-thirds of it), one zone.
+  "dominican-republic": ["Punta Cana","La Romana","Playa Grande","Puerto Plata","Santo Domingo"],
   // JAMAICA. One island, one zone, and the drive times are real because the roads are not.
   "jamaica": ["Montego Bay","Negril","Ocho Rios","Port Antonio","Blue Mountains, Jamaica","Kingston"],
   // CAYMAN ISLANDS. Two islands, two zones, ninety miles of sea between them and no ferry.
@@ -6921,6 +6967,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Punta Cana": [18.58,-68.37], "La Romana": [18.43,-68.97], "Playa Grande": [19.63,-70.00],
+  "Puerto Plata": [19.79,-70.69], "Santo Domingo": [18.47,-69.93],
   "Montego Bay": [18.47,-77.92], "Negril": [18.27,-78.35], "Ocho Rios": [18.41,-77.10],
   "Port Antonio": [18.18,-76.45], "Blue Mountains, Jamaica": [18.07,-76.72], "Kingston": [17.97,-76.79],
   "Grand Cayman": [19.32,-81.24], "Little Cayman": [19.69,-80.05],
@@ -7020,6 +7068,10 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // DOMINICAN REPUBLIC. Mine, not verified. The east is motorway; the north coast is not.
+  ["Punta Cana", "La Romana", 60, 80], ["Punta Cana", "Santo Domingo", 150, 190], ["La Romana", "Santo Domingo", 90, 115],
+  ["Puerto Plata", "Playa Grande", 75, 80], ["Santo Domingo", "Playa Grande", 180, 200], ["Santo Domingo", "Puerto Plata", 210, 230],
+  ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
   // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
   ["Montego Bay", "Negril", 90, 80], ["Montego Bay", "Ocho Rios", 105, 100], ["Montego Bay", "Kingston", 150, 190],
   ["Montego Bay", "Port Antonio", 240, 230], ["Kingston", "Port Antonio", 120, 100], ["Kingston", "Blue Mountains, Jamaica", 45, 20],
@@ -7188,6 +7240,9 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "dominican republic": "Punta Cana", "cap cana": "Punta Cana", "bavaro": "Punta Cana", "b\u00e1varo": "Punta Cana",
+  "casa de campo": "La Romana", "playa grande, dominican republic": "Playa Grande", "r\u00edo san juan": "Playa Grande", "rio san juan": "Playa Grande",
+  "cabrera, dominican republic": "Playa Grande", "ani dominican republic": "Playa Grande", "\u00e0ni": "Playa Grande",
   "jamaica": "Montego Bay", "mobay": "Montego Bay", "rose hall": "Montego Bay", "oracabessa": "Ocho Rios", "goldeneye": "Ocho Rios",
   "blue mountains": "Blue Mountains, Jamaica", "irish town": "Blue Mountains, Jamaica", "san san": "Port Antonio", "kingston, jamaica": "Kingston",
   "cayman islands": "Grand Cayman", "cayman": "Grand Cayman", "seven mile beach": "Grand Cayman", "george town, cayman islands": "Grand Cayman", "grand cayman, cayman islands": "Grand Cayman",
@@ -7950,9 +8005,21 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   // matches first, then contains, so "harb" lists Harbour Island before anything merely containing
   // the letters. The departure picker keeps the small list — a home airport needs no curation.
   const pool = curatedOnly ? Array.from(new Set(CITIES.concat(Object.keys(FAVORITES)))) : CITIES;
-  const matches = q ? pool.filter((c) => c.toLowerCase().includes(q) && c.toLowerCase() !== q)
+  // ALIASES ARE TYPEABLE. A client types the name of the country or the coast, not the name of
+  // the key — "Dominican Republic", not "Punta Cana"; "Cayman Islands", not "Grand Cayman". Those
+  // names are in CITY_ALIASES, but the dropdown only searched the keys, and Google throws a
+  // country away as not-a-place, so typing "Dominican Republic" produced nothing at all. Now a
+  // key matches if its own name matches OR any alias that points at it does; the row shows the
+  // key with its region in grey, so "domin" offers Punta Cana, La Romana and Playa Grande, each
+  // labelled Dominican Republic. Universal: every alias in the file becomes a way in.
+  // …and so is the REGION. "Jamaica" should offer every Jamaican destination, not only the ones
+  // with a Jamaica alias — PLACE_REGION already says which country each key is in.
+  const regionHit = (c) => curatedOnly && ((regionOf(c) || "").toLowerCase().includes(q));
+  const aliasHit = (c) => curatedOnly && Object.keys(CITY_ALIASES).some((a) => CITY_ALIASES[a] === c && a.includes(q));
+  const starts = (c) => c.toLowerCase().startsWith(q) || (curatedOnly && (Object.keys(CITY_ALIASES).some((a) => CITY_ALIASES[a] === c && a.startsWith(q)) || (regionOf(c) || "").toLowerCase().startsWith(q)));
+  const matches = q ? pool.filter((c) => (c.toLowerCase().includes(q) || aliasHit(c) || regionHit(c)) && c.toLowerCase() !== q)
     .filter((c) => !curatedOnly || servable(c))
-    .sort((a, b) => (b.toLowerCase().startsWith(q) ? 1 : 0) - (a.toLowerCase().startsWith(q) ? 1 : 0) || a.localeCompare(b))
+    .sort((a, b) => (starts(b) ? 1 : 0) - (starts(a) ? 1 : 0) || a.localeCompare(b))
     .slice(0, 5) : [];
 
   useEffect(() => {
