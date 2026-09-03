@@ -67,6 +67,13 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── EL SALVADOR. Drafted Sept 2026 — mine, not Tricia's. The one thing to know: the surf
+  // season is the rainy season. Someone coming for the wave and someone coming for the lake
+  // want opposite halves of the year.
+  "Playa Mizata": { window: "May to October for the surf; November to April for everything else", note: "The southern swells that make this coast famous arrive with the rains \u2014 May to October is surf season, with warm mornings and afternoon storms. The dry months are calmer, sunnier and smaller on the water. Decide which trip it is before you pick the dates." },
+  "El Sunzal": { window: "May to October for the surf; November to April for everything else", note: "Same coast, same rule: the wave is best in the rainy season. Outside it the point still breaks, gently, and the weather is perfect." },
+  "Lake Coatepeque": { window: "November to April", note: "The dry season, with the crater rim clear and the lake at its bluest. It is a thousand metres lower than the coffee towns to the west and warm all year; the rains from May bring afternoon storms over the water." },
+  "Concepci\u00f3n de Ataco": { window: "November to February", note: "The coffee harvest, and the flowers the route is named for are out along the roadside. Cool at altitude in the mornings. Any month is fine for the towns themselves, but this is the one that shows you why they matter." },
   // ── HONDURAS. Drafted Sept 2026 — mine, not Tricia's. The north coast and the Bay Islands
   // share a weather: wettest from October into January, driest from about March.
   "Roatán": { window: "March to August", note: "The dry, calm months, with the best visibility on the reef. The rains arrive in October and are heaviest through December; the sea can be up and the crossings from the mainland cancelled. Whale sharks pass the Bay Islands in spring, most reliably off Utila in March and April." },
@@ -135,6 +142,10 @@ const BEST_AVAILABLE = [
   // gates open and before anyone drives up from Flores. A location exception, which is exactly
   // what this tier is for. La Lancha remains the lead; this is for the client who wants sunrise.
   "Jungle Lodge Hotel",
+  // Concepción de Ataco, Sept 2026. A colonial house on the Ruta de las Flores that the curation
+  // says does not meet the Luxury bar and should be carried, if at all, only here. It is the
+  // only address on the route and the route is worth the drive — the tier's exact purpose.
+  "Casa Degraciela",
 ];
 const EXPERIENCE_LUX = [
   // Jordan and Oman, Sept 2026 — the first entries in this tier. None of these is a hotel and
@@ -205,6 +216,9 @@ const EXPERIENCE_LUX = [
   // Honduras, Sept 2026. Cabins beside a national park with some of the best birding in Central
   // America. The curation is explicit: the reason to stay is the rainforest, not the rooms.
   "The Lodge at Pico Bonito",
+  // El Salvador, Sept 2026. Treehouses above a surf break, and a private house on the cliffs
+  // near El Sunzal that is a retreat rather than a hotel. Both filed here on the curation's word.
+  "Mizata by Antiresort", "The Mansion by Verdaad",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -224,6 +238,8 @@ const ULTRA_LUX = [
   // in FAVORITES and now surfaces under Luxury or, where the corrections say so, Experience
   // Luxury. Colombia, Ecuador, Bolivia and Guatemala have no Ultra Luxury property at all.
   //
+  // El Salvador — none. Equinoccio is Luxury; Mizata and The Mansion are Experience; Casa
+  // Degraciela is Best Available.
   // Honduras — none. Kimpton Grand Roatán and Ibagari are Luxury; Pico Bonito is Experience.
   // Nicaragua — one. Calala: five suites, ten guests, twenty-five staff, and a private cay.
   // Mukul was here for a day and was taken down to Luxury on 3 Sept 2026 on the re-audit —
@@ -1112,6 +1128,26 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── EL SALVADOR, IN FULL ────────────────────────────────────────────────────────────
+  // Four properties in four places, one in each tier below Ultra, and nothing in the capital or
+  // El Tunco: the curation says the surf town is full of attractive hotels and none is ours.
+  // San Salvador is in COORDS, ZONE and AIRPORTS as the gateway and nowhere else.
+  //
+  // THE COAST KEY IS "El Sunzal", NOT "La Libertad". La Libertad is a department here, a region
+  // of Peru and a town in three other countries; El Sunzal is the break the house looks at and
+  // nowhere else. "el tunco" is aliased to it — two kilometres apart, and the curation names both.
+  "Lake Coatepeque": [
+    { name: "Equinoccio Hotel", area: "Lake Coatepeque", rate: null, ourTake: "A small contemporary hotel on the rim of a volcanic crater lake, every room facing the water, with a wellness lean and almost nobody else on the shore. The one genuine luxury address in the country." },
+  ],
+  "Playa Mizata": [
+    { name: "Mizata by Antiresort", area: "Playa Mizata", rate: null, ourTake: "Treehouses in the jungle and over the ocean above a reef break that is rarely crowded \u2014 surf lessons, yoga, a cold plunge, and dinner at the beach house. Adults, and the point is the wave and the wellness rather than the thread count." },
+  ],
+  "El Sunzal": [
+    { name: "The Mansion by Verdaad", area: "Cliffs above El Sunzal", rate: null, ourTake: "A private house on the cliffs with the Pacific below and El Tunco a few minutes away \u2014 taken whole, with yoga, massage and a cook, for a group who want the coast without a hotel around them." },
+  ],
+  "Concepci\u00f3n de Ataco": [
+    { name: "Casa Degraciela", area: "Concepci\u00f3n de Ataco", rate: null, ourTake: "A colonial house more than a century and a half old, run personally, in the prettiest town on the Ruta de las Flores. Not a luxury hotel and not pretending to be one \u2014 the right base for the coffee highlands, and the only one." },
   ],
   // ── HONDURAS, IN FULL ───────────────────────────────────────────────────────────────
   // Three properties in two places, no Ultra Luxury, and four destinations deliberately absent.
@@ -5751,6 +5787,8 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
+  "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
   "roatán": "Bay Islands, Honduras", "roatan": "Bay Islands, Honduras", "la ceiba": "Pico Bonito, Honduras", "san pedro sula": "Honduras",
   "managua": "Nicaragua", "nandaime": "near Granada, Nicaragua", "san juan del sur": "Nicaragua",
   "tola": "Emerald Coast, Nicaragua", "little corn island": "Nicaragua", "calala island": "Pearl Cays, Nicaragua",
@@ -6046,6 +6084,10 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Lake Coatepeque": { air: "San Salvador", note: "Fly to San Salvador (SAL), then a little over an hour west \u2014 the airport is south of the city near the coast, so you skirt the capital rather than cross it." },
+  "Playa Mizata": { air: "San Salvador", note: "Fly to San Salvador (SAL) and turn west along the coast road \u2014 about an hour and three quarters, past El Tunco and El Sunzal. The airport is nearer the sea than the city, which makes this simpler than it looks." },
+  "El Sunzal": { air: "San Salvador", note: "Fly to San Salvador (SAL), then under an hour \u2014 the airport sits down by the coast and La Libertad is the next town along. The house sends a car." },
+  "Concepci\u00f3n de Ataco": { air: "San Salvador", note: "Fly to San Salvador (SAL), then about two hours west into the coffee highlands. The Ruta de las Flores itself is a slow forty kilometres of small towns; give it the day, not the transfer." },
   "La Ceiba": { air: "San Pedro Sula", note: "Fly to San Pedro Sula (SAP), then about three hours east by road \u2014 the lodge sends a car. If you are coming from Roat\u00e1n, the Galaxy Wave ferry to La Ceiba takes about an hour and a quarter and the lodge collects you at the pier, which is the better way to combine the two." },
   "Granada, Nicaragua": { air: "Managua", note: "Fly to Managua (MGA), then about an hour south by road. Granada has no airport of its own and does not need one." },
   "Nandaime": { air: "Managua", note: "Fly to Managua (MGA), then an hour and a quarter by road. Nekupe sends its own car, and once you are inside the reserve you will not need another." },
@@ -6133,6 +6175,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // EL SALVADOR. Óscar Romero (SAL) is the only airport, and it is not in the city: it is at
+  // Comalapa, forty kilometres south, ten minutes from the sea. Iberia flies it from Madrid, so
+  // for once "intercontinental" is literally true. There is no hub reachable on the ground.
+  "San Salvador": { code: "SAL", scale: "intercontinental" },
   // HONDURAS. Roatán (RTB) has nonstops from the US hubs and is the reason the island works as a
   // destination in its own right; San Pedro Sula (SAP) is the mainland gateway. Both are marked
   // intercontinental for the usual reason — no hub reachable on the ground, so you fly straight
@@ -6374,6 +6420,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // EL SALVADOR. One landmass, one zone, everything within two and a half hours of everything.
+  "el-salvador": ["San Salvador","Lake Coatepeque","Playa Mizata","El Sunzal","Concepción de Ataco"],
   // HONDURAS. Roatán is an island with its own zone; the ferry to La Ceiba is in FERRIES, which
   // is what lets connection() offer the crossing without drivable() ever measuring the sea.
   "honduras": ["San Pedro Sula","La Ceiba"],
@@ -6441,6 +6489,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "San Salvador": [13.69,-89.19], "Lake Coatepeque": [13.87,-89.55], "Playa Mizata": [13.53,-89.56],
+  "El Sunzal": [13.49,-89.39], "Concepción de Ataco": [13.87,-89.85],
   "Roatán": [16.32,-86.53], "Roatan": [16.32,-86.53], "La Ceiba": [15.77,-86.79], "San Pedro Sula": [15.50,-88.03],
   "Managua": [12.13,-86.25], "Granada, Nicaragua": [11.93,-85.96], "Nandaime": [11.76,-86.05],
   "San Juan del Sur": [11.25,-85.87], "Tola": [11.33,-86.14],
@@ -6528,6 +6578,13 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // EL SALVADOR. Mine, not verified. The airport is near the coast, not the city, which is why
+  // the beach legs are short and the lake leg is not.
+  ["San Salvador", "Lake Coatepeque", 75, 60], ["San Salvador", "El Sunzal", 50, 40],
+  ["San Salvador", "Playa Mizata", 105, 75], ["San Salvador", "Concepción de Ataco", 120, 105],
+  ["Lake Coatepeque", "Concepción de Ataco", 75, 55], ["Lake Coatepeque", "El Sunzal", 90, 75],
+  ["Lake Coatepeque", "Playa Mizata", 120, 90], ["El Sunzal", "Playa Mizata", 50, 35],
+  ["Concepción de Ataco", "El Sunzal", 150, 120], ["Concepción de Ataco", "Playa Mizata", 135, 100],
   // HONDURAS. Mine, not verified.
   ["San Pedro Sula", "La Ceiba", 180, 200],
   // NICARAGUA. Short distances, slow roads. Mine, not verified.
@@ -6672,6 +6729,11 @@ const CITY_ALIASES = {
   "montr\u00e9al": "Montreal", "qu\u00e9bec city": "Quebec City", "quebec": "Quebec City", "qu\u00e9bec": "Quebec City",
   "ville de qu\u00e9bec": "Quebec City", "mont tremblant": "Mont-Tremblant", "tremblant": "Mont-Tremblant",
   "inverness, nova scotia": "Cape Breton", "sydney, nova scotia": "Cape Breton",
+  // El Salvador. Bare "coatepeque" is NOT aliased — it is also a town in Guatemala. Bare
+  // "la libertad" is not either, for the reason in FAVORITES.
+  "lago de coatepeque": "Lake Coatepeque", "lago coatepeque": "Lake Coatepeque", "coatepeque, el salvador": "Lake Coatepeque",
+  "mizata": "Playa Mizata", "el tunco": "El Sunzal", "la libertad, el salvador": "El Sunzal", "sunzal": "El Sunzal",
+  "ataco": "Concepción de Ataco", "concepcion de ataco": "Concepción de Ataco", "ruta de las flores": "Concepción de Ataco",
   // Honduras. "roatan" is load-bearing (see FAVORITES). "west bay" is NOT aliased — it is also
   // Grand Cayman.
   "roatan": "Roatán", "roatan, honduras": "Roatán", "bay islands": "Roatán",
