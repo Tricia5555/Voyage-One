@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  "Uyuni": { window: "Two seasons, and they are different trips", note: "December to April the flat floods a few inches deep and becomes the mirror \u2014 the reflection everyone has seen in photographs, though some routes across it close. May to November is dry, with the hexagonal salt crust and full access to the far islands and lagoons. Neither is better; decide which photograph you want." },
+  "La Paz": { window: "May to October", note: "The dry season, with clear Andean skies. Whenever you come, La Paz sits at 3,600 m and El Alto airport at 4,061 m \u2014 arrive, do nothing for a day, and let the altitude settle before going higher to Uyuni." },
   "Torres del Paine": { window: "November to March", note: "The Patagonian summer, and effectively the only window — most lodges close entirely from May. December and January bring the long light and the wind, which is relentless and part of the place. March is the quiet secret: less wind, autumn colour on the lenga, and the towers to yourself." },
   "El Calafate": { window: "October to April", note: "The glacier is there all year but the light and the boats are not. December to February is high season and busy at the walkways; October and March give you the same ice with room to breathe." },
   "El Chaltén": { window: "November to March", note: "Fitz Roy makes its own weather and hides for days at a time. Give it four nights in summer rather than two — the mountain shows itself when it chooses, and people who allow one day usually never see it." },
@@ -105,6 +107,9 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Bolivia, Sept 2026. Two hotels built out of salt blocks on the edge of the Salar. Neither is
+  // a conventional luxury hotel and both are the right way to be there, which is the tier exactly.
+  "Palacio de Sal", "Luna Salada Hotel de Sal",
   // Ecuador, Sept 2026. An expedition yacht, three Amazon lodges, and a hacienda built inside an
   // Inca palace. Ecoventura is not a hotel at all — the curation is explicit that Galápagos must
   // offer a cruise path as well as a land-based one, and this is it.
@@ -1047,6 +1052,27 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── BOLIVIA, IN FULL ────────────────────────────────────────────────────────────────
+  // ZERO Ultra Luxury, and the curation says that is legitimate. Bolivia's value is the landscape,
+  // not the thread count, and lowering the bar to manufacture a top tier would be the exact
+  // failure this canon exists to prevent.
+  //
+  // THREE THINGS DELIBERATELY EXCLUDED, all on the same principle: the curation says verify before
+  // creating a record, and unverified means out. The Uyuni Airstream and mobile camps have no
+  // named operator. The Bolivian side of Lake Titicaca has nothing that clears the bar — Titilaka
+  // on the Peruvian side is already carried and is the better answer. The Potosí altiplano is a
+  // touring region rather than a place to sleep.
+  "La Paz": [
+    { name: "Atix Hotel", area: "Calacoto", rate: null, ourTake: "Fifty-three rooms of contemporary Bolivian design in Calacoto, with a rooftop pool and commissioned local art throughout. The only real hotel in the city." },
+    { name: "MET Hotel", area: "Calacoto", rate: null, ourTake: "Smaller and sharper, the polished modern alternative in the same quarter." },
+  ],
+  "Uyuni": [
+    { name: "Palacio de Sal", area: "Colchani", rate: null, ourTake: "Built from blocks of salt at the edge of the flat — walls, floors, furniture. Not a five-star hotel and entirely the point: you wake up on the Salar." },
+    { name: "Luna Salada Hotel de Sal", area: "Colchani", rate: null, ourTake: "Also salt-built, higher up with the panorama across the whole white expanse. The strong alternate." },
+  ],
+  "Sucre": [
+    { name: "Parador Santa María La Real", area: "Centro Histórico", rate: null, ourTake: "An 18th-century mansion in the white colonial city, with a rooftop over the tiled roofs. Sucre needs one good house and this is it." },
   ],
   // ── URUGUAY, IN FULL ────────────────────────────────────────────────────────────────
   // A small country whose strength is a short list of exceptional houses, and the curation says
@@ -5828,6 +5854,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // BOLIVIA. La Paz is the gate — El Alto sits at 4,061 m and is the highest international
+  // airport in the world, which is a fact worth knowing before anyone books an early arrival.
+  "La Paz": { code: "LPB", scale: "intercontinental" }, "Uyuni": { code: "UYU", scale: "regional" },
+  "Sucre": { code: "SRE", scale: "regional" },
   // URUGUAY. Montevideo is the gate; Punta del Este has its own field with seasonal service, and
   // José Ignacio is reached from either by road.
   "Montevideo": { code: "MVD", scale: "intercontinental" }, "Punta del Este": { code: "PDP", scale: "regional" },
@@ -6020,6 +6050,7 @@ const ZONE = {
   "hvar": ["Hvar"],
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
+  "bolivia": ["La Paz","Uyuni","Sucre"],
   "uruguay": ["José Ignacio","Punta del Este","Montevideo","Carmelo","Colonia del Sacramento"],
   "ecuador": ["Quito","Mashpi","Ecuadorian Amazon","Hacienda Zuleta","Cotopaxi","Cuenca","Guayaquil"],
   // The Galápagos are 900 km out in the Pacific. Their own zone, or the app will offer a drive.
@@ -6069,6 +6100,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "La Paz": [-16.50,-68.15], "Uyuni": [-20.46,-66.83], "Sucre": [-19.03,-65.26],
   "José Ignacio": [-34.84,-54.63], "Punta del Este": [-34.95,-54.93], "Montevideo": [-34.90,-56.16],
   "Carmelo": [-34.00,-58.28], "Colonia del Sacramento": [-34.47,-57.84],
     "Quito": [-0.18,-78.47], "Mashpi": [0.16,-78.87], "Galápagos": [-0.74,-90.31],
@@ -7688,7 +7720,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M316</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M317</span></footer>
   </div>);
 }
 
