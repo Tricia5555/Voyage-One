@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
+  "Turks & Caicos": { window: "December to April", note: "The dry, breezy season, and Grace Bay at its most booked \u2014 Christmas, New Year and Easter go a year ahead at the small islands. Humpback whales pass through the Columbus Passage from January to March, best seen from Salt Cay and South Caicos. Hurricane season is June to November; several resorts close for September and October, and Amanyara is closed for works until 20 October 2026." },
   // ── BAHAMAS. Drafted Sept 2026 — mine, not Tricia's. High season is Christmas to Easter and
   // the islands know it. The shoulders are the value; late summer and early autumn are the risk.
   "Nassau": { window: "December to April", note: "The season, and the Ocean Club at its most sought-after \u2014 Christmas, New Year and Easter are booked far ahead. May and June are calm, warm and much quieter. Hurricane season is June to November, with August to October the months to avoid." },
@@ -427,7 +429,12 @@ const ULTRA_LUX = [
   "Four Seasons Resort Tamarindo", "Hotel Esencia", "Maroma, a Belmond Hotel",
   // Caribbean
   "Cheval Blanc St-Barth", "Eden Rock St Barths", "Le Toiny", "Cap Juluca, a Belmond Hotel",
-  "Malliouhana", "Amanyara", "COMO Parrot Cay", "Rosewood Little Dix Bay", "Jumby Bay Island",
+  "Malliouhana", "Amanyara", "Rosewood Little Dix Bay", "Jumby Bay Island",
+  // Turks & Caicos in full — 3 Sept 2026, on the strict standard. Two: the Aman, and a private
+  // island. COMO Parrot Cay was here and is now Luxury by instruction. "Ambergris Cay" is the
+  // Turks & Caicos private island, not Belize's Ambergris Caye — no Belizean hotel carries the
+  // island's name, so the matcher cannot confuse them, but do not add one that does.
+  "Ambergris Cay",
   // Bahamas in full — 3 Sept 2026, on the strict standard. One conventional hotel, and two
   // islands that are not hotels at all: Musha Cay and Over Yonder Cay are rented whole, to one
   // party, at fifty-odd thousand dollars a night. The architecture has no "exclusive-use" tier,
@@ -2101,9 +2108,27 @@ const FAVORITES = {
     { name: "Cap Juluca, a Belmond Hotel", area: "Maundays Bay", rate: null, ourTake: "Moorish-white villas along a flawless crescent of sand." },
     { name: "Malliouhana", area: "Meads Bay", rate: null, ourTake: "The clifftop original above two of Anguilla's best beaches." },
   ],
+  // ── TURKS & CAICOS, IN FULL ─────────────────────────────────────────────────────────
+  // Ten properties under one key, and the key stays the country: everything arrives through
+  // Providenciales (PLS) — the cays are a boat or a short hop from it — so unlike the Bahamas
+  // there is one door, and the area field says which island you end up on. Salterra on South
+  // Caicos is the stretch; its own strip is a short flight from Provo and the card says so.
+  //
+  // AMANYARA IS CLOSED FOR WORKS UNTIL 20 OCTOBER 2026 and carries a status line for it. It is
+  // not removed — the curation is explicit — and the line comes off by hand when it reopens.
+  // PINE CAY is Luxury: the curation allows Experience too, and the default is the conservative
+  // one, as with Kamalame and Yemaya.
   "Turks & Caicos": [
-    { name: "Amanyara", area: "Providenciales", rate: null, ourTake: "A serene Aman on a remote nature reserve, all black-timber pavilions and reef." },
-    { name: "COMO Parrot Cay", area: "Parrot Cay", rate: null, ourTake: "A private-island wellness legend on a mile of powder beach." },
+    { name: "Amanyara", area: "Northwest Point, Providenciales", rate: null, status: "Closed for enhancements \u2014 reopens 20 October 2026", ourTake: "The benchmark. Black-timber pavilions and villas beside an 18,000-acre reserve on the empty end of Provo, with the reef straight off the rocks and the quiet that only Aman does. Reopening in October after works; book beyond that date." },
+    { name: "Ambergris Cay", area: "Private island", rate: null, ourTake: "A private island an hour's flight from Provo with its own strip, all-inclusive, an island host for every stay, plunge pools on the suites and managed private homes for a family. Scarce, secluded and priced accordingly." },
+    { name: "COMO Parrot Cay", area: "Parrot Cay", rate: null, keys: 1, ourTake: "The private-island wellness legend on a mile of powder beach, thirty minutes by boat from Provo \u2014 villas, the COMO Shambhala spa, and a very particular calm. Excellent, and Luxury on this list by instruction." },
+    { name: "Pine Cay", area: "Pine Cay", rate: null, ourTake: "Fourteen suites on an 800-acre private island with no cars and one of the finest beaches in the country, Relais & Ch\u00e2teaux and deliberately understated. Barefoot rather than polished, and a favourite of people who could stay anywhere." },
+    { name: "Grace Bay Club", area: "Grace Bay", rate: null, keys: 1, ourTake: "The original Grace Bay address, with very large suites, estate residences and a personal concierge for each. The best-placed of the big beach resorts." },
+    { name: "Wymara Resort + Villas", area: "Grace Bay", rate: null, ourTake: "The contemporary one on the beach, with a strong villa estate on the other side of the island for families who want a house and a pool of their own." },
+    { name: "Rock House", area: "North shore, Providenciales", rate: null, ourTake: "Cliffside on the quiet north shore, with big villas cut into the rock above the sea and a design sensibility the beach resorts lack. For a client who does not need Grace Bay." },
+    { name: "Point Grace", area: "Grace Bay", rate: null, ourTake: "Small, colonial in style and elegant, on the beach \u2014 the sophisticated alternative to the larger resorts around it." },
+    { name: "The Ritz-Carlton, Turks & Caicos", area: "Grace Bay", rate: null, ourTake: "A polished, large beach resort on Grace Bay with everything a brand of this size brings. Reliable rather than rare." },
+    { name: "Salterra, a Luxury Collection Resort & Spa", area: "South Caicos", rate: null, ourTake: "The new resort on a much quieter island \u2014 an empty beach, real diving and bonefishing, and none of Provo's traffic. Reached by a short flight from Providenciales to South Caicos's own strip." },
   ],
   "British Virgin Islands": [
     { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's storied bay, elegantly reborn." },
@@ -5843,6 +5868,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "turks & caicos": "Caribbean",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6234,6 +6260,11 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // TURKS & CAICOS. Providenciales (PLS) is the country's door and British Airways flies it from
+  // Gatwick, so intercontinental is literally true. The key is the country because that is the
+  // destination key in FAVORITES; "providenciales" is aliased to it. South Caicos (XSC) and the
+  // Ambergris Cay strip are not listed — the resorts arrange those legs.
+  "Turks & Caicos": { code: "PLS", scale: "intercontinental" },
   // BAHAMAS. Nassau (NAS) is genuinely intercontinental — British Airways flies it from London.
   // Exuma (GGT) and North Eleuthera (ELH) both take US nonstops and neither has a hub reachable
   // by road, so intercontinental for the app's purposes. Harbour Island and Andros have no entry:
@@ -6821,7 +6852,9 @@ const CITY_ALIASES = {
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
-  "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos",
+  "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
+  "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
+  "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
   "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island",
   "como": "Lake Como", "firenze": "Florence", "venezia": "Venice", "roma": "Rome", "milano": "Milan", "napoli": "Naples",
   "wien": "Vienna", "munchen": "Munich", "münchen": "Munich", "geneve": "Geneva", "genève": "Geneva",
@@ -6863,7 +6896,9 @@ const CITY_ALIASES = {
   "flores, guatemala": "Tikal", "el remate": "Tikal", "tikal national park": "Tikal",
   // Belize. Only forms that cannot collide: bare "san pedro" is left alone because it is also
   // San Pedro de Atacama and San Pedro, California.
-  "san pedro, belize": "Ambergris Caye", "ambergris cay": "Ambergris Caye",
+  // "ambergris cay" is NOT aliased to Belize — Ambergris Cay is a Turks & Caicos private island
+  // and a hotel on this list, and the alias was sending it to Central America.
+  "san pedro, belize": "Ambergris Caye",
   "placencia village": "Placencia", "mountain pine ridge forest reserve": "Mountain Pine Ridge",
   "monte carlo": "Monaco", "monte-carlo": "Monaco", "monte carlo, monaco": "Monaco", "monte-carlo, monaco": "Monaco", "monaco-ville": "Monaco", "principality of monaco": "Monaco", "monaco, france": "Monaco",
 };
@@ -11288,6 +11323,10 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
     <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}</div>
       {s.area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.area}</div> : null}
+      {/* A temporary state the client must see before they fall for the photograph — closed for
+          works, reopening on a date, phased renovation. Hand-written on the FAVORITES entry as
+          `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
+      {s.status ? <div style={{ fontSize: 12, color: "#B0563A", fontWeight: 500, marginTop: 6, lineHeight: 1.4 }}>{s.status}</div> : null}
       <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
