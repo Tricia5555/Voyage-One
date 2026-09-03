@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  "Islas Secas": { window: "December to April, and July to October for whales", note: "The dry season is calmest for the boats and the diving. But humpbacks pass the Gulf of Chiriquí from July to October — one of the longest whale migrations on earth — and if that is why you are coming, come then and accept the rain." },
+  "Bocas del Toro": { window: "February to April, and September to October", note: "Caribbean Panama has no clean dry season, only drier stretches. Those two windows are the reliable ones; the rest of the year expects rain, which is not a disaster on an island but changes the diving." },
   "Arenal": { window: "December to April", note: "The dry season, when the volcano actually shows itself \u2014 Arenal makes its own cloud and in the green season you can spend three days without seeing the cone at all. The rain also makes the thermal pools rather good, so it is a trade." },
   "Osa Peninsula": { window: "December to April", note: "The dry months, when the trails are passable and the wildlife concentrates near water. Osa is one of the wettest places in the Americas and September and October are close to impossible." },
   "Peninsula Papagayo": { window: "December to April", note: "Guanacaste's dry season, and reliably sunny \u2014 which is why the resorts fill from Christmas. May to November is green, cheaper and wetter, usually an afternoon downpour rather than all day." },
@@ -110,6 +112,8 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Panama, Sept 2026. A private mansion rather than a hotel — taken whole, for a family.
+  "Villa Ana 1928",
   // Costa Rica, Sept 2026. A lodge reached by rafting a river, and a rainforest reserve above the
   // Golfo Dulce. Pacuare is here on the curation's explicit instruction, not my judgement.
   "Pacuare Lodge", "Lapa Rios Lodge",
@@ -159,6 +163,9 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Panama in full — Sept 2026. Five, and only two are in the capital. Two private islands.
+  "Sofitel Legend Casco Viejo", "Hotel La Compañía Casco Antiguo", "Islas Secas",
+  "Nayara Bocas del Toro", "Hotel La Compañía del Valle",
   // Costa Rica in full — Sept 2026. Ten, and six of them are inland. Nayara Springs carries three
   // Michelin Keys, the highest the guide awards, and is the only property in this canon with them.
   "Four Seasons Resort Costa Rica at Peninsula Papagayo", "Nekajui, a Ritz-Carlton Reserve",
@@ -1064,6 +1071,29 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── PANAMA, IN FULL ─────────────────────────────────────────────────────────────────
+  // THREE SEPARATE LA COMPAÑÍA PROPERTIES, as rule 4 insists — the Casco Antiguo hotel, the
+  // crater retreat at El Valle, and Villa Ana. Same collection, three different places, and
+  // merging them would put a client in the wrong province.
+  //
+  // Islas Secas and Nayara Bocas both appear in Ultra and Experience. Filed as Ultra: the
+  // curation says Islas Secas "clearly belongs in ULTRA LUXURY" and only asks for Experience as
+  // a dual listing, which the architecture does not do.
+  "Panama City": [
+    { name: "Sofitel Legend Casco Viejo", area: "Casco Viejo", rate: null, keys: 1, ourTake: "The old Union Club on the waterfront in the UNESCO quarter, restored \u2014 the city's grand hotel, with the skyline across the bay." },
+    { name: "Hotel La Compañía Casco Antiguo", area: "Casco Viejo", rate: null, ourTake: "Spanish colonial, French colonial and American Beaux-Arts wings around one courtyard \u2014 three centuries in a single building, and the most characterful room in Panama." },
+    { name: "American Trade Hotel", area: "Plaza Herrera", rate: null, ourTake: "A restored 1917 bank on the plaza, small and well judged, with the best bar in Casco Viejo below." },
+    { name: "Villa Ana 1928", area: "Casco Viejo", rate: null, ourTake: "A private mansion of the La Compañía collection rather than a hotel \u2014 taken whole, it is the way to bring a family or a group to the old city." },
+  ],
+  "Islas Secas": [
+    { name: "Islas Secas", area: "Gulf of Chiriquí", rate: null, ourTake: "A private archipelago of fourteen islands with casitas for barely twenty guests \u2014 marine safaris, humpbacks in season, and nobody else. One of the great private islands anywhere." },
+  ],
+  "Bocas del Toro": [
+    { name: "Nayara Bocas del Toro", area: "Frangipani Island", rate: null, keys: 2, ourTake: "Adults-only overwater villas and treehouses on a private Caribbean island. Leading Hotels, two Michelin Keys, and the clear answer in Bocas." },
+  ],
+  "El Valle de Antón": [
+    { name: "Hotel La Compañía del Valle", area: "El Valle de Antón", rate: null, ourTake: "Inside an extinct volcanic crater, with a sculpture park, a serious spa and an art collection. An hour and a half from the city and a different country." },
   ],
   // ── COSTA RICA, IN FULL ─────────────────────────────────────────────────────────────
   // Not a beach country, as rule 1 insists — six of the ten Ultra Luxury houses are inland, in
@@ -5861,6 +5891,8 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Islas Secas": { air: "Panama City", note: "Fly to Panama City (PTY), then a chartered flight to David or straight to the island's airstrip, then a boat. The resort arranges the whole chain \u2014 it is not a journey to improvise." },
+  "El Valle de Antón": { air: "Panama City", note: "Fly to Panama City (PTY), then about ninety minutes west and up into the crater." },
   "Peninsula Papagayo": { air: "Liberia", note: "Fly to Liberia (LIR), not San José \u2014 the peninsula is forty minutes away, and San José is four hours by road. This is the single most common mistake on a Costa Rica itinerary." },
   "Guanacaste": { air: "Liberia", note: "Fly to Liberia (LIR). Punta Cacique is thirty minutes, Las Catalinas about fifty." },
   "Arenal": { air: "San José", note: "Fly to San José (SJO), then roughly three hours north. Liberia is a similar distance if you are coming from the coast." },
@@ -5932,6 +5964,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // PANAMA. Tocumen is the best-connected airport in Central America — the hub Copa built, and
+  // the reason so many regional itineraries route through it.
+  "Panama City": { code: "PTY", scale: "intercontinental" }, "Bocas del Toro": { code: "BOC", scale: "regional" },
   // COSTA RICA. San José is the international gate; Liberia (LIR) serves all of Guanacaste and
   // is far closer for the Pacific resorts — flying into the wrong one costs four hours.
   "San José": { code: "SJO", scale: "intercontinental" }, "Guanacaste": { code: "LIR", scale: "regional" },
@@ -6132,6 +6167,7 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  "panama": ["Panama City","Islas Secas","Bocas del Toro","El Valle de Antón"],
   "costa-rica": ["Peninsula Papagayo","Guanacaste","Arenal","Bajos del Toro","Bijagua","Bagaces","Pacuare","Osa Peninsula","Santa Teresa","Nosara","Manuel Antonio","Central Valley"],
   "uruguay": ["José Ignacio","Punta del Este","Montevideo","Carmelo","Colonia del Sacramento"],
   "ecuador": ["Quito","Mashpi","Ecuadorian Amazon","Hacienda Zuleta","Cotopaxi","Cuenca","Guayaquil"],
@@ -6182,6 +6218,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Panama City": [8.98,-79.52], "Islas Secas": [7.97,-82.03], "Bocas del Toro": [9.34,-82.24],
+  "El Valle de Antón": [8.60,-80.13],
   "Peninsula Papagayo": [10.66,-85.66], "Guanacaste": [10.55,-85.75], "Arenal": [10.47,-84.64],
   "Bajos del Toro": [10.19,-84.29], "Bijagua": [10.73,-85.05], "Bagaces": [10.53,-85.25],
   "Pacuare": [9.94,-83.55], "Osa Peninsula": [8.40,-83.32], "Santa Teresa": [9.64,-85.17],
@@ -7806,7 +7844,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M318</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M319</span></footer>
   </div>);
 }
 
