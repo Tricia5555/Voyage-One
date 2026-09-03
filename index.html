@@ -20,6 +20,13 @@
 <body>
 <div id="root"></div>
 <script type="text/babel" data-type="module" data-presets="react">
+// ═══ BUILD LABEL — BUMP THIS EVERY BUILD. It is what the footer shows, bottom right, and it is
+// how Tricia confirms which file is live. It sat at M319 through twenty-six builds on 3 Sept
+// 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
+// stretch were labelled M273–M298 in conversation, against a file that already said M319. From
+// here the number in the conversation and the number on the screen are the same thing.
+const BUILD = "M320";
+
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -8625,7 +8632,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M319</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·{BUILD}</span></footer>
   </div>);
 }
 
