@@ -6450,13 +6450,30 @@ const DAYTRIPS = {
     ["Lucca by bicycle", "~1 hr 15 each way", "Flat, walled and made for wheels, with an oval Roman piazza.", 260, null],
   ],
 };
+// The transfer from the gateway airport to the destination. This used to be a fixed list of
+// three — private transfer "after a long flight", a "seasonal and scenic" ferry, and a hire car
+// warned about "the coast road and parking" — which is Naples-to-Positano copy, and it was
+// shown for every gateway transfer on earth. Harbour Island got a hire car from an airport it
+// has no road to. Now the options are decided by what actually connects the two places:
+//   · a ferry in FERRIES with no road between → the crossing, with its real time, and a private
+//     transfer described as airport-to-dock-to-boat; no car, because there is no road;
+//   · a road and no ferry → private transfer and hire car, each with the real drive time;
+//   · both (Naples to Sorrento) → all three.
+// Where the zone is unknown for either end, a road is assumed, which is the old behaviour.
+// Nothing here is priced and none of the copy claims a season or a coast road it has not seen.
 function transferOptions(from, to) {
-  const seed = hashStr("tr" + (from || "") + (to || ""));
-  return [
-    { mode: "Private transfer", why: `Met at arrivals, door to door — the easy answer after a long flight.`, price: null },
-    { mode: "Ferry", why: `Seasonal and scenic, with a taxi at each end.`, price: null },
-    { mode: "Hire car", why: `Freedom, though the coast road and parking are a test.`, price: null },
-  ];
+  const ferry = ferryBetween(from, to);
+  const za = zoneOf(from), zb = zoneOf(to);
+  const road = !(za && zb && za !== zb);
+  const dr = road ? driveEstimate(from, to) : null;
+  const drTxt = dr && dr.label ? ` About ${dr.label} by road.` : "";
+  const out = [];
+  if (road) out.push({ mode: "Private transfer", why: `Met at arrivals and driven door to door.${drTxt}`, price: null });
+  else if (ferry) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock, and across by boat — your hotel will usually arrange the whole chain.`, price: null });
+  else out.push({ mode: "Private transfer", why: `No road from ${bareCity(from)} — the onward leg is by air or sea, and your hotel arranges it. The note above says how.`, price: null });
+  if (ferry) out.push({ mode: "Ferry", why: `About ${ferry} minutes across the water, with a taxi at each end.`, price: null });
+  if (road) out.push({ mode: "Hire car", why: `Your own car from the airport — freedom, at the cost of finding your own way.${drTxt}`, price: null });
+  return out;
 }
 function dayTripsFor(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(DAYTRIPS).find((x) => x.toLowerCase() === r); return k ? DAYTRIPS[k] : []; }
 // You can only drive between places on the same landmass. Distance alone is not enough:
