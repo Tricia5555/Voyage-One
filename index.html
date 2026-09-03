@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M322";
+const BUILD = "M323";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,12 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── JAMAICA. Drafted Sept 2026 — mine, not Tricia's.
+  "Montego Bay": { window: "December to April", note: "The dry season. Reggae Sumfest fills Montego Bay for a week in July, which is either the reason to come or the reason not to. Hurricane season is June to November." },
+  "Negril": { window: "December to April", note: "Dry, and the sunsets off the cliffs are the point. Negril is quieter and slower than the north coast in any month. Hurricane season is June to November." },
+  "Ocho Rios": { window: "December to April", note: "The dry season on the north coast. GoldenEye is at its best when the lagoon is still, which is most of the winter. Hurricane season is June to November." },
+  "Port Antonio": { window: "December to April \u2014 and it rains here anyway", note: "The wettest corner of the island, which is why it is the greenest. The dry months are drier, not dry. Hurricane season is June to November." },
+  "Blue Mountains, Jamaica": { window: "November to March", note: "Cool at three thousand feet \u2014 bring a sweater \u2014 with the clearest mornings in the dry season and the coffee harvest from about October to March. Afternoon cloud is normal all year." },
   // ── CAYMAN ISLANDS. Drafted Sept 2026 — mine, not Tricia's.
   "Grand Cayman": { window: "December to April", note: "The dry season and the calmest sea for Seven Mile Beach and Stingray City. Cayman sits far enough west that the water is often clearest in the spring. Hurricane season is June to November, and September and October are the months to avoid." },
   "Little Cayman": { window: "November to May for the wall", note: "Bloody Bay Wall dives well most of the year, but the calmest, clearest water is from late autumn through spring; summer is hot and still and the mosquitoes are real. Hurricane season is June to November and the club closes for part of it." },
@@ -269,6 +275,10 @@ const EXPERIENCE_LUX = [
   // Little Cayman, Sept 2026. A dive-and-bonefish club on an island of two hundred people, with
   // Bloody Bay Wall off the beach. The curation is explicit that the rooms are not the point.
   "Southern Cross Club",
+  // Jamaica, Sept 2026. Cottages on the Negril cliffs with dinner in a sea cave, and Chris
+  // Blackwell's house in the Blue Mountains. Both on the curation's word. GoldenEye and Geejam
+  // are Luxury: the corrections allow either, and the default is the conservative one.
+  "The Caves", "Strawberry Hill",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -479,6 +489,9 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Jamaica in full — 3 Sept 2026, on the strict standard. NONE, and the curation says not to
+  // promote an iconic house on history alone. Round Hill, Half Moon, GoldenEye, Jamaica Inn,
+  // Trident and Geejam are Luxury; The Caves and Strawberry Hill are Experience.
   // Cayman Islands in full — 3 Sept 2026, on the strict standard. NONE. The Ritz-Carlton, Palm
   // Heights and Kimpton Seafire are Luxury; Southern Cross Club is Experience. Seven South at
   // the Ritz-Carlton may be an Ultra Luxury suite; the hotel is classified as a whole.
@@ -2233,6 +2246,34 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── JAMAICA, IN FULL ────────────────────────────────────────────────────────────────
+  // Eight properties in five places, no Ultra Luxury, by instruction. Jamaica is big enough to
+  // have real destinations rather than one island key: Montego Bay and Negril in the west off
+  // Sangster (MBJ); Ocho Rios and Oracabessa on the north coast, under two hours from either
+  // airport; Port Antonio and the Blue Mountains in the east, off Kingston (KIN). Kingston is a
+  // gateway only — no hotel by instruction. Oracabessa sits under Ocho Rios: twenty minutes
+  // apart, same gateway, same drive, and a client looking at the north coast should see both.
+  // THE BLUE MOUNTAINS KEY CARRIES ", Jamaica" for the Granada reason: the Blue Mountains of New
+  // South Wales are a luxury destination in their own right and will collide the day they are
+  // curated. The tennis cards already pointed at "Montego Bay", which had nothing behind it.
+  "Montego Bay": [
+    { name: "Round Hill Hotel and Villas", area: "Hopewell, west of Montego Bay", rate: null, ourTake: "The institution: Ralph Lauren rooms on the hill, a village of private villas with their own staff and pools, serious tennis, and a clientele that has been coming for seventy years. The villas are extraordinary; the property is classified as a whole, and Luxury by instruction." },
+    { name: "Half Moon", area: "Rose Hall, east of Montego Bay", rate: null, ourTake: "Two miles of beachfront, golf, an equestrian centre, a spa and villas with their own staff \u2014 the big, classic, do-everything Jamaican resort, and the right one for a family that wants all of it." },
+  ],
+  "Negril": [
+    { name: "The Caves", area: "West End cliffs, Negril", rate: null, ourTake: "Adults only, all-inclusive, a dozen hand-built cottages on the cliffs above the sea, and dinner served in a candlelit cave below them. Romance is the product, and it is very good at it." },
+  ],
+  "Ocho Rios": [
+    { name: "GoldenEye", area: "Oracabessa, twenty minutes east", rate: null, ourTake: "Ian Fleming's house and the lagoon he wrote beside, with villas, cottages and beach huts scattered through the gardens and Chris Blackwell's ear for how a place should feel. The most distinctive hotel in the country. Luxury by instruction." },
+    { name: "Jamaica Inn", area: "Ocho Rios", rate: null, ourTake: "Forty-odd suites and cottages on a private cove, run the same way since the fifties and loved for it \u2014 verandahs, quiet, a proper beach, and no televisions. The old-school romantic one." },
+  ],
+  "Port Antonio": [
+    { name: "Trident Hotel", area: "Port Antonio", rate: null, ourTake: "Eleven modernist villas on ten acres of oceanfront in the quiet east, each with a plunge pool, beside the restored castle. Small, private and unlike anything else on the island." },
+    { name: "Geejam", area: "San San, Port Antonio", rate: null, ourTake: "A recording studio in the rainforest with a handful of cabins and villas around it, a creative crowd, and Port Antonio's lagoons below. Music is the identity; the rooms are simple and the place is not." },
+  ],
+  "Blue Mountains, Jamaica": [
+    { name: "Strawberry Hill", area: "Irish Town, Blue Mountains", rate: null, ourTake: "Chris Blackwell's Georgian-style cottages at three thousand feet above Kingston, where Bob Marley recuperated and the coffee grows. Cool air, the view down to the harbour, and coffee country at the door. Place and history are the product." },
   ],
   // ── CAYMAN ISLANDS, IN FULL ─────────────────────────────────────────────────────────
   // Four properties, two keys, no Ultra Luxury, by instruction. Grand Cayman holds the three
@@ -6042,6 +6083,7 @@ const PLACE_REGION = {
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
+  "montego bay": "Jamaica", "negril": "Jamaica", "ocho rios": "Jamaica", "port antonio": "Jamaica", "kingston": "Jamaica",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6340,6 +6382,10 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Negril": { air: "Montego Bay", note: "Fly to Montego Bay (MBJ), then about an hour and a half west along the coast. The Caves sends a car." },
+  "Ocho Rios": { air: "Montego Bay", note: "Fly to Montego Bay (MBJ), then a little under two hours east on the new highway \u2014 or into Kingston (KIN) and the same again north over the mountains, which is the prettier road and the slower one. GoldenEye and Jamaica Inn both send a driver." },
+  "Port Antonio": { air: "Kingston", note: "Fly to Kingston (KIN), then about two hours east along the coast \u2014 or twenty minutes by helicopter, which Trident will arrange. From Montego Bay it is four hours, and not the way to do it." },
+  "Blue Mountains, Jamaica": { air: "Kingston", note: "Fly to Kingston (KIN), then forty-five minutes up into the hills to Irish Town. Strawberry Hill sends a car, and the last mile is steep enough that you will be glad of it." },
   "Little Cayman": { air: "Grand Cayman", note: "Fly to Grand Cayman (GCM), then thirty-five minutes on Cayman Airways Express \u2014 a Twin Otter, a couple of times a day, and the club books it for you. There is no other way in and no reason to want one." },
   "St Barth": { air: "St Maarten", note: "Fly to St Maarten (SXM), then ten minutes in a small aircraft to Gustave III \u2014 Winair or St Barth Commuter, several times an hour in season, and a landing worth being awake for. The hotels book the hop; ask them to. Tradewind also flies in from San Juan if that is the better connection. There is a ferry, and we do not recommend it: it is a thirty-minute taxi from the airport to the dock before you start, and the crossing is usually rough. Take the plane." },
   "Harbour Island": { air: "Eleuthera", note: "Fly to North Eleuthera (ELH) \u2014 nonstops from Miami, Fort Lauderdale, Atlanta and Charlotte \u2014 then two minutes by taxi to the dock and ten minutes across by water taxi. Every hotel meets the boat, and there are no cars on the other side worth the name; you will be in a golf cart." },
@@ -6449,6 +6495,12 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // JAMAICA. Sangster (MBJ) at Montego Bay takes British Airways and Virgin from London and the
+  // US carriers in numbers — the island's main door. Norman Manley (KIN) at Kingston takes
+  // British Airways too and is the door to the east. Both intercontinental. Ian Fleming (OCJ)
+  // beside GoldenEye is charter-only and not listed.
+  "Montego Bay": { code: "MBJ", scale: "intercontinental" },
+  "Kingston": { code: "KIN", scale: "intercontinental" },
   // CAYMAN ISLANDS. Owen Roberts (GCM) takes British Airways from London and the US carriers
   // from most of the east coast — intercontinental, and the search targets it. Little Cayman
   // (LYB) is Cayman Airways Express only, not in Duffel, not listed; it is a GATEWAY hop.
@@ -6767,6 +6819,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // JAMAICA. One island, one zone, and the drive times are real because the roads are not.
+  "jamaica": ["Montego Bay","Negril","Ocho Rios","Port Antonio","Blue Mountains, Jamaica","Kingston"],
   // CAYMAN ISLANDS. Two islands, two zones, ninety miles of sea between them and no ferry.
   "grand-cayman": ["Grand Cayman"],
   "little-cayman": ["Little Cayman"],
@@ -6867,6 +6921,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Montego Bay": [18.47,-77.92], "Negril": [18.27,-78.35], "Ocho Rios": [18.41,-77.10],
+  "Port Antonio": [18.18,-76.45], "Blue Mountains, Jamaica": [18.07,-76.72], "Kingston": [17.97,-76.79],
   "Grand Cayman": [19.32,-81.24], "Little Cayman": [19.69,-80.05],
   "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
   "St John": [18.33,-64.74], "St Croix": [17.73,-64.75],
@@ -6964,6 +7020,11 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
+  ["Montego Bay", "Negril", 90, 80], ["Montego Bay", "Ocho Rios", 105, 100], ["Montego Bay", "Kingston", 150, 190],
+  ["Montego Bay", "Port Antonio", 240, 230], ["Kingston", "Port Antonio", 120, 100], ["Kingston", "Blue Mountains, Jamaica", 45, 20],
+  ["Kingston", "Ocho Rios", 105, 90], ["Ocho Rios", "Port Antonio", 135, 110], ["Negril", "Ocho Rios", 180, 180],
+  ["Ocho Rios", "Blue Mountains, Jamaica", 150, 100], ["Port Antonio", "Blue Mountains, Jamaica", 150, 110],
   // EL SALVADOR. Mine, not verified. The airport is near the coast, not the city, which is why
   // the beach legs are short and the lake leg is not.
   ["San Salvador", "Lake Coatepeque", 75, 60], ["San Salvador", "El Sunzal", 50, 40],
@@ -7127,6 +7188,8 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "jamaica": "Montego Bay", "mobay": "Montego Bay", "rose hall": "Montego Bay", "oracabessa": "Ocho Rios", "goldeneye": "Ocho Rios",
+  "blue mountains": "Blue Mountains, Jamaica", "irish town": "Blue Mountains, Jamaica", "san san": "Port Antonio", "kingston, jamaica": "Kingston",
   "cayman islands": "Grand Cayman", "cayman": "Grand Cayman", "seven mile beach": "Grand Cayman", "george town, cayman islands": "Grand Cayman", "grand cayman, cayman islands": "Grand Cayman",
   "st. thomas": "St Thomas", "saint thomas": "St Thomas", "charlotte amalie": "St Thomas", "red hook": "St Thomas",
   "st. john": "St John", "saint john, usvi": "St John", "cruz bay": "St John", "lovango cay": "St John", "lovango": "St John",
