@@ -28,18 +28,34 @@
 // reading the label went to England, anything reading the code went to Alabama, and both were
 // obeying what they were given.
 
-const COUNTRY = {
-  US: "United States", GB: "United Kingdom", FR: "France", IT: "Italy", ES: "Spain",
-  DE: "Germany", PT: "Portugal", NL: "Netherlands", CH: "Switzerland", AT: "Austria",
-  GR: "Greece", IE: "Ireland", BE: "Belgium", CZ: "Czechia", HU: "Hungary", PL: "Poland",
-  SE: "Sweden", NO: "Norway", DK: "Denmark", FI: "Finland", IS: "Iceland", HR: "Croatia",
-  TR: "Turkey", MA: "Morocco", EG: "Egypt", ZA: "South Africa", AE: "UAE", QA: "Qatar",
-  JP: "Japan", CN: "China", HK: "Hong Kong", SG: "Singapore", TH: "Thailand", ID: "Indonesia",
-  IN: "India", AU: "Australia", NZ: "New Zealand", CA: "Canada", MX: "Mexico", BR: "Brazil",
-  AR: "Argentina", CL: "Chile", PE: "Peru", CR: "Costa Rica", VN: "Vietnam", KR: "South Korea",
-  MC: "Monaco", MT: "Malta", CY: "Cyprus", LU: "Luxembourg", SI: "Slovenia", EE: "Estonia",
-  MZ: "Mozambique", TZ: "Tanzania", KE: "Kenya", MV: "Maldives", FJ: "Fiji", PF: "French Polynesia",
+// ISO country code → the name a client recognises. This was a hand list of fifty countries, and
+// any code outside it — LC, BS, BZ, AG, AI, TC, GT, NI, HN, SV — fell through to the raw code,
+// so the picker showed "St Lucia, LC" beside "St Lucia, South Africa". Every country the world
+// has is in the runtime already: Intl.DisplayNames knows them all in English. The hand list is
+// kept only as the fallback for a runtime without it, and for the few names we prefer short
+// ("UAE", "United States").
+const COUNTRY_SHORT = {
+  US: "United States", GB: "United Kingdom", AE: "UAE", CZ: "Czechia", TR: "Turkey",
+  FR: "France", IT: "Italy", ES: "Spain", DE: "Germany", PT: "Portugal", NL: "Netherlands",
+  CH: "Switzerland", AT: "Austria", GR: "Greece", IE: "Ireland", BE: "Belgium", HU: "Hungary",
+  PL: "Poland", SE: "Sweden", NO: "Norway", DK: "Denmark", FI: "Finland", IS: "Iceland",
+  HR: "Croatia", MA: "Morocco", EG: "Egypt", ZA: "South Africa", QA: "Qatar", JP: "Japan",
+  CN: "China", HK: "Hong Kong", SG: "Singapore", TH: "Thailand", ID: "Indonesia", IN: "India",
+  AU: "Australia", NZ: "New Zealand", CA: "Canada", MX: "Mexico", BR: "Brazil", AR: "Argentina",
+  CL: "Chile", PE: "Peru", CR: "Costa Rica", VN: "Vietnam", KR: "South Korea", MC: "Monaco",
+  MT: "Malta", CY: "Cyprus", LU: "Luxembourg", SI: "Slovenia", EE: "Estonia", MZ: "Mozambique",
+  TZ: "Tanzania", KE: "Kenya", MV: "Maldives", FJ: "Fiji", PF: "French Polynesia",
 };
+let DISPLAY = null;
+try { DISPLAY = new Intl.DisplayNames(["en"], { type: "region" }); } catch (e) { DISPLAY = null; }
+const COUNTRY = new Proxy(COUNTRY_SHORT, {
+  get(t, code) {
+    if (typeof code !== "string" || !/^[A-Z]{2}$/.test(code)) return undefined;
+    if (t[code]) return t[code];
+    if (DISPLAY) { try { const n = DISPLAY.of(code); if (n && n !== code) return n; } catch (e) {} }
+    return undefined;
+  },
+});
 
 // The kinds of place worth flying to. "locality" is a town or city; the administrative levels
 // and sublocalities catch comuni, quarters and the smaller places this app exists for —
