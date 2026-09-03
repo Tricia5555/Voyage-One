@@ -195,8 +195,19 @@ export default async function handler(req, res) {
 
   if (!token) return res.status(200).json({ ok: false, reason: "no-token" });
 
-  const originR = await resolveCity(from, token, countryHint);
-  const destR = await resolveCity(to, token, countryHint);
+  // CODE HINTS FROM THE APP, USED ONLY AS A LAST RESORT. The app knows the airport for every
+  // destination it curates, and sends it as fromCode / toCode. It is NOT used when the name
+  // resolves on its own — Duffel's metro codes (LON, PAR, NYC) must keep winning for cities
+  // with several airports, and the app's table holds single fields (LHR, CDG). The hint is read
+  // only when the name resolves to nothing at all: "British Virgin Islands" is a country, not a
+  // place Duffel can name, and without this the search died before it started. Same for any
+  // curated destination named after its island or country rather than its airport town.
+  const fromHint = /^[A-Z]{3}$/.test((req.query.fromCode || "").toString().trim().toUpperCase()) ? req.query.fromCode.toString().trim().toUpperCase() : "";
+  const toHint = /^[A-Z]{3}$/.test((req.query.toCode || "").toString().trim().toUpperCase()) ? req.query.toCode.toString().trim().toUpperCase() : "";
+  let originR = await resolveCity(from, token, countryHint);
+  let destR = await resolveCity(to, token, countryHint);
+  if (!(originR && originR.code) && fromHint) originR = { input: from, code: fromHint, country: null, name: null, source: "app-hint", ambiguous: false, alsoIn: [] };
+  if (!(destR && destR.code) && toHint) destR = { input: to, code: toHint, country: null, name: null, source: "app-hint", ambiguous: false, alsoIn: [] };
   const origin = originR && originR.code;
   const destination = destR && destR.code;
   if (!origin || !destination) {
