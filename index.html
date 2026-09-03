@@ -7646,7 +7646,16 @@ function useLiveFlights(from, to, date, cabin, stops, when) {
     const key = `${from}|${to}|${date || ""}|${dc}|${stops || ""}|${when || ""}`.toLowerCase();
     if (FARE_CACHE[key] !== undefined) { const c = FARE_CACHE[key]; setState({ loading: false, offers: c && c.offers, tried: true, meta: c && c.meta }); return; }
     setState({ loading: true, offers: null, tried: false, meta: null });
+    // Code hints. The endpoint resolves names by asking Duffel, and Duffel cannot name a
+    // country ("British Virgin Islands") or an island with no town of that name. Where our own
+    // table knows the airport, send it alongside as a HINT — the endpoint uses it only if the
+    // name resolves to nothing, so metro cities keep their metro codes and nothing that works
+    // today is narrowed. Gateways already travel with their code in the name (M289); this
+    // covers the destination itself.
+    const hint = (name) => { if (!name || codeOf(name)) return ""; const ap = airportFor(name); return ap && ap.code ? ap.code : ""; };
+    const fh = hint(from), th = hint(to);
     const qs = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&cabin=${dc}`
+      + (fh ? "&fromCode=" + fh : "") + (th ? "&toCode=" + th : "")
       + (date ? "&date=" + encodeURIComponent(date) : "")
       + (stops ? "&stops=" + encodeURIComponent(stops) : "")
       + (when ? "&when=" + encodeURIComponent(when) : "");
