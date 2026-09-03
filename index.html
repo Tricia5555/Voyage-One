@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M320";
+const BUILD = "M321";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,10 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── US VIRGIN ISLANDS. Drafted Sept 2026 — mine, not Tricia's.
+  "St Thomas": { window: "December to April", note: "The dry season. Cruise ships fill Charlotte Amalie most days of the winter; the east end and the Ritz-Carlton are well away from it. Hurricane season is June to November \u2014 these islands took Irma and Maria directly in 2017 \u2014 and September and October are the months to avoid." },
+  "St John": { window: "December to April", note: "The dry season for the National Park's beaches and the water round Lovango. St John has no cruise ships, which is most of its charm. Hurricane season is June to November." },
+  "St Croix": { window: "December to April", note: "Dry and warm, and the golf at its best. The Christmas festival runs through the holidays into early January and Christiansted fills for it. Hurricane season is June to November." },
   // ── BRITISH VIRGIN ISLANDS. Drafted Sept 2026 — mine, not Tricia's.
   "British Virgin Islands": { window: "December to April \u2014 and the Spring Regatta at the end of March", note: "The dry, breezy sailing season, with the Spring Regatta filling Tortola for a week around the turn of April. Necker's individual-stay weeks are few and go early. Most of the resorts close from late August into October \u2014 Little Dix among them \u2014 and hurricane season is June to November; the islands took Irma directly in 2017 and everything on this list has been rebuilt since." },
   // ── BARBADOS. Drafted Sept 2026 — mine, not Tricia's.
@@ -256,6 +260,9 @@ const EXPERIENCE_LUX = [
   // BodyHoliday for the wellness programme, which is the entire reason to go; the rooms are not.
   // Anse Chastanet is Luxury: the corrections allow either, and the default is the conservative one.
   "Jade Mountain", "BodyHoliday",
+  // US Virgin Islands, Sept 2026. A private cay ten minutes off St John with villas, treehouses
+  // and tents — the island and the water are the product, and the curation files it here.
+  "Lovango Resort + Beach Club",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -466,6 +473,10 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // US Virgin Islands in full — 3 Sept 2026, on the strict standard. NONE. The Ritz-Carlton
+  // and The Buccaneer are Luxury; Lovango is Experience. Caneel Bay is not listed at all — it
+  // has been closed since Irma and Maria in 2017 and the Park Service is still choosing an
+  // operator; there is no watchlist in this file and it must not appear as bookable.
   // Barbados in full — 3 Sept 2026, on the strict standard. One. Cobblers Cove, Coral Reef
   // Club, The Sandpiper and Fairmont Royal Pavilion are Luxury by instruction.
   "Sandy Lane",
@@ -2213,6 +2224,22 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── US VIRGIN ISLANDS, IN FULL ──────────────────────────────────────────────────────
+  // Three properties on three islands, three keys, no Ultra Luxury, by instruction. St Thomas
+  // already existed as the ferry door to the BVI; it now has its hotel. St John has no airport
+  // and no conventional hotel — Lovango is a cay off its north shore, reached by the resort's
+  // boat from Cruz Bay or Red Hook, and the curation says St John may legitimately have nothing
+  // else until Caneel Bay is rebuilt. CANEEL BAY IS DELIBERATELY ABSENT: closed since 2017, an
+  // operator still being chosen, not bookable. St Croix stands alone with The Buccaneer.
+  "St Thomas": [
+    { name: "The Ritz-Carlton, St. Thomas", area: "Great Bay, east end", rate: null, ourTake: "Thirty acres on the east end, rebuilt from the sand up after the storms, with every room looking at the water, an adults' infinity pool, a spa and the resort's own catamaran. The polished conventional luxury of the US Virgin Islands, and Luxury by instruction." },
+  ],
+  "St John": [
+    { name: "Lovango Resort + Beach Club", area: "Lovango Cay, off St John", rate: null, ourTake: "A private cay ten minutes by the resort's boat from Cruz Bay, with villas, treehouses and glamping tents, a beach club, coral restoration and the National Park's water all around. The island and the experience are the point; it is not a conventional hotel and does not pretend to be." },
+  ],
+  "St Croix": [
+    { name: "The Buccaneer", area: "Christiansted", rate: null, ourTake: "Three hundred and forty acres, three beaches, eighteen holes and eight tennis courts, run by the same family since 1947. Old-school, unhurried and the right base on St Croix for golf, tennis and a family." },
   ],
   // ── BARBADOS, IN FULL ───────────────────────────────────────────────────────────────
   // Five properties under one key, all on the west coast within twenty minutes of each other.
@@ -5989,6 +6016,7 @@ const PLACE_REGION = {
   "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
+  "st john": "US Virgin Islands", "st croix": "US Virgin Islands",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6402,6 +6430,10 @@ const AIRPORTS = {
   // the crossing in FERRIES has an airport to hang off. It carries no hotels.
   "British Virgin Islands": { code: "EIS", scale: "intercontinental" },
   "St Thomas": { code: "STT", scale: "intercontinental" },
+  // ST CROIX. Henry Rohlsen (STX) takes American from Miami and Charlotte — sellable, listed,
+  // targeted. The St Thomas–St Croix seaplane and Cape Air are not in Duffel and not listed.
+  // St John has no airport at all: it is a ferry from Red Hook on St Thomas, in FERRIES.
+  "St Croix": { code: "STX", scale: "intercontinental" },
   // BARBADOS. Grantley Adams (BGI): British Airways and Virgin from London, the US carriers from
   // the east coast, Air Canada — intercontinental, and the flight search targets it.
   "Barbados": { code: "BGI", scale: "intercontinental" },
@@ -6710,6 +6742,8 @@ const ZONE = {
   // ferry to the BVI in FERRIES.
   "bvi": ["British Virgin Islands","Virgin Gorda","Tortola"],
   "st-thomas": ["St Thomas"],
+  "st-john": ["St John"],
+  "st-croix": ["St Croix"],
   // BARBADOS. Its own zone.
   "barbados": ["Barbados"],
   // ST LUCIA. Its own zone.
@@ -6801,6 +6835,7 @@ const COORDS = {
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
   "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
+  "St John": [18.33,-64.74], "St Croix": [17.73,-64.75],
   "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
@@ -6965,6 +7000,10 @@ const FERRIES = [
   // Road Town, about an hour with the border at each end; Virgin Gorda is longer. The resorts run
   // private boats on the same water, which is how it is best done. Written down by me.
   ["British Virgin Islands", "St Thomas", 60],
+  // US Virgin Islands. Red Hook to Cruz Bay, twenty minutes, every hour on the hour — the only
+  // way onto St John, and Lovango's boat meets it. St Croix is forty miles south across open
+  // water; the public ferry is slow and irregular and is deliberately NOT here.
+  ["St John", "St Thomas", 20],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
@@ -7054,7 +7093,10 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
-  "st. thomas": "St Thomas", "saint thomas": "St Thomas", "charlotte amalie": "St Thomas",
+  "st. thomas": "St Thomas", "saint thomas": "St Thomas", "charlotte amalie": "St Thomas", "red hook": "St Thomas",
+  "st. john": "St John", "saint john, usvi": "St John", "cruz bay": "St John", "lovango cay": "St John", "lovango": "St John",
+  "st. croix": "St Croix", "saint croix": "St Croix", "christiansted": "St Croix", "frederiksted": "St Croix",
+  "us virgin islands": "St Thomas", "u.s. virgin islands": "St Thomas", "usvi": "St Thomas",
   "bridgetown": "Barbados", "holetown": "Barbados", "speightstown": "Barbados", "platinum coast": "Barbados", "st james, barbados": "Barbados",
   "saint lucia": "St Lucia", "st. lucia": "St Lucia", "saint-lucia": "St Lucia", "st lucia, caribbean": "St Lucia",
   "soufri\u00e8re": "St Lucia", "soufriere": "St Lucia", "cap estate": "St Lucia", "castries": "St Lucia", "rodney bay": "St Lucia", "the pitons": "St Lucia",
