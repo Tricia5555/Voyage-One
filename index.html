@@ -11857,8 +11857,14 @@ function useCityThings(city, topic) {
       .then((j) => {
         const groups = j && j.ok && j.items ? j.items : {};
         const flat = Object.keys(groups).reduce((a, k) => a.concat(groups[k] || []), []);
+        // PLACES, NOT OPERATORS. Google's top results for an island include the businesses
+        // that sell trips around it — "Antigua Island Tours", jeep and ATV rentals, charter
+        // desks — and one of those was being offered as a thing to do. A tour company is not a
+        // place; the beach, the harbour or the fort it drives to is. Drop anything whose name
+        // says it is selling excursions, worldwide, and keep what a client can actually go to.
+        const OPERATOR = /\b(tours?|touring|excursions?|rentals?|rent-a|hire|charters?|adventures?|safaris?|jeeps?|atv|buggy|buggies|4x4|segway|zipline|zip line|shuttle|taxi|transfers?|day trips?|sightseeing|experiences? (co|ltd|inc))\b/i;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
         const res = out.slice(0, 8);
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
