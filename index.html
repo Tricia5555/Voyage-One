@@ -67,6 +67,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── ANTIGUA. Drafted Sept 2026 — mine, not Tricia's.
+  "Antigua": { window: "December to April \u2014 and Sailing Week, at the end of April", note: "The dry season, and the island fills for Christmas and again for Antigua Sailing Week in late April, when English Harbour is the place to be and Curtain Bluff and Carlisle Bay are close to it. Several resorts close for September and October; Curtain Bluff among them. Hurricane season is June to November." },
   // ── ANGUILLA. Drafted Sept 2026 — mine, not Tricia's.
   "Anguilla": { window: "November to April", note: "The season, dry and breezy, with Christmas to New Year booked far ahead at Cap Juluca. Most of the island's hotels close for September and October \u2014 Cap Juluca and Malliouhana among them \u2014 so check before you count on a date. Hurricane season is June to November." },
   // ── ST BARTS. Drafted Sept 2026 — mine, not Tricia's.
@@ -439,7 +441,12 @@ const ULTRA_LUX = [
   // Anguilla in full — 3 Sept 2026, on the strict standard. One. Malliouhana was here and is
   // now Luxury by instruction; Four Seasons, Aurora and Zemi never were.
   "Cap Juluca, a Belmond Hotel",
-  "Amanyara", "Rosewood Little Dix Bay", "Jumby Bay Island",
+  "Amanyara", "Rosewood Little Dix Bay",
+  // Antigua & Barbuda in full — 3 Sept 2026, on the strict standard. One: a 300-acre private
+  // island reached by the resort's own boat. Hermitage Bay, Curtain Bluff, Carlisle Bay and
+  // Hammock Cove are Luxury by instruction. Barbuda has NO hotel entry by instruction — its
+  // private-club residences are not conventional inventory and are not to be listed as such.
+  "Jumby Bay Island",
   // Turks & Caicos in full — 3 Sept 2026, on the strict standard. Two: the Aman, and a private
   // island. COMO Parrot Cay was here and is now Luxury by instruction. "Ambergris Cay" is the
   // Turks & Caicos private island, not Belize's Ambergris Caye — no Belizean hotel carries the
@@ -2166,8 +2173,20 @@ const FAVORITES = {
   "British Virgin Islands": [
     { name: "Rosewood Little Dix Bay", area: "Virgin Gorda", rate: null, ourTake: "Laurance Rockefeller's storied bay, elegantly reborn." },
   ],
+  // ── ANTIGUA & BARBUDA, IN FULL ──────────────────────────────────────────────────────
+  // Five properties under the existing "Antigua" key. The key is the island, and it is why
+  // Guatemala's Antigua is keyed "Antigua Guatemala" — see the note there. Barbuda is
+  // deliberately absent: the curation says its private-club residences are not hotel inventory
+  // until one is publicly bookable, and that is to be evaluated separately when it happens.
+  // The island's airport (ANU) takes British Airways and Virgin from London, American, Delta
+  // and JetBlue from the US — the flight search targets it directly. Jumby Bay is a short ride
+  // from the terminal to its own dock and ten minutes across on the resort's boat.
   "Antigua": [
-    { name: "Jumby Bay Island", area: "Jumby Bay", rate: null, ourTake: "A whole private island resort, Oetker Collection, off Antigua's coast." },
+    { name: "Jumby Bay Island", area: "Private island, off the north coast", rate: null, ourTake: "Three hundred private acres, forty suites, a dozen villas and twenty-one residences with their own butlers and chefs, everything included, reached by the resort's boat from its own dock ten minutes from the airport. Oetker at its most complete, and the one Antiguan address that stands with the world's best." },
+    { name: "Hermitage Bay", area: "Hermitage Bay, west coast", rate: null, ourTake: "Thirty villa-suites on a hillside above a secluded beach, many with plunge pools, fully inclusive and quietly run. The romantic, small-scale one \u2014 the top of Luxury here, and Luxury by instruction." },
+    { name: "Curtain Bluff", area: "Old Road, south coast", rate: null, ourTake: "The institution: a peninsula with a beach on each side, the best tennis in the Caribbean, everything included down to the wine, and a clientele that has been coming for forty years. The classic Antigua." },
+    { name: "Carlisle Bay", area: "Carlisle Bay, south coast", rate: null, ourTake: "A white-sand bay with the rainforest behind it, a very good spa, and suites built for families as much as couples. The polished, all-round resort on the quiet coast." },
+    { name: "Hammock Cove Antigua", area: "Devil's Bridge, east coast", rate: null, ourTake: "Fifty-one freestanding villas, each with its own infinity-edge plunge pool and a stocked bar, adults only and all-inclusive, with a guest ambassador per villa. The private, grown-up one." },
   ],
   // ── BAHAMAS, IN FULL ────────────────────────────────────────────────────────────────
   // Twelve properties across five islands, replacing the single country-level "Bahamas" key
@@ -5902,6 +5921,7 @@ const PLACE_REGION = {
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
   "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
+  "antigua": "Antigua & Barbuda",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
@@ -6299,6 +6319,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ANTIGUA. V.C. Bird (ANU) takes British Airways and Virgin Atlantic from London and the US
+  // carriers from the east coast — genuinely intercontinental, and the flight search targets it.
+  "Antigua": { code: "ANU", scale: "intercontinental" },
   // ANGUILLA. Clayton Lloyd (AXA) takes American nonstop from Miami and Tradewind from San Juan
   // — real scheduled service, sellable — so it is listed and the flight search targets it. No
   // hub is reachable on the ground; intercontinental for the app's purposes. Europe arrives via
@@ -6591,6 +6614,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // ANTIGUA. Its own zone. Jumby Bay's crossing is the resort's own boat, not a ferry.
+  "antigua": ["Antigua"],
   // ANGUILLA. Its own zone; the channel to St Maarten is in FERRIES.
   "anguilla": ["Anguilla"],
   // ST BARTS. Two islands, two zones, one ferry between them in FERRIES.
@@ -6675,7 +6700,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
+  "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
   "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
@@ -6921,6 +6946,7 @@ const CITY_ALIASES = {
   "sf": "San Francisco", "san fran": "San Francisco",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
+  "antigua & barbuda": "Antigua", "antigua and barbuda": "Antigua", "st john's, antigua": "Antigua", "english harbour": "Antigua", "jumby bay": "Antigua",
   "the valley, anguilla": "Anguilla", "meads bay": "Anguilla", "shoal bay": "Anguilla", "maundays bay": "Anguilla",
   "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "philipsburg": "St Maarten",
   "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
