@@ -67,6 +67,13 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── BELIZE. Drafted Sept 2026 — mine, not Tricia's, and a first pass to correct. The country
+  // has one dry season and one wet one, and the wet one carries the hurricane risk, so the
+  // shape of the advice is similar everywhere; what changes is how much the rain costs you.
+  "Ambergris Caye": { window: "December to May", note: "The dry season, and the water is at its clearest for the reef \u2014 Hol Chan, the Blue Hole and Lighthouse are all weather-dependent day trips, and a rough week cancels them. Hurricane season runs June to November with September and October the sharp end. February to April is the sweet spot." },
+  "Placencia": { window: "December to May, and April to June for whale sharks", note: "The dry months for the beach and the diving. But whale sharks gather off Gladden Spit around the full moons of spring, roughly April to June \u2014 if that is why you are coming, come then and take the shoulder-season weather with it." },
+  "Mountain Pine Ridge": { window: "December to May", note: "The dry season, when the forest roads and the cave systems are passable. The last stretch into the reserve is unpaved and heavy rain makes it slow going; the waterfalls, on the other hand, are far better for it. February to April is the reliable middle." },
+  "Punta Gorda": { window: "February to May", note: "Toledo is the wettest district in Belize by a distance, and a shorter dry window than the rest of the country. February to May is the one that holds. Outside it expect rain most days \u2014 which the rainforest is entirely the point of, but it changes what you can do." },
   "Islas Secas": { window: "December to April, and July to October for whales", note: "The dry season is calmest for the boats and the diving. But humpbacks pass the Gulf of Chiriquí from July to October — one of the longest whale migrations on earth — and if that is why you are coming, come then and accept the rain." },
   "Bocas del Toro": { window: "February to April, and September to October", note: "Caribbean Panama has no clean dry season, only drier stretches. Those two windows are the reliable ones; the rest of the year expects rain, which is not a disaster on an island but changes the diving." },
   "Arenal": { window: "December to April", note: "The dry season, when the volcano actually shows itself \u2014 Arenal makes its own cloud and in the green season you can spend three days without seeing the cone at all. The rain also makes the thermal pools rather good, so it is a trade." },
@@ -163,6 +170,15 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Belize in full — Sept 2026. Four, and only one of them is on the sea a client would recognise
+  // as a beach. The curation offers Blancaneaux and Copal Tree as EITHER Ultra or Experience
+  // Luxury "depending on the database architecture". Both are filed here, matching the Ecuador
+  // decision on Mashpi and Zuleta and the Costa Rica decision on El Silencio and Origins: where
+  // the curation gives a choice rather than a direction, a lodge that is a building of real
+  // quality sits in Ultra. Copal Tree holds a Michelin Key; Blancaneaux and Turtle Inn are both
+  // in the Michelin selection. Pacuare-style Experience filing is for arrival, not architecture —
+  // you reach both of these on a road.
+  "Cayo Espanto", "Turtle Inn", "Blancaneaux Lodge", "Copal Tree Lodge",
   // Panama in full — Sept 2026. Five, and only two are in the capital. Two private islands.
   "Sofitel Legend Casco Viejo", "Hotel La Compañía Casco Antiguo", "Islas Secas",
   "Nayara Bocas del Toro", "Hotel La Compañía del Valle",
@@ -1071,6 +1087,33 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── BELIZE, IN FULL ─────────────────────────────────────────────────────────────────
+  // Six properties in four places, and the curation is emphatic that this is the whole list.
+  // Ambergris Caye markets a great many hotels as luxury; two of them qualify, and only one of
+  // those is why you would come.
+  //
+  // CAYO ESPANTO IS NOT FILED UNDER ITS OWN KEY. It is a private island, but it is seven minutes
+  // by boat from San Pedro and reached through Ambergris — unlike Islas Secas, which has its own
+  // airstrip an hour from Panama City and earned a key for it. Keeping both San Pedro properties
+  // together is also what stops a client seeing Alaia and never learning Cayo Espanto exists.
+  //
+  // CORAL CAYE IS DELIBERATELY ABSENT. The curation says not to create it as a standalone hotel
+  // unless overnight accommodation is independently bookable AND verified. Neither is confirmed,
+  // so it is not here. It belongs under Experiences, through Itz'ana, once someone has checked.
+  "Ambergris Caye": [
+    { name: "Cayo Espanto", area: "Private island off San Pedro", rate: null, ourTake: "Seven villas on four private acres, each with its own dock, plunge pool and houseman, and a kitchen that cooks to whatever you asked for that morning. Take the whole island \u2014 it sleeps about eighteen \u2014 and it becomes something else again." },
+    { name: "Alaia Belize, Autograph Collection", area: "San Pedro", rate: null, ourTake: "The polished conventional answer on Ambergris, with the resort infrastructure Cayo Espanto deliberately does not have. A different kind of holiday, not a lesser version of the same one." },
+  ],
+  "Placencia": [
+    { name: "Turtle Inn", area: "Placencia", rate: null, ourTake: "Coppola's beach retreat on the peninsula \u2014 Balinese timber and carving, sand underfoot, and the reef straight out from the door. Small, idiosyncratic and unmistakably of this place." },
+    { name: "Itz\u2019ana Resort & Residences", area: "Placencia", rate: null, ourTake: "The contemporary one: beachfront suites, villas with plunge pools, a marina, a proper spa, and its own island out on the reef to run to for the day." },
+  ],
+  "Mountain Pine Ridge": [
+    { name: "Blancaneaux Lodge", area: "Mountain Pine Ridge Forest Reserve", rate: null, ourTake: "The second Coppola property, and the one that made inland Belize a luxury proposition. Cabanas above a waterfall in a pine forest reserve, with Maya cities, caves, rivers and horses in every direction." },
+  ],
+  "Punta Gorda": [
+    { name: "Copal Tree Lodge", area: "Toledo District", rate: null, keys: 1, ourTake: "Sixteen suites and a family villa above twelve thousand protected acres of rainforest, with a working farm, a rum distillery and Orvis-endorsed flats fishing below. A Michelin Key, and the most complete single property in the country." },
   ],
   // ── PANAMA, IN FULL ─────────────────────────────────────────────────────────────────
   // THREE SEPARATE LA COMPAÑÍA PROPERTIES, as rule 4 insists — the Casco Antiguo hotel, the
@@ -5214,7 +5257,7 @@ const FLY = [
   { n: "Nimmo Bay Wilderness Resort", city: "Port McNeill", set: ["Coastal & seaside","Ranch & wilderness","Mountains & alpine"], act: ["Adventure","Wildlife","Wellness & spa"], spec: "Salmon, steelhead & trout, heli-access", best: "Jun–Sep", stay: "Nimmo Bay · sporting lodge", hero: 1, why: "Floating cabins in a British Columbia inlet, a helicopter on the pad, and bears on the river you are fishing." },
   { n: "Bristol Bay", city: "Bristol Bay", set: ["Arctic & remote","Ranch & wilderness","Lakes"], act: ["Adventure","Wildlife","Photography & scenery"], spec: "Trophy rainbows, king & silver salmon, char", best: "Jun–Sep", stay: "Best Bristol Bay sporting lodges", hero: 1, why: "The greatest wild-salmon ecosystem left on earth, and the trophy rainbow fishing that comes with it." },
   { n: "Alphonse Island", city: "Alphonse Island", set: ["Islands","Beach","Coastal & seaside"], act: ["Diving & water","Wellness & spa","Photography & scenery"], spec: "Bonefish, permit, GT, triggerfish", best: "Oct–May", stay: "Alphonse Island", hero: 1, why: "The finest bonefish flats in the Indian Ocean, off an island resort comfortable enough for a week either way." },
-  { n: "Belize · Ambergris & Turneffe", city: "Ambergris Caye", set: ["Islands","Coastal & seaside","Beach"], act: ["Diving & water","Adventure","Family"], spec: "Bonefish, permit, tarpon", best: "Mar–Jun", stay: "El Pescador · approved Belize luxury", hero: 1, why: "The best odds anywhere of a saltwater Grand Slam in a single day, and the reef alongside for everyone else." },
+  { n: "Belize · Ambergris & Turneffe", city: "Ambergris Caye", set: ["Islands","Coastal & seaside","Beach"], act: ["Diving & water","Adventure","Family"], spec: "Bonefish, permit, tarpon", best: "Mar–Jun", stay: "Cayo Espanto · Alaia Belize", hero: 1, why: "The best odds anywhere of a saltwater Grand Slam in a single day, and the reef alongside for everyone else." },
   { n: "Gleneagles · River Tay", city: "Auchterarder", set: ["Countryside","River & waterfront"], act: ["Golf · play or watch","Tennis · play or watch","Wellness & spa","Food & wine"], spec: "Atlantic salmon, trout", best: "Feb–Oct", stay: "Gleneagles", hero: 1, why: "Classic Scottish salmon on the Tay, from one of the world's great sporting hotels — with the golf and the falconry too." },
   { n: "Montage Big Sky", city: "Big Sky", set: ["Mountains & alpine","Ranch & wilderness"], act: ["Wellness & spa","Skiing","Family","Golf · play or watch"], spec: "Rainbow, brown & cutthroat trout", best: "Jun–Sep", stay: "Montage Big Sky", hero: 1, why: "The Gallatin and the Madison within reach, and a five-star resort that works perfectly for a party who don't fish." },
   { n: "One&Only Moonlight Basin", city: "Big Sky", set: ["Mountains & alpine","Ranch & wilderness"], act: ["Wellness & spa","Skiing","Golf · play or watch","Family"], spec: "Trout", best: "Jun–Sep", stay: "One&Only Moonlight Basin", hero: 1, why: "The newest ultra-luxury address in Montana, with the fishing, the skiing and the golf all from one door." },
@@ -5605,6 +5648,11 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "abaco": "Bahamas", "providenciales": "Turks & Caicos", "ambergris caye": "Belize",
+  "belize city": "Belize", "placencia": "Belize", "mountain pine ridge": "Cayo District, Belize",
+  // Punta Gorda, Florida exists and is not curated, so nothing suggests it — but if someone types
+  // it in full they will be shown a Belizean rainforest lodge. The region label is what tells them
+  // so at a glance. Same accepted shape as Saratoga (Wyoming) sitting beside Saratoga, California.
+  "punta gorda": "Toledo District, Belize",
   "sumba": "Indonesia", "langkawi": "Malaysia", "vinh hy bay": "Vietnam", "galle": "Sri Lanka",
   "porto heli": "Greece", "bumthang": "Bhutan", "punakha": "Bhutan", "ito": "Japan",
   "niseko": "Hokkaido, Japan", "rusutsu": "Hokkaido, Japan", "hakuba": "Japan",
@@ -5891,6 +5939,10 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Ambergris Caye": { air: "Belize City", note: "Fly to Belize City (BZE), then fifteen minutes in a small aircraft to San Pedro \u2014 Tropic Air and Maya Island Air both run it through the day. The water taxi takes about ninety minutes and costs a fraction of it, but with luggage the flight is the one. Cayo Espanto is a further seven minutes by boat, arranged by the island." },
+  "Placencia": { air: "Belize City", note: "Fly to Belize City (BZE), then about forty minutes by small aircraft to the Placencia strip. The road is three and a half hours down the Hummingbird and Southern highways \u2014 a genuinely good drive, but not one to take on the day you land." },
+  "Mountain Pine Ridge": { air: "Belize City", note: "Fly to Belize City (BZE), then a little under three hours west past San Ignacio. The last stretch into the reserve is unpaved and slow, and the lodge meets the flight rather than leaving you to find it." },
+  "Punta Gorda": { air: "Belize City", note: "Fly to Belize City (BZE), then about an hour by small aircraft to Punta Gorda (PND). By road it is five hours, which is why almost nobody drives it." },
   "Islas Secas": { air: "Panama City", note: "Fly to Panama City (PTY), then a chartered flight to David or straight to the island's airstrip, then a boat. The resort arranges the whole chain \u2014 it is not a journey to improvise." },
   "El Valle de Antón": { air: "Panama City", note: "Fly to Panama City (PTY), then about ninety minutes west and up into the crater." },
   "Peninsula Papagayo": { air: "Liberia", note: "Fly to Liberia (LIR), not San José \u2014 the peninsula is forty minutes away, and San José is four hours by road. This is the single most common mistake on a Costa Rica itinerary." },
@@ -5964,6 +6016,19 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // BELIZE. Philip Goldson (BZE) is the country's only international airport, and there is no
+  // hub you can reach from it on the ground — the nearest are in other countries. It is marked
+  // intercontinental because that is how the app must behave: you fly straight in. Worth knowing
+  // that no transatlantic metal actually lands here; from Europe it is always a US or Mexican
+  // connection, but that sits inside a normal through-fare, not a split ticket, so the
+  // hub-splitting path has nothing useful to offer and should not be invoked.
+  //
+  // The domestic strips — San Pedro (SPR), Placencia (PLJ), Punta Gorda (PND) — are deliberately
+  // NOT listed. Tropic Air and Maya Island Air are not in Duffel's content, so putting them here
+  // would send the flight search after fares nobody can sell it and return an empty cabin. The
+  // hops are described in GATEWAY instead. Same decision Costa Rica made for Osa, Nosara and
+  // Santa Teresa, and for the same reason.
+  "Belize City": { code: "BZE", scale: "intercontinental" },
   // PANAMA. Tocumen is the best-connected airport in Central America — the hub Copa built, and
   // the reason so many regional itineraries route through it.
   "Panama City": { code: "PTY", scale: "intercontinental" }, "Bocas del Toro": { code: "BOC", scale: "regional" },
@@ -6167,6 +6232,12 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // BELIZE. Ambergris Caye gets a zone of its own for the same reason Capri and Mallorca do:
+  // there is no road to it. Without the split, drivable() would measure fifty kilometres of open
+  // water from Belize City, find it under the 300 km limit, and offer a forty-five minute drive.
+  // This is the risk documented in 8f, headed off the way the file already heads it off.
+  "belize": ["Belize City","Placencia","Mountain Pine Ridge","Punta Gorda"],
+  "ambergris-caye": ["Ambergris Caye"],
   "panama": ["Panama City","Islas Secas","Bocas del Toro","El Valle de Antón"],
   "costa-rica": ["Peninsula Papagayo","Guanacaste","Arenal","Bajos del Toro","Bijagua","Bagaces","Pacuare","Osa Peninsula","Santa Teresa","Nosara","Manuel Antonio","Central Valley"],
   "uruguay": ["José Ignacio","Punta del Este","Montevideo","Carmelo","Colonia del Sacramento"],
@@ -6218,6 +6289,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Belize City": [17.50,-88.20], "Ambergris Caye": [17.92,-87.96], "Placencia": [16.52,-88.37],
+  "Mountain Pine Ridge": [16.95,-88.98], "Punta Gorda": [16.10,-88.81],
   "Panama City": [8.98,-79.52], "Islas Secas": [7.97,-82.03], "Bocas del Toro": [9.34,-82.24],
   "El Valle de Antón": [8.60,-80.13],
   "Peninsula Papagayo": [10.66,-85.66], "Guanacaste": [10.55,-85.75], "Arenal": [10.47,-84.64],
@@ -6297,6 +6370,13 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // BELIZE. These must be hand-written or the estimator lies badly. Mountain Pine Ridge to
+  // Placencia is 85 km in a straight line, which the maths turns into an hour and twenty — but
+  // there is no road across it. You go back out to the Western Highway, down the Hummingbird and
+  // along the Southern, and it is most of four hours. Figures below are mine, not verified.
+  ["Belize City", "Mountain Pine Ridge", 165, 150], ["Belize City", "Placencia", 210, 250],
+  ["Belize City", "Punta Gorda", 300, 330], ["Mountain Pine Ridge", "Placencia", 240, 245],
+  ["Placencia", "Punta Gorda", 150, 150], ["Mountain Pine Ridge", "Punta Gorda", 330, 330],
 ];
 function knownDrive(a, b) {
   if (!a || !b) return null;
@@ -6417,6 +6497,10 @@ const CITY_ALIASES = {
   "montr\u00e9al": "Montreal", "qu\u00e9bec city": "Quebec City", "quebec": "Quebec City", "qu\u00e9bec": "Quebec City",
   "ville de qu\u00e9bec": "Quebec City", "mont tremblant": "Mont-Tremblant", "tremblant": "Mont-Tremblant",
   "inverness, nova scotia": "Cape Breton", "sydney, nova scotia": "Cape Breton",
+  // Belize. Only forms that cannot collide: bare "san pedro" is left alone because it is also
+  // San Pedro de Atacama and San Pedro, California.
+  "san pedro, belize": "Ambergris Caye", "ambergris cay": "Ambergris Caye",
+  "placencia village": "Placencia", "mountain pine ridge forest reserve": "Mountain Pine Ridge",
   "monte carlo": "Monaco", "monte-carlo": "Monaco", "monte carlo, monaco": "Monaco", "monte-carlo, monaco": "Monaco", "monaco-ville": "Monaco", "principality of monaco": "Monaco", "monaco, france": "Monaco",
 };
 function lookup(map, city) {
