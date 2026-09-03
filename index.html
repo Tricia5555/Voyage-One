@@ -67,6 +67,13 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── BAHAMAS. Drafted Sept 2026 — mine, not Tricia's. High season is Christmas to Easter and
+  // the islands know it. The shoulders are the value; late summer and early autumn are the risk.
+  "Nassau": { window: "December to April", note: "The season, and the Ocean Club at its most sought-after \u2014 Christmas, New Year and Easter are booked far ahead. May and June are calm, warm and much quieter. Hurricane season is June to November, with August to October the months to avoid." },
+  "Exuma": { window: "December to April", note: "The dry, breezy months when the water is at its clearest and the cays are at their best. The private islands price up sharply over the festive weeks. Bonefish on the flats are good most of the year; hurricane season is June to November." },
+  "Eleuthera": { window: "November to April", note: "Cool, dry and clear. The island is quieter than Harbour Island across the water and stays open for more of the year, but several hotels close in September and October, so check before you count on it." },
+  "Harbour Island": { window: "Christmas to Easter", note: "The social season, and the island is a different place in it \u2014 full, expensive and rather fun. Most of the good hotels close for September and October. May and early June are the quiet, still, beautiful weeks." },
+  "Andros, Bahamas": { window: "March to May, and October to November for the flats", note: "Bonefishing is the reason to come, and it is best in the spring and again in the autumn when the water cools and the big fish come onto the flats. Summer is hot and the mosquitoes are real; hurricane season is June to November." },
   // ── EL SALVADOR. Drafted Sept 2026 — mine, not Tricia's. The one thing to know: the surf
   // season is the rainy season. Someone coming for the wave and someone coming for the lake
   // want opposite halves of the year.
@@ -219,6 +226,10 @@ const EXPERIENCE_LUX = [
   // El Salvador, Sept 2026. Treehouses above a surf break, and a private house on the cliffs
   // near El Sunzal that is a retreat rather than a hotel. Both filed here on the curation's word.
   "Mizata by Antiresort", "The Mansion by Verdaad",
+  // Bahamas, Sept 2026. Tents on a beach opposite Harbour Island, and a private-island villa
+  // resort in the Exumas where the boat is half the point. Kamalame is Luxury: the curation
+  // allows either and, as with Yemaya and Nayara Bocas, the default is the conservative one.
+  "The Other Side", "Fowl Cay Resort",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -417,7 +428,13 @@ const ULTRA_LUX = [
   // Caribbean
   "Cheval Blanc St-Barth", "Eden Rock St Barths", "Le Toiny", "Cap Juluca, a Belmond Hotel",
   "Malliouhana", "Amanyara", "COMO Parrot Cay", "Rosewood Little Dix Bay", "Jumby Bay Island",
-  "The Ocean Club, a Four Seasons Resort",
+  // Bahamas in full — 3 Sept 2026, on the strict standard. One conventional hotel, and two
+  // islands that are not hotels at all: Musha Cay and Over Yonder Cay are rented whole, to one
+  // party, at fifty-odd thousand dollars a night. The architecture has no "exclusive-use" tier,
+  // so they sit here as Islas Secas and Calala do, with the card making the arrangement plain.
+  // Everything else in the country — Baha Mar, Kamalame, The Cove, Potlatch, Bahama House, The
+  // Dunmore, Caerula Mar, Grand Isle — is Luxury or Experience, by instruction.
+  "The Ocean Club, a Four Seasons Resort", "Musha Cay", "Over Yonder Cay",
   // United States — NYC
   "Aman New York", "The Fifth Avenue Hotel", "The Lowell", "The Greenwich Hotel", "The Carlyle",
   "Casa Cipriani", "The Mark",
@@ -2094,8 +2111,47 @@ const FAVORITES = {
   "Antigua": [
     { name: "Jumby Bay Island", area: "Jumby Bay", rate: null, ourTake: "A whole private island resort, Oetker Collection, off Antigua's coast." },
   ],
-  "Bahamas": [
-    { name: "The Ocean Club, a Four Seasons Resort", area: "Paradise Island", rate: null, ourTake: "The legendary former One&Only — cloistered gardens and a famous beach." },
+  // ── BAHAMAS, IN FULL ────────────────────────────────────────────────────────────────
+  // Twelve properties across five islands, replacing the single country-level "Bahamas" key
+  // that held the Ocean Club alone. Islands are the destinations here — nobody goes "to the
+  // Bahamas", they go to Harbour Island — and the fishing cards were already pointing at
+  // "Nassau", which did not exist as a key until now.
+  //
+  // NASSAU HOLDS PARADISE ISLAND. The Ocean Club is over a bridge from the city and five minutes
+  // from the same airport; the area field says which side of the bridge. Same shape as the
+  // Ocean Club sitting under Nassau on the fishing card.
+  //
+  // EXUMA HOLDS THE CAYS AND GREAT EXUMA TOGETHER. Musha, Over Yonder and Fowl Cay are in the
+  // cays sixty miles north of the airport at George Town; Grand Isle is beside it. Splitting
+  // them would hide the private islands from anyone who types "Exuma", and the area field and
+  // the arrival notes carry the geography. The key is the singular — it is what Duffel and
+  // Google both call the place — and "exumas" is aliased.
+  //
+  // ANDROS IS KEYED "Andros, Bahamas", comma included, for the Granada reason: there is an
+  // Andros in the Cyclades, Google will return both, and a bare key would have served Kamalame
+  // to someone bound for Greece. "andros town" (the ASD airport label) is aliased.
+  "Nassau": [
+    { name: "The Ocean Club, a Four Seasons Resort", area: "Paradise Island", rate: null, ourTake: "A hundred-odd rooms on thirty-five acres of cloistered gardens above one of the great beaches, and the villas behind them with their own pools and butler teams. Once the One&Only, now Four Seasons, and still the one address in the Bahamas that stands with the world's best." },
+    { name: "Rosewood Baha Mar", area: "Cable Beach", rate: null, ourTake: "The best hotel inside the Baha Mar complex by a distance, and a very good one \u2014 but two hundred rooms and a casino resort around it. For a client who wants Nassau with everything on tap." },
+  ],
+  "Exuma": [
+    { name: "Musha Cay", area: "Exuma Cays \u2014 exclusive use only", rate: null, ourTake: "David Copperfield's island, rented whole to one party of up to twenty-four, five houses across seven hundred acres and a staff that outnumbers the guests. Five nights minimum, and a rate that starts where most hotels' penthouses finish. Nobody else on the island, ever." },
+    { name: "Over Yonder Cay", area: "Exuma Cays \u2014 exclusive use only", rate: null, ourTake: "Four villas on a private island near Staniel Cay for up to thirty, with its own fleet and a wind farm that powers the lot. Taken whole or not at all \u2014 the most sophisticated private-island product in the country." },
+    { name: "Fowl Cay Resort", area: "Exuma Cays", rate: null, ourTake: "A private island where every villa comes with its own boat and the run to Staniel Cay, the swimming pigs and Thunderball Grotto is yours to make. Independence is the product; the point is the water, not the linen." },
+    { name: "Grand Isle Resort & Residences", area: "Emerald Bay, Great Exuma", rate: null, ourTake: "Seventy-eight big villas above Emerald Bay beside the airport, a golf course next door, and the flats and the reef both within reach. The family address in the Exumas, and the right one." },
+  ],
+  "Eleuthera": [
+    { name: "The Cove Eleuthera", area: "Gregory Town", rate: null, ourTake: "Twenty-two rooms and villas on forty acres between two coves, Relais & Ch\u00e2teaux, with a pink beach on one side and the Atlantic on the other. The best hotel on the island." },
+    { name: "The Potlatch Club", area: "Governor's Harbour", rate: null, keys: 1, ourTake: "A 1950s society retreat restored on twelve acres of pink-sand beachfront, a Michelin Key, and a sense of a different era that is not affected. Small and rather wonderful." },
+    { name: "The Other Side", area: "Across the water from Harbour Island", rate: null, ourTake: "Tents and shacks on an empty beach opposite Harbour Island, reached by the resort's own boat \u2014 barefoot, beautiful and not a hotel in any conventional sense, which is the point." },
+  ],
+  "Harbour Island": [
+    { name: "Bahama House by Eleven", area: "Dunmore Town", rate: null, ourTake: "Eleven's eleven-room house in the town \u2014 tiny, polished and run like a private home, with the pink beach a golf cart away. For a couple or a small group who want the island rather than a resort." },
+    { name: "The Dunmore", area: "Pink Sands Beach", rate: null, ourTake: "The classic on the beach itself, cottages in the gardens and the best-placed pool on the island. Where Harbour Island has always stayed." },
+  ],
+  "Andros, Bahamas": [
+    { name: "Kamalame Cay", area: "Staniard Creek, central Andros", rate: null, ourTake: "A private island of cottages and villas with an overwater spa, five minutes by ferry from the mainland and a mile from the best bonefish flats in the world. Barefoot rather than polished, and priced to say so." },
+    { name: "Caerula Mar Club", area: "South Andros", rate: null, ourTake: "A small, quietly designed club on the south island with villas on the beach and a clubhouse for everything else. The right base for the south Andros flats and the blue holes." },
   ],
   "New York City": [
     { name: "Aman New York", area: "Fifth Avenue", rate: null, ourTake: "A serene three-floor spa sanctuary above Fifth Avenue, with a jazz club below." },
@@ -5787,6 +5843,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
   "san salvador": "El Salvador", "lake coatepeque": "El Salvador", "playa mizata": "Pacific coast, El Salvador",
   "el sunzal": "La Libertad coast, El Salvador", "concepción de ataco": "Ruta de las Flores, El Salvador",
   "roatán": "Bay Islands, Honduras", "roatan": "Bay Islands, Honduras", "la ceiba": "Pico Bonito, Honduras", "san pedro sula": "Honduras",
@@ -5816,8 +5873,8 @@ function placeLine(city) {
   return r ? c + ", " + r : c;
 }
 function regionOf(city) {
-  const k = bareCity(String(city || "")).toLowerCase().replace(/\s+/g, " ").trim();
-  return PLACE_REGION[k] || null;
+  const k = resolvePlace(city);
+  return k ? PLACE_REGION[k.toLowerCase().replace(/\s+/g, " ").trim()] || null : null;
 }
 // Layers whose properties are all-inclusive by nature: everything happens at the lodge.
 const ALL_IN_LAYERS = ["ranches & riding", "fly fishing"];
@@ -6084,6 +6141,8 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Harbour Island": { air: "Eleuthera", note: "Fly to North Eleuthera (ELH) \u2014 nonstops from Miami, Fort Lauderdale, Atlanta and Charlotte \u2014 then two minutes by taxi to the dock and ten minutes across by water taxi. Every hotel meets the boat, and there are no cars on the other side worth the name; you will be in a golf cart." },
+  "Andros, Bahamas": { air: "Nassau", note: "Fly to Nassau (NAS), then twenty minutes on Western Air or Bahamasair to Andros Town for Kamalame or Congo Town for Caerula Mar \u2014 or direct from Fort Lauderdale on the same carriers. Both resorts arrange the last leg, and Kamalame is a five-minute ferry from its own dock." },
   "Lake Coatepeque": { air: "San Salvador", note: "Fly to San Salvador (SAL), then a little over an hour west \u2014 the airport is south of the city near the coast, so you skirt the capital rather than cross it." },
   "Playa Mizata": { air: "San Salvador", note: "Fly to San Salvador (SAL) and turn west along the coast road \u2014 about an hour and three quarters, past El Tunco and El Sunzal. The airport is nearer the sea than the city, which makes this simpler than it looks." },
   "El Sunzal": { air: "San Salvador", note: "Fly to San Salvador (SAL), then under an hour \u2014 the airport sits down by the coast and La Libertad is the next town along. The house sends a car." },
@@ -6132,7 +6191,7 @@ const GATEWAY = {
   "Napa Valley": { air: "San Francisco", note: "San Francisco (SFO) is the gateway — about 1 hr 30 north." },
   "Algarve": { air: "Faro", note: "Faro (FAO) sits right in the middle of the coast." },
 };
-function gatewayFor(place) { if (!place) return null; const r = bareCity(place).toLowerCase(); const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r); return k ? GATEWAY[k] : null; }
+function gatewayFor(place) { const r = resolvePlace(place); if (!r) return null; const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r.toLowerCase()); return k ? GATEWAY[k] : null; }
 // Cities whose own airport still needs a special last hop to the hotel — Venice is all water,
 // so from Marco Polo you arrive by boat, not car. A universal map: any such city gets its own
 // "getting to your hotel" step. Prices are indicative, per boat, each way.
@@ -6175,6 +6234,14 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // BAHAMAS. Nassau (NAS) is genuinely intercontinental — British Airways flies it from London.
+  // Exuma (GGT) and North Eleuthera (ELH) both take US nonstops and neither has a hub reachable
+  // by road, so intercontinental for the app's purposes. Harbour Island and Andros have no entry:
+  // Harbour Island is a water taxi from ELH, and the Andros fields (ASD, TZN) are Western Air and
+  // Bahamasair only, not in Duffel. The Exuma cays are reached from GGT or Nassau by the islands'
+  // own aircraft and boats; Staniel Cay's strip (TYM) is charter-only and not listed.
+  "Nassau": { code: "NAS", scale: "intercontinental" }, "Exuma": { code: "GGT", scale: "intercontinental" },
+  "Eleuthera": { code: "ELH", scale: "intercontinental" },
   // EL SALVADOR. Óscar Romero (SAL) is the only airport, and it is not in the city: it is at
   // Comalapa, forty kilometres south, ten minutes from the sea. Iberia flies it from Madrid, so
   // for once "intercontinental" is literally true. There is no hub reachable on the ground.
@@ -6316,7 +6383,7 @@ function railSlug(c) {
 }
 function railBetween(a, b) {
   if (!a || !b) return null;
-  const A = bareCity(a).toLowerCase(), B = bareCity(b).toLowerCase();
+  const A = placeName(a), B = placeName(b);
   const hit = RAIL.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? hit[2] : null;
 }
@@ -6420,6 +6487,16 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // BAHAMAS. Five islands, five zones. Nothing drives between any of them; Harbour Island to
+  // Eleuthera is the one crossing short enough to be a ferry, and it is in FERRIES. The extra
+  // spellings under each are the labels Duffel and Google are known to produce — the zone table
+  // matches on the exact string, so a label it has not seen has no zone, and a place with no
+  // zone can be offered a drive across the sea. See the note on "Roatan".
+  "nassau": ["Nassau","Paradise Island","New Providence"],
+  "exuma": ["Exuma","Exumas","Great Exuma","George Town","Staniel Cay"],
+  "eleuthera": ["Eleuthera","North Eleuthera","Governor's Harbour","Gregory Town"],
+  "harbour-island": ["Harbour Island","Dunmore Town"],
+  "andros": ["Andros, Bahamas","Andros Town","South Andros","Congo Town","Staniard Creek"],
   // EL SALVADOR. One landmass, one zone, everything within two and a half hours of everything.
   "el-salvador": ["San Salvador","Lake Coatepeque","Playa Mizata","El Sunzal","Concepción de Ataco"],
   // HONDURAS. Roatán is an island with its own zone; the ferry to La Ceiba is in FERRIES, which
@@ -6468,7 +6545,7 @@ const ZONE = {
 };
 const ZONE_OF = {};
 Object.entries(ZONE).forEach(([z, list]) => list.forEach((pl) => { ZONE_OF[pl.toLowerCase()] = z; }));
-function zoneOf(place) { return place ? ZONE_OF[bareCity(place).toLowerCase()] || null : null; }
+function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toLowerCase()] || null : null; }
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
@@ -6489,6 +6566,10 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
+  "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
+  "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
+  "Andros Town": [24.70,-77.79], "South Andros": [24.16,-77.59],
   "San Salvador": [13.69,-89.19], "Lake Coatepeque": [13.87,-89.55], "Playa Mizata": [13.53,-89.56],
   "El Sunzal": [13.49,-89.39], "Concepción de Ataco": [13.87,-89.85],
   "Roatán": [16.32,-86.53], "Roatan": [16.32,-86.53], "La Ceiba": [15.77,-86.79], "San Pedro Sula": [15.50,-88.03],
@@ -6609,7 +6690,7 @@ const DRIVE_TIMES = [
 ];
 function knownDrive(a, b) {
   if (!a || !b) return null;
-  const A = bareCity(a).toLowerCase(), B = bareCity(b).toLowerCase();
+  const A = placeName(a), B = placeName(b);
   const hit = DRIVE_TIMES.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? { mins: hit[2], km: hit[3] } : null;
 }
@@ -6634,11 +6715,14 @@ const FERRIES = [
   // Honduras. The Galaxy Wave, La Ceiba to Roatán, about seventy-five minutes and the honest way
   // to combine Pico Bonito with the island. Both spellings, for the reason given in FAVORITES.
   ["Roatán", "La Ceiba", 80], ["Roatan", "La Ceiba", 80],
+  // Bahamas. The water taxi from the North Eleuthera dock, ten minutes. Both labels for the
+  // island side that the picker can produce.
+  ["Harbour Island", "Eleuthera", 10], ["Harbour Island", "North Eleuthera", 10],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
   if (!a || !b) return null;
-  const A = bareCity(a).toLowerCase(), B = bareCity(b).toLowerCase();
+  const A = placeName(a), B = placeName(b);
   const hit = FERRIES.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? hit[2] : null;
 }
@@ -6729,6 +6813,15 @@ const CITY_ALIASES = {
   "montr\u00e9al": "Montreal", "qu\u00e9bec city": "Quebec City", "quebec": "Quebec City", "qu\u00e9bec": "Quebec City",
   "ville de qu\u00e9bec": "Quebec City", "mont tremblant": "Mont-Tremblant", "tremblant": "Mont-Tremblant",
   "inverness, nova scotia": "Cape Breton", "sydney, nova scotia": "Cape Breton",
+  // Bahamas. Bare "andros" is NOT aliased — the Cyclades. Bare "george town" is not either —
+  // Grand Cayman and Penang; "george town, bahamas" is.
+  "paradise island": "Nassau", "nassau, bahamas": "Nassau", "cable beach": "Nassau", "new providence": "Nassau",
+  "exumas": "Exuma", "the exumas": "Exuma", "exuma, bahamas": "Exuma", "great exuma": "Exuma", "exuma cays": "Exuma",
+  "george town, bahamas": "Exuma", "staniel cay": "Exuma", "musha cay": "Exuma", "over yonder cay": "Exuma",
+  "north eleuthera": "Eleuthera", "governor's harbour": "Eleuthera", "governors harbour": "Eleuthera", "gregory town": "Eleuthera",
+  "dunmore town": "Harbour Island", "harbour island, bahamas": "Harbour Island",
+  "andros town": "Andros, Bahamas", "andros town, bahamas": "Andros, Bahamas", "south andros": "Andros, Bahamas",
+  "congo town": "Andros, Bahamas", "kamalame cay": "Andros, Bahamas", "staniard creek": "Andros, Bahamas",
   // El Salvador. Bare "coatepeque" is NOT aliased — it is also a town in Guatemala. Bare
   // "la libertad" is not either, for the reason in FAVORITES.
   "lago de coatepeque": "Lake Coatepeque", "lago coatepeque": "Lake Coatepeque", "coatepeque, el salvador": "Lake Coatepeque",
@@ -6757,6 +6850,65 @@ const CITY_ALIASES = {
   "placencia village": "Placencia", "mountain pine ridge forest reserve": "Mountain Pine Ridge",
   "monte carlo": "Monaco", "monte-carlo": "Monaco", "monte carlo, monaco": "Monaco", "monte-carlo, monaco": "Monaco", "monaco-ville": "Monaco", "principality of monaco": "Monaco", "monaco, france": "Monaco",
 };
+// ═══ resolvePlace — WHICH CURATED PLACE IS THIS LABEL? ═══════════════════════════════════
+// The zone, gateway and region tables used to match on the exact spelling of the label, and the
+// picker produces labels the tables have never seen: "Placencia, Belize", "Eleuthera, Bahamas",
+// "Roatan (RTB)". Hotels survived that because lookup() strips the comma; the zone did not,
+// and a place with no zone is a place the app cannot tell is an island — so it measured the sea
+// from Nassau and offered a drive. Every island was being patched one spelling at a time.
+//
+// The rule now is the one everyone assumed was already in force: WHERE THE PICKER KNOWS THE REAL
+// COORDINATES, GEOGRAPHY DECIDES, NOT SPELLING. In order:
+//   1. The name, exact or via CITY_ALIASES — but if we hold coordinates for the label, the name
+//      only counts when it lands within 150 km of the key it names. "Birmingham (BHX)" names
+//      the Alabama key and sits 6,000 km from it, so the name is rejected. That is the
+//      Birmingham bug, finally closed at the zone level.
+//   2. Otherwise, with coordinates in hand, the nearest curated place within 10 km. "Eleuthera,
+//      Bahamas" has no key of its own; Eleuthera is 0 km away, so it inherits Eleuthera's zone.
+//   3. Otherwise null — unknown, which downstream reads as "cannot rule anything out".
+// Coordinates come from GEO_CACHE first — the pair the picker resolved for THIS label — and only
+// then from the COORDS table by bare name, which is what coordsFor does and what put Alabama's
+// coordinates on Birmingham, England. The 10 km radius is deliberately tight: an unzoned point
+// a few kilometres off a zoned mainland town must not be pulled onto the mainland — Spanish
+// Wells is a separate island eleven kilometres from the North Eleuthera field, and stays unknown.
+// Resolutions are cached per label; a label with no coordinates yet is not cached, so it is
+// re-tried once the geocoder answers.
+const PLACE_KEYS = {};
+[].concat(Object.keys(COORDS), Object.values(ZONE).reduce((a, l) => a.concat(l), []), Object.keys(GATEWAY), Object.keys(FAVORITES))
+  .forEach((k) => { const lc = k.toLowerCase(); if (!PLACE_KEYS[lc]) PLACE_KEYS[lc] = k; });
+const RESOLVE_CACHE = {};
+const RESOLVE_NAME_KM = 150, RESOLVE_NEAR_KM = 10;
+// The hand tables — ferries, rail, drive times — are keyed by curated names and were matched on
+// the exact label too, so "Capri, Italy" lost its ferry to Sorrento. They now match on the
+// resolved place, with the bare label as a fallback for anything the resolver cannot place.
+function placeName(label) { return (resolvePlace(label) || bareCity(String(label || ""))).toLowerCase(); }
+function kmBetween(A, B) {
+  const R = 6371, rad = (x) => (x * Math.PI) / 180;
+  const dLat = rad(B[0] - A[0]), dLon = rad(B[1] - A[1]);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(A[0])) * Math.cos(rad(B[0])) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function resolvePlace(label) {
+  if (!label) return null;
+  const ck = geoKey(label);
+  if (RESOLVE_CACHE[ck] !== undefined) return RESOLVE_CACHE[ck];
+  const bare = bareCity(String(label)), lc = bare.toLowerCase().replace(/\s+/g, " ").trim();
+  const here = GEO_CACHE[ck] || (PLACE_KEYS[lc] ? COORDS[PLACE_KEYS[lc]] : null) || null;
+  const agrees = (k) => { const c = k && COORDS[k]; return !here || !c || kmBetween(here, c) <= RESOLVE_NAME_KM; };
+  let key = PLACE_KEYS[lc] || null;
+  if (!key) {
+    const al = CITY_ALIASES[lc] || CITY_ALIASES[lc.split(",")[0].trim()];
+    if (al && PLACE_KEYS[al.toLowerCase()]) key = PLACE_KEYS[al.toLowerCase()];
+  }
+  if (key && !agrees(key)) key = null;
+  if (!key && here) {
+    let best = null, bestKm = RESOLVE_NEAR_KM;
+    Object.keys(COORDS).forEach((k) => { const d = kmBetween(here, COORDS[k]); if (d <= bestKm) { bestKm = d; best = k; } });
+    key = best;
+  }
+  if (here || key) RESOLVE_CACHE[ck] = key;
+  return key;
+}
 function lookup(map, city) {
   if (!city) return null;
   const raw = bareCity(city);
@@ -11116,12 +11268,26 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   </div>);
 }
 function HotelPicker({ city, nights, pick, upd }) {
-  const [level, setLevel] = useState(pick.stay ? pick.stay.level : "UltraLux");
+  const favs = lookup(FAVORITES, city) || [];
+  // OPEN ON THE FIRST TAB THAT HAS SOMETHING IN IT. The default used to be Ultra Luxury,
+  // unconditionally, which was fine when most curated cities had one. After the Sept 2026 tier
+  // corrections a great many do not — Colombia, Ecuador, Guatemala, Honduras and El Salvador have
+  // none at all by design — and every lodge-only destination (Tikal, Nandaime, Wadi Rum, Petra,
+  // the Colombian coffee country) opened on an empty page with its actual hotels one tap away
+  // behind a chip the client had no reason to press. Tier order is unchanged: Ultra first when
+  // it exists, then Luxury, then Experience, then Best. A chosen hotel still wins, so reopening
+  // a leg lands on the tier the client picked from.
+  const firstTier = LEVELS.find((l) => favs.some((s) => tierOf(s.name) === l)) || "UltraLux";
+  const [level, setLevel] = useState(pick.stay ? pick.stay.level : firstTier);
+  // When the destination changes under a mounted picker, start again from the first tier with
+  // content rather than carrying the previous city's tab across. Keyed on city only, and
+  // deliberately NOT on level: a client who taps an empty chip to see the "none here" line must
+  // not be bounced straight back off it.
+  useEffect(() => { if (!pick.stay) setLevel(firstTier); }, [city]); // eslint-disable-line react-hooks/exhaustive-deps
   const remote = useRemote("hotels", city);
   const live = !!remote.items;
   const curated = !!lookup(HOTELS, city);
   const liveAll = live ? Object.keys(remote.items || {}).reduce((acc, k) => acc.concat(remote.items[k] || []), []) : [];
-  const favs = lookup(FAVORITES, city) || [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
   // THE LOCK NOW COVERS EVERY TIER. Ultra Luxury was always curated-only; Luxury and Best used
@@ -11165,7 +11331,9 @@ function HotelPicker({ city, nights, pick, upd }) {
   // Best appears only where it has been curated — there is no longer a feed to fall back on.
   const showBest = bestCurated;
   const tiers = LEVELS.filter((l) => (l === "Best" ? showBest : l === "ExpLux" ? expHas : true));
-  useEffect(() => { if (level === "Best" && !showBest) setLevel("Luxury"); if (level === "ExpLux" && !expHas) setLevel("Luxury"); }, [showBest, expHas, level]);
+  // If the tab a client is on stops existing — Best or Experience chips are only on the page
+  // where they have content — fall to the first tier that has some, not to Luxury by reflex.
+  useEffect(() => { if (level === "Best" && !showBest) setLevel(firstTier); if (level === "ExpLux" && !expHas) setLevel(firstTier); }, [showBest, expHas, level, firstTier]);
   const collapsed = !!chosen && !openList;
   const showLevel = (l) => { setLevel(l); setOpenList(true); };
   return (<>
