@@ -67,6 +67,11 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── GUATEMALA. Drafted Sept 2026 — mine, not Tricia's. The highlands and Petén are two
+  // different climates in one small country, which is the only thing these entries need to say.
+  "Antigua Guatemala": { window: "November to April \u2014 and Holy Week, which is its own decision", note: "The dry season, though the highlands are temperate all year: warm days at 1,500 m and genuinely cold nights. Semana Santa is the exception to everything. The sawdust carpets and the processions are one of the great religious spectacles anywhere, the town fills completely, and the good rooms are gone a year ahead." },
+  "Lake Atitl\u00e1n": { window: "November to April", note: "The dry months, and the only reliable window for actually seeing the three volcanoes \u2014 in the rains they spend days behind cloud. Mornings on the lake are glass; the Xocomil wind gets up most afternoons and the boats get lively, so take the crossings early." },
+  "Tikal": { window: "December to April", note: "Pet\u00e9n is lowland tropical and a different country from the highlands \u2014 hot, humid, and properly wet from June to October, when the trails turn to mud. Whenever you go, go in at dawn: the howler monkeys start before the light does, and the coaches from Flores arrive at ten." },
   // ── BELIZE. Drafted Sept 2026 — mine, not Tricia's, and a first pass to correct. The country
   // has one dry season and one wet one, and the wet one carries the hurricane risk, so the
   // shape of the advice is similar everywhere; what changes is how much the rain costs you.
@@ -113,6 +118,11 @@ const BEST_AVAILABLE = [
   "M\u00f6venpick Resort Petra", "Petra Marriott Hotel",
   // Zapallar has no five-star hotel and will not have one. Isla Seca is the right answer there.
   "Hotel Isla Seca",
+  // Tikal, Sept 2026. Not a Voyage One hotel and the curation says so plainly. It is here for
+  // one reason: it sits inside the archaeological zone, so you are at the temples before the
+  // gates open and before anyone drives up from Flores. A location exception, which is exactly
+  // what this tier is for. La Lancha remains the lead; this is for the client who wants sunrise.
+  "Jungle Lodge Hotel",
 ];
 const EXPERIENCE_LUX = [
   // Jordan and Oman, Sept 2026 — the first entries in this tier. None of these is a hotel and
@@ -124,6 +134,10 @@ const EXPERIENCE_LUX = [
   // Costa Rica, Sept 2026. A lodge reached by rafting a river, and a rainforest reserve above the
   // Golfo Dulce. Pacuare is here on the curation's explicit instruction, not my judgement.
   "Pacuare Lodge", "Lapa Rios Lodge",
+  // Guatemala, Sept 2026. Coppola's ten-casita lodge on Lake Petén Itzá, filed here on the
+  // curation's explicit direction rather than my judgement — it says use Experience Luxury
+  // rather than conventional Ultra, and that it should lead every Tikal recommendation.
+  "La Lancha",
   // Bolivia, Sept 2026. Two hotels built out of salt blocks on the edge of the Salar. Neither is
   // a conventional luxury hotel and both are the right way to be there, which is the tier exactly.
   "Palacio de Sal", "Luna Salada Hotel de Sal",
@@ -170,6 +184,10 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Guatemala in full — Sept 2026. Three, all of them small, and two are in one town. The country
+  // concentrates: Antigua, Lake Atitlán, Petén, and the curation is explicit that the capital is
+  // a gateway rather than a destination and gets nothing. Villa Bokéh carries two Michelin Keys.
+  "Villa Bokéh", "Posada del Ángel", "Casa Palopó",
   // Belize in full — Sept 2026. Four, and only one of them is on the sea a client would recognise
   // as a beach. The curation offers Blancaneaux and Copal Tree as EITHER Ultra or Experience
   // Luxury "depending on the database architecture". Both are filed here, matching the Ecuador
@@ -1087,6 +1105,37 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── GUATEMALA, IN FULL ──────────────────────────────────────────────────────────────
+  // Seven properties in three places, and GUATEMALA CITY IS DELIBERATELY NOT ONE OF THEM. The
+  // curation is unusually direct about it: the capital is a gateway, and elevating international
+  // business hotels to populate a destination is exactly the padding this file refuses to do.
+  // It is in COORDS, ZONE and AIRPORTS so journeys route through it, and in no hotel table at
+  // all — which means the destination picker will never offer it as somewhere to stay.
+  //
+  // THE ANTIGUA KEY IS "Antigua Guatemala", NOT "Antigua". "Antigua" is already a FAVORITES key
+  // and it is the Caribbean island, with Jumby Bay in it. Left alone, a client picking "Antigua,
+  // Guatemala" would have been shown an Oetker private island off the coast of another country —
+  // the Birmingham collision in a new hemisphere. CITY_ALIASES catches the comma forms; a bare
+  // "Antigua" still means the island, which is correct.
+  //
+  // TIKAL HOLDS BOTH PROPERTIES UNDER ONE KEY. La Lancha is forty minutes from the ruins on Lake
+  // Petén Itzá and Jungle Lodge is inside the park. Splitting them would hide La Lancha from
+  // anyone browsing "Tikal", and the curation says La Lancha is the lead recommendation for
+  // precisely those travellers. So they sit together, in different tiers, which is the honest
+  // shape: the better hotel, and the one that gets you to the temples at dawn.
+  "Antigua Guatemala": [
+    { name: "Villa Bok\u00e9h", area: "Just outside Antigua", rate: null, keys: 2, ourTake: "An estate three kilometres out of town \u2014 gardens, a serious art collection, volcanoes on the skyline, and the quiet that central Antigua cannot give you. Two Michelin Keys and Leading Hotels, and the clear lead here." },
+    { name: "Posada del \u00c1ngel", area: "Antigua", rate: null, keys: 1, ourTake: "Tiny, historic and in the town itself \u2014 the opposite proposition to Villa Bok\u00e9h rather than a lesser one. Keyed by Michelin, and the sort of small house this list exists to protect." },
+    { name: "Hotel Museo Spa Casa Santo Domingo", area: "Antigua", rate: null, ourTake: "Built through the ruins of a sixteenth-century Dominican monastery, with the excavations still open around you. The rooms are a notch below the two above; the setting is not matched anywhere in Central America." },
+    { name: "El Convento Boutique Hotel", area: "Antigua", rate: null, ourTake: "Beside the Capuchin convent, small and calm, with the volcano framed from the courtyard. The quiet alternative in the centre of town." },
+  ],
+  "Lake Atitl\u00e1n": [
+    { name: "Casa Palop\u00f3", area: "Santa Catarina Palop\u00f3", rate: null, keys: 1, ourTake: "A private house that became a hotel and still feels like one \u2014 a handful of rooms, an infinity pool over the water, Guatemalan art on every wall and three volcanoes across the lake. Relais & Ch\u00e2teaux, a Michelin Key, and the only address here we would use." },
+  ],
+  "Tikal": [
+    { name: "La Lancha", area: "Lake Pet\u00e9n Itz\u00e1", rate: null, keys: 1, ourTake: "Ten casitas on a bluff above the lake, Coppola's smallest and least showy house, and the right base for the ruins \u2014 forty minutes out, with the archaeology arranged properly rather than sold at the gate." },
+    { name: "Jungle Lodge Hotel", area: "Tikal National Park", rate: null, ourTake: "Inside the park itself, which is the entire point: you walk to the Great Plaza before the gates open and hear the howlers start in the dark. Comfortable rather than luxurious, and honest about it." },
   ],
   // ── BELIZE, IN FULL ─────────────────────────────────────────────────────────────────
   // Six properties in four places, and the curation is emphatic that this is the whole list.
@@ -5647,6 +5696,7 @@ const PLACE_REGION = {
   "somerset west": "South Africa", "george": "South Africa", "monsaraz": "Alentejo, Portugal",
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
+  "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
   "abaco": "Bahamas", "providenciales": "Turks & Caicos", "ambergris caye": "Belize",
   "belize city": "Belize", "placencia": "Belize", "mountain pine ridge": "Cayo District, Belize",
   // Punta Gorda, Florida exists and is not curated, so nothing suggests it — but if someone types
@@ -5939,6 +5989,9 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Antigua Guatemala": { air: "Guatemala City", note: "Fly to Guatemala City (GUA), then about an hour by road \u2014 forty-five minutes when the capital's traffic allows it and considerably more when it does not. Every hotel meets the flight, and it is worth letting them." },
+  "Lake Atitl\u00e1n": { air: "Guatemala City", note: "Fly to Guatemala City (GUA), then roughly three hours west on the Pan-American, or two and a half if you are coming from Antigua. There is also a helicopter, about thirty-five minutes, which Casa Palop\u00f3 will arrange." },
+  "Tikal": { air: "Guatemala City", note: "Fly to Guatemala City (GUA), then an hour north to Flores (FRS), then about an hour and a quarter by road to the park. From the capital by road it is eight or nine hours, which is not a journey anyone should be sold." },
   "Ambergris Caye": { air: "Belize City", note: "Fly to Belize City (BZE), then fifteen minutes in a small aircraft to San Pedro \u2014 Tropic Air and Maya Island Air both run it through the day. The water taxi takes about ninety minutes and costs a fraction of it, but with luggage the flight is the one. Cayo Espanto is a further seven minutes by boat, arranged by the island." },
   "Placencia": { air: "Belize City", note: "Fly to Belize City (BZE), then about forty minutes by small aircraft to the Placencia strip. The road is three and a half hours down the Hummingbird and Southern highways \u2014 a genuinely good drive, but not one to take on the day you land." },
   "Mountain Pine Ridge": { air: "Belize City", note: "Fly to Belize City (BZE), then a little under three hours west past San Ignacio. The last stretch into the reserve is unpaved and slow, and the lodge meets the flight rather than leaving you to find it." },
@@ -6016,6 +6069,16 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // GUATEMALA. La Aurora (GUA) is the country's international gate and, like Belize City, has no
+  // hub reachable from it on the ground. Marked intercontinental for the same reason: you fly in.
+  //
+  // Flores (FRS), the Tikal airport, is NOT listed — and this one is a genuine open question
+  // rather than a settled call. Unlike Belize's strips it is a real scheduled field, but the
+  // domestic operators are TAG and Avianca and I could not confirm Duffel sells either. Adding
+  // it on an assumption would return an empty cabin on the leg that matters most. The hop is in
+  // GATEWAY instead. To settle it, load /api/flights?from=Guatemala City&to=Flores and read the
+  // JSON — if fares come back, FRS belongs here as regional.
+  "Guatemala City": { code: "GUA", scale: "intercontinental" },
   // BELIZE. Philip Goldson (BZE) is the country's only international airport, and there is no
   // hub you can reach from it on the ground — the nearest are in other countries. It is marked
   // intercontinental because that is how the app must behave: you fly straight in. Worth knowing
@@ -6232,6 +6295,7 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  "guatemala": ["Guatemala City","Antigua Guatemala","Lake Atitlán","Tikal"],
   // BELIZE. Ambergris Caye gets a zone of its own for the same reason Capri and Mallorca do:
   // there is no road to it. Without the split, drivable() would measure fifty kilometres of open
   // water from Belize City, find it under the 300 km limit, and offer a forty-five minute drive.
@@ -6289,6 +6353,8 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Guatemala City": [14.63,-90.51], "Antigua Guatemala": [14.56,-90.73],
+  "Lake Atitlán": [14.70,-91.17], "Tikal": [17.22,-89.62],
   "Belize City": [17.50,-88.20], "Ambergris Caye": [17.92,-87.96], "Placencia": [16.52,-88.37],
   "Mountain Pine Ridge": [16.95,-88.98], "Punta Gorda": [16.10,-88.81],
   "Panama City": [8.98,-79.52], "Islas Secas": [7.97,-82.03], "Bocas del Toro": [9.34,-82.24],
@@ -6370,6 +6436,12 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // GUATEMALA. The capital to Tikal is 500 km of road and eight and a half hours; straight-line
+  // maths would call it four. It is written down so that if the app ever mentions the drive it
+  // mentions the real one. Nobody should be doing it — the flight to Flores is an hour.
+  ["Guatemala City", "Antigua Guatemala", 60, 45], ["Guatemala City", "Lake Atitlán", 180, 145],
+  ["Antigua Guatemala", "Lake Atitlán", 150, 110], ["Guatemala City", "Tikal", 510, 500],
+  ["Antigua Guatemala", "Tikal", 555, 545],
   // BELIZE. These must be hand-written or the estimator lies badly. Mountain Pine Ridge to
   // Placencia is 85 km in a straight line, which the maths turns into an hour and twenty — but
   // there is no road across it. You go back out to the Western Highway, down the Hummingbird and
@@ -6497,6 +6569,13 @@ const CITY_ALIASES = {
   "montr\u00e9al": "Montreal", "qu\u00e9bec city": "Quebec City", "quebec": "Quebec City", "qu\u00e9bec": "Quebec City",
   "ville de qu\u00e9bec": "Quebec City", "mont tremblant": "Mont-Tremblant", "tremblant": "Mont-Tremblant",
   "inverness, nova scotia": "Cape Breton", "sydney, nova scotia": "Cape Breton",
+  // Guatemala. The first two are load-bearing: without them "Antigua, Guatemala" falls through to
+  // the bare "antigua" key and serves a private island in the Caribbean. Bare "antigua" is left
+  // pointing at the island on purpose, because that is what it means.
+  "antigua, guatemala": "Antigua Guatemala", "la antigua guatemala": "Antigua Guatemala",
+  "lake atitlan": "Lake Atitlán", "atitlán": "Lake Atitlán", "atitlan": "Lake Atitlán",
+  "panajachel": "Lake Atitlán", "santa catarina palopó": "Lake Atitlán", "santa catarina palopo": "Lake Atitlán",
+  "flores, guatemala": "Tikal", "el remate": "Tikal", "tikal national park": "Tikal",
   // Belize. Only forms that cannot collide: bare "san pedro" is left alone because it is also
   // San Pedro de Atacama and San Pedro, California.
   "san pedro, belize": "Ambergris Caye", "ambergris cay": "Ambergris Caye",
