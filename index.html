@@ -67,6 +67,10 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── HONDURAS. Drafted Sept 2026 — mine, not Tricia's. The north coast and the Bay Islands
+  // share a weather: wettest from October into January, driest from about March.
+  "Roatán": { window: "March to August", note: "The dry, calm months, with the best visibility on the reef. The rains arrive in October and are heaviest through December; the sea can be up and the crossings from the mainland cancelled. Whale sharks pass the Bay Islands in spring, most reliably off Utila in March and April." },
+  "La Ceiba": { window: "February to May", note: "Drier from February, and the peak for birding \u2014 the northern migrants are still in the forest and the residents are nesting. October to January is very wet on this coast, which the rainforest is the point of but which closes some of the trails and swells the rivers past rafting." },
   // ── NICARAGUA. Drafted Sept 2026 — mine, not Tricia's. Pacific side dries out from November;
   // the Caribbean never quite does. The Papagayo winds are the thing nobody warns you about.
   "Tola": { window: "November to April", note: "The dry season on the Pacific. December to March brings the Papagayo winds \u2014 strong, dry and offshore, which is why the surf here is famous and why the beach is dustier and breezier than the brochure. Late April is the still, hot sweet spot. May to October is green season, and September and October are properly wet." },
@@ -198,6 +202,9 @@ const EXPERIENCE_LUX = [
   // the curation names all three here with "do NOT upgrade" beside each. Yemaya is Luxury: the
   // corrections allow either and the default is the conservative one.
   "Nekupe Sporting Resort & Retreat", "Morgan's Rock Reserve & Ecolodge", "Jicaro Island Lodge",
+  // Honduras, Sept 2026. Cabins beside a national park with some of the best birding in Central
+  // America. The curation is explicit: the reason to stay is the rainforest, not the rooms.
+  "The Lodge at Pico Bonito",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -217,6 +224,7 @@ const ULTRA_LUX = [
   // in FAVORITES and now surfaces under Luxury or, where the corrections say so, Experience
   // Luxury. Colombia, Ecuador, Bolivia and Guatemala have no Ultra Luxury property at all.
   //
+  // Honduras — none. Kimpton Grand Roatán and Ibagari are Luxury; Pico Bonito is Experience.
   // Nicaragua — one. Calala: five suites, ten guests, twenty-five staff, and a private cay.
   // Mukul was here for a day and was taken down to Luxury on 3 Sept 2026 on the re-audit —
   // rate positioning and market position do not meet the Aman-level bar. It stays in FAVORITES.
@@ -1104,6 +1112,24 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── HONDURAS, IN FULL ───────────────────────────────────────────────────────────────
+  // Three properties in two places, no Ultra Luxury, and four destinations deliberately absent.
+  // Copán is the important one: a major Maya site with no hotel that clears the Luxury bar, and
+  // the curation says to show nothing rather than lower it. Tegucigalpa, San Pedro Sula and Tela
+  // likewise. San Pedro Sula is in COORDS, ZONE and AIRPORTS as the mainland gateway only.
+  //
+  // ROATÁN CARRIES ITS ACCENT IN THE KEY, and the unaccented "Roatan" is aliased — Duffel's
+  // airport name for RTB has no accent, so the picker's label will be "Roatan (RTB)", and
+  // lookup() is case-insensitive but not accent-insensitive. COORDS, ZONE and AIRPORTS carry
+  // both spellings for the same reason; without the twins, "Roatan" would have no zone and the
+  // app would have measured 190 km of sea from San Pedro Sula and offered a drive.
+  "Roatán": [
+    { name: "Kimpton Grand Roatán Resort + Spa", area: "West Bay", rate: null, ourTake: "The full-service resort on the best beach on the island \u2014 a proper spa, four restaurants, an infinity pool on the sand, and the Mesoamerican reef a swim from the shore. Polished rather than rare, and the right base for a family who want the reef without roughing it." },
+    { name: "Ibagari Boutique Hotel", area: "West Bay", rate: null, keys: 1, ourTake: "The small, adults-only answer \u2014 a few rooms, its own stretch of beach, a Michelin Key, and the quiet the Kimpton cannot give you. For a couple, this is the one." },
+  ],
+  "La Ceiba": [
+    { name: "The Lodge at Pico Bonito", area: "Pico Bonito National Park", rate: null, ourTake: "Cabins in the forest at the foot of the park, with rivers to raft, waterfalls to walk to and a bird list that draws people from across the world. The best nature property on mainland Honduras, and an honest lodge rather than a hotel pretending otherwise." },
   ],
   // ── NICARAGUA, IN FULL ──────────────────────────────────────────────────────────────
   // Eight properties in six places. MANAGUA IS NOT ONE OF THEM — the curation says not to
@@ -5725,6 +5751,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "Saint Lucia",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "roatán": "Bay Islands, Honduras", "roatan": "Bay Islands, Honduras", "la ceiba": "Pico Bonito, Honduras", "san pedro sula": "Honduras",
   "managua": "Nicaragua", "nandaime": "near Granada, Nicaragua", "san juan del sur": "Nicaragua",
   "tola": "Emerald Coast, Nicaragua", "little corn island": "Nicaragua", "calala island": "Pearl Cays, Nicaragua",
   "abaco": "Bahamas", "providenciales": "Turks & Caicos", "ambergris caye": "Belize",
@@ -6019,6 +6046,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "La Ceiba": { air: "San Pedro Sula", note: "Fly to San Pedro Sula (SAP), then about three hours east by road \u2014 the lodge sends a car. If you are coming from Roat\u00e1n, the Galaxy Wave ferry to La Ceiba takes about an hour and a quarter and the lodge collects you at the pier, which is the better way to combine the two." },
   "Granada, Nicaragua": { air: "Managua", note: "Fly to Managua (MGA), then about an hour south by road. Granada has no airport of its own and does not need one." },
   "Nandaime": { air: "Managua", note: "Fly to Managua (MGA), then an hour and a quarter by road. Nekupe sends its own car, and once you are inside the reserve you will not need another." },
   "San Juan del Sur": { air: "Managua", note: "Fly to Managua (MGA), then two and a half hours south. Liberia in Costa Rica is closer as the crow flies, with a land border in between, and only worth considering if you are already there." },
@@ -6105,6 +6133,15 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // HONDURAS. Roatán (RTB) has nonstops from the US hubs and is the reason the island works as a
+  // destination in its own right; San Pedro Sula (SAP) is the mainland gateway. Both are marked
+  // intercontinental for the usual reason — no hub reachable on the ground, so you fly straight
+  // in — and because the "regional" flag would print a note about connecting through a European
+  // hub, which is wrong on this side of the Atlantic. La Ceiba (LCE) is deliberately NOT listed:
+  // domestic carriers only, none in Duffel. "Roatan" without the accent is a twin entry, see the
+  // note in FAVORITES.
+  "Roatán": { code: "RTB", scale: "intercontinental" }, "Roatan": { code: "RTB", scale: "intercontinental" },
+  "San Pedro Sula": { code: "SAP", scale: "intercontinental" },
   // NICARAGUA. Augusto C. Sandino (MGA) is the only international airport and, as with Belize
   // and Guatemala, there is no hub reachable from it on the ground — so intercontinental, and
   // you fly in. The domestic fields — Bluefields (BEF) and Corn Island (RNI), both La Costeña
@@ -6337,6 +6374,10 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // HONDURAS. Roatán is an island with its own zone; the ferry to La Ceiba is in FERRIES, which
+  // is what lets connection() offer the crossing without drivable() ever measuring the sea.
+  "honduras": ["San Pedro Sula","La Ceiba"],
+  "roatan": ["Roatán","Roatan"],
   // NICARAGUA. Two islands, two zones of their own — the Corn Islands and the Pearl Cays are
   // fifty and eighty kilometres off the Caribbean coast and nothing drives to either.
   "nicaragua": ["Managua","Granada, Nicaragua","Nandaime","San Juan del Sur","Tola"],
@@ -6400,6 +6441,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Roatán": [16.32,-86.53], "Roatan": [16.32,-86.53], "La Ceiba": [15.77,-86.79], "San Pedro Sula": [15.50,-88.03],
   "Managua": [12.13,-86.25], "Granada, Nicaragua": [11.93,-85.96], "Nandaime": [11.76,-86.05],
   "San Juan del Sur": [11.25,-85.87], "Tola": [11.33,-86.14],
   "Little Corn Island": [12.30,-82.98], "Calala Island": [12.43,-83.33],
@@ -6486,6 +6528,8 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // HONDURAS. Mine, not verified.
+  ["San Pedro Sula", "La Ceiba", 180, 200],
   // NICARAGUA. Short distances, slow roads. Mine, not verified.
   ["Managua", "Granada, Nicaragua", 60, 47], ["Managua", "Nandaime", 75, 65],
   ["Managua", "San Juan del Sur", 150, 140], ["Managua", "Tola", 150, 130],
@@ -6530,6 +6574,9 @@ const FERRIES = [
   ["Capri", "Sorrento", 25], ["Capri", "Positano", 40], ["Capri", "Naples", 50], ["Capri", "Amalfi", 65],
   ["Positano", "Amalfi", 30], ["Sorrento", "Positano", 40], ["Sorrento", "Naples", 45], ["Amalfi", "Salerno", 35],
   ["Santorini", "Mykonos", 150], ["Mykonos", "Athens", 150],
+  // Honduras. The Galaxy Wave, La Ceiba to Roatán, about seventy-five minutes and the honest way
+  // to combine Pico Bonito with the island. Both spellings, for the reason given in FAVORITES.
+  ["Roatán", "La Ceiba", 80], ["Roatan", "La Ceiba", 80],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
@@ -6625,6 +6672,10 @@ const CITY_ALIASES = {
   "montr\u00e9al": "Montreal", "qu\u00e9bec city": "Quebec City", "quebec": "Quebec City", "qu\u00e9bec": "Quebec City",
   "ville de qu\u00e9bec": "Quebec City", "mont tremblant": "Mont-Tremblant", "tremblant": "Mont-Tremblant",
   "inverness, nova scotia": "Cape Breton", "sydney, nova scotia": "Cape Breton",
+  // Honduras. "roatan" is load-bearing (see FAVORITES). "west bay" is NOT aliased — it is also
+  // Grand Cayman.
+  "roatan": "Roatán", "roatan, honduras": "Roatán", "bay islands": "Roatán",
+  "pico bonito": "La Ceiba", "pico bonito national park": "La Ceiba",
   // Nicaragua. "emerald coast" on its own is not aliased — that is Florida to most of the people
   // who will type it.
   "emerald coast, nicaragua": "Tola", "guacalito de la isla": "Tola", "guacalito": "Tola",
