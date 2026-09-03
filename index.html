@@ -67,6 +67,9 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  "Arenal": { window: "December to April", note: "The dry season, when the volcano actually shows itself \u2014 Arenal makes its own cloud and in the green season you can spend three days without seeing the cone at all. The rain also makes the thermal pools rather good, so it is a trade." },
+  "Osa Peninsula": { window: "December to April", note: "The dry months, when the trails are passable and the wildlife concentrates near water. Osa is one of the wettest places in the Americas and September and October are close to impossible." },
+  "Peninsula Papagayo": { window: "December to April", note: "Guanacaste's dry season, and reliably sunny \u2014 which is why the resorts fill from Christmas. May to November is green, cheaper and wetter, usually an afternoon downpour rather than all day." },
   "Uyuni": { window: "Two seasons, and they are different trips", note: "December to April the flat floods a few inches deep and becomes the mirror \u2014 the reflection everyone has seen in photographs, though some routes across it close. May to November is dry, with the hexagonal salt crust and full access to the far islands and lagoons. Neither is better; decide which photograph you want." },
   "La Paz": { window: "May to October", note: "The dry season, with clear Andean skies. Whenever you come, La Paz sits at 3,600 m and El Alto airport at 4,061 m \u2014 arrive, do nothing for a day, and let the altitude settle before going higher to Uyuni." },
   "Torres del Paine": { window: "November to March", note: "The Patagonian summer, and effectively the only window — most lodges close entirely from May. December and January bring the long light and the wind, which is relentless and part of the place. March is the quiet secret: less wind, autumn colour on the lenga, and the towers to yourself." },
@@ -107,6 +110,9 @@ const EXPERIENCE_LUX = [
   // none is a compromise: a Bedouin camp is the right way to be in Wadi Rum, and filing it as
   // Luxury or Best would misdescribe it in opposite directions.
   "Discovery Bedu", "Memories Aicha Luxury Camp", "Desert Nights Resort",
+  // Costa Rica, Sept 2026. A lodge reached by rafting a river, and a rainforest reserve above the
+  // Golfo Dulce. Pacuare is here on the curation's explicit instruction, not my judgement.
+  "Pacuare Lodge", "Lapa Rios Lodge",
   // Bolivia, Sept 2026. Two hotels built out of salt blocks on the edge of the Salar. Neither is
   // a conventional luxury hotel and both are the right way to be there, which is the tier exactly.
   "Palacio de Sal", "Luna Salada Hotel de Sal",
@@ -153,6 +159,12 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favourite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Costa Rica in full — Sept 2026. Ten, and six of them are inland. Nayara Springs carries three
+  // Michelin Keys, the highest the guide awards, and is the only property in this canon with them.
+  "Four Seasons Resort Costa Rica at Peninsula Papagayo", "Nekajui, a Ritz-Carlton Reserve",
+  "Waldorf Astoria Costa Rica Punta Cacique", "Casa Chameleon at Las Catalinas",
+  "Nayara Springs", "Nayara Tented Camp", "El Silencio Lodge & Spa", "Origins Lodge",
+  "Rio Perdido Hotel & Thermal River",
   // Uruguay in full — Sept 2026. Six, four of them in José Ignacio. Montevideo has none by
   // design: the curation says the capital is allowed zero, and it is.
   "Bahia Vik José Ignacio", "Playa Vik José Ignacio", "Estancia Vik José Ignacio",
@@ -1052,6 +1064,61 @@ const FAVORITES = {
   ],
   "Wahiba Sands": [
     { name: "Desert Nights Resort", area: "Wahiba Sands", rate: null, ourTake: "Tented rooms among the dunes \u2014 a night in the sand between the mountains and the coast." },
+  ],
+  // ── COSTA RICA, IN FULL ─────────────────────────────────────────────────────────────
+  // Not a beach country, as rule 1 insists — six of the ten Ultra Luxury houses are inland, in
+  // cloud forest, rainforest, canyon and thermal river. The beach resorts are the smaller half.
+  //
+  // THE THREE NAYARAS STAY SEPARATE, as rule 5 requires. Springs is adults-only villas with
+  // private thermal plunge pools and three Michelin Keys — the highest hotel distinction Michelin
+  // gives. Tented Camp is safari tents facing the volcano. Gardens is the family option. Same
+  // owner, same hillside, three different holidays.
+  //
+  // PACUARE LODGE is filed as EXPERIENCE LUXURY on the curation's explicit instruction — it says
+  // use that tier where the architecture separates adventure lodges, and it does. You arrive by
+  // rafting the river. El Silencio, Origins and Rio Perdido appear in both tiers with no such
+  // direction and sit in Ultra, matching the Ecuador and Uruguay decisions.
+  "Peninsula Papagayo": [
+    { name: "Four Seasons Resort Costa Rica at Peninsula Papagayo", area: "Papagayo", rate: null, keys: 2, ourTake: "On a narrow isthmus with beaches on both sides and a Tom Fazio course between them \u2014 the country's benchmark resort." },
+    { name: "Nekajui, a Ritz-Carlton Reserve", area: "Papagayo", rate: null, keys: 2, ourTake: "Opened 2025, the first Ritz-Carlton Reserve in the Americas \u2014 built into the forest above the water and instantly one of Costa Rica's best." },
+    { name: "Andaz Peninsula Papagayo Resort", area: "Papagayo", rate: null, ourTake: "Larger and livelier on Culebra Bay, and the family answer on the peninsula." },
+  ],
+  "Guanacaste": [
+    { name: "Waldorf Astoria Costa Rica Punta Cacique", area: "Punta Cacique", rate: null, ourTake: "Opened 2025 on its own headland with a beach club below \u2014 the newest of the big Guanacaste arrivals." },
+    { name: "Casa Chameleon at Las Catalinas", area: "Las Catalinas", rate: null, keys: 2, ourTake: "Adults-only villas with private plunge pools above a car-free beach town. Relais & Châteaux, and the antidote to the big resorts." },
+  ],
+  "Arenal": [
+    { name: "Nayara Springs", area: "La Fortuna", rate: null, keys: 3, ourTake: "Adults-only villas over a ravine, each with a private plunge pool fed by mineral thermal water. Three Michelin Keys \u2014 the highest they give, and deserved." },
+    { name: "Nayara Tented Camp", area: "La Fortuna", rate: null, ourTake: "Safari tents on the hillside facing the volcano, with sloths in the trees between them. Not a compromise on Springs \u2014 a different idea." },
+    { name: "Nayara Gardens", area: "La Fortuna", rate: null, ourTake: "The original and the family option, in gardens below its two sisters." },
+  ],
+  "Bajos del Toro": [
+    { name: "El Silencio Lodge & Spa", area: "Bajos del Toro", rate: null, keys: 2, ourTake: "Sixteen suites in private cloud forest with waterfalls and a serious spa. Relais & Châteaux, and the quietest place in Costa Rica." },
+  ],
+  "Bijagua": [
+    { name: "Origins Lodge", area: "Bijagua", rate: null, ourTake: "Seven lodges in over a hundred acres of rainforest looking at Miravalles volcano \u2014 tiny, independent, and a genuine find." },
+  ],
+  "Bagaces": [
+    { name: "Rio Perdido Hotel & Thermal River", area: "Bagaces", rate: null, keys: 2, ourTake: "Bungalows above a canyon with its own thermal river running through it. Dry tropical forest, and unlike anywhere else in the country." },
+  ],
+  "Pacuare": [
+    { name: "Pacuare Lodge", area: "Pacuare River", rate: null, keys: 2, ourTake: "Reached by rafting the river, with no road in. Suites over the gorge, a canopy walk, and one of the great adventure lodges anywhere." },
+  ],
+  "Osa Peninsula": [
+    { name: "Lapa Rios Lodge", area: "Osa Peninsula", rate: null, ourTake: "Seventeen bungalows in a thousand-acre private reserve above the Golfo Dulce \u2014 the best wildlife on the Pacific side, and the reason to come to Osa." },
+  ],
+  "Santa Teresa": [
+    { name: "Nantipa – A Tico Beach Experience", area: "Santa Teresa", rate: null, ourTake: "Beachfront bungalows with real service, in a town that mostly does not have it." },
+    { name: "Florblanca Resort", area: "Santa Teresa", rate: null, ourTake: "Ten villas in gardens at the quiet end of the beach, with a good yoga shala and a better kitchen." },
+  ],
+  "Nosara": [
+    { name: "The Gilded Iguana", area: "Playa Guiones", rate: null, ourTake: "The surf-and-wellness answer, done properly \u2014 Nosara's one genuinely sophisticated address." },
+  ],
+  "Manuel Antonio": [
+    { name: "Makanda by the Sea", area: "Manuel Antonio", rate: null, ourTake: "Adults-only villas on the hillside above the park, small and private." },
+  ],
+  "Central Valley": [
+    { name: "Finca Rosa Blanca Coffee Farm & Inn", area: "Santa Bárbara de Heredia", rate: null, ourTake: "A working organic coffee farm twenty minutes from the airport \u2014 far better than a San José hotel for a first or last night." },
   ],
   // ── BOLIVIA, IN FULL ────────────────────────────────────────────────────────────────
   // ZERO Ultra Luxury, and the curation says that is legitimate. Bolivia's value is the landscape,
@@ -5794,6 +5861,17 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Peninsula Papagayo": { air: "Liberia", note: "Fly to Liberia (LIR), not San José \u2014 the peninsula is forty minutes away, and San José is four hours by road. This is the single most common mistake on a Costa Rica itinerary." },
+  "Guanacaste": { air: "Liberia", note: "Fly to Liberia (LIR). Punta Cacique is thirty minutes, Las Catalinas about fifty." },
+  "Arenal": { air: "San José", note: "Fly to San José (SJO), then roughly three hours north. Liberia is a similar distance if you are coming from the coast." },
+  "Bajos del Toro": { air: "San José", note: "Fly to San José (SJO), then about two hours up into the cloud forest. The last stretch is steep and slow." },
+  "Bijagua": { air: "Liberia", note: "Fly to Liberia (LIR), then about ninety minutes northeast towards Tenorio." },
+  "Bagaces": { air: "Liberia", note: "Fly to Liberia (LIR) \u2014 Rio Perdido is under an hour away." },
+  "Pacuare": { air: "San José", note: "Fly to San José (SJO), then two and a half hours to the put-in. There is no road to the lodge: you arrive by raft, or by a short hike from the trailhead." },
+  "Osa Peninsula": { air: "San José", note: "Fly to San José (SJO), then a light aircraft to Puerto Jiménez \u2014 an hour in the air against eight by road, and worth every dollar." },
+  "Santa Teresa": { air: "San José", note: "Fly to San José (SJO), then a light aircraft to Tambor and about ninety minutes by road. The ferry route takes most of a day." },
+  "Nosara": { air: "Liberia", note: "Fly to Liberia (LIR), then two and a half hours \u2014 or a light aircraft straight to Nosara's strip." },
+  "Manuel Antonio": { air: "San José", note: "Fly to San José (SJO), then about three hours down the Pacific coast, or twenty-five minutes by light aircraft to Quepos." },
   "Sacred Valley": { air: "Cusco", note: "Fly to Cusco (CUZ), then about an hour down into the valley. Worth doing on arrival rather than sleeping in Cusco \u2014 the valley is 600 m lower and the altitude is much kinder." },
   "Machu Picchu": { air: "Cusco", note: "Fly to Cusco (CUZ), then the train from Ollantaytambo or Poroy. There is no road to Machu Picchu \u2014 the train is the only way in, and it should be booked long before the hotel." },
   "Colca Canyon": { air: "Arequipa", note: "Fly to Arequipa (AQP), then three to four hours by road over a 4,900 m pass. Spend a night in Arequipa first; going straight up is a mistake." },
@@ -5854,6 +5932,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // COSTA RICA. San José is the international gate; Liberia (LIR) serves all of Guanacaste and
+  // is far closer for the Pacific resorts — flying into the wrong one costs four hours.
+  "San José": { code: "SJO", scale: "intercontinental" }, "Guanacaste": { code: "LIR", scale: "regional" },
   // BOLIVIA. La Paz is the gate — El Alto sits at 4,061 m and is the highest international
   // airport in the world, which is a fact worth knowing before anyone books an early arrival.
   "La Paz": { code: "LPB", scale: "intercontinental" }, "Uyuni": { code: "UYU", scale: "regional" },
@@ -6051,6 +6132,7 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  "costa-rica": ["Peninsula Papagayo","Guanacaste","Arenal","Bajos del Toro","Bijagua","Bagaces","Pacuare","Osa Peninsula","Santa Teresa","Nosara","Manuel Antonio","Central Valley"],
   "uruguay": ["José Ignacio","Punta del Este","Montevideo","Carmelo","Colonia del Sacramento"],
   "ecuador": ["Quito","Mashpi","Ecuadorian Amazon","Hacienda Zuleta","Cotopaxi","Cuenca","Guayaquil"],
   // The Galápagos are 900 km out in the Pacific. Their own zone, or the app will offer a drive.
@@ -6100,6 +6182,10 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Peninsula Papagayo": [10.66,-85.66], "Guanacaste": [10.55,-85.75], "Arenal": [10.47,-84.64],
+  "Bajos del Toro": [10.19,-84.29], "Bijagua": [10.73,-85.05], "Bagaces": [10.53,-85.25],
+  "Pacuare": [9.94,-83.55], "Osa Peninsula": [8.40,-83.32], "Santa Teresa": [9.64,-85.17],
+  "Nosara": [9.98,-85.65], "Manuel Antonio": [9.39,-84.14], "Central Valley": [10.03,-84.16],
   "La Paz": [-16.50,-68.15], "Uyuni": [-20.46,-66.83], "Sucre": [-19.03,-65.26],
   "José Ignacio": [-34.84,-54.63], "Punta del Este": [-34.95,-54.93], "Montevideo": [-34.90,-56.16],
   "Carmelo": [-34.00,-58.28], "Colonia del Sacramento": [-34.47,-57.84],
@@ -7720,7 +7806,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M317</span></footer>
+    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·M318</span></footer>
   </div>);
 }
 
