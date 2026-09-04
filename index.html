@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M326";
+const BUILD = "M328";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,8 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── GRENADA. Drafted Sept 2026 — mine, not Tricia's.
+  "Grenada": { window: "December to April", note: "The dry season. Spicemas, the island's carnival, fills St George's in the second week of August. Several hotels close for part of the late summer \u2014 Calabash among them. Grenada sits south of most hurricane tracks but not all of them; the season is June to November." },
   // ── PUERTO RICO. Drafted Sept 2026 — mine, not Tricia's.
   "San Juan": { window: "December to April", note: "The dry season. The Fiestas de la Calle San Sebasti\u00e1n fill Old San Juan for a long weekend in mid-January and the city is at its best and its fullest. Hurricane season is June to November." },
   "Dorado": { window: "December to April", note: "Dry, calm and the golf at its best. Dorado Beach fills for Christmas and the spring holidays with families who come every year. Hurricane season is June to November." },
@@ -497,6 +499,9 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Grenada in full — 4 Sept 2026, on the strict standard. NONE. Six Senses La Sagesse is the
+  // closest and sits at the very top of Luxury by instruction; Silversands, Calabash, Spice
+  // Island and Laluna are Luxury.
   // Puerto Rico in full — 4 Sept 2026, on the strict standard. One: Rockefeller's Dorado estate
   // under Ritz-Carlton Reserve. St Regis Bahia Beach, Condado Vanderbilt and El San Juan are
   // Luxury by instruction; Vieques and Culebra have nothing, by instruction.
@@ -2264,6 +2269,17 @@ const FAVORITES = {
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
   ],
+  // ── GRENADA, IN FULL ────────────────────────────────────────────────────────────────
+  // Five properties under one key, no Ultra Luxury, by instruction. Everything is within half an
+  // hour of Maurice Bishop (GND) at the southern tip. CALABASH CARRIES A STATUS LINE — it closes
+  // for the season and reopens 8 October 2026 — which comes off by hand once it is open.
+  "Grenada": [
+    { name: "Six Senses La Sagesse", area: "La Sagesse, south-east coast", rate: null, keys: 1, ourTake: "Thirty-eight acres on a secluded bay, fifty-six pool suites and fifteen villas up to four bedrooms, every one with its own pool, and the full Six Senses wellness machine. New, very polished, and the closest thing on the island to the tier above \u2014 Luxury by instruction, and its very top." },
+    { name: "Silversands Grenada", area: "Grand Anse", rate: null, ourTake: "The contemporary one on Grand Anse \u2014 clean lines, the longest pool in the Caribbean, a serious spa and villas behind the beach. For a client who wants modern rather than colonial." },
+    { name: "Calabash Hotel", area: "Lance aux \u00c9pines", rate: null, status: "Closed for the season \u2014 reopens 8 October 2026", ourTake: "Family-run, Relais & Ch\u00e2teaux, thirty suites in gardens on a quiet bay with a kitchen that has been the best on the island for years. Personal rather than polished, and loved for it." },
+    { name: "Spice Island Beach Resort", area: "Grand Anse", rate: null, keys: 1, ourTake: "Directly on Grand Anse beach, all-inclusive, family-owned and run with real warmth \u2014 Five Diamond, Small Luxury Hotels, a Michelin Key. The classic Grenada resort." },
+    { name: "Laluna Boutique Hotel & Villas", area: "Morne Rouge", rate: null, ourTake: "Balinese-Italian cottages and villas on a hillside above a private cove \u2014 small, romantic and strongly its own thing. The boutique choice." },
+  ],
   // ── PUERTO RICO, IN FULL ────────────────────────────────────────────────────────────
   // Four properties in three places, one door. San Juan (SJU) is the airport for all of it:
   // Dorado is thirty-five minutes west, Bahía Beach at Río Grande forty east, the city hotels in
@@ -2272,8 +2288,8 @@ const FAVORITES = {
   // San Juan. RÍO GRANDE CARRIES ", Puerto Rico" for the Granada reason: Río Grande in Tierra
   // del Fuego is a real place near curated Patagonia. Vieques and Culebra are absent by
   // instruction. The fishing card already pointed at "San Juan" with nothing behind it.
-  // PUERTO RICO IS US SOIL and drives like it, but isUS() does not know it — no US rental panel
-  // shows here. That is a decision for Tricia, not a default I will set.
+  // PUERTO RICO IS US SOIL and drives like it: the US rental panel shows here via
+  // US_RENTAL_ZONES, on Tricia's instruction — National, SIXT and Hertz are all at SJU.
   "San Juan": [
     { name: "Condado Vanderbilt Hotel", area: "Condado", rate: null, ourTake: "The 1919 grande dame on the Condado oceanfront, restored to the hilt \u2014 big suites, a serious bar, and the city's restaurants at the door. The city luxury of San Juan." },
     { name: "Fairmont El San Juan Hotel", area: "Isla Verde", rate: null, ourTake: "The legend on Isla Verde beach, rebuilt after Maria with its lobby bar and its nightlife intact, and villas on the sand for anyone who wants the beach as well as the party. Social by design." },
@@ -6140,7 +6156,7 @@ const PLACE_REGION = {
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
-  "san juan": "Puerto Rico", "dorado": "Puerto Rico",
+  "grenada": "Caribbean", "san juan": "Puerto Rico", "dorado": "Puerto Rico",
   "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
   "montego bay": "Jamaica", "negril": "Jamaica", "ocho rios": "Jamaica", "port antonio": "Jamaica", "kingston": "Jamaica",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
@@ -6562,6 +6578,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // GRENADA. Maurice Bishop (GND) takes British Airways from Gatwick, American from Miami and
+  // JetBlue from New York — intercontinental, and the door for the whole island.
+  "Grenada": { code: "GND", scale: "intercontinental" },
   // PUERTO RICO. Luis Muñoz Marín (SJU) takes Iberia from Madrid and more US flights than any
   // airport in the Caribbean — intercontinental, and the door for the whole island. Dorado and
   // Río Grande route through it in GATEWAY.
@@ -6898,6 +6917,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // GRENADA. Its own zone.
+  "grenada": ["Grenada"],
   // PUERTO RICO. One island, one zone.
   "puerto-rico": ["San Juan","Dorado","R\u00edo Grande, Puerto Rico"],
   // DOMINICAN REPUBLIC. One island (the western two-thirds of it), one zone.
@@ -7004,7 +7025,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
+  "Grenada": [12.05,-61.75], "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
   "Punta Cana": [18.58,-68.37], "La Romana": [18.43,-68.97], "Playa Grande": [19.63,-70.00],
   "Puerto Plata": [19.79,-70.69], "Santo Domingo": [18.47,-69.93],
   "Montego Bay": [18.47,-77.92], "Negril": [18.27,-78.35], "Ocho Rios": [18.41,-77.10],
@@ -7280,6 +7301,7 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "st george's, grenada": "Grenada", "grand anse": "Grenada", "la sagesse": "Grenada", "lance aux epines": "Grenada", "lance aux \u00e9pines": "Grenada", "morne rouge": "Grenada", "spice island": "Grenada",
   "puerto rico": "San Juan", "san juan, puerto rico": "San Juan", "old san juan": "San Juan", "condado": "San Juan", "isla verde": "San Juan",
   "dorado, puerto rico": "Dorado", "dorado beach": "Dorado", "bahia beach": "R\u00edo Grande, Puerto Rico", "bah\u00eda beach": "R\u00edo Grande, Puerto Rico",
   "rio grande, puerto rico": "R\u00edo Grande, Puerto Rico", "r\u00edo grande, puerto rico": "R\u00edo Grande, Puerto Rico",
@@ -11522,11 +11544,18 @@ const RENTAL_BACKUP = [
 // The box runs to 32°N so Madeira is inside and Morocco is not, and stops at 32°E, which
 // takes in the Baltics and the Balkans. Istanbul falls inside it; Tenerife and the
 // Canaries do not. Both are edges worth a decision rather than an accident.
+// US territories that drive like the US and rent like it — the same three companies are at the
+// airport, the roads are American, and a hire car is the normal way to reach Dorado or Bahía
+// Beach. Listed by ZONE, not by city, so every destination in the zone inherits it. The US
+// Virgin Islands are deliberately NOT here: US soil, but they drive on the left, and the panel's
+// copy would be wrong for them. Added 4 Sept 2026 on Tricia's instruction.
+const US_RENTAL_ZONES = ["puerto-rico"];
 function rentalRegion(city) {
   if (!city) return null;
   const na = naCountry(city);
   if (na) return na;                  // CA or MX, decided before isUS is consulted
   if (isUS(city)) return "US";
+  if (US_RENTAL_ZONES.includes(zoneOf(city))) return "US";
   const c = coordsFor(city);
   if (!c) return null;
   return (c[0] >= 32 && c[0] <= 71.5 && c[1] >= -25 && c[1] <= 32) ? "EU" : null;
