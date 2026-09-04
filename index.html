@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M356";
+const BUILD = "M358";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2670,7 +2670,15 @@ const FAVORITES = {
   ],
 
   "New York City": [
+  // ── NEW YORK — SPOT-CHECKED 4 SEPT 2026, NOT REBUILT. Aman New York stays Ultra Luxury on the
+  // definition itself, whatever Forbes says this year (Four-Star); the Four Seasons is added as
+  // Luxury on its Five-Star. Baccarat is not added — the audit keeps it only if previously
+  // approved, and it never was. The Mark, The Carlyle, The Lowell, The Greenwich, The Fifth
+  // Avenue and Casa Cipriani remain in the Ultra canon UNEXAMINED: the audit did not name them,
+  // and a spot-check is not a rebuild. The Hamptons and the Hudson Valley have no hotel by
+  // instruction and none was ever in.
     { name: "Aman New York", area: "Fifth Avenue", rate: null, ourTake: "A serene three-floor spa sanctuary above Fifth Avenue, with a jazz club below." },
+    { name: "Four Seasons Hotel New York", area: "57th Street, Midtown", rate: null, ourTake: "Pei's limestone tower on 57th, the tallest rooms in the city and a Forbes Five-Star. True city luxury, and Luxury by instruction \u2014 not the tier above." },
     { name: "The Mark", area: "Upper East Side", rate: null, ourTake: "Bold uptown design steps from the Met and Central Park." },
     { name: "The Carlyle", area: "Upper East Side", rate: null, ourTake: "Old-world Manhattan glamour and the legendary Bemelmans Bar." },
     { name: "The Lowell", area: "Upper East Side", rate: null, ourTake: "A discreet townhouse of wood-burning fireplaces and old-New-York calm." },
@@ -2844,6 +2852,17 @@ const FAVORITES = {
   ],
   "Utah": [
     { name: "Amangiri", area: "Canyon Point, near Lake Powell", rate: null, ourTake: "The desert Aman folded into the mesas \u2014 the most photographed pool in America, the canyon at the door, and a privacy nothing else in the country offers. The clearest Ultra Luxury hotel in the United States." },
+  ],
+  // ── PENNSYLVANIA, NEW JERSEY & DELAWARE — 4 SEPT 2026 ON THE STRICT STANDARD. Two Luxury, no
+  // Ultra: the Four Seasons in Philadelphia and Falling Rock at Nemacolin. New Jersey and Delaware
+  // have nothing — Asbury Ocean Club, the W Hoboken, Hotel du Pont are named and out — and
+  // Pittsburgh and Hershey likewise. WITHHELD pending confirmation: The Rittenhouse. EXCLUDED:
+  // the Chateau and the Grand Lodge at Nemacolin, The Hotel Hershey.
+  "Philadelphia": [
+    { name: "Four Seasons Hotel Philadelphia at Comcast Center", area: "Centre City, floors 48 to 60", rate: null, ourTake: "The top twelve floors of the Comcast tower \u2014 a lobby in the sky, the pool looking down the whole city, Jean-Georges upstairs and a serious spa. The polished modern luxury of Philadelphia, and Luxury by instruction." },
+  ],
+  "Nemacolin": [
+    { name: "Falling Rock at Nemacolin", area: "Farmington, Laurel Highlands", rate: null, ourTake: "Forty-two rooms in a Wright-inspired house above the Pete Dye course, Forbes Five-Star, with butlers and the whole Nemacolin estate behind it \u2014 the intimate part of a very large resort, and the only part on this list. Luxury by instruction." },
   ],
   // ── TENNESSEE — 4 SEPT 2026 ON THE STRICT STANDARD. Blackberry Farm is Luxury, by instruction,
   // and the hotel is the destination: the key is the property, at Walland in the Smokies. Not
@@ -5230,7 +5249,18 @@ const ACCOLADES = {
   "petaluma": [{ n: "Stockhome", us:1, bib:1 }],
   "pezenas": [{ n: "Le Pré Saint Jean", bib:1 }],
   "pfaffing": [{ n: "Die Schmiede", bib:1 }],
-  "philadelphia": [{ n: "Kalaya", us:1, jb:1 }, { n: "Royal Sushi & Izakaya", us:1, jb:1, bib:1 }, { n: "South Philly Barbacoa", us:1, jb:1 }, { n: "Zahav", us:1, jb:1 }, { n: "Vernick Food & Drink", us:1, jb:1 }, { n: "Angelo's", us:1, bib:1 }, { n: "Del Rossi's", us:1, bib:1 }, { n: "Fiorella", us:1, bib:1 }, { n: "Famous 4th Street Delicatessen", us:1, bib:1 }, { n: "Dizengoff", us:1, bib:1 }, { n: "Pizzeria Beddia", us:1, bib:1 }, { n: "Dalessandro's", us:1, bib:1 }, { n: "El Chingon", us:1, bib:1 }, { n: "Sally", us:1, bib:1 }],
+  // Philadelphia, 4 Sept 2026 re-audit. Kalaya (Outstanding Restaurant 2026), Royal Sushi (Best
+  // Chef Mid-Atlantic 2026) and Oyster House (America's Classics 2026) are Beard WINNERS and
+  // Destination. Friday Saturday Sunday holds a star in the Michelin table above, so its
+  // Destination standing is the guide's, not a guess. Selected tables are Recommended.
+  // Nemacolin: Aqueous is Recommended by instruction; Lautrec is Destination only on confirmed
+  // award status, which is not confirmed, so it is withheld.
+  // Kingston, NEW YORK — Eng's, a 2026 Beard America's Classics winner. Keyed "kingston new york"
+  // so it can never be gathered by Kingston, Jamaica; it is reached when a Hudson Valley
+  // destination exists, and is recorded now so the win is not lost.
+  "kingston new york": [{ n: "Eng's", us:1, jb:1 }],
+  "nemacolin": [{ n: "Aqueous", us:1 }],
+  "philadelphia": [{ n: "Oyster House", us:1, jb:1 }, { n: "My Loup", us:1, msel:1 }, { n: "Forsythia", us:1, msel:1 }, { n: "Vedge", us:1, msel:1 }, { n: "Pietramala", us:1, msel:1 }, { n: "Laser Wolf", us:1, msel:1 }, { n: "Hiroki", us:1, msel:1 }, { n: "Kalaya", us:1, jb:1 }, { n: "Royal Sushi & Izakaya", us:1, jb:1, bib:1 }, { n: "South Philly Barbacoa", us:1, jb:1 }, { n: "Zahav", us:1, jb:1 }, { n: "Vernick Food & Drink", us:1, jb:1 }, { n: "Angelo's", us:1, bib:1 }, { n: "Del Rossi's", us:1, bib:1 }, { n: "Fiorella", us:1, bib:1 }, { n: "Famous 4th Street Delicatessen", us:1, bib:1 }, { n: "Dizengoff", us:1, bib:1 }, { n: "Pizzeria Beddia", us:1, bib:1 }, { n: "Dalessandro's", us:1, bib:1 }, { n: "El Chingon", us:1, bib:1 }, { n: "Sally", us:1, bib:1 }],
   "phoenix": [{ n: "Lom Wong", us:1, jb:1 }, { n: "Bacanora", us:1, jb:1 }],
   "piadena": [{ n: "Dell'Alba", bib:1 }],
   "pianiga": [{ n: "Trattoria da Paeto", bib:1 }],
@@ -6577,7 +6607,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "blackberry farm": "Tennessee", "knoxville": "Tennessee", "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
+  "philadelphia": "Pennsylvania", "nemacolin": "Laurel Highlands, Pennsylvania", "pittsburgh": "Pennsylvania", "farmington": "Nemacolin, Pennsylvania", "blackberry farm": "Tennessee", "knoxville": "Tennessee", "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
   "charleston": "South Carolina", "kiawah island": "South Carolina", "palmetto bluff": "South Carolina", "greenville": "South Carolina",
   // dining rollup: towns whose tables belong to a destination page
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
@@ -6894,6 +6924,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Nemacolin": { air: "Pittsburgh", note: "Fly to Pittsburgh (PIT), then about an hour and a quarter south-east into the Laurel Highlands. The resort sends a car, and has its own strip for private aircraft." },
   "Blackberry Farm": { air: "Knoxville", note: "Fly to Knoxville (TYS), then about thirty minutes south to Walland \u2014 the farm sends a car. Atlanta is three and a half hours if the Knoxville connection does not work; nobody should be doing it after a transatlantic flight." },
   "Kiawah Island": { air: "Charleston", note: "Fly to Charleston (CHS), then about forty minutes south to the island. The Sanctuary sends a car." },
   "Palmetto Bluff": { air: "Savannah", note: "Fly to Savannah (SAV), then thirty-five minutes north across the state line to Bluffton. Montage sends a car; Hilton Head's field is the alternative for private aircraft." },
@@ -7272,7 +7303,7 @@ const AIRPORTS = {
   // CAROLINAS & GEORGIA, 4 Sept 2026. Atlanta, Charlotte and Raleigh-Durham are intercontinental
   // in fact; Charleston, Savannah, Asheville and Greenville are US-domestic fields and listed as
   // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
-  "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
+  "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Pittsburgh": { code: "PIT", scale: "intercontinental" }, "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
   "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
   "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
   "Greenville": { code: "GSP", scale: "intercontinental" },
@@ -7412,7 +7443,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7590,7 +7621,7 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
-  "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
+  "Philadelphia": [39.95,-75.17], "Pittsburgh": [40.44,-79.99], "Nemacolin": [39.81,-79.58], "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
   "Savannah": [32.08,-81.10], "Asheville": [35.60,-82.55], "Greenville": [34.85,-82.40], "Kiawah Island": [32.61,-80.09],
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
@@ -7727,7 +7758,7 @@ const DRIVE_TIMES = [
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
   ["Sarasota", "Naples, Florida", 120, 175], ["Sarasota", "Orlando", 135, 210], ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
-  ["Knoxville", "Blackberry Farm", 30, 35], ["Atlanta", "Blackberry Farm", 210, 320], ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
+  ["Pittsburgh", "Nemacolin", 75, 110], ["Philadelphia", "Nemacolin", 240, 400], ["Knoxville", "Blackberry Farm", 30, 35], ["Atlanta", "Blackberry Farm", 210, 320], ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
   ["Atlanta", "Sea Island", 300, 470], ["Charlotte", "Asheville", 130, 210], ["Raleigh", "Charlotte", 165, 270], ["Atlanta", "Asheville", 210, 330],
   ["Key West", "Florida Keys", 35, 45], ["Miami", "Orlando", 210, 380], ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
@@ -7943,7 +7974,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
+  "philly": "Philadelphia", "rittenhouse square": "Philadelphia", "farmington, pa": "Nemacolin", "laurel highlands": "Nemacolin", "falling rock": "Nemacolin", "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
