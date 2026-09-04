@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M364";
+const BUILD = "M365";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1047,13 +1047,17 @@ const FAVORITES = {
   // ── THE MIDWEST — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Chicago has two Luxury and no
   // Ultra: The Peninsula and Trump International, both current Forbes Five-Star. Four Seasons,
   // The Langham and the Waldorf Astoria were in the file and in the Ultra canon and are OUT —
-  // Verified Luxury, not Five-Star, by instruction. Michigan, Wisconsin and Ohio have no hotel:
-  // Shinola, the Foundation, The Townsend, The American Club (historically Five-Star, currently
-  // Four-Star, and the current rating governs), the Ritz-Carlton Cleveland and the Lytle Park are
-  // named and out.
+  // Verified Luxury, not Five-Star, by instruction; the St Regis Chicago likewise. Michigan and
+  // Ohio have no hotel: Shinola, the Foundation, The Siren, the Grand Hotel Mackinac, the
+  // Ritz-Carlton Cleveland and the Lytle Park are named and out. THE AMERICAN CLUB at Kohler is
+  // IN as Luxury on the revised Great Lakes audit of 4 Sept 2026, which reversed the earlier
+  // exclusion; it sits under its own key below.
   "Chicago": [
     { name: "The Peninsula Chicago", area: "Magnificent Mile", rate: null, ourTake: "Forbes Five-Star on Michigan Avenue \u2014 the spa with the pool under glass, the Shanghai Terrace, and a service culture that is the best in the city. Luxury by instruction." },
     { name: "Trump International Hotel & Tower Chicago", area: "River North, on the river", rate: null, ourTake: "Forbes Five-Star, with the biggest standard rooms in the city, suites up to 3,800 square feet with full kitchens, and the river and the skyline from every window. Luxury by instruction." },
+  ],
+  "Kohler": [
+    { name: "The American Club", area: "Kohler, Wisconsin", rate: null, ourTake: "The 1918 immigrant dormitory turned Forbes Five-Star resort, with Whistling Straits and Blackwolf Run on the doorstep and the Kohler Waters Spa in the village. The great golf resort of the Midwest, and Luxury by instruction." },
   ],
   // ── SAN FRANCISCO — NO HOTEL, 4 SEPT 2026. The audit lists the Four Seasons (both), the St
   // Regis and the Ritz-Carlton as "do not load until true Five-Star status is confirmed", and
@@ -4663,7 +4667,8 @@ const ACCOLADES = {
   // Chicago, 4 Sept 2026 re-audit: three Bib Gourmands the table lacked. Virtue and Monteverde
   // are Destination on their chefs' Best Chef: Great Lakes wins, and were already flagged so.
   "detroit": [{ n: "Warda P\u00e2tisserie", us:1, jb:1 }],
-  "chicago": [{ n: "PERILLA Fare", us:1, bib:1 }, { n: "Sochi Kitchen", us:1, bib:1 }, { n: "Mi Tocaya Antojer\u00eda", us:1, bib:1 }, { n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1, bib:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1, bib:1 }, { n: "Monteverde", us:1, jb:1 }, { n: "Smyth", us:1, ll:95, lly:2026 }, { n: "Mirra", us:1, bib:1 }, { n: "Boonie's", us:1, bib:1 }, { n: "Giant", us:1, bib:1 }, { n: "Sifr", us:1, bib:1 }, { n: "Munno Pizzeria & Bistro", us:1, bib:1 }, { n: "Chef's Special Cocktail Bar", us:1, bib:1 }, { n: "Longman & Eagle", us:1, bib:1 }, { n: "Perilla", us:1, bib:1 }, { n: "Mott St.", us:1, bib:1 }, { n: "Gilt Bar", us:1, bib:1 }, { n: "Sochi", us:1, bib:1 }, { n: "Kie-Gol-Lanee", us:1, bib:1 }, { n: "Cellar Door Provisions", us:1, bib:1 }, { n: "Lardon", us:1, bib:1 }, { n: "Union", us:1, bib:1 }, { n: "Birrieria Zaragoza", us:1, bib:1 }, { n: "Nadu", us:1, bib:1 }, { n: "Daisies", us:1, bib:1 }, { n: "HaiSous", us:1, bib:1 }, { n: "Ghin Khao", us:1, bib:1 }, { n: "Taqueria Chingón", us:1, bib:1 }, { n: "Mi Tocaya", us:1, bib:1 }, { n: "Table, Donkey and Stick", us:1, bib:1 }, { n: "Ciccio Mio", us:1, bib:1 }, { n: "Frontera Grill", us:1, bib:1 }, { n: "Pleasant House Pub", us:1, bib:1 }, { n: "Chilam Balam", us:1, bib:1 }, { n: "Sol de Mexico", us:1, bib:1 }, { n: "Girl & The Goat", us:1, bib:1 }, { n: "Superkhana International", us:1, bib:1 }, { n: "Proxi", us:1, bib:1 }],
+  "clawson": [{ n: "Sozai", us:1, jb:1 }],
+  "chicago": [{ n: "Kumiko", us:1, jb:1 }, { n: "PERILLA Fare", us:1, bib:1 }, { n: "Sochi Kitchen", us:1, bib:1 }, { n: "Mi Tocaya Antojer\u00eda", us:1, bib:1 }, { n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1, bib:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1, bib:1 }, { n: "Monteverde", us:1, jb:1 }, { n: "Smyth", us:1, ll:95, lly:2026 }, { n: "Mirra", us:1, bib:1 }, { n: "Boonie's", us:1, bib:1 }, { n: "Giant", us:1, bib:1 }, { n: "Sifr", us:1, bib:1 }, { n: "Munno Pizzeria & Bistro", us:1, bib:1 }, { n: "Chef's Special Cocktail Bar", us:1, bib:1 }, { n: "Longman & Eagle", us:1, bib:1 }, { n: "Perilla", us:1, bib:1 }, { n: "Mott St.", us:1, bib:1 }, { n: "Gilt Bar", us:1, bib:1 }, { n: "Sochi", us:1, bib:1 }, { n: "Kie-Gol-Lanee", us:1, bib:1 }, { n: "Cellar Door Provisions", us:1, bib:1 }, { n: "Lardon", us:1, bib:1 }, { n: "Union", us:1, bib:1 }, { n: "Birrieria Zaragoza", us:1, bib:1 }, { n: "Nadu", us:1, bib:1 }, { n: "Daisies", us:1, bib:1 }, { n: "HaiSous", us:1, bib:1 }, { n: "Ghin Khao", us:1, bib:1 }, { n: "Taqueria Chingón", us:1, bib:1 }, { n: "Mi Tocaya", us:1, bib:1 }, { n: "Table, Donkey and Stick", us:1, bib:1 }, { n: "Ciccio Mio", us:1, bib:1 }, { n: "Frontera Grill", us:1, bib:1 }, { n: "Pleasant House Pub", us:1, bib:1 }, { n: "Chilam Balam", us:1, bib:1 }, { n: "Sol de Mexico", us:1, bib:1 }, { n: "Girl & The Goat", us:1, bib:1 }, { n: "Superkhana International", us:1, bib:1 }, { n: "Proxi", us:1, bib:1 }],
   "chimiche": [{ n: "El Secreto de Chimiche", bib:1 }],
   "chingford": [{ n: "Gina", bib:1 }],
   "chiusi": [{ n: "Osteria La Solita Zuppa", bib:1 }],
@@ -6674,7 +6679,9 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "chicago": "Illinois", "detroit": "Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
+  "chicago": "Illinois", "detroit": "Michigan", "kohler": "Wisconsin", "milwaukee": "Wisconsin",
+  // dining rollup: Sozai's suburb opens on Detroit
+  "clawson": "Detroit, Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
   // dining rollup: the Twin Cities open on Minneapolis; Balkan Treat Box's suburb opens on St Louis
   "st paul": "Minneapolis, Minnesota", "webster groves": "St Louis, Missouri", "boston": "Massachusetts", "newport": "Rhode Island", "watch hill": "Rhode Island", "providence": "Rhode Island", "vermont": "Barnard, Vermont", "portland, maine": "Maine", "mystic": "Connecticut", "kennebunk": "Maine", "dover": "New Hampshire", "randolph": "Vermont",
   "washington dc": "District of Columbia", "washington, virginia": "Virginia", "baltimore": "Maryland", "philadelphia": "Pennsylvania", "nemacolin": "Laurel Highlands, Pennsylvania", "pittsburgh": "Pennsylvania", "farmington": "Nemacolin, Pennsylvania", "blackberry farm": "Tennessee", "knoxville": "Tennessee", "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
@@ -6994,6 +7001,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Kohler": { air: "Milwaukee", note: "Fly to Milwaukee (MKE), then an hour north up the lakeshore \u2014 or Chicago, two and a half hours, if the flight is much better. The resort sends a car; Sheboygan's field takes private aircraft, ten minutes away." },
   "Newport": { air: "Providence", note: "Fly to Providence (PVD), then forty minutes down to Newport \u2014 or Boston, an hour and a half. The Chanler sends a car from either." },
   "Watch Hill": { air: "Providence", note: "Fly to Providence (PVD), then about an hour south-west to Watch Hill; Boston is an hour and three quarters and New York two and a half by road or three by train to Westerly, ten minutes away. Ocean House meets the train." },
   "Vermont": { air: "Boston", note: "Fly to Boston (BOS), then two and a half hours north-west to Barnard \u2014 or Burlington (BTV), an hour and a quarter. Twin Farms arranges the car and, for those who want it, the helicopter from either." },
@@ -7379,7 +7387,7 @@ const AIRPORTS = {
   // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
   // PLAINS, 4 Sept 2026: no hotel in any of the seven states, by instruction, and none was ever
   // in. Minneapolis and St Louis are listed so their Beard winners can be reached as destinations.
-  "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
+  "Milwaukee": { code: "MKE", scale: "intercontinental" }, "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
   "Detroit": { code: "DTW", scale: "intercontinental" }, "Providence": { code: "PVD", scale: "intercontinental" }, "Portland, Maine": { code: "PWM", scale: "intercontinental" }, "Burlington": { code: "BTV", scale: "intercontinental" }, "Baltimore": { code: "BWI", scale: "intercontinental" }, "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Pittsburgh": { code: "PIT", scale: "intercontinental" }, "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
   "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
   "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
@@ -7520,7 +7528,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7698,7 +7706,7 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
-  "Minneapolis": [44.98,-93.27], "St Louis": [38.63,-90.20], "Detroit": [42.33,-83.05], "Newport": [41.49,-71.31], "Watch Hill": [41.31,-71.86], "Providence": [41.82,-71.41], "Portland, Maine": [43.66,-70.26], "Burlington": [44.48,-73.21],
+  "Kohler": [43.74,-87.78], "Milwaukee": [43.04,-87.91], "Minneapolis": [44.98,-93.27], "St Louis": [38.63,-90.20], "Detroit": [42.33,-83.05], "Newport": [41.49,-71.31], "Watch Hill": [41.31,-71.86], "Providence": [41.82,-71.41], "Portland, Maine": [43.66,-70.26], "Burlington": [44.48,-73.21],
   "Mystic": [41.35,-71.97], "Kennebunk": [43.38,-70.54], "Dover": [43.20,-70.87], "Randolph": [43.92,-72.67],
   "Baltimore": [39.29,-76.61], "Philadelphia": [39.95,-75.17], "Pittsburgh": [40.44,-79.99], "Nemacolin": [39.81,-79.58], "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
   "Savannah": [32.08,-81.10], "Asheville": [35.60,-82.55], "Greenville": [34.85,-82.40], "Kiawah Island": [32.61,-80.09],
@@ -7837,7 +7845,7 @@ const DRIVE_TIMES = [
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
   ["Sarasota", "Naples, Florida", 120, 175], ["Sarasota", "Orlando", 135, 210], ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
-  ["Providence", "Newport", 40, 55], ["Boston", "Newport", 90, 115], ["Providence", "Watch Hill", 60, 80], ["Boston", "Watch Hill", 105, 145], ["New York City", "Watch Hill", 150, 245],
+  ["Milwaukee", "Kohler", 60, 90], ["Chicago", "Kohler", 150, 240], ["Providence", "Newport", 40, 55], ["Boston", "Newport", 90, 115], ["Providence", "Watch Hill", 60, 80], ["Boston", "Watch Hill", 105, 145], ["New York City", "Watch Hill", 150, 245],
   ["Boston", "Vermont", 150, 225], ["Burlington", "Vermont", 75, 100], ["Newport", "Watch Hill", 60, 70], ["Boston", "Portland, Maine", 120, 175],
   ["Washington DC", "Washington, Virginia", 80, 110], ["Washington DC", "Baltimore", 60, 65], ["Pittsburgh", "Nemacolin", 75, 110], ["Philadelphia", "Nemacolin", 240, 400], ["Knoxville", "Blackberry Farm", 30, 35], ["Atlanta", "Blackberry Farm", 210, 320], ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
   ["Atlanta", "Sea Island", 300, 470], ["Charlotte", "Asheville", 130, 210], ["Raleigh", "Charlotte", 165, 270], ["Atlanta", "Asheville", 210, 330],
@@ -8055,7 +8063,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "st. paul": "Minneapolis", "saint paul": "Minneapolis", "twin cities": "Minneapolis", "st. louis": "St Louis", "saint louis": "St Louis",
+  "whistling straits": "Kohler", "sheboygan": "Kohler", "kohler, wi": "Kohler", "st. paul": "Minneapolis", "saint paul": "Minneapolis", "twin cities": "Minneapolis", "st. louis": "St Louis", "saint louis": "St Louis",
   "newport, ri": "Newport", "newport, rhode island": "Newport", "watch hill, ri": "Watch Hill", "westerly": "Watch Hill", "barnard": "Vermont", "twin farms": "Vermont", "portland, me": "Portland, Maine", "kennebunkport": "Kennebunk",
   "washington, d.c.": "Washington DC", "washington, dc": "Washington DC", "dc": "Washington DC", "georgetown, dc": "Washington DC", "little washington": "Washington, Virginia", "rappahannock": "Washington, Virginia", "harbor east": "Baltimore", "philly": "Philadelphia", "rittenhouse square": "Philadelphia", "farmington, pa": "Nemacolin", "laurel highlands": "Nemacolin", "falling rock": "Nemacolin", "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
