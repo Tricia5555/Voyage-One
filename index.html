@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M340";
+const BUILD = "M342";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -131,6 +131,8 @@ const SEASON = {
   // ── ST BARTS. Drafted Sept 2026 — mine, not Tricia's.
   "St Maarten": { window: "December to April", note: "The dry season. Baie Longue is on the sheltered south-west coast and calm through it. The island took Irma directly in 2017 and La Samanna was rebuilt after; hurricane season is June to November." },
   "St Barth": { window: "November to April \u2014 and the ten days over New Year, which are their own market", note: "The season, and the most expensive ten days in the Caribbean fall in it: Christmas to New Year is booked a year out at every hotel on this list, with minimum stays and rates to match, and Gustavia harbour is where the yachts come to be looked at. January to April is the calm, perfect version. Most of the island closes from late August through October." },
+  // ── BERMUDA. Drafted Sept 2026 — mine, not Tricia's. The opposite calendar to the Caribbean.
+  "Bermuda": { window: "May to October", note: "Bermuda is subtropical, not tropical \u2014 the sea is swimmable from May and the island is at its best through October, while winter is mild, windy and not a beach season. Cup Match closes the island for two days at the end of July. Hurricane season is June to November, and the island is well built for it." },
   // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
   "Turks & Caicos": { window: "December to April", note: "The dry, breezy season, and Grace Bay at its most booked \u2014 Christmas, New Year and Easter go a year ahead at the small islands. Humpback whales pass through the Columbus Passage from January to March, best seen from Salt Cay and South Caicos. Hurricane season is June to November; several resorts close for September and October, and Amanyara is closed for works until 20 October 2026." },
   // ── BAHAMAS. Drafted Sept 2026 — mine, not Tricia's. High season is Christmas to Easter and
@@ -533,6 +535,8 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Bermuda re-audited — 4 Sept 2026, on the strict standard. NONE. Rosewood, The Loren and the
+  // St Regis are Luxury; Hamilton Princess deleted; Cambridge Beaches withheld pending verification.
   // St Martin / Sint Maarten — 4 Sept 2026, on the strict standard. NONE. La Samanna is Luxury;
   // the JW Marriott on the Dutch side is named and excluded.
   // Trinidad & Tobago in full — 4 Sept 2026, on the strict standard. NONE. Hyatt Regency and
@@ -2678,11 +2682,19 @@ const FAVORITES = {
   "Sea Island": [
     { name: "The Cloister at Sea Island", area: "Sea Island", rate: null, ourTake: "A Forbes five-star Georgia coast institution, gracious and grand." },
   ],
+  // ── BERMUDA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ─────────────────────────
+  // Three hotels, no Ultra Luxury, by instruction. Hamilton Princess was here and is deleted —
+  // famous, historic, a serious art collection, 386 rooms, and not the five-star floor. Rosedon,
+  // Grotto Bay, The Reefs, Pompano and Newstead were never in and are named so they stay out.
+  // CAMBRIDGE BEACHES IS WITHHELD: the curation keeps it only if its five-star calibre is
+  // independently verified, and I cannot verify it. Confirm and it goes in as Luxury.
+  // The island had hotels and no geography — no coordinates, no zone, no airport — so a flight
+  // search to Bermuda had nothing to resolve. It has them now. And there is no car hire for
+  // visitors here at all, which CAR_TROUBLE says.
   "Bermuda": [
-    { name: "Rosewood Bermuda", area: "Tucker's Point", rate: null, ourTake: "Pink coral walls above a private beach club, with the island's best golf on the doorstep." },
-    { name: "Hamilton Princess & Beach Club", area: "Hamilton", rate: null, ourTake: "The Pink Palace on the harbour — a serious art collection, the marina where the sportfishing boats berth, and the town at the door." },
-    { name: "The Loren at Pink Beach", area: "Tucker's Town", rate: null, ourTake: "Modern, low and built into the rocks above the south shore. The most contemporary stay on the island." },
-    { name: "The St. Regis Bermuda Resort", area: "St George's", rate: null, ourTake: "On the beach at the island's historic east end, beside the Five Forts golf course." },
+    { name: "Rosewood Bermuda", area: "Tucker's Point, Hamilton Parish", rate: null, ourTake: "Eighty-eight rooms on two hundred acres at Tucker's Point, with a private pink-sand beach club, the island's best golf, four tennis courts and a real spa. Bermuda's most luxurious hotel by any independent measure, and Luxury by instruction \u2014 not the tier above." },
+    { name: "The Loren at Pink Beach", area: "Tucker's Town, Pink Beach", rate: null, ourTake: "Modern, low and built into the rocks above the south shore \u2014 the most contemporary house on the island, and the most private. The Residence, six bedrooms with its own beach, pool and staff, is Ultra Luxury on its own; the hotel is Luxury as a whole." },
+    { name: "The St. Regis Bermuda Resort", area: "St George's", rate: null, ourTake: "On the pink sand at the historic east end, beside the Five Forts course, with St Regis butlers and the newest rooms in Bermuda. The polished conventional resort." },
   ],
   "Vermont": [
     { name: "Twin Farms", area: "Barnard", rate: null, ourTake: "An all-inclusive, all-suite estate on 300 private Vermont acres." },
@@ -5769,6 +5781,14 @@ const LOCALFAV = {
     { n: "Bottega Cafe", us:1 },
     { n: "Chez Fonfon", us:1 },
   ],
+  // Bermuda has no starred or accoladed table, so the Local Favorite tab is the whole dining
+  // page. Tricia's own list, 4 Sept 2026 — she goes all the time. Not US, so no `us` flag.
+  "bermuda": [
+    { n: "Intrepid" },
+    { n: "Blu" },
+    { n: "Little Venice" },
+    { n: "Tom Moore's Tavern" },
+  ],
 };
 function localFavFor(city){
   const keys = dineCityKeys(city); const seen = {}; const out = [];
@@ -6326,7 +6346,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
+  "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
@@ -6843,6 +6863,10 @@ const AIRPORTS = {
   // Europe, the US carriers from the east coast, genuinely intercontinental. Then ten minutes in
   // the air or forty-five on the water, described in GATEWAY.
   "St Maarten": { code: "SXM", scale: "intercontinental" },
+  // BERMUDA. L.F. Wade (BDA) takes British Airways from Gatwick and every US east-coast carrier —
+  // intercontinental, and the door. Not Caribbean: it is a thousand kilometres north of it, off
+  // the Carolinas, and the season note says so.
+  "Bermuda": { code: "BDA", scale: "intercontinental" },
   // TURKS & CAICOS. Providenciales (PLS) is the country's door and British Airways flies it from
   // Gatwick, so intercontinental is literally true. The key is the country because that is the
   // destination key in FAVORITES; "providenciales" is aliased to it. South Caicos (XSC) and the
@@ -7003,6 +7027,7 @@ function railBetween(a, b) {
 }
 // Cities where having a car is a liability rather than freedom.
 const CAR_TROUBLE = {
+  "Bermuda": "Visitors cannot hire a car in Bermuda \u2014 the law allows one car per household and none for tourists. The choices are a two-seat electric Twizy, a scooter, taxis, and the hotels' own transfers, which are excellent.",
   "Florence": "The centre is a ZTL — a camera-enforced restricted zone. Hotels can register your plate, but the fines still arrive months later, one per pass. Nothing inside the walls needs a car anyway.",
   "Rome": "ZTL across the historic centre, and parking is close to theoretical. Walk and use taxis.",
   "Venice": "There are no roads. A car gets as far as Piazzale Roma and then costs €30 a day to sit there.",
@@ -7174,6 +7199,8 @@ const ZONE = {
   "antigua": ["Antigua"],
   // ANGUILLA. Its own zone; the channel to St Maarten is in FERRIES.
   "anguilla": ["Anguilla"],
+  // BERMUDA. Its own zone, and nothing within a thousand kilometres of it.
+  "bermuda": ["Bermuda"],
   // ST BARTS. Two islands, two zones, one ferry between them in FERRIES.
   "st-barth": ["St Barth"],
   "st-maarten": ["St Maarten"],
@@ -7267,7 +7294,7 @@ const COORDS = {
   "Grand Cayman": [19.32,-81.24], "Little Cayman": [19.69,-80.05],
   "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
   "St John": [18.33,-64.74], "St Croix": [17.73,-64.75],
-  "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
+  "Bermuda": [32.30,-64.78], "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
   "North Eleuthera": [25.47,-76.68], "Harbour Island": [25.50,-76.63], "Andros, Bahamas": [24.70,-77.80],
@@ -7574,6 +7601,7 @@ const CITY_ALIASES = {
   "the valley, anguilla": "Anguilla", "meads bay": "Anguilla", "shoal bay": "Anguilla", "maundays bay": "Anguilla",
   "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "st. martin": "St Maarten", "philipsburg": "St Maarten", "marigot": "St Maarten", "baie longue": "St Maarten", "terres basses": "St Maarten", "la samanna": "St Maarten",
   "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
+  "hamilton, bermuda": "Bermuda", "tucker's point": "Bermuda", "tuckers point": "Bermuda", "st george's, bermuda": "Bermuda", "southampton, bermuda": "Bermuda",
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
