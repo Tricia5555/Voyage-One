@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M355";
+const BUILD = "M356";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -638,7 +638,10 @@ const ULTRA_LUX = [
   "Amangiri", "The Little Nell", "Amangani",
   // Montage Palmetto Bluff and The Cloister came down to Luxury on 4 Sept 2026 (Carolinas &
   // Georgia re-audit). Blackberry Farm, Twin Farms and The Point have not been re-audited yet.
-  "Blackberry Farm", "Twin Farms", "The Point",
+  // Blackberry Farm came down to Luxury on 4 Sept 2026 on Tricia's instruction: refined
+  // country-estate hospitality, not Aman-level scarcity. Twin Farms and The Point are not yet
+  // re-audited.
+  "Twin Farms", "The Point",
   // Canada — classified property by property, not by flag. Four Seasons Toronto, Montreal and
   // Whistler qualify; Fairmont Pacific Rim does and no other Fairmont does. Matching is on the
   // full set of distinctive words, so "Fairmont Pacific Rim" cannot pull in Banff Springs or
@@ -2842,8 +2845,12 @@ const FAVORITES = {
   "Utah": [
     { name: "Amangiri", area: "Canyon Point, near Lake Powell", rate: null, ourTake: "The desert Aman folded into the mesas \u2014 the most photographed pool in America, the canyon at the door, and a privacy nothing else in the country offers. The clearest Ultra Luxury hotel in the United States." },
   ],
+  // ── TENNESSEE — 4 SEPT 2026 ON THE STRICT STANDARD. Blackberry Farm is Luxury, by instruction,
+  // and the hotel is the destination: the key is the property, at Walland in the Smokies. Not
+  // Ultra — the curation's own words are that its identity is food, wine and country-estate
+  // hospitality rather than beyond-luxury scarcity. Nashville has nothing in the file.
   "Blackberry Farm": [
-    { name: "Blackberry Farm", area: "Great Smoky Mountains", rate: null, ourTake: "A Relais & Châteaux farm estate in the Smokies, a foothills of taste." },
+    { name: "Blackberry Farm", area: "Walland, Great Smoky Mountains", rate: null, keys: 2, ourTake: "A 4,200-acre Relais & Ch\u00e2teaux estate in the foothills of the Smokies, two Michelin Keys, a wine cellar with a Grand Award, and a kitchen the James Beard Foundation has honoured for service, wine and its chefs. The most complete country house in America, and Luxury by instruction." },
   ],
   // ── THE CAROLINAS & GEORGIA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ──────────
   // Six Luxury, no Ultra Luxury — Montage Palmetto Bluff and The Cloister came down from the
@@ -4569,6 +4576,9 @@ const ACCOLADES = {
   // Charleston, 4 Sept 2026 re-audit. Michelin Selected tables, Recommended and no further.
   // Chubby Fish is deliberately absent: a 2026 Beard semifinalist, and a semifinalist is not a
   // winner.
+  // Blackberry Farm, 4 Sept 2026. The Barn's James Beard awards — Outstanding Service, Outstanding
+  // Wine Program, a Best Chef: Southeast — are winners' medals, and Destination on the winner rule.
+  "blackberry farm": [{ n: "The Barn at Blackberry Farm", us:1, jb:1 }],
   "sullivan s island": [{ n: "The Obstinate Daughter", us:1, msel:1 }],
   "charleston": [{ n: "The Establishment", us:1, msel:1 }, { n: "The Restaurant at Zero George", us:1, msel:1 }, { n: "1010 Bridge", us:1, jb:1 }, { n: "Rodney Scott's Whole Hog BBQ", us:1, jb:1, bib:1 }, { n: "FIG", us:1, jb:1 }, { n: "Leon's Oyster Shop", us:1, bib:1 }, { n: "Lewis Barbecue", us:1, bib:1 }],
   "charlotte": [{ n: "Restaurant Constance", us:1, msel:1 }, { n: "Omakase Experience by PrimeFish", us:1, msel:1 }, { n: "Supperland", us:1, msel:1 }, { n: "Lang Van", us:1, bib:1 }],
@@ -6567,7 +6577,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
+  "blackberry farm": "Tennessee", "knoxville": "Tennessee", "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
   "charleston": "South Carolina", "kiawah island": "South Carolina", "palmetto bluff": "South Carolina", "greenville": "South Carolina",
   // dining rollup: towns whose tables belong to a destination page
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
@@ -6884,6 +6894,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Blackberry Farm": { air: "Knoxville", note: "Fly to Knoxville (TYS), then about thirty minutes south to Walland \u2014 the farm sends a car. Atlanta is three and a half hours if the Knoxville connection does not work; nobody should be doing it after a transatlantic flight." },
   "Kiawah Island": { air: "Charleston", note: "Fly to Charleston (CHS), then about forty minutes south to the island. The Sanctuary sends a car." },
   "Palmetto Bluff": { air: "Savannah", note: "Fly to Savannah (SAV), then thirty-five minutes north across the state line to Bluffton. Montage sends a car; Hilton Head's field is the alternative for private aircraft." },
   "Sea Island": { air: "Savannah", note: "Fly to Savannah (SAV) or Jacksonville, each about an hour and a quarter, or to Brunswick on the Delta shuttle from Atlanta, fifteen minutes away. The resort meets every arrival." },
@@ -7261,7 +7272,7 @@ const AIRPORTS = {
   // CAROLINAS & GEORGIA, 4 Sept 2026. Atlanta, Charlotte and Raleigh-Durham are intercontinental
   // in fact; Charleston, Savannah, Asheville and Greenville are US-domestic fields and listed as
   // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
-  "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
+  "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
   "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
   "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
   "Greenville": { code: "GSP", scale: "intercontinental" },
@@ -7401,7 +7412,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7579,7 +7590,7 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
-  "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
+  "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
   "Savannah": [32.08,-81.10], "Asheville": [35.60,-82.55], "Greenville": [34.85,-82.40], "Kiawah Island": [32.61,-80.09],
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
@@ -7716,7 +7727,7 @@ const DRIVE_TIMES = [
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
   ["Sarasota", "Naples, Florida", 120, 175], ["Sarasota", "Orlando", 135, 210], ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
-  ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
+  ["Knoxville", "Blackberry Farm", 30, 35], ["Atlanta", "Blackberry Farm", 210, 320], ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
   ["Atlanta", "Sea Island", 300, 470], ["Charlotte", "Asheville", 130, 210], ["Raleigh", "Charlotte", 165, 270], ["Atlanta", "Asheville", 210, 330],
   ["Key West", "Florida Keys", 35, 45], ["Miami", "Orlando", 210, 380], ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
@@ -7932,7 +7943,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
+  "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
