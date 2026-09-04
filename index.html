@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M359";
+const BUILD = "M360";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -867,7 +867,7 @@ function michTier(m, dense) {
   // are genuine credentials and they qualify a restaurant for the list, but neither is
   // destination-defining: a Discovery listing is not a Top 50 place, and a ranking held three
   // years ago is not a ranking held now. They carry a restaurant into Recommended and no further.
-  const cred = m && typeof m === "object" && (m.bob || m.jb || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
+  const cred = m && typeof m === "object" && (m.bob || m.jb || m.f5 || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
 }
@@ -2868,8 +2868,8 @@ const FAVORITES = {
   // ── PENNSYLVANIA, NEW JERSEY & DELAWARE — 4 SEPT 2026 ON THE STRICT STANDARD. Two Luxury, no
   // Ultra: the Four Seasons in Philadelphia and Falling Rock at Nemacolin. New Jersey and Delaware
   // have nothing — Asbury Ocean Club, the W Hoboken, Hotel du Pont are named and out — and
-  // Pittsburgh and Hershey likewise. WITHHELD pending confirmation: The Rittenhouse. EXCLUDED:
-  // the Chateau and the Grand Lodge at Nemacolin, The Hotel Hershey.
+  // Pittsburgh and Hershey likewise. EXCLUDED: The Rittenhouse (Forbes Four-Star, on the fuller
+  // audit of 4 Sept 2026), the Chateau and the Grand Lodge at Nemacolin, The Hotel Hershey.
   "Philadelphia": [
     { name: "Four Seasons Hotel Philadelphia at Comcast Center", area: "Centre City, floors 48 to 60", rate: null, ourTake: "The top twelve floors of the Comcast tower \u2014 a lobby in the sky, the pool looking down the whole city, Jean-Georges upstairs and a serious spa. The polished modern luxury of Philadelphia, and Luxury by instruction." },
   ],
@@ -5270,14 +5270,15 @@ const ACCOLADES = {
   // Chef Mid-Atlantic 2026) and Oyster House (America's Classics 2026) are Beard WINNERS and
   // Destination. Friday Saturday Sunday holds a star in the Michelin table above, so its
   // Destination standing is the guide's, not a guess. Selected tables are Recommended.
-  // Nemacolin: Aqueous is Recommended by instruction; Lautrec is Destination only on confirmed
-  // award status, which is not confirmed, so it is withheld.
+  // Nemacolin: Lautrec is Destination on its Forbes Five-Star restaurant award (f5), confirmed by
+  // the fuller audit of 4 Sept 2026; Aqueous is Recommended.
   // Kingston, NEW YORK — Eng's, a 2026 Beard America's Classics winner. Keyed "kingston new york"
   // so it can never be gathered by Kingston, Jamaica; it is reached when a Hudson Valley
   // destination exists, and is recorded now so the win is not lost.
   "kingston new york": [{ n: "Eng's", us:1, jb:1 }],
-  "nemacolin": [{ n: "Aqueous", us:1 }],
-  "philadelphia": [{ n: "Oyster House", us:1, jb:1 }, { n: "My Loup", us:1, msel:1 }, { n: "Forsythia", us:1, msel:1 }, { n: "Vedge", us:1, msel:1 }, { n: "Pietramala", us:1, msel:1 }, { n: "Laser Wolf", us:1, msel:1 }, { n: "Hiroki", us:1, msel:1 }, { n: "Kalaya", us:1, jb:1 }, { n: "Royal Sushi & Izakaya", us:1, jb:1, bib:1 }, { n: "South Philly Barbacoa", us:1, jb:1 }, { n: "Zahav", us:1, jb:1 }, { n: "Vernick Food & Drink", us:1, jb:1 }, { n: "Angelo's", us:1, bib:1 }, { n: "Del Rossi's", us:1, bib:1 }, { n: "Fiorella", us:1, bib:1 }, { n: "Famous 4th Street Delicatessen", us:1, bib:1 }, { n: "Dizengoff", us:1, bib:1 }, { n: "Pizzeria Beddia", us:1, bib:1 }, { n: "Dalessandro's", us:1, bib:1 }, { n: "El Chingon", us:1, bib:1 }, { n: "Sally", us:1, bib:1 }],
+  "nemacolin": [{ n: "Lautrec", us:1, f5:1 }, { n: "Aqueous", us:1 }],
+  "philadelphia": [{ n: "Oyster House", us:1, jb:1 }, { n: "Mawn", us:1, jb:1 }, { n: "My Loup", us:1, msel:1 }, { n: "Forsythia", us:1, msel:1 }, { n: "Vedge", us:1, msel:1 }, { n: "Pietramala", us:1, msel:1 }, { n: "Laser Wolf", us:1, msel:1 }, { n: "Hiroki", us:1, msel:1 },
+    { n: "Ambra", us:1, msel:1 }, { n: "High Street Restaurant & Bar", us:1, msel:1 }, { n: "Honeysuckle", us:1, msel:1 }, { n: "Illata", us:1, msel:1 }, { n: "Little Water", us:1, msel:1 }, { n: "Mish Mish", us:1, msel:1 }, { n: "River Twice", us:1, msel:1 }, { n: "Roxanne", us:1, msel:1 }, { n: "Southwark", us:1, msel:1 }, { n: "Suraya", us:1, msel:1 }, { n: "Vetri Cucina", us:1, msel:1 }, { n: "Kalaya", us:1, jb:1 }, { n: "Royal Sushi & Izakaya", us:1, jb:1, bib:1 }, { n: "South Philly Barbacoa", us:1, jb:1 }, { n: "Zahav", us:1, jb:1 }, { n: "Vernick Food & Drink", us:1, jb:1 }, { n: "Angelo's", us:1, bib:1 }, { n: "Del Rossi's", us:1, bib:1 }, { n: "Fiorella", us:1, bib:1 }, { n: "Famous 4th Street Delicatessen", us:1, bib:1 }, { n: "Dizengoff", us:1, bib:1 }, { n: "Pizzeria Beddia", us:1, bib:1 }, { n: "Dalessandro's", us:1, bib:1 }, { n: "El Chingon", us:1, bib:1 }, { n: "Sally", us:1, bib:1 }],
   "phoenix": [{ n: "Lom Wong", us:1, jb:1 }, { n: "Bacanora", us:1, jb:1 }],
   "piadena": [{ n: "Dell'Alba", bib:1 }],
   "pianiga": [{ n: "Trattoria da Paeto", bib:1 }],
@@ -12859,6 +12860,8 @@ function accoladeBadge(r) {
   // the score-based route to Destination (gm >= 19) is deliberately separate and untouched.
   if (r.gt) return "Gault&Millau · " + r.gt + " Toques";
   if (r.r50p) return (r.r50n || "Regional") + "'s 50 Best · previously ranked";
+  // Forbes Travel Guide Five-Star RESTAURANT — a Voyage One-approved major award, Destination.
+  if (r.f5) return "Forbes Five-Star";
   if (r.jb) return "James Beard";
   // A Beard semifinalist is a nomination, not an award: it shows, and it stays in Recommended.
   if (r.jbs) return "James Beard \u00b7 semifinalist";
