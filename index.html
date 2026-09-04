@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M348";
+const BUILD = "M350";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2766,6 +2766,15 @@ const FAVORITES = {
   // by name: The Phoenician (the enclave does not lift the resort), Four Seasons Troon North,
   // Camelback Inn, Sanctuary, Enchantment, L'Auberge, Mii amo, Ambiente, Hacienda del Sol,
   // Bishop's Lodge, Rancho Encantado, Inn of the Anasazi, Five Graces, El Monte Sagrado.
+  // ── GULF SOUTH — 4 SEPT 2026 ON THE STRICT STANDARD. One hotel: the Four Seasons in New
+  // Orleans, Luxury as a property-specific exception on the total product, and the audit says in
+  // capitals not to generalise it to other Four Seasons. The Mississippi and Alabama coasts and
+  // Louisiana outside the city have nothing, by instruction. EXCLUDED by name: Windsor Court and
+  // the Ritz-Carlton (both Forbes Four-Star), the Roosevelt, Monteleone, Maison Metier, Hotel
+  // Saint Vincent, Peter & Paul, the Grand Hotel at Point Clear, Beau Rivage.
+  "New Orleans": [
+    { name: "Four Seasons Hotel New Orleans", area: "Canal Street, on the river", rate: null, ourTake: "The old World Trade Center tower at the foot of Canal Street, rebuilt for Four Seasons in 2021 \u2014 river views from most rooms, a serious spa, Chemin \u00e0 la Mer and Miss River downstairs, and the French Quarter a short walk away. The one hotel in the city that clears the bar, as a named exception." },
+  ],
   // ── TEXAS — 4 SEPT 2026 ON THE STRICT STANDARD. Four Luxury, one per city, no Ultra, and the
   // Hill Country has none by instruction. Two are named exceptions to the floor — Commodore
   // Perry and Hotel Emma — on the same property-specific judgement as Santa Fe; the other two
@@ -6475,7 +6484,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
+  "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -7156,7 +7165,7 @@ const AIRPORTS = {
   // Page's strip is Contour only and not listed. Denver is Aspen's ground-reachable hub.
   // TEXAS, 4 Sept 2026. All four are intercontinental in fact — British Airways and others fly
   // Austin, Dallas and Houston; San Antonio is a US hub airport and sellable throughout.
-  "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
+  "New Orleans": { code: "MSY", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
   "Houston": { code: "IAH", scale: "intercontinental" }, "San Antonio": { code: "SAT", scale: "intercontinental" },
   "Tucson": { code: "TUS", scale: "intercontinental" }, "Santa Fe": { code: "SAF", scale: "regional" }, "Albuquerque": { code: "ABQ", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
@@ -7282,16 +7291,16 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // You can only drive between places on the same landmass. Distance alone is not enough:
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
-  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon"],
+  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
-  "sicily": ["Palermo"],
+  "sicily": ["Palermo","Taormina"],
   "capri": ["Capri"],
   "mallorca": ["Mallorca"],
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7300,7 +7309,7 @@ const ZONE = {
   "morocco": ["Marrakech","Fez","Essaouira"],
   // Egypt is its own zone. It is neither Maghreb nor sub-Saharan, and filing it with Morocco
   // would let the app treat Marrakech and Aswan as a short hop. They are 4,000 km apart.
-  "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna"],
+  "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna", "Red Sea"],
   // Croatian islands get their own zones, as Capri and Mallorca do: reaching them means a
   // crossing, and the ground logic needs to know that rather than assume a road.
   "hvar": ["Hvar"],
@@ -7412,17 +7421,26 @@ const ZONE = {
   "saudi": ["AlUla"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
   "oman": ["Muscat","Musandam","Jabal Akhdar","Wahiba Sands"],
-  "southern-africa": ["Cape Town","Kruger"],
-  "east-africa": ["Serengeti","Kilimanjaro"],
-  "japan-honshu": ["Tokyo","Kyoto"],
+  "southern-africa": ["Cape Town","Kruger", "Franschhoek", "Stellenbosch", "Okavango", "Botswana", "Namibia"],
+  "east-africa": ["Serengeti","Kilimanjaro", "Ngorongoro", "Masai Mara", "Laikipia", "Nairobi", "Rwanda"],
+  "japan-honshu": ["Tokyo","Kyoto", "Ise-Shima", "Izu", "Hakone"],
   "japan-hokkaido": ["Niseko","Sapporo"],
   "singapore": ["Singapore"],
+  // ISLANDS AMONG THE NINETY. Coordinates without a zone would let drivable() measure open water
+  // — Koh Samui to Phuket is 260 km in a straight line and the Gulf of Thailand is in between —
+  // so every island placed above gets a zone here. Tofino and Victoria share Vancouver Island and
+  // drive to each other; Taormina joins Sicily; Kangaroo Island, Tasmania, Hamilton Island and
+  // the rest stand alone. Mainland places keep the old distance-only behaviour.
+  "kea": ["Kea"], "hamilton-island": ["Hamilton Island"], "kangaroo-island": ["Kangaroo Island"], "tasmania": ["Tasmania"],
+  "koh-samui": ["Koh Samui"], "koh-kood": ["Koh Kood"], "yao-noi": ["Yao Noi"], "sumba": ["Sumba"], "java": ["Java"],
+  "sri-lanka": ["Sri Lanka"], "seychelles": ["Seychelles"], "madagascar": ["Madagascar"], "bora-bora": ["Bora Bora"],
+  "french-polynesia": ["French Polynesia"], "fiji": ["Fiji"], "fogo-island": ["Fogo Island"], "vancouver-island": ["Tofino","Victoria", "Port McNeill"],
   "hong-kong": ["Hong Kong"],
-  "mainland-asia": ["Bangkok"],
+  "mainland-asia": ["Bangkok", "Krabi", "Phuket", "Chiang Mai", "Chiang Rai"],
   "bali": ["Bali"],
   "maldives": ["Maldives"],
-  "australia": ["Sydney"],
-  "new-zealand": ["Queenstown"],
+  "australia": ["Sydney", "Uluru"],
+  "new-zealand": ["Queenstown", "Taupo", "Bay of Islands", "Hawke's Bay"],
 };
 const ZONE_OF = {};
 Object.entries(ZONE).forEach(([z, list]) => list.forEach((pl) => { ZONE_OF[pl.toLowerCase()] = z; }));
@@ -7430,7 +7448,36 @@ function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toL
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
-  "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
+  // ══ GEOGRAPHY FOR THE NINETY — 4 SEPT 2026 ═══════════════════════════════════════════
+  // Ninety curated destinations had hotels and no coordinates, so nothing could place them: no
+  // distance, no zone, no map, and the routing fell back to Google's guess. They are placed here,
+  // each on the spot its hotel's "area" names (Paradise Valley for Montana, Adare for Ireland,
+  // Savelletri for Puglia, Tetiaroa for French Polynesia). MINE, from knowledge, not from a
+  // geocoder — checked against the area field but not against a map, and worth a scan.
+  "Monaco": [43.74,7.42], "Franschhoek": [-33.91,19.12], "Stellenbosch": [-33.93,18.86], "Champagne": [49.08,3.95],
+  "Versailles": [48.80,2.12], "Bürgenstock": [46.99,8.38], "Basel": [47.56,7.59], "Ise-Shima": [34.30,136.82],
+  "Izu": [34.97,138.93], "Chiang Mai": [18.79,98.98], "Krabi": [8.06,98.91], "Washington, Virginia": [38.71,-78.16],
+  "Montana": [45.44,-110.71], "St-Tropez": [43.27,6.64], "Antibes": [43.55,7.12], "Taormina": [37.85,15.29],
+  "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
+  "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
+  "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
+  "Abu Dhabi": [24.45,54.38], "Red Sea": [28.57,34.54], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
+  "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
+  "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
+  "Phuket": [7.98,98.28], "Chiang Rai": [20.35,100.08], "Koh Samui": [9.53,100.06], "Koh Kood": [11.66,102.55],
+  "Yao Noi": [8.11,98.60], "Hakone": [35.23,139.11], "Beijing": [39.90,116.40], "Shanghai": [31.23,121.47],
+  "Kangaroo Island": [-35.78,137.21], "Tasmania": [-42.12,148.29], "Hamilton Island": [-20.35,148.95], "Uluru": [-25.34,131.04],
+  "Taupo": [-38.69,176.07], "Bay of Islands": [-35.04,173.90], "Hawke's Bay": [-39.49,176.92], "Ngorongoro": [-3.24,35.49],
+  "Masai Mara": [-1.49,35.14], "Laikipia": [0.30,36.90], "Nairobi": [-1.29,36.82], "Okavango": [-19.30,22.90],
+  "Botswana": [-18.55,23.55], "Rwanda": [-1.43,29.53], "Namibia": [-24.73,15.35], "Seychelles": [-4.39,55.25],
+  "Madagascar": [-12.45,49.82], "Los Cabos": [22.89,-109.91], "Riviera Nayarit": [20.77,-105.52], "Riviera Maya": [20.47,-87.26],
+  "Florida Keys": [24.67,-81.40], "Palm Beach": [26.71,-80.04], "Blackberry Farm": [35.68,-83.87], "Palmetto Bluff": [32.19,-80.94],
+  "Sea Island": [31.19,-81.34], "Vermont": [43.73,-72.60], "Adirondacks": [44.33,-74.13], "Tofino": [49.15,-125.91],
+  "Fogo Island": [49.66,-54.18], "Montreal": [45.50,-73.57], "Whistler": [50.12,-122.95], "Port McNeill": [50.59,-127.09],
+  "Lake Louise": [51.43,-116.18], "Jasper": [52.87,-118.08], "Victoria": [48.43,-123.37], "Quebec City": [46.81,-71.21],
+  "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
+  "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
+  "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
   "Napa Valley": [38.30,-122.29], "Santa Barbara": [34.43,-119.64], "Laguna Beach": [33.54,-117.78], "San Diego": [32.72,-117.16], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
@@ -7564,7 +7611,7 @@ const DRIVE_TIMES = [
   ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
-  ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
+  ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
   ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
   // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
@@ -7778,7 +7825,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
+  "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
   "paradise valley": "Scottsdale", "scottsdale, az": "Scottsdale", "marana": "Tucson", "dove mountain": "Tucson", "tucson, az": "Tucson",
   "deer valley": "Park City", "wanship": "Park City", "blue sky": "Park City", "teton village": "Jackson Hole", "jackson, wyoming": "Jackson Hole", "jackson, wy": "Jackson Hole",
