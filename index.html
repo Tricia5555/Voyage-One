@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M342";
+const BUILD = "M343";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -466,7 +466,7 @@ const ULTRA_LUX = [
   "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
   "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
   "Taj Lake Palace", "RAAS Devigarh",
-  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "The Peninsula Beverly Hills", "Maybourne Beverly Hills", "Montage Laguna Beach", "The Setai Miami Beach", "Faena Hotel Miami",
+  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach", "The Setai Miami Beach", "Faena Hotel Miami",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -617,8 +617,13 @@ const ULTRA_LUX = [
   "Aman New York", "The Fifth Avenue Hotel", "The Lowell", "The Greenwich Hotel", "The Carlyle",
   "Casa Cipriani", "The Mark",
   // United States — California
-  "Hotel Bel-Air", "The Beverly Hills Hotel", "Rosewood Miramar Beach", "Post Ranch Inn",
-  "Auberge du Soleil", "Meadowood Napa Valley", "SingleThread",
+  // California re-audited 4 Sept 2026 on the strict standard: eight Ultra Luxury, every one a
+  // current Forbes Five-Star except San Ysidro, which the curation keeps on the total product.
+  // Out of the canon: The Peninsula (Forbes Four-Star), Post Ranch Inn (Four-Star), and Hotel
+  // Bel-Air and SingleThread — both withheld because the audit did not name them; see the note
+  // in FAVORITES.
+  "The Beverly Hills Hotel", "Rosewood Miramar Beach", "San Ysidro Ranch",
+  "Auberge du Soleil", "Meadowood Napa Valley", "Rancho Valencia Resort & Spa",
   // United States — Florida
   "Four Seasons Hotel at The Surf Club", "Little Palm Island Resort and Spa", "Four Seasons Palm Beach",
   // United States — Hawaii. Re-audited 4 Sept 2026 on the strict standard: four, one per island,
@@ -1034,11 +1039,9 @@ const FAVORITES = {
     { name: "Waldorf Astoria Chicago", area: "Gold Coast", rate: null, ourTake: "An Art Deco-inspired tower in the leafy Gold Coast.", contact: { addr: "11 E Walton St, Chicago", web: "waldorfastoria.com" } },
     { name: "The Langham Chicago", area: "River North", rate: null, ourTake: "Mies van der Rohe modernism over the river, with a lauded spa.", contact: { addr: "330 N Wabash Ave, Chicago", web: "langhamhotels.com" } },
   ],
-  "San Francisco": [
-    { name: "Four Seasons Hotel San Francisco", area: "Yerba Buena", rate: null, ourTake: "Polished comfort above Yerba Buena, steps from Union Square.", contact: { addr: "757 Market St, San Francisco", web: "fourseasons.com/sanfrancisco" } },
-    { name: "The Ritz-Carlton San Francisco", area: "Nob Hill", rate: null, ourTake: "A neoclassical landmark crowning Nob Hill.", contact: { addr: "600 Stockton St, San Francisco", web: "ritzcarlton.com" } },
-    { name: "The St. Regis San Francisco", area: "SoMa", rate: null, ourTake: "Sleek butler-service luxury by SFMOMA.", contact: { addr: "125 3rd St, San Francisco", web: "marriott.com" } },
-  ],
+  // ── SAN FRANCISCO — NO HOTEL, 4 SEPT 2026. The audit lists the Four Seasons (both), the St
+  // Regis and the Ritz-Carlton as "do not load until true Five-Star status is confirmed", and
+  // nothing else. Until one is confirmed the city has no hotel and no key, by instruction.
   "Dublin": [
     { name: "The Merrion", area: "Georgian Dublin", rate: null, ourTake: "Four restored Georgian townhouses with a private art collection.", contact: { addr: "Upper Merrion St, Dublin", web: "merrionhotel.com" } },
     { name: "The Shelbourne", area: "St Stephen's Green", rate: null, ourTake: "The grande dame on St Stephen's Green since 1824.", contact: { addr: "27 St Stephen's Green, Dublin", web: "theshelbourne.com" } },
@@ -1097,8 +1100,11 @@ const FAVORITES = {
   "Montana": [
     { name: "Sage Lodge", area: "Paradise Valley", rate: null, ourTake: "A lodge on the Yellowstone River near the park's north gate.", contact: { web: "sagelodge.com" } },
   ],
+  // ── ORANGE COUNTY. Montage is Ultra Luxury; Pelican Hill, ten minutes up the coast at Newport
+  // Coast, is Luxury by instruction — Forbes Five-Star, but a large golf resort rather than scarce.
   "Laguna Beach": [
-    { name: "Montage Laguna Beach", area: "Laguna Beach", rate: null, ourTake: "A Craftsman-style resort on the bluffs above the Pacific.", contact: { web: "montage.com" } },
+    { name: "Montage Laguna Beach", area: "Laguna Beach", rate: null, ourTake: "A Craftsman-style resort on the bluffs above the Pacific \u2014 Forbes Five-Star for years, the spa, the cove below, and the reason a client stays on this coast at all.", contact: { web: "montage.com" } },
+    { name: "The Resort at Pelican Hill", area: "Newport Coast", rate: null, ourTake: "Bungalows and villas on the Newport Coast headland above two Tom Fazio courses and the famous circular pool \u2014 Forbes Five-Star and genuinely so. Large, family and golf by orientation, and Luxury as a whole." },
   ],
   // ── HAWAII — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ──────────────────────────
   // Four islands, four keys; Kauai has no qualifying hotel and no key, by instruction. Ultra
@@ -2665,25 +2671,43 @@ const FAVORITES = {
     { name: "The Fifth Avenue Hotel", area: "NoMad", rate: null, ourTake: "A theatrical landmark blending a Gilded Age mansion with a modern tower." },
     { name: "Casa Cipriani", area: "Battery", rate: null, ourTake: "Italian glamour in the landmark Battery Maritime Building, members'-club chic." },
   ],
+  // ── CALIFORNIA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ──────────────────────
+  // Load only what the audit approves; withhold what it says to confirm; delete what it excludes.
+  // WITHHELD PENDING CONFIRMATION, by instruction: L'Ermitage, the Ritz-Carlton Bacara, Ojai
+  // Valley Inn, Casa Palmero, The Lodge at Pebble Beach, Bardessono, Four Seasons Napa Valley,
+  // Montage Healdsburg, Farmhouse Inn, all four San Francisco candidates, the Ritz-Carlton
+  // Rancho Mirage. EXCLUDED: The Peninsula Beverly Hills (was in), SLS, Cameo, Post Ranch Inn
+  // (was in, Forbes Four-Star), Alila Ventana, Inn at Spanish Bay, Alila Napa, Fairmont Grand
+  // Del Mar, Pendry, Estancia La Jolla, Parker Palm Springs, JW Marriott Desert Springs.
+  // TWO HOTELS THE AUDIT DID NOT MENTION AT ALL were in the file and are withheld, not deleted,
+  // because the rule is "load only what is approved" and the omission looks like an oversight
+  // rather than a judgement: HOTEL BEL-AIR (Dorchester, Forbes Five-Star, arguably the most
+  // Ultra address in Los Angeles) and SINGLETHREAD (five rooms above three Michelin stars in
+  // Healdsburg). Both are one word from Tricia away from going back.
   "Los Angeles": [
-    { name: "Hotel Bel-Air", area: "Bel-Air", rate: null, ourTake: "A pink-and-bougainvillea Dorchester hideaway with swans and Wolfgang Puck." },
-    { name: "The Beverly Hills Hotel", area: "Beverly Hills", rate: null, ourTake: "The Pink Palace — the Polo Lounge and a century of Hollywood legend." },
-    { name: "The Peninsula Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Forbes-perennial garden hotel a step off Rodeo Drive.", contact: { web: "peninsula.com" } },
-    { name: "Maybourne Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Maybourne group's sleek Beverly Hills flagship.", contact: { web: "maybournebeverlyhills.com" } },
+    { name: "The Beverly Hills Hotel", area: "Beverly Hills", rate: null, ourTake: "The Pink Palace \u2014 the Polo Lounge, the bungalows where the century's stories happened, and a Forbes Five-Star to this day. The scarcest rooms in Los Angeles are the signature bungalows, and they are the reason it sits in the tier it does." },
+    { name: "Maybourne Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "Claridge's and the Connaught's owners in the Golden Triangle \u2014 Forbes Five-Star in 2026, exceptional suites, and the Maybourne way of looking after people. The polished modern Ultra Luxury of Beverly Hills." },
+    { name: "Four Seasons Hotel Los Angeles at Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Four Seasons on Doheny with the pool the industry does its deals around. True luxury, and Luxury by instruction." },
+    { name: "Beverly Wilshire, A Four Seasons Hotel", area: "Beverly Hills, Rodeo Drive", rate: null, ourTake: "The 1928 landmark at the foot of Rodeo Drive, run by Four Seasons \u2014 historic, polished and in the middle of everything. Luxury by instruction." },
   ],
+  // ── MONTECITO. Two Ultra Luxury, by instruction, and nothing else in Santa Barbara County
+  // until Bacara or Ojai is confirmed. Big Sur has no hotel: Post Ranch Inn is Forbes Four-Star
+  // and the audit follows the rule exactly.
   "Santa Barbara": [
-    { name: "Rosewood Miramar Beach", area: "Montecito", rate: null, ourTake: "A Montecito beach resort with old-Hollywood glamour and its own sand." },
-  ],
-  "Big Sur": [
-    { name: "Post Ranch Inn", area: "Big Sur", rate: null, ourTake: "Cliff-edge cabins 1,200 feet above the Pacific — no TVs, all wonder." },
+    { name: "Rosewood Miramar Beach", area: "Montecito", rate: null, ourTake: "Rooms on the sand itself at Montecito, a triple Five-Star \u2014 hotel, spa and restaurant \u2014 and the old-Hollywood ease of the place. The beachfront suites are beyond-luxury product, and the hotel is Ultra Luxury on the strength of them." },
+    { name: "San Ysidro Ranch", area: "Montecito, in the foothills", rate: null, ourTake: "Thirty-eight cottages in the gardens where the Kennedys honeymooned and Olivier married Vivien Leigh \u2014 private patios, outdoor showers, meals included, and a discretion that is the whole point. Ultra Luxury on the total product, by instruction, whatever the guides say this year." },
   ],
   "Napa Valley": [
-    { name: "Auberge du Soleil", area: "Rutherford", rate: null, ourTake: "A hillside olive-grove inn with a Michelin table over the vineyards." },
-    { name: "Meadowood Napa Valley", area: "St Helena", rate: null, ourTake: "A country-club estate hidden in the oaks of a private valley." },
+    { name: "Auberge du Soleil", area: "Rutherford", rate: null, ourTake: "Fifty rooms on a hillside olive grove above the valley, a Forbes Five-Star and a Michelin table on the terrace \u2014 the address in Napa, and the one people plan the trip around." },
+    { name: "Meadowood Napa Valley", area: "St Helena", rate: null, ourTake: "A 250-acre private valley of cottages in the oaks, a Five-Star spa, tennis and the deepest wine programme in the county. Forbes Five-Star, and Ultra Luxury on seclusion alone." },
   ],
-  "Healdsburg": [
-    { name: "SingleThread", area: "Sonoma", rate: null, ourTake: "A five-room inn above a three-Michelin-star farm restaurant." },
+  // ── SAN DIEGO. One Ultra Luxury, by instruction, inland at Rancho Santa Fe; the coast has
+  // nothing until Grand Del Mar's hotel rating catches up with its spa and restaurant.
+  "San Diego": [
+    { name: "Rancho Valencia Resort & Spa", area: "Rancho Santa Fe", rate: null, ourTake: "Forty-nine hacienda casitas on forty-five acres in the most affluent corner of the county, Forbes Five-Star, with one of the great racquet programmes in America and a serious spa. Secluded, residential and the one address in San Diego that clears the bar." },
   ],
+  // ── SONOMA — NO HOTEL, 4 SEPT 2026. Montage Healdsburg and Farmhouse Inn are pending
+  // confirmation; SingleThread was in the file and is withheld, unmentioned by the audit.
   "Miami": [
     { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "A restored 1930s beach club with a Thomas Keller table and true glamour." },
     { name: "The Setai Miami Beach", area: "South Beach", rate: null, ourTake: "An Art-Deco-meets-Asia sanctuary on Collins Avenue with three pools.", contact: { web: "thesetaihotel.com" } },
@@ -6394,7 +6418,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
+  "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
@@ -7036,7 +7060,12 @@ const AIRPORTS = {
   "Aswan": { code: "ASW", scale: "regional" }, "Sharm El Sheikh": { code: "SSH", scale: "regional" },
   "El Gouna": { code: "HRG", scale: "regional" },
   "New York City": { code: "NYC", scale: "intercontinental" }, "Miami": { code: "MIA", scale: "intercontinental" },
-  "Los Angeles": { code: "LAX", scale: "intercontinental" }, "San Francisco": { code: "SFO", scale: "intercontinental" },
+  "Los Angeles": { code: "LAX", scale: "intercontinental" },
+  // CALIFORNIA, 4 Sept 2026. Santa Barbara (SBA), John Wayne (SNA) for Laguna and Newport Coast,
+  // and San Diego (SAN) are all sellable and listed; LAX remains the long-haul door and is an
+  // hour and a half from each of the first two by road.
+  "Santa Barbara": { code: "SBA", scale: "intercontinental" }, "Laguna Beach": { code: "SNA", scale: "intercontinental" },
+  "San Diego": { code: "SAN", scale: "intercontinental" }, "San Francisco": { code: "SFO", scale: "intercontinental" },
   "Chicago": { code: "ORD", scale: "intercontinental" }, "Boston": { code: "BOS", scale: "intercontinental" },
   "Washington DC": { code: "IAD", scale: "intercontinental" }, "Newark": { code: "EWR", scale: "intercontinental" },
   "London": { code: "LHR", scale: "intercontinental" }, "Paris": { code: "CDG", scale: "intercontinental" },
@@ -7189,7 +7218,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7328,7 +7357,7 @@ function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toL
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
-  "Napa Valley": [38.30,-122.29], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
+  "Napa Valley": [38.30,-122.29], "Santa Barbara": [34.43,-119.64], "Laguna Beach": [33.54,-117.78], "San Diego": [32.72,-117.16], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
   "Vancouver": [49.28,-123.12], "Mexico City": [19.43,-99.13], "Buenos Aires": [-34.60,-58.38], "Mendoza": [-32.89,-68.84],
   "Costa Rica": [9.75,-83.75], "Galápagos": [-0.74,-90.31], "Turks & Caicos": [21.69,-71.80],
   "London": [51.51,-0.13], "Paris": [48.86,2.35], "Rome": [41.90,12.50], "Florence": [43.77,11.26], "Venice": [45.44,12.32],
@@ -7668,6 +7697,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "montecito": "Santa Barbara", "beverly hills": "Los Angeles", "bel-air": "Los Angeles", "newport coast": "Laguna Beach", "newport beach": "Laguna Beach", "rancho santa fe": "San Diego", "rutherford": "Napa Valley", "st. helena": "Napa Valley", "st helena": "Napa Valley",
   "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island", "hawaii island": "Big Island", "kohala coast": "Big Island", "hualalai": "Big Island",
   "oahu": "Honolulu", "waikiki": "Honolulu", "ko olina": "Honolulu", "honolulu, hi": "Honolulu",
   "wailea": "Maui", "kapalua": "Maui", "kahului": "Maui", "lahaina": "Maui", "kihei": "Maui", "maui, hi": "Maui",
