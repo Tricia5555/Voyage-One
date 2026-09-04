@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M354";
+const BUILD = "M355";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -636,7 +636,9 @@ const ULTRA_LUX = [
   "ESPACIO The Jewel of Waikiki",
   // United States — Mountain West / South / Northeast
   "Amangiri", "The Little Nell", "Amangani",
-  "Blackberry Farm", "Montage Palmetto Bluff", "The Cloister at Sea Island", "Twin Farms", "The Point",
+  // Montage Palmetto Bluff and The Cloister came down to Luxury on 4 Sept 2026 (Carolinas &
+  // Georgia re-audit). Blackberry Farm, Twin Farms and The Point have not been re-audited yet.
+  "Blackberry Farm", "Twin Farms", "The Point",
   // Canada — classified property by property, not by flag. Four Seasons Toronto, Montreal and
   // Whistler qualify; Fairmont Pacific Rim does and no other Fairmont does. Matching is on the
   // full set of distinctive words, so "Fairmont Pacific Rim" cannot pull in Banff Springs or
@@ -2843,11 +2845,27 @@ const FAVORITES = {
   "Blackberry Farm": [
     { name: "Blackberry Farm", area: "Great Smoky Mountains", rate: null, ourTake: "A Relais & Châteaux farm estate in the Smokies, a foothills of taste." },
   ],
+  // ── THE CAROLINAS & GEORGIA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ──────────
+  // Six Luxury, no Ultra Luxury — Montage Palmetto Bluff and The Cloister came down from the
+  // Ultra canon. Charleston, Charlotte, Asheville, the Highlands and Savannah have NO hotel, by
+  // instruction: The Charleston Place, Hotel Bennett, Market Pavilion, Old Edwards, Half-Mile
+  // Farm, the Inn on Biltmore and Perry Lane are named and out; The Cooper is watchlist only.
+  // Charleston stays a destination — three stars and a Beard winner — it just has no room.
+  "Kiawah Island": [
+    { name: "The Sanctuary at Kiawah Island Golf Resort", area: "Kiawah Island, forty minutes from Charleston", rate: null, ourTake: "Forbes Five-Star on ten miles of beach with the Ocean Course beside it \u2014 a grand Lowcountry house on the scale of an old resort, and the one address near Charleston that clears the bar. Luxury by instruction." },
+  ],
   "Palmetto Bluff": [
-    { name: "Montage Palmetto Bluff", area: "Bluffton", rate: null, ourTake: "A Lowcountry village on the May River between Savannah and Hilton Head." },
+    { name: "Montage Palmetto Bluff", area: "Bluffton, on the May River", rate: null, ourTake: "A Lowcountry village on the May River between Savannah and Hilton Head \u2014 Forbes Five-Star, cottages under the live oaks, and twenty thousand acres to ride and paddle. Luxury by instruction." },
+  ],
+  "Raleigh": [
+    { name: "The Umstead Hotel and Spa", area: "Cary, west of Raleigh", rate: null, ourTake: "Forbes Five-Star on a lake in the pines, with a serious art collection, a spa the state has nothing to match, and Herons downstairs, itself Five-Star. The one hotel in the Carolinas that clears the bar in its own right. Luxury by instruction." },
+  ],
+  "Atlanta": [
+    { name: "The St. Regis Atlanta", area: "Buckhead", rate: null, ourTake: "Atlanta's only Forbes Five-Star \u2014 butlers, the Buckhead location, big suites and a pool terrace the city comes to. Luxury by instruction." },
   ],
   "Sea Island": [
-    { name: "The Cloister at Sea Island", area: "Sea Island", rate: null, ourTake: "A Forbes five-star Georgia coast institution, gracious and grand." },
+    { name: "The Cloister at Sea Island", area: "Sea Island", rate: null, ourTake: "The Forbes Five-Star grande dame of the Georgia coast, gracious and grand, with the beach club, the spa and the tennis. Luxury by instruction." },
+    { name: "The Lodge at Sea Island", area: "St Simons Island, on the golf", rate: null, ourTake: "The golf house across the causeway \u2014 Forbes Five-Star, a butler for every room, and the Seaside and Plantation courses out of the window. Luxury by instruction." },
   ],
   // ── BERMUDA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ─────────────────────────
   // Three hotels, no Ultra Luxury, by instruction. Hamilton Princess was here and is deleted —
@@ -3565,7 +3583,9 @@ const DINING = {
   "Marcq-en-Barœul": [{ n: "Rozó", s: 2 }],
   "Mareuil-sur-Lay": [{ n: "Maison Desamy", s: 1 }],
   "Margencel": [{ n: "Sechex-Nous", s: 1 }],
-  "Marietta": [{ n: "Spring", s: 1 }],
+  // closed:1 — Spring is temporarily closed (4 Sept 2026). The star is real and the record
+  // stays; the dining panel does not show a closed table as somewhere to book.
+  "Marietta": [{ n: "Spring", s: 1, closed: 1 }],
   "Marina del Cantone": [{ n: "Taverna del Capitano", s: 1 }],
   "Marina di Bibbona": [{ n: "La Pineta", s: 1 }],
   "Marina di Gioiosa Ionica": [{ n: "Gambero Rosso", s: 1 }],
@@ -4311,12 +4331,17 @@ const ACCOLADES = {
   "artesa de lleida": [{ n: "Antoni Rubies", bib:1 }],
   "ascona": [{ n: "Asia", bib:1 }],
   "ashendon": [{ n: "The Hundred of Ashenden", bib:1 }],
-  "asheville": [{ n: "Chai Pani", us:1, jb:1 }, { n: "Cúrate", us:1, jb:1 }, { n: "Little Chango", us:1, bib:1 }, { n: "Luminosa", us:1, bib:1 }, { n: "Mother", us:1, bib:1 }],
+  // Asheville, 4 Sept 2026 re-audit. Chai Pani is a Beard WINNER (Outstanding Restaurant 2022)
+  // and stays Destination however casual it is. Cúrate is Michelin Selected and Recommended by
+  // instruction — it had been carrying a winner's flag it does not hold.
+  "asheville": [{ n: "Chai Pani", us:1, jb:1 }, { n: "Cúrate Bar de Tapas", us:1, msel:1 }, { n: "Good Hot Fish", us:1, msel:1 }, { n: "The Admiral", us:1, msel:1 }, { n: "Table", us:1, msel:1 }, { n: "Tall John's", us:1, msel:1 }, { n: "Little Chango", us:1, bib:1 }, { n: "Luminosa", us:1, bib:1 }, { n: "Mother", us:1, bib:1 }],
   "asiago area": [{ n: "Osteria della Tana", bibh:1 }],
   "astorga": [{ n: "Las Termas", bib:1 }],
   "athens": [{ n: "Akra", bib:1 }, { n: "Cerdo Negro 1985", bib:1 }, { n: "Fine Mess Smokehouse", bib:1 }, { n: "Jerár", bib:1 }, { n: "Nolan", bib:1 }, { n: "Pharaoh", bib:1 }],
   "athlone": [{ n: "Thyme", bib:1 }],
-  "atlanta": [{ n: "Miller Union", us:1, jb:1 }, { n: "Antico Pizza Napoletana", us:1, bib:1 }, { n: "Bomb Biscuit Co.", us:1, bib:1 }, { n: "Estrellita", us:1, bib:1 }, { n: "Fishmonger", us:1, bib:1 }, { n: "Fred's Meat & Bread", us:1, bib:1 }, { n: "Heirloom Market BBQ", us:1, bib:1 }, { n: "Little Bear", us:1, bib:1 }, { n: "Superica", us:1, bib:1 }, { n: "The Busy Bee", us:1, bib:1 }, { n: "Whoopsie's", us:1, bib:1 }],
+  // Atlanta, 4 Sept 2026 re-audit. Miller Union is Michelin Selected and Recommended by
+  // instruction, its Beard history noted and not counted.
+  "atlanta": [{ n: "Miller Union", us:1, msel:1 }, { n: "The Chastain", us:1, msel:1 }, { n: "Gunshow", us:1, msel:1 }, { n: "BoccaLupo", us:1, msel:1 }, { n: "Lyla Lila", us:1, msel:1 }, { n: "Little Sparrow", us:1, msel:1 }, { n: "Marcel", us:1, msel:1 }, { n: "The General Muir", us:1, msel:1 }, { n: "Antico Pizza Napoletana", us:1, bib:1 }, { n: "Bomb Biscuit Co.", us:1, bib:1 }, { n: "Estrellita", us:1, bib:1 }, { n: "Fishmonger", us:1, bib:1 }, { n: "Fred's Meat & Bread", us:1, bib:1 }, { n: "Heirloom Market BBQ", us:1, bib:1 }, { n: "Little Bear", us:1, bib:1 }, { n: "Superica", us:1, bib:1 }, { n: "The Busy Bee", us:1, bib:1 }, { n: "Whoopsie's", us:1, bib:1 }],
   "aubonne": [{ n: "Njørd café", bib:1 }],
   "auderghem": [{ n: "Villa Singha", bib:1 }],
   "audresselles": [{ n: "La Plage", bib:1 }],
@@ -4541,8 +4566,13 @@ const ACCOLADES = {
   "chamonix mont blanc": [{ n: "Akashon", bib:1 }],
   "chardonne": [{ n: "Là-Haut", bib:1 }],
   "charleroi": [{ n: "Vilain", bib:1 }],
-  "charleston": [{ n: "1010 Bridge", us:1, jb:1 }, { n: "Rodney Scott's Whole Hog BBQ", us:1, jb:1, bib:1 }, { n: "FIG", us:1, jb:1 }, { n: "Leon's Oyster Shop", us:1, bib:1 }, { n: "Lewis Barbecue", us:1, bib:1 }],
-  "charlotte": [{ n: "Lang Van", us:1, bib:1 }],
+  // Charleston, 4 Sept 2026 re-audit. Michelin Selected tables, Recommended and no further.
+  // Chubby Fish is deliberately absent: a 2026 Beard semifinalist, and a semifinalist is not a
+  // winner.
+  "sullivan s island": [{ n: "The Obstinate Daughter", us:1, msel:1 }],
+  "charleston": [{ n: "The Establishment", us:1, msel:1 }, { n: "The Restaurant at Zero George", us:1, msel:1 }, { n: "1010 Bridge", us:1, jb:1 }, { n: "Rodney Scott's Whole Hog BBQ", us:1, jb:1, bib:1 }, { n: "FIG", us:1, jb:1 }, { n: "Leon's Oyster Shop", us:1, bib:1 }, { n: "Lewis Barbecue", us:1, bib:1 }],
+  "charlotte": [{ n: "Restaurant Constance", us:1, msel:1 }, { n: "Omakase Experience by PrimeFish", us:1, msel:1 }, { n: "Supperland", us:1, msel:1 }, { n: "Lang Van", us:1, bib:1 }],
+  "davidson": [{ n: "Kindred", us:1, msel:1 }],
   "chasse sur rhone": [{ n: "Les Nymphéas", bib:1 }],
   "chateau thebaud": [{ n: "Auberge La Gaillotière", bib:1 }],
   "chateauroux": [{ n: "Jeux 2 Goûts", bib:1 }],
@@ -4638,7 +4668,7 @@ const ACCOLADES = {
   "duncannon": [{ n: "Aldridge Lodge", bib:1 }],
   "dunkerque": [{ n: "Renée", bib:1 }],
   "durbuy": [{ n: "Le Grand Verre", bib:1 }],
-  "durham": [{ n: "SALTBOX Seafood Joint", us:1, jb:1 }],
+  "durham": [{ n: "Nanas", us:1, msel:1 }, { n: "Little Bull", us:1, msel:1 }, { n: "SALTBOX Seafood Joint", us:1, jb:1 }],
   "dusseldorf": [{ n: "Münstermanns Kontor", bib:1 }, { n: "EssBar fein & pfiffig", bib:1 }],
   "eastchester": [{ n: "Burrata", us:1, bib:1 }],
   "easton": [{ n: "Bas Rouge", us:1, jb:1 }],
@@ -5244,7 +5274,16 @@ const ACCOLADES = {
   "quintanar de la orden": [{ n: "Granero", bib:1 }],
   "quito": [{ n: "Nuema", w:61, wy:2025 }],
   "rafales": [{ n: "La Alquería", bib:1 }],
-  "raleigh": [{ n: "Poole's Diner", us:1, jb:1 }, { n: "Mala Pata", us:1, bib:1 }, { n: "Sam Jones BBQ", us:1, bib:1 }],
+  // Raleigh-Durham, 4 Sept 2026 re-audit. Poole's stays Destination on Ashley Christensen's
+  // Outstanding Chef win. Herons is Selected and Forbes Five-Star — Recommended by instruction
+  // despite the standing. Chef & the Farmer at Kinston carries Vivian Howard's Beard win; its
+  // current format is to be verified before it is treated as a table a client can book.
+  // Montgomery Sky Farm (Taylor Montgomery, Beard Best Chef Southeast 2026) is NOT listed: it is
+  // not operating as a conventional public restaurant, and a listing would mislead.
+  "cary": [{ n: "Herons", us:1, msel:1 }],
+  "pittsboro": [{ n: "The Fearrington House Restaurant", us:1, msel:1 }],
+  "kinston": [{ n: "Chef & the Farmer", us:1, jb:1 }],
+  "raleigh": [{ n: "Poole's Diner", us:1, jb:1 }, { n: "Crawford and Son", us:1, msel:1 }, { n: "St. Roch Fine Oysters + Bar", us:1, msel:1 }, { n: "Mala Pata", us:1, bib:1 }, { n: "Sam Jones BBQ", us:1, bib:1 }],
   "randazzo": [{ n: "Veneziano", bib:1 }],
   "randolph": [{ n: "Saap", us:1, jb:1 }],
   "rauhenebrach": [{ n: "Gasthaus Hofmann", bib:1 }],
@@ -6528,6 +6567,11 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
+  "charleston": "South Carolina", "kiawah island": "South Carolina", "palmetto bluff": "South Carolina", "greenville": "South Carolina",
+  // dining rollup: towns whose tables belong to a destination page
+  "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
+  "davidson": "Charlotte, North Carolina", "marietta": "Atlanta, Georgia", "avondale estates": "Atlanta, Georgia", "sullivan's island": "Charleston, South Carolina",
   "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
@@ -6840,6 +6884,9 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Kiawah Island": { air: "Charleston", note: "Fly to Charleston (CHS), then about forty minutes south to the island. The Sanctuary sends a car." },
+  "Palmetto Bluff": { air: "Savannah", note: "Fly to Savannah (SAV), then thirty-five minutes north across the state line to Bluffton. Montage sends a car; Hilton Head's field is the alternative for private aircraft." },
+  "Sea Island": { air: "Savannah", note: "Fly to Savannah (SAV) or Jacksonville, each about an hour and a quarter, or to Brunswick on the Delta shuttle from Atlanta, fifteen minutes away. The resort meets every arrival." },
   "Naples, Florida": { air: "Fort Myers", note: "Fly to Fort Myers (RSW), then forty minutes south on the interstate. Naples's own field takes private aircraft only." },
   "Florida Keys": { air: "Key West", note: "Fly to Key West (EYW), then half an hour back up the Overseas Highway to Little Torch Key, where the island's launch is waiting \u2014 or fly to Miami and drive the whole highway, three hours and worth it once. The resort arranges either." },
   "Big Sky": { air: "Bozeman", note: "Fly to Bozeman (BZN) \u2014 nonstops from most of the west and, in winter, the east coast \u2014 then an hour south through the Gallatin canyon. Montage sends a car." },
@@ -7211,6 +7258,13 @@ const AIRPORTS = {
   // Page's strip is Contour only and not listed. Denver is Aspen's ground-reachable hub.
   // TEXAS, 4 Sept 2026. All four are intercontinental in fact — British Airways and others fly
   // Austin, Dallas and Houston; San Antonio is a US hub airport and sellable throughout.
+  // CAROLINAS & GEORGIA, 4 Sept 2026. Atlanta, Charlotte and Raleigh-Durham are intercontinental
+  // in fact; Charleston, Savannah, Asheville and Greenville are US-domestic fields and listed as
+  // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
+  "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
+  "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
+  "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
+  "Greenville": { code: "GSP", scale: "intercontinental" },
   "New Orleans": { code: "MSY", scale: "intercontinental" }, "Palm Beach": { code: "PBI", scale: "intercontinental" },
   "Orlando": { code: "MCO", scale: "intercontinental" }, "Sarasota": { code: "SRQ", scale: "intercontinental" }, "Fort Myers": { code: "RSW", scale: "intercontinental" }, "Key West": { code: "EYW", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
   "Houston": { code: "IAH", scale: "intercontinental" }, "San Antonio": { code: "SAT", scale: "intercontinental" },
@@ -7347,7 +7401,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7525,6 +7579,8 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
+  "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
+  "Savannah": [32.08,-81.10], "Asheville": [35.60,-82.55], "Greenville": [34.85,-82.40], "Kiawah Island": [32.61,-80.09],
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
@@ -7660,6 +7716,8 @@ const DRIVE_TIMES = [
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
   ["Sarasota", "Naples, Florida", 120, 175], ["Sarasota", "Orlando", 135, 210], ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
+  ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
+  ["Atlanta", "Sea Island", 300, 470], ["Charlotte", "Asheville", 130, 210], ["Raleigh", "Charlotte", 165, 270], ["Atlanta", "Asheville", 210, 330],
   ["Key West", "Florida Keys", 35, 45], ["Miami", "Orlando", 210, 380], ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
   ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
@@ -7874,6 +7932,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
@@ -12755,7 +12814,9 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // tables. CAFÉ & CASUAL = everyday spots. Destination is always shown, even empty — the aspiration.
   // Michelin tables are gathered from the destination and its towns (dineCityKeys), exactly as
   // the accolades are — so a lake, a coast or a valley shows the stars that are actually on it.
-  const michRaw = (() => { const seen = {}; const out = []; dineCityKeys(city).forEach((k) => { const key = Object.keys(DINING).find((x) => dnrm(x) === k); (key ? DINING[key] : []).forEach((r) => { const id = dnrm(r.n); if (!seen[id]) { seen[id] = 1; out.push(r); } }); }); return out; })();
+  // A table flagged closed:1 keeps its award history in the file and is not offered as somewhere
+  // to book — Spring at Marietta, 4 Sept 2026.
+  const michRaw = (() => { const seen = {}; const out = []; dineCityKeys(city).forEach((k) => { const key = Object.keys(DINING).find((x) => dnrm(x) === k); (key ? DINING[key] : []).forEach((r) => { if (r.closed) return; const id = dnrm(r.n); if (!seen[id]) { seen[id] = 1; out.push(r); } }); }); return out; })();
   const michOK = michRaw.length && dineGeoOk(city, !!lookup(DINING_US, city));
   // Fold accolades onto our Michelin records so a 1★ that is also 50 Best/JB stays a Destination and
   // its credentials show on the card.
