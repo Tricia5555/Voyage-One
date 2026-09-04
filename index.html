@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M339";
+const BUILD = "M340";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -129,6 +129,7 @@ const SEASON = {
   // ── ANGUILLA. Drafted Sept 2026 — mine, not Tricia's.
   "Anguilla": { window: "November to April", note: "The season, dry and breezy, with Christmas to New Year booked far ahead at Cap Juluca. Most of the island's hotels close for September and October \u2014 Cap Juluca and Malliouhana among them \u2014 so check before you count on a date. Hurricane season is June to November." },
   // ── ST BARTS. Drafted Sept 2026 — mine, not Tricia's.
+  "St Maarten": { window: "December to April", note: "The dry season. Baie Longue is on the sheltered south-west coast and calm through it. The island took Irma directly in 2017 and La Samanna was rebuilt after; hurricane season is June to November." },
   "St Barth": { window: "November to April \u2014 and the ten days over New Year, which are their own market", note: "The season, and the most expensive ten days in the Caribbean fall in it: Christmas to New Year is booked a year out at every hotel on this list, with minimum stays and rates to match, and Gustavia harbour is where the yachts come to be looked at. January to April is the calm, perfect version. Most of the island closes from late August through October." },
   // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
   "Turks & Caicos": { window: "December to April", note: "The dry, breezy season, and Grace Bay at its most booked \u2014 Christmas, New Year and Easter go a year ahead at the small islands. Humpback whales pass through the Columbus Passage from January to March, best seen from Salt Cay and South Caicos. Hurricane season is June to November; several resorts close for September and October, and Amanyara is closed for works until 20 October 2026." },
@@ -532,6 +533,8 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // St Martin / Sint Maarten — 4 Sept 2026, on the strict standard. NONE. La Samanna is Luxury;
+  // the JW Marriott on the Dutch side is named and excluded.
   // Trinidad & Tobago in full — 4 Sept 2026, on the strict standard. NONE. Hyatt Regency and
   // The Villas at Stonehaven are Luxury; Asa Wright and Blue Waters Inn are Experience; Blue
   // Haven is Best Available. Magdalena Grand is named and excluded.
@@ -2325,6 +2328,15 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── ST MARTIN / SINT MAARTEN ────────────────────────────────────────────────────────
+  // One hotel, by instruction, under the key that already existed as the gateway for St Barts
+  // and Anguilla. La Samanna is on the French side; the Dutch side has no Voyage One hotel —
+  // the JW Marriott at Dawn Beach is named and excluded. The curation is explicit that this is
+  // not to be promoted as a major destination: it is a night before or after St Barts, the
+  // airport, or a client who specifically wants the French side. One is enough.
+  "St Maarten": [
+    { name: "La Samanna, A Belmond Hotel", area: "Baie Longue, French St Martin", rate: null, ourTake: "Belmond on the best beach on the French side \u2014 a long, empty crescent of sand, villas and suites in the gardens behind it, and twenty minutes from Princess Juliana. The one address on the island, and the right one for a night before or after St Barts." },
   ],
   // ══ CARIBBEAN PURGE — 4 SEPT 2026 ═══════════════════════════════════════════════════
   // Thirty hotels removed on Tricia's instruction under a new absolute rule: VOYAGE ONE DOES NOT
@@ -6314,7 +6326,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "Dutch Caribbean", "anguilla": "British West Indies",
+  "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
@@ -7560,7 +7572,7 @@ const CITY_ALIASES = {
   "soufri\u00e8re": "St Lucia", "soufriere": "St Lucia", "cap estate": "St Lucia", "castries": "St Lucia", "rodney bay": "St Lucia", "the pitons": "St Lucia",
   "antigua & barbuda": "Antigua", "antigua and barbuda": "Antigua", "st john's, antigua": "Antigua", "english harbour": "Antigua", "jumby bay": "Antigua",
   "the valley, anguilla": "Anguilla", "meads bay": "Anguilla", "shoal bay": "Anguilla", "maundays bay": "Anguilla",
-  "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "philipsburg": "St Maarten",
+  "sint maarten": "St Maarten", "saint martin": "St Maarten", "st martin": "St Maarten", "st. maarten": "St Maarten", "st. martin": "St Maarten", "philipsburg": "St Maarten", "marigot": "St Maarten", "baie longue": "St Maarten", "terres basses": "St Maarten", "la samanna": "St Maarten",
   "cabo": "Los Cabos", "cabo san lucas": "Los Cabos", "san jose del cabo": "Los Cabos",
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
