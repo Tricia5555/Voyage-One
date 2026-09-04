@@ -131,6 +131,11 @@ const SEASON = {
   // ── ST BARTS. Drafted Sept 2026 — mine, not Tricia's.
   "St Maarten": { window: "December to April", note: "The dry season. Baie Longue is on the sheltered south-west coast and calm through it. The island took Irma directly in 2017 and La Samanna was rebuilt after; hurricane season is June to November." },
   "St Barth": { window: "November to April \u2014 and the ten days over New Year, which are their own market", note: "The season, and the most expensive ten days in the Caribbean fall in it: Christmas to New Year is booked a year out at every hotel on this list, with minimum stays and rates to match, and Gustavia harbour is where the yachts come to be looked at. January to April is the calm, perfect version. Most of the island closes from late August through October." },
+  // ── HAWAII. Drafted Sept 2026 — mine, not Tricia's.
+  "Honolulu": { window: "Any month \u2014 April to October is driest", note: "Hawaii has no bad season. Waikiki is warm all year; the winter brings the big north-shore surf and the humpback whales, December to April, and the summer the calmest water. Christmas and the spring break fill the hotels." },
+  "Maui": { window: "Any month \u2014 December to April for the whales", note: "Wailea is on the dry, leeward side and sunny most of the year. Humpbacks fill the channel off Wailea and Kapalua from December to April, close enough to watch from the beach. Kapalua is windier and wetter than Wailea in any month." },
+  "Big Island": { window: "Any month", note: "The Kona-Kohala coast is the driest place in the islands and reliable in every month. Manta rays off the Kona coast at night year-round; whales December to April; the volcano does what it does." },
+  "Lanai": { window: "Any month", note: "Dry and quiet all year, with the whales in the channel from December to April and the spinner dolphins in Hulopo'e Bay most mornings. The resorts book out for Christmas and spring." },
   // ── BERMUDA. Drafted Sept 2026 — mine, not Tricia's. The opposite calendar to the Caribbean.
   "Bermuda": { window: "May to October", note: "Bermuda is subtropical, not tropical \u2014 the sea is swimmable from May and the island is at its best through October, while winter is mild, windy and not a beach season. Cup Match closes the island for two days at the end of July. Hurricane season is June to November, and the island is well built for it." },
   // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
@@ -403,7 +408,7 @@ const ULTRA_LUX = [
   "Claridge's", "The Connaught", "The Berkeley", "The Emory", "The Dorchester", "45 Park Lane",
   "The Peninsula London", "Raffles London at The OWO", "Bulgari Hotel London",
   "Mandarin Oriental Hyde Park", "Mandarin Oriental Mayfair", "The Lanesborough", "The Savoy",
-  "Four Seasons Park Lane", "Four Seasons Tower Bridge", "The Ritz London",
+  "Four Seasons Hotel London at Park Lane", "Four Seasons Tower Bridge", "The Ritz London",
   // England / countryside
   "Cliveden House", "Heckfield Place", "Gleneagles", "The Newt in Somerset",
   // Italy — Lake Como
@@ -417,7 +422,7 @@ const ULTRA_LUX = [
   // Italy — Amalfi
   "Il San Pietro di Positano", "Le Sirenuse", "Caruso, a Belmond Hotel", "Borgo Santandrea",
   // Italy — Venice
-  "Aman Venice", "Hotel Cipriani, a Belmond Hotel", "The Gritti Palace",
+  "Aman Venice", "Belmond Hotel Cipriani", "The Gritti Palace",
   // Italy — Sicily
   "San Domenico Palace Taormina", "Villa Sant'Andrea, a Belmond Hotel",
   // Italy — Puglia / Dolomites
@@ -461,7 +466,7 @@ const ULTRA_LUX = [
   "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
   "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
   "Taj Lake Palace", "RAAS Devigarh",
-  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "The Peninsula Beverly Hills", "Maybourne Beverly Hills", "Montage Laguna Beach", "Halekulani", "The Setai Miami Beach", "Faena Hotel Miami",
+  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "The Peninsula Beverly Hills", "Maybourne Beverly Hills", "Montage Laguna Beach", "The Setai Miami Beach", "Faena Hotel Miami",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -616,9 +621,12 @@ const ULTRA_LUX = [
   "Auberge du Soleil", "Meadowood Napa Valley", "SingleThread",
   // United States — Florida
   "Four Seasons Hotel at The Surf Club", "Little Palm Island Resort and Spa", "Four Seasons Palm Beach",
-  // United States — Hawaii
-  "Kona Village, a Rosewood Resort", "Four Seasons Hualalai", "Sensei Lanai, a Four Seasons Resort",
-  "Four Seasons Lanai",
+  // United States — Hawaii. Re-audited 4 Sept 2026 on the strict standard: four, one per island,
+  // three of them Forbes Five-Star Four Seasons and a nine-suite house in Waikiki. Kona Village
+  // (Forbes Four-Star) and Sensei (wellness, not beyond-luxury) came out; Halekulani came out of
+  // the Northeast/West line further down and is Luxury.
+  "Four Seasons Resort Lanai", "Four Seasons Resort Maui at Wailea", "Four Seasons Resort Hualalai",
+  "ESPACIO The Jewel of Waikiki",
   // United States — Mountain West / South / Northeast
   "Amangiri", "One&Only Moonlight Basin", "Caldera House Jackson Hole", "Dunton Hot Springs",
   "Blackberry Farm", "Montage Palmetto Bluff", "The Cloister at Sea Island", "Twin Farms", "The Point",
@@ -703,7 +711,28 @@ function isUltraLux(name) {
 // both lists is an Ultra Luxury hotel that happens to sit somewhere remarkable.
 function isExperienceLux(name) { return matchesCanon(name, EXP_ALNUM, EXP_TOKENSETS); }
 function isBestAvailable(name) { return matchesCanon(name, BEST_ALNUM, BEST_TOKENSETS); }
-function tierOf(name) { return isUltraLux(name) ? "UltraLux" : isExperienceLux(name) ? "ExpLux" : isBestAvailable(name) ? "Best" : "Luxury"; }
+// TIER OF A CURATED NAME — STRICT. The canon matchers are forgiving on purpose, because they
+// were built to recognise Google's spelling of a hotel ("Four Seasons Hotel London at Tower
+// Bridge"). That forgiveness includes a token test: a name matches a canon entry if it contains
+// every word of it. "Sensei Lanai, a Four Seasons Resort" contains every word of "Four Seasons
+// Resort Lanai", so Sensei — Luxury by instruction — was being shown as Ultra Luxury. Every tier
+// is curated-only now, so tierOf compares OUR name to OUR canon and can afford to be strict: an
+// exact match, or the canon entry sitting whole inside the hotel's name ("Palacio Nazarenas" in
+// "Palacio Nazarenas, A Belmond Hotel"). No word-bag matching. The forgiving matchers stay for
+// the live feeds that still use them.
+function strictCanon(name, alnums) {
+  const a = ulxAlnum(name); if (!a) return false;
+  // …or the hotel's name sitting whole inside the canon entry ("Caldera House" in "Caldera House
+  // Jackson Hole"). Whole-string containment either way; never a bag of words.
+  for (let i = 0; i < alnums.length; i++) { const c = alnums[i]; if (a === c || (c.length >= 9 && a.indexOf(c) >= 0) || (a.length >= 9 && c.indexOf(a) >= 0)) return true; }
+  return false;
+}
+function tierOf(name) {
+  if (strictCanon(name, ULX_ALNUM)) return "UltraLux";
+  if (strictCanon(name, EXP_ALNUM)) return "ExpLux";
+  if (strictCanon(name, BEST_ALNUM)) return "Best";
+  return "Luxury";
+}
 // Do two hotel names refer to the same property? Tolerates Google inserting words in the middle
 // ("Four Seasons Hotel London at Tower Bridge" == "Four Seasons Tower Bridge") — used to de-dupe
 // the live feed against our curated picks.
@@ -1071,8 +1100,21 @@ const FAVORITES = {
   "Laguna Beach": [
     { name: "Montage Laguna Beach", area: "Laguna Beach", rate: null, ourTake: "A Craftsman-style resort on the bluffs above the Pacific.", contact: { web: "montage.com" } },
   ],
+  // ── HAWAII — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ──────────────────────────
+  // Four islands, four keys; Kauai has no qualifying hotel and no key, by instruction. Ultra
+  // Luxury is one hotel per island. The islands had hotels and no geography — no coordinates,
+  // no airports, no zones — so nothing routed; each has its own zone now (they are islands,
+  // with channels between them that drivable() must not cross) and its own airport where
+  // Duffel can sell into it. Lanai's strip takes only Lanai Air and Mokulele and routes through
+  // Honolulu. isUS() reads Hawaii as the United States through the airport codes, so the US
+  // rental panel and the long-haul advice apply. WITHHELD PENDING VERIFICATION, by instruction:
+  // The Kahala, 1 Hotel Hanalei Bay, Timbers Kauai. EXCLUDED, by instruction: Kona Village
+  // (Forbes Four-Star), Wailea Beach Resort, Grand Hyatt Kauai, Ko'a Kea, Ka La'i Waikiki.
   "Honolulu": [
-    { name: "Halekulani", area: "Waikiki", rate: null, ourTake: "The serene Waikiki grande dame — 'house befitting heaven', right on the beach.", contact: { web: "halekulani.com" } },
+    { name: "ESPACIO The Jewel of Waikiki", area: "Waikiki", rate: null, ourTake: "Nine suites, one per floor, 2,250 square feet each, a private lift, a butler, and the airport run in the house car. Forbes Five-Star, and the scarcest thing in Hawaii \u2014 which is why a hotel in Waikiki sits in the tier the beach resorts do not." },
+    { name: "Halekulani", area: "Waikiki", rate: null, ourTake: "The serene Waikiki grande dame \u2014 'house befitting heaven' \u2014 on the beach with the best service in Honolulu and the orchid pool. Luxury by instruction: a great hotel, not a scarce one." },
+    { name: "Four Seasons Resort Oahu at Ko Olina", area: "Ko Olina, west Oahu", rate: null, ourTake: "Four Seasons on the leeward coast, forty minutes from Waikiki, with a real spa, good restaurants and a lagoon \u2014 the resort choice on Oahu for a client who does not want the city." },
+    { name: "The Ritz-Carlton Residences, Waikiki Beach", area: "Waikiki", rate: null, ourTake: "Residential-style suites with kitchens in a tower a block from the beach, renovated and well run. For a longer stay in the city." },
   ],
   "St-Tropez": [
     { name: "Cheval Blanc St-Tropez", area: "St-Tropez", rate: null, ourTake: "LVMH glamour on the old port, with a three-Michelin-star table.", contact: { addr: "Place des Lices area, St-Tropez", web: "chevalblanc.com" } },
@@ -2653,13 +2695,19 @@ const FAVORITES = {
   "Palm Beach": [
     { name: "Four Seasons Palm Beach", area: "Palm Beach", rate: null, ourTake: "An intimate oceanfront resort at the quiet south end of the island." },
   ],
+  "Maui": [
+    { name: "Four Seasons Resort Maui at Wailea", area: "Wailea", rate: null, ourTake: "The defining resort of Hawaii on the best beach in Wailea \u2014 Forbes Five-Star, a service culture nothing else on the islands matches, and a clientele that returns every year. Large, and Ultra Luxury on the strength of that service, by instruction." },
+    { name: "Hotel Wailea", area: "Wailea, in the hills", rate: null, ourTake: "Seventy-two suites on fifteen acres above the coast, adults only, quiet and independent. The intimate alternative to the beach resorts below it." },
+    { name: "The Ritz-Carlton Maui, Kapalua", area: "Kapalua, north-west Maui", rate: null, ourTake: "The full-service resort on the Kapalua headland with the two courses, the spa and the pineapple-plantation coast around it. The conventional luxury of west Maui." },
+    { name: "Grand Wailea, A Waldorf Astoria Resort", area: "Wailea", rate: null, ourTake: "The big one on Wailea Beach \u2014 the famous pools, a huge spa, villas and suites, recently reinvested. Built for families and unashamed of it." },
+  ],
   "Big Island": [
-    { name: "Kona Village, a Rosewood Resort", area: "Kohala Coast", rate: null, ourTake: "The beloved hideaway reborn as a Rosewood, all hale bungalows by the sea." },
-    { name: "Four Seasons Hualalai", area: "Kohala Coast", rate: null, ourTake: "The benchmark Hawaii resort on the Kona coast, effortless and warm." },
+    { name: "Four Seasons Resort Hualalai", area: "Kona-Kohala Coast", rate: null, ourTake: "Two hundred and forty-nine bungalow rooms on 865 acres of lava and sea, eight pools, the golf and a spa \u2014 Forbes Five-Star for seventeen years running and the only one on the island. The benchmark Hawaii resort, effortless and warm, and one of the strongest Ultra Luxury calls in the state." },
+    { name: "Mauna Lani, Auberge Collection", area: "Kohala Coast", rate: null, ourTake: "Rebuilt from the ground up for Auberge \u2014 three pools on the water, two courses, a cultural centre and a serious spa. The polished Kohala resort that is not a Four Seasons." },
   ],
   "Lanai": [
     { name: "Sensei Lanai, a Four Seasons Resort", area: "Lanai", rate: null, ourTake: "An adults-only wellness retreat in the cool uplands of Larry Ellison's island." },
-    { name: "Four Seasons Lanai", area: "Manele Bay", rate: null, ourTake: "A clifftop resort above Hulopo'e Bay's dolphins and snorkelling." },
+    { name: "Four Seasons Resort Lanai", area: "Manele Bay", rate: null, ourTake: "A clifftop resort above Hulopo'e Bay's dolphins and reef, on an island with one town and no traffic lights \u2014 Forbes Five-Star, private enough to plan a Hawaii trip around, and the one that most clearly clears the bar." },
   ],
   "Utah": [
     { name: "Amangiri", area: "Canyon Point", rate: null, ourTake: "The desert Aman folded into the mesas — the most photographed pool in America." },
@@ -6346,7 +6394,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
+  "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
@@ -6655,6 +6703,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Lanai": { air: "Honolulu", note: "Fly to Honolulu (HNL), then twenty-five minutes on Lanai Air \u2014 the Four Seasons' own aircraft, booked with the room \u2014 or Mokulele from Honolulu or Maui. The resorts meet every flight. The Maui ferry ended in 2023; the aircraft is the way." },
   "Nevis": { air: "St Kitts", note: "Fly to St Kitts (SKB), then across the Narrows by boat \u2014 the Four Seasons runs its own launch from the harbour, about twenty minutes, and every hotel on Nevis will arrange a water taxi. The public ferry is forty-five minutes from Basseterre. Tradewind and Winair also fly into Nevis's own strip from San Juan and St Maarten, if that is the better connection." },
   "Canouan": { air: "St Vincent", note: "Fly to St Vincent (SVD), then twenty minutes on SVG Air to Canouan \u2014 or from Barbados on the same shuttle, which is often the better connection from Europe. Canouan's strip takes private jets, and for the Mandarin Oriental's villa clients that is how it is usually done." },
   "Mustique": { air: "St Vincent", note: "Fly to St Vincent (SVD) or Barbados (BGI), then Mustique Airways \u2014 about fifteen minutes from St Vincent, forty-five from Barbados \u2014 to the island's own strip. The Cotton House and the villa office book it. There is no ferry, and the island would not want one." },
@@ -6863,6 +6912,13 @@ const AIRPORTS = {
   // Europe, the US carriers from the east coast, genuinely intercontinental. Then ten minutes in
   // the air or forty-five on the water, described in GATEWAY.
   "St Maarten": { code: "SXM", scale: "intercontinental" },
+  // HAWAII. Honolulu (HNL) is the Pacific hub; Kahului (OGG) on Maui and Kona (KOA) on the Big
+  // Island take mainland nonstops from most of the west — Kona takes Japan Airlines from Tokyo
+  // too. All three intercontinental and sold through Duffel. Lanai (LNY) is Lanai Air and
+  // Mokulele only, not listed, routed through Honolulu. Lihue (LIH) is not listed because Kauai
+  // has no hotel.
+  "Honolulu": { code: "HNL", scale: "intercontinental" }, "Maui": { code: "OGG", scale: "intercontinental" },
+  "Big Island": { code: "KOA", scale: "intercontinental" },
   // BERMUDA. L.F. Wade (BDA) takes British Airways from Gatwick and every US east-coast carrier —
   // intercontinental, and the door. Not Caribbean: it is a thousand kilometres north of it, off
   // the Carolinas, and the season note says so.
@@ -7199,6 +7255,12 @@ const ZONE = {
   "antigua": ["Antigua"],
   // ANGUILLA. Its own zone; the channel to St Maarten is in FERRIES.
   "anguilla": ["Anguilla"],
+  // HAWAII. Four islands, four zones, channels between them and no ferries — every island hop is
+  // a flight, and drivable() must never bridge one.
+  "oahu": ["Honolulu"],
+  "maui": ["Maui"],
+  "big-island": ["Big Island"],
+  "lanai": ["Lanai"],
   // BERMUDA. Its own zone, and nothing within a thousand kilometres of it.
   "bermuda": ["Bermuda"],
   // ST BARTS. Two islands, two zones, one ferry between them in FERRIES.
@@ -7294,6 +7356,7 @@ const COORDS = {
   "Grand Cayman": [19.32,-81.24], "Little Cayman": [19.69,-80.05],
   "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
   "St John": [18.33,-64.74], "St Croix": [17.73,-64.75],
+  "Honolulu": [21.31,-157.86], "Maui": [20.72,-156.45], "Big Island": [19.74,-155.99], "Lanai": [20.83,-156.92],
   "Bermuda": [32.30,-64.78], "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
@@ -7605,7 +7668,10 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island",
+  "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island", "hawaii island": "Big Island", "kohala coast": "Big Island", "hualalai": "Big Island",
+  "oahu": "Honolulu", "waikiki": "Honolulu", "ko olina": "Honolulu", "honolulu, hi": "Honolulu",
+  "wailea": "Maui", "kapalua": "Maui", "kahului": "Maui", "lahaina": "Maui", "kihei": "Maui", "maui, hi": "Maui",
+  "lanai city": "Lanai", "manele bay": "Lanai", "lana'i": "Lanai",
   "como": "Lake Como", "firenze": "Florence", "venezia": "Venice", "roma": "Rome", "milano": "Milan", "napoli": "Naples",
   "wien": "Vienna", "munchen": "Munich", "münchen": "Munich", "geneve": "Geneva", "genève": "Geneva",
   "marrakesh": "Marrakech", "cdmx": "Mexico City", "rio": "Rio de Janeiro", "sao paulo": "São Paulo",
