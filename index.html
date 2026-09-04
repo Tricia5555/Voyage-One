@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M366";
+const BUILD = "M367";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -4502,7 +4502,11 @@ const ACCOLADES = {
   "binche": [{ n: "Cul de Poule", bib:1 }, { n: "La Marelle Café", bib:1 }],
   "binefar": [{ n: "Carmen", bib:1 }],
   "binn": [{ n: "Albrun", bib:1 }],
-  "birmingham": [{ n: "Automatic Seafood and Oysters", us:1, jb:1 }, { n: "Bayonet", us:1, bib:1 }, { n: "La Fête", us:1, bib:1 }, { n: "OvenBird", us:1, bib:1 }, { n: "Pizza Grace", us:1, bib:1 }, { n: "Tropea", bib:1 }],
+  // Birmingham, ALABAMA, 4 Sept 2026 gap audit. Hot and Hot on Chris Hastings's 2012 win; Highlands
+  // closed with its 2018 Outstanding Restaurant kept as a record. Automatic stays a winner: Adam
+  // Evans took Best Chef: South in 2022, and the audit's semifinalist list names it in error.
+  // Bottega and Chez Fonfon are Local Favorites by instruction and inherit nothing from Highlands.
+  "birmingham": [{ n: "Hot and Hot Fish Club", us:1, jb:1 }, { n: "Highlands Bar & Grill", us:1, jb:1, closed:1 }, { n: "Automatic Seafood and Oysters", us:1, jb:1 }, { n: "Bayonet", us:1, bib:1 }, { n: "La Fête", us:1, bib:1 }, { n: "OvenBird", us:1, bib:1 }, { n: "Pizza Grace", us:1, bib:1 }, { n: "Tropea", bib:1 }],
   "birstonas": [{ n: "Pievos", bib:1 }],
   "bischofswiesen": [{ n: "Kulturhof Stanggass - Gasthaus", bib:1 }],
   "bishop s cleeve": [{ n: "Jai Ho", bib:1 }],
@@ -4958,7 +4962,10 @@ const ACCOLADES = {
   "itzehoe": [{ n: "Eckpunkt Bar Lounge Bistrot", bib:1 }],
   "ixelles": [{ n: "ÔNGBÀ", bib:1 }, { n: "Lune Siamoise", bib:1 }, { n: "Car Bon", bib:1 }, { n: "Le Tournant", bib:1 }],
   "izmir": [{ n: "Kemal'in Yeri", bib:1 }, { n: "Aslında Meyhane", bib:1 }, { n: "Ayşa Boşnak Börekçisi", bib:1 }, { n: "Asma Yaprağı", bib:1 }, { n: "Adil Müftüoğlu", bib:1 }, { n: "Beğendik Abi", bib:1 }, { n: "LA Mahzen", bib:1 }, { n: "Partal Kardeşler Balık Restorant", bib:1 }, { n: "Tavacı Recep Usta Alsancak", bib:1 }],
-  "jackson": [{ n: "Elvie's", us:1, bib:1 }],
+  // Jackson, MISSISSIPPI — keyed with the state so it can never be read for Jackson Hole.
+  "jackson mississippi": [{ n: "Bully's Restaurant", us:1, jb:1 }, { n: "Elvie's", us:1, bib:1 }],
+  "greenville mississippi": [{ n: "Doe's Eat Place", us:1, jb:1 }],
+  "marianna": [{ n: "Jones Bar-B-Q Diner", us:1, jb:1 }],
   "jaraiz de la vera": [{ n: "Villa Xarahiz", bib:1 }],
   "jarnac champagne": [{ n: "Le Coude à Coude", bib:1 }],
   "jeddah": [{ n: "Samia's Dish", bib:1 }, { n: "The Lucky Llama", bib:1 }],
@@ -5271,7 +5278,7 @@ const ACCOLADES = {
   "offida": [{ n: "Osteria Ophis", bib:1 }],
   "ohain": [{ n: "La Table-Lasne by Alain Bianchin", bib:1 }],
   "oirschot": [{ n: "La Fleurie", bib:1 }],
-  "oklahoma city": [{ n: "Grey Sweater", us:1, jb:1 }],
+  "oklahoma city": [{ n: "Grey Sweater", us:1, jb:1 }, { n: "Florence's Restaurant", us:1, jb:1 }],
   "old windsor": [{ n: "The Loch & The Tyne", bib:1 }],
   "oliena": [{ n: "Su Gologone", bib:1 }],
   "olomouc": [{ n: "Long Story Short Eatery & Bakery", bib:1 }],
@@ -5291,7 +5298,10 @@ const ACCOLADES = {
   "oudenburg": [{ n: "Willem Hiele", w:62, wy:2025 }],
   "ouistreham": [{ n: "La Table d'Hôtes", bib:1 }],
   "ourense": [{ n: "Pacífico", bib:1 }],
-  "oxford": [{ n: "Snackbar", us:1, jb:1 }, { n: "Belmond - Le Manoir aux Quat'Saisons", ll:95, lly:2026 }],
+  // Oxford, MISSISSIPPI — keyed dnrm("Oxford, Mississippi") from 4 Sept 2026. It shared a key
+  // with Oxford, England, and Le Manoir was being offered in the Delta.
+  "oxford mississippi": [{ n: "Snackbar", us:1, jb:1 }, { n: "City Grocery", us:1, jb:1 }],
+  "oxford": [{ n: "Belmond - Le Manoir aux Quat'Saisons", ll:95, lly:2026 }],
   "pacentro": [{ n: "Taverna dei Caldora", bib:1 }],
   "paderborn": [{ n: "Bistro", bib:1 }],
   "pailherols": [{ n: "L'Auberge des Montagnes", bib:1 }],
@@ -6095,7 +6105,9 @@ function dineCityKeys(city){
 // Birmingham, England and vice-versa; borough-aware so all of NYC groups under one destination.
 function accoladesFor(city){
   const keys = dineCityKeys(city); const seen = {}; const out = [];
-  keys.forEach((k) => { (ACCOLADES[k] || []).forEach((x) => { const id = dnrm(x.n); if (!seen[id]) { seen[id] = 1; out.push(x); } }); });
+  // closed:1 keeps an award record in the file without offering the table — Highlands Bar &
+  // Grill's 2018 Outstanding Restaurant is history, not a booking.
+  keys.forEach((k) => { (ACCOLADES[k] || []).forEach((x) => { if (x.closed) return; const id = dnrm(x.n); if (!seen[id]) { seen[id] = 1; out.push(x); } }); });
   return out.filter((x) => dineGeoOk(city, !!x.us));
 }
 // Accolades layered onto a restaurant we already hold via Michelin (keyed name|city). Try every
@@ -6689,7 +6701,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "chicago": "Illinois", "detroit": "Michigan", "kohler": "Wisconsin", "nashville": "Tennessee", "harrodsburg": "Kentucky", "wheeling": "West Virginia", "huntington": "West Virginia", "milwaukee": "Wisconsin",
+  "chicago": "Illinois", "detroit": "Michigan", "kohler": "Wisconsin", "nashville": "Tennessee", "oxford, mississippi": "Mississippi", "greenville, mississippi": "Mississippi", "jackson, mississippi": "Mississippi", "marianna": "Arkansas", "oklahoma city": "Oklahoma", "harrodsburg": "Kentucky", "wheeling": "West Virginia", "huntington": "West Virginia", "milwaukee": "Wisconsin",
   // dining rollup: Sozai's suburb opens on Detroit
   "clawson": "Detroit, Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
   // dining rollup: the Twin Cities open on Minneapolis; Balkan Treat Box's suburb opens on St Louis
@@ -7397,7 +7409,7 @@ const AIRPORTS = {
   // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
   // PLAINS, 4 Sept 2026: no hotel in any of the seven states, by instruction, and none was ever
   // in. Minneapolis and St Louis are listed so their Beard winners can be reached as destinations.
-  "Nashville": { code: "BNA", scale: "intercontinental" }, "Milwaukee": { code: "MKE", scale: "intercontinental" }, "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
+  "Oklahoma City": { code: "OKC", scale: "intercontinental" }, "Nashville": { code: "BNA", scale: "intercontinental" }, "Milwaukee": { code: "MKE", scale: "intercontinental" }, "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
   "Detroit": { code: "DTW", scale: "intercontinental" }, "Providence": { code: "PVD", scale: "intercontinental" }, "Portland, Maine": { code: "PWM", scale: "intercontinental" }, "Burlington": { code: "BTV", scale: "intercontinental" }, "Baltimore": { code: "BWI", scale: "intercontinental" }, "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Pittsburgh": { code: "PIT", scale: "intercontinental" }, "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
   "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
   "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
@@ -7538,7 +7550,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Nashville","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Nashville","Oxford, Mississippi","Greenville, Mississippi","Jackson, Mississippi","Marianna","Oklahoma City","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7716,6 +7728,7 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
+  "Oxford, Mississippi": [34.37,-89.52], "Greenville, Mississippi": [33.41,-91.06], "Jackson, Mississippi": [32.30,-90.18], "Marianna": [34.77,-90.76], "Oklahoma City": [35.47,-97.52],
   "Nashville": [36.16,-86.78], "Harrodsburg": [37.76,-84.84], "Wheeling": [40.06,-80.72], "Huntington": [38.42,-82.45], "Kohler": [43.74,-87.78], "Milwaukee": [43.04,-87.91], "Minneapolis": [44.98,-93.27], "St Louis": [38.63,-90.20], "Detroit": [42.33,-83.05], "Newport": [41.49,-71.31], "Watch Hill": [41.31,-71.86], "Providence": [41.82,-71.41], "Portland, Maine": [43.66,-70.26], "Burlington": [44.48,-73.21],
   "Mystic": [41.35,-71.97], "Kennebunk": [43.38,-70.54], "Dover": [43.20,-70.87], "Randolph": [43.92,-72.67],
   "Baltimore": [39.29,-76.61], "Philadelphia": [39.95,-75.17], "Pittsburgh": [40.44,-79.99], "Nemacolin": [39.81,-79.58], "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
@@ -8073,7 +8086,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "whistling straits": "Kohler", "sheboygan": "Kohler", "kohler, wi": "Kohler", "st. paul": "Minneapolis", "saint paul": "Minneapolis", "twin cities": "Minneapolis", "st. louis": "St Louis", "saint louis": "St Louis",
+  "oxford, ms": "Oxford, Mississippi", "greenville, ms": "Greenville, Mississippi", "jackson, ms": "Jackson, Mississippi", "okc": "Oklahoma City", "whistling straits": "Kohler", "sheboygan": "Kohler", "kohler, wi": "Kohler", "st. paul": "Minneapolis", "saint paul": "Minneapolis", "twin cities": "Minneapolis", "st. louis": "St Louis", "saint louis": "St Louis",
   "newport, ri": "Newport", "newport, rhode island": "Newport", "watch hill, ri": "Watch Hill", "westerly": "Watch Hill", "barnard": "Vermont", "twin farms": "Vermont", "portland, me": "Portland, Maine", "kennebunkport": "Kennebunk",
   "washington, d.c.": "Washington DC", "washington, dc": "Washington DC", "dc": "Washington DC", "georgetown, dc": "Washington DC", "little washington": "Washington, Virginia", "rappahannock": "Washington, Virginia", "harbor east": "Baltimore", "philly": "Philadelphia", "rittenhouse square": "Philadelphia", "farmington, pa": "Nemacolin", "laurel highlands": "Nemacolin", "falling rock": "Nemacolin", "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
