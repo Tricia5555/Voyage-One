@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M331";
+const BUILD = "M332";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13420,7 +13420,10 @@ function useCityInsider(cities) {
     if (!todo.length) return;
     todo.forEach((c) => { INSIDER_AI_CACHE[c.toLowerCase()] = null; }); // mark in-flight
     Promise.all(todo.map((c) =>
-      fetch(`/api/insider?city=${encodeURIComponent(c)}`)
+      // Send WHERE the place is, not just what it is called. The notes are written by a model
+      // from the name alone, and "Nevis" alone got three notes about Ben Nevis. The region label
+      // beside every curated destination goes with the request and into the prompt.
+      fetch(`/api/insider?city=${encodeURIComponent(c)}${regionOf(c) ? "&region=" + encodeURIComponent(regionOf(c)) : ""}`)
         .then((r) => r.json())
         .then((j) => { INSIDER_AI_CACHE[c.toLowerCase()] = (j && j.ok && j.items && j.items.length) ? j.items : null; })
         .catch(() => { INSIDER_AI_CACHE[c.toLowerCase()] = null; })
