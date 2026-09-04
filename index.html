@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M361";
+const BUILD = "M364";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -455,7 +455,6 @@ const ULTRA_LUX = [
   "Hotel Adlon Kempinski", "Rocco Forte Hotel de Rome",
   "Four Seasons Hotel Prague", "Augustine, a Luxury Collection Hotel",
   "Four Seasons Hotel Ritz Lisbon",
-  "Four Seasons Hotel Chicago", "The Peninsula Chicago", "Waldorf Astoria Chicago", "The Langham Chicago",
   "The Merrion",
   "Villa La Coste", "Airelles Gordes", "Baumanière Les Baux-de-Provence",
   "Cheval Blanc St-Tropez", "La Réserve Ramatuelle",
@@ -468,7 +467,8 @@ const ULTRA_LUX = [
   "Taj Lake Palace", "RAAS Devigarh",
   // The Inn at Little Washington came down to Luxury on 4 Sept 2026: the restaurant is the
   // defining element, and the hotel is Five-Star, not beyond it. Raffles Boston not yet re-audited.
-  "Raffles Boston", "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach",
+  // Raffles Boston withheld 4 Sept 2026 — unnamed by the New England audit. Sage Lodge not yet audited.
+  "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -645,7 +645,7 @@ const ULTRA_LUX = [
   // Blackberry Farm came down to Luxury on 4 Sept 2026 on Tricia's instruction: refined
   // country-estate hospitality, not Aman-level scarcity. Twin Farms and The Point are not yet
   // re-audited.
-  "Twin Farms", "The Point",
+  "Twin Farms", "The Point", "Ocean House",
   // Canada — classified property by property, not by flag. Four Seasons Toronto, Montreal and
   // Whistler qualify; Fairmont Pacific Rim does and no other Fairmont does. Matching is on the
   // full set of distinctive words, so "Fairmont Pacific Rim" cannot pull in Banff Springs or
@@ -1044,11 +1044,16 @@ const FAVORITES = {
     { name: "Four Seasons Hotel Ritz Lisbon", area: "Avenida", rate: null, ourTake: "A mid-century icon with a rooftop track and museum-grade art.", contact: { addr: "Rua Rodrigo da Fonseca 88, Lisbon", web: "fourseasons.com/lisbon" } },
     { name: "Olissippo Lapa Palace", area: "Lapa", rate: null, ourTake: "An aristocratic hillside palace with gardens and Tagus views.", contact: { addr: "Rua do Pau de Bandeira 4, Lisbon", web: "olissippohotels.com" } },
   ],
+  // ── THE MIDWEST — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Chicago has two Luxury and no
+  // Ultra: The Peninsula and Trump International, both current Forbes Five-Star. Four Seasons,
+  // The Langham and the Waldorf Astoria were in the file and in the Ultra canon and are OUT —
+  // Verified Luxury, not Five-Star, by instruction. Michigan, Wisconsin and Ohio have no hotel:
+  // Shinola, the Foundation, The Townsend, The American Club (historically Five-Star, currently
+  // Four-Star, and the current rating governs), the Ritz-Carlton Cleveland and the Lytle Park are
+  // named and out.
   "Chicago": [
-    { name: "Four Seasons Hotel Chicago", area: "Magnificent Mile", rate: null, ourTake: "Refined comfort high above the Mag Mile, with lake views.", contact: { addr: "120 E Delaware Pl, Chicago", web: "fourseasons.com/chicago" } },
-    { name: "The Peninsula Chicago", area: "Magnificent Mile", rate: null, ourTake: "Impeccable Peninsula service and a superb spa off Michigan Avenue.", contact: { addr: "108 E Superior St, Chicago", web: "peninsula.com" } },
-    { name: "Waldorf Astoria Chicago", area: "Gold Coast", rate: null, ourTake: "An Art Deco-inspired tower in the leafy Gold Coast.", contact: { addr: "11 E Walton St, Chicago", web: "waldorfastoria.com" } },
-    { name: "The Langham Chicago", area: "River North", rate: null, ourTake: "Mies van der Rohe modernism over the river, with a lauded spa.", contact: { addr: "330 N Wabash Ave, Chicago", web: "langhamhotels.com" } },
+    { name: "The Peninsula Chicago", area: "Magnificent Mile", rate: null, ourTake: "Forbes Five-Star on Michigan Avenue \u2014 the spa with the pool under glass, the Shanghai Terrace, and a service culture that is the best in the city. Luxury by instruction." },
+    { name: "Trump International Hotel & Tower Chicago", area: "River North, on the river", rate: null, ourTake: "Forbes Five-Star, with the biggest standard rooms in the city, suites up to 3,800 square feet with full kitchens, and the river and the skyline from every window. Luxury by instruction." },
   ],
   // ── SAN FRANCISCO — NO HOTEL, 4 SEPT 2026. The audit lists the Four Seasons (both), the St
   // Regis and the Ritz-Carlton as "do not load until true Five-Star status is confirmed", and
@@ -1103,7 +1108,16 @@ const FAVORITES = {
     { name: "Phulay Bay, a Ritz-Carlton Reserve", area: "Andaman coast", rate: null, ourTake: "A jungle-and-sea Reserve on the Andaman coast near Krabi.", contact: { web: "ritzcarlton.com" } },
   ],
   "Boston": [
-    { name: "Raffles Boston", area: "Back Bay", rate: null, ourTake: "Raffles' first US address — a sky-lobby tower in Back Bay.", contact: { web: "raffles.com" } },
+  // ── NEW ENGLAND — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Two Ultra Luxury — Ocean
+  // House at Watch Hill and Twin Farms — and three Luxury: both Boston Four Seasons and The
+  // Chanler at Newport. WITHHELD pending confirmation: The Newbury, Mandarin Oriental Boston,
+  // Mayflower Inn, Winvian Farm, Castle Hill Inn, Cliff House Maine. RAFFLES BOSTON was in the
+  // file and in the Ultra canon and the audit does not name it — withheld, flagged. New
+  // Hampshire and Maine have no hotel; White Barn Inn is a Five-Star RESTAURANT under a hotel
+  // that is not, and only the restaurant is listed. The named Boston, Vermont, New Hampshire and
+  // Maine inns are out.
+    { name: "Four Seasons Hotel One Dalton Street, Boston", area: "Back Bay", rate: null, ourTake: "Sixty-one storeys of glass in the Back Bay, Forbes Five-Star, Zuma downstairs and the best suites in the city upstairs. The polished modern luxury of Boston, and Luxury by instruction." },
+    { name: "Four Seasons Hotel Boston", area: "Public Garden", rate: null, ourTake: "The original on the Public Garden \u2014 Five-Star, classic, with the swan boats out of the window and a service that has looked after Boston's visitors for forty years. Luxury by instruction." },
   ],
   // ── VIRGINIA, DC & MARYLAND — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Two Luxury, no
   // Ultra: the Four Seasons in Georgetown and The Inn at Little Washington (down from the Ultra
@@ -2926,11 +2940,17 @@ const FAVORITES = {
     { name: "The St. Regis Bermuda Resort", area: "St George's", rate: null, ourTake: "On the pink sand at the historic east end, beside the Five Forts course, with St Regis butlers and the newest rooms in Bermuda. The polished conventional resort." },
   ],
   "Vermont": [
-    { name: "Twin Farms", area: "Barnard", rate: null, ourTake: "An all-inclusive, all-suite estate on 300 private Vermont acres." },
+    { name: "Twin Farms", area: "Barnard, Vermont", rate: null, ourTake: "An all-inclusive, all-suite estate on 300 private Vermont acres." },
   ],
   // ── THE ADIRONDACKS. The Point is Ultra Luxury by instruction: eleven rooms in a Rockefeller
   // Great Camp on its own peninsula, Forbes Five-Star, black tie at dinner. Lake Placid Lodge is
   // withheld pending confirmation.
+  "Newport": [
+    { name: "The Chanler at Cliff Walk", area: "Cliff Walk, Newport", rate: null, ourTake: "Twenty rooms in a mansion at the head of the Cliff Walk, Forbes Five-Star, with fireplaces, ocean villas with saunas and hot tubs, and the sea at the end of the lawn. Intimate to the point of privacy. Luxury by instruction." },
+  ],
+  "Watch Hill": [
+    { name: "Ocean House", area: "Watch Hill, Rhode Island", rate: null, ourTake: "The yellow grand hotel on the bluff, rebuilt board by board \u2014 sixty-nine rooms, a private beach, a floor valet on call around the clock, and a Five-Star spa and a Five-Star table under the same roof. The great coastal hotel of New England, and Ultra Luxury on the strength of all of it." },
+  ],
   "Adirondacks": [
     { name: "The Point", area: "Saranac Lake", rate: null, ourTake: "A former Rockefeller Great Camp — house-party luxury on a private lake." },
   ],
@@ -3278,7 +3298,7 @@ const DINING = {
   "Chaudes-Aigues": [{ n: "Serge Vieira", s: 2 }],
   "Chengdu": [{ n: "Xin Rong Ji", s: 2 }, { n: "Yu Zhi Lan", s: 2 }, { n: "Chaimen Hui", s: 1 }, { n: "Co-", s: 1 }, { n: "Fang Xiang Jing", s: 1 }, { n: "Fu Rong Huang", s: 1 }, { n: "Hokkien Cuisine", s: 1 }, { n: "Ma's Kitchen (Jinjiang)", s: 1 }, { n: "Mi Xun Teahouse", s: 1 }, { n: "Silver Pot", s: 1 }, { n: "The Hall", s: 1 }, { n: "Xu's Cuisine", s: 1 }, { n: "Young Art · Yong Ya He Xian (Tongzilin East Road)", s: 1 }],
   "Cheverny": [{ n: "Le Favori - Les Sources de Cheverny", s: 1 }],
-  "Chicago": [{ n: "Alinea", s: 2 }, { n: "Ever", s: 2 }, { n: "Kasama", s: 2 }, { n: "Atelier", s: 1 }, { n: "Boka", s: 1 }, { n: "Cariño", s: 1 }, { n: "EL Ideas", s: 1 }, { n: "Elske", s: 1 }, { n: "Esmé", s: 1 }, { n: "Feld", s: 1 }, { n: "Galit", s: 1 }, { n: "Indienne", s: 1 }, { n: "Mako", s: 1 }, { n: "Moody Tongue", s: 1 }, { n: "Next", s: 1 }, { n: "Schwa", s: 1 }, { n: "Sepia", s: 1 }, { n: "Topolobampo", s: 1 }],
+  "Chicago": [{ n: "Smyth", s: 3 }, { n: "Oriole", s: 2 }, { n: "Alinea", s: 2 }, { n: "Ever", s: 2 }, { n: "Kasama", s: 2 }, { n: "Atelier", s: 1 }, { n: "Boka", s: 1 }, { n: "Cariño", s: 1 }, { n: "EL Ideas", s: 1 }, { n: "Elske", s: 1 }, { n: "Esmé", s: 1 }, { n: "Feld", s: 1 }, { n: "Galit", s: 1 }, { n: "Indienne", s: 1 }, { n: "Mako", s: 1 }, { n: "Moody Tongue", s: 1 }, { n: "Next", s: 1 }, { n: "Schwa", s: 1 }, { n: "Sepia", s: 1 }, { n: "Topolobampo", s: 1 }],
   "Chiclana de la Frontera": [{ n: "Alevante", s: 2 }],
   "Chiusdino": [{ n: "Saporium", s: 1 }],
   "Ciboure": [{ n: "Ekaitza", s: 2 }],
@@ -4501,7 +4521,9 @@ const ACCOLADES = {
   "borgerhout": [{ n: "Glou Glou", bib:1 }],
   "borghetto di borbera": [{ n: "Il Fiorile", bib:1 }],
   "bornem": [{ n: "Biestro H-eat", bib:1 }],
-  "boston": [{ n: "Uni", us:1, jb:1 }, { n: "Myers + Chang", us:1, jb:1 }, { n: "Fox & The Knife", us:1, bib:1 }, { n: "Bar Volpe", us:1, bib:1 }],
+  // Boston, 4 Sept 2026 re-audit. O Ya on Tim Cushman's Best Chef: Northeast win; Ostra, Talulla
+  // and Spoke are semifinalists and not added.
+  "boston": [{ n: "O Ya", us:1, jb:1 }, { n: "Uni", us:1, jb:1 }, { n: "Myers + Chang", us:1, jb:1 }, { n: "Fox & The Knife", us:1, bib:1 }, { n: "Bar Volpe", us:1, bib:1 }],
   "boudes": [{ n: "Le Boudes La Vigne", bib:1 }],
   "bouge": [{ n: "Pré de chez vous", bib:1 }],
   "boulder": [{ n: "Frasca Food and Wine", us:1, jb:1 }, { n: "Basta", us:1, bib:1 }, { n: "Cozobi Fonda Fina", us:1, bib:1 }],
@@ -4638,7 +4660,10 @@ const ACCOLADES = {
   "cheste": [{ n: "Huerto Martínez", bib:1 }],
   "chia": [{ n: "Casa Chongastán", bib:1 }],
   "chiavari": [{ n: "Da Felice", bib:1 }],
-  "chicago": [{ n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1, bib:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1, bib:1 }, { n: "Monteverde", us:1, jb:1 }, { n: "Smyth", us:1, ll:95, lly:2026 }, { n: "Mirra", us:1, bib:1 }, { n: "Boonie's", us:1, bib:1 }, { n: "Giant", us:1, bib:1 }, { n: "Sifr", us:1, bib:1 }, { n: "Munno Pizzeria & Bistro", us:1, bib:1 }, { n: "Chef's Special Cocktail Bar", us:1, bib:1 }, { n: "Longman & Eagle", us:1, bib:1 }, { n: "Perilla", us:1, bib:1 }, { n: "Mott St.", us:1, bib:1 }, { n: "Gilt Bar", us:1, bib:1 }, { n: "Sochi", us:1, bib:1 }, { n: "Kie-Gol-Lanee", us:1, bib:1 }, { n: "Cellar Door Provisions", us:1, bib:1 }, { n: "Lardon", us:1, bib:1 }, { n: "Union", us:1, bib:1 }, { n: "Birrieria Zaragoza", us:1, bib:1 }, { n: "Nadu", us:1, bib:1 }, { n: "Daisies", us:1, bib:1 }, { n: "HaiSous", us:1, bib:1 }, { n: "Ghin Khao", us:1, bib:1 }, { n: "Taqueria Chingón", us:1, bib:1 }, { n: "Mi Tocaya", us:1, bib:1 }, { n: "Table, Donkey and Stick", us:1, bib:1 }, { n: "Ciccio Mio", us:1, bib:1 }, { n: "Frontera Grill", us:1, bib:1 }, { n: "Pleasant House Pub", us:1, bib:1 }, { n: "Chilam Balam", us:1, bib:1 }, { n: "Sol de Mexico", us:1, bib:1 }, { n: "Girl & The Goat", us:1, bib:1 }, { n: "Superkhana International", us:1, bib:1 }, { n: "Proxi", us:1, bib:1 }],
+  // Chicago, 4 Sept 2026 re-audit: three Bib Gourmands the table lacked. Virtue and Monteverde
+  // are Destination on their chefs' Best Chef: Great Lakes wins, and were already flagged so.
+  "detroit": [{ n: "Warda P\u00e2tisserie", us:1, jb:1 }],
+  "chicago": [{ n: "PERILLA Fare", us:1, bib:1 }, { n: "Sochi Kitchen", us:1, bib:1 }, { n: "Mi Tocaya Antojer\u00eda", us:1, bib:1 }, { n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1, bib:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1, bib:1 }, { n: "Monteverde", us:1, jb:1 }, { n: "Smyth", us:1, ll:95, lly:2026 }, { n: "Mirra", us:1, bib:1 }, { n: "Boonie's", us:1, bib:1 }, { n: "Giant", us:1, bib:1 }, { n: "Sifr", us:1, bib:1 }, { n: "Munno Pizzeria & Bistro", us:1, bib:1 }, { n: "Chef's Special Cocktail Bar", us:1, bib:1 }, { n: "Longman & Eagle", us:1, bib:1 }, { n: "Perilla", us:1, bib:1 }, { n: "Mott St.", us:1, bib:1 }, { n: "Gilt Bar", us:1, bib:1 }, { n: "Sochi", us:1, bib:1 }, { n: "Kie-Gol-Lanee", us:1, bib:1 }, { n: "Cellar Door Provisions", us:1, bib:1 }, { n: "Lardon", us:1, bib:1 }, { n: "Union", us:1, bib:1 }, { n: "Birrieria Zaragoza", us:1, bib:1 }, { n: "Nadu", us:1, bib:1 }, { n: "Daisies", us:1, bib:1 }, { n: "HaiSous", us:1, bib:1 }, { n: "Ghin Khao", us:1, bib:1 }, { n: "Taqueria Chingón", us:1, bib:1 }, { n: "Mi Tocaya", us:1, bib:1 }, { n: "Table, Donkey and Stick", us:1, bib:1 }, { n: "Ciccio Mio", us:1, bib:1 }, { n: "Frontera Grill", us:1, bib:1 }, { n: "Pleasant House Pub", us:1, bib:1 }, { n: "Chilam Balam", us:1, bib:1 }, { n: "Sol de Mexico", us:1, bib:1 }, { n: "Girl & The Goat", us:1, bib:1 }, { n: "Superkhana International", us:1, bib:1 }, { n: "Proxi", us:1, bib:1 }],
   "chimiche": [{ n: "El Secreto de Chimiche", bib:1 }],
   "chingford": [{ n: "Gina", bib:1 }],
   "chiusi": [{ n: "Osteria La Solita Zuppa", bib:1 }],
@@ -5118,6 +5143,9 @@ const ACCOLADES = {
   "milas": [{ n: "Agora Pansiyon", bib:1 }],
   "mill valley": [{ n: "Playa", us:1, bib:1 }],
   "milwaukee": [{ n: "The Diplomat", us:1, jb:1 }],
+  // Minneapolis, 4 Sept 2026 re-audit. Bûcheron, Hai Hai and (via St Paul) Myriel are winners by
+  // instruction. Spoon and Stable and Young Joni stay: Gavin Kaysen (2018) and Ann Kim (2019) are
+  // Best Chef: Midwest WINNERS, and the audit's nominee list names Spoon and Stable in error.
   "minneapolis": [{ n: "Bûcheron", us:1, jb:1 }, { n: "Hai Hai", us:1, jb:1 }, { n: "Young Joni", us:1, jb:1 }, { n: "Spoon and Stable", us:1, jb:1 }],
   "miranda de ebro": [{ n: "La Vasca", bib:1 }],
   "mirano": [{ n: "Da Flavio e Fabrizio \"Al Teatro\"", bib:1 }],
@@ -5318,7 +5346,14 @@ const ACCOLADES = {
   "pontresina": [{ n: "La Trattoria", bib:1 }],
   "ponts": [{ n: "Lo Ponts", bib:1 }],
   "portalegre": [{ n: "Solar do Forcado", bib:1 }],
-  "portland": [{ n: "Nodoguro", us:1, jb:1 }, { n: "Langbaan", us:1, jb:1 }, { n: "Kann", us:1, jb:1 }, { n: "Eventide Oyster Co.", us:1, jb:1 }, { n: "Ox", us:1, jb:1 }],
+  // Portland, OREGON. Eventide was filed here and is a Portland, MAINE table — moved on 4 Sept 2026.
+  "portland": [{ n: "Nodoguro", us:1, jb:1 }, { n: "Langbaan", us:1, jb:1 }, { n: "Kann", us:1, jb:1 }, { n: "Ox", us:1, jb:1 }],
+  // Portland, MAINE — keyed dnrm("Portland, Maine") so the two Portlands never cross. Fore Street,
+  // Scales and Standard Baking are Destination on Dana Street's 2026 Outstanding Restaurateur
+  // win, which covers these businesses; Eventide on its own Best Chef win.
+  "portland maine": [{ n: "Fore Street", us:1, jb:1 }, { n: "Scales", us:1, jb:1 }, { n: "Standard Baking Co.", us:1, jb:1 }, { n: "Eventide Oyster Co.", us:1, jb:1 }],
+  // Kennebunk — the White Barn Inn RESTAURANT is Forbes Five-Star and Destination; the hotel is not on the list.
+  "kennebunk": [{ n: "White Barn Inn Restaurant", us:1, f5:1 }],
   "porto": [{ n: "OMA", bib:1 }, { n: "Pátio 44", bib:1 }],
   "poznan": [{ n: "Fromażeria", bib:1 }, { n: "Posto", bib:1 }, { n: "SPOT.", bib:1 }, { n: "TU.REStAURANT", bib:1 }],
   "pozoblanco": [{ n: "Kàran Bistró", bib:1 }],
@@ -5326,6 +5361,9 @@ const ACCOLADES = {
   "prats de mollo la preste": [{ n: "Bellavista", bib:1 }],
   "presseck": [{ n: "Gasthof Berghof - Ursprung", bib:1 }],
   "prien am chiemsee": [{ n: "Zum Fischer am See", bib:1 }],
+  // Rhode Island, 4 Sept 2026: Coast and Cara are Forbes Five-Star restaurants (f5), Destination.
+  "watch hill": [{ n: "Coast", us:1, f5:1 }],
+  "newport": [{ n: "Cara", us:1, f5:1 }],
   "providence": [{ n: "Gift Horse", us:1, jb:1 }],
   "puente genil": [{ n: "Alma Ezequiel Montilla", bib:1 }],
   "puertomingalvo": [{ n: "Existe", bib:1 }],
@@ -6636,6 +6674,9 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "chicago": "Illinois", "detroit": "Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
+  // dining rollup: the Twin Cities open on Minneapolis; Balkan Treat Box's suburb opens on St Louis
+  "st paul": "Minneapolis, Minnesota", "webster groves": "St Louis, Missouri", "boston": "Massachusetts", "newport": "Rhode Island", "watch hill": "Rhode Island", "providence": "Rhode Island", "vermont": "Barnard, Vermont", "portland, maine": "Maine", "mystic": "Connecticut", "kennebunk": "Maine", "dover": "New Hampshire", "randolph": "Vermont",
   "washington dc": "District of Columbia", "washington, virginia": "Virginia", "baltimore": "Maryland", "philadelphia": "Pennsylvania", "nemacolin": "Laurel Highlands, Pennsylvania", "pittsburgh": "Pennsylvania", "farmington": "Nemacolin, Pennsylvania", "blackberry farm": "Tennessee", "knoxville": "Tennessee", "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
   "charleston": "South Carolina", "kiawah island": "South Carolina", "palmetto bluff": "South Carolina", "greenville": "South Carolina",
   // dining rollup: towns whose tables belong to a destination page
@@ -6953,6 +6994,9 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Newport": { air: "Providence", note: "Fly to Providence (PVD), then forty minutes down to Newport \u2014 or Boston, an hour and a half. The Chanler sends a car from either." },
+  "Watch Hill": { air: "Providence", note: "Fly to Providence (PVD), then about an hour south-west to Watch Hill; Boston is an hour and three quarters and New York two and a half by road or three by train to Westerly, ten minutes away. Ocean House meets the train." },
+  "Vermont": { air: "Boston", note: "Fly to Boston (BOS), then two and a half hours north-west to Barnard \u2014 or Burlington (BTV), an hour and a quarter. Twin Farms arranges the car and, for those who want it, the helicopter from either." },
   "Washington, Virginia": { air: "Washington DC", note: "Fly to Dulles (IAD), then about an hour and a quarter west into the Blue Ridge foothills. The Inn sends a car for anyone who asks, and most do." },
   "Nemacolin": { air: "Pittsburgh", note: "Fly to Pittsburgh (PIT), then about an hour and a quarter south-east into the Laurel Highlands. The resort sends a car, and has its own strip for private aircraft." },
   "Blackberry Farm": { air: "Knoxville", note: "Fly to Knoxville (TYS), then about thirty minutes south to Walland \u2014 the farm sends a car. Atlanta is three and a half hours if the Knoxville connection does not work; nobody should be doing it after a transatlantic flight." },
@@ -7333,7 +7377,10 @@ const AIRPORTS = {
   // CAROLINAS & GEORGIA, 4 Sept 2026. Atlanta, Charlotte and Raleigh-Durham are intercontinental
   // in fact; Charleston, Savannah, Asheville and Greenville are US-domestic fields and listed as
   // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
-  "Baltimore": { code: "BWI", scale: "intercontinental" }, "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Pittsburgh": { code: "PIT", scale: "intercontinental" }, "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
+  // PLAINS, 4 Sept 2026: no hotel in any of the seven states, by instruction, and none was ever
+  // in. Minneapolis and St Louis are listed so their Beard winners can be reached as destinations.
+  "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
+  "Detroit": { code: "DTW", scale: "intercontinental" }, "Providence": { code: "PVD", scale: "intercontinental" }, "Portland, Maine": { code: "PWM", scale: "intercontinental" }, "Burlington": { code: "BTV", scale: "intercontinental" }, "Baltimore": { code: "BWI", scale: "intercontinental" }, "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Pittsburgh": { code: "PIT", scale: "intercontinental" }, "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
   "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
   "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
   "Greenville": { code: "GSP", scale: "intercontinental" },
@@ -7473,7 +7520,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7651,6 +7698,8 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
+  "Minneapolis": [44.98,-93.27], "St Louis": [38.63,-90.20], "Detroit": [42.33,-83.05], "Newport": [41.49,-71.31], "Watch Hill": [41.31,-71.86], "Providence": [41.82,-71.41], "Portland, Maine": [43.66,-70.26], "Burlington": [44.48,-73.21],
+  "Mystic": [41.35,-71.97], "Kennebunk": [43.38,-70.54], "Dover": [43.20,-70.87], "Randolph": [43.92,-72.67],
   "Baltimore": [39.29,-76.61], "Philadelphia": [39.95,-75.17], "Pittsburgh": [40.44,-79.99], "Nemacolin": [39.81,-79.58], "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
   "Savannah": [32.08,-81.10], "Asheville": [35.60,-82.55], "Greenville": [34.85,-82.40], "Kiawah Island": [32.61,-80.09],
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
@@ -7788,6 +7837,8 @@ const DRIVE_TIMES = [
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
   ["Sarasota", "Naples, Florida", 120, 175], ["Sarasota", "Orlando", 135, 210], ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
+  ["Providence", "Newport", 40, 55], ["Boston", "Newport", 90, 115], ["Providence", "Watch Hill", 60, 80], ["Boston", "Watch Hill", 105, 145], ["New York City", "Watch Hill", 150, 245],
+  ["Boston", "Vermont", 150, 225], ["Burlington", "Vermont", 75, 100], ["Newport", "Watch Hill", 60, 70], ["Boston", "Portland, Maine", 120, 175],
   ["Washington DC", "Washington, Virginia", 80, 110], ["Washington DC", "Baltimore", 60, 65], ["Pittsburgh", "Nemacolin", 75, 110], ["Philadelphia", "Nemacolin", 240, 400], ["Knoxville", "Blackberry Farm", 30, 35], ["Atlanta", "Blackberry Farm", 210, 320], ["Charleston", "Kiawah Island", 40, 40], ["Savannah", "Palmetto Bluff", 35, 40], ["Savannah", "Sea Island", 75, 130], ["Charleston", "Savannah", 120, 175],
   ["Atlanta", "Sea Island", 300, 470], ["Charlotte", "Asheville", 130, 210], ["Raleigh", "Charlotte", 165, 270], ["Atlanta", "Asheville", 210, 330],
   ["Key West", "Florida Keys", 35, 45], ["Miami", "Orlando", 210, 380], ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
@@ -8004,6 +8055,8 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "st. paul": "Minneapolis", "saint paul": "Minneapolis", "twin cities": "Minneapolis", "st. louis": "St Louis", "saint louis": "St Louis",
+  "newport, ri": "Newport", "newport, rhode island": "Newport", "watch hill, ri": "Watch Hill", "westerly": "Watch Hill", "barnard": "Vermont", "twin farms": "Vermont", "portland, me": "Portland, Maine", "kennebunkport": "Kennebunk",
   "washington, d.c.": "Washington DC", "washington, dc": "Washington DC", "dc": "Washington DC", "georgetown, dc": "Washington DC", "little washington": "Washington, Virginia", "rappahannock": "Washington, Virginia", "harbor east": "Baltimore", "philly": "Philadelphia", "rittenhouse square": "Philadelphia", "farmington, pa": "Nemacolin", "laurel highlands": "Nemacolin", "falling rock": "Nemacolin", "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
