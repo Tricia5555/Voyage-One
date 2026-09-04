@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M336";
+const BUILD = "M339";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -221,7 +221,6 @@ const BEST_AVAILABLE = [
   // Tobago, Sept 2026. Fifty-five rooms with a real history on Bacolet Bay, at a rate the
   // curation says is far below conventional Luxury. Carried here as the island's boutique
   // exception — not Luxury, and not pretending to be.
-  "Blue Haven Hotel",
 ];
 const EXPERIENCE_LUX = [
   // Jordan and Oman, Sept 2026 — the first entries in this tier. None of these is a hotel and
@@ -298,35 +297,29 @@ const EXPERIENCE_LUX = [
   // Bahamas, Sept 2026. Tents on a beach opposite Harbour Island, and a private-island villa
   // resort in the Exumas where the boat is half the point. Kamalame is Luxury: the curation
   // allows either and, as with Yemaya and Nayara Bocas, the default is the conservative one.
-  "The Other Side", "Fowl Cay Resort",
+  "Fowl Cay Resort",
   // St Lucia, Sept 2026. Jade Mountain on the curation's explicit word — the open fourth wall
   // and the view are the product, and Experience here is a description, not a demotion.
   // BodyHoliday for the wellness programme, which is the entire reason to go; the rooms are not.
   // Anse Chastanet is Luxury: the corrections allow either, and the default is the conservative one.
-  "Jade Mountain", "BodyHoliday",
+  "Jade Mountain",
   // US Virgin Islands, Sept 2026. A private cay ten minutes off St John with villas, treehouses
   // and tents — the island and the water are the product, and the curation files it here.
-  "Lovango Resort + Beach Club",
   // Little Cayman, Sept 2026. A dive-and-bonefish club on an island of two hundred people, with
   // Bloody Bay Wall off the beach. The curation is explicit that the rooms are not the point.
-  "Southern Cross Club",
   // Jamaica, Sept 2026. Cottages on the Negril cliffs with dinner in a sea cave, and Chris
   // Blackwell's house in the Blue Mountains. Both on the curation's word. GoldenEye and Geejam
   // are Luxury: the corrections allow either, and the default is the conservative one.
-  "The Caves", "Strawberry Hill",
+  "The Caves",
   // The Grenadines, Sept 2026. A 115-acre private island with twenty-two cottages, no televisions
   // and a flag on a pole to call for service. Barefoot on purpose; the island is the product.
-  "Petit St. Vincent Private Island Resort",
   // Nevis, Sept 2026. Eleven rooms in an artist's garden on the slopes of the volcano. The
   // curation calls it experience-led boutique, and it is.
-  "Golden Rock Inn",
   // Dominica, Sept 2026. An off-grid ridge in the far south and a wellness lodge in the
   // rainforest — sustainability and the island are the product, and the curation says so.
   // Secret Bay is Luxury: the curation gives it both, and the default is the conservative one.
-  "Coulibri Ridge", "Jungle Bay Dominica",
   // Trinidad & Tobago, Sept 2026. The birding lodge in the Northern Range, and the dive inn on
   // Batteaux Bay. The curation is explicit that the value of each is what is outside the room.
-  "Asa Wright Nature Centre Ecolodge", "Blue Waters Inn",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -526,7 +519,9 @@ const ULTRA_LUX = [
   // St Barts in full — 3 Sept 2026, on the strict standard. Three, and Le Toiny is deliberately
   // not one of them: the curation calls it "a very close call" and puts it at the very top of
   // Luxury, not to be moved without an explicit decision. It was here before and is now Luxury.
-  "Cheval Blanc St-Barth", "Eden Rock \u2013 St Barths", "Rosewood Le Guanahani St. Barth",
+  // Rosewood Le Guanahani was here for a day and was moved to Luxury on 4 Sept 2026 in the
+  // Caribbean purge: two Ultra Luxury on St Barts, not three.
+  "Cheval Blanc St-Barth", "Eden Rock \u2013 St Barths",
   // Anguilla in full — 3 Sept 2026, on the strict standard. One. Malliouhana was here and is
   // now Luxury by instruction; Four Seasons, Aurora and Zemi never were.
   "Cap Juluca, a Belmond Hotel",
@@ -2331,6 +2326,22 @@ const FAVORITES = {
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
   ],
+  // ══ CARIBBEAN PURGE — 4 SEPT 2026 ═══════════════════════════════════════════════════
+  // Thirty hotels removed on Tricia's instruction under a new absolute rule: VOYAGE ONE DOES NOT
+  // CARRY SUB-FIVE-STAR HOTELS. Charming, historic, remote, boutique, eco, good for diving, or
+  // the best on its island is not enough. The islands had been over-filled to give every place a
+  // hotel; a Hyatt Regency in Port of Spain was the tell. Removed, by country: Bahamas — Kamalame
+  // Cay, Caerula Mar, Grand Isle, The Other Side, Bahama House. St Lucia — BodyHoliday, Anse
+  // Chastanet. USVI — The Buccaneer, Lovango. Cayman — Southern Cross Club. Jamaica — Geejam,
+  // Strawberry Hill. Dominican Republic — Playa Grande Beach Club. Grenada — Laluna. Grenadines —
+  // Petit St Vincent (temporarily closed; bookability, not quality). St Kitts & Nevis — Montpelier,
+  // Golden Rock. Martinique — French Coco. Aruba — Boardwalk, Bucuti & Tara. Bonaire — all three.
+  // Dominica — Jungle Bay, Coulibri Ridge. Trinidad & Tobago — all five. Rosewood Le Guanahani
+  // moved from Ultra to Luxury. NINE DESTINATIONS NOW HAVE NO HOTEL AND NO KEY — Andros, St John,
+  // St Croix, Little Cayman, the Blue Mountains, Petit St Vincent, Bonaire, Port of Spain, Tobago —
+  // and that is intentional: their geography stays so experiences can still route there, but the
+  // picker will not offer them as somewhere to stay. THE ABSENCE OF A HOTEL IS DELIBERATE. DO NOT
+  // FILL IT.
   // ── TRINIDAD & TOBAGO, IN FULL ──────────────────────────────────────────────────────
   // Five properties, two islands, two keys, no Ultra Luxury, by instruction. THE TRINIDAD KEY IS
   // "Port of Spain", not "Trinidad": Trinidad de Cuba is a real destination that will be curated
@@ -2339,15 +2350,8 @@ const FAVORITES = {
   // and a half up into the Northern Range. Piarco (POS) takes British Airways from Gatwick and
   // American from Miami; Tobago (TAB) takes British Airways too, seasonally, and the twenty-five
   // minute air bridge from Trinidad. MAGDALENA GRAND IS EXCLUDED by instruction.
-  "Port of Spain": [
-    { name: "Hyatt Regency Trinidad", area: "Port of Spain waterfront", rate: null, ourTake: "The full-service hotel on the waterfront, with the infinity pool over the Gulf of Paria and the best rooms in the capital. Conventional, reliable, and the address for Carnival." },
-    { name: "Asa Wright Nature Centre Ecolodge", area: "Arima Valley, Northern Range \u2014 ninety minutes from the city", rate: null, ourTake: "A colonial estate house in the rainforest with one of the great birding verandahs on earth \u2014 hummingbirds, toucans, the oilbird cave \u2014 and naturalists on staff. The rooms are simple; the birds are not. Experience, and nothing but." },
-  ],
-  "Tobago": [
-    { name: "The Villas at Stonehaven", area: "Black Rock, south-west Tobago", rate: null, ourTake: "Individual villas with their own pools on a hillside above the Caribbean, run more like a residence than a resort. The strongest luxury address on Tobago, by instruction, and a better fit for a Voyage One client than any of the island's conventional resorts." },
-    { name: "Blue Waters Inn", area: "Speyside, north-east Tobago", rate: null, ourTake: "Thirty-eight rooms on forty-six acres at the head of Batteaux Bay, with its own jetty and a five-star PADI operation on the best reefs in the country \u2014 Speyside and Little Tobago are the reason to come. The diving is the product; the inn is honest about it." },
-    { name: "Blue Haven Hotel", area: "Bacolet Bay, Scarborough", rate: null, ourTake: "Tobago's storied 1940s hotel on its own bay \u2014 Rita Hayworth and Robert Mitchum stayed here \u2014 restored and still charming. Not Luxury by the standard, and carried as the boutique exception because the island has nothing better of its kind." },
-  ],
+
+
   // ── DOMINICA, IN FULL ───────────────────────────────────────────────────────────────
   // Four properties under one key, no Ultra Luxury, by instruction. The island is one destination
   // but a long one: Portsmouth in the north is forty minutes from Douglas-Charles (DOM); the far
@@ -2358,8 +2362,6 @@ const FAVORITES = {
   "Dominica": [
     { name: "Secret Bay", area: "Portsmouth, north-west", rate: null, keys: 2, ourTake: "Villas on a clifftop above two hidden beaches, each with its own pool, a host and a chef on call, and the rainforest running down to the sea between them \u2014 Relais & Ch\u00e2teaux and two Michelin Keys. The very top of Dominica Luxury, by instruction, and exceptional at it." },
     { name: "InterContinental Dominica Cabrits Resort & Spa", area: "Portsmouth, Cabrits National Park", rate: null, ourTake: "The conventional resort on the island \u2014 big rooms on the water beside the national park, four pools, a full spa, and the diving and the hiking on the doorstep. For a client who wants a hotel rather than an adventure." },
-    { name: "Coulibri Ridge", area: "Petit Coulibri, far south", rate: null, ourTake: "Fourteen suites built into a ridge in the south of the island, off-grid and self-sufficient, with organic gardens, two infinity pools and a view to Martinique. Sustainability and stillness are the product, and it is very good at both." },
-    { name: "Jungle Bay Dominica", area: "Soufri\u00e8re, south", rate: null, ourTake: "A wellness lodge in the rainforest above the south coast \u2014 yoga, the spa, local food and the trails and hot springs of the island as the programme. The rooms are simple; the island is not." },
   ],
   // ── ARUBA, CURAÇAO & BONAIRE, IN FULL ───────────────────────────────────────────────
   // Seven properties, three islands, three keys, no Ultra Luxury on any, by instruction. All
@@ -2369,18 +2371,12 @@ const FAVORITES = {
   // category, and that is Tricia's decision, not a default. Say the word and it goes in as
   // Luxury. Curaçao therefore has one hotel, which the curation says is preferable to more.
   "Aruba": [
-    { name: "Boardwalk Boutique Hotel Aruba", area: "Noord, behind Palm Beach", rate: null, keys: 2, ourTake: "Forty-nine casitas on an old coconut plantation, adults only, some with plunge pools, and a reserved patch of Palm Beach a short walk away. Two Michelin Keys \u2014 the only Keys in the ABC islands \u2014 and \u2018barefoot luxury\u2019 in its own words. The small, personal one." },
-    { name: "Bucuti & Tara Beach Resort", area: "Eagle Beach", rate: null, ourTake: "Adults only on the widest, quietest beach on the island, run with a consistency that has made it the Caribbean's top-rated hotel by its guests for years. Calm, sustainable, romantic, and Luxury by instruction." },
     { name: "The Ritz-Carlton, Aruba", area: "Palm Beach", rate: null, ourTake: "The full-service resort at the northern end of Palm Beach \u2014 club level, a good spa, big suites. Polished and conventional; the right answer for a client who wants a large hotel." },
   ],
   "Cura\u00e7ao": [
     { name: "Baoase Luxury Resort", area: "Willemstad", rate: null, ourTake: "Thirty-seven accommodations, twenty-four of them with their own pools, in Balinese-inspired gardens on a private lagoon at the edge of Willemstad. Intimate and individual \u2014 the very top of Cura\u00e7ao Luxury, and by instruction not above it." },
   ],
-  "Bonaire": [
-    { name: "Harbour Village Beach Club", area: "Kralendijk", rate: null, ourTake: "Forty-three rooms, a private beach, a marina and one of the best dive operations in the Caribbean on the house reef. Small, sophisticated and the lead hotel on an island that is really about what is under the water." },
-    { name: "The Bellafonte", area: "Belnem, south of Kralendijk", rate: null, ourTake: "A small oceanfront house with apartment-style suites and the reef at the end of the jetty. The boutique alternative for a couple who dive." },
-    { name: "Delfins Beach Resort Bonaire", area: "Kralendijk", rate: null, ourTake: "The larger beachfront resort with the pools, the restaurants and the dive centre \u2014 for a client who wants facilities as well as the reef." },
-  ],
+
   // ── MARTINIQUE & GUADELOUPE, IN FULL ────────────────────────────────────────────────
   // Three properties, two islands, two keys, no Ultra Luxury on either, by instruction. Both are
   // France — the euro, the roads, and Air France and Corsair from Paris — so the door from
@@ -2390,7 +2386,6 @@ const FAVORITES = {
   // before display, and I cannot. Confirm it and it goes in under Martinique as Luxury.
   "Martinique": [
     { name: "La Suite Villa", area: "Les Trois-\u00celets, across the bay from Fort-de-France", rate: null, ourTake: "Six suites and nine villas on a hill above the bay, each with its own pool or Jacuzzi, filled with the owners' art and run by them \u2014 an official five-star that feels like a house. The intimate, individual choice on Martinique." },
-    { name: "French Coco", area: "Tartane, La Trinit\u00e9, Atlantic coast", rate: null, ourTake: "Seventeen Creole suites on the wild Atlantic side, most with a private pool, and the island's leading hotel by the awards three years running. Small, sophisticated and very French." },
   ],
   "Guadeloupe": [
     { name: "La Toubana H\u00f4tel & Spa", area: "Sainte-Anne, Grande-Terre", rate: null, ourTake: "The island's only five-star: bungalows and suites on a cliff above the sea with the Sisley spa, and four-bedroom villas with their own pools for a family. Guadeloupe's one Luxury address, and the curation says one is enough." },
@@ -2404,8 +2399,6 @@ const FAVORITES = {
   // and I cannot. Confirm it is open and taking bookings and it goes in as Experience Luxury.
   "Nevis": [
     { name: "Four Seasons Resort Nevis", area: "Pinney's Beach", rate: null, ourTake: "The resort that put Nevis on the map: Pinney's Beach, the golf course climbing the volcano, tennis, a spa, and a village of villas and estate homes with their own pools and an ambassador each. Big, and the villa product is remarkable; the resort is classified as a whole, and Luxury by instruction, at its very top." },
-    { name: "Montpelier Nevis", area: "Nevis Peak foothills", rate: null, ourTake: "Eighteen rooms and villas on a sixty-acre sugar estate where Nelson was married, with its own beach a short drive down the hill. Independent, quiet and very well kept \u2014 the small boutique luxury of the island." },
-    { name: "Golden Rock Inn", area: "Gingerland, Nevis", rate: null, ourTake: "Eleven rooms in the extraordinary gardens Brice Marden and his wife made on the slopes of the volcano, with the old sugar mill as the best suite. Design, gardens and privacy are the product; it is not a resort and would be insulted to be called one." },
   ],
   "St Kitts": [
     { name: "Park Hyatt St. Kitts Christophe Harbour", area: "Banana Bay, south-east peninsula", rate: null, ourTake: "A contemporary resort on a quiet bay at the tip of the peninsula, looking across the Narrows to Nevis \u2014 pool suites, villas, a good spa and the Christophe Harbour marina behind it. The conventional luxury of St Kitts." },
@@ -2430,9 +2423,7 @@ const FAVORITES = {
     { name: "Bequia Beach Hotel", area: "Friendship Bay, Bequia", rate: null, ourTake: "Independent, characterful and on the best beach on the island, with villas up the hill, a spa and its own boat. The strongest hotel on Bequia, and a favourite of the sailing crowd." },
     { name: "The Liming Bequia", area: "Spring Bay, Bequia", rate: null, ourTake: "A small villa-style resort on a secluded bay with infinity pools and not much else to do, which is the point. Relaxed luxury; the quiet alternative." },
   ],
-  "Petit St Vincent": [
-    { name: "Petit St. Vincent Private Island Resort", area: "Petit St Vincent \u2014 private island", rate: null, ourTake: "A hundred and fifteen acres, twenty-two stone cottages, no televisions, no telephones, and a flag on a bamboo pole to call for anything you want. The barefoot private island of the Caribbean, and deliberately not polished. Diving with Jean-Michel Cousteau's team; sailing to the Tobago Cays." },
-  ],
+
   // ── GRENADA, IN FULL ────────────────────────────────────────────────────────────────
   // Five properties under one key, no Ultra Luxury, by instruction. Everything is within half an
   // hour of Maurice Bishop (GND) at the southern tip. CALABASH CARRIES A STATUS LINE — it closes
@@ -2442,7 +2433,6 @@ const FAVORITES = {
     { name: "Silversands Grenada", area: "Grand Anse", rate: null, ourTake: "The contemporary one on Grand Anse \u2014 clean lines, the longest pool in the Caribbean, a serious spa and villas behind the beach. For a client who wants modern rather than colonial." },
     { name: "Calabash Hotel", area: "Lance aux \u00c9pines", rate: null, status: "Closed for the season \u2014 reopens 8 October 2026", ourTake: "Family-run, Relais & Ch\u00e2teaux, thirty suites in gardens on a quiet bay with a kitchen that has been the best on the island for years. Personal rather than polished, and loved for it." },
     { name: "Spice Island Beach Resort", area: "Grand Anse", rate: null, keys: 1, ourTake: "Directly on Grand Anse beach, all-inclusive, family-owned and run with real warmth \u2014 Five Diamond, Small Luxury Hotels, a Michelin Key. The classic Grenada resort." },
-    { name: "Laluna Boutique Hotel & Villas", area: "Morne Rouge", rate: null, ourTake: "Balinese-Italian cottages and villas on a hillside above a private cove \u2014 small, romantic and strongly its own thing. The boutique choice." },
   ],
   // ── PUERTO RICO, IN FULL ────────────────────────────────────────────────────────────
   // Four properties in three places, one door. San Juan (SJU) is the airport for all of it:
@@ -2482,7 +2472,6 @@ const FAVORITES = {
   "Playa Grande": [
     { name: "Amanera", area: "Playa Grande, R\u00edo San Juan", rate: null, ourTake: "Aman on a cliff above a mile of empty north-coast beach \u2014 casitas with their own pools, the golf course along the headland, and a stillness the rest of the country does not have. The one Dominican address that stands with the world's best." },
     { name: "\u00c0NI Dominican Republic", area: "Cabrera \u2014 exclusive use only", rate: null, ourTake: "A private peninsula with fourteen suites and more than thirty staff, taken by one group and nobody else \u2014 chefs, daily spa, excursions, all of it included. Not a hotel: a house for up to twenty-eight people, at a rate that says so." },
-    { name: "Playa Grande Beach Club", area: "Playa Grande, R\u00edo San Juan", rate: null, ourTake: "Nine bungalows by Celerie Kemble on two thousand acres, each one different and all of them lovely \u2014 the small, design-led house on the north coast, and a natural buyout for a family or a wedding." },
   ],
   // ── JAMAICA, IN FULL ────────────────────────────────────────────────────────────────
   // Eight properties in five places, no Ultra Luxury, by instruction. Jamaica is big enough to
@@ -2507,11 +2496,8 @@ const FAVORITES = {
   ],
   "Port Antonio": [
     { name: "Trident Hotel", area: "Port Antonio", rate: null, ourTake: "Eleven modernist villas on ten acres of oceanfront in the quiet east, each with a plunge pool, beside the restored castle. Small, private and unlike anything else on the island." },
-    { name: "Geejam", area: "San San, Port Antonio", rate: null, ourTake: "A recording studio in the rainforest with a handful of cabins and villas around it, a creative crowd, and Port Antonio's lagoons below. Music is the identity; the rooms are simple and the place is not." },
   ],
-  "Blue Mountains, Jamaica": [
-    { name: "Strawberry Hill", area: "Irish Town, Blue Mountains", rate: null, ourTake: "Chris Blackwell's Georgian-style cottages at three thousand feet above Kingston, where Bob Marley recuperated and the coffee grows. Cool air, the view down to the harbour, and coffee country at the door. Place and history are the product." },
-  ],
+
   // ── CAYMAN ISLANDS, IN FULL ─────────────────────────────────────────────────────────
   // Four properties, two keys, no Ultra Luxury, by instruction. Grand Cayman holds the three
   // Seven Mile Beach hotels; Little Cayman holds the club, and routes through Grand Cayman
@@ -2525,9 +2511,7 @@ const FAVORITES = {
     { name: "Palm Heights", area: "Seven Mile Beach", rate: null, ourTake: "All suites, all facing the sea, on the best stretch of the beach, with a design sense and a crowd that belong in Miami or Tulum rather than on a bank-and-diving island. The coolest hotel in Cayman, and Luxury because cool is not the test." },
     { name: "Kimpton Seafire Resort + Spa", area: "Seven Mile Beach", rate: null, ourTake: "Contemporary, family-friendly and well run, with bungalows and beach houses for a group and a good spa. Two hundred and sixty-odd rooms, which is the reason it sits where it sits." },
   ],
-  "Little Cayman": [
-    { name: "Southern Cross Club", area: "South Hole Sound, Little Cayman", rate: null, ourTake: "A dozen cottages on a beach on an island of two hundred people, with Bloody Bay Wall \u2014 one of the great dives in the hemisphere \u2014 and the bonefish flats a few minutes away. Relaxed, unpolished and exactly right for what it is for." },
-  ],
+
   // ── US VIRGIN ISLANDS, IN FULL ──────────────────────────────────────────────────────
   // Three properties on three islands, three keys, no Ultra Luxury, by instruction. St Thomas
   // already existed as the ferry door to the BVI; it now has its hotel. St John has no airport
@@ -2538,12 +2522,8 @@ const FAVORITES = {
   "St Thomas": [
     { name: "The Ritz-Carlton, St. Thomas", area: "Great Bay, east end", rate: null, ourTake: "Thirty acres on the east end, rebuilt from the sand up after the storms, with every room looking at the water, an adults' infinity pool, a spa and the resort's own catamaran. The polished conventional luxury of the US Virgin Islands, and Luxury by instruction." },
   ],
-  "St John": [
-    { name: "Lovango Resort + Beach Club", area: "Lovango Cay, off St John", rate: null, ourTake: "A private cay ten minutes by the resort's boat from Cruz Bay, with villas, treehouses and glamping tents, a beach club, coral restoration and the National Park's water all around. The island and the experience are the point; it is not a conventional hotel and does not pretend to be." },
-  ],
-  "St Croix": [
-    { name: "The Buccaneer", area: "Christiansted", rate: null, ourTake: "Three hundred and forty acres, three beaches, eighteen holes and eight tennis courts, run by the same family since 1947. Old-school, unhurried and the right base on St Croix for golf, tennis and a family." },
-  ],
+
+
   // ── BARBADOS, IN FULL ───────────────────────────────────────────────────────────────
   // Five properties under one key, all on the west coast within twenty minutes of each other.
   // Nothing existed for the island before — no card, no key, no geography. Grantley Adams (BGI)
@@ -2566,8 +2546,6 @@ const FAVORITES = {
     { name: "Sugar Beach, A Viceroy Resort", area: "Between the Pitons, Soufri\u00e8re", rate: null, ourTake: "The setting nothing else on the island can answer \u2014 a white beach directly between the two Pitons, bungalows and pool villas in the forest behind it, and residences up to nine bedrooms with their own butler teams. The very top of Luxury here, and Luxury as a whole by instruction." },
     { name: "Jade Mountain", area: "Above Anse Chastanet, Soufri\u00e8re", rate: null, ourTake: "Twenty-nine sanctuaries with no fourth wall, most with an infinity pool the size of a room, all of them looking straight at the Pitons across the water. Architecture and view are the product \u2014 which is exactly why it is filed as Experience, and why it is one of the most important hotels on the island." },
     { name: "Cap Maison", area: "Cap Estate, north", rate: null, ourTake: "Forty-nine rooms, suites and villas on a cliff at the island's quiet northern tip, Relais & Ch\u00e2teaux, with a serious cellar and a small-house feel. The traditional, small-scale luxury choice." },
-    { name: "BodyHoliday", area: "Cap Estate, north", rate: null, ourTake: "The wellness resort the Caribbean measures others against: a treatment a day in the rate, a vast programme of yoga, Pilates, sport and diagnostics, and a real welcome for people travelling alone. The rooms are conventional; the programme is not." },
-    { name: "Anse Chastanet", area: "Soufri\u00e8re", rate: null, ourTake: "Two beaches under the Pitons, the best diving on the island straight off the sand, and rooms scattered up the hillside in the forest. Nature first; the sister property above it is the architecture." },
   ],
   // ── ANTIGUA & BARBUDA, IN FULL ──────────────────────────────────────────────────────
   // Five properties under the existing "Antigua" key. The key is the island, and it is why
@@ -2611,21 +2589,15 @@ const FAVORITES = {
     { name: "Musha Cay", area: "Exuma Cays \u2014 exclusive use only", rate: null, ourTake: "David Copperfield's island, rented whole to one party of up to twenty-four, five houses across seven hundred acres and a staff that outnumbers the guests. Five nights minimum, and a rate that starts where most hotels' penthouses finish. Nobody else on the island, ever." },
     { name: "Over Yonder Cay", area: "Exuma Cays \u2014 exclusive use only", rate: null, ourTake: "Four villas on a private island near Staniel Cay for up to thirty, with its own fleet and a wind farm that powers the lot. Taken whole or not at all \u2014 the most sophisticated private-island product in the country." },
     { name: "Fowl Cay Resort", area: "Exuma Cays", rate: null, ourTake: "A private island where every villa comes with its own boat and the run to Staniel Cay, the swimming pigs and Thunderball Grotto is yours to make. Independence is the product; the point is the water, not the linen." },
-    { name: "Grand Isle Resort & Residences", area: "Emerald Bay, Great Exuma", rate: null, ourTake: "Seventy-eight big villas above Emerald Bay beside the airport, a golf course next door, and the flats and the reef both within reach. The family address in the Exumas, and the right one." },
   ],
   "Eleuthera": [
     { name: "The Cove Eleuthera", area: "Gregory Town", rate: null, ourTake: "Twenty-two rooms and villas on forty acres between two coves, Relais & Ch\u00e2teaux, with a pink beach on one side and the Atlantic on the other. The best hotel on the island." },
     { name: "The Potlatch Club", area: "Governor's Harbour", rate: null, keys: 1, ourTake: "A 1950s society retreat restored on twelve acres of pink-sand beachfront, a Michelin Key, and a sense of a different era that is not affected. Small and rather wonderful." },
-    { name: "The Other Side", area: "Across the water from Harbour Island", rate: null, ourTake: "Tents and shacks on an empty beach opposite Harbour Island, reached by the resort's own boat \u2014 barefoot, beautiful and not a hotel in any conventional sense, which is the point." },
   ],
   "Harbour Island": [
-    { name: "Bahama House by Eleven", area: "Dunmore Town", rate: null, ourTake: "Eleven's eleven-room house in the town \u2014 tiny, polished and run like a private home, with the pink beach a golf cart away. For a couple or a small group who want the island rather than a resort." },
     { name: "The Dunmore", area: "Pink Sands Beach", rate: null, ourTake: "The classic on the beach itself, cottages in the gardens and the best-placed pool on the island. Where Harbour Island has always stayed." },
   ],
-  "Andros, Bahamas": [
-    { name: "Kamalame Cay", area: "Staniard Creek, central Andros", rate: null, ourTake: "A private island of cottages and villas with an overwater spa, five minutes by ferry from the mainland and a mile from the best bonefish flats in the world. Barefoot rather than polished, and priced to say so." },
-    { name: "Caerula Mar Club", area: "South Andros", rate: null, ourTake: "A small, quietly designed club on the south island with villas on the beach and a clubhouse for everything else. The right base for the south Andros flats and the blue holes." },
-  ],
+
   "New York City": [
     { name: "Aman New York", area: "Fifth Avenue", rate: null, ourTake: "A serene three-floor spa sanctuary above Fifth Avenue, with a jazz club below." },
     { name: "The Mark", area: "Upper East Side", rate: null, ourTake: "Bold uptown design steps from the Met and Central Park." },
@@ -5727,13 +5699,35 @@ const NYC_KEYS = ["new york city", "new york", "manhattan", "brooklyn", "queens"
 // Area is deliberately NOT grouped: San Francisco, Oakland, Berkeley et al. stand as separate
 // cities, per instruction.)
 const LA_METRO_KEYS = ["los angeles", "alhambra", "pasadena", "santa monica", "arcadia", "glendale", "rosemead", "bell gardens", "temple city", "monrovia", "hermosa beach", "cerritos"];
+// A REGION GATHERS ITS TOWNS. The Michelin and accolade tables are keyed by the town the
+// restaurant is in — Bellagio, Cernobbio, Positano, Yountville — and a destination like "Lake
+// Como" or "Napa Valley" looked itself up, found nothing, and told the client there was no
+// starred table on the lake. There are three. The rule, from 4 Sept 2026: a destination's dining
+// keys are itself plus every town whose PLACE_REGION label begins with the destination's name —
+// the same table that puts "Lake Como, Italy" under Cernobbio's name on a card. That is data the
+// file already keeps, so any region destination gains its towns the moment they are labelled.
+// New York's boroughs and greater Los Angeles keep their hand groupings.
+// Built on first use, not at load: PLACE_REGION is declared further down the file, and a
+// top-level read here would run before it exists and take the whole page down with it.
+let REGION_MEMBERS = null;
+function regionMembers() {
+  if (REGION_MEMBERS) return REGION_MEMBERS;
+  REGION_MEMBERS = {};
+  Object.keys(PLACE_REGION).forEach((town) => {
+    const head = String(PLACE_REGION[town] || "").split(",")[0].trim().toLowerCase();
+    if (!head) return;
+    (REGION_MEMBERS[head] = REGION_MEMBERS[head] || []).push(town);
+  });
+  return REGION_MEMBERS;
+}
 function dineCityKeys(city){
   const raw = bareCity(city); const low = raw.toLowerCase();
   const al = CITY_ALIASES[low] || CITY_ALIASES[low.split(",")[0].trim()];
   const canon = dnrm(al || raw);
   if (NYC_KEYS.indexOf(canon) !== -1) return NYC_KEYS.slice();   // boroughs are one city (bidirectional)
   if (canon === "los angeles") return LA_METRO_KEYS.slice();     // greater-LA discovery (hub → members)
-  return [canon];
+  const members = regionMembers()[(al || raw).toLowerCase().split(",")[0].trim()] || [];
+  return [canon].concat(members.map(dnrm).filter((m) => m !== canon));
 }
 // Accolade-only restaurants (James Beard / World's 50 Best / La Liste / Bib Gourmand) that a
 // Michelin record does not already carry. Country-aware so Birmingham AL (us:1) never surfaces for
@@ -6289,7 +6283,11 @@ const PLACE_REGION = {
   "sardon de duero": "Castilla y León, Spain", "sotogrande": "Andalucía, Spain", "marbella": "Andalucía, Spain",
   "montalcino": "Tuscany, Italy", "chianti": "Tuscany, Italy", "bolgheri": "Tuscany, Italy",
   "chiusdino": "Tuscany, Italy", "erbusco": "Franciacorta, Italy", "alba": "Piedmont, Italy",
-  "cernobbio": "Lake Como, Italy", "savelletri": "Puglia, Italy", "sciacca": "Sicily, Italy",
+  "cernobbio": "Lake Como, Italy", "bellagio": "Lake Como, Italy", "como": "Lake Como, Italy", "tremezzo": "Lake Como, Italy", "blevio": "Lake Como, Italy", "moltrasio": "Lake Como, Italy", "varenna": "Lake Como, Italy",
+  "positano": "Amalfi Coast, Italy", "ravello": "Amalfi Coast, Italy", "amalfi": "Amalfi Coast, Italy", "praiano": "Amalfi Coast, Italy", "vico equense": "Amalfi Coast, Italy",
+  "yountville": "Napa Valley, California", "st. helena": "Napa Valley, California", "calistoga": "Napa Valley, California", "rutherford": "Napa Valley, California", "napa": "Napa Valley, California",
+  "san casciano dei bagni": "Tuscany, Italy", "gaiole in chianti": "Tuscany, Italy", "castelnuovo berardenga": "Tuscany, Italy",
+  "vila nova de gaia": "Douro Valley, Portugal", "savelletri": "Puglia, Italy", "sciacca": "Sicily, Italy",
   "umbria": "Italy", "alta badia": "Dolomites, Italy", "cortina d'ampezzo": "Dolomites, Italy",
   "pauillac": "Bordeaux, France", "saint-émilion": "Bordeaux, France", "sauternes": "Bordeaux, France",
   "pommard": "Burgundy, France", "meursault": "Burgundy, France", "beaune": "Burgundy, France",
@@ -8321,10 +8319,17 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   // labelled Dominican Republic. Universal: every alias in the file becomes a way in.
   // …and so is the REGION. "Jamaica" should offer every Jamaican destination, not only the ones
   // with a Jamaica alias — PLACE_REGION already says which country each key is in.
-  const regionHit = (c) => curatedOnly && ((regionOf(c) || "").toLowerCase().includes(q));
-  const aliasHit = (c) => curatedOnly && Object.keys(CITY_ALIASES).some((a) => CITY_ALIASES[a] === c && a.includes(q));
-  const starts = (c) => c.toLowerCase().startsWith(q) || (curatedOnly && (Object.keys(CITY_ALIASES).some((a) => CITY_ALIASES[a] === c && a.startsWith(q)) || (regionOf(c) || "").toLowerCase().startsWith(q)));
-  const matches = q ? pool.filter((c) => (c.toLowerCase().includes(q) || aliasHit(c) || regionHit(c)) && c.toLowerCase() !== q)
+  // MATCH ON WHAT COMES BEFORE THE COMMA, AND ALWAYS SHOW AN EXACT MATCH. "Lake Como, Italy"
+  // used to match nothing, because the whole string was compared against "Lake Como"; and
+  // "Lake Como" typed in full matched nothing either, because an exact match was hidden on the
+  // theory that the client had finished. They had not — they were waiting for a row to tap, and
+  // an empty list reads as "not loading". The head of the text (before any comma) is what is
+  // matched, and an exact match is the first row, not a missing one.
+  const qh = q.split(",")[0].trim();
+  const regionHit = (c) => curatedOnly && ((regionOf(c) || "").toLowerCase().includes(qh));
+  const aliasHit = (c) => curatedOnly && Object.keys(CITY_ALIASES).some((a) => CITY_ALIASES[a] === c && (a.includes(q) || a.includes(qh)));
+  const starts = (c) => c.toLowerCase().startsWith(qh) || (curatedOnly && (Object.keys(CITY_ALIASES).some((a) => CITY_ALIASES[a] === c && a.startsWith(qh)) || (regionOf(c) || "").toLowerCase().startsWith(qh)));
+  const matches = q ? pool.filter((c) => (c.toLowerCase().includes(qh) || aliasHit(c) || regionHit(c)))
     .filter((c) => !curatedOnly || servable(c))
     .sort((a, b) => (starts(b) ? 1 : 0) - (starts(a) ? 1 : 0) || a.localeCompare(b))
     .slice(0, 5) : [];
@@ -12407,7 +12412,9 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // top 100 + La Liste 95+ (a 1★ in a capital dense with top stars drops to Recommended UNLESS it
   // also holds another credential). RECOMMENDED = those demoted 1★ plus the great non-starred
   // tables. CAFÉ & CASUAL = everyday spots. Destination is always shown, even empty — the aspiration.
-  const michRaw = lookup(DINING, city) || [];
+  // Michelin tables are gathered from the destination and its towns (dineCityKeys), exactly as
+  // the accolades are — so a lake, a coast or a valley shows the stars that are actually on it.
+  const michRaw = (() => { const seen = {}; const out = []; dineCityKeys(city).forEach((k) => { const key = Object.keys(DINING).find((x) => dnrm(x) === k); (key ? DINING[key] : []).forEach((r) => { const id = dnrm(r.n); if (!seen[id]) { seen[id] = 1; out.push(r); } }); }); return out; })();
   const michOK = michRaw.length && dineGeoOk(city, !!lookup(DINING_US, city));
   // Fold accolades onto our Michelin records so a 1★ that is also 50 Best/JB stays a Destination and
   // its credentials show on the card.
