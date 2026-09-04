@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M353";
+const BUILD = "M354";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2739,6 +2739,14 @@ const FAVORITES = {
   ],
   "Orlando": [
     { name: "The Ritz-Carlton Orlando, Grande Lakes", area: "Grande Lakes, south Orlando", rate: null, ourTake: "Central Florida's first Forbes Five-Star, awarded in 2026, with the spa, the Norman course and five hundred and eighty-two rooms \u2014 which is why it is Luxury and not the tier above." },
+    { name: "Four Seasons Resort Orlando at Walt Disney World Resort", area: "Golden Oak, Walt Disney World", rate: null, ourTake: "The luxury address inside the Disney gates \u2014 Four Seasons service, a Tom Fazio course, a serious spa, and Capa's Michelin star on the roof. Luxury as a named exception on the total product, and the strongest family resort in the market." },
+  ],
+  // ── SARASOTA — ADDED 4 SEPT 2026 ON THE GAP CORRECTION. Two Luxury, no Ultra. Tampa,
+  // Clearwater and the 30A beaches — Alys, Rosemary, WaterColor — have no hotel and no key: Camp
+  // Creek, The Pearl, WaterColor Inn, the Tampa EDITION and both JW Marriotts are named and out.
+  "Sarasota": [
+    { name: "The St. Regis Longboat Key Resort", area: "Longboat Key", rate: null, ourTake: "New in 2024 on the old Colony site \u2014 eighteen acres of Gulf beachfront, a St Regis spa, butlers and a Bentley in the drive. The polished new resort on this coast, and Luxury by instruction." },
+    { name: "The Ritz-Carlton, Sarasota", area: "Sarasota Bay, downtown", rate: null, ourTake: "On the bay in town, freshly renovated, with a private beach club on Lido Key and a Fazio golf club inland \u2014 the full-service Ritz for the Gulf coast." },
   ],
   "Maui": [
     { name: "Four Seasons Resort Maui at Wailea", area: "Wailea", rate: null, ourTake: "The defining resort of Hawaii on the best beach in Wailea \u2014 Forbes Five-Star, a service culture nothing else on the islands matches, and a clientele that returns every year. Large, and Ultra Luxury on the strength of that service, by instruction." },
@@ -5608,11 +5616,10 @@ const ACCOLADES = {
   // not by way of DANIEL. THE SISTER-RESTAURANT RULE: an award belongs to the restaurant that won
   // it; a Palm Beach location inherits nothing from New York.
   "palm beach": [{ n: "B\u016bccan", us:1, msel:1 }, { n: "Caf\u00e9 Boulud Palm Beach", us:1, msel:1 }],
-  // Naples, FLORIDA — 4 Sept 2026, on Tricia's instruction. The key is "naples florida" (dnrm of
-  // "Naples, Florida"), so the Bay of Naples stars under "naples" cannot reach it and it cannot
-  // reach them. jbs = James Beard SEMIFINALIST: a real credential, Recommended and no further —
-  // jb is reserved for winners and would have made this a Destination table, which it is not.
-  "naples florida": [{ n: "Bicyclette Cookshop", us:1, jbs:1 }],
+  // Naples, FLORIDA has no award-qualified table: Bicyclette Cookshop moved to LOCALFAV on
+  // 4 Sept 2026 because a Beard semifinalist is a nomination, and the Voyage One rule wants a
+  // winner for award-based standing. The key, when one arrives, is "naples florida" — dnrm of
+  // "Naples, Florida" — so the Bay of Naples stars under "naples" can never reach it.
   "westendorf": [{ n: "Gasthaus Steinberg", bib:1 }],
   "weyersheim area": [{ n: "Auberge du Pont de la Zorn", bib:1 }],
   "wierre effroy": [{ n: "La Ferme du Vert", bib:1 }],
@@ -5949,6 +5956,9 @@ const LOCALFAV = {
   // Palm Beach, 4 Sept 2026, on Tricia's instruction. A Local Favorite on its own account; the
   // New York sister's standing does not travel with the name.
   "palm beach": [{ n: "Le Bilboquet", us:1 }],
+  // Naples, Florida, 4 Sept 2026. A Beard semifinalist is not an award; Tricia keeps it as a
+  // Local Favorite on its own merits. Key is dnrm("Naples, Florida").
+  "naples florida": [{ n: "Bicyclette Cookshop", us:1 }],
   "birmingham": [
     { n: "Bottega Cafe", us:1 },
     { n: "Chez Fonfon", us:1 },
@@ -6518,7 +6528,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
+  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -7202,7 +7212,7 @@ const AIRPORTS = {
   // TEXAS, 4 Sept 2026. All four are intercontinental in fact — British Airways and others fly
   // Austin, Dallas and Houston; San Antonio is a US hub airport and sellable throughout.
   "New Orleans": { code: "MSY", scale: "intercontinental" }, "Palm Beach": { code: "PBI", scale: "intercontinental" },
-  "Orlando": { code: "MCO", scale: "intercontinental" }, "Fort Myers": { code: "RSW", scale: "intercontinental" }, "Key West": { code: "EYW", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
+  "Orlando": { code: "MCO", scale: "intercontinental" }, "Sarasota": { code: "SRQ", scale: "intercontinental" }, "Fort Myers": { code: "RSW", scale: "intercontinental" }, "Key West": { code: "EYW", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
   "Houston": { code: "IAH", scale: "intercontinental" }, "San Antonio": { code: "SAT", scale: "intercontinental" },
   "Tucson": { code: "TUS", scale: "intercontinental" }, "Santa Fe": { code: "SAF", scale: "regional" }, "Albuquerque": { code: "ABQ", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
@@ -7337,7 +7347,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Naples, Florida","Orlando","Fort Myers","Key West","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7514,7 +7524,7 @@ const COORDS = {
   "Lake Louise": [51.43,-116.18], "Jasper": [52.87,-118.08], "Victoria": [48.43,-123.37], "Quebec City": [46.81,-71.21],
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
-  "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
+  "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
@@ -7649,7 +7659,7 @@ const DRIVE_TIMES = [
   ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
-  ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
+  ["Sarasota", "Naples, Florida", 120, 175], ["Sarasota", "Orlando", 135, 210], ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
   ["Key West", "Florida Keys", 35, 45], ["Miami", "Orlando", 210, 380], ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
   ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
@@ -7864,7 +7874,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
-  "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
+  "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
   "paradise valley": "Scottsdale", "scottsdale, az": "Scottsdale", "marana": "Tucson", "dove mountain": "Tucson", "tucson, az": "Tucson",
