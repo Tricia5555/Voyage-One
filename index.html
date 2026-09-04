@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M325";
+const BUILD = "M326";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,10 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── PUERTO RICO. Drafted Sept 2026 — mine, not Tricia's.
+  "San Juan": { window: "December to April", note: "The dry season. The Fiestas de la Calle San Sebasti\u00e1n fill Old San Juan for a long weekend in mid-January and the city is at its best and its fullest. Hurricane season is June to November." },
+  "Dorado": { window: "December to April", note: "Dry, calm and the golf at its best. Dorado Beach fills for Christmas and the spring holidays with families who come every year. Hurricane season is June to November." },
+  "R\u00edo Grande, Puerto Rico": { window: "December to April", note: "The dry months on the coast \u2014 though El Yunque is a rainforest and rains in all of them, which is the point of it. Hurricane season is June to November." },
   // ── DOMINICAN REPUBLIC. Drafted Sept 2026 — mine, not Tricia's.
   "Punta Cana": { window: "December to April", note: "The dry season and the calm sea on the east coast. Christmas and Easter are the peaks; May and June are warm, quiet and good value. Hurricane season is June to November." },
   "La Romana": { window: "December to April", note: "Dry, and the golf at its best \u2014 Teeth of the Dog is booked ahead in the winter. The polo season at Casa de Campo runs through the winter months. Hurricane season is June to November." },
@@ -493,6 +497,10 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Puerto Rico in full — 4 Sept 2026, on the strict standard. One: Rockefeller's Dorado estate
+  // under Ritz-Carlton Reserve. St Regis Bahia Beach, Condado Vanderbilt and El San Juan are
+  // Luxury by instruction; Vieques and Culebra have nothing, by instruction.
+  "Dorado Beach, a Ritz-Carlton Reserve",
   // Dominican Republic in full — 3 Sept 2026, on the strict standard. Two: the Aman on the north
   // coast, and ÀNI — a fourteen-suite peninsula taken by one group only, not a hotel, which the
   // card makes plain. Eden Roc, Tortuga Bay, Casa de Campo and Playa Grande Beach Club are
@@ -2255,6 +2263,26 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── PUERTO RICO, IN FULL ────────────────────────────────────────────────────────────
+  // Four properties in three places, one door. San Juan (SJU) is the airport for all of it:
+  // Dorado is thirty-five minutes west, Bahía Beach at Río Grande forty east, the city hotels in
+  // between. Dorado and Río Grande are keys of their own because they are resort destinations a
+  // client names, not neighbourhoods of the capital — a stay at Dorado Beach is not a stay in
+  // San Juan. RÍO GRANDE CARRIES ", Puerto Rico" for the Granada reason: Río Grande in Tierra
+  // del Fuego is a real place near curated Patagonia. Vieques and Culebra are absent by
+  // instruction. The fishing card already pointed at "San Juan" with nothing behind it.
+  // PUERTO RICO IS US SOIL and drives like it, but isUS() does not know it — no US rental panel
+  // shows here. That is a decision for Tricia, not a default I will set.
+  "San Juan": [
+    { name: "Condado Vanderbilt Hotel", area: "Condado", rate: null, ourTake: "The 1919 grande dame on the Condado oceanfront, restored to the hilt \u2014 big suites, a serious bar, and the city's restaurants at the door. The city luxury of San Juan." },
+    { name: "Fairmont El San Juan Hotel", area: "Isla Verde", rate: null, ourTake: "The legend on Isla Verde beach, rebuilt after Maria with its lobby bar and its nightlife intact, and villas on the sand for anyone who wants the beach as well as the party. Social by design." },
+  ],
+  "Dorado": [
+    { name: "Dorado Beach, a Ritz-Carlton Reserve", area: "Dorado, west of San Juan", rate: null, ourTake: "Laurance Rockefeller's 1958 retreat, fifty acres of oceanfront under the brand's highest tier \u2014 ninety-six rooms and suites with plunge pools and open-air showers, an Embajador for each, Spa Bot\u00e1nico in the treetops, and the golf beside it. The one Puerto Rican address that stands with the world's best." },
+  ],
+  "R\u00edo Grande, Puerto Rico": [
+    { name: "The St. Regis Bahia Beach Resort", area: "Bah\u00eda Beach, R\u00edo Grande", rate: null, ourTake: "Nearly five hundred acres between El Yunque and the sea \u2014 a Robert Trent Jones course, a nature reserve, two miles of beach and St Regis service. Big, polished, and the right base for the rainforest and the golf." },
   ],
   // ── DOMINICAN REPUBLIC, IN FULL ─────────────────────────────────────────────────────
   // Six properties in three places. The country is big and the coasts are different trips:
@@ -6112,6 +6140,7 @@ const PLACE_REGION = {
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
+  "san juan": "Puerto Rico", "dorado": "Puerto Rico",
   "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
   "montego bay": "Jamaica", "negril": "Jamaica", "ocho rios": "Jamaica", "port antonio": "Jamaica", "kingston": "Jamaica",
   "nassau": "Bahamas", "exuma": "Bahamas", "eleuthera": "Bahamas", "harbour island": "Bahamas",
@@ -6412,6 +6441,8 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Dorado": { air: "San Juan", note: "Fly to San Juan (SJU), then about thirty-five minutes west along the coast. The resort sends a car, and the Reserve's arrival begins in the terminal." },
+  "R\u00edo Grande, Puerto Rico": { air: "San Juan", note: "Fly to San Juan (SJU), then about forty minutes east on the motorway, with El Yunque rising on the right as you get close. The resort sends a car." },
   "Playa Grande": { air: "Puerto Plata", note: "Fly to Puerto Plata (POP), then about an hour and a quarter east along the coast \u2014 Amanera and the Beach Club both send a car. Santo Domingo (SDQ) is the other way in, three hours over the mountains, and worth it only if the flight is much better. \u00c0NI is fifteen minutes further on at Cabrera." },
   "Negril": { air: "Montego Bay", note: "Fly to Montego Bay (MBJ), then about an hour and a half west along the coast. The Caves sends a car." },
   "Ocho Rios": { air: "Montego Bay", note: "Fly to Montego Bay (MBJ), then a little under two hours east on the new highway \u2014 or into Kingston (KIN) and the same again north over the mountains, which is the prettier road and the slower one. GoldenEye and Jamaica Inn both send a driver." },
@@ -6531,6 +6562,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // PUERTO RICO. Luis Muñoz Marín (SJU) takes Iberia from Madrid and more US flights than any
+  // airport in the Caribbean — intercontinental, and the door for the whole island. Dorado and
+  // Río Grande route through it in GATEWAY.
+  "San Juan": { code: "SJU", scale: "intercontinental" },
   // DOMINICAN REPUBLIC. Punta Cana (PUJ) takes Iberia, Air France, British Airways and every US
   // carrier — the busiest airport in the Caribbean and intercontinental in every sense. La
   // Romana (LRM) takes American from Miami, five minutes from Casa de Campo, sellable and
@@ -6863,6 +6898,8 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // PUERTO RICO. One island, one zone.
+  "puerto-rico": ["San Juan","Dorado","R\u00edo Grande, Puerto Rico"],
   // DOMINICAN REPUBLIC. One island (the western two-thirds of it), one zone.
   "dominican-republic": ["Punta Cana","La Romana","Playa Grande","Puerto Plata","Santo Domingo"],
   // JAMAICA. One island, one zone, and the drive times are real because the roads are not.
@@ -6967,6 +7004,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
   "Punta Cana": [18.58,-68.37], "La Romana": [18.43,-68.97], "Playa Grande": [19.63,-70.00],
   "Puerto Plata": [19.79,-70.69], "Santo Domingo": [18.47,-69.93],
   "Montego Bay": [18.47,-77.92], "Negril": [18.27,-78.35], "Ocho Rios": [18.41,-77.10],
@@ -7068,6 +7106,8 @@ const DRIVE_TIMES = [
   ["Pisa", "Florence", 60, 85], ["Marseille", "Provence", 70, 90], ["Geneva", "Chamonix", 65, 90], ["Zurich", "Zermatt", 195, 245],
   ["Lyon", "Courchevel", 150, 190], ["Phoenix", "Sedona", 115, 185], ["Calgary", "Banff", 90, 130], ["San Francisco", "Napa Valley", 75, 80],
   ["Faro", "Algarve", 30, 35], ["Milan", "Rome", 350, 575],
+  // PUERTO RICO. Mine, not verified. Motorway both ways from the airport.
+  ["San Juan", "Dorado", 35, 35], ["San Juan", "R\u00edo Grande, Puerto Rico", 40, 40], ["Dorado", "R\u00edo Grande, Puerto Rico", 70, 75],
   // DOMINICAN REPUBLIC. Mine, not verified. The east is motorway; the north coast is not.
   ["Punta Cana", "La Romana", 60, 80], ["Punta Cana", "Santo Domingo", 150, 190], ["La Romana", "Santo Domingo", 90, 115],
   ["Puerto Plata", "Playa Grande", 75, 80], ["Santo Domingo", "Playa Grande", 180, 200], ["Santo Domingo", "Puerto Plata", 210, 230],
@@ -7240,6 +7280,9 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "puerto rico": "San Juan", "san juan, puerto rico": "San Juan", "old san juan": "San Juan", "condado": "San Juan", "isla verde": "San Juan",
+  "dorado, puerto rico": "Dorado", "dorado beach": "Dorado", "bahia beach": "R\u00edo Grande, Puerto Rico", "bah\u00eda beach": "R\u00edo Grande, Puerto Rico",
+  "rio grande, puerto rico": "R\u00edo Grande, Puerto Rico", "r\u00edo grande, puerto rico": "R\u00edo Grande, Puerto Rico",
   "dominican republic": "Punta Cana", "cap cana": "Punta Cana", "bavaro": "Punta Cana", "b\u00e1varo": "Punta Cana",
   "casa de campo": "La Romana", "playa grande, dominican republic": "Playa Grande", "r\u00edo san juan": "Playa Grande", "rio san juan": "Playa Grande",
   "cabrera, dominican republic": "Playa Grande", "ani dominican republic": "Playa Grande", "\u00e0ni": "Playa Grande",
