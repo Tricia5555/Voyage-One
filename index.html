@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M350";
+const BUILD = "M351";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -466,7 +466,7 @@ const ULTRA_LUX = [
   "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
   "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
   "Taj Lake Palace", "RAAS Devigarh",
-  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach", "The Setai Miami Beach", "Faena Hotel Miami",
+  "Raffles Boston", "The Inn at Little Washington", "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
   // UAE
@@ -625,7 +625,9 @@ const ULTRA_LUX = [
   "The Beverly Hills Hotel", "Rosewood Miramar Beach", "San Ysidro Ranch",
   "Auberge du Soleil", "Meadowood Napa Valley", "Rancho Valencia Resort & Spa",
   // United States — Florida
-  "Four Seasons Hotel at The Surf Club", "Little Palm Island Resort and Spa", "Four Seasons Palm Beach",
+  // Florida re-audited 4 Sept 2026 on the strict standard: two Ultra Luxury, both in Miami. The
+  // Setai, Four Seasons Palm Beach and Little Palm came down to Luxury; Faena is withheld.
+  "Four Seasons Hotel at The Surf Club", "Acqualina Resort & Residences",
   // United States — Hawaii. Re-audited 4 Sept 2026 on the strict standard: four, one per island,
   // three of them Forbes Five-Star Four Seasons and a nine-suite house in Waikiki. Kona Village
   // (Forbes Four-Star) and Sensei (wellness, not beyond-luxury) came out; Halekulani came out of
@@ -2708,16 +2710,35 @@ const FAVORITES = {
   ],
   // ── SONOMA — NO HOTEL, 4 SEPT 2026. Montage Healdsburg and Farmhouse Inn are pending
   // confirmation; SingleThread was in the file and is withheld, unmentioned by the audit.
+  // ── FLORIDA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ─────────────────────────
+  // Two Ultra Luxury, both in Miami; eight Luxury across five keys. VERIFY BEFORE LOADING, by
+  // instruction, so withheld: The Ritz-Carlton Naples, Four Seasons Orlando, The Colony Palm
+  // Beach, The Boca Raton (component by component), Ritz-Carlton Coconut Grove and Key Biscayne.
+  // EXCLUDED: The Biltmore, Doral, Inn on Fifth, JW Marriott Orlando, Conrad Orlando (watchlist),
+  // The Marker. RITZ-CARLTON BAL HARBOUR is closed for works until 7 December 2026 and is to be
+  // re-audited after; not loaded. FAENA MIAMI was in the file and in the Ultra canon, and the
+  // audit does not mention it at all — withheld, not deleted, like Bel-Air; one word restores it.
+  // NAPLES IS KEYED "Naples, Florida": "Naples" is Italy in this file — coordinates, Capodichino,
+  // the Capri ferry — and a bare key would have put the Ritz-Carlton Tiburón on the Bay of Naples.
   "Miami": [
-    { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "A restored 1930s beach club with a Thomas Keller table and true glamour." },
-    { name: "The Setai Miami Beach", area: "South Beach", rate: null, ourTake: "An Art-Deco-meets-Asia sanctuary on Collins Avenue with three pools.", contact: { web: "thesetaihotel.com" } },
-    { name: "Faena Hotel Miami", area: "Mid-Beach", rate: null, ourTake: "Baz Luhrmann-designed theatrical glamour on Mid-Beach.", contact: { web: "faena.com" } },
+    { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "The 1930 Surf Club restored around a Four Seasons \u2014 the cabanas, the Thomas Keller table, a residential quiet on the sand at Surfside, and suites that feel like the private club it was. One of the two Florida hotels that stand with the world's best." },
+    { name: "Acqualina Resort & Residences", area: "Sunny Isles Beach", rate: null, ourTake: "Forbes Five-Star for fourteen consecutive years and a Five-Star spa to match \u2014 a Mediterranean palazzo on the sand with a staff-to-guest attention nothing else on the coast approaches. Ultra Luxury on consistency, by instruction." },
+    { name: "The Setai Miami Beach", area: "South Beach, Collins Avenue", rate: null, ourTake: "Art Deco meets Asia on Collins Avenue \u2014 three pools, a serious kitchen and a stillness South Beach does not otherwise have. Forbes Five-Star, and Luxury by instruction: true Five-Star, not quite the rarity of the two above." },
+    { name: "1 Hotel South Beach", area: "South Beach, Mid-Beach end", rate: null, ourTake: "The oceanfront wellness resort at the top of South Beach \u2014 a rooftop pool over the sea, a spa and gym that are the point, and a design of driftwood and reclaimed timber. Luxury, by instruction." },
   ],
   "Florida Keys": [
-    { name: "Little Palm Island Resort and Spa", area: "Little Torch Key", rate: null, ourTake: "A boat-access private-island escape, adults only, castaway-chic." },
+    { name: "Little Palm Island Resort & Spa", area: "Little Torch Key, by boat", rate: null, ourTake: "A boat-access private-island escape, adults only, castaway-chic." },
   ],
   "Palm Beach": [
-    { name: "Four Seasons Palm Beach", area: "Palm Beach", rate: null, ourTake: "An intimate oceanfront resort at the quiet south end of the island." },
+    { name: "Four Seasons Resort Palm Beach", area: "South end of the island", rate: null, ourTake: "Twenty-eight consecutive years of Forbes Five-Star, freshly redone by Martin Brudnizki, on the beach at the quiet south end. True Five-Star, and Luxury by instruction." },
+    { name: "The Breakers Palm Beach", area: "Palm Beach, on the ocean", rate: null, ourTake: "The Flagler-era palace on the Atlantic \u2014 two courses, a mile of beach, a serious spa and the clientele that has come for a century. One of the great American resorts, and Luxury on its scale." },
+  ],
+  "Naples, Florida": [
+    { name: "Naples Beach Club, A Four Seasons Resort", area: "Gulf Shore Boulevard", rate: null, ourTake: "Opened in late 2025 on a hundred and twenty-five acres with a thousand feet of Gulf beach, the golf course behind it and a top suite priced like a house. New and large, so Luxury for now, by instruction." },
+    { name: "The Ritz-Carlton Naples, Tibur\u00f3n", area: "Tibur\u00f3n, inland", rate: null, ourTake: "The golf Ritz \u2014 Forbes Five-Star, two Norman courses, and a shuttle to the beach sister. Luxury by instruction." },
+  ],
+  "Orlando": [
+    { name: "The Ritz-Carlton Orlando, Grande Lakes", area: "Grande Lakes, south Orlando", rate: null, ourTake: "Central Florida's first Forbes Five-Star, awarded in 2026, with the spa, the Norman course and five hundred and eighty-two rooms \u2014 which is why it is Luxury and not the tier above." },
   ],
   "Maui": [
     { name: "Four Seasons Resort Maui at Wailea", area: "Wailea", rate: null, ourTake: "The defining resort of Hawaii on the best beach in Wailea \u2014 Forbes Five-Star, a service culture nothing else on the islands matches, and a clientele that returns every year. Large, and Ultra Luxury on the strength of that service, by instruction." },
@@ -6484,7 +6505,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
+  "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -6796,6 +6817,8 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Naples, Florida": { air: "Fort Myers", note: "Fly to Fort Myers (RSW), then forty minutes south on the interstate. Naples's own field takes private aircraft only." },
+  "Florida Keys": { air: "Key West", note: "Fly to Key West (EYW), then half an hour back up the Overseas Highway to Little Torch Key, where the island's launch is waiting \u2014 or fly to Miami and drive the whole highway, three hours and worth it once. The resort arranges either." },
   "Big Sky": { air: "Bozeman", note: "Fly to Bozeman (BZN) \u2014 nonstops from most of the west and, in winter, the east coast \u2014 then an hour south through the Gallatin canyon. Montage sends a car." },
   "Park City": { air: "Salt Lake City", note: "Fly to Salt Lake City (SLC), then thirty-five minutes up the canyon to Park City \u2014 the easiest ski arrival in America. Blue Sky is another twenty minutes on, at Wanship." },
   "Utah": { air: "Las Vegas", note: "Fly to Las Vegas (LAS), then four and a half hours across the desert to Canyon Point \u2014 or the same from Phoenix. Amangiri arranges the car, and for most of its clients the private-jet strip at Page, fifteen minutes away. There is no scheduled flight worth taking." },
@@ -7165,7 +7188,8 @@ const AIRPORTS = {
   // Page's strip is Contour only and not listed. Denver is Aspen's ground-reachable hub.
   // TEXAS, 4 Sept 2026. All four are intercontinental in fact — British Airways and others fly
   // Austin, Dallas and Houston; San Antonio is a US hub airport and sellable throughout.
-  "New Orleans": { code: "MSY", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
+  "New Orleans": { code: "MSY", scale: "intercontinental" }, "Palm Beach": { code: "PBI", scale: "intercontinental" },
+  "Orlando": { code: "MCO", scale: "intercontinental" }, "Fort Myers": { code: "RSW", scale: "intercontinental" }, "Key West": { code: "EYW", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
   "Houston": { code: "IAH", scale: "intercontinental" }, "San Antonio": { code: "SAT", scale: "intercontinental" },
   "Tucson": { code: "TUS", scale: "intercontinental" }, "Santa Fe": { code: "SAF", scale: "regional" }, "Albuquerque": { code: "ABQ", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
@@ -7300,7 +7324,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Naples, Florida","Orlando","Fort Myers","Key West","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7477,6 +7501,7 @@ const COORDS = {
   "Lake Louise": [51.43,-116.18], "Jasper": [52.87,-118.08], "Victoria": [48.43,-123.37], "Quebec City": [46.81,-71.21],
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
+  "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
@@ -7611,7 +7636,8 @@ const DRIVE_TIMES = [
   ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
-  ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
+  ["Fort Myers", "Naples, Florida", 40, 55], ["Miami", "Naples, Florida", 120, 200], ["Miami", "Palm Beach", 90, 120], ["Miami", "Florida Keys", 180, 200],
+  ["Key West", "Florida Keys", 35, 45], ["Miami", "Orlando", 210, 380], ["Houston", "New Orleans", 320, 560], ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
   ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
   // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
@@ -7825,6 +7851,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
   "paradise valley": "Scottsdale", "scottsdale, az": "Scottsdale", "marana": "Tucson", "dove mountain": "Tucson", "tucson, az": "Tucson",
