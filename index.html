@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M365";
+const BUILD = "M366";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2900,6 +2900,9 @@ const FAVORITES = {
   "Nemacolin": [
     { name: "Falling Rock at Nemacolin", area: "Farmington, Laurel Highlands", rate: null, ourTake: "Forty-two rooms in a Wright-inspired house above the Pete Dye course, Forbes Five-Star, with butlers and the whole Nemacolin estate behind it \u2014 the intimate part of a very large resort, and the only part on this list. Luxury by instruction." },
   ],
+  // BLACKBERRY MOUNTAIN IS NOT IN THIS FILE. The Tennessee gap audit of 4 Sept 2026 assumed it was
+  // already loaded; it never has been, and no document has tiered it, so it is not added here.
+  // The Greenbrier and the Omni Homestead were never loaded either; nothing to flag.
   // ── TENNESSEE — 4 SEPT 2026 ON THE STRICT STANDARD. Blackberry Farm is Luxury, by instruction,
   // and the hotel is the destination: the key is the property, at Walland in the Smokies. Not
   // Ultra — the curation's own words are that its identity is food, wine and country-estate
@@ -4666,6 +4669,11 @@ const ACCOLADES = {
   "chiavari": [{ n: "Da Felice", bib:1 }],
   // Chicago, 4 Sept 2026 re-audit: three Bib Gourmands the table lacked. Virtue and Monteverde
   // are Destination on their chefs' Best Chef: Great Lakes wins, and were already flagged so.
+  // Kentucky and West Virginia, 4 Sept 2026 gap audit — America's Classics winners, each under
+  // its own town so a client who goes there finds it. 610 Magnolia is not added: nominations only.
+  "harrodsburg": [{ n: "Beaumont Inn", us:1, jb:1 }],
+  "wheeling": [{ n: "Figaretti's Italian Restaurant", us:1, jb:1 }],
+  "huntington": [{ n: "Jim's Steak & Spaghetti House", us:1, jb:1 }],
   "detroit": [{ n: "Warda P\u00e2tisserie", us:1, jb:1 }],
   "clawson": [{ n: "Sozai", us:1, jb:1 }],
   "chicago": [{ n: "Kumiko", us:1, jb:1 }, { n: "PERILLA Fare", us:1, bib:1 }, { n: "Sochi Kitchen", us:1, bib:1 }, { n: "Mi Tocaya Antojer\u00eda", us:1, bib:1 }, { n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1, bib:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1, bib:1 }, { n: "Monteverde", us:1, jb:1 }, { n: "Smyth", us:1, ll:95, lly:2026 }, { n: "Mirra", us:1, bib:1 }, { n: "Boonie's", us:1, bib:1 }, { n: "Giant", us:1, bib:1 }, { n: "Sifr", us:1, bib:1 }, { n: "Munno Pizzeria & Bistro", us:1, bib:1 }, { n: "Chef's Special Cocktail Bar", us:1, bib:1 }, { n: "Longman & Eagle", us:1, bib:1 }, { n: "Perilla", us:1, bib:1 }, { n: "Mott St.", us:1, bib:1 }, { n: "Gilt Bar", us:1, bib:1 }, { n: "Sochi", us:1, bib:1 }, { n: "Kie-Gol-Lanee", us:1, bib:1 }, { n: "Cellar Door Provisions", us:1, bib:1 }, { n: "Lardon", us:1, bib:1 }, { n: "Union", us:1, bib:1 }, { n: "Birrieria Zaragoza", us:1, bib:1 }, { n: "Nadu", us:1, bib:1 }, { n: "Daisies", us:1, bib:1 }, { n: "HaiSous", us:1, bib:1 }, { n: "Ghin Khao", us:1, bib:1 }, { n: "Taqueria Chingón", us:1, bib:1 }, { n: "Mi Tocaya", us:1, bib:1 }, { n: "Table, Donkey and Stick", us:1, bib:1 }, { n: "Ciccio Mio", us:1, bib:1 }, { n: "Frontera Grill", us:1, bib:1 }, { n: "Pleasant House Pub", us:1, bib:1 }, { n: "Chilam Balam", us:1, bib:1 }, { n: "Sol de Mexico", us:1, bib:1 }, { n: "Girl & The Goat", us:1, bib:1 }, { n: "Superkhana International", us:1, bib:1 }, { n: "Proxi", us:1, bib:1 }],
@@ -5209,7 +5217,9 @@ const ACCOLADES = {
   "nanto": [{ n: "L'évo", ll:97, lly:2026 }],
   "naples": [{ n: "La Locanda Gesù Vecchio", bib:1 }, { n: "Ostaria Pignatelli", bib:1 }],
   "narbonne": [{ n: "Cave à Vin & à Manger - Maison Saint-Crescent", bib:1 }],
-  "nashville": [{ n: "Peninsula", us:1, jb:1, bib:1 }, { n: "Kisser", us:1, bib:1 }, { n: "Redheaded Stranger", us:1, bib:1 }, { n: "Sho Pizza Bar", us:1, bib:1 }, { n: "SS Gai", us:1, bib:1 }, { n: "St. Vito Focacceria", us:1, bib:1 }, { n: "Uzbegim", us:1, bib:1 }],
+  // Nashville, 4 Sept 2026 gap audit. City House on Tandy Wilson's 2016 Best Chef: Southeast win,
+  // Prince's on its America's Classics — winners both. The named semifinalists are not added.
+  "nashville": [{ n: "Peninsula", us:1, jb:1, bib:1 }, { n: "City House", us:1, jb:1 }, { n: "Prince's Hot Chicken", us:1, jb:1 }, { n: "Kisser", us:1, bib:1 }, { n: "Redheaded Stranger", us:1, bib:1 }, { n: "Sho Pizza Bar", us:1, bib:1 }, { n: "SS Gai", us:1, bib:1 }, { n: "St. Vito Focacceria", us:1, bib:1 }, { n: "Uzbegim", us:1, bib:1 }],
   "nassandres sur risle": [{ n: "L'Auberge de la Vallée", bib:1 }],
   "naucelle": [{ n: "L'Obélias", bib:1 }],
   "nava del rey": [{ n: "Caín", bib:1 }],
@@ -6679,7 +6689,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "chicago": "Illinois", "detroit": "Michigan", "kohler": "Wisconsin", "milwaukee": "Wisconsin",
+  "chicago": "Illinois", "detroit": "Michigan", "kohler": "Wisconsin", "nashville": "Tennessee", "harrodsburg": "Kentucky", "wheeling": "West Virginia", "huntington": "West Virginia", "milwaukee": "Wisconsin",
   // dining rollup: Sozai's suburb opens on Detroit
   "clawson": "Detroit, Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
   // dining rollup: the Twin Cities open on Minneapolis; Balkan Treat Box's suburb opens on St Louis
@@ -7387,7 +7397,7 @@ const AIRPORTS = {
   // sellable. Kiawah routes through Charleston; Palmetto Bluff and Sea Island through Savannah.
   // PLAINS, 4 Sept 2026: no hotel in any of the seven states, by instruction, and none was ever
   // in. Minneapolis and St Louis are listed so their Beard winners can be reached as destinations.
-  "Milwaukee": { code: "MKE", scale: "intercontinental" }, "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
+  "Nashville": { code: "BNA", scale: "intercontinental" }, "Milwaukee": { code: "MKE", scale: "intercontinental" }, "Minneapolis": { code: "MSP", scale: "intercontinental" }, "St Louis": { code: "STL", scale: "intercontinental" },
   "Detroit": { code: "DTW", scale: "intercontinental" }, "Providence": { code: "PVD", scale: "intercontinental" }, "Portland, Maine": { code: "PWM", scale: "intercontinental" }, "Burlington": { code: "BTV", scale: "intercontinental" }, "Baltimore": { code: "BWI", scale: "intercontinental" }, "Philadelphia": { code: "PHL", scale: "intercontinental" }, "Pittsburgh": { code: "PIT", scale: "intercontinental" }, "Knoxville": { code: "TYS", scale: "intercontinental" }, "Atlanta": { code: "ATL", scale: "intercontinental" }, "Charlotte": { code: "CLT", scale: "intercontinental" },
   "Raleigh": { code: "RDU", scale: "intercontinental" }, "Charleston": { code: "CHS", scale: "intercontinental" },
   "Savannah": { code: "SAV", scale: "intercontinental" }, "Asheville": { code: "AVL", scale: "intercontinental" },
@@ -7528,7 +7538,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Nashville","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7706,7 +7716,7 @@ const COORDS = {
   "North Hatley": [45.29,-71.97], "Mont-Tremblant": [46.21,-74.59], "Cape Breton": [46.24,-61.31], "French Polynesia": [-17.02,-149.55],
   "Bora Bora": [-16.50,-151.74], "Fiji": [-18.95,178.28],
   "Naples, Florida": [26.14,-81.79], "Orlando": [28.54,-81.38], "Sarasota": [27.34,-82.53], "Fort Myers": [26.64,-81.87], "Key West": [24.56,-81.78],
-  "Kohler": [43.74,-87.78], "Milwaukee": [43.04,-87.91], "Minneapolis": [44.98,-93.27], "St Louis": [38.63,-90.20], "Detroit": [42.33,-83.05], "Newport": [41.49,-71.31], "Watch Hill": [41.31,-71.86], "Providence": [41.82,-71.41], "Portland, Maine": [43.66,-70.26], "Burlington": [44.48,-73.21],
+  "Nashville": [36.16,-86.78], "Harrodsburg": [37.76,-84.84], "Wheeling": [40.06,-80.72], "Huntington": [38.42,-82.45], "Kohler": [43.74,-87.78], "Milwaukee": [43.04,-87.91], "Minneapolis": [44.98,-93.27], "St Louis": [38.63,-90.20], "Detroit": [42.33,-83.05], "Newport": [41.49,-71.31], "Watch Hill": [41.31,-71.86], "Providence": [41.82,-71.41], "Portland, Maine": [43.66,-70.26], "Burlington": [44.48,-73.21],
   "Mystic": [41.35,-71.97], "Kennebunk": [43.38,-70.54], "Dover": [43.20,-70.87], "Randolph": [43.92,-72.67],
   "Baltimore": [39.29,-76.61], "Philadelphia": [39.95,-75.17], "Pittsburgh": [40.44,-79.99], "Nemacolin": [39.81,-79.58], "Knoxville": [35.96,-83.92], "Atlanta": [33.75,-84.39], "Charlotte": [35.23,-80.84], "Raleigh": [35.78,-78.64], "Charleston": [32.78,-79.93],
   "Savannah": [32.08,-81.10], "Asheville": [35.60,-82.55], "Greenville": [34.85,-82.40], "Kiawah Island": [32.61,-80.09],
