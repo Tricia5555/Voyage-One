@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M330";
+const BUILD = "M331";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12377,8 +12377,16 @@ function useCityThings(city, topic) {
         // place; the beach, the harbour or the fort it drives to is. Drop anything whose name
         // says it is selling excursions, worldwide, and keep what a client can actually go to.
         const OPERATOR = /\b(tours?|touring|excursions?|rentals?|rent-a|hire|charters?|adventures?|safaris?|jeeps?|atv|buggy|buggies|4x4|segway|zipline|zip line|shuttle|taxi|transfers?|day trips?|sightseeing|experiences? (co|ltd|inc))\b/i;
+        // …AND NEAR THE DESTINATION. Google matches on the word, not the place: "things to do in
+        // Nevis" returned Ben Nevis, 6,800 km away in Scotland, and the app offered a client a
+        // climb up it. Every result comes back with coordinates, so anything more than 120 km
+        // from the destination is discarded — generous enough for a region like Tuscany, and
+        // nowhere near enough to reach another country's mountain. Unknown coordinates on either
+        // side keep the old behaviour.
+        const here = coordsFor(city);
+        const near = (m) => !here || m.lat == null || m.lng == null || kmBetween(here, [m.lat, m.lng]) <= 120;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (!near(m)) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
         const res = out.slice(0, 8);
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
