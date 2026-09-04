@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M333";
+const BUILD = "M334";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,11 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── ABC ISLANDS. Drafted Sept 2026 — mine, not Tricia's. Outside the hurricane belt, which is
+  // the whole point of them in September.
+  "Aruba": { window: "Any month \u2014 the ABC islands sit outside the hurricane belt", note: "Dry, sunny and windy all year, with a trade wind that never stops; the wettest weeks are October to December and they are not very wet. The value is April to November, when the rest of the Caribbean is closed or nervous. Carnival runs through January and February." },
+  "Cura\u00e7ao": { window: "Any month \u2014 outside the hurricane belt", note: "Dry and breezy year-round, a little wetter October to December. Carnival in February is one of the biggest in the Caribbean. Willemstad is at its best in the shoulder months when the cruise ships thin out." },
+  "Bonaire": { window: "Any month \u2014 the diving is year-round", note: "Outside the hurricane belt, with visibility on the reef of thirty metres in most months. The calmest water is April to November; the trade wind blows hardest January to March. Turtle nesting on the beaches from May to December." },
   // ── MARTINIQUE & GUADELOUPE. Drafted Sept 2026 — mine, not Tricia's.
   "Martinique": { window: "December to April", note: "The dry season, and February for Carnival, when Fort-de-France closes for four days. The French school holidays fill the island at Christmas, February and Easter. Hurricane season is June to November." },
   "Guadeloupe": { window: "December to April", note: "The dry season, and the calmest sea off Sainte-Anne. Carnival runs through February. The French holidays fill the island at Christmas, February and Easter. Hurricane season is June to November." },
@@ -516,6 +521,10 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Aruba, Curaçao & Bonaire in full — 4 Sept 2026, on the strict standard. NONE on any of the
+  // three. Boardwalk (two Michelin Keys, the only Keys in the ABC islands), Bucuti & Tara and the
+  // Ritz-Carlton on Aruba; Baoase on Curaçao; Harbour Village, The Bellafonte and Delfins on
+  // Bonaire — all Luxury by instruction. Sandals Royal Curaçao is withheld pending Tricia's call.
   // Martinique & Guadeloupe in full — 4 Sept 2026, on the strict standard. NONE on either. La
   // Suite Villa and French Coco are Luxury; La Toubana is Guadeloupe's one Luxury hotel, and
   // the curation says one is preferable to lowering the bar. Cap Est is withheld pending
@@ -2299,6 +2308,26 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── ARUBA, CURAÇAO & BONAIRE, IN FULL ───────────────────────────────────────────────
+  // Seven properties, three islands, three keys, no Ultra Luxury on any, by instruction. All
+  // three are Dutch, all three take KLM from Amsterdam and the US carriers, and all three sit
+  // outside the hurricane belt — which changes the season note. SANDALS ROYAL CURAÇAO IS
+  // WITHHELD: the curation says keep it only if Voyage One wants a high-end all-inclusive
+  // category, and that is Tricia's decision, not a default. Say the word and it goes in as
+  // Luxury. Curaçao therefore has one hotel, which the curation says is preferable to more.
+  "Aruba": [
+    { name: "Boardwalk Boutique Hotel Aruba", area: "Noord, behind Palm Beach", rate: null, keys: 2, ourTake: "Forty-nine casitas on an old coconut plantation, adults only, some with plunge pools, and a reserved patch of Palm Beach a short walk away. Two Michelin Keys \u2014 the only Keys in the ABC islands \u2014 and \u2018barefoot luxury\u2019 in its own words. The small, personal one." },
+    { name: "Bucuti & Tara Beach Resort", area: "Eagle Beach", rate: null, ourTake: "Adults only on the widest, quietest beach on the island, run with a consistency that has made it the Caribbean's top-rated hotel by its guests for years. Calm, sustainable, romantic, and Luxury by instruction." },
+    { name: "The Ritz-Carlton, Aruba", area: "Palm Beach", rate: null, ourTake: "The full-service resort at the northern end of Palm Beach \u2014 club level, a good spa, big suites. Polished and conventional; the right answer for a client who wants a large hotel." },
+  ],
+  "Cura\u00e7ao": [
+    { name: "Baoase Luxury Resort", area: "Willemstad", rate: null, ourTake: "Thirty-seven accommodations, twenty-four of them with their own pools, in Balinese-inspired gardens on a private lagoon at the edge of Willemstad. Intimate and individual \u2014 the very top of Cura\u00e7ao Luxury, and by instruction not above it." },
+  ],
+  "Bonaire": [
+    { name: "Harbour Village Beach Club", area: "Kralendijk", rate: null, ourTake: "Forty-three rooms, a private beach, a marina and one of the best dive operations in the Caribbean on the house reef. Small, sophisticated and the lead hotel on an island that is really about what is under the water." },
+    { name: "The Bellafonte", area: "Belnem, south of Kralendijk", rate: null, ourTake: "A small oceanfront house with apartment-style suites and the reef at the end of the jetty. The boutique alternative for a couple who dive." },
+    { name: "Delfins Beach Resort Bonaire", area: "Kralendijk", rate: null, ourTake: "The larger beachfront resort with the pools, the restaurants and the dive centre \u2014 for a client who wants facilities as well as the reef." },
   ],
   // ── MARTINIQUE & GUADELOUPE, IN FULL ────────────────────────────────────────────────
   // Three properties, two islands, two keys, no Ultra Luxury on either, by instruction. Both are
@@ -6241,6 +6270,7 @@ const PLACE_REGION = {
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
   "grenada": "Caribbean", "san juan": "Puerto Rico", "dorado": "Puerto Rico",
   "martinique": "French West Indies", "guadeloupe": "French West Indies",
+  "aruba": "Dutch Caribbean", "cura\u00e7ao": "Dutch Caribbean", "curacao": "Dutch Caribbean", "bonaire": "Dutch Caribbean",
   "nevis": "St Kitts & Nevis", "st kitts": "St Kitts & Nevis",
   "st vincent": "St Vincent & the Grenadines", "bequia": "The Grenadines", "mustique": "The Grenadines", "canouan": "The Grenadines", "petit st vincent": "The Grenadines",
   "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
@@ -6669,6 +6699,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ABC ISLANDS. Aruba (AUA), Curaçao (CUR) and Bonaire (BON) all take KLM from Amsterdam and
+  // the US carriers from the east coast — intercontinental, each its island's door.
+  "Aruba": { code: "AUA", scale: "intercontinental" }, "Cura\u00e7ao": { code: "CUR", scale: "intercontinental" },
+  "Bonaire": { code: "BON", scale: "intercontinental" },
   // MARTINIQUE & GUADELOUPE. Aimé Césaire (FDF) and Pointe-à-Pitre (PTP) take Air France and
   // Corsair from Paris and American from Miami — intercontinental, and each is its island's door.
   "Martinique": { code: "FDF", scale: "intercontinental" }, "Guadeloupe": { code: "PTP", scale: "intercontinental" },
@@ -7020,6 +7054,10 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // ABC ISLANDS. Three islands, three zones, no ferries — the hops are by air.
+  "aruba": ["Aruba"],
+  "curacao": ["Cura\u00e7ao","Curacao"],
+  "bonaire": ["Bonaire"],
   // MARTINIQUE & GUADELOUPE. Two islands, two zones; the L'Express des Îles ferry between them
   // is three to four hours and deliberately not in FERRIES — fly.
   "martinique": ["Martinique"],
@@ -7141,6 +7179,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "Aruba": [12.52,-69.97], "Cura\u00e7ao": [12.17,-68.99], "Curacao": [12.17,-68.99], "Bonaire": [12.18,-68.26],
   "Martinique": [14.64,-61.02], "Guadeloupe": [16.24,-61.53], "St Kitts": [17.30,-62.73], "Nevis": [17.15,-62.58],
   "St Vincent": [13.16,-61.22], "Bequia": [13.01,-61.24], "Mustique": [12.88,-61.19], "Canouan": [12.70,-61.33], "Petit St Vincent": [12.53,-61.38],
   "Grenada": [12.05,-61.75], "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
@@ -7425,6 +7464,8 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "curacao": "Cura\u00e7ao", "willemstad": "Cura\u00e7ao", "kralendijk": "Bonaire", "oranjestad": "Aruba", "palm beach, aruba": "Aruba", "eagle beach": "Aruba",
+  "abc islands": "Aruba", "dutch caribbean": "Aruba",
   "fort-de-france": "Martinique", "fort de france": "Martinique", "les trois-\u00eelets": "Martinique", "les trois-ilets": "Martinique", "trois-ilets": "Martinique", "tartane": "Martinique", "la trinit\u00e9, martinique": "Martinique",
   "pointe-\u00e0-pitre": "Guadeloupe", "pointe-a-pitre": "Guadeloupe", "sainte-anne, guadeloupe": "Guadeloupe", "grande-terre": "Guadeloupe", "basse-terre": "Guadeloupe",
   "st kitts and nevis": "Nevis", "st kitts & nevis": "Nevis", "saint kitts": "St Kitts", "st. kitts": "St Kitts", "basseterre": "St Kitts", "christophe harbour": "St Kitts",
@@ -11456,7 +11497,19 @@ function feasibleModes(ground, apartKm) {
 // Roughly the continent. Coordinates rather than a country list, for the same reason the
 // European box is: a border moves, a coastline does not. Panama and Costa Rica sit above the
 // northern edge and are deliberately outside — this advice is written for South America.
+// THE ZONE DECIDES WHERE WE KNOW IT; THE BOX DECIDES WHERE WE DO NOT. The box alone was
+// catching Panama City and El Valle de Antón (the comment above said they were outside it;
+// they are not) and, from 4 Sept 2026, Aruba, Curaçao, Bonaire, Grenada and the southern
+// Grenadines — all inside the box's northern edge — which would have shown those islands a
+// South American driver panel. So: a curated place is South American if its ZONE is one of the
+// continent's — the zone names are the countries — and never otherwise, whatever its
+// coordinates. An uncurated point in the box keeps the old behaviour, because a client typing
+// "Cali" still deserves the advice. SA_COUNTRY is not used as the test: it is a per-city table
+// with gaps and accent mismatches, and Bogotá is not in it.
+const SOUTH_AMERICAN_ZONES = ["south-america", "argentina", "bolivia", "brazil", "chile", "colombia", "ecuador", "peru", "uruguay", "galapagos", "rapa-nui"];
 function southAmerica(city) {
+  const z = zoneOf(city);
+  if (z) return SOUTH_AMERICAN_ZONES.includes(z);
   const c = coordsFor(city);
   return !!(c && c[0] >= -56 && c[0] <= 13 && c[1] >= -82 && c[1] <= -34);
 }
