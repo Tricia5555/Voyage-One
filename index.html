@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M329";
+const BUILD = "M330";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,9 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── ST KITTS & NEVIS. Drafted Sept 2026 — mine, not Tricia's.
+  "Nevis": { window: "December to April", note: "The dry season, and the Four Seasons at its most booked over Christmas and the spring holidays. Nevis is quiet in every month; several of the small hotels close for August and September. Hurricane season is June to November." },
+  "St Kitts": { window: "December to April", note: "The dry season. The St Kitts Music Festival fills Basseterre for a weekend in late June. Hurricane season is June to November." },
   // ── ST VINCENT & THE GRENADINES. Drafted Sept 2026 — mine, not Tricia's.
   "Canouan": { window: "December to April", note: "The dry season and the trade winds, which is the sailing season too. Christmas and New Year at the Mandarin Oriental go a year out. Hurricane season is June to November." },
   "Mustique": { window: "Christmas to Easter", note: "The island's season, and the only time most of the villas are let at all \u2014 Christmas and New Year are booked years ahead by the families who own the houses. The Mustique Blues Festival fills Basil's Bar for two weeks at the end of January. Hurricane season is June to November." },
@@ -297,6 +300,9 @@ const EXPERIENCE_LUX = [
   // The Grenadines, Sept 2026. A 115-acre private island with twenty-two cottages, no televisions
   // and a flag on a pole to call for service. Barefoot on purpose; the island is the product.
   "Petit St. Vincent Private Island Resort",
+  // Nevis, Sept 2026. Eleven rooms in an artist's garden on the slopes of the volcano. The
+  // curation calls it experience-led boutique, and it is.
+  "Golden Rock Inn",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -507,6 +513,9 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // St Kitts & Nevis in full — 4 Sept 2026, on the strict standard. NONE. Four Seasons Nevis is
+  // the very top of Luxury by instruction; Park Hyatt and Montpelier are Luxury; Golden Rock is
+  // Experience. Belle Mont Farm is withheld pending verification of its operating status.
   // St Vincent & the Grenadines in full — 4 Sept 2026, on the strict standard. One conventional
   // hotel: thirty-nine keys with butlers throughout, on Canouan — and the curation is explicit
   // that it is THIS Mandarin Oriental, not the brand, that clears the bar. Cotton House, Canouan
@@ -2283,6 +2292,21 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── ST KITTS & NEVIS, IN FULL ───────────────────────────────────────────────────────
+  // Four properties, two islands, two keys, no Ultra Luxury, by instruction. St Kitts (SKB) is
+  // the door — British Airways from Gatwick, the US carriers — and Nevis is a boat across the
+  // Narrows from it: the Four Seasons runs its own launch, the public ferry is in FERRIES. Nevis's
+  // own strip takes only the small aircraft from St Maarten and San Juan and is not listed.
+  // BELLE MONT FARM IS WITHHELD: the curation says verify its operating status before display,
+  // and I cannot. Confirm it is open and taking bookings and it goes in as Experience Luxury.
+  "Nevis": [
+    { name: "Four Seasons Resort Nevis", area: "Pinney's Beach", rate: null, ourTake: "The resort that put Nevis on the map: Pinney's Beach, the golf course climbing the volcano, tennis, a spa, and a village of villas and estate homes with their own pools and an ambassador each. Big, and the villa product is remarkable; the resort is classified as a whole, and Luxury by instruction, at its very top." },
+    { name: "Montpelier Nevis", area: "Nevis Peak foothills", rate: null, ourTake: "Eighteen rooms and villas on a sixty-acre sugar estate where Nelson was married, with its own beach a short drive down the hill. Independent, quiet and very well kept \u2014 the small boutique luxury of the island." },
+    { name: "Golden Rock Inn", area: "Gingerland, Nevis", rate: null, ourTake: "Eleven rooms in the extraordinary gardens Brice Marden and his wife made on the slopes of the volcano, with the old sugar mill as the best suite. Design, gardens and privacy are the product; it is not a resort and would be insulted to be called one." },
+  ],
+  "St Kitts": [
+    { name: "Park Hyatt St. Kitts Christophe Harbour", area: "Banana Bay, south-east peninsula", rate: null, ourTake: "A contemporary resort on a quiet bay at the tip of the peninsula, looking across the Narrows to Nevis \u2014 pool suites, villas, a good spa and the Christophe Harbour marina behind it. The conventional luxury of St Kitts." },
   ],
   // ── ST VINCENT & THE GRENADINES, IN FULL ────────────────────────────────────────────
   // Six properties on four islands, four keys, one gateway. Argyle (SVD) on St Vincent takes
@@ -6195,6 +6219,7 @@ const PLACE_REGION = {
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
   "grenada": "Caribbean", "san juan": "Puerto Rico", "dorado": "Puerto Rico",
+  "nevis": "St Kitts & Nevis", "st kitts": "St Kitts & Nevis",
   "st vincent": "St Vincent & the Grenadines", "bequia": "The Grenadines", "mustique": "The Grenadines", "canouan": "The Grenadines", "petit st vincent": "The Grenadines",
   "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
   "montego bay": "Jamaica", "negril": "Jamaica", "ocho rios": "Jamaica", "port antonio": "Jamaica", "kingston": "Jamaica",
@@ -6496,6 +6521,7 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Nevis": { air: "St Kitts", note: "Fly to St Kitts (SKB), then across the Narrows by boat \u2014 the Four Seasons runs its own launch from the harbour, about twenty minutes, and every hotel on Nevis will arrange a water taxi. The public ferry is forty-five minutes from Basseterre. Tradewind and Winair also fly into Nevis's own strip from San Juan and St Maarten, if that is the better connection." },
   "Canouan": { air: "St Vincent", note: "Fly to St Vincent (SVD), then twenty minutes on SVG Air to Canouan \u2014 or from Barbados on the same shuttle, which is often the better connection from Europe. Canouan's strip takes private jets, and for the Mandarin Oriental's villa clients that is how it is usually done." },
   "Mustique": { air: "St Vincent", note: "Fly to St Vincent (SVD) or Barbados (BGI), then Mustique Airways \u2014 about fifteen minutes from St Vincent, forty-five from Barbados \u2014 to the island's own strip. The Cotton House and the villa office book it. There is no ferry, and the island would not want one." },
   "Bequia": { air: "St Vincent", note: "Fly to St Vincent (SVD), then the ferry from Kingstown to Port Elizabeth \u2014 about an hour, several times a day \u2014 or ten minutes on SVG Air to Bequia's strip. The hotels meet either." },
@@ -6621,6 +6647,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // ST KITTS & NEVIS. Bradshaw (SKB) on St Kitts takes British Airways from Gatwick, American,
+  // Delta and United from the US — intercontinental, and the door for Nevis too. Nevis (NEV) is
+  // Winair and Tradewind only, not in Duffel, not listed.
+  "St Kitts": { code: "SKB", scale: "intercontinental" },
   // ST VINCENT & THE GRENADINES. Argyle (SVD) takes American from Miami and Virgin from London —
   // intercontinental, and the gateway for every Grenadine. Canouan (CIW), Mustique (MQS), Bequia
   // (BQU) and Union Island (UNI) are strips for the island shuttles and private jets; none is in
@@ -6965,6 +6995,9 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // ST KITTS & NEVIS. Two islands, two zones, two miles of water and a ferry between them.
+  "st-kitts": ["St Kitts"],
+  "nevis": ["Nevis"],
   // ST VINCENT & THE GRENADINES. Five islands, five zones. Bequia to St Vincent is the one ferry.
   "st-vincent": ["St Vincent"],
   "bequia": ["Bequia"],
@@ -7079,6 +7112,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
+  "St Kitts": [17.30,-62.73], "Nevis": [17.15,-62.58],
   "St Vincent": [13.16,-61.22], "Bequia": [13.01,-61.24], "Mustique": [12.88,-61.19], "Canouan": [12.70,-61.33], "Petit St Vincent": [12.53,-61.38],
   "Grenada": [12.05,-61.75], "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
   "Punta Cana": [18.58,-68.37], "La Romana": [18.43,-68.97], "Playa Grande": [19.63,-70.00],
@@ -7270,6 +7304,9 @@ const FERRIES = [
   // The Grenadines. Kingstown to Port Elizabeth on Bequia, about an hour, several sailings a
   // day — the one Grenadine a client reaches by public boat. Written down by me.
   ["Bequia", "St Vincent", 60],
+  // St Kitts & Nevis. Basseterre to Charlestown, about forty-five minutes on the public boat;
+  // the Four Seasons launch does it in twenty. Written down by me.
+  ["Nevis", "St Kitts", 45],
 ];
 const FERRY_LIMIT_MIN = 180;
 function ferryBetween(a, b) {
@@ -7359,6 +7396,8 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "st kitts and nevis": "Nevis", "st kitts & nevis": "Nevis", "saint kitts": "St Kitts", "st. kitts": "St Kitts", "basseterre": "St Kitts", "christophe harbour": "St Kitts",
+  "charlestown, nevis": "Nevis", "pinney's beach": "Nevis", "pinneys beach": "Nevis",
   "st vincent and the grenadines": "Canouan", "st vincent & the grenadines": "Canouan", "the grenadines": "Canouan", "grenadines": "Canouan", "svg": "Canouan",
   "kingstown": "St Vincent", "st. vincent": "St Vincent", "saint vincent": "St Vincent",
   "the cotton house": "Mustique", "cotton house": "Mustique", "port elizabeth, bequia": "Bequia", "friendship bay": "Bequia",
