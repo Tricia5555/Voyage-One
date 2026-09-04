@@ -16,12 +16,21 @@ const MODEL = "claude-haiku-4-5-20251001";
 export default async function handler(req, res) {
   const key = process.env.ANTHROPIC_API_KEY;
   const city = (req.query.city || "").toString().replace(/\s*\([A-Z]{3}\)\s*$/, "").trim();
+  // WHERE IN THE WORLD. The prompt used to receive the bare name and nothing else, and for
+  // "Nevis" it wrote three notes about Ben Nevis — the mountain in Scotland — including the
+  // advice to bring crampons. The app knows the region of every curated place and now sends it
+  // (?region=St Kitts %26 Nevis); it is spelled out to the model and made part of the cache key,
+  // so the wrong answer for a bare name is never served again once the region arrives. A name
+  // that is a city, an island or a country is said to be one, so Antigua the island and Antigua
+  // the Guatemalan town, Granada in Spain and Granada in Nicaragua, cannot be confused.
+  const region = (req.query.region || "").toString().trim().slice(0, 80);
+  const where = region ? `${city} (${region})` : city;
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
 
-  const prompt = `You are a discerning private travel advisor writing notes for a well-travelled client heading to ${city}.
-
-Give exactly 3 "don't miss" suggestions that are SPECIFIC to ${city} — named places, dishes, viewpoints, timings or experiences that only apply here. Absolutely no generic filler ("try the local cuisine", "wander the old town", "soak up the atmosphere"). Think like an insider who knows the city well: the table worth booking, the view at the right hour, the small museum the crowds skip, the neighbourhood locals actually go to, the thing that would make a seasoned traveller nod.
+  const prompt = `You are a discerning private travel advisor writing notes for a well-travelled client heading to ${where}.
+${region ? `\nThe destination is ${city} in ${region}. Write only about that place. If the name is shared with somewhere else in the world, ignore the other place entirely.\n` : ""}
+Give exactly 3 "don't miss" suggestions that are SPECIFIC to ${where} — named places, dishes, viewpoints, timings or experiences that only apply here. Absolutely no generic filler ("try the local cuisine", "wander the old town", "soak up the atmosphere"). Think like an insider who knows the city well: the table worth booking, the view at the right hour, the small museum the crowds skip, the neighbourhood locals actually go to, the thing that would make a seasoned traveller nod.
 
 Each suggestion needs a short title (2 to 5 words) and one or two sentences of warm, precise detail. Tasteful and understated, never breathless. No exclamation marks.
 
