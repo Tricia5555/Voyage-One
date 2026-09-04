@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M335";
+const BUILD = "M336";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,9 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── TRINIDAD & TOBAGO. Drafted Sept 2026 — mine, not Tricia's.
+  "Port of Spain": { window: "January to May \u2014 and Carnival, which is the reason most people come", note: "The dry season, and Carnival on the Monday and Tuesday before Ash Wednesday is the biggest in the Caribbean by a distance: the city books out a year ahead and the Hyatt is the address. Asa Wright is at its best in the dry months too. Trinidad sits south of nearly every hurricane track." },
+  "Tobago": { window: "January to May", note: "The dry season and the clearest water at Speyside. Leatherback turtles nest on the beaches from March to August, and Tobago's own Carnival and the Heritage Festival fill July. South of most hurricane tracks, but not all." },
   // ── DOMINICA. Drafted Sept 2026 — mine, not Tricia's.
   "Dominica": { window: "February to May", note: "The driest months on the wettest island in the Caribbean \u2014 the trails to Boiling Lake and the Trafalgar Falls are at their best, and the rivers are still full. Sperm whales are resident off the west coast and most reliably seen November to March. Carnival is in February. Hurricane season is June to November, and the island took Maria directly in 2017; everything on this list has been rebuilt or built since." },
   // ── ABC ISLANDS. Drafted Sept 2026 — mine, not Tricia's. Outside the hurricane belt, which is
@@ -215,6 +218,10 @@ const BEST_AVAILABLE = [
   // says does not meet the Luxury bar and should be carried, if at all, only here. It is the
   // only address on the route and the route is worth the drive — the tier's exact purpose.
   "Casa Degraciela",
+  // Tobago, Sept 2026. Fifty-five rooms with a real history on Bacolet Bay, at a rate the
+  // curation says is far below conventional Luxury. Carried here as the island's boutique
+  // exception — not Luxury, and not pretending to be.
+  "Blue Haven Hotel",
 ];
 const EXPERIENCE_LUX = [
   // Jordan and Oman, Sept 2026 — the first entries in this tier. None of these is a hotel and
@@ -317,6 +324,9 @@ const EXPERIENCE_LUX = [
   // rainforest — sustainability and the island are the product, and the curation says so.
   // Secret Bay is Luxury: the curation gives it both, and the default is the conservative one.
   "Coulibri Ridge", "Jungle Bay Dominica",
+  // Trinidad & Tobago, Sept 2026. The birding lodge in the Northern Range, and the dive inn on
+  // Batteaux Bay. The curation is explicit that the value of each is what is outside the room.
+  "Asa Wright Nature Centre Ecolodge", "Blue Waters Inn",
 ];
 // Nightly rates are hidden until a reliable live source is wired: Google's estimates are junk
 // (placeholder to absurd, e.g. $11,000) and the old snapshot rates were stale £-shown-as-$. Every
@@ -527,6 +537,9 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Trinidad & Tobago in full — 4 Sept 2026, on the strict standard. NONE. Hyatt Regency and
+  // The Villas at Stonehaven are Luxury; Asa Wright and Blue Waters Inn are Experience; Blue
+  // Haven is Best Available. Magdalena Grand is named and excluded.
   // Dominica in full — 4 Sept 2026, on the strict standard. NONE. Secret Bay (two Keys, Relais
   // & Châteaux, all villas) is the very top of Luxury by instruction and not above it; the
   // InterContinental is Luxury; Coulibri Ridge and Jungle Bay are Experience.
@@ -2317,6 +2330,23 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── TRINIDAD & TOBAGO, IN FULL ──────────────────────────────────────────────────────
+  // Five properties, two islands, two keys, no Ultra Luxury, by instruction. THE TRINIDAD KEY IS
+  // "Port of Spain", not "Trinidad": Trinidad de Cuba is a real destination that will be curated
+  // one day, and the region label "Trinidad & Tobago" already lets a client type the country
+  // and get both islands. Asa Wright sits under Port of Spain with its area saying it is an hour
+  // and a half up into the Northern Range. Piarco (POS) takes British Airways from Gatwick and
+  // American from Miami; Tobago (TAB) takes British Airways too, seasonally, and the twenty-five
+  // minute air bridge from Trinidad. MAGDALENA GRAND IS EXCLUDED by instruction.
+  "Port of Spain": [
+    { name: "Hyatt Regency Trinidad", area: "Port of Spain waterfront", rate: null, ourTake: "The full-service hotel on the waterfront, with the infinity pool over the Gulf of Paria and the best rooms in the capital. Conventional, reliable, and the address for Carnival." },
+    { name: "Asa Wright Nature Centre Ecolodge", area: "Arima Valley, Northern Range \u2014 ninety minutes from the city", rate: null, ourTake: "A colonial estate house in the rainforest with one of the great birding verandahs on earth \u2014 hummingbirds, toucans, the oilbird cave \u2014 and naturalists on staff. The rooms are simple; the birds are not. Experience, and nothing but." },
+  ],
+  "Tobago": [
+    { name: "The Villas at Stonehaven", area: "Black Rock, south-west Tobago", rate: null, ourTake: "Individual villas with their own pools on a hillside above the Caribbean, run more like a residence than a resort. The strongest luxury address on Tobago, by instruction, and a better fit for a Voyage One client than any of the island's conventional resorts." },
+    { name: "Blue Waters Inn", area: "Speyside, north-east Tobago", rate: null, ourTake: "Thirty-eight rooms on forty-six acres at the head of Batteaux Bay, with its own jetty and a five-star PADI operation on the best reefs in the country \u2014 Speyside and Little Tobago are the reason to come. The diving is the product; the inn is honest about it." },
+    { name: "Blue Haven Hotel", area: "Bacolet Bay, Scarborough", rate: null, ourTake: "Tobago's storied 1940s hotel on its own bay \u2014 Rita Hayworth and Robert Mitchum stayed here \u2014 restored and still charming. Not Luxury by the standard, and carried as the boutique exception because the island has nothing better of its kind." },
   ],
   // ── DOMINICA, IN FULL ───────────────────────────────────────────────────────────────
   // Four properties under one key, no Ultra Luxury, by instruction. The island is one destination
@@ -6292,7 +6322,7 @@ const PLACE_REGION = {
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
   "grenada": "Caribbean", "san juan": "Puerto Rico", "dorado": "Puerto Rico",
   "martinique": "French West Indies", "guadeloupe": "French West Indies",
-  "dominica": "Caribbean \u2014 the Nature Island", "aruba": "Dutch Caribbean", "cura\u00e7ao": "Dutch Caribbean", "curacao": "Dutch Caribbean", "bonaire": "Dutch Caribbean",
+  "port of spain": "Trinidad & Tobago", "tobago": "Trinidad & Tobago", "dominica": "Caribbean \u2014 the Nature Island", "aruba": "Dutch Caribbean", "cura\u00e7ao": "Dutch Caribbean", "curacao": "Dutch Caribbean", "bonaire": "Dutch Caribbean",
   "nevis": "St Kitts & Nevis", "st kitts": "St Kitts & Nevis",
   "st vincent": "St Vincent & the Grenadines", "bequia": "The Grenadines", "mustique": "The Grenadines", "canouan": "The Grenadines", "petit st vincent": "The Grenadines",
   "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
@@ -6721,6 +6751,10 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // TRINIDAD & TOBAGO. Piarco (POS) takes British Airways from Gatwick, American and JetBlue from
+  // the US, Caribbean Airlines everywhere — intercontinental. Tobago (TAB) takes British Airways
+  // seasonally and Condor, plus the air bridge — intercontinental for the app's purposes.
+  "Port of Spain": { code: "POS", scale: "intercontinental" }, "Tobago": { code: "TAB", scale: "intercontinental" },
   // DOMINICA. Douglas-Charles (DOM) takes American from Miami and the regional carriers from
   // Antigua, St Maarten and San Juan — sellable, listed, and the door. Canefield by Roseau is
   // small aircraft only and not listed.
@@ -7080,6 +7114,10 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // TRINIDAD & TOBAGO. Two islands, two zones. The Port of Spain–Scarborough ferry is four hours
+  // and deliberately not in FERRIES — the air bridge is twenty-five minutes.
+  "trinidad": ["Port of Spain"],
+  "tobago": ["Tobago"],
   // DOMINICA. Its own zone. The L'Express des Îles ferry from Guadeloupe and Martinique is real
   // and slow and deliberately not in FERRIES.
   "dominica": ["Dominica"],
@@ -7208,7 +7246,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "Dominica": [15.42,-61.35], "Aruba": [12.52,-69.97], "Cura\u00e7ao": [12.17,-68.99], "Curacao": [12.17,-68.99], "Bonaire": [12.18,-68.26],
+  "Port of Spain": [10.65,-61.51], "Tobago": [11.22,-60.72], "Dominica": [15.42,-61.35], "Aruba": [12.52,-69.97], "Cura\u00e7ao": [12.17,-68.99], "Curacao": [12.17,-68.99], "Bonaire": [12.18,-68.26],
   "Martinique": [14.64,-61.02], "Guadeloupe": [16.24,-61.53], "St Kitts": [17.30,-62.73], "Nevis": [17.15,-62.58],
   "St Vincent": [13.16,-61.22], "Bequia": [13.01,-61.24], "Mustique": [12.88,-61.19], "Canouan": [12.70,-61.33], "Petit St Vincent": [12.53,-61.38],
   "Grenada": [12.05,-61.75], "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
@@ -7493,6 +7531,7 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "trinidad and tobago": "Port of Spain", "trinidad & tobago": "Port of Spain", "piarco": "Port of Spain", "scarborough, tobago": "Tobago", "speyside": "Tobago", "crown point": "Tobago",
   "commonwealth of dominica": "Dominica", "roseau": "Dominica", "portsmouth, dominica": "Dominica", "nature island": "Dominica",
   "curacao": "Cura\u00e7ao", "willemstad": "Cura\u00e7ao", "kralendijk": "Bonaire", "oranjestad": "Aruba", "palm beach, aruba": "Aruba", "eagle beach": "Aruba",
   "abc islands": "Aruba", "dutch caribbean": "Aruba",
