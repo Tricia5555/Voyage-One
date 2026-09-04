@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M332";
+const BUILD = "M333";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -74,6 +74,9 @@ const SEASON = {
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
   // first pass to correct. Only destinations where the month materially changes the trip get an
   // entry; a city that works all year stays silent rather than filling space.
+  // ── MARTINIQUE & GUADELOUPE. Drafted Sept 2026 — mine, not Tricia's.
+  "Martinique": { window: "December to April", note: "The dry season, and February for Carnival, when Fort-de-France closes for four days. The French school holidays fill the island at Christmas, February and Easter. Hurricane season is June to November." },
+  "Guadeloupe": { window: "December to April", note: "The dry season, and the calmest sea off Sainte-Anne. Carnival runs through February. The French holidays fill the island at Christmas, February and Easter. Hurricane season is June to November." },
   // ── ST KITTS & NEVIS. Drafted Sept 2026 — mine, not Tricia's.
   "Nevis": { window: "December to April", note: "The dry season, and the Four Seasons at its most booked over Christmas and the spring holidays. Nevis is quiet in every month; several of the small hotels close for August and September. Hurricane season is June to November." },
   "St Kitts": { window: "December to April", note: "The dry season. The St Kitts Music Festival fills Basseterre for a weekend in late June. Hurricane season is June to November." },
@@ -513,6 +516,10 @@ const ULTRA_LUX = [
   // Bay, Peter Island and Scrub Island are Luxury by instruction; Oil Nut Bay's best villas may
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
+  // Martinique & Guadeloupe in full — 4 Sept 2026, on the strict standard. NONE on either. La
+  // Suite Villa and French Coco are Luxury; La Toubana is Guadeloupe's one Luxury hotel, and
+  // the curation says one is preferable to lowering the bar. Cap Est is withheld pending
+  // verification of its operating status and condition.
   // St Kitts & Nevis in full — 4 Sept 2026, on the strict standard. NONE. Four Seasons Nevis is
   // the very top of Luxury by instruction; Park Hyatt and Montpelier are Luxury; Golden Rock is
   // Experience. Belle Mont Farm is withheld pending verification of its operating status.
@@ -2292,6 +2299,20 @@ const FAVORITES = {
     { name: "Oil Nut Bay", area: "Virgin Gorda, North Sound", rate: null, ourTake: "Four hundred private acres reached only by boat or helicopter, with fifty-odd modern villas, a marina, a beach club and a spa. The best villas here are Ultra Luxury on their own; the resort as a whole is classified Luxury, and the difference depends on which house you take." },
     { name: "Peter Island Resort", area: "Peter Island", rate: null, ourTake: "Rebuilt from the ground up after Irma and reopened with fifty-two rooms, a spa, a yacht club and two estates on the hill \u2014 the classic private-island resort of the BVI, a short ferry from Road Town." },
     { name: "Scrub Island Resort, Spa & Marina", area: "Scrub Island", rate: null, ourTake: "A 230-acre island ten minutes by ferry from the airport, with a full marina at its heart \u2014 the resort for a client whose holiday is the boat." },
+  ],
+  // ── MARTINIQUE & GUADELOUPE, IN FULL ────────────────────────────────────────────────
+  // Three properties, two islands, two keys, no Ultra Luxury on either, by instruction. Both are
+  // France — the euro, the roads, and Air France and Corsair from Paris — so the door from
+  // Europe is Paris, and from the US it is Miami on American. Each island is one destination:
+  // Martinique is an hour end to end, Guadeloupe not much more. CAP EST LAGOON IS WITHHELD:
+  // the curation says verify its operating status, renovation condition and service standard
+  // before display, and I cannot. Confirm it and it goes in under Martinique as Luxury.
+  "Martinique": [
+    { name: "La Suite Villa", area: "Les Trois-\u00celets, across the bay from Fort-de-France", rate: null, ourTake: "Six suites and nine villas on a hill above the bay, each with its own pool or Jacuzzi, filled with the owners' art and run by them \u2014 an official five-star that feels like a house. The intimate, individual choice on Martinique." },
+    { name: "French Coco", area: "Tartane, La Trinit\u00e9, Atlantic coast", rate: null, ourTake: "Seventeen Creole suites on the wild Atlantic side, most with a private pool, and the island's leading hotel by the awards three years running. Small, sophisticated and very French." },
+  ],
+  "Guadeloupe": [
+    { name: "La Toubana H\u00f4tel & Spa", area: "Sainte-Anne, Grande-Terre", rate: null, ourTake: "The island's only five-star: bungalows and suites on a cliff above the sea with the Sisley spa, and four-bedroom villas with their own pools for a family. Guadeloupe's one Luxury address, and the curation says one is enough." },
   ],
   // ── ST KITTS & NEVIS, IN FULL ───────────────────────────────────────────────────────
   // Four properties, two islands, two keys, no Ultra Luxury, by instruction. St Kitts (SKB) is
@@ -6219,6 +6240,7 @@ const PLACE_REGION = {
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
   "grenada": "Caribbean", "san juan": "Puerto Rico", "dorado": "Puerto Rico",
+  "martinique": "French West Indies", "guadeloupe": "French West Indies",
   "nevis": "St Kitts & Nevis", "st kitts": "St Kitts & Nevis",
   "st vincent": "St Vincent & the Grenadines", "bequia": "The Grenadines", "mustique": "The Grenadines", "canouan": "The Grenadines", "petit st vincent": "The Grenadines",
   "punta cana": "Dominican Republic", "puerto plata": "Dominican Republic", "santo domingo": "Dominican Republic",
@@ -6647,6 +6669,9 @@ const REGION_STOPS = {
 const AIRPORTS = {
   // QATAR, SAUDI, MOROCCO, HUNGARY. Doha and Budapest are intercontinental gates. AlUla has its
   // own field but only regional aircraft — a long-haul routes through Riyadh or Jeddah.
+  // MARTINIQUE & GUADELOUPE. Aimé Césaire (FDF) and Pointe-à-Pitre (PTP) take Air France and
+  // Corsair from Paris and American from Miami — intercontinental, and each is its island's door.
+  "Martinique": { code: "FDF", scale: "intercontinental" }, "Guadeloupe": { code: "PTP", scale: "intercontinental" },
   // ST KITTS & NEVIS. Bradshaw (SKB) on St Kitts takes British Airways from Gatwick, American,
   // Delta and United from the US — intercontinental, and the door for Nevis too. Nevis (NEV) is
   // Winair and Tradewind only, not in Duffel, not listed.
@@ -6995,6 +7020,10 @@ const ZONE = {
   "mali-losinj": ["Mali Lošinj"],
   "peru": ["Cusco","Lima","Sacred Valley","Machu Picchu","Arequipa","Colca Canyon","Lake Titicaca","Peruvian Amazon"],
   "bolivia": ["La Paz","Uyuni","Sucre"],
+  // MARTINIQUE & GUADELOUPE. Two islands, two zones; the L'Express des Îles ferry between them
+  // is three to four hours and deliberately not in FERRIES — fly.
+  "martinique": ["Martinique"],
+  "guadeloupe": ["Guadeloupe"],
   // ST KITTS & NEVIS. Two islands, two zones, two miles of water and a ferry between them.
   "st-kitts": ["St Kitts"],
   "nevis": ["Nevis"],
@@ -7112,7 +7141,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
-  "St Kitts": [17.30,-62.73], "Nevis": [17.15,-62.58],
+  "Martinique": [14.64,-61.02], "Guadeloupe": [16.24,-61.53], "St Kitts": [17.30,-62.73], "Nevis": [17.15,-62.58],
   "St Vincent": [13.16,-61.22], "Bequia": [13.01,-61.24], "Mustique": [12.88,-61.19], "Canouan": [12.70,-61.33], "Petit St Vincent": [12.53,-61.38],
   "Grenada": [12.05,-61.75], "San Juan": [18.44,-66.06], "Dorado": [18.46,-66.29], "R\u00edo Grande, Puerto Rico": [18.36,-65.79],
   "Punta Cana": [18.58,-68.37], "La Romana": [18.43,-68.97], "Playa Grande": [19.63,-70.00],
@@ -7396,6 +7425,8 @@ const CITY_ALIASES = {
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
   "beef island": "British Virgin Islands", "necker island": "British Virgin Islands", "moskito island": "British Virgin Islands", "peter island": "British Virgin Islands",
   "scrub island": "British Virgin Islands", "north sound": "British Virgin Islands", "spanish town": "British Virgin Islands",
+  "fort-de-france": "Martinique", "fort de france": "Martinique", "les trois-\u00eelets": "Martinique", "les trois-ilets": "Martinique", "trois-ilets": "Martinique", "tartane": "Martinique", "la trinit\u00e9, martinique": "Martinique",
+  "pointe-\u00e0-pitre": "Guadeloupe", "pointe-a-pitre": "Guadeloupe", "sainte-anne, guadeloupe": "Guadeloupe", "grande-terre": "Guadeloupe", "basse-terre": "Guadeloupe",
   "st kitts and nevis": "Nevis", "st kitts & nevis": "Nevis", "saint kitts": "St Kitts", "st. kitts": "St Kitts", "basseterre": "St Kitts", "christophe harbour": "St Kitts",
   "charlestown, nevis": "Nevis", "pinney's beach": "Nevis", "pinneys beach": "Nevis",
   "st vincent and the grenadines": "Canouan", "st vincent & the grenadines": "Canouan", "the grenadines": "Canouan", "grenadines": "Canouan", "svg": "Canouan",
