@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M343";
+const BUILD = "M344";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -633,7 +633,7 @@ const ULTRA_LUX = [
   "Four Seasons Resort Lanai", "Four Seasons Resort Maui at Wailea", "Four Seasons Resort Hualalai",
   "ESPACIO The Jewel of Waikiki",
   // United States — Mountain West / South / Northeast
-  "Amangiri", "One&Only Moonlight Basin", "Caldera House Jackson Hole", "Dunton Hot Springs",
+  "Amangiri", "The Little Nell", "Amangani",
   "Blackberry Farm", "Montage Palmetto Bluff", "The Cloister at Sea Island", "Twin Farms", "The Point",
   // Canada — classified property by property, not by flag. Four Seasons Toronto, Montreal and
   // Whistler qualify; Fairmont Pacific Rim does and no other Fairmont does. Matching is on the
@@ -2733,17 +2733,34 @@ const FAVORITES = {
     { name: "Sensei Lanai, a Four Seasons Resort", area: "Lanai", rate: null, ourTake: "An adults-only wellness retreat in the cool uplands of Larry Ellison's island." },
     { name: "Four Seasons Resort Lanai", area: "Manele Bay", rate: null, ourTake: "A clifftop resort above Hulopo'e Bay's dolphins and reef, on an island with one town and no traffic lights \u2014 Forbes Five-Star, private enough to plan a Hawaii trip around, and the one that most clearly clears the bar." },
   ],
-  "Utah": [
-    { name: "Amangiri", area: "Canyon Point", rate: null, ourTake: "The desert Aman folded into the mesas — the most photographed pool in America." },
-  ],
-  "Big Sky": [
-    { name: "One&Only Moonlight Basin", area: "Big Sky", rate: null, ourTake: "One&Only's first US resort, ski-in on a vast Montana mountain." },
+  // ── MOUNTAIN WEST — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ────────────────────
+  // Three Ultra Luxury — The Little Nell, Amangani (an Aman, kept on the definition itself and
+  // explicitly not a precedent for other Four-Stars), Amangiri — and six Luxury. Vail, Beaver
+  // Creek and Telluride have no approved hotel and no key; their cards on the skiing layer still
+  // name the resorts, which is layer content, not hotel inventory. WITHHELD, by instruction:
+  // One&Only Moonlight Basin (too new for an independent rating; was in the file and in the
+  // Ultra canon) and The St. Regis Deer Valley. EXCLUDED: Four Seasons Vail, Ritz-Carlton
+  // Bachelor Gulch, Madeline, Inn at Lost Creek, Four Seasons Jackson Hole. TWO HOTELS THE
+  // AUDIT DID NOT MENTION were in the file and are withheld rather than deleted: CALDERA HOUSE
+  // (eight suites at the Jackson tram) and DUNTON HOT SPRINGS (Colorado). One word puts either back.
+  "Aspen": [
+    { name: "The Little Nell", area: "Base of Aspen Mountain", rate: null, ourTake: "Ninety-two rooms at the foot of the gondola, Forbes Five-Star, a wine cellar of real seriousness and the service that made Aspen Aspen. The scarcest rooms in the Rockies at Christmas, and the one that stands with the world's best." },
+    { name: "Hotel Jerome, Auberge Collection", area: "Downtown Aspen", rate: null, ourTake: "The 1889 silver-boom hotel on Main Street, renovated at length and run by Auberge, with unusually big rooms and the bar the town drinks in. Luxury by instruction." },
+    { name: "The St. Regis Aspen Resort", area: "Downtown Aspen, by the gondola", rate: null, ourTake: "Butlers, a Five-Star spa and a courtyard pool a block from the lift. The full-service luxury of Aspen; the hotel itself is Luxury, by instruction." },
   ],
   "Jackson Hole": [
-    { name: "Caldera House", area: "Teton Village", rate: null, ourTake: "An eight-suite ski lodge at the base of Jackson Hole's tram." },
+    { name: "Amangani", area: "East Gros Ventre Butte, above the valley", rate: null, ourTake: "An Aman on a butte with the Tetons across the valley and the elk refuge below \u2014 forty suites of sandstone and redwood, reopened in 2026 after a full renovation. Ultra Luxury on the definition itself: it is literally the standard the tier is named for." },
   ],
-  "Colorado": [
-    { name: "Dunton Hot Springs", area: "Dolores", rate: null, ourTake: "A restored ghost-town of cabins around natural hot springs." },
+  "Big Sky": [
+    { name: "Montage Big Sky", area: "Spanish Peaks, Big Sky", rate: null, ourTake: "Forbes Five-Star, ski-in to the biggest skiing in America, a serious spa and a year-round programme that makes the summer as good as the winter. Full-service mountain luxury, and Luxury by instruction." },
+  ],
+  "Park City": [
+    { name: "Montage Deer Valley", area: "Deer Valley, Empire Pass", rate: null, ourTake: "Ski-in, ski-out at the top of Deer Valley, Forbes Five-Star, with the biggest spa in Utah and a family infrastructure that explains the scale. Luxury, by instruction." },
+    { name: "Stein Eriksen Lodge Deer Valley", area: "Deer Valley, Silver Lake", rate: null, ourTake: "The Norwegian's lodge at mid-mountain, ski-in on the best-groomed slopes in the country, with a Five-Star spa and forty years of the same clientele. Luxury, and the classic Deer Valley address." },
+    { name: "The Lodge at Blue Sky, Auberge Collection", area: "Wanship, forty minutes from Park City", rate: null, ourTake: "A 4,000-acre working ranch with a modernist lodge on it \u2014 horses, the Gros Ventre, a distillery, and guides for everything. The hotel is Luxury; the ranch is the experience." },
+  ],
+  "Utah": [
+    { name: "Amangiri", area: "Canyon Point, near Lake Powell", rate: null, ourTake: "The desert Aman folded into the mesas \u2014 the most photographed pool in America, the canyon at the door, and a privacy nothing else in the country offers. The clearest Ultra Luxury hotel in the United States." },
   ],
   "Blackberry Farm": [
     { name: "Blackberry Farm", area: "Great Smoky Mountains", rate: null, ourTake: "A Relais & Châteaux farm estate in the Smokies, a foothills of taste." },
@@ -6418,6 +6435,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -6727,6 +6745,9 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Big Sky": { air: "Bozeman", note: "Fly to Bozeman (BZN) \u2014 nonstops from most of the west and, in winter, the east coast \u2014 then an hour south through the Gallatin canyon. Montage sends a car." },
+  "Park City": { air: "Salt Lake City", note: "Fly to Salt Lake City (SLC), then thirty-five minutes up the canyon to Park City \u2014 the easiest ski arrival in America. Blue Sky is another twenty minutes on, at Wanship." },
+  "Utah": { air: "Las Vegas", note: "Fly to Las Vegas (LAS), then four and a half hours across the desert to Canyon Point \u2014 or the same from Phoenix. Amangiri arranges the car, and for most of its clients the private-jet strip at Page, fifteen minutes away. There is no scheduled flight worth taking." },
   "Lanai": { air: "Honolulu", note: "Fly to Honolulu (HNL), then twenty-five minutes on Lanai Air \u2014 the Four Seasons' own aircraft, booked with the room \u2014 or Mokulele from Honolulu or Maui. The resorts meet every flight. The Maui ferry ended in 2023; the aircraft is the way." },
   "Nevis": { air: "St Kitts", note: "Fly to St Kitts (SKB), then across the Narrows by boat \u2014 the Four Seasons runs its own launch from the harbour, about twenty minutes, and every hotel on Nevis will arrange a water taxi. The public ferry is forty-five minutes from Basseterre. Tradewind and Winair also fly into Nevis's own strip from San Juan and St Maarten, if that is the better connection." },
   "Canouan": { air: "St Vincent", note: "Fly to St Vincent (SVD), then twenty minutes on SVG Air to Canouan \u2014 or from Barbados on the same shuttle, which is often the better connection from Europe. Canouan's strip takes private jets, and for the Mandarin Oriental's villa clients that is how it is usually done." },
@@ -7086,7 +7107,13 @@ const AIRPORTS = {
   "Edinburgh": { code: "EDI", scale: "regional" }, "Dublin": { code: "DUB", scale: "intercontinental" },
   "Phoenix": { code: "PHX", scale: "intercontinental" }, "Calgary": { code: "YYC", scale: "intercontinental" },
   "Sapporo": { code: "CTS", scale: "regional" }, "Kilimanjaro": { code: "JRO", scale: "regional" },
-  "Aspen": { code: "ASE", scale: "regional" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
+  "Aspen": { code: "ASE", scale: "regional" }, "Denver": { code: "DEN", scale: "intercontinental" },
+  // MOUNTAIN WEST, 4 Sept 2026. Jackson (JAC) is sellable on United, Delta and American and is
+  // listed under the destination. Bozeman (BZN) and Salt Lake City (SLC) are the doors for Big
+  // Sky and Park City and are listed as gateways. Las Vegas (LAS) is the door for Amangiri —
+  // Page's strip is Contour only and not listed. Denver is Aspen's ground-reachable hub.
+  "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
+  "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
   "Vancouver": { code: "YVR", scale: "intercontinental" }, "Seattle": { code: "SEA", scale: "intercontinental" },
 };
 function airportFor(city) { if (!city) return null; const k = Object.keys(AIRPORTS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? { city: k, ...AIRPORTS[k] } : null; }
@@ -7218,7 +7245,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7357,6 +7384,8 @@ function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toL
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
+  "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
+  "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
   "Napa Valley": [38.30,-122.29], "Santa Barbara": [34.43,-119.64], "Laguna Beach": [33.54,-117.78], "San Diego": [32.72,-117.16], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
   "Vancouver": [49.28,-123.12], "Mexico City": [19.43,-99.13], "Buenos Aires": [-34.60,-58.38], "Mendoza": [-32.89,-68.84],
   "Costa Rica": [9.75,-83.75], "Galápagos": [-0.74,-90.31], "Turks & Caicos": [21.69,-71.80],
@@ -7486,6 +7515,10 @@ const DRIVE_TIMES = [
   ["Punta Cana", "La Romana", 60, 80], ["Punta Cana", "Santo Domingo", 150, 190], ["La Romana", "Santo Domingo", 90, 115],
   ["Puerto Plata", "Playa Grande", 75, 80], ["Santo Domingo", "Playa Grande", 180, 200], ["Santo Domingo", "Puerto Plata", 210, 230],
   ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
+  // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
+  // the year-round road is I-70 and Glenwood, and that is the figure.
+  ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
+  ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
   // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
   ["Montego Bay", "Negril", 90, 80], ["Montego Bay", "Ocho Rios", 105, 100], ["Montego Bay", "Kingston", 150, 190],
   ["Montego Bay", "Port Antonio", 240, 230], ["Kingston", "Port Antonio", 120, 100], ["Kingston", "Blue Mountains, Jamaica", 45, 20],
@@ -7697,6 +7730,8 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "deer valley": "Park City", "wanship": "Park City", "blue sky": "Park City", "teton village": "Jackson Hole", "jackson, wyoming": "Jackson Hole", "jackson, wy": "Jackson Hole",
+  "canyon point": "Utah", "amangiri": "Utah", "lake powell": "Utah", "page, arizona": "Utah", "spanish peaks": "Big Sky", "moonlight basin": "Big Sky",
   "montecito": "Santa Barbara", "beverly hills": "Los Angeles", "bel-air": "Los Angeles", "newport coast": "Laguna Beach", "newport beach": "Laguna Beach", "rancho santa fe": "San Diego", "rutherford": "Napa Valley", "st. helena": "Napa Valley", "st helena": "Napa Valley",
   "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island", "hawaii island": "Big Island", "kohala coast": "Big Island", "hualalai": "Big Island",
   "oahu": "Honolulu", "waikiki": "Honolulu", "ko olina": "Honolulu", "honolulu, hi": "Honolulu",
@@ -11465,7 +11500,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
       <div style={{ height: 14 }} />
       {live.loading && <div style={{ border: `1px solid ${t.line}`, borderRadius: 12, padding: "16px 18px", background: t.mist }}>
         <div style={{ fontSize: 14.5, color: t.ink, fontWeight: 500 }}>Searching live {cabin} fares, {bareCity(from)} → {bareCity(to)}…</div>
-        <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{toRegional ? `${bareCity(to)} is a small airport, so real flights connect through a European hub — building those routings can take up to a minute. Hang tight; it's working.` : "Pulling real airline fares — this can take up to a minute. Hang tight; it's working."}{est ? ` Estimated around ${fmt(est)} one way.` : ""}</div>
+        <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{toRegional ? `${bareCity(to)} is a small airport, so real flights connect through a hub — building those routings can take up to a minute. Hang tight; it's working.` : "Pulling real airline fares — this can take up to a minute. Hang tight; it's working."}{est ? ` Estimated around ${fmt(est)} one way.` : ""}</div>
         <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 10, fontSize: 12.5, color: t.pine, fontWeight: 500 }}>Or compare on Google while you wait ↗</a>
       </div>}
       {!live.loading && live.offers && live.offers.length > 0 && (() => {
