@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M347";
+const BUILD = "M348";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2766,6 +2766,24 @@ const FAVORITES = {
   // by name: The Phoenician (the enclave does not lift the resort), Four Seasons Troon North,
   // Camelback Inn, Sanctuary, Enchantment, L'Auberge, Mii amo, Ambiente, Hacienda del Sol,
   // Bishop's Lodge, Rancho Encantado, Inn of the Anasazi, Five Graces, El Monte Sagrado.
+  // ── TEXAS — 4 SEPT 2026 ON THE STRICT STANDARD. Four Luxury, one per city, no Ultra, and the
+  // Hill Country has none by instruction. Two are named exceptions to the floor — Commodore
+  // Perry and Hotel Emma — on the same property-specific judgement as Santa Fe; the other two
+  // are Forbes Five-Star. WATCHLIST: Ritz-Carlton Las Colinas, The Joule. EXCLUDED by name:
+  // Four Seasons Austin and Houston, Austin Proper, Fairmont Austin, Rosewood Mansion on Turtle
+  // Creek, The Houstonian, Granduca, Mokara, La Cantera, JW Marriott Hill Country.
+  "Austin": [
+    { name: "Commodore Perry Estate, Auberge Collection", area: "Hyde Park, ten minutes from downtown", rate: null, ourTake: "A 1928 Italianate mansion on ten walled acres in the middle of the city, fifty-four rooms by Ken Fulk, two Michelin Keys and a privacy no other urban hotel in Texas has. Luxury, as a named exception on the total product." },
+  ],
+  "Dallas": [
+    { name: "The Ritz-Carlton, Dallas", area: "Uptown", rate: null, ourTake: "Forbes Five-Star in Uptown \u2014 renovated rooms, a serious spa, Fearing's downstairs, and the most consistently polished service in the city. City Luxury, by instruction." },
+  ],
+  "Houston": [
+    { name: "The Post Oak Hotel at Uptown Houston", area: "Uptown, Galleria", rate: null, ourTake: "Tilman Fertitta's monument: 250 rooms of the highest-specification build in the state, a Five-Star spa of twenty thousand square feet, museum art in the corridors and a Rolls-Royce showroom in the lobby. The Houston address, and Luxury by instruction." },
+  ],
+  "San Antonio": [
+    { name: "Hotel Emma", area: "The Pearl, north of downtown", rate: null, ourTake: "A nineteenth-century brewery turned into the most characterful hotel in Texas by Roman and Williams \u2014 iron and brick, a library, a great bar, and the Pearl district at the door. Luxury, as a property-specific exception, and the reason to stay in San Antonio." },
+  ],
   // ── SANTA FE — CORRECTED 4 SEPT 2026. The Southwest audit had excluded all four; Tricia's
   // correction approves them as Luxury, as named exceptions to the hard floor on management,
   // product and investment. None is Ultra Luxury. Taos stays empty.
@@ -6457,7 +6475,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
+  "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -7136,6 +7154,10 @@ const AIRPORTS = {
   // listed under the destination. Bozeman (BZN) and Salt Lake City (SLC) are the doors for Big
   // Sky and Park City and are listed as gateways. Las Vegas (LAS) is the door for Amangiri —
   // Page's strip is Contour only and not listed. Denver is Aspen's ground-reachable hub.
+  // TEXAS, 4 Sept 2026. All four are intercontinental in fact — British Airways and others fly
+  // Austin, Dallas and Houston; San Antonio is a US hub airport and sellable throughout.
+  "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
+  "Houston": { code: "IAH", scale: "intercontinental" }, "San Antonio": { code: "SAT", scale: "intercontinental" },
   "Tucson": { code: "TUS", scale: "intercontinental" }, "Santa Fe": { code: "SAF", scale: "regional" }, "Albuquerque": { code: "ABQ", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
   "Vancouver": { code: "YVR", scale: "intercontinental" }, "Seattle": { code: "SEA", scale: "intercontinental" },
@@ -7269,7 +7291,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7408,6 +7430,7 @@ function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toL
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
+  "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
   "Napa Valley": [38.30,-122.29], "Santa Barbara": [34.43,-119.64], "Laguna Beach": [33.54,-117.78], "San Diego": [32.72,-117.16], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
@@ -7541,6 +7564,7 @@ const DRIVE_TIMES = [
   ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
+  ["Austin", "San Antonio", 90, 130], ["Austin", "Houston", 165, 265], ["Austin", "Dallas", 195, 315], ["Dallas", "Houston", 225, 385],
   ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
   ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
   // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
@@ -7754,6 +7778,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
   "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
   "paradise valley": "Scottsdale", "scottsdale, az": "Scottsdale", "marana": "Tucson", "dove mountain": "Tucson", "tucson, az": "Tucson",
   "deer valley": "Park City", "wanship": "Park City", "blue sky": "Park City", "teton village": "Jackson Hole", "jackson, wyoming": "Jackson Hole", "jackson, wy": "Jackson Hole",
