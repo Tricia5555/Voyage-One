@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M367";
+const BUILD = "M368";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2835,6 +2835,7 @@ const FAVORITES = {
   "Park City": [
     { name: "Montage Deer Valley", area: "Deer Valley, Empire Pass", rate: null, ourTake: "Ski-in, ski-out at the top of Deer Valley, Forbes Five-Star, with the biggest spa in Utah and a family infrastructure that explains the scale. Luxury, by instruction." },
     { name: "Stein Eriksen Lodge Deer Valley", area: "Deer Valley, Silver Lake", rate: null, ourTake: "The Norwegian's lodge at mid-mountain, ski-in on the best-groomed slopes in the country, with a Five-Star spa and forty years of the same clientele. Luxury, and the classic Deer Valley address." },
+    { name: "The St. Regis Deer Valley", area: "Deer Valley, Snow Park", rate: null, ourTake: "The funicular up from Snow Park to a ski-in, ski-out St Regis with butlers, a Five-Star spa and the Deer Valley slopes at the terrace \u2014 added as Luxury on the Mountain West gap audit of 4 Sept 2026, which resolved the earlier verify. Not the tier above." },
     { name: "The Lodge at Blue Sky, Auberge Collection", area: "Wanship, forty minutes from Park City", rate: null, ourTake: "A 4,000-acre working ranch with a modernist lodge on it \u2014 horses, the Gros Ventre, a distillery, and guides for everything. The hotel is Luxury; the ranch is the experience." },
   ],
   // ── SOUTHWEST — 4 SEPT 2026 ON THE STRICT STANDARD. Two Luxury, no Ultra, and Sedona, Santa Fe
@@ -3351,7 +3352,11 @@ const DINING = {
   "Deidesheim": [{ n: "L.A. Jordan", s: 2 }],
   "Dellach": [{ n: "Hubert Wallner", s: 1 }],
   "Dénia": [{ n: "Quique Dacosta", s: 3 }, { n: "Peix & Brases", s: 1 }],
-  "Denver": [{ n: "The Wolf's Tailor", s: 2 }],
+  // Colorado, 4 Sept 2026 gap audit: the eight one-stars, by instruction. The Wolf's Tailor's two
+  // stars were already loaded and stay. Bosq is Aspen's; Frasca is Boulder's and rolls up to Denver.
+  "Aspen": [{ n: "Bosq", s: 1 }],
+  "Boulder": [{ n: "Frasca Food and Wine", s: 1 }],
+  "Denver": [{ n: "Kizaki", s: 1 }, { n: "Margot", s: 1 }, { n: "Alma Fonda Fina", s: 1 }, { n: "Mezcaleria Alma", s: 1 }, { n: "Brut\u00f8", s: 1 }, { n: "Beckon", s: 1 }, { n: "The Wolf's Tailor", s: 2 }],
   "Desenzano del Garda": [{ n: "Esplanade", s: 1 }],
   "Dijon": [{ n: "William Frachot", s: 2 }, { n: "CIBO", s: 1 }, { n: "L'Aspérule", s: 1 }, { n: "Loiseau des Ducs", s: 1 }, { n: "Origine", s: 1 }],
   "Dima": [{ n: "Garena", s: 1 }],
@@ -4680,6 +4685,8 @@ const ACCOLADES = {
   "huntington": [{ n: "Jim's Steak & Spaghetti House", us:1, jb:1 }],
   "detroit": [{ n: "Warda P\u00e2tisserie", us:1, jb:1 }],
   "clawson": [{ n: "Sozai", us:1, jb:1 }],
+  // Bozeman, 4 Sept 2026: Wild Crumb on its Outstanding Bakery win. Blackbird and Shan are nominees only.
+  "bozeman": [{ n: "Wild Crumb", us:1, jb:1 }],
   "chicago": [{ n: "Kumiko", us:1, jb:1 }, { n: "PERILLA Fare", us:1, bib:1 }, { n: "Sochi Kitchen", us:1, bib:1 }, { n: "Mi Tocaya Antojer\u00eda", us:1, bib:1 }, { n: "Oriole", us:1, jb:1 }, { n: "Lula Cafe", us:1, jb:1, bib:1 }, { n: "Virtue Restaurant & Bar", us:1, jb:1, bib:1 }, { n: "Monteverde", us:1, jb:1 }, { n: "Smyth", us:1, ll:95, lly:2026 }, { n: "Mirra", us:1, bib:1 }, { n: "Boonie's", us:1, bib:1 }, { n: "Giant", us:1, bib:1 }, { n: "Sifr", us:1, bib:1 }, { n: "Munno Pizzeria & Bistro", us:1, bib:1 }, { n: "Chef's Special Cocktail Bar", us:1, bib:1 }, { n: "Longman & Eagle", us:1, bib:1 }, { n: "Perilla", us:1, bib:1 }, { n: "Mott St.", us:1, bib:1 }, { n: "Gilt Bar", us:1, bib:1 }, { n: "Sochi", us:1, bib:1 }, { n: "Kie-Gol-Lanee", us:1, bib:1 }, { n: "Cellar Door Provisions", us:1, bib:1 }, { n: "Lardon", us:1, bib:1 }, { n: "Union", us:1, bib:1 }, { n: "Birrieria Zaragoza", us:1, bib:1 }, { n: "Nadu", us:1, bib:1 }, { n: "Daisies", us:1, bib:1 }, { n: "HaiSous", us:1, bib:1 }, { n: "Ghin Khao", us:1, bib:1 }, { n: "Taqueria Chingón", us:1, bib:1 }, { n: "Mi Tocaya", us:1, bib:1 }, { n: "Table, Donkey and Stick", us:1, bib:1 }, { n: "Ciccio Mio", us:1, bib:1 }, { n: "Frontera Grill", us:1, bib:1 }, { n: "Pleasant House Pub", us:1, bib:1 }, { n: "Chilam Balam", us:1, bib:1 }, { n: "Sol de Mexico", us:1, bib:1 }, { n: "Girl & The Goat", us:1, bib:1 }, { n: "Superkhana International", us:1, bib:1 }, { n: "Proxi", us:1, bib:1 }],
   "chimiche": [{ n: "El Secreto de Chimiche", bib:1 }],
   "chingford": [{ n: "Gina", bib:1 }],
@@ -6711,7 +6718,7 @@ const PLACE_REGION = {
   // dining rollup: towns whose tables belong to a destination page
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
   "davidson": "Charlotte, North Carolina", "marietta": "Atlanta, Georgia", "avondale estates": "Atlanta, Georgia", "sullivan's island": "Charleston, South Carolina",
-  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
+  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
