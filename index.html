@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M360";
+const BUILD = "M361";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -616,8 +616,10 @@ const ULTRA_LUX = [
   // Dunmore, Caerula Mar, Grand Isle — is Luxury or Experience, by instruction.
   "The Ocean Club, a Four Seasons Resort", "Musha Cay", "Over Yonder Cay",
   // United States — NYC
-  "Aman New York", "The Fifth Avenue Hotel", "The Lowell", "The Greenwich Hotel", "The Carlyle",
-  "Casa Cipriani", "The Mark",
+  // New York re-audited 4 Sept 2026 on the strict standard: three Ultra Luxury. The Lowell came
+  // down to Luxury; The Greenwich, The Fifth Avenue and Casa Cipriani were withheld (unnamed by
+  // the audit). The Point stays, on its own line below.
+  "Aman New York", "The Mark", "The Carlyle",
   // United States — California
   // California re-audited 4 Sept 2026 on the strict standard: eight Ultra Luxury, every one a
   // current Forbes Five-Star except San Ysidro, which the curation keeps on the total product.
@@ -2682,21 +2684,25 @@ const FAVORITES = {
   ],
 
   "New York City": [
-  // ── NEW YORK — SPOT-CHECKED 4 SEPT 2026, NOT REBUILT. Aman New York stays Ultra Luxury on the
-  // definition itself, whatever Forbes says this year (Four-Star); the Four Seasons is added as
-  // Luxury on its Five-Star. Baccarat is not added — the audit keeps it only if previously
-  // approved, and it never was. The Mark, The Carlyle, The Lowell, The Greenwich, The Fifth
-  // Avenue and Casa Cipriani remain in the Ultra canon UNEXAMINED: the audit did not name them,
-  // and a spot-check is not a rebuild. The Hamptons and the Hudson Valley have no hotel by
-  // instruction and none was ever in.
+  // ── NEW YORK — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Three Ultra Luxury — Aman (on
+  // the definition itself, whatever Forbes says), The Mark, The Carlyle — and six Luxury. The
+  // Lowell came down. Baccarat, the Peninsula, the Pierre and the Mandarin Oriental are in as
+  // Luxury by instruction. THE FOUR SEASONS IS KEPT: approved as Luxury in the spot-check earlier
+  // the same day on its Forbes Five-Star, and its absence from the full audit's list reads as an
+  // omission, not a verdict — flagged to Tricia. WITHHELD, unnamed by the audit: The Greenwich
+  // Hotel, The Fifth Avenue Hotel, Casa Cipriani — all three had been in the Ultra canon.
+  // EXCLUDED: Park Hyatt (Four-Star). Topping Rose House and Lake Placid Lodge are withheld
+  // pending confirmation; the Hudson Valley's Wildflower Farms, Inness, Troutbeck and Glenmere
+  // are named and not loaded.
     { name: "Aman New York", area: "Fifth Avenue", rate: null, ourTake: "A serene three-floor spa sanctuary above Fifth Avenue, with a jazz club below." },
     { name: "Four Seasons Hotel New York", area: "57th Street, Midtown", rate: null, ourTake: "Pei's limestone tower on 57th, the tallest rooms in the city and a Forbes Five-Star. True city luxury, and Luxury by instruction \u2014 not the tier above." },
     { name: "The Mark", area: "Upper East Side", rate: null, ourTake: "Bold uptown design steps from the Met and Central Park." },
     { name: "The Carlyle", area: "Upper East Side", rate: null, ourTake: "Old-world Manhattan glamour and the legendary Bemelmans Bar." },
+    { name: "Mandarin Oriental, New York", area: "Columbus Circle", rate: null, ourTake: "The top of the Time Warner tower over the park, Forbes Five-Star, with the best-placed pool in the city and a spa to match. Luxury by instruction." },
+    { name: "The Peninsula New York", area: "Fifth Avenue, Midtown", rate: null, ourTake: "The 1905 landmark on Fifth at 55th, freshly renovated, with the rooftop bar, the spa and Peninsula's way with a guest. Luxury by instruction." },
+    { name: "Baccarat Hotel New York", area: "53rd Street, Midtown", rate: null, ourTake: "The crystal house across from MoMA \u2014 chandeliers by the hundred, a residential glamour nothing else in Midtown attempts, and the Spa de La Mer. Luxury by instruction, and not the tier above." },
+    { name: "The Pierre, A Taj Hotel", area: "Fifth Avenue at 61st", rate: null, ourTake: "The 1930 tower on the corner of the park, the Rotunda, and a service pedigree that predates most of its rivals. Classic New York, and Luxury by instruction." },
     { name: "The Lowell", area: "Upper East Side", rate: null, ourTake: "A discreet townhouse of wood-burning fireplaces and old-New-York calm." },
-    { name: "The Greenwich Hotel", area: "TriBeCa", rate: null, ourTake: "De Niro's downtown hideaway, all handcrafted rooms and a lantern-lit pool." },
-    { name: "The Fifth Avenue Hotel", area: "NoMad", rate: null, ourTake: "A theatrical landmark blending a Gilded Age mansion with a modern tower." },
-    { name: "Casa Cipriani", area: "Battery", rate: null, ourTake: "Italian glamour in the landmark Battery Maritime Building, members'-club chic." },
   ],
   // ── CALIFORNIA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ──────────────────────
   // Load only what the audit approves; withhold what it says to confirm; delete what it excludes.
@@ -2922,6 +2928,9 @@ const FAVORITES = {
   "Vermont": [
     { name: "Twin Farms", area: "Barnard", rate: null, ourTake: "An all-inclusive, all-suite estate on 300 private Vermont acres." },
   ],
+  // ── THE ADIRONDACKS. The Point is Ultra Luxury by instruction: eleven rooms in a Rockefeller
+  // Great Camp on its own peninsula, Forbes Five-Star, black tie at dinner. Lake Placid Lodge is
+  // withheld pending confirmation.
   "Adirondacks": [
     { name: "The Point", area: "Saranac Lake", rate: null, ourTake: "A former Rockefeller Great Camp — house-party luxury on a private lake." },
   ],
