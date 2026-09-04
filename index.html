@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M345";
+const BUILD = "M347";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2766,6 +2766,15 @@ const FAVORITES = {
   // by name: The Phoenician (the enclave does not lift the resort), Four Seasons Troon North,
   // Camelback Inn, Sanctuary, Enchantment, L'Auberge, Mii amo, Ambiente, Hacienda del Sol,
   // Bishop's Lodge, Rancho Encantado, Inn of the Anasazi, Five Graces, El Monte Sagrado.
+  // ── SANTA FE — CORRECTED 4 SEPT 2026. The Southwest audit had excluded all four; Tricia's
+  // correction approves them as Luxury, as named exceptions to the hard floor on management,
+  // product and investment. None is Ultra Luxury. Taos stays empty.
+  "Santa Fe": [
+    { name: "Bishop\u2019s Lodge, Auberge Collection", area: "Tesuque, north of the Plaza", rate: null, ourTake: "Three hundred and seventeen acres in the foothills, rebuilt at a cost of seventy-five million dollars for Auberge \u2014 horses, the trails, a serious spa and rooms with kiva fireplaces. The resort of Santa Fe, and Luxury by instruction." },
+    { name: "Four Seasons Resort Rancho Encantado Santa Fe", area: "Tesuque foothills", rate: null, ourTake: "Casitas on a private hillside twenty minutes north of the Plaza with the Sangre de Cristos above and Four Seasons service throughout \u2014 quiet, wellness-led, and the most private address in the area." },
+    { name: "Rosewood Inn of the Anasazi", area: "On the Plaza", rate: null, ourTake: "Fifty-eight rooms a few steps from the Plaza, adobe and vigas and Rosewood polish \u2014 the sophisticated in-town choice for a client who wants Santa Fe at the door." },
+    { name: "The Inn of the Five Graces", area: "Barrio de Analco, old town", rate: null, ourTake: "Twenty-five rooms of extraordinary Afghan and Tibetan interiors in a block of old adobe by the San Miguel chapel \u2014 private, individual and unlike any other hotel in America." },
+  ],
   "Scottsdale": [
     { name: "The Canyon Suites at The Phoenician", area: "Camelback Mountain, Scottsdale", rate: null, ourTake: "A hotel within the hotel: a few dozen suites and villas on their own private ground at the Phoenician, with their own pool, a house car, a dedicated team and the resort's golf and spa behind them. Forbes Five-Star for the enclave alone \u2014 the main resort is not, and is not on this list." },
   ],
@@ -6448,7 +6457,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
-  "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
+  "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -6709,6 +6718,7 @@ const GATEWAY = {
   "Douro Valley": { air: "Porto", note: "Porto (OPO) is the gateway — the valley starts about 1 hr 30 inland." },
   "Lake Como": { air: "Milan", note: "Como has no airport — you fly to Milan (MXP or LIN), then it is about an hour by car or train to the lake." },
   "Sedona": { air: "Phoenix", note: "Fly to Phoenix (PHX), then about 2 hr north by car." },
+  "Santa Fe": { air: "Albuquerque", note: "Santa Fe has its own field (SAF) with American and United from Dallas, Phoenix and Denver, which is the door when the connection lines up; otherwise fly to Albuquerque (ABQ) and it is an hour north on the interstate. The hotels send cars from either." },
   "Scottsdale": { air: "Phoenix", note: "Fly to Phoenix (PHX), then twenty minutes to Scottsdale. The Canyon Suites sends its house car." },
   "Banff": { air: "Calgary", note: "Fly to Calgary (YYC), then about 1 hr 30 into the mountains." },
   "Zermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then rail — Zermatt is car-free, so the train is the only way in." },
@@ -7126,7 +7136,7 @@ const AIRPORTS = {
   // listed under the destination. Bozeman (BZN) and Salt Lake City (SLC) are the doors for Big
   // Sky and Park City and are listed as gateways. Las Vegas (LAS) is the door for Amangiri —
   // Page's strip is Contour only and not listed. Denver is Aspen's ground-reachable hub.
-  "Tucson": { code: "TUS", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
+  "Tucson": { code: "TUS", scale: "intercontinental" }, "Santa Fe": { code: "SAF", scale: "regional" }, "Albuquerque": { code: "ABQ", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
   "Vancouver": { code: "YVR", scale: "intercontinental" }, "Seattle": { code: "SEA", scale: "intercontinental" },
 };
@@ -7259,7 +7269,7 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
+  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -7398,7 +7408,7 @@ function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toL
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
-  "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
+  "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
   "Napa Valley": [38.30,-122.29], "Santa Barbara": [34.43,-119.64], "Laguna Beach": [33.54,-117.78], "San Diego": [32.72,-117.16], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
   "Vancouver": [49.28,-123.12], "Mexico City": [19.43,-99.13], "Buenos Aires": [-34.60,-58.38], "Mendoza": [-32.89,-68.84],
@@ -7531,7 +7541,7 @@ const DRIVE_TIMES = [
   ["La Romana", "Playa Grande", 270, 300], ["Punta Cana", "Playa Grande", 330, 360],
   // MOUNTAIN WEST. Mine, not verified. Denver to Aspen over Independence Pass is summer only;
   // the year-round road is I-70 and Glenwood, and that is the figure.
-  ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
+  ["Albuquerque", "Santa Fe", 65, 100], ["Denver", "Aspen", 240, 320], ["Bozeman", "Big Sky", 60, 80], ["Salt Lake City", "Park City", 35, 55],
   ["Las Vegas", "Utah", 270, 450], ["Phoenix", "Utah", 270, 450],
   // JAMAICA. Mine, not verified. The north-coast highway is quick; the mountain roads are not.
   ["Montego Bay", "Negril", 90, 80], ["Montego Bay", "Ocho Rios", 105, 100], ["Montego Bay", "Kingston", 150, 190],
@@ -7744,6 +7754,7 @@ const CITY_ALIASES = {
   "providenciales": "Turks & Caicos", "turks and caicos": "Turks & Caicos", "tci": "Turks & Caicos",
   "grace bay": "Turks & Caicos", "provo": "Turks & Caicos", "parrot cay": "Turks & Caicos", "pine cay": "Turks & Caicos",
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
+  "santa fe, nm": "Santa Fe", "tesuque": "Santa Fe", "bishop's lodge": "Santa Fe",
   "paradise valley": "Scottsdale", "scottsdale, az": "Scottsdale", "marana": "Tucson", "dove mountain": "Tucson", "tucson, az": "Tucson",
   "deer valley": "Park City", "wanship": "Park City", "blue sky": "Park City", "teton village": "Jackson Hole", "jackson, wyoming": "Jackson Hole", "jackson, wy": "Jackson Hole",
   "canyon point": "Utah", "amangiri": "Utah", "lake powell": "Utah", "page, arizona": "Utah", "spanish peaks": "Big Sky", "moonlight basin": "Big Sky",
@@ -8485,7 +8496,25 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const [live, setLive] = useState([]);
   const raw = value || "";
   const q = bareCity(raw).toLowerCase();
-  const servable = (name) => { const f = lookup(FAVORITES, name); return !!(f && f.length); };
+  // A DESTINATION IS A PLACE WE HAVE CURATED, NOT ONLY A PLACE WE SELL A ROOM IN. The picker used
+  // to offer a destination only if it had a hotel. Under the strict five-star floor, Sedona,
+  // Santa Fe, Taos, Seattle, Vail, San Francisco and Bonaire have none — and vanished from the
+  // dropdown, though every one of them is somewhere Voyage One sends people for the landscape,
+  // the food or the season. Now a place is offered if it has hotels, OR an ideas card, OR our own
+  // coordinates and geography, OR a curated dining table. The hotel panel says plainly when there
+  // is no hotel; that is the standard speaking, and it is not a reason to hide the place.
+  const hasHotels = (name) => { const f = lookup(FAVORITES, name); return !!(f && f.length); };
+  const servable = (name) => {
+    if (hasHotels(name)) return true;
+    const k = resolvePlace(name) || bareCity(String(name || "")); const lc = k.toLowerCase();
+    if (COORDS[k]) return true;
+    if (IDEAS.some((i) => String(i.n || "").toLowerCase() === lc)) return true;
+    // …or a card on any experience layer names it as the place you stay for that experience —
+    // Vail and Telluride on the skiing layer, Tucson on the tennis layer
+    if ([RANCH, SHOP, FLY, FISH, SKI, WINE, GOLF, TENNIS].some((L) => L.some((x) => String(x.city || x.n || "").toLowerCase() === lc))) return true;
+    if (lookup(DINING, name) || lookup(ACCOLADES, name)) return true;
+    return false;
+  };
   // THE DESTINATION PICKER SUGGESTS FROM OUR OWN CURATED LIST FIRST. It used to match only the
   // short static CITIES list, and rely on Google for everything else — and Google's rows are
   // filtered in citysearch.js to towns, districts and attractions. Islands, lakes and reserves
@@ -8541,7 +8570,9 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
           const nearCurated = (r) => {
             if (!servable(r.city)) return false;
             if (r.lat == null || r.lng == null) return true;
-            const f = lookup(FAVORITES, r.city); const key = Object.keys(FAVORITES).find((k) => FAVORITES[k] === f);
+            // compare against whichever curated coordinates the name resolves to — a hotel key,
+            // or plain geography — so a lookalike in another country is still dropped
+            const f = lookup(FAVORITES, r.city); const key = f ? Object.keys(FAVORITES).find((k) => FAVORITES[k] === f) : (resolvePlace(r.city) || null);
             const c = key && COORDS[key]; if (!c) return true;
             return kmBetween([r.lat, r.lng], c) <= RESOLVE_NAME_KM;
           };
