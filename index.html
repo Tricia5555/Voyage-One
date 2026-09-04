@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M352";
+const BUILD = "M353";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -5608,6 +5608,11 @@ const ACCOLADES = {
   // not by way of DANIEL. THE SISTER-RESTAURANT RULE: an award belongs to the restaurant that won
   // it; a Palm Beach location inherits nothing from New York.
   "palm beach": [{ n: "B\u016bccan", us:1, msel:1 }, { n: "Caf\u00e9 Boulud Palm Beach", us:1, msel:1 }],
+  // Naples, FLORIDA — 4 Sept 2026, on Tricia's instruction. The key is "naples florida" (dnrm of
+  // "Naples, Florida"), so the Bay of Naples stars under "naples" cannot reach it and it cannot
+  // reach them. jbs = James Beard SEMIFINALIST: a real credential, Recommended and no further —
+  // jb is reserved for winners and would have made this a Destination table, which it is not.
+  "naples florida": [{ n: "Bicyclette Cookshop", us:1, jbs:1 }],
   "westendorf": [{ n: "Gasthaus Steinberg", bib:1 }],
   "weyersheim area": [{ n: "Auberge du Pont de la Zorn", bib:1 }],
   "wierre effroy": [{ n: "La Ferme du Vert", bib:1 }],
@@ -12724,6 +12729,8 @@ function accoladeBadge(r) {
   if (r.gt) return "Gault&Millau · " + r.gt + " Toques";
   if (r.r50p) return (r.r50n || "Regional") + "'s 50 Best · previously ranked";
   if (r.jb) return "James Beard";
+  // A Beard semifinalist is a nomination, not an award: it shows, and it stays in Recommended.
+  if (r.jbs) return "James Beard \u00b7 semifinalist";
   if (r.ll >= 95) return "La Liste " + r.ll;
   if (r.gm >= 19) return "Gault&Millau " + r.gm + "/20";
   if (r.gmc) return "Gault&Millau · " + r.gmc;
