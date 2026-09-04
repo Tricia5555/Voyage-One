@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M351";
+const BUILD = "M352";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -5603,6 +5603,11 @@ const ACCOLADES = {
   "wermelskirchen": [{ n: "Landhaus Spatzenhof", bib:1 }],
   "wernberg koblitz": [{ n: "Wirtsstube im Hotel Burkhard", bib:1 }],
   "west palm beach": [{ n: "aioli", us:1, bib:1 }, { n: "Palm Beach Meats", us:1, bib:1 }],
+  // Palm Beach island, 4 Sept 2026, on Tricia's instruction. Both Michelin Recommended in 2026 on
+  // their own record — Recommended here, not Destination, and Café Boulud earns it in Palm Beach,
+  // not by way of DANIEL. THE SISTER-RESTAURANT RULE: an award belongs to the restaurant that won
+  // it; a Palm Beach location inherits nothing from New York.
+  "palm beach": [{ n: "B\u016bccan", us:1, msel:1 }, { n: "Caf\u00e9 Boulud Palm Beach", us:1, msel:1 }],
   "westendorf": [{ n: "Gasthaus Steinberg", bib:1 }],
   "weyersheim area": [{ n: "Auberge du Pont de la Zorn", bib:1 }],
   "wierre effroy": [{ n: "La Ferme du Vert", bib:1 }],
@@ -5936,6 +5941,9 @@ function credOf(name,city){
 // never appears, with nothing to show it was ignored.
 const LOCALFAV = {
   // "birmingham": [{ n: "Highlands Bar & Grill", us:1 }],   // ← example of the format
+  // Palm Beach, 4 Sept 2026, on Tricia's instruction. A Local Favorite on its own account; the
+  // New York sister's standing does not travel with the name.
+  "palm beach": [{ n: "Le Bilboquet", us:1 }],
   "birmingham": [
     { n: "Bottega Cafe", us:1 },
     { n: "Chez Fonfon", us:1 },
