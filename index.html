@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M371";
+const BUILD = "M372";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -6174,7 +6174,7 @@ const LOCALFAV = {
   // Bermuda has no starred or accoladed table, so the Local Favorite tab is the whole dining
   // page. Tricia's own list, 4 Sept 2026 — she goes all the time. Not US, so no `us` flag.
   "bermuda": [
-    { n: "Intrepid" },
+    { n: "Intrepid Steak Seafood & Raw Bar", find: "Intrepid Steak Seafood & Raw Bar Hamilton Princess" },
     { n: "Blu" },
     { n: "Little Venice" },
     { n: "Tom Moore's Tavern" },
@@ -12910,6 +12910,9 @@ function HotelPicker({ city, nights, pick, upd }) {
 // A restaurant's photo, blurb and site come live from the app's places source, by name — same as
 // the hotels. We add the Michelin distinction ourselves; we never invent a description.
 const DINE_PHOTO_CACHE = {};
+// An entry may carry find: "…" — the exact wording Google should be asked for when the display
+// name alone is ambiguous ("Intrepid" found the wrong Intrepid; "Intrepid Steak Seafood & Raw Bar
+// Hamilton Princess" cannot). The card still shows the name.
 function useDineInfo(city, name) {
   const key = ((city || "") + "|" + (name || "")).toLowerCase();
   const [info, setInfo] = useState(DINE_PHOTO_CACHE[key]);
@@ -12988,7 +12991,7 @@ function BookingRow({ item, onSet, timeLabel }) {
   </div>);
 }
 function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
-  const info = useDineInfo(city, r.n);
+  const info = useDineInfo(city, r.find || r.n);
   const photo = info.photo;
   const site = info.site;
   const [broken, setBroken] = useState(false);
