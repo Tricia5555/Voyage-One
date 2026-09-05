@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M370";
+const BUILD = "M371";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9549,6 +9549,7 @@ function VoyageOne() {
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
+    <BookingPrompt />
     {screen === "landing" && <Landing trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
@@ -12467,7 +12468,7 @@ function useRentalBrands(city, region, enabled) {
 }
 
 function RentalRow({ b, faded }) {
-  return (<a href={brandedLink(b.site)} target="_blank" rel="noopener noreferrer"
+  return (<a href={brandedLink(b.site, { kind: "rental", name: b.name || b.brand || "", city: "" })} target="_blank" rel="noopener noreferrer"
     style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, textDecoration: "none",
       padding: "13px 15px", borderRadius: 12, marginBottom: 8, border: `1px solid ${t.line}`, background: faded ? "transparent" : t.white }}>
     <span style={{ minWidth: 0 }}>
@@ -12573,7 +12574,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       // table — typical durations, no fares, no timetable — so the traveller needs a way through
       // to real departures. Rome to Naples, Paris to Marseille and Madrid to Barcelona all had
       // this gap: the leg between two destinations renders here, not in HubPanel.
-      <a href={brandedLink(`https://www.thetrainline.com/en-us/train-times/${railSlug(from)}-to-${railSlug(to)}`)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 15, fontWeight: 600, color: t.ink, textDecoration: "underline", textUnderlineOffset: 3 }}>
+      <a href={brandedLink(`https://www.thetrainline.com/en-us/train-times/${railSlug(from)}-to-${railSlug(to)}`, { kind: "rail", name: `${bareCity(from)} to ${bareCity(to)}`, city: to })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 15, fontWeight: 600, color: t.ink, textDecoration: "underline", textUnderlineOffset: 3 }}>
         <Route size={15} /> Real train times and fares · {bareCity(from)} → {bareCity(to)}
       </a>
     ) : null}
@@ -12646,7 +12647,22 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
 // Every outbound hotel link is tagged as coming from us — so the hotel's own analytics
 // sees "voyage-one-world.com" as the source. Keeps the hotel's own functional params
 // (merchant/room codes), strips their tracking, adds ours. This is the source proof.
-function brandedLink(url) {
+// ═══ OUTBOUND CLICKS AND "DID YOU BOOK?" — 4 SEPT 2026 ═════════════════════════════════════
+// Until this build the app sent a client off to a hotel with UTM tags and learned nothing: the
+// hotel could see the visit in its analytics; Voyage One could not see the tap. Now every outbound
+// link carries a Voyage One reference (utm_content=vo-XXXXXX), every tap writes a row to the
+// clicks table in Supabase, and when the client comes back to this tab the app asks once whether
+// they booked and records the answer — with a confirmation number if they have one — in the
+// bookings table. The reference is what a partner hotel matches a booking against.
+// Anonymous visitors are logged with a session id; signed-in clients with their user id. The
+// tables are insert-only from the site (Row Level Security), readable only in the dashboard.
+const OUTBOUND = {};                              // ref -> { kind, name, city, url }
+function voRef() { const a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let r = "vo-"; for (let i = 0; i < 6; i++) r += a[Math.floor(Math.random() * a.length)]; return r; }
+function sessionId() {
+  try { let id = localStorage.getItem("voyage-one:session"); if (!id) { id = "s-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem("voyage-one:session", id); } return id; }
+  catch (e) { return "s-nostore"; }
+}
+function brandedLink(url, ctx) {
   if (!url) return null;
   var hash = "", u = String(url);
   var hi = u.indexOf("#"); if (hi >= 0) { hash = u.slice(hi); u = u.slice(0, hi); }
@@ -12654,8 +12670,70 @@ function brandedLink(url) {
   var base = qi >= 0 ? u.slice(0, qi) : u;
   var qs = qi >= 0 ? u.slice(qi + 1) : "";
   var parts = qs ? qs.split("&").filter(function (p) { return p && p.slice(0, 4) !== "utm_"; }) : [];
-  parts.push("utm_source=voyage-one-world.com", "utm_medium=referral", "utm_campaign=voyageone");
+  var ref = voRef();
+  parts.push("utm_source=voyage-one-world.com", "utm_medium=referral", "utm_campaign=voyageone", "utm_content=" + ref);
+  OUTBOUND[ref] = { kind: (ctx && ctx.kind) || "link", name: (ctx && ctx.name) || "", city: (ctx && ctx.city) || "", url: base };
   return base + "?" + parts.join("&") + hash;
+}
+let PENDING_BOOKING = null;                       // the last outbound tap, awaiting "did you book?"
+async function logClick(ref) {
+  const ctx = OUTBOUND[ref]; if (!ctx) return;
+  PENDING_BOOKING = { ref, ...ctx, at: Date.now(), clickId: null };
+  try { localStorage.setItem("voyage-one:pending", JSON.stringify(PENDING_BOOKING)); } catch (e) {}
+  try {
+    const sb = await supa(); if (!sb) return;
+    const sess = await sb.auth.getSession();
+    const uid = sess && sess.data && sess.data.session ? sess.data.session.user.id : null;
+    const r = await sb.from("clicks").insert({ ref, user_id: uid, session_id: sessionId(), kind: ctx.kind, name: ctx.name, city: ctx.city, url: ctx.url }).select("id").maybeSingle();
+    if (r && r.data && PENDING_BOOKING && PENDING_BOOKING.ref === ref) { PENDING_BOOKING.clickId = r.data.id; try { localStorage.setItem("voyage-one:pending", JSON.stringify(PENDING_BOOKING)); } catch (e) {} }
+  } catch (e) {}
+}
+async function logBooking(pending, answer, confirmation) {
+  try {
+    const sb = await supa(); if (!sb) return false;
+    const sess = await sb.auth.getSession();
+    const uid = sess && sess.data && sess.data.session ? sess.data.session.user.id : null;
+    const r = await sb.from("bookings").insert({ click_id: pending.clickId, ref: pending.ref, user_id: uid, session_id: sessionId(), kind: pending.kind, name: pending.name, city: pending.city, confirmation: confirmation || null, status: answer === "yes" ? "self_reported" : "not_booked" });
+    return !r.error;
+  } catch (e) { return false; }
+}
+// One listener for every outbound link in the app: any anchor whose href carries a Voyage One
+// reference is logged. No call site has to remember to do it.
+if (typeof document !== "undefined") {
+  document.addEventListener("click", (e) => {
+    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a) return;
+    const m = /utm_content=(vo-[A-Z0-9]{6})/.exec(a.getAttribute("href") || ""); if (!m) return;
+    logClick(m[1]);
+  }, true);
+}
+// Asks once, when the tab comes back after an outbound tap. "Not yet" clears it; "Yes" records it.
+function BookingPrompt() {
+  const [pend, setPend] = useState(null);
+  const [conf, setConf] = useState("");
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      if (document.visibilityState !== "visible") return;
+      let p = PENDING_BOOKING;
+      if (!p) { try { p = JSON.parse(localStorage.getItem("voyage-one:pending") || "null"); } catch (e) { p = null; } }
+      if (p && Date.now() - p.at > 15000 && Date.now() - p.at < 1000 * 60 * 60 * 6) setPend(p);
+    };
+    document.addEventListener("visibilitychange", check); window.addEventListener("focus", check);
+    return () => { document.removeEventListener("visibilitychange", check); window.removeEventListener("focus", check); };
+  }, []);
+  const clear = () => { PENDING_BOOKING = null; try { localStorage.removeItem("voyage-one:pending"); } catch (e) {} setPend(null); setConf(""); setDone(false); };
+  if (!pend) return null;
+  const what = pend.name || "that";
+  return (<div style={{ position: "fixed", left: 12, right: 12, bottom: 18, zIndex: 9000, background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, boxShadow: "0 8px 30px rgba(0,0,0,.12)", padding: "14px 16px", fontFamily: font.ui }}>
+    {done ? (<div style={{ fontSize: 14 }}>Thank you \u2014 noted. <button onClick={clear} style={{ marginLeft: 10, fontSize: 13, background: "none", border: "none", color: t.pine, textDecoration: "underline" }}>Close</button></div>) : (<>
+      <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 8 }}>Did you book <b>{what}</b>{pend.city ? ` in ${bareCity(pend.city)}` : ""}?</div>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <input value={conf} onChange={(e) => setConf(e.target.value)} placeholder="Confirmation number (optional)" style={{ flex: 1, minWidth: 180, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, fontSize: 13.5 }} />
+        <button onClick={async () => { await logBooking(pend, "yes", conf.trim()); setDone(true); }} style={{ padding: "8px 14px", borderRadius: 999, background: t.pine, color: t.white, border: "none", fontSize: 13.5 }}>Yes, booked</button>
+        <button onClick={async () => { await logBooking(pend, "no", ""); clear(); }} style={{ padding: "8px 14px", borderRadius: 999, background: t.white, color: t.ink, border: `1px solid ${t.line}`, fontSize: 13.5 }}>Not yet</button>
+      </div>
+    </>)}
+  </div>);
 }
 const HOTEL_PHOTO_CACHE = {};
 function useHotelInfo(city, name) {
@@ -12704,8 +12782,8 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
-        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
-        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
+        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
+        {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
     </div>
@@ -12882,7 +12960,7 @@ function LiveDineRow({ item, city, found, onToggle, onDate, nights, sub, price, 
         {area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 3 }}>{area}, {bareCity(city)}</div> : null}
         {info.address ? <div>{info.address}</div> : null}
         {info.phone ? <div>{info.phone}</div> : null}
-        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
+        {site ? <a href={brandedLink(site, { kind: "restaurant", name: item.name || item.n || "", city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
       </div>
     ) : null}
     {found && <DateChips nights={nights} value={found.date} onPick={onDate} label={dayLabel || "Which evening?"} />}
@@ -12957,7 +13035,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
         {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
         {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
         {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
-        {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
+        {site ? <a href={brandedLink(site, { kind: "restaurant", name: r.n, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which evening?" /></div>
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 10 }}><BookingRow item={found} onSet={onSet} timeLabel="What time?" /></div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap to add →</div>}
@@ -13102,7 +13180,7 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
       <div style={{ margin: "2px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
         {info.address ? <div>{info.address}</div> : null}
         {info.phone ? <div>{info.phone}</div> : null}
-        {bookUrl ? <a href={brandedLink(bookUrl)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / book →</a> : null}
+        {bookUrl ? <a href={brandedLink(bookUrl, { kind: "venue", name: (row && (row.name || row[0])) || "", city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / book →</a> : null}
       </div>
     ) : null}
     {found && onDate && <DateChips nights={nights} value={found.date} onPick={(dt) => onDate(name, dt)} label={label || "Which day?"} />}
@@ -13483,13 +13561,13 @@ function HubPanel({ from, city, date, pick, upd }) {
         const cf = onward.find((x) => x.mode === "Connecting flight" && x.bookUrl);
         const tr = onward.find((x) => x.railUrl);
         if (!cf && !tr) return null;
-        if (!cf) return (<a href={brandedLink(tr.railUrl)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, fontSize: 15, fontWeight: 600, color: t.paper, opacity: 1, textDecoration: "underline", textUnderlineOffset: 3 }}>
+        if (!cf) return (<a href={brandedLink(tr.railUrl, { kind: "rail", name: "Hub rail", city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, fontSize: 15, fontWeight: 600, color: t.paper, opacity: 1, textDecoration: "underline", textUnderlineOffset: 3 }}>
           <Route size={15} /> Real train times and fares · {chosen} → {city}
         </a>);
-        return (<><a href={brandedLink(cf.bookUrl)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, fontSize: 15, fontWeight: 600, color: t.paper, opacity: 1, textDecoration: "underline", textUnderlineOffset: 3 }}>
+        return (<><a href={brandedLink(cf.bookUrl, { kind: "flight", name: cf.label || "Connecting flight", city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, fontSize: 15, fontWeight: 600, color: t.paper, opacity: 1, textDecoration: "underline", textUnderlineOffset: 3 }}>
           <Plane size={15} /> See and book {hubCode} → {ap ? ap.code : city}
         </a>
-        {tr ? <a href={brandedLink(tr.railUrl)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, marginLeft: 18, fontSize: 15, fontWeight: 600, color: t.paper, opacity: 1, textDecoration: "underline", textUnderlineOffset: 3 }}>
+        {tr ? <a href={brandedLink(tr.railUrl, { kind: "rail", name: "Hub rail", city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, marginLeft: 18, fontSize: 15, fontWeight: 600, color: t.paper, opacity: 1, textDecoration: "underline", textUnderlineOffset: 3 }}>
           <Route size={15} /> Real train times and fares
         </a> : null}</>);
       })()}
@@ -13880,7 +13958,7 @@ function ItemContact({ kind, city, name, fallback }) {
   return (<div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 4 }}>
     {addr ? <div>{addr}</div> : null}
     {phone ? <div>{phone}</div> : null}
-    {site ? <a href={brandedLink(site)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit / reserve →</a> : null}
+    {site ? <a href={brandedLink(site, { kind, name, city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit / reserve →</a> : null}
   </div>);
 }
 // The itinerary as a true day-by-day flow: the outbound flight, the hotel(s), then one card per
