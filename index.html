@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M376";
+const BUILD = "M377";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10958,10 +10958,10 @@ const ONE_LIST = {
         daysTitle: "How you'll see in the year",
         pickStep: "Step one · choose your midnight",
         pickPrompt: "Where are you at twelve?",
-        pickHelp: "On this island the night itself is the booking. Everything else — the villa, the flights, the table on the 30th — is built around where you stand at midnight, so we settle that first.",
-        pickSettle: "We'll set your nights next. The week has a floor: almost nothing on the island takes fewer than seven nights over New Year, and the best villas ask ten.",
+        pickHelp: "On this island the night itself is the decision. Everything else — the villa, the flights, the table on the 30th — follows from where you stand at midnight, so settle that first. We tell you what to take and connect you to the people who hold it; the booking is yours to make.",
+        pickSettle: "Set your nights next. The week has a floor: almost nothing on the island takes fewer than seven nights over New Year, and the best villas ask ten.",
         recapLabel: "Your New Year",
-        ticketsTitle: "Securing the week",
+        ticketsTitle: "How the week gets booked",
         beyondTitle: "Beyond the night",
         cur: "$",
         daysIntro: "St Barth at New Year is not one night — it is roughly the 27th to the 2nd, and the island becomes a different place for it. Superyachts fill Gustavia, lunches turn into parties, every kitchen runs a set menu, and the roads and taxis stop coping. The whole week turns on one decision: where you are at midnight. Everything else follows, and everything else is easier to get.",
@@ -10973,7 +10973,7 @@ const ONE_LIST = {
             { tier: "La Guérite", label: "On the harbour, runs late · no transport problem if you are staying in town" },
             { tier: "Le Ti St Barth", label: "Pointe Milou · dinner, cabaret, then a club. A night, not a meal" },
           ] },
-          { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. Far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat. Gustavia's inner harbour takes about sixty yachts up to 200ft with roughly a hundred more anchored outside, which is why the week is decided months in advance. Reckon on $8,000 a day for a mid-size motor yacht and from $10,200 above 89ft, plus an Advance Provisioning Allowance of 25–35% on top — and a further premium across the Christmas to New Year fortnight. Six to twelve months' lead time for a December sailing is not caution, it is the market.", date: "2026-12-31", link: { label: "Browse St Barth charters · Boatcrowd", url: "https://www.boatcrowd.com/yacht-charter-st-barths" }, tiers: [
+          { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. Far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat. Gustavia's inner harbour takes about sixty yachts up to 200ft with roughly a hundred more anchored outside, which is why the week is decided months in advance. Expect from $8,000 a day for a mid-size motor yacht and from $10,200 above 89ft, plus an Advance Provisioning Allowance of 25–35% on top — and a further premium across the Christmas to New Year fortnight. Six to twelve months' lead time for a December sailing is not caution, it is the market.", date: "2026-12-31", link: { label: "Browse St Barth charters · Boatcrowd", url: "https://www.boatcrowd.com/yacht-charter-st-barths" }, tiers: [
             { tier: "A yacht already in St Barth", label: "The insider route — no berth gamble · through a broker who works the island" },
             { tier: "Full festive-week charter", label: "Crewed, the whole week · berth applied for months ahead" },
             { tier: "Charter for New Year's Eve only", label: "The evening alone — simplest, and you lose the week's best asset" },
@@ -10990,6 +10990,17 @@ const ONE_LIST = {
         days: "Arrive the 28th or 29th, never the 31st — you want time to settle, confirm tables and fix transport before the island fills. The 30th is a beach day with a long festive lunch and a deliberately restrained dinner. On the 31st keep the morning gentle, do not let lunch become an all-day blowout, and be back at the villa by four for a nap, a massage and hair and make-up brought to you. The single biggest mistake is exhausting the client before the night has started. Then a late dinner, in position by 11:45, and no early start on the 1st — the first of January is a late breakfast and a longer lunch, not a nine o'clock boat.",
         stayNote: "BOOK THE ISLAND FIRST AND THE PARTY SECOND. The top villas and the festive inventory at Cheval Blanc and Eden Rock go nine to twelve months ahead, and the best houses twelve or more — while the party programmes are not even announced until the autumn. Waiting for the line-up before booking a bed is how people end up not coming. For New Year specifically, LOCATION BEATS VIEW: Gustavia, Lurin and Gouverneur put you within reach of town on a night when taxis vanish. A spectacular villa at the far end of the island is a beautiful place to be stranded at one in the morning.",
         stayCollection: "St Barth",
+        // stay MUST exist even when the collection carries the rest — the renderer calls
+        // g.stay.some() unconditionally, and an absent array takes the page down. These four are
+        // featured; every other curated St Barth house appears beneath them from the collection.
+        // No website is written here: the live lookup supplies each hotel's own site and telephone,
+        // exactly as it does everywhere else, so nothing can rot.
+        stay: [
+          { name: "Eden Rock – St Barths", area: "St Jean · on the rock", rate: null, note: "The island's signature address, on its own promontory over the bay. The New Year gala is here, so staying in the hotel is the shortest possible walk to midnight." },
+          { name: "Cheval Blanc St-Barth", area: "Flamands Beach", rate: null, note: "LVMH's house on the best beach on the island, and the most polished service in St Barth. Quieter than Eden Rock, and fifteen minutes from Gustavia." },
+          { name: "Hôtel Le Toiny", area: "Anse de Toiny", rate: null, note: "Villa suites with private pools on the wild windward side. The most private of the four, and the furthest from town — which matters on the 31st." },
+          { name: "Fouquet's Saint-Barth", area: "Gustavia", rate: null, note: "The one hotel actually in Gustavia. On New Year's Eve that is worth more than a view: you walk to dinner, to midnight and home again." },
+        ],
         stepsTitle: "How we build it, in order",
         steps: [
           { h: "Secure the bed", b: "villa or hotel first, nine to twelve months out. Everything else can be added; this cannot." },
@@ -11013,7 +11024,7 @@ const ONE_LIST = {
           "BE IN POSITION BY 11:45. Do not plan to cross Gustavia at five to twelve — you will not make it, and the harbour at midnight is the entire point.",
           "PRE-ARRANGE THE RIDE HOME. Taxi demand on the 31st is unmeetable and parking in Gustavia is gone by six. Book a dedicated driver for the evening, with a confirmed return time, before you leave the villa. This is the detail that ruins otherwise perfect nights.",
           "DO NOT ARRIVE ON THE 31st. The 28th or 29th gives you time to settle, confirm tables and sort transport before the island fills.",
-          "YOU CANNOT FLY DIRECT. Everything routes through St Maarten (SXM), then a twelve-minute Twin Otter hop over the hill at Col de la Tourmente, a helicopter, or the Great Bay Express ferry, about forty-five minutes to Gustavia. Helicopter inventory over festive week is scarce — reserve months ahead.",
+          "YOU CANNOT FLY DIRECT. Everything routes through St Maarten (SXM), then a twelve-minute Twin Otter hop over the hill at Col de la Tourmente, a helicopter, or the Great Bay Express ferry from Sint Maarten, about forty-five minutes to Gustavia. THE FERRY CAN BE ROUGH \u2014 the channel is open water and the crossing is frequently choppy, so it is a poor choice after a long flight or with anyone prone to seasickness. Helicopter inventory over festive week is scarce; reserve months ahead.",
           "ST BARTH AIRPORT CLOSES AT DUSK. No night landings, ever. A long-haul arriving into SXM in the evening means a night in St Maarten or a crossing in the dark. Land at SXM before three in the afternoon.",
           "The Twin Otter baggage limit is real and small. Charter a second seat for luggage, or send bags across by ferry — both are normal here.",
           "Book a small car, not a large one. The roads are one lane and steep, and nothing wide is welcome on them.",
@@ -11312,7 +11323,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} \u2197</a></div> : null}</div> : null}
-                  {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We confirm the booking when we build your trip — tap any hotel below to change.</div> : null}
+                  {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book direct — tap any hotel below to change.</div> : null}
                 </button>); };
             const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
             const isKnown = (nm) => g.stay.some((s) => s.name === nm) || collection.some((s) => s.name === nm);
