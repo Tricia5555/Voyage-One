@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M372";
+const BUILD = "M373";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -136,6 +136,15 @@ const SEASON = {
   "Maui": { window: "Any month \u2014 December to April for the whales", note: "Wailea is on the dry, leeward side and sunny most of the year. Humpbacks fill the channel off Wailea and Kapalua from December to April, close enough to watch from the beach. Kapalua is windier and wetter than Wailea in any month." },
   "Big Island": { window: "Any month", note: "The Kona-Kohala coast is the driest place in the islands and reliable in every month. Manta rays off the Kona coast at night year-round; whales December to April; the volcano does what it does." },
   "Lanai": { window: "Any month", note: "Dry and quiet all year, with the whales in the channel from December to April and the spinner dolphins in Hulopo'e Bay most mornings. The resorts book out for Christmas and spring." },
+  // ── AMAN DESTINATIONS. Drafted 5 Sept 2026 — mine, not Tricia's.
+  "Bodrum": { window: "May to October", note: "The Aegean summer; July and August are hot and full, June and September are the months. Amanruya closes for the winter." },
+  "Palawan": { window: "November to May", note: "The dry season; the Sulu Sea is calmest February to April. Amanpulo stays open through the rains but the flights are the constraint." },
+  "Moyo Island": { window: "June to October", note: "The dry season in Sumbawa, and the only months the seaplane runs reliably. Amanwana closes for the wet season." },
+  "Siem Reap": { window: "November to February", note: "Cool and dry \u2014 the temples at their best. March to May is very hot; the rains, June to October, bring the reflecting pools and half the crowds." },
+  "Luang Prabang": { window: "November to February", note: "Cool, dry and misty on the river at dawn. March and April are hot and hazy from the field burning; the rains are June to October." },
+  "Nha Trang": { window: "February to August", note: "Vinh Hy Bay's dry months; the south-central coast is the opposite of Hanoi's calendar. The rains come in October and November." },
+  "Hangzhou": { window: "March to May and October to November", note: "Spring tea picking on the hills around Amanfayun, and the autumn osmanthus. Summer is hot and wet." },
+  "Lijiang": { window: "March to May and September to November", note: "Dry, clear and mild at 2,400 metres, with the snow mountain out. Winter is cold and bright; the rains are June to August." },
   // ── BERMUDA. Drafted Sept 2026 — mine, not Tricia's. The opposite calendar to the Caribbean.
   "Bermuda": { window: "May to October", note: "Bermuda is subtropical, not tropical \u2014 the sea is swimmable from May and the island is at its best through October, while winter is mild, windy and not a beach season. Cup Match closes the island for two days at the end of July. Hurricane season is June to November, and the island is well built for it." },
   // ── TURKS & CAICOS. Drafted Sept 2026 — mine, not Tricia's.
@@ -646,6 +655,10 @@ const ULTRA_LUX = [
   // country-estate hospitality, not Aman-level scarcity. Twin Farms and The Point are not yet
   // re-audited.
   "Twin Farms", "The Point", "Ocean House",
+  // THE REST OF THE AMAN PORTFOLIO — 5 Sept 2026, ahead of Tricia's call with Aman. Ultra Luxury
+  // on the standing rule, not on a new judgement: the tier is defined as Aman-level, and every
+  // audit this week kept an Aman in it on that basis. Sveti Stefan is not here — closed since 2021.
+  "Amanvari", "Aman Le M\u00e9l\u00e9zin", "Amanruya", "Amanpulo", "Amanwana", "Amansara", "Amantaka", "Amanoi", "Amanfayun", "Amandayan",
   // Canada — classified property by property, not by flag. Four Seasons Toronto, Montreal and
   // Whistler qualify; Fairmont Pacific Rim does and no other Fairmont does. Matching is on the
   // full set of distinctive words, so "Fairmont Pacific Rim" cannot pull in Banff Springs or
@@ -1088,6 +1101,7 @@ const FAVORITES = {
     { name: "Royal Champagne Hotel & Spa", area: "Champillon", rate: null, ourTake: "A hillside hotel above the vineyards near Épernay — all bubbles and valley views.", contact: { web: "royalchampagne.com" } },
   ],
   "Courchevel": [
+    { name: "Aman Le M\u00e9l\u00e9zin", area: "Courchevel 1850, on the Bellec\u00f4te piste", rate: null, ourTake: "Aman's only ski house: thirty-one rooms on the piste in 1850, a proper spa, and the Aman way of doing things in a resort that mostly does not. Ultra Luxury on the definition." },
     { name: "Le K2 Palace", area: "Courchevel 1850", rate: null, ourTake: "A chalet-palace on the slopes of 1850 — ski-in, ski-out grandeur.", contact: { web: "lek2palace.com" } },
   ],
   "Versailles": [
@@ -2187,6 +2201,32 @@ const FAVORITES = {
     { name: "Four Seasons Resort Maldives at Landaa Giraavaru", area: "Baa Atoll", rate: null, ourTake: "A conservation-led resort in the UNESCO biosphere, manta rays at the door." },
     { name: "The Nautilus Maldives", area: "Baa Atoll", rate: null, ourTake: "No schedules, no rules — an intimate, deeply personal private-island escape." },
   ],
+  // ── AMAN DESTINATIONS ADDED 5 SEPT 2026 — one hotel each, the Aman, ahead of the Aman call.
+  // Nothing else is curated in these places yet; the geography is here so they route.
+  "Bodrum": [
+    { name: "Amanruya", area: "Bodrum peninsula, north coast", rate: null, ourTake: "Stone pavilions with their own pools in the pines above a private cove on the quiet north side of the peninsula, thirty minutes from the town. The Aegean Aman. Ultra Luxury on the definition." },
+  ],
+  "Palawan": [
+    { name: "Amanpulo", area: "Pamalican Island, by Aman's aircraft from Manila", rate: null, ourTake: "A private island in the Sulu Sea reached only on Aman's own plane from Manila \u2014 casitas on the beach, villas with pools, a reef around the whole thing. The original private-island Aman. Ultra Luxury on the definition." },
+  ],
+  "Moyo Island": [
+    { name: "Amanwana", area: "Moyo Island, east of Bali", rate: null, ourTake: "Twenty tented camps on a jungle island in a marine reserve, reached by Aman's seaplane from Bali \u2014 the wildest Aman and the one with the fewest walls. Ultra Luxury on the definition." },
+  ],
+  "Siem Reap": [
+    { name: "Amansara", area: "Siem Reap, twenty minutes from Angkor", rate: null, ourTake: "Sihanouk's 1960s guesthouse turned into twenty-four suites with the best Angkor guides in the country and the temples at dawn before anyone else arrives. Ultra Luxury on the definition." },
+  ],
+  "Luang Prabang": [
+    { name: "Amantaka", area: "Luang Prabang, old town", rate: null, ourTake: "A colonial hospital in the old royal capital, twenty-four suites around lawns and a pool, and the monks' alms round outside the gate at dawn. Ultra Luxury on the definition." },
+  ],
+  "Nha Trang": [
+    { name: "Amanoi", area: "Vinh Hy Bay, ninety minutes south of Cam Ranh", rate: null, ourTake: "Pavilions and villas on a headland in a national park above a bay nothing else is built on, with the Aman spa and a beach club below. Vietnam's one Aman. Ultra Luxury on the definition." },
+  ],
+  "Hangzhou": [
+    { name: "Amanfayun", area: "Fayun village, by Lingyin temple", rate: null, ourTake: "A restored village in the tea hills beside seven temples, an hour's train from Shanghai \u2014 rooms in old houses, the temple bells, the best tea in China. Ultra Luxury on the definition." },
+  ],
+  "Lijiang": [
+    { name: "Amandayan", area: "Lion Hill, above the old town", rate: null, ourTake: "Courtyard suites on the hill above Lijiang's old town with the Jade Dragon Snow Mountain across the valley. The Yunnan Aman. Ultra Luxury on the definition." },
+  ],
   "Bali": [
     { name: "Amankila", area: "Manggis", rate: null, ourTake: "Three tiered pools cascading to the sea on Bali's quiet east coast." },
     { name: "Amandari", area: "Ubud", rate: null, ourTake: "A village-style Aman above the Ayung gorge, the spiritual heart of Ubud." },
@@ -2346,6 +2386,7 @@ const FAVORITES = {
     { name: "One&Only Palmilla", area: "San José del Cabo", rate: null, ourTake: "The grande dame of Los Cabos — a whitewashed hacienda on a swimmable bay." },
     { name: "Las Ventanas al Paraíso, a Rosewood Resort", area: "Corridor", rate: null, ourTake: "The romantic Rosewood legend, all telescopes and tequila service." },
     { name: "Zadún, a Ritz-Carlton Reserve", area: "Puerto Los Cabos", rate: null, ourTake: "Contemporary desert-meets-sea seclusion on the quieter east cape." },
+    { name: "Amanvari", area: "Costa Palmas, East Cape", rate: null, ourTake: "Aman on the East Cape, opened in 2025 beside the Four Seasons on the Costa Palmas beach \u2014 the calm Sea of Cort\u00e9s side, the marina, and the quiet the Pacific side does not have. Ultra Luxury on the definition; verify it is taking bookings." },
     { name: "Four Seasons Los Cabos at Costa Palmas", area: "East Cape", rate: null, ourTake: "A rare swimmable beach and marina town on the tranquil East Cape." },
     { name: "Four Seasons Resort Tamarindo", area: "Jalisco coast", rate: null, ourTake: "A jungle-and-beach resort on a vast private nature reserve." },
   ],
@@ -6736,6 +6777,7 @@ const PLACE_REGION = {
   "evora": "Alentejo, Portugal", "douro valley": "Portugal", "boca chica": "Panama",
   "la romana": "Dominican Republic", "playa grande": "Dominican Republic", "cap estate": "St Lucia, north",
   "lake atitlán": "Guatemala", "tikal": "Petén, Guatemala",
+  "bodrum": "Turkey", "palawan": "Philippines", "moyo island": "Indonesia", "siem reap": "Cambodia", "luang prabang": "Laos", "nha trang": "Vietnam", "hangzhou": "China", "lijiang": "Yunnan, China",
   "chicago": "Illinois", "detroit": "Michigan", "kohler": "Wisconsin", "nashville": "Tennessee", "oxford, mississippi": "Mississippi", "greenville, mississippi": "Mississippi", "jackson, mississippi": "Mississippi", "marianna": "Arkansas", "oklahoma city": "Oklahoma", "harrodsburg": "Kentucky", "wheeling": "West Virginia", "huntington": "West Virginia", "milwaukee": "Wisconsin",
   // dining rollup: Sozai's suburb opens on Detroit
   "clawson": "Detroit, Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
@@ -7058,6 +7100,8 @@ const GATEWAY = {
   "Zapallar": { air: "Santiago", note: "Fly to Santiago (SCL), then about an hour and a half up the coast road. There is no airport and no train \u2014 a car is the only way, and the drive along the coast is pleasant." },
   "Valparaíso": { air: "Santiago", note: "Fly to Santiago (SCL), then an hour and a half to the coast. No airport of its own." },
   "Portillo": { air: "Santiago", note: "Fly to Santiago (SCL), then two hours up the Los Libertadores highway. In winter the pass can close \u2014 build in a night either side." },
+  "Palawan": { air: "Manila", note: "Fly to Manila (MNL); Amanpulo's own aircraft leaves from its private terminal there, seventy minutes to the island. Booked with the room; there is no other way in." },
+  "Moyo Island": { air: "Bali", note: "Fly to Bali (DPS); Amanwana's seaplane leaves from Benoa, about an hour and a quarter to the island. Booked with the room." },
   "Kohler": { air: "Milwaukee", note: "Fly to Milwaukee (MKE), then an hour north up the lakeshore \u2014 or Chicago, two and a half hours, if the flight is much better. The resort sends a car; Sheboygan's field takes private aircraft, ten minutes away." },
   "Newport": { air: "Providence", note: "Fly to Providence (PVD), then forty minutes down to Newport \u2014 or Boston, an hour and a half. The Chanler sends a car from either." },
   "Watch Hill": { air: "Providence", note: "Fly to Providence (PVD), then about an hour south-west to Watch Hill; Boston is an hour and three quarters and New York two and a half by road or three by train to Westerly, ten minutes away. Ocean House meets the train." },
@@ -7454,6 +7498,13 @@ const AIRPORTS = {
   "New Orleans": { code: "MSY", scale: "intercontinental" }, "Palm Beach": { code: "PBI", scale: "intercontinental" },
   "Orlando": { code: "MCO", scale: "intercontinental" }, "Sarasota": { code: "SRQ", scale: "intercontinental" }, "Fort Myers": { code: "RSW", scale: "intercontinental" }, "Key West": { code: "EYW", scale: "intercontinental" }, "Austin": { code: "AUS", scale: "intercontinental" }, "Dallas": { code: "DFW", scale: "intercontinental" },
   "Houston": { code: "IAH", scale: "intercontinental" }, "San Antonio": { code: "SAT", scale: "intercontinental" },
+  // AMAN DESTINATIONS, 5 Sept 2026. Bodrum (BJV) takes British Airways and the charters in
+  // season; Siem Reap's new field (SAI), Luang Prabang (LPQ), Cam Ranh (CXR), Hangzhou (HGH) and
+  // Lijiang (LJG) are sellable regional fields and listed. Amanpulo and Amanwana route through
+  // Manila and Bali on Aman's own aircraft.
+  "Bodrum": { code: "BJV", scale: "intercontinental" }, "Siem Reap": { code: "SAI", scale: "intercontinental" },
+  "Luang Prabang": { code: "LPQ", scale: "intercontinental" }, "Nha Trang": { code: "CXR", scale: "intercontinental" },
+  "Hangzhou": { code: "HGH", scale: "intercontinental" }, "Lijiang": { code: "LJG", scale: "intercontinental" }, "Manila": { code: "MNL", scale: "intercontinental" },
   "Tucson": { code: "TUS", scale: "intercontinental" }, "Santa Fe": { code: "SAF", scale: "regional" }, "Albuquerque": { code: "ABQ", scale: "intercontinental" }, "Jackson Hole": { code: "JAC", scale: "intercontinental" }, "Bozeman": { code: "BZN", scale: "intercontinental" },
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
   "Vancouver": { code: "YVR", scale: "intercontinental" }, "Seattle": { code: "SEA", scale: "intercontinental" },
@@ -7578,7 +7629,8 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // You can only drive between places on the same landmass. Distance alone is not enough:
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
-  "continental-europe": ["Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "palawan": ["Palawan"], "moyo": ["Moyo Island"],
+  "continental-europe": ["Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina"],
@@ -7723,7 +7775,7 @@ const ZONE = {
   "sri-lanka": ["Sri Lanka"], "seychelles": ["Seychelles"], "madagascar": ["Madagascar"], "bora-bora": ["Bora Bora"],
   "french-polynesia": ["French Polynesia"], "fiji": ["Fiji"], "fogo-island": ["Fogo Island"], "vancouver-island": ["Tofino","Victoria", "Port McNeill"],
   "hong-kong": ["Hong Kong"],
-  "mainland-asia": ["Bangkok", "Krabi", "Phuket", "Chiang Mai", "Chiang Rai"],
+  "mainland-asia": ["Bangkok","Siem Reap","Luang Prabang","Nha Trang", "Krabi", "Phuket", "Chiang Mai", "Chiang Rai"],
   "bali": ["Bali"],
   "maldives": ["Maldives"],
   "australia": ["Sydney", "Uluru"],
@@ -7741,6 +7793,8 @@ const COORDS = {
   // each on the spot its hotel's "area" names (Paradise Valley for Montana, Adare for Ireland,
   // Savelletri for Puglia, Tetiaroa for French Polynesia). MINE, from knowledge, not from a
   // geocoder — checked against the area field but not against a map, and worth a scan.
+  "Bodrum": [37.03,27.43], "Palawan": [11.34,120.05], "Moyo Island": [-8.25,117.55], "Siem Reap": [13.36,103.86], "Luang Prabang": [19.89,102.14],
+  "Nha Trang": [11.85,109.20], "Hangzhou": [30.23,120.10], "Lijiang": [26.87,100.23], "Manila": [14.60,120.98],
   "Monaco": [43.74,7.42], "Franschhoek": [-33.91,19.12], "Stellenbosch": [-33.93,18.86], "Champagne": [49.08,3.95],
   "Versailles": [48.80,2.12], "Bürgenstock": [46.99,8.38], "Basel": [47.56,7.59], "Ise-Shima": [34.30,136.82],
   "Izu": [34.97,138.93], "Chiang Mai": [18.79,98.98], "Krabi": [8.06,98.91], "Washington, Virginia": [38.71,-78.16],
@@ -8125,6 +8179,7 @@ const CITY_ALIASES = {
   "ambergris cay": "Turks & Caicos", "ambergris cay, turks and caicos": "Turks & Caicos", "south caicos": "Turks & Caicos",
   "oxford, ms": "Oxford, Mississippi", "greenville, ms": "Greenville, Mississippi", "jackson, ms": "Jackson, Mississippi", "okc": "Oklahoma City", "whistling straits": "Kohler", "sheboygan": "Kohler", "kohler, wi": "Kohler", "st. paul": "Minneapolis", "saint paul": "Minneapolis", "twin cities": "Minneapolis", "st. louis": "St Louis", "saint louis": "St Louis",
   "newport, ri": "Newport", "newport, rhode island": "Newport", "watch hill, ri": "Watch Hill", "westerly": "Watch Hill", "barnard": "Vermont", "twin farms": "Vermont", "portland, me": "Portland, Maine", "kennebunkport": "Kennebunk",
+  "amanruya": "Bodrum", "amanpulo": "Palawan", "pamalican": "Palawan", "amanwana": "Moyo Island", "moyo": "Moyo Island", "amansara": "Siem Reap", "angkor": "Siem Reap", "amantaka": "Luang Prabang", "amanoi": "Nha Trang", "vinh hy": "Nha Trang", "cam ranh": "Nha Trang", "amanfayun": "Hangzhou", "amandayan": "Lijiang", "amanvari": "Los Cabos", "le melezin": "Courchevel",
   "salamander": "Middleburg", "middleburg, va": "Middleburg", "boca": "Boca Raton", "boca raton, fl": "Boca Raton", "washington, d.c.": "Washington DC", "washington, dc": "Washington DC", "dc": "Washington DC", "georgetown, dc": "Washington DC", "little washington": "Washington, Virginia", "rappahannock": "Washington, Virginia", "harbor east": "Baltimore", "philly": "Philadelphia", "rittenhouse square": "Philadelphia", "farmington, pa": "Nemacolin", "laurel highlands": "Nemacolin", "falling rock": "Nemacolin", "walland": "Blackberry Farm", "walland, tennessee": "Blackberry Farm", "the barn at blackberry farm": "Blackberry Farm", "cary, nc": "Raleigh", "raleigh-durham": "Raleigh", "durham, nc": "Raleigh", "buckhead": "Atlanta", "st simons island": "Sea Island", "st. simons": "Sea Island", "bluffton": "Palmetto Bluff", "kiawah": "Kiawah Island",
   "longboat key": "Sarasota", "lido key": "Sarasota", "walt disney world": "Orlando", "golden oak": "Orlando", "naples, fl": "Naples, Florida", "surfside": "Miami", "sunny isles": "Miami", "miami beach": "Miami", "south beach": "Miami", "little torch key": "Florida Keys", "the keys": "Florida Keys", "grande lakes": "Orlando",
   "new orleans, la": "New Orleans", "nola": "New Orleans", "french quarter": "New Orleans", "austin, tx": "Austin", "dallas, tx": "Dallas", "houston, tx": "Houston", "san antonio, tx": "San Antonio", "the pearl": "San Antonio", "uptown dallas": "Dallas",
