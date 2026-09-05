@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M375";
+const BUILD = "M376";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11311,7 +11311,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
-                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.email ? <div>{s.contact.email}</div> : null}{s.contact.web ? <div>{s.contact.web}</div> : null}</div> : null}
+                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} \u2197</a></div> : null}</div> : null}
                   {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We confirm the booking when we build your trip — tap any hotel below to change.</div> : null}
                 </button>); };
             const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
@@ -12980,7 +12980,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
       <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
-        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel {s.contact.tel}</div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
+        {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
@@ -13744,7 +13744,17 @@ function HubPanel({ from, city, date, pick, upd }) {
     </div>
     {chosen && (<div style={{ marginTop: 20 }}>
       <div style={{ fontSize: 10.5, letterSpacing: "0.16em", textTransform: "uppercase", opacity: 0.55, marginBottom: 4 }}>Then {chosen} to {city}</div>
-      <div style={{ fontSize: 12.5, opacity: 0.72, lineHeight: 1.5, marginBottom: 10, maxWidth: 470 }}>{pick.flight && pick.flight.arrive ? `Your flight lands ${pick.flight.arrive}. Allow an hour to clear the airport, then:` : "An overnight lands about 09:00. Allow an hour to clear the airport, then:"}</div>
+      <div style={{ fontSize: 12.5, opacity: 0.72, lineHeight: 1.5, marginBottom: 10, maxWidth: 470 }}>{(() => {
+        // Once a flight is chosen we know exactly when it lands. Before that we used to assert
+        // "an overnight lands about 09:00", which is written for a transatlantic and simply wrong
+        // anywhere else — Miami to St Maarten is a three-hour morning hop. So the overnight line
+        // now only appears where the distance actually implies one, and otherwise we say nothing
+        // about arrival time rather than guess at it.
+        if (pick.flight && pick.flight.arrive) return `Your flight lands ${pick.flight.arrive}. Allow an hour to clear the airport, then:`;
+        const far = distanceKm(from, city);
+        if (far != null && far >= 4500) return "An overnight lands about 09:00. Allow an hour to clear the airport, then:";
+        return "Allow an hour to clear the airport, then:";
+      })()}</div>
       {onward.map((o) => { const on = pick.onward && pick.onward.mode === o.mode; const isRec = rec && rec.pick.mode === o.mode;
         // A live flight knows exactly when it lands; only estimate for the modes that cannot.
         const arrive = o.arriveAt ? { label: o.arriveAt } : clockAdd("09:00", 60 + o.mins);
