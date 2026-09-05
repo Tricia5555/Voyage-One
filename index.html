@@ -6231,6 +6231,35 @@ function credOf(name,city){
 // with dnrm() before the lookup. A capitalised key silently never matches — the entry simply
 // never appears, with nothing to show it was ignored.
 const LOCALFAV = {
+  // St Barth, 5 Sept 2026, on Tricia's list. LOCAL FAVORITE, every one — the island has no
+  // Michelin coverage and no 50 Best presence, and none of these is being promoted to Destination
+  // unless a qualifying award is added later.
+  //
+  // Reservation contacts are carried in the record because these are festive-week bookings that
+  // go by email months ahead, and the live place lookup returns a general line rather than the
+  // reservations desk. The lookup still supplies the website and address on top.
+  //
+  // NO ARTIST OR DJ IS NAMED ANYWHERE, deliberately. Nikki Beach and Gyp Sea announce their
+  // programmes in the autumn and they change every year; hard-coding one would be wrong within
+  // twelve months. Re-verify each autumn.
+  "st barth": [
+    { n: "Bagatelle St Barth", us:0, contact: { tel: "+590 590 27 51 51" },
+      note: "Gustavia harbour, reachable by boat or car — the island's signature dinner-into-party room. ASK FOR AN INSIDE TABLE: the inside room carries the atmosphere, and taking whatever is offered is how people end up on the quiet terrace." },
+    { n: "Sella", us:0, contact: { tel: "+590 690 56 15 22", web: "sellasaintbarth.com" },
+      note: "Assaf Granit's Jerusalem-Mediterranean cooking near Gustavia, and the evening turns into a party as it goes. BOOK LATE — an early table gets you the food and none of the night. Reservations: reservations@sellasaintbarth.com" },
+    { n: "Bonito Saint Barth", us:0, contact: { tel: "+590 590 27 96 96", web: "bonitosbh.com" },
+      note: "Above the harbour with a resident DJ and the best fireworks position of any table in town. For New Year take the LATE seating — dinner, midnight and the party without moving the car. Reservations: booking@bonitosbh.com" },
+    { n: "La Guérite Saint-Barth", us:0,
+      note: "On Gustavia harbour, Mediterranean, and it runs late with the yacht crowd. Particularly useful if you are staying in or near town, because it removes the after-midnight transport problem entirely." },
+    { n: "Le Ti St Barth", us:0,
+      note: "Pointe Milou, and an institution since 1995 — dinner, cabaret, then a club. For clients who want a night rather than a meal." },
+    { n: "Nikki Beach Saint Barth", us:0, contact: { tel: "+590 590 27 64 64" },
+      note: "Saint-Jean. Restaurant noon to five, beach from 10.30 to seven. IT TAKES RESERVATIONS — it is not first come, and over festive week walking in is not a plan. Often better used for a big holiday lunch than for the 31st itself. Reservations: bookings.stbarth@nikkibeach.com" },
+    { n: "Gyp Sea Beach Club", us:0, contact: { tel: "+590 690 63 33 44", web: "gypsea-stbarth.com" },
+      note: "Saint-Jean beach club where lunch becomes a party. Book the table AND the bed — they are separate bookings and the bed goes first. Published beach rates run about €250 a double bed and €90 a transat, though holiday pricing differs. Reservations: allyouneed@gypsea-stbarth.com" },
+    { n: "Shellona", us:0,
+      note: "Shell Beach, Greek-Mediterranean, roughly eleven to six, and the most sociable lunch on the island. Book it over festive week rather than treating it as a walk-in." },
+  ],
   // "birmingham": [{ n: "Highlands Bar & Grill", us:1 }],   // ← example of the format
   // Palm Beach, 4 Sept 2026, on Tricia's instruction. A Local Favorite on its own account; the
   // New York sister's standing does not travel with the name.
@@ -10918,7 +10947,14 @@ const ONE_LIST = {
       { title: "Japan, Deep Winter", city: "Niseko", airport: "CTS", airportName: "Sapporo New Chitose", start: "", end: "", dateLabel: "Powder weeks · Jan–Feb", nights: 6, blurb: "The lightest snow on earth, an onsen at dusk, kaiseki by night." },
     ],
     "Island & Escape": [
-      { title: "New Year's Eve in St Barths", city: "St Barthélemy", airport: "SXM", airportName: "St Maarten (gateway)", start: "2026-12-27", end: "2027-01-03", dateLabel: "New Year's Eve 2026", nights: 7, arriveDaysBefore: 4, blurb: "See in the new year among the yachts of Gustavia — the Caribbean's most glamorous harbour.", guide: {
+      { title: "New Year's Eve in St Barths", city: "St Barthélemy", airport: "SXM", airportName: "St Maarten (gateway)", start: "2026-12-27", end: "2027-01-03", dateLabel: "New Year's Eve 2026", nights: 7, arriveDaysBefore: 4, blurb: "See in the new year among the yachts of Gustavia — the Caribbean's most glamorous harbour.",
+        // ev.photo is a SEARCH QUERY, not a file. "New Year's Eve in St Barths" was returning
+        // generic party imagery; naming the hotel we recommend most gives a true picture of the
+        // island and shows the property at the same time. The gallery walks the week: the hotel,
+        // the harbour where midnight happens, the beach, and the town.
+        photo: "Eden Rock St Barths hotel",
+        gallery: ["Eden Rock St Barths hotel", "Gustavia harbour St Barthelemy yachts", "Saint Jean beach St Barthelemy", "Gustavia St Barthelemy town"],
+        guide: {
         daysTitle: "How you'll see in the year",
         pickStep: "Step one · choose your midnight",
         pickPrompt: "Where are you at twelve?",
@@ -10931,21 +10967,21 @@ const ONE_LIST = {
         daysIntro: "St Barth at New Year is not one night — it is roughly the 27th to the 2nd, and the island becomes a different place for it. Superyachts fill Gustavia, lunches turn into parties, every kitchen runs a set menu, and the roads and taxis stop coping. The whole week turns on one decision: where you are at midnight. Everything else follows, and everything else is easier to get.",
         dayPicks: [
           { label: "At a table in Gustavia", dates: "31 December", band: "The seamless version — dinner into midnight without moving", note: "The strongest play for most people. A late seating in Gustavia means you are already in position when the harbour goes up, with no car, no taxi and no crossing town at five to twelve. Bonito is the one we would book first: it looks straight down over the harbour, runs multiple seatings, and the later one carries you through midnight without relocating. THE TABLE MATTERS AS MUCH AS THE RESTAURANT — at Bagatelle ask specifically for an inside table, where the party energy is, rather than accepting whatever is offered.", date: "2026-12-31", tiers: [
-            { tier: "Bonito — late seating", label: "Above the harbour, fireworks from the table · set menu, second seating" },
-            { tier: "Bagatelle — inside table", label: "Ask for INSIDE, not the terrace · the room is where the night happens" },
-            { tier: "Sella — book late", label: "A late seating lets dinner become the party on its own" },
-            { tier: "Eden Rock — Sand Bar", label: "The gala on the rock · grander, quieter, and not in town" },
-            { tier: "Le Ti St Barth", label: "Cabaret, costumes, tables danced on by one · thirty years of it" },
+            { tier: "Bagatelle — inside table", label: "Harbour-side, dinner into party · ask for INSIDE, not the terrace" },
+            { tier: "Sella — late seating", label: "Assaf Granit's kitchen, and the room turns · book late or miss the night" },
+            { tier: "Bonito — late seating", label: "Above the harbour with the fireworks from the table · resident DJ" },
+            { tier: "La Guérite", label: "On the harbour, runs late · no transport problem if you are staying in town" },
+            { tier: "Le Ti St Barth", label: "Pointe Milou · dinner, cabaret, then a club. A night, not a meal" },
           ] },
-          { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. Far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat.", date: "2026-12-31", tiers: [
+          { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. Far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat. Gustavia's inner harbour takes about sixty yachts up to 200ft with roughly a hundred more anchored outside, which is why the week is decided months in advance. Reckon on $8,000 a day for a mid-size motor yacht and from $10,200 above 89ft, plus an Advance Provisioning Allowance of 25–35% on top — and a further premium across the Christmas to New Year fortnight. Six to twelve months' lead time for a December sailing is not caution, it is the market.", date: "2026-12-31", link: { label: "Browse St Barth charters · Boatcrowd", url: "https://www.boatcrowd.com/yacht-charter-st-barths" }, tiers: [
             { tier: "A yacht already in St Barth", label: "The insider route — no berth gamble · through a broker who works the island" },
             { tier: "Full festive-week charter", label: "Crewed, the whole week · berth applied for months ahead" },
             { tier: "Charter for New Year's Eve only", label: "The evening alone — simplest, and you lose the week's best asset" },
             { tier: "Your own boat, berth needed", label: "Port de Gustavia allocates long in advance · we handle the application" },
           ] },
           { label: "At the party", dates: "31 December", band: "For people who intend to be up at four", note: "Nikki Beach is what most people mean, and Gyp Sea has become the other one. Both run table minimums and both announce their programmes late. WORTH KNOWING: you do not have to spend the 31st at Nikki Beach to have done Nikki Beach — the festive-week lunch is often the better use of it, and leaves your midnight free for somewhere with a view. Some of the best nights on the island are private or invitation-only, which is where relationships matter more than a booking link.", date: "2026-12-31", tiers: [
-            { tier: "Nikki Beach", label: "Table with minimum spend · or use it for a festive-week lunch instead" },
-            { tier: "Gyp Sea", label: "The other big room · line-up announced in the autumn" },
+            { tier: "Nikki Beach", label: "Saint-Jean · RESERVATIONS REQUIRED, not first come. Programme announced in the autumn" },
+            { tier: "Gyp Sea", label: "Saint-Jean · book the table AND the beach bed — they are separate bookings" },
             { tier: "A villa party", label: "Genuinely private — chef, staff and cars arranged" },
             { tier: "Private and invitation-only", label: "The best of them are not sold · ask us" },
           ] },
@@ -10966,10 +11002,11 @@ const ONE_LIST = {
         ],
         beyond: [
           { name: "The New Year's Eve Regatta", note: "The harbour races on the afternoon of the 31st — old gaffers and modern hulls tacking between the moored yachts. Free, barely advertised, and the best hour of the day." },
-          { name: "A festive-week lunch at Nikki Beach", note: "Often the better way to use Nikki than the 31st itself: the same scene, in daylight, with your midnight left free for somewhere with a view of the fireworks." },
+          { name: "A festive-week lunch at Nikki Beach", note: "Often the better way to use Nikki than the 31st itself: the same scene, in daylight, with your midnight left free for somewhere with a view of the fireworks. Reserve it — over this week it does not take walk-ins." },
+          { name: "Gyp Sea, with a bed", note: "Saint-Jean, where lunch becomes an afternoon. Book the table and the cabana or day bed separately — the bed is the half people forget, and on festive week it goes first." },
           { name: "Colombier beach", note: "Reachable only on foot down a twenty-minute goat path, or by boat. No bar, no chairs, nobody. On the 1st of January it is the correct place to be." },
           { name: "Saline and Gouverneur", note: "The two wild beaches, neither with a building on it. Gouverneur is the harder to leave; Saline has the better swimming." },
-          { name: "Lunch that becomes the afternoon", note: "Tamarin in the valley, or Shellona on Shell Beach — both start at one and end when they end. Save this for the 30th, not the 31st." },
+          { name: "Lunch that becomes the afternoon", note: "Shellona on Shell Beach, eleven to six, the most sociable lunch on the island. Save it for the 30th rather than the 31st — this is the one that eats a day." },
           { name: "Gustavia before eleven", note: "The crews washing down, the boutiques opening, the harbour quiet. The only hour the town belongs to the island." },
         ],
         notes: [
@@ -11213,6 +11250,13 @@ function OneList({ onPick, onBack, onHome }) {
                   {on ? <span style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 3 }}>✓ Now pick your {p.tiers ? "level" : "day(s)"} below ↓</span> : null}
                 </button>); })}
             </div>
+            {/* A pick may carry ONE outbound link — where a client actually books that option, a yacht
+                broker being the obvious case. It sits OUTSIDE the pick buttons on purpose: each pick is
+                itself a button, and an anchor nested inside one breaks both. Shown only when the pick
+                carrying it is selected. */}
+            {aecPick && aecPick.link ? (<a href={brandedLink(aecPick.link.url)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 15, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>
+              <Ship size={15} /> {aecPick.link.label}
+            </a>) : null}
             {aecPick && aecPick.tiers ? (<div style={{ marginTop: 16, background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 17px" }}>
               <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>{aecPick.tiers.length > 1 ? "Which level?" : "Lock it in"}</div>
               <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{aecPick.tiers.length > 1 ? "Choose the level you want — this is the ticket we secure, and it sets your date." : "Confirm the ticket we'll secure — this sets your date."}</div>
