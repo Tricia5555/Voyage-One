@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M383";
+const BUILD = "M384";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7273,10 +7273,10 @@ const CITY_ARRIVAL = {
   // the way out: the flight home leaves St Maarten and nothing connected them back to it. The
   // hop is the trip here, in both directions, and it is now a choice on the screen like any other.
   "St Barth": { icon: "plane", note: "You cannot fly to St Barth from anywhere far. Everything routes through St Maarten (SXM), and the last leg is a ten-minute hop over the ridge at Col de la Tourmente onto a very short runway \u2014 a landing worth being awake for. GOING HOME IS THE SAME LEG IN REVERSE, and it is the one people forget: Gustave III closes at dusk with no night landings ever, the hops fill over festive week, and you want to be back at SXM three hours before a long-haul departure. Book the return hop at the same time as the outbound one, not the week before.", modes: [
-    { mode: "Winair from SXM", why: "The scheduled hop, ten minutes, several departures an hour in season. Baggage limits are real and small \u2014 a second seat for luggage is normal here. Your hotel will book it for you if you would rather they did.", price: null, link: "https://www.fly-winair.sx", linkLabel: "Winair" },
-    { mode: "St Barth Commuter from SXM", why: "The island's own airline and the other half of the scheduled service, plus private charters on the same ten-minute crossing when the schedule does not suit.", price: null, link: "https://www.stbarthcommuter.com", linkLabel: "St Barth Commuter" },
-    { mode: "Tradewind from San Juan", why: "Straight into St Barth without touching St Maarten at all. Often the cleaner connection from the US, and it removes the tightest link in the chain.", price: null, link: "https://www.flytradewind.com", linkLabel: "Tradewind Aviation" },
-    { mode: "Private helicopter from SXM", why: "Ten minutes, your own schedule, and no strip-closing anxiety at the end of a long day. Inventory over Christmas and New Year is scarce \u2014 reserve months ahead.", price: null },
+    { mode: "Winair", why: "The scheduled hop, ten minutes, several departures an hour in season. Baggage limits are real and small \u2014 a second seat for luggage is normal here. Your hotel will book it for you if you would rather they did.", price: null, link: "https://www.fly-winair.sx", linkLabel: "Winair" },
+    { mode: "St Barth Commuter", why: "The island's own airline and the other half of the scheduled service, plus private charters on the same ten-minute crossing when the schedule does not suit.", price: null, link: "https://www.stbarthcommuter.com", linkLabel: "St Barth Commuter" },
+    { mode: "Tradewind, via San Juan", why: "Straight into St Barth without touching St Maarten at all. Often the cleaner connection from the US, and it removes the tightest link in the chain.", price: null, link: "https://www.flytradewind.com", linkLabel: "Tradewind Aviation" },
+    { mode: "Private helicopter", why: "Ten minutes, your own schedule, and no strip-closing anxiety at the end of a long day. Inventory over Christmas and New Year is scarce \u2014 reserve months ahead.", price: null },
     { mode: "Great Bay Express ferry", why: "About forty-five minutes to Gustavia, after a thirty-minute taxi from SXM to the dock. The channel is open water and the crossing is frequently rough, so it is a poor choice after a long flight or with anyone prone to seasickness. The fallback when the strip is closed, not the plan.", price: null, link: "https://www.greatbayexpress.com", linkLabel: "Great Bay Express" },
   ] },
   "Anguilla": { icon: "boat", note: "Anguilla has its own strip: American flies it nonstop from Miami and Tradewind from San Juan, and from the US that is the arrival. From Europe you fly to St Maarten (SXM) and cross the channel — twenty-five minutes, and the resorts arrange it.", modes: [
@@ -13429,6 +13429,7 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
   const bookUrl = (opts && opts.book) || info.site;
   return (<div>
     <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={price != null ? fmt(price) : ""} />
+    {opts && opts.readMore && !found && bookUrl ? <div style={{ margin: "-2px 0 8px 44px" }}><a href={brandedLink(bookUrl, { kind: "venue", name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 12.5, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>What is this? \u2197</a></div> : null}
     {found && (info.address || info.phone || bookUrl) ? (
       <div style={{ margin: "2px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
         {info.address ? <div>{info.address}</div> : null}
@@ -13510,7 +13511,7 @@ function useCityThings(city, topic) {
         const here = coordsFor(city);
         const near = (m) => !here || m.lat == null || m.lng == null || kmBetween(here, [m.lat, m.lng]) <= 120;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!near(m)) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!near(m)) return; const readMore = m.site || m.maps || null; if (!m.desc && !readMore) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n, book: readMore, readMore: !m.desc }]); });
         const res = out.slice(0, 8);
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
@@ -14178,7 +14179,7 @@ function ReturnSection({ p, rc, blocked }) {
     {!p.returnFrom && gwHome && (<div style={{ marginTop: 18 }}>
       <Panel icon={Car} title={`Getting from ${bareCity(flyHomeCity)} to ${gwHome.air}`}>
         <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{bareCity(flyHomeCity)} has no airport — you fly home from {gwHome.air}{gwHome.km ? `, about ${gwHome.km} km away` : ""}. {gwHome.code ? `(${gwHome.code})` : ""} Leave enough time: aim to be at the airport about 3 hours before an international flight, so plan the drive plus a buffer.</div>
-        {transferOptions(gwHome.air, bareCity(flyHomeCity)).map((o) => { const sel = rp.homeTransfer && rp.homeTransfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ homeTransfer: sel ? null : o })} title={`${o.mode} · ${bareCity(flyHomeCity)} → ${gwHome.air}`} desc={o.why} sub="door to door" price={fmt(o.price)} />; })}
+        {((cityArrival(bareCity(flyHomeCity)) && cityArrival(bareCity(flyHomeCity)).modes) || transferOptions(gwHome.air, bareCity(flyHomeCity))).map((o) => { const sel = rp.homeTransfer && rp.homeTransfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ homeTransfer: sel ? null : o })} title={`${o.mode} · ${bareCity(flyHomeCity)} → ${gwHome.air}`} desc={o.why} sub="door to door" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>
     </div>)}
     {rc.needLeg && <Panel icon={Car} title={`Getting to ${p.returnFrom} · ${p.returnMode}`}><OptionRow selected onClick={() => upd({ ground: homeGround })} title={`${p.returnMode} → ${p.returnFrom}`} sub="estimated, door to door" price={fmt(homeGround.price)} /></Panel>}
