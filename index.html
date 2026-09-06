@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M387";
+const BUILD = "M388";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12806,6 +12806,9 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
       : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />}
+    {arriveBy === "Flight" && pick.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+      <BookingRow item={pick.flight} onSet={(patch) => upd({ flight: { ...pick.flight, ...patch } })} />
+    </div>) : null}
     {arriveBy === "Chauffeur" ? (() => {
       // WHAT A DRIVER MEANS CHANGES WITH THE DISTANCE, so the wording does too. One sentence for
       // every leg either oversells a twenty-minute airport run or undersells a day across
@@ -13141,7 +13144,11 @@ function HotelPicker({ city, nights, pick, upd }) {
           <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} />); })}
       </div>
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose — we confirm the rate and book direct on your behalf.</div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose — then book it direct with the property.</div>
+      {pick.stay && pick.stay.name ? (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px" }}>
+        <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 9 }}>{pick.stay.name} — have you booked it yet?</div>
+        <BookingRow item={pick.stay} onSet={(patch) => upd({ stay: { ...pick.stay, ...patch } })} />
+      </div>) : null}
     </>)}
     {!collapsed && level && (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
@@ -13157,7 +13164,7 @@ function HotelPicker({ city, nights, pick, upd }) {
             hotels appear here — every one is curated — so crediting it for the selection would
             be untrue. Google still supplies photographs and addresses for hotels already chosen,
             which the photo endpoint attributes where it is used. */}
-        <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Every property here is chosen by us. We confirm the rate and book direct on your behalf.</div>
+        <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Every property here is chosen by us. You book direct with the hotel — we never hold the reservation.</div>
       </>)}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
@@ -14211,6 +14218,9 @@ function ReturnSection({ p, rc, blocked }) {
         <AlertTriangle size={15} color="#B0563A" style={{ marginTop: 2, flexShrink: 0 }} />
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>Settle your nights first. Booking a flight home while the schedule is short a night is how people end up sleeping in an airport — fix the stays above and this opens up.</div>
       </div> : <FlightPicker from={departAirport} to={p.homeCity} pick={{ flight: rp.flight }} upd={(patch) => upd(patch)} date={p.dates && p.dates.ret ? p.dates.ret : ""} pax={partySize(p)} />}
+      {rp.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+        <BookingRow item={rp.flight} onSet={(patch) => upd({ flight: { ...rp.flight, ...patch } })} />
+      </div>) : null}
     </Panel>}
   </div>);
 }
@@ -14300,7 +14310,7 @@ function DayByDay({ p, sch }) {
     return (dests[i] && dests[i].city) || ""; } } return ""; };
   dests.forEach((d, i) => {
     const pk = d.pick || {}; const lg = sch.legs[i]; const city = d.city || "";
-    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"}` });
+    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked yet"}` });
     // A roaming leg keeps its hotels and tables on its stops, not on the leg itself. This
     // builder only ever looked at pick.stay, so a whole country came out as a run of empty
     // days however carefully it had been planned. The schedule has already dated every stop —
@@ -14331,7 +14341,7 @@ function DayByDay({ p, sch }) {
     const depTime = (f && f.depart) || (dtEst ? dtEst.time + " (est.)" : null);
     const airBit = f && f.airline ? `${f.airline}${f.flightNo ? " " + f.flightNo : ""}` : "Airline to be chosen";
     const cabinBit = f && f.cabin ? f.cabin : "cabin TBC";
-    add(isoOf(start), { icon: "plane", label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} → ${bareCity(dests[0].city) || "destination"}` });
+    add(isoOf(start), { icon: "plane", label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} · ${f && f.booked ? "Booked" : "Not booked yet"} → ${bareCity(dests[0].city) || "destination"}` });
     if (lg0) {
       const arrAir = (f && f.arrAirport) || iataFor(dests[0].city) || dests[0].airport;
       const arrTime = f && f.arrive ? f.arrive : null;
@@ -14345,7 +14355,7 @@ function DayByDay({ p, sch }) {
   const rEst = departTime(rFrom, p.homeCity);
   const rTime = (rf && rf.depart) || (rEst ? rEst.time + " (est.)" : null);
   const rAir = rf && rf.airline ? `${rf.airline}${rf.flightNo ? " " + rf.flightNo : ""}` : "Airline to be chosen";
-  add(isoOf(ret), { icon: "plane", label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} → ${bareCity(p.homeCity) || "home"}` });
+  add(isoOf(ret), { icon: "plane", label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} · ${rf && rf.booked ? "Booked" : "Not booked yet"} → ${bareCity(p.homeCity) || "home"}` });
   const days = [];
   for (let dt = new Date(start.getTime()); dt <= ret; dt = addDays(dt, 1)) days.push(new Date(dt.getTime()));
   // Never fly in on a ticketed day. If the first ticketed day is on or before the arrival day, say so.
