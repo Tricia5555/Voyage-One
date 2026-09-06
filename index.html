@@ -9491,19 +9491,11 @@ function VoyageOne() {
       depart = iso(addDays(new Date(evDates[0] + "T00:00:00"), -(arriveDaysBefore + 1)));
       ret = iso(addDays(new Date(evDates[evDates.length - 1] + "T00:00:00"), 1));
       nights = Math.max(1, Math.round((new Date(ret + "T00:00:00") - new Date(depart + "T00:00:00")) / 86400000) - 1);
-      // A PICKED DAY SETS WHERE THE TRIP SITS, NOT HOW LONG IT LASTS.
-      // Choosing one evening out of a week was shrinking the week to it. The maths above dates
-      // the trip from the picked days alone, so a single pick returned the client home the
-      // morning after — two nights for Wimbledon, Cannes, Ascot, the Palio and every other
-      // experience here, whatever length the experience itself declares. St Barth is the case
-      // that exposed it: all three midnight choices are 31 December, so it produced 26 Dec to
-      // 1 Jan, five nights, on a page that says nothing on the island takes fewer than seven
-      // over New Year and a day-by-day that tells the client not to have an early start on the
-      // 1st. Where an experience declares its own nights, that is now a FLOOR. The arrival is
-      // left exactly where arriveDaysBefore put it — that is tuned per experience and it is
-      // right — and only the return moves out to meet the declared length. Experiences whose
-      // picked days already span longer than the declared length are untouched, so ticking a
-      // fortnight of tennis still buys a fortnight.
+      // A PICKED DAY SETS WHERE THE TRIP SITS, NOT HOW LONG IT LASTS. Choosing one evening out
+      // of a week was shrinking the week to it — two nights for Wimbledon, Cannes, Ascot and the
+      // Palio, five for St Barth on a page that says seven is the floor. Where an experience
+      // declares its own nights that is now a FLOOR: arrival stays where arriveDaysBefore put it,
+      // and only the return moves out. Picked days already spanning longer are untouched.
       if (Number.isFinite(ev.nights) && ev.nights > nights) {
         nights = ev.nights;
         ret = iso(addDays(new Date(depart + "T00:00:00"), nights + 1));
@@ -10973,20 +10965,20 @@ const ONE_LIST = {
         gallery: ["Eden Rock St Barths hotel", "Gustavia harbour St Barthelemy yachts", "Saint Jean beach St Barthelemy", "Gustavia St Barthelemy town"],
         guide: {
         daysTitle: "How you'll see in the year",
-        pickStep: "The one decision the week turns on",
-        pickPrompt: "Where do you want to be at twelve?",
-        pickHelp: "On this island the night itself is the decision — the villa, the flights and the table on the 30th all follow from where you stand at midnight. Read the three below and see which one is yours. Ticking one only marks it on your own list so you know what you are aiming at; nothing here is held or reserved by us, and every booking is made by you, direct with the restaurant, the broker or the hotel. Their answer on availability is theirs to give.",
+        pickStep: "Step one · choose your midnight",
+        pickPrompt: "Where are you at twelve?",
+        pickHelp: "On this island the night itself is the decision. Everything else — the villa, the flights, the table on the 30th — follows from where you stand at midnight, so settle that first. Pick the one that sounds like you — it goes on your list, so you know what you are aiming at. We tell you who holds it and when to ask.",
         pickSettle: "Set your nights next. The week has a floor: almost nothing on the island takes fewer than seven nights over New Year, and the best villas ask ten.",
-        recapLabel: "Aiming for",
-        pickedLabel: "✓ On your shortlist",
+        recapLabel: "Your New Year",
+        pickedLabel: "✓ On your list",
         picksOptional: true,
-        ticketsTitle: "How the week gets booked — by you",
+        ticketsTitle: "How the week gets booked",
         beyondTitle: "Beyond the night",
         cur: "$",
-        handoff: "Plan this trip opens St Barth itself \u2014 the eight hotels with their rates, the tables under Local Favorites with telephone numbers and reservation emails, and the flights into St Maarten with the Twin Otter hop across. Everything there is booked by you, direct with the property or the restaurant. Your dates are already set to the 27th through the 3rd and you can widen or move them on the next screen.",
-        daysIntro: "This page exists to tell you what this week actually is, so that when you book it you are booking it knowingly. VOYAGE ONE DOES NOT HOLD OR RESERVE ANYTHING — not tables, not berths, not rooms, and nothing on this page is secured on your behalf. What we do is tell you which places are worth your night, in what order to approach them and how far ahead, and then hand you straight to them. If a date has already gone, or is not yet open, the restaurant or the hotel will tell you that when you ask. That answer is theirs to give and we will not pretend to it.\n\nSt Barth at New Year is not one night. It runs roughly the 27th to the 2nd, and the island becomes a different place for it: superyachts fill Gustavia until the harbour is a wall of masts, lunch stops being lunch and becomes the afternoon, every kitchen abandons its menu for a fixed festive one at a fixed price, and the roads and taxis simply stop coping. Prices bear no relation to the same island in February, minimum stays appear everywhere, and almost nothing takes a booking of fewer than seven nights.\n\nTwo things are worth understanding before anything else. BOOK THE BED FIRST AND THE PARTY SECOND: villas and the festive rooms at Cheval Blanc and Eden Rock go nine to twelve months ahead, while party programmes are not announced until the autumn — waiting to see a line-up before booking a bed is how people end up not coming at all. And LOCATION BEATS VIEW: Gustavia, Lurin and Gouverneur keep you within reach of town on the one night of the year when there is no such thing as finding a taxi. A spectacular house on the far side of the island is the wrong house for the 31st.\n\nRead the three ways to spend midnight below. Tick one if you like — it goes on your own list and nothing more. Then Plan this trip opens St Barth itself, where the eight hotels, the tables under Local Favorites and the flights are all there for you to book.",
+        handoff: "Plan this trip opens St Barth itself — the eight hotels, the tables under Local Favorites with their numbers and reservation emails, and the flights into St Maarten with the Twin Otter hop across. Your dates are set to the 27th through the 3rd; widen or move them on the next screen.",
+        daysIntro: "St Barth at New Year is not a night. It is a week — roughly the 27th to the 2nd — and the island turns into somewhere else for it.\n\nGustavia fills with superyachts until the harbour is a wall of masts. Lunch stops being lunch and becomes the afternoon. Every kitchen tears up its menu for a festive one. And the whole thing turns on a single question: where are you standing at midnight?\n\nAnswer that and the rest falls into place. Two rules before you do.\n\nBOOK THE BED FIRST, THE PARTY SECOND. Villas and the festive rooms at Cheval Blanc and Eden Rock go nine to twelve months ahead, while the line-ups are not announced until the autumn. Waiting to see who is playing is how people end up not coming.\n\nLOCATION BEATS VIEW. Gustavia, Lurin and Gouverneur keep you within reach of town on the one night of the year when there is no such thing as a taxi. A spectacular house on the far side of the island is the wrong house for the 31st.\n\nBelow are the three ways to spend midnight, and who to go to for each. Then Plan this trip opens the island itself — the hotels, the tables with their numbers, the flights.",
         dayPicks: [
-          { label: "At a table in Gustavia", dates: "31 December", band: "The seamless version — dinner into midnight without moving", note: "The strongest play for most people. A late seating in Gustavia means you are already in position when the harbour goes up, with no car, no taxi and no crossing town at five to twelve. Bonito is the one to try first: it looks straight down over the harbour, runs multiple seatings, and the later one carries you through midnight without relocating. THE TABLE MATTERS AS MUCH AS THE RESTAURANT — at Bagatelle ask specifically for an inside table, where the party energy is, rather than accepting whatever is offered.", date: "2026-12-31", tiers: [
+          { label: "At a table in Gustavia", dates: "31 December", band: "The seamless version — dinner into midnight without moving", note: "The strongest play for most people. A late seating in Gustavia means you are already in position when the harbour goes up, with no car, no taxi and no crossing town at five to twelve. Bonito is the one to book first: it looks straight down over the harbour, runs multiple seatings, and the later one carries you through midnight without relocating. THE TABLE MATTERS AS MUCH AS THE RESTAURANT — at Bagatelle ask specifically for an inside table, where the party energy is, rather than accepting whatever is offered.", date: "2026-12-31", tiers: [
             { tier: "Bagatelle — inside table", label: "Harbour-side, dinner into party · ask for INSIDE, not the terrace" },
             { tier: "Sella — late seating", label: "Assaf Granit's kitchen, and the room turns · book late or miss the night" },
             { tier: "Bonito — late seating", label: "Above the harbour with the fireworks from the table · resident DJ" },
@@ -10997,25 +10989,25 @@ const ONE_LIST = {
             { tier: "A yacht already in St Barth", label: "The insider route — no berth gamble · through a broker who works the island" },
             { tier: "Full festive-week charter", label: "Crewed, the whole week · berth applied for months ahead" },
             { tier: "Charter for New Year's Eve only", label: "The evening alone — simplest, and you lose the week's best asset" },
-            { tier: "Your own boat, berth needed", label: "Port de Gustavia allocates berths long in advance · you or your captain apply direct to the port" },
+            { tier: "Your own boat, berth needed", label: "Port de Gustavia allocates berths long in advance · your captain applies to the port, and early" },
           ] },
-          { label: "At the party", dates: "31 December", band: "For people who intend to be up at four", note: "WHAT NIKKI BEACH ACTUALLY IS: a beach club on Saint-Jean, open through the day, where lunch is the event and it is not really a restaurant. You reserve a table or a day bed, there is a spending minimum rather than a menu price, a DJ plays from the afternoon, and at some point people are dancing on the furniture in swimwear. It is loud, expensive, deliberately theatrical and completely unembarrassed about it — for the right party it is the best afternoon of the week, and for the wrong one it is unbearable. Be honest with yourself about which you are. Gyp Sea, further along the same beach, is the newer version of the same idea and books the table and the beach bed SEPARATELY — the bed is the half people forget and it goes first. WORTH KNOWING: you do not have to spend the 31st at Nikki Beach to have done Nikki Beach. The festive-week lunch is often the better use of it and leaves your midnight free for somewhere with a view of the harbour. Both places run table minimums, both publish their festive programmes late, and both take reservations direct — you book them, we do not. And the genuinely best nights on the island are private houses, which are not sold to anyone.", date: "2026-12-31", tiers: [
+          { label: "At the party", dates: "31 December", band: "For people who intend to be up at four", note: "Nikki Beach is the one everyone means. It is a beach club on Saint-Jean where lunch is the event: you book a table or a day bed, there is a spending minimum rather than a menu price, a DJ starts in the afternoon, and by four there are people dancing on the furniture in swimwear. Gloriously silly, thoroughly expensive, and for the right party the best afternoon of the week.\n\nGyp Sea, along the same beach, is the newer version of the same idea. Book the table AND the bed — they are separate, and the bed is the half people forget. It goes first.\n\nWORTH KNOWING: you do not need the 31st to have done Nikki Beach. The festive-week lunch is often the better use of it, and it leaves your midnight free for somewhere with a view of the harbour. Both take reservations direct and both publish their festive programmes late, so ask in October and keep asking.\n\nAnd the truly great nights here are private houses. Those are not sold — they come through your villa manager or your host.", date: "2026-12-31", tiers: [
             { tier: "Nikki Beach", label: "Saint-Jean · RESERVATIONS REQUIRED, not first come. Programme announced in the autumn" },
             { tier: "Gyp Sea", label: "Saint-Jean · book the table AND the beach bed — they are separate bookings" },
             { tier: "A villa party", label: "Genuinely private — chef, staff and cars arranged" },
-            { tier: "Private and invitation-only", label: "The best of them are not sold at all · they come through your host, your villa or your concierge" },
+            { tier: "Private and invitation-only", label: "Not sold at any price · the way in is your villa manager, your host, or the hotel concierge" },
           ] },
         ],
         daysSubTitle: "The week, day by day",
         days: "Arrive the 28th or 29th, never the 31st — you want time to settle, confirm tables and fix transport before the island fills. The 30th is a beach day with a long festive lunch and a deliberately restrained dinner. On the 31st keep the morning gentle, do not let lunch become an all-day blowout, and be back at the villa by four for a nap, a massage and hair and make-up brought to you. The single biggest mistake is exhausting the client before the night has started. Then a late dinner, in position by 11:45, and no early start on the 1st — the first of January is a late breakfast and a longer lunch, not a nine o'clock boat.",
-        stepsTitle: "The order to do it in",
+        stepsTitle: "How to build it, in order",
         steps: [
-          { h: "Book the bed first", b: "villa or hotel, nine to twelve months out. Everything else can be added later; this cannot. For this week specifically: CHEVAL BLANC ISLE DE FRANCE on Flamands and EDEN ROCK on Saint-Jean are the two you should want — Cheval Blanc for the quieter, more serious version and Eden Rock for the one at the centre of the scene. LE BARTH\u00c9LEMY and LE SERENO on Grand Cul-de-Sac are the calmer, easier alternatives if the front row is not the point. LE TOINY is the most private and the furthest from Gustavia, which makes it the wrong choice for the 31st and the right one for the rest of the week. All eight are on the island page with their rates and rooms, and you book them direct." },
+          { h: "Book the bed first", b: "villa or hotel, nine to twelve months out. Everything else can be added later; this cannot. For this week: CHEVAL BLANC on Flamands is the grown-up choice, EDEN ROCK on Saint-Jean puts you in the middle of the scene, LE BARTH\u00c9LEMY and LE SERENO on Grand Cul-de-Sac are the calmer versions, and LE TOINY is the most private on the island — wonderful for the week, wrong for the 31st. All eight are waiting on the island page." },
           { h: "Lock the flights and the hop", b: "into St Maarten (SXM) before three in the afternoon, then the Twin Otter, the helicopter or the ferry." },
           { h: "Fix the transport", b: "a dedicated driver for the 31st, booked with the villa. Not a taxi you hope to find." },
-          { h: "Decide your midnight", b: "table, yacht or party. It is not a booking in itself — it is the decision every other booking then bends around, which is why it comes before the tables and not after." },
-          { h: "Take the tables the moment they release", b: "the 30th, 31st and 1st. Festive set menus are usually published in October and the good seatings go within days, so ask early rather than politely — and if you are too early, they will simply tell you to come back. Every restaurant worth your night is listed with its telephone number and reservation email under LOCAL FAVORITES on the island page, one tap from here. You call, you email, you pay the deposit; the table is yours and not ours." },
-          { h: "Ask about the parties yourself, from October", b: "line-ups land in the autumn and change every year. Your hotel concierge or villa manager is the right person to ask — they will know which room is the room that season, what the table minimum is and whether it is even open to non-residents. We do not track the programmes and would rather say so than guess at one." },
+          { h: "Choose your midnight", b: "table, yacht or party — chosen above, and the thing every other booking bends around." },
+          { h: "Take the tables as they release", b: "the 30th, 31st and 1st, the moment the set menus are published — usually October. Every restaurant worth your night is under LOCAL FAVORITES on the island page with its telephone number and reservation email, one tap from here. Call rather than email if you want the good seating." },
+          { h: "Ask about the parties from October", b: "line-ups land in the autumn and change every year. Your hotel concierge or villa manager is the person to ask — they will know which room is the room that season, and what the table minimum has gone to." },
           { h: "Reconfirm in the final fortnight", b: "pickup times, seating times, dress, and — above all — the ride home after midnight." },
         ],
         beyond: [
@@ -11028,7 +11020,6 @@ const ONE_LIST = {
           { name: "Gustavia before eleven", note: "The crews washing down, the boutiques opening, the harbour quiet. The only hour the town belongs to the island." },
         ],
         notes: [
-          "WHO TELLS YOU IF IT IS GONE. Not us. Every hotel, restaurant, broker and beach club on this page takes its own bookings and holds its own calendar, and only they know what is left. If you ask in March and it is not open yet, they will say so; if you ask in December and it went in October, they will say that too. Voyage One connects you to them and tells you what is worth asking for — we never hold, promise or confirm anything on your behalf.",
           "BE IN POSITION BY 11:45. Do not plan to cross Gustavia at five to twelve — you will not make it, and the harbour at midnight is the entire point.",
           "PRE-ARRANGE THE RIDE HOME. Taxi demand on the 31st is unmeetable and parking in Gustavia is gone by six. Book a dedicated driver for the evening, with a confirmed return time, before you leave the villa. This is the detail that ruins otherwise perfect nights.",
           "DO NOT ARRIVE ON THE 31st. The 28th or 29th gives you time to settle, confirm tables and sort transport before the island fills.",
@@ -11037,7 +11028,7 @@ const ONE_LIST = {
           "The Twin Otter baggage limit is real and small. Charter a second seat for luggage, or send bags across by ferry — both are normal here.",
           "Book a small car, not a large one. The roads are one lane and steep, and nothing wide is welcome on them.",
           "Restaurants over this week take set menus at fixed prices, deposit up front, no walk-ins. Everything for the 30th, 31st and 1st should be held by the end of October.",
-          "PARTY LINE-UPS CHANGE EVERY YEAR — DJs, performers, table minimums, cover charges and which room is the room. Nothing on this page names an artist, deliberately, because anything we named would be out of date by the autumn. Ask your hotel concierge or villa manager once the programmes appear; they are on the island and we are not.",
+          "PARTY LINE-UPS CHANGE EVERY YEAR — DJs, performers, table minimums, cover charges and which room is the room. Nothing here names an artist on purpose. Ask your concierge or villa manager once the programmes land in the autumn — they are on the island and they will know.",
         ],
       } },
     ],
@@ -11173,12 +11164,9 @@ function OneList({ onPick, onBack, onHome }) {
       : tierMode
       ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: true }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
-    // WE DO NOT HOLD ANYTHING. On most experiences the pick is load-bearing — the Venice ball
-    // tier and the Wimbledon match days genuinely set the dates, so the button waits for one.
-    // On an experience that only EXPLAINS a week, a pick is the client's own shortlist and
-    // nothing more, and gating the button behind it stranded them on the page: St Barth offers
-    // three ways to spend midnight, none of which Voyage One secures, and Plan this trip sat
-    // disabled until one was chosen. picksOptional says so, and the button is live on arrival.
+    // Most experiences need the pick — the Venice ball tier and the Wimbledon match days set
+    // the dates. Where the pick is just the client's own shortlist, gating the button behind it
+    // stranded them on the page. picksOptional says so and the button is live on arrival.
     const ready = !needPick || !!(g && g.picksOptional) || selDays.length > 0;
     const selDayLabels = selDays.map((d) => d.label);
     const sortedDays = selDays.map((d) => d.date).sort();
@@ -11193,8 +11181,6 @@ function OneList({ onPick, onBack, onHome }) {
       pickHelp: gg.pickHelp || "Tick the day or days you actually want to be there — these are the ones we buy your Debentures for. One day, or several; it's up to you.",
       pickSettle: gg.pickSettle || ("We never fly you in on the day of the main event. We'll set your arrival a day or two ahead so you land with time to settle — and how long you stay in " + (ev.city || "town") + " is yours to widen next."),
       recapLabel: gg.recapLabel || "Debenture day",
-      // "Locked" is honest where we really are buying a Debenture. It is a lie on an experience
-      // that only explains a week, so an experience can name what a tick actually means.
       picked: gg.pickedLabel || "\u2713 Locked",
       ticketsTitle: gg.ticketsTitle || "Getting in, the right way",
       beyondTitle: gg.beyondTitle || "Beyond the main event",
