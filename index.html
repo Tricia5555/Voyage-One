@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M381";
+const BUILD = "M383";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10992,15 +10992,22 @@ const ONE_LIST = {
         ticketsTitle: "How the week gets booked",
         beyondTitle: "Beyond the night",
         cur: "$",
+        stayNote: "Three to want first, then the rest of the island beneath them. Choose one and it moves to the top so you remember which it was \u2014 then book it direct, either here or on the island page after Plan this trip.",
+        stayCollection: "St Barth",
+        stay: [
+          { name: "Cheval Blanc St-Barth", area: "Flamands Beach", rate: null, note: "The grown-up choice and the island's only Palace. Sixty-one rooms on the best beach, majordomes at the top end, and the quietest version of a very loud week. If you want New Year to feel like a great holiday rather than a great party, this is it." },
+          { name: "Eden Rock \u2013 St Barths", area: "St Jean", rate: null, note: "On the rock in the middle of St Jean bay, and the hotel that made the island. Thirty-seven rooms, Oetker-run, and squarely in the middle of the scene \u2014 which over New Year is either exactly what you came for or exactly what you did not." },
+          { name: "Le Barth\u00e9lemy Hotel & Spa", area: "Grand Cul-de-Sac", rate: null, note: "The calm side of the island on a sheltered lagoon, with the largest spa in St Barth. Easier and less exposed than the front row, and a fifteen-minute drive from Gustavia when you want the noise." },
+        ],
         handoff: "Plan this trip opens St Barth itself — the eight hotels, the tables under Local Favorites with their numbers and reservation emails, and the flights into St Maarten with the Twin Otter hop across. Your dates are set to the 27th through the 3rd; widen or move them on the next screen.",
         daysIntro: "St Barth at New Year is not a night. It is a week — roughly the 27th to the 2nd — and the island turns into somewhere else for it.\n\nGustavia fills with superyachts until the harbour is a wall of masts. Lunch stops being lunch and becomes the afternoon. Every kitchen tears up its menu for a festive one. And the whole thing turns on a single question: where are you standing at midnight?\n\nAnswer that and the rest falls into place. Two rules before you do.\n\nBOOK THE BED FIRST, THE PARTY SECOND. Villas and the festive rooms at Cheval Blanc and Eden Rock go nine to twelve months ahead, while the line-ups are not announced until the autumn. Waiting to see who is playing is how people end up not coming.\n\nLOCATION BEATS VIEW. Gustavia, Lurin and Gouverneur keep you within reach of town on the one night of the year when there is no such thing as a taxi. A spectacular house on the far side of the island is the wrong house for the 31st.\n\nBelow are the three ways to spend midnight, and who to go to for each. Then Plan this trip opens the island itself — the hotels, the tables with their numbers, the flights.",
         dayPicks: [
           { label: "At a table in Gustavia", dates: "31 December", band: "The seamless version — dinner into midnight without moving", note: "The strongest play for most people. A late seating in Gustavia means you are already in position when the harbour goes up, with no car, no taxi and no crossing town at five to twelve. Bonito is the one to book first: it looks straight down over the harbour, runs multiple seatings, and the later one carries you through midnight without relocating. THE TABLE MATTERS AS MUCH AS THE RESTAURANT — at Bagatelle ask specifically for an inside table, where the party energy is, rather than accepting whatever is offered.", date: "2026-12-31", tiers: [
-            { tier: "Bagatelle — inside table", label: "Harbour-side, dinner into party · ask for INSIDE, not the terrace" },
-            { tier: "Sella — late seating", label: "Assaf Granit's kitchen, and the room turns · book late or miss the night" },
-            { tier: "Bonito — late seating", label: "Above the harbour with the fireworks from the table · resident DJ" },
-            { tier: "La Guérite", label: "On the harbour, runs late · no transport problem if you are staying in town" },
-            { tier: "Le Ti St Barth", label: "Pointe Milou · dinner, cabaret, then a club. A night, not a meal" },
+            { tier: "Bagatelle", label: "Dinner that becomes a party without anyone moving, and the loudest, happiest room in Gustavia by one in the morning. ASK FOR AN INSIDE TABLE — the terrace is prettier and the inside is where the night actually happens." },
+            { tier: "Sella", label: "The best cooking of the five — Assaf Granit's kitchen, and a room that turns from restaurant to party as the evening goes on. Take the late seating; the early one sends you out before it starts." },
+            { tier: "Bonito", label: "The one to book first. It sits directly above the harbour, so the fireworks happen in front of your table rather than somewhere you have to walk to, and the later seating carries you straight through midnight with a resident DJ." },
+            { tier: "La Guérite", label: "Right on the quay and open very late. The easy choice if you are staying in Gustavia — you walk there and you walk home, which on the 31st is worth more than it sounds." },
+            { tier: "Le Ti St Barth", label: "Not a dinner — an evening. Cabaret, feathers, tables danced on, and a club afterwards. It is out at Pointe Milou, so you will need a driver home, but nobody who goes forgets it." },
           ] },
           { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. By far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat. Gustavia's inner harbour takes about sixty yachts up to 200ft with roughly a hundred more anchored outside, which is why the week is decided months in advance. Expect from $8,000 a day for a mid-size motor yacht and from $10,200 above 89ft, plus an Advance Provisioning Allowance of 25–35% on top — and a further premium across the Christmas to New Year fortnight. Six to twelve months' lead time for a December sailing is not caution, it is the market.", date: "2026-12-31", link: { label: "Browse St Barth charters · Boatcrowd", url: "https://www.boatcrowd.com/yacht-charter-st-barths" }, tiers: [
             { tier: "A yacht already in St Barth", label: "The insider route — no berth gamble · through a broker who works the island" },
@@ -11009,8 +11016,8 @@ const ONE_LIST = {
             { tier: "Your own boat, berth needed", label: "Port de Gustavia allocates berths long in advance · your captain applies to the port, and early" },
           ] },
           { label: "At the party", dates: "31 December", band: "For people who intend to be up at four", note: "Nikki Beach is the one everyone means. It is a beach club on Saint-Jean where lunch is the event: you book a table or a day bed, there is a spending minimum rather than a menu price, a DJ starts in the afternoon, and by four there are people dancing on the furniture in swimwear. Gloriously silly, thoroughly expensive, and for the right party the best afternoon of the week.\n\nGyp Sea, along the same beach, is the newer version of the same idea. Book the table AND the bed — they are separate, and the bed is the half people forget. It goes first.\n\nWORTH KNOWING: you do not need the 31st to have done Nikki Beach. The festive-week lunch is often the better use of it, and it leaves your midnight free for somewhere with a view of the harbour. Both take reservations direct and both publish their festive programmes late, so ask in October and keep asking.", date: "2026-12-31", tiers: [
-            { tier: "Nikki Beach", label: "Saint-Jean · RESERVATIONS REQUIRED, not first come. Programme announced in the autumn" },
-            { tier: "Gyp Sea", label: "Saint-Jean · book the table AND the beach bed — they are separate bookings" },
+            { tier: "Nikki Beach", label: "Saint-Jean, and the name everyone knows. Reservations are required — it is not first-come at any point over this week — and the festive programme is announced in the autumn." },
+            { tier: "Gyp Sea", label: "The newer room on the same beach and the one people are talking about. Book the table AND the beach bed — they are separate bookings and the bed goes first." },
           ] },
         ],
         daysSubTitle: "The week, day by day",
@@ -11185,7 +11192,7 @@ function OneList({ onPick, onBack, onHome }) {
     const selDays = multiMode
       ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label, evening: /night/i.test(multiSel[date].tier || "") }))
       : tierMode
-      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: true }] : [])
+      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: !/lunch|beach club|day bed|daytime/i.test((ballTier.tier || "") + " " + (ballTier.label || "")) }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
     // Most experiences need the pick — the Venice ball tier and the Wimbledon match days set
     // the dates. Where the pick is just the client's own shortlist, gating the button behind it
@@ -11299,9 +11306,17 @@ function OneList({ onPick, onBack, onHome }) {
               <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{aecPick.tiers.length > 1 ? "Choose the level you want — this is the ticket we secure, and it sets your date." : "Confirm the ticket we'll secure — this sets your date."}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {aecPick.tiers.map((tr, ti) => { const on = ballTier && ballTier.tier === tr.tier; return (
-                  <button key={ti} onClick={() => setBallTier(tr)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: "12px 14px", cursor: "pointer" }}>
-                    <span style={{ fontSize: 15, color: on ? t.paper : t.ink }}>{tr.label}</span>
-                    <span style={{ fontSize: on ? 14.5 : 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass }}>{on ? L.picked : "Choose"}</span>
+                  // THE NAME WAS NEVER ON SCREEN. Only tr.label rendered, so a list of five
+                  // restaurants showed five descriptions and no restaurants — the client could read
+                  // that one looks over the harbour without ever being told it is Bonito. Name on
+                  // top, reason beneath, and the chosen one grows the way the hotel cards already do
+                  // so it stays obvious afterwards which one they took.
+                  <button key={ti} onClick={() => setBallTier(tr)} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: on ? "17px 18px" : "12px 14px", cursor: "pointer" }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontFamily: font.display, fontSize: on ? 22 : 17, color: on ? t.paper : t.ink, lineHeight: 1.2 }}>{tr.tier}</span>
+                      {tr.label ? <span style={{ display: "block", fontSize: on ? 14.5 : 13.5, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.5, marginTop: 5 }}>{tr.label}</span> : null}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass, whiteSpace: "nowrap", marginTop: 3 }}>{on ? L.picked : "Choose"}</span>
                   </button>); })}
               </div>
               <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div>
@@ -13201,7 +13216,7 @@ function LiveDineRow({ item, city, found, onToggle, onDate, nights, sub, price, 
         {site ? <a href={brandedLink(site, { kind: "restaurant", name: item.name || item.n || "", city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 7, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
       </div>
     ) : null}
-    {found && <DateChips nights={nights} value={found.date} onPick={onDate} label={dayLabel || "Which evening?"} />}
+    {found && <DateChips nights={nights} value={found.date} onPick={onDate} label={dayLabel || "Which day?"} />}
   </div>);
 }
 // The restaurant tile — photo, Michelin stars, name, neighbourhood. Selected, it opens up with the
@@ -13274,7 +13289,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
         {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
         {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
         {site ? <a href={brandedLink(site, { kind: "restaurant", name: r.n, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
-        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which evening?" /></div>
+        <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which day?" /></div>
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 10 }}><BookingRow item={found} onSet={onSet} timeLabel="What time?" /></div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap to add →</div>}
     </div>
@@ -13443,7 +13458,14 @@ function ListPicker({ rows, chosen, onToggle, nights, onDate, label, city }) {
 // sub-places: Gustavia, Virgin Gorda, Tortola and Manhattan all alias up to their island or city
 // but read nothing like it, so they survive and are still offered as the real days out they are.
 function placeNorm(x) {
-  return dnrm(x).replace(/^the /, "").replace(/^city of /, "").replace(/^saint /, "st ").trim();
+  // Google labels a place with its type on the end or the front — "Saint-Barthelemy Island",
+  // "Island of Capri", "New York City". Those words carry no meaning for a name match and one
+  // of them was enough to let the destination back into its own things-to-do list. Strip them.
+  return dnrm(x)
+    .replace(/^(the|island of|isle of|city of|town of) /, "")
+    .replace(/ (island|islands|isle|isles|city|town|village|municipality|commune)$/, "")
+    .replace(/^saint /, "st ")
+    .trim();
 }
 function placeCanon(x) {
   const b = placeNorm(x);
@@ -14071,7 +14093,7 @@ function CitySection({ d, i, p, from, legSched }) {
           </div>
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6, lineHeight: 1.4 }}>Nearest first, but real scheduled service is ordered ahead of private-only fields. You have the final say.</div>
         </div>)}
-        {transferOptions(pick.gatewayPick || gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
+        {((cityArrival(d.city) && cityArrival(d.city).modes) || transferOptions(pick.gatewayPick || gw.air, d.city)).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>}
       {!gw && d.arriveBy === "Flight" && cityArrival(d.city) && <Panel icon={Ship} title={`Getting to your hotel in ${d.city}`}>
         <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{cityArrival(d.city).note}</div>
