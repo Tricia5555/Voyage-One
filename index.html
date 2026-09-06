@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M380";
+const BUILD = "M381";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7268,6 +7268,17 @@ const CITY_ARRIVAL = {
     { mode: "Private transfer by road", why: "Met at Hewanorra and driven \u2014 under an hour to Soufri\u00e8re, closer to two to Cap Estate. The road is slow and the views are the compensation.", price: null },
     { mode: "Helicopter to the north", why: "Twelve minutes from Hewanorra to George Charles by Castries, then twenty by road to Cap Estate. Booked through the hotel; the way to arrive at the northern end after a transatlantic flight.", price: null },
   ] },
+  // ST BARTH HAD A GATEWAY NOTE BUT NO ARRIVAL PANEL, so the app booked a client into SXM and
+  // then said nothing about the twenty miles of open water between SXM and their hotel. Worse on
+  // the way out: the flight home leaves St Maarten and nothing connected them back to it. The
+  // hop is the trip here, in both directions, and it is now a choice on the screen like any other.
+  "St Barth": { icon: "plane", note: "You cannot fly to St Barth from anywhere far. Everything routes through St Maarten (SXM), and the last leg is a ten-minute hop over the ridge at Col de la Tourmente onto a very short runway \u2014 a landing worth being awake for. GOING HOME IS THE SAME LEG IN REVERSE, and it is the one people forget: Gustave III closes at dusk with no night landings ever, the hops fill over festive week, and you want to be back at SXM three hours before a long-haul departure. Book the return hop at the same time as the outbound one, not the week before.", modes: [
+    { mode: "Winair from SXM", why: "The scheduled hop, ten minutes, several departures an hour in season. Baggage limits are real and small \u2014 a second seat for luggage is normal here. Your hotel will book it for you if you would rather they did.", price: null, link: "https://www.fly-winair.sx", linkLabel: "Winair" },
+    { mode: "St Barth Commuter from SXM", why: "The island's own airline and the other half of the scheduled service, plus private charters on the same ten-minute crossing when the schedule does not suit.", price: null, link: "https://www.stbarthcommuter.com", linkLabel: "St Barth Commuter" },
+    { mode: "Tradewind from San Juan", why: "Straight into St Barth without touching St Maarten at all. Often the cleaner connection from the US, and it removes the tightest link in the chain.", price: null, link: "https://www.flytradewind.com", linkLabel: "Tradewind Aviation" },
+    { mode: "Private helicopter from SXM", why: "Ten minutes, your own schedule, and no strip-closing anxiety at the end of a long day. Inventory over Christmas and New Year is scarce \u2014 reserve months ahead.", price: null },
+    { mode: "Great Bay Express ferry", why: "About forty-five minutes to Gustavia, after a thirty-minute taxi from SXM to the dock. The channel is open water and the crossing is frequently rough, so it is a poor choice after a long flight or with anyone prone to seasickness. The fallback when the strip is closed, not the plan.", price: null, link: "https://www.greatbayexpress.com", linkLabel: "Great Bay Express" },
+  ] },
   "Anguilla": { icon: "boat", note: "Anguilla has its own strip: American flies it nonstop from Miami and Tradewind from San Juan, and from the US that is the arrival. From Europe you fly to St Maarten (SXM) and cross the channel — twenty-five minutes, and the resorts arrange it.", modes: [
     { mode: "Fly straight in (AXA)", why: "The nonstop from Miami, or the connection through San Juan. Twenty minutes to any hotel on the island.", price: null },
     { mode: "Via St Maarten — private boat", why: "Met at SXM, a short taxi to the dock, and twenty-five minutes across to Blowing Point with your hotel's boat waiting. The way to do it from Europe; book it through the hotel.", price: null },
@@ -9163,8 +9174,12 @@ function Panel({ icon: Icon, title, right, children }) {
     </div>{children}
   </div>);
 }
-function OptionRow({ selected, onClick, title, desc, sub, price }) {
-  return (<button onClick={onClick} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, width: "100%", textAlign: "left", padding: "13px 15px", borderRadius: 12, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.mist : t.white, marginBottom: 8 }}>
+// NAMING A CARRIER WITHOUT A WAY TO REACH IT IS HALF AN ANSWER. Arrival options can now carry
+// a link, shown under the row so the client goes straight to the operator that flies the leg.
+// An <a> cannot be nested inside the row's <button>, so it sits beneath it as a sibling.
+function OptionRow({ selected, onClick, title, desc, sub, price, link, linkLabel }) {
+  return (<div>
+  <button onClick={onClick} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, width: "100%", textAlign: "left", padding: "13px 15px", borderRadius: 12, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.mist : t.white, marginBottom: 8 }}>
     <span style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
       <span style={{ width: 18, height: 18, marginTop: 2, borderRadius: 999, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.pine : t.white, display: "grid", placeItems: "center", flexShrink: 0 }}>{selected && <Check size={12} color={t.paper} />}</span>
       <span>
@@ -9174,7 +9189,9 @@ function OptionRow({ selected, onClick, title, desc, sub, price }) {
       </span>
     </span>
     <span style={{ fontFamily: font.display, fontSize: 20, whiteSpace: "nowrap" }}>{price}</span>
-  </button>);
+  </button>
+  {link ? <a href={brandedLink(link, { kind: "transfer", name: title || "", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "1px 0 8px 44px", fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>{linkLabel || "Book direct"} \u2197</a> : null}
+  </div>);
 }
 const CITY_PHOTO_CACHE = {};
 // A direct image — our own uploaded photo (e.g. "/images/wimbledon.jpg") or a licensed URL —
@@ -10962,7 +10979,7 @@ const ONE_LIST = {
         // island and shows the property at the same time. The gallery walks the week: the hotel,
         // the harbour where midnight happens, the beach, and the town.
         photo: "Eden Rock St Barths hotel",
-        gallery: ["Eden Rock St Barths hotel", "Gustavia harbour St Barthelemy yachts", "Saint Jean beach St Barthelemy", "Gustavia St Barthelemy town"],
+        gallery: ["Eden Rock St Barths hotel", "Gustavia harbour St Barthelemy yachts", "Saint Jean beach St Barthelemy", "Shell Beach St Barthelemy"],
         guide: {
         daysTitle: "How you'll see in the year",
         pickStep: "Step one · choose your midnight",
@@ -10985,21 +11002,19 @@ const ONE_LIST = {
             { tier: "La Guérite", label: "On the harbour, runs late · no transport problem if you are staying in town" },
             { tier: "Le Ti St Barth", label: "Pointe Milou · dinner, cabaret, then a club. A night, not a meal" },
           ] },
-          { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. Far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat. Gustavia's inner harbour takes about sixty yachts up to 200ft with roughly a hundred more anchored outside, which is why the week is decided months in advance. Expect from $8,000 a day for a mid-size motor yacht and from $10,200 above 89ft, plus an Advance Provisioning Allowance of 25–35% on top — and a further premium across the Christmas to New Year fortnight. Six to twelve months' lead time for a December sailing is not caution, it is the market.", date: "2026-12-31", link: { label: "Browse St Barth charters · Boatcrowd", url: "https://www.boatcrowd.com/yacht-charter-st-barths" }, tiers: [
+          { label: "On a yacht in the harbour", dates: "31 December", band: "The view everyone else is looking at", note: "At midnight the fireworks go up over the masts and every boat in Gustavia sounds its horn at once. There are four quite different ways to do this and they are not interchangeable. By far the best is a boat ALREADY POSITIONED in St Barth for the festive week — the berth is the scarce thing, not the vessel, and a broker who understands festive-week berth and anchorage politics is worth more than a bigger boat. Gustavia's inner harbour takes about sixty yachts up to 200ft with roughly a hundred more anchored outside, which is why the week is decided months in advance. Expect from $8,000 a day for a mid-size motor yacht and from $10,200 above 89ft, plus an Advance Provisioning Allowance of 25–35% on top — and a further premium across the Christmas to New Year fortnight. Six to twelve months' lead time for a December sailing is not caution, it is the market.", date: "2026-12-31", link: { label: "Browse St Barth charters · Boatcrowd", url: "https://www.boatcrowd.com/yacht-charter-st-barths" }, tiers: [
             { tier: "A yacht already in St Barth", label: "The insider route — no berth gamble · through a broker who works the island" },
             { tier: "Full festive-week charter", label: "Crewed, the whole week · berth applied for months ahead" },
             { tier: "Charter for New Year's Eve only", label: "The evening alone — simplest, and you lose the week's best asset" },
             { tier: "Your own boat, berth needed", label: "Port de Gustavia allocates berths long in advance · your captain applies to the port, and early" },
           ] },
-          { label: "At the party", dates: "31 December", band: "For people who intend to be up at four", note: "Nikki Beach is the one everyone means. It is a beach club on Saint-Jean where lunch is the event: you book a table or a day bed, there is a spending minimum rather than a menu price, a DJ starts in the afternoon, and by four there are people dancing on the furniture in swimwear. Gloriously silly, thoroughly expensive, and for the right party the best afternoon of the week.\n\nGyp Sea, along the same beach, is the newer version of the same idea. Book the table AND the bed — they are separate, and the bed is the half people forget. It goes first.\n\nWORTH KNOWING: you do not need the 31st to have done Nikki Beach. The festive-week lunch is often the better use of it, and it leaves your midnight free for somewhere with a view of the harbour. Both take reservations direct and both publish their festive programmes late, so ask in October and keep asking.\n\nAnd the truly great nights here are private houses. Those are not sold — they come through your villa manager or your host.", date: "2026-12-31", tiers: [
+          { label: "At the party", dates: "31 December", band: "For people who intend to be up at four", note: "Nikki Beach is the one everyone means. It is a beach club on Saint-Jean where lunch is the event: you book a table or a day bed, there is a spending minimum rather than a menu price, a DJ starts in the afternoon, and by four there are people dancing on the furniture in swimwear. Gloriously silly, thoroughly expensive, and for the right party the best afternoon of the week.\n\nGyp Sea, along the same beach, is the newer version of the same idea. Book the table AND the bed — they are separate, and the bed is the half people forget. It goes first.\n\nWORTH KNOWING: you do not need the 31st to have done Nikki Beach. The festive-week lunch is often the better use of it, and it leaves your midnight free for somewhere with a view of the harbour. Both take reservations direct and both publish their festive programmes late, so ask in October and keep asking.", date: "2026-12-31", tiers: [
             { tier: "Nikki Beach", label: "Saint-Jean · RESERVATIONS REQUIRED, not first come. Programme announced in the autumn" },
             { tier: "Gyp Sea", label: "Saint-Jean · book the table AND the beach bed — they are separate bookings" },
-            { tier: "A villa party", label: "Genuinely private — chef, staff and cars arranged" },
-            { tier: "Private and invitation-only", label: "Not sold at any price · the way in is your villa manager, your host, or the hotel concierge" },
           ] },
         ],
         daysSubTitle: "The week, day by day",
-        days: "Arrive the 28th or 29th, never the 31st — you want time to settle, confirm tables and fix transport before the island fills. The 30th is a beach day with a long festive lunch and a deliberately restrained dinner. On the 31st keep the morning gentle, do not let lunch become an all-day blowout, and be back at the villa by four for a nap, a massage and hair and make-up brought to you. The single biggest mistake is exhausting the client before the night has started. Then a late dinner, in position by 11:45, and no early start on the 1st — the first of January is a late breakfast and a longer lunch, not a nine o'clock boat.",
+        days: "Arrive the 28th or 29th, never the 31st — you want time to settle, confirm tables and fix transport before the island fills. The 30th is a beach day with a long festive lunch and a deliberately restrained dinner. On the 31st keep the morning gentle, do not let lunch become an all-day blowout, and be back at the villa by four for a nap, a massage and hair and make-up brought to you. The single biggest mistake is exhausting the client before the night has started. Then a late dinner, and no early start on the 1st — the first of January is a late breakfast and a longer lunch, not a nine o'clock boat.",
         stepsTitle: "How to build it, in order",
         steps: [
           { h: "Book the bed first", b: "villa or hotel, nine to twelve months out. Everything else can be added later; this cannot. For this week: CHEVAL BLANC on Flamands is the grown-up choice, EDEN ROCK on Saint-Jean puts you in the middle of the scene, LE BARTH\u00c9LEMY and LE SERENO on Grand Cul-de-Sac are the calmer versions, and LE TOINY is the most private on the island — wonderful for the week, wrong for the 31st. All eight are waiting on the island page." },
@@ -11007,7 +11022,7 @@ const ONE_LIST = {
           { h: "Fix the transport", b: "a dedicated driver for the 31st, booked with the villa. Not a taxi you hope to find." },
           { h: "Choose your midnight", b: "table, yacht or party — chosen above, and the thing every other booking bends around." },
           { h: "Take the tables as they release", b: "the 30th, 31st and 1st, the moment the set menus are published — usually October. Every restaurant worth your night is under LOCAL FAVORITES on the island page with its telephone number and reservation email, one tap from here. Call rather than email if you want the good seating." },
-          { h: "Ask about the parties from October", b: "line-ups land in the autumn and change every year. Your hotel concierge or villa manager is the person to ask — they will know which room is the room that season, and what the table minimum has gone to." },
+          { h: "Ask about the parties from October", b: "line-ups land in the autumn and change every year. Your hotel concierge is the person to ask — they will know which room is the room that season, and what the table minimum has gone to." },
           { h: "Reconfirm in the final fortnight", b: "pickup times, seating times, dress, and — above all — the ride home after midnight." },
         ],
         beyond: [
@@ -11020,15 +11035,13 @@ const ONE_LIST = {
           { name: "Gustavia before eleven", note: "The crews washing down, the boutiques opening, the harbour quiet. The only hour the town belongs to the island." },
         ],
         notes: [
-          "BE IN POSITION BY 11:45. Do not plan to cross Gustavia at five to twelve — you will not make it, and the harbour at midnight is the entire point.",
           "PRE-ARRANGE THE RIDE HOME. Taxi demand on the 31st is unmeetable and parking in Gustavia is gone by six. Book a dedicated driver for the evening, with a confirmed return time, before you leave the villa. This is the detail that ruins otherwise perfect nights.",
           "DO NOT ARRIVE ON THE 31st. The 28th or 29th gives you time to settle, confirm tables and sort transport before the island fills.",
           "YOU CANNOT FLY DIRECT. Everything routes through St Maarten (SXM), then a twelve-minute Twin Otter hop over the hill at Col de la Tourmente, a helicopter, or the Great Bay Express ferry from Sint Maarten, about forty-five minutes to Gustavia. THE FERRY CAN BE ROUGH \u2014 the channel is open water and the crossing is frequently choppy, so it is a poor choice after a long flight or with anyone prone to seasickness. Helicopter inventory over festive week is scarce; reserve months ahead.",
           "ST BARTH AIRPORT CLOSES AT DUSK. No night landings, ever. A long-haul arriving into SXM in the evening means a night in St Maarten or a crossing in the dark. Land at SXM before three in the afternoon.",
           "The Twin Otter baggage limit is real and small. Charter a second seat for luggage, or send bags across by ferry — both are normal here.",
-          "Book a small car, not a large one. The roads are one lane and steep, and nothing wide is welcome on them.",
           "Restaurants over this week take set menus at fixed prices, deposit up front, no walk-ins. Everything for the 30th, 31st and 1st should be held by the end of October.",
-          "PARTY LINE-UPS CHANGE EVERY YEAR — DJs, performers, table minimums, cover charges and which room is the room. Nothing here names an artist on purpose. Ask your concierge or villa manager once the programmes land in the autumn — they are on the island and they will know.",
+          "PARTY LINE-UPS CHANGE EVERY YEAR — DJs, performers, table minimums, cover charges and which room is the room. Nothing here names an artist on purpose. Ask your hotel concierge once the programmes land in the autumn — they are on the island and they will know.",
         ],
       } },
     ],
@@ -11149,6 +11162,16 @@ function OneList({ onPick, onBack, onHome }) {
   const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
   const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div></div>))}</div>);
   const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong> — {b.note}{b.link ? <> <a href={b.link} target="_blank" rel="noopener noreferrer" style={{ color: t.brass, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>{b.linkLabel || "Visit the site"} →</a></> : null}</div>))}</div>);
+  // daysIntro and the pick notes are WRITTEN IN PARAGRAPHS and were being poured into a single
+  // div, so every blank line collapsed and the reader got a wall of text. Split on blank lines,
+  // and give "Plan this trip" the house green wherever it falls so the eye finds the way out of
+  // the page without hunting for the button.
+  const proseBlock = (str, style) => String(str || "").split(/\n{2,}/).filter(Boolean).map((para, i, all) => (
+    <div key={i} style={{ ...(style || {}), marginBottom: i === all.length - 1 ? 0 : 11 }}>
+      {para.split(/(Plan this trip)/).map((bit, j) => (bit === "Plan this trip"
+        ? <strong key={j} style={{ color: t.pine, fontWeight: 700 }}>{bit}</strong>
+        : <React.Fragment key={j}>{bit}</React.Fragment>))}
+    </div>));
   const bul = (arr) => (<ul style={{ margin: 0, paddingLeft: 20, color: t.inkSoft, fontSize: 15, lineHeight: 1.65 }}>{(arr || []).map((x, k) => (<li key={k} style={{ marginBottom: 8 }}>{x}</li>))}</ul>);
   const bandTable = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 0, border: `1px solid ${t.line}`, borderRadius: 12, overflow: "hidden", marginTop: 12 }}>{(arr || []).map((b, k) => (<div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "11px 15px", background: k % 2 ? t.card : t.white, borderTop: k ? `1px solid ${t.line}` : "none" }}><span style={{ fontSize: 14.5, color: t.ink }}>{b.label}</span><span style={{ fontFamily: font.display, fontSize: 17, color: t.pine, fontWeight: 600, whiteSpace: "nowrap" }}>{b.price}</span></div>))}</div>);
   if (sel) {
@@ -11225,7 +11248,7 @@ function OneList({ onPick, onBack, onHome }) {
           {picks && multiMode ? (<div>
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
-            {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
+            {g.daysIntro ? <div style={{ marginBottom: 14 }}>{proseBlock(g.daysIntro, { fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 })}</div> : null}
             {arriveCallout}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const chosen = multiSel[p.date]; const open = openDay === p.date; return (
@@ -11250,7 +11273,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : picks ? (<div>
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
-            {g.daysIntro ? <div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65, marginBottom: 14 }}>{g.daysIntro}</div> : null}
+            {g.daysIntro ? <div style={{ marginBottom: 14 }}>{proseBlock(g.daysIntro, { fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 })}</div> : null}
             {arriveCallout}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
@@ -11260,7 +11283,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontSize: 13, color: on ? t.brassLight : t.brass, fontWeight: 500 }}>{p.dates}</span>
                   </div>
                   <span style={{ fontSize: 13.5, fontWeight: 600, color: on ? t.brassLight : t.pine }}>{p.band}</span>
-                  <span style={{ fontSize: 14, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55 }}>{p.note}</span>
+                  <span style={{ display: "block" }}>{proseBlock(p.note, { fontSize: 14, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55 })}</span>
                   {on ? <span style={{ fontSize: 12.5, color: t.brassLight, fontWeight: 500, marginTop: 3 }}>✓ Now pick your {p.tiers ? "level" : "day(s)"} below ↓</span> : null}
                 </button>); })}
             </div>
@@ -13410,6 +13433,32 @@ function ListPicker({ rows, chosen, onToggle, nights, onDate, label, city }) {
 // city's real top places live from Google (kind=place browse). Each becomes a normal experience
 // row, so selecting it reveals the same real address / phone / booking link. topic steers it:
 // "" for things to do, "spas" for spa.
+// A DESTINATION IS NOT A THING TO DO IN ITSELF. Google's top places for a city or an island
+// include the place itself, under every spelling it owns: "things to do in St Barthelemy" came
+// back with BOTH "St Barts" and "St Barthelemy", so a client already standing on the island was
+// offered a day out to the island, twice, with nothing but a date attached. The same shape sends
+// someone staying in New York City to see New York City.
+// A result is the destination when the names match outright, or when the two resolve to the same
+// canonical city AND share the head of the name. That second half is what protects genuine
+// sub-places: Gustavia, Virgin Gorda, Tortola and Manhattan all alias up to their island or city
+// but read nothing like it, so they survive and are still offered as the real days out they are.
+function placeNorm(x) {
+  return dnrm(x).replace(/^the /, "").replace(/^city of /, "").replace(/^saint /, "st ").trim();
+}
+function placeCanon(x) {
+  const b = placeNorm(x);
+  const al = CITY_ALIASES[b] || CITY_ALIASES[b.split(",")[0].trim()];
+  return al ? placeNorm(al) : b;
+}
+function sharedHead(a, b) { let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; }
+function isDestinationItself(name, city) {
+  const n = placeNorm(name), d = placeNorm(city);
+  if (!n || !d) return false;
+  if (n === d) return true;
+  const cn = placeCanon(name), cd = placeCanon(city);
+  if ((cn === cd || n === cd || cn === d) && sharedHead(n, d) >= 4) return true;
+  return false;
+}
 const CITY_THINGS_CACHE = {};
 function useCityThings(city, topic) {
   const key = (topic || "things") + "|" + (city || "").toLowerCase();
@@ -13439,7 +13488,7 @@ function useCityThings(city, topic) {
         const here = coordsFor(city);
         const near = (m) => !here || m.lat == null || m.lng == null || kmBetween(here, [m.lat, m.lng]) <= 120;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (!near(m)) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!near(m)) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n }]); });
         const res = out.slice(0, 8);
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
@@ -13595,7 +13644,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
         <HotelPicker city={baseTown} nights={d.days} pick={pick} upd={upd} />
       </Panel>}
       {baseTown && gwNote && <Panel icon={Car} title={`Getting from ${gwNote.air} to ${baseTown}`}>
-        {transferOptions(gwNote.air, baseTown).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
+        {transferOptions(gwNote.air, baseTown).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>}
       {baseTown && <GettingAroundPanel city={baseTown} />}
       {baseTown && d.arriveBy !== "Self-drive" && <RentalPanel city={baseTown} destination={baseTown} compact />}
@@ -14022,11 +14071,11 @@ function CitySection({ d, i, p, from, legSched }) {
           </div>
           <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6, lineHeight: 1.4 }}>Nearest first, but real scheduled service is ordered ahead of private-only fields. You have the final say.</div>
         </div>)}
-        {transferOptions(pick.gatewayPick || gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
+        {transferOptions(pick.gatewayPick || gw.air, d.city).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>}
       {!gw && d.arriveBy === "Flight" && cityArrival(d.city) && <Panel icon={Ship} title={`Getting to your hotel in ${d.city}`}>
         <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{cityArrival(d.city).note}</div>
-        {cityArrival(d.city).modes.map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} />; })}
+        {cityArrival(d.city).modes.map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>}
       {/* Choosing The Cloister IS choosing where to stay. Asking again on the next page — and
           filling the answer with whatever the live feed found in the village — is the app
