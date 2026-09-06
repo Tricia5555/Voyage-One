@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M384";
+const BUILD = "M385";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9519,9 +9519,11 @@ function VoyageOne() {
       }
     }
     // A chosen costume house becomes a dated line the day before the first event day — the fitting.
+    const seedKind = (ev.aecDays || []).length && ev.seedAs ? ev.seedAs : "sports";
+    const seededDines = seedKind === "dine" ? (ev.aecDays || []).map((d) => ({ name: d.tierName || d.label, level: "Destination", date: d.date, price: null })) : [];
     const seededTours = (ev.costume && evDates.length) ? [{ name: "Costume fitting · " + ev.costume.name, price: null, date: iso(addDays(new Date(evDates[0] + "T00:00:00"), -1)) }] : [];
     if (depart && ret) setDates({ depart, ret });
-    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: [], tours: seededTours, spas: [], sports: seededSports, exploreMode: "", stops: [] } }]);
+    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
@@ -10989,9 +10991,11 @@ const ONE_LIST = {
         recapLabel: "Your New Year",
         pickedLabel: "✓ On your list",
         picksOptional: true,
+        seedAs: "dine",
         ticketsTitle: "How the week gets booked",
         beyondTitle: "Beyond the night",
         cur: "$",
+        stayLead: "The three to want first",
         stayNote: "Three to want first, then the rest of the island beneath them. Choose one and it moves to the top so you remember which it was \u2014 then book it direct, either here or on the island page after Plan this trip.",
         stayCollection: "St Barth",
         stay: [
@@ -11192,7 +11196,7 @@ function OneList({ onPick, onBack, onHome }) {
     const selDays = multiMode
       ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label, evening: /night/i.test(multiSel[date].tier || "") }))
       : tierMode
-      ? (ballTier ? [{ date: aecPick.date, label: aecPick.label + " · " + ballTier.tier, evening: !/lunch|beach club|day bed|daytime/i.test((ballTier.tier || "") + " " + (ballTier.label || "")) }] : [])
+      ? (ballTier ? [{ date: aecPick.date, tierName: ballTier.tier, label: aecPick.label + " · " + ballTier.tier, evening: !/lunch|beach club|day bed|daytime/i.test((ballTier.tier || "") + " " + (ballTier.label || "")) }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
     // Most experiences need the pick — the Venice ball tier and the Wimbledon match days set
     // the dates. Where the pick is just the client's own shortlist, gating the button behind it
@@ -11377,7 +11381,7 @@ function OneList({ onPick, onBack, onHome }) {
             const collOrdered = inColl ? [collection.find((s) => s.name === selName), ...collection.filter((s) => s.name !== selName)] : collection;
             return (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             {isCustom ? <div style={{ marginBottom: 16 }}>{stayCard({ name: stayPick.name, area: stayPick.area, rate: stayPick.rate, note: stayPick.note, contact: stayPick.contact }, "custom")}</div> : null}
-            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>Closest to the courts</div> : null}
+            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>{g.stayLead || "Closest to the courts"}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {featOrdered.map((s, k) => stayCard(s, k))}
             </div>
@@ -13429,7 +13433,6 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
   const bookUrl = (opts && opts.book) || info.site;
   return (<div>
     <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={price != null ? fmt(price) : ""} />
-    {opts && opts.readMore && !found && bookUrl ? <div style={{ margin: "-2px 0 8px 44px" }}><a href={brandedLink(bookUrl, { kind: "venue", name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 12.5, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>What is this? \u2197</a></div> : null}
     {found && (info.address || info.phone || bookUrl) ? (
       <div style={{ margin: "2px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
         {info.address ? <div>{info.address}</div> : null}
@@ -13511,7 +13514,7 @@ function useCityThings(city, topic) {
         const here = coordsFor(city);
         const near = (m) => !here || m.lat == null || m.lng == null || kmBetween(here, [m.lat, m.lng]) <= 120;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!near(m)) return; const readMore = m.site || m.maps || null; if (!m.desc && !readMore) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc || "", { find: n, book: readMore, readMore: !m.desc }]); });
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!near(m)) return; if (!m.desc) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc, { find: n, book: m.site || m.maps || null }]); });
         const res = out.slice(0, 8);
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
@@ -14147,7 +14150,7 @@ function ReturnSection({ p, rc, blocked }) {
   const homeGw = useGateway(flyHomeCity);
   const gwHome = homeGw && !sameCity(homeGw.air, flyHomeCity) ? homeGw : null;
   // The airport we depart the country from: the chosen airport city, or the resolved gateway.
-  const departAirport = p.returnFrom ? p.returnFrom : (gwHome ? gwHome.air : lastCity);
+  const departAirport = gwHome ? gwHome.air : (p.returnFrom || lastCity);
   const homeGround = groundOption(p.returnMode, "", p.returnFrom);
   return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 18, padding: "22px" }}>
     <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>Heading home</span><span style={{ fontSize: 13, color: t.inkFaint }}>the last piece</span></div>
@@ -14176,7 +14179,7 @@ function ReturnSection({ p, rc, blocked }) {
     {p.returnFrom && !sameCity(p.returnFrom, lastCity) && <div style={{ marginTop: 18 }}><Chips prefix={`Get to ${p.returnFrom} by`} options={ARRIVE} value={p.returnMode} onChange={p.setReturnMode} /></div>}
     {/* No separate airport city named, but the last stop can't be flown from — compose the
         overland leg to its gateway, the same way arrivals do, so the trip home is complete. */}
-    {!p.returnFrom && gwHome && (<div style={{ marginTop: 18 }}>
+    {gwHome && (<div style={{ marginTop: 18 }}>
       <Panel icon={Car} title={`Getting from ${bareCity(flyHomeCity)} to ${gwHome.air}`}>
         <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{bareCity(flyHomeCity)} has no airport — you fly home from {gwHome.air}{gwHome.km ? `, about ${gwHome.km} km away` : ""}. {gwHome.code ? `(${gwHome.code})` : ""} Leave enough time: aim to be at the airport about 3 hours before an international flight, so plan the drive plus a buffer.</div>
         {((cityArrival(bareCity(flyHomeCity)) && cityArrival(bareCity(flyHomeCity)).modes) || transferOptions(gwHome.air, bareCity(flyHomeCity))).map((o) => { const sel = rp.homeTransfer && rp.homeTransfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ homeTransfer: sel ? null : o })} title={`${o.mode} · ${bareCity(flyHomeCity)} → ${gwHome.air}`} desc={o.why} sub="door to door" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
