@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M386";
+const BUILD = "M387";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -6286,6 +6286,10 @@ function localFavFor(city){
   return out.filter((x) => x.us === undefined ? true : dineGeoOk(city, !!x.us)).map((x) => ({ ...x, lf: 1 }));
 }
 const TOURS = {
+  // St Barth's first curated Days Out. Google returns Fort Karl with no description at all, so it
+  // was being dropped as unexplained — this is Tricia's line, and it now leads the list while the
+  // described live results still follow beneath it.
+  "St Barth": [["Fort Karl", null, "A historic military fort above Gustavia, built by the Swedes in 1789.", { find: "Fort Karl Gustavia" }]],
   "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
   "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
   "Palermo": [["Ballarò & Vucciria street food", 95, "Graze Palermo's raucous markets with a local guide."], ["Monreale golden mosaics", 150, "Private visit to the dazzling Norman cathedral above the city."], ["Baroque Palermo & Cappella Palatina", 140, "Palaces, oratories and the glittering royal chapel."], ["Cefalù seaside day trip", 260, "Medieval lanes and a golden beach an hour east."]],
@@ -9190,7 +9194,7 @@ function OptionRow({ selected, onClick, title, desc, sub, price, link, linkLabel
     </span>
     <span style={{ fontFamily: font.display, fontSize: 20, whiteSpace: "nowrap" }}>{price}</span>
   </button>
-  {link ? <a href={brandedLink(link, { kind: "transfer", name: title || "", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "1px 0 8px 44px", fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>{linkLabel || "Book direct"} \u2197</a> : null}
+  {link ? <a href={brandedLink(link, { kind: "transfer", name: title || "", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "1px 0 8px 44px", fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>{linkLabel || "Book direct"} ↗</a> : null}
   </div>);
 }
 const CITY_PHOTO_CACHE = {};
@@ -11367,7 +11371,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
                   </div>
-                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} \u2197</a></div> : null}</div> : null}
+                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
                   {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book direct — tap any hotel below to change.</div> : null}
                 </button>); };
             const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
@@ -12979,7 +12983,7 @@ function BookingPrompt() {
   if (!pend) return null;
   const what = pend.name || "that";
   return (<div style={{ position: "fixed", left: 12, right: 12, bottom: 18, zIndex: 9000, background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, boxShadow: "0 8px 30px rgba(0,0,0,.12)", padding: "14px 16px", fontFamily: font.ui }}>
-    {done ? (<div style={{ fontSize: 14 }}>Thank you \u2014 noted. <button onClick={clear} style={{ marginLeft: 10, fontSize: 13, background: "none", border: "none", color: t.pine, textDecoration: "underline" }}>Close</button></div>) : (<>
+    {done ? (<div style={{ fontSize: 14 }}>Thank you — noted. <button onClick={clear} style={{ marginLeft: 10, fontSize: 13, background: "none", border: "none", color: t.pine, textDecoration: "underline" }}>Close</button></div>) : (<>
       <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 8 }}>Did you book <b>{what}</b>{pend.city ? ` in ${bareCity(pend.city)}` : ""}?</div>
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <input value={conf} onChange={(e) => setConf(e.target.value)} placeholder="Confirmation number (optional)" style={{ flex: 1, minWidth: 180, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, fontSize: 13.5 }} />
@@ -13282,7 +13286,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
           {r.r50p ? <div>{r.r50n || "Regional"}'s 50 Best · previously ranked</div> : null}
           {r.f5 ? <div>Forbes Five-Star Restaurant</div> : null}
           {r.jb ? <div>James Beard Award</div> : null}
-          {r.jbs ? <div>James Beard \u00b7 semifinalist</div> : null}
+          {r.jbs ? <div>James Beard · semifinalist</div> : null}
           {r.access ? <div style={{ color: "#B0563A" }}>{r.access}</div> : null}
           {r.ll >= 95 ? <div>La Liste {r.ll}/100{r.lly ? " (" + r.lly + ")" : ""}</div> : null}
           {(r.gm >= 19 || r.gmc) ? <div>Gault&Millau — {r.gm >= 19 ? r.gm + "/20" + (r.gt ? " · " + r.gt + " Toques" : "") : r.gmc}{r.gy ? " · " + r.gy : ""}</div> : null}
@@ -13358,6 +13362,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const dense = !!(michRaw.length && michRaw.filter((m) => m.s >= 2).length >= 20);
   const [level, setLevel] = useState("Destination");
   const dines = pick.dines || [];
+  const tabSettled = useRef(false);
   const keyOf = (name, lvl) => (name || lvl);
   const setDate = (name, lvl, date) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, date } : x)) });
   const setField = (name, lvl, patch) => upd({ dines: dines.map((x) => (keyOf(x.name, x.level) === keyOf(name, lvl) ? { ...x, ...patch } : x)) });
@@ -13371,6 +13376,13 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const cardRows = level === "Local" ? localFavRows : pool.filter((r) => michTier(r, dense) === level);
   // If the tab we are standing on has just disappeared, move somewhere that exists.
   useEffect(() => { if (level === "Local" && localFavRows.length === 0) setLevel("Destination"); }, [localFavRows.length, level]);
+  useEffect(() => {
+    if (tabSettled.current || !dines.length || !localFavRows.length) return;
+    const lc = (x) => (x || "").toLowerCase().replace(/\s+/g, " ").trim();
+    const chosenIsLocal = dines.some((d) => localFavRows.some((r) => lc(r.n) === lc(d.name)));
+    const chosenHere = cardRows.some((r) => dines.some((d) => lc(r.n) === lc(d.name)));
+    if (chosenIsLocal && !chosenHere) { setLevel("Local"); tabSettled.current = true; }
+  }, [dines.length, localFavRows.length, cardRows.length]);
   const empty = {
     Destination: `No Destination table in ${bareCity(city)} yet — a Michelin star, James Beard, World's 50 Best or La Liste 95+ is the bar.`,
     Recommended: `No Michelin Bib Gourmand in ${bareCity(city)} yet.`,
@@ -13527,7 +13539,7 @@ function useCityThings(city, topic) {
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
   const live = useCityThings(city, "");
-  const rows = curated.length ? curated : live;
+  const rows = curated.length ? curated.concat(live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0])))) : live;
   if (!rows.length) return null;
   return (<Panel icon={Compass} title={curated.length ? `Days out from ${city || "this city"}` : `Things to do in ${city || "this city"}`}>
     <ListPicker city={city} rows={rows} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
