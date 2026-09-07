@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M404";
+const BUILD = "M405";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -235,10 +235,10 @@ const EXPERIENCE_LODGING = [
   "Abisko Mountain Lodge", "STF Abisko Turiststation",
   "Arctic TreeHouse Hotel", "Apukka Resort",
   "Levin Iglut", "Northern Lights Ranch", "Reindeer Manor",
-  // NOT NAMED IN THE BRIEF. It says only "the strongest appropriate city hotel" for Tromsø and
-  // warns against falsely elevating one, so these two sit here rather than in Luxury. Which city
-  // hotel Tromsø should carry — or whether it should carry one at all — is Tricia's call.
-  "Clarion Hotel The Edge", "Scandic Ishavshotel",
+  // Tromsø city, named Sept 2026: The Dock preferred, St. Elisabeth as backup. Tromsø has no
+  // hotel meeting the true five-star floor, so neither may be promoted without explicit approval.
+  // WITHHELD, not deleted: Clarion Hotel The Edge, Scandic Ishavshotel.
+  "The Dock 69°39 by Scandic", "St. Elisabeth Suites & Spa",
 ];
 const BEST_AVAILABLE = [
   // WITHHELD, not deleted: ICEHOTEL at Jukkasjärvi. It is a real and famous property but the
@@ -2415,8 +2415,8 @@ const FAVORITES = {
   "Tromsø": [
     { name: "Lyngen Lodge", area: "Lyngen Alps · 2 hr from Tromsø", rate: null, ourTake: "EXPERIENCE LODGING, and the value is the remoteness rather than a star rating. Around eight rooms and sixteen guests at most, fully staffed with its own chefs, hosts and activity guides, in a mountain setting where the aurora can often be watched straight from the lodge. A strong Arctic activity programme and all meals handled on the property. NOT a conventional five-star hotel, and not filed as one." },
     { name: "Lyngen North", area: "Lyngen region", rate: null, ourTake: "EXPERIENCE LODGING. Design-forward, glass-fronted rooms built for watching the sky from bed, in a properly remote setting. The alternative to Lyngen Lodge for clients who care most about the architecture and the view rather than the full-board hosted programme." },
-    { name: "Clarion Hotel The Edge", area: "Tromsø harbour", rate: null, ourTake: "A practical city base for the nights either side of Lyngen — on the harbour, walking distance to the restaurants and the tour pickups. It does not meet the Voyage One five-star standard and is deliberately not filed as Luxury." },
-    { name: "Scandic Ishavshotel", area: "Tromsø harbour", rate: null, ourTake: "The sail-roofed hotel on the quay, and the other sound city option. Sea-view rooms over the harbour. Same honest caveat as The Edge: a good city hotel, not a luxury one." },
+    { name: "The Dock 69°39 by Scandic", area: "Tromsø waterfront", rate: null, ourTake: "EXPERIENCE LODGING, and the preferred city hotel for this trip. Opened in 2025, so the physical product is new in a way most of Tromsø's inventory is not — design-forward, on the waterfront, central, with wellness facilities and real views. Walking distance to the restaurants and to the aurora excursion pickups. THE STRONGEST PRACTICAL CITY CHOICE, NOT A FIVE-STAR HOTEL: Tromsø does not have one, and we would rather say so." },
+    { name: "St. Elisabeth Suites & Spa", area: "Tromsø", rate: null, ourTake: "EXPERIENCE LODGING, and the backup. Quieter and more boutique than The Dock, with suite-style accommodation, more space, kitchens in some of them, and a spa. The better answer for a longer city stay or anyone who wants apartment-style lodging — but The Dock is the default." },
   ],
   "Abisko": [
     { name: "Abisko Mountain Lodge", area: "Abisko", rate: null, ourTake: "EXPERIENCE LODGING and the right base in Abisko. Practical, comfortable, well located, with an on-site restaurant and a respected adventure-lodge atmosphere. THE ROOMS ARE SIMPLE AND RELATIVELY SMALL — that is the trade you make for the clearest skies in the region, and it is a fair one." },
@@ -11126,10 +11126,11 @@ const ONE_LIST = {
             { name: "Levi", sub: "BEST FOR OLDER CHILDREN · Finland · connect through Helsinki to Kittilä", city: "Levi", airport: "KTT", airportName: "Kittilä (via Helsinki)",
               note: "The other Finnish answer, and the better one once children are old enough to ski. A proper resort village — more restaurants, more polished infrastructure, skiing and aurora in the same week. KITTILÄ AIRPORT IS FIFTEEN MINUTES AWAY, which after a long day of connections is worth more than it sounds." },
           ],
+          stayFromBase: true,
           stayLead: "Where to stay",
           stayWord: "lodge",
           stayEg: "e.g. a lodge in the Lyngen Alps",
-          stayNote: "A WORD ON HOW THESE ARE GRADED. Several of the properties here are filed as EXPERIENCE LODGING rather than Luxury, and that is deliberate. North of the Arctic Circle a true five-star hotel very often does not exist, and calling one of these Luxury to fill the gap would be dishonest. Experience Lodging means the destination is remote, no five-star exists, and the property earns its place by materially improving the trip — clean, well run, respected and right for where it is. Lyngen Lodge is the clearest case: eight rooms, sixteen guests, its own chefs and guides, and special for what it is rather than for a star rating.\n\nTHREE BASES, AND THEY ARE NOT INTERCHANGEABLE.\n\nTROMSØ AND THE LYNGEN ALPS, NORWAY — 69°N, directly under the band, and the one with real infrastructure: direct flights from Oslo several times a day, proper restaurants, and — the thing that matters — roads. When the coast clouds over, a guided chase drives you inland or across to Finland until you find a hole. The ability to MOVE is worth more than any window.\n\nABISKO, SWEDISH LAPLAND — 68°N, and the statistical winner. It sits in the rain shadow of the Scandinavian mountains, which produces the famous ‘blue hole of Abisko’: a patch of reliably clear sky when everything around it is socked in. Fewer roads and fewer options for dinner, but the highest clear-night rate in the region.\n\nFINNISH LAPLAND — 67–69°N, inland and therefore colder and drier than the Norwegian coast. This is glass-igloo country, and the one that works best with children: huskies, reindeer, and Christmas built into the place.\n\nWORTH KNOWING ABOUT GLASS IGLOOS: they photograph beautifully and they cannot move. Book one for a night or two as part of the trip, not for the whole of it — if the cloud sits over you for four nights, a glass roof shows you the underside of it.",
+          stayNote: "These are the properties for the base you chose above — pick a different base and this list changes with it.\n\nA WORD ON HOW THEY ARE GRADED. Almost everything here is filed as EXPERIENCE LODGING rather than Luxury, and that is deliberate rather than a shortfall. North of the Arctic Circle a true five-star hotel very often does not exist — Tromsø does not have one — and calling one of these Luxury to fill the gap would be dishonest. Experience Lodging means the destination is remote, no five-star exists, and the property earns its place by materially improving the trip: clean, well run, respected, right for where it is.\n\nFOR TROMSØ, THE SHAPE IS TWO STAYS. One or two nights in the city at The Dock 69°39 — restaurants, an easy arrival, and the flexibility to chase clear sky by road. Then two or three nights at Lyngen Lodge for the wilderness, the privacy and the aurora straight off the terrace. The city is the practical half; Lyngen is the half people remember.",
           ticketsTitle: "When to go — and why most people pick the wrong month",
           ticketNote: "THE SEASON IS LATE SEPTEMBER TO LATE MARCH, and it is set by darkness rather than by the aurora. In summer the sun never properly sets this far north, so there is nothing to see even on the most active night of the year.\n\nTHE EQUINOXES ARE THE INSIDER PICK. Late September and March run measurably more geomagnetic activity than the months either side — a real, documented effect of how the Earth's field lines up with the solar wind around the equinox. You also get milder weather, open roads, and in September the lakes are not yet frozen, so you can photograph the lights reflected. Most people book December. They have chosen the coldest weather and the worst of the coastal cloud.\n\nDECEMBER TO FEBRUARY gives the longest nights and the deepest cold, and is the right answer if you want the whole Arctic winter — huskies, snowmobiles, reindeer, Christmas.\n\nMOON PHASE matters far less than people think; a bright aurora outshines a full moon easily. Cloud is the only thing that beats you.\n\nAnd the solar cycle is on your side: the current cycle peaked in 2024–25, and the years just after a peak are historically when the biggest storms land.",
           stepsTitle: "How to build it, in order",
@@ -11565,7 +11566,7 @@ function OneList({ onPick, onBack, onHome }) {
                 </button>); })}
             </div>
             {g.costumeMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.costumeMore}</div> : null}</div>) : null}
-          {g.stay ? (() => {
+          {(g.stay || (g.stayFromBase && basePick)) ? (() => {
             const stayCard = (s, k) => { const on = stayPick && stayPick.name === s.name; return (
                 <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note, contact: s.contact || null })} style={{ textAlign: "left", background: t.pine, border: `${on ? 2.5 : 2}px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: on ? "22px 24px" : "16px 18px", cursor: "pointer", boxShadow: on ? "0 6px 24px rgba(0,0,0,0.14)" : "none" }}>
                   {on ? <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brassLight, fontWeight: 600, marginBottom: 7 }}>✓ Your hotel</div> : null}
@@ -11581,14 +11582,16 @@ function OneList({ onPick, onBack, onHome }) {
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
                   {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book direct — tap any hotel below to change.</div> : null}
                 </button>); };
-            const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).filter((f) => !g.stayArea || dnrm(f.area || "").indexOf(dnrm(g.stayArea)) === 0).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
-            const isKnown = (nm) => g.stay.some((s) => s.name === nm) || collection.some((s) => s.name === nm);
+            const feat = g.stay || [];
+            const collKey = g.stayCollection || (g.stayFromBase && basePick ? basePick.city : null);
+            const collection = (collKey && FAVORITES[collKey]) ? FAVORITES[collKey].filter((f) => !feat.some((s) => s.name === f.name)).filter((f) => !g.stayArea || dnrm(f.area || "").indexOf(dnrm(g.stayArea)) === 0).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
+            const isKnown = (nm) => feat.some((s) => s.name === nm) || collection.some((s) => s.name === nm);
             const selName = stayPick ? stayPick.name : null;
-            const inFeat = selName && g.stay.some((s) => s.name === selName);
+            const inFeat = selName && feat.some((s) => s.name === selName);
             const inColl = selName && collection.some((s) => s.name === selName);
             const isCustom = selName && !inFeat && !inColl;
             // The selected hotel always renders FIRST — a big card at the very top of the list.
-            const featOrdered = inFeat ? [g.stay.find((s) => s.name === selName), ...g.stay.filter((s) => s.name !== selName)] : g.stay;
+            const featOrdered = inFeat ? [feat.find((s) => s.name === selName), ...feat.filter((s) => s.name !== selName)] : feat;
             const collOrdered = inColl ? [collection.find((s) => s.name === selName), ...collection.filter((s) => s.name !== selName)] : collection;
             return (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             {isCustom ? <div style={{ marginBottom: 16 }}>{stayCard({ name: stayPick.name, area: stayPick.area, rate: stayPick.rate, note: stayPick.note, contact: stayPick.contact }, "custom")}</div> : null}
@@ -11603,7 +11606,7 @@ function OneList({ onPick, onBack, onHome }) {
                 {collOrdered.map((s, k) => stayCard(s, k + 100))}
               </div>
             </div>) : null}
-            {[...g.stay, ...collection].some((x) => x && x.rate) ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — the property quotes the real one.</div> : null}
+            {[...feat, ...collection].some((x) => x && x.rate) ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — the property quotes the real one.</div> : null}
             <div style={{ marginTop: 18 }}>
               <div style={{ fontSize: 14, color: t.inkSoft, marginBottom: 8 }}>{`Somewhere else in mind? Name it and we will tell you what we know about it.`}</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
