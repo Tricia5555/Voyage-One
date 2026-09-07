@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M390";
+const BUILD = "M392";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2394,10 +2394,10 @@ const FAVORITES = {
     { name: "Great Plains Zarafa Camp", area: "Selinda", rate: null, ourTake: "Four vast tents in a private wilderness, conservation at its soul." },
   ],
   "Rwanda": [
-    { name: "One&Only Gorilla's Nest", area: "Volcanoes", rate: null, ourTake: "An eucalyptus-forest lodge at the foot of the gorilla volcanoes." },
-    { name: "One&Only Nyungwe Lodge", area: "Nyungwe", rate: null, ourTake: "A tea-estate lodge on the edge of ancient rainforest and chimpanzees." },
-    { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, ourTake: "Volcano views and deep reforestation beside Volcanoes National Park." },
-    { name: "Wilderness Bisate", area: "Volcanoes", rate: null, ourTake: "Green dome-villas in a reforested volcanic amphitheatre." },
+    { name: "One&Only Gorilla's Nest", area: "Volcanoes National Park", rate: null, ourTake: "An eucalyptus-forest lodge at the foot of the gorilla volcanoes." },
+    { name: "One&Only Nyungwe Lodge", area: "Nyungwe Forest — chimpanzees, not gorillas", rate: null, ourTake: "A tea-estate lodge on the edge of ancient rainforest, five hours south of the volcanoes. Chimpanzees and a canopy walkway — a second leg, not a gorilla base." },
+    { name: "Singita Kwitonda Lodge", area: "Volcanoes National Park", rate: null, ourTake: "Volcano views and deep reforestation on the boundary of Volcanoes National Park." },
+    { name: "Wilderness Bisate", area: "Volcanoes National Park", rate: null, ourTake: "Green dome-villas in a reforested volcanic amphitheatre." },
   ],
   "Namibia": [
     { name: "andBeyond Sossusvlei Desert Lodge", area: "Sossusvlei", rate: null, ourTake: "Glass-roofed suites for stargazing among the world's oldest dunes." },
@@ -6921,6 +6921,10 @@ function isAllInCity(city) {
 // One place that answers "where is this property's website?" — a real URL where we hold one,
 // and a search that lands on the hotel's own site where we do not. Never nothing.
 const HOTEL_SITE = {
+  // Rwanda — verified on each operator's own domain, not an agency listing.
+  "singita kwitonda lodge": "https://singita.com/lodge/singita-kwitonda-lodge/",
+  "wilderness bisate": "https://www.wildernessdestinations.com/africa/rwanda/volcanoes-national-park/bisate-lodge",
+  "one&only gorilla's nest": "https://www.oneandonlyresorts.com/gorillas-nest",
   "gleneagles": "https://www.gleneagles.com",
   "delaire graff lodges & spa": "https://www.delaire.co.za",
   "the ranch at rock creek": "https://theranchatrockcreek.com",
@@ -10983,19 +10987,22 @@ const ONE_LIST = {
           cur: "$",
           daysTitle: "What the hour is actually like",
           daysIntro: "There are around a thousand mountain gorillas left, and every one of them lives on the same range of volcanoes shared by Rwanda, Uganda and the DRC. You cannot see them anywhere else on earth. Not in a zoo \u2014 there has never been a mountain gorilla in captivity.\n\nRwanda is the civilised way to do it. You sleep in one of the best lodges in Africa, drive forty minutes to the park gate, and walk. Sometimes it is ninety minutes uphill through nettles and bamboo; sometimes the family has come down to the farmland and you are there in twenty. Nobody can tell you in advance.\n\nThen a silverback the size of a small car looks up, decides you are not interesting, and goes back to eating. A juvenile rolls down the slope past your feet. You have exactly one hour, and it goes in about ten minutes.\n\nTHE WHOLE TRIP HANGS ON A PERMIT. Rwanda issues ninety-six a day \u2014 twelve habituated families, eight people each, no exceptions and no standby. That single piece of paper is the reservation; everything else is arranged around it.\n\nThe lodge is how you get one. Book the lodge first and it applies for your permits as part of the stay.",
-          stayLead: "The lodges at Volcanoes",
-          stayNote: "Four lodges, three of them within sight of the volcanoes. This is the booking that matters \u2014 it sets your permit, your transfer and your trekking mornings, so it comes before everything else. Choose one and it moves to the top; then book it direct.",
+          stayWord: "lodge",
+          stayEg: "e.g. Sabyinyo Silverback Lodge",
+          stayArea: "Volcanoes",
+          stayLead: "The lodges at Volcanoes National Park",
+          stayNote: "WHY THE VOLCANOES ARE THE DIVIDER: mountain gorillas live on one range and nowhere else \u2014 the Virunga volcanoes, shared by Rwanda, Uganda and the DRC. Volcanoes National Park is the Rwandan side of that range, so being at the volcanoes IS being at the gorillas. Every lodge below is on its edge, within forty minutes of the park gate where treks begin. Anything further out means a longer drive before a seven a.m. briefing.\n\nThis is also the booking that matters most \u2014 it drives your permit, your transfer and your trekking mornings. Choose one and it moves to the top; then book it direct.",
           stayCollection: "Rwanda",
           stay: [
-            { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, note: "The one to want, and the reason most people come to Rwanda rather than Uganda. Eight suites and a private four-bedroom house on the park boundary itself, each with its own heated plunge pool and a fireplace, looking straight up at Sabyinyo, Gahinga and Muhabura. Singita bought a hundred and seventy-eight acres of exhausted farmland and has been putting the forest back \u2014 a quarter of a million indigenous trees so far, and a nursery on site that grows them. Everything is handled: permits, the transfer, the porters, the boots you forgot. If you are doing this once, do it here." },
+            { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, note: "The one to want, and the reason most people come to Rwanda rather than Uganda. Suites and a private four-bedroom house, Kataza, on the park boundary itself \u2014 each with a heated plunge pool and indoor and outdoor fireplaces, looking straight up at Sabyinyo, Gahinga and Muhabura. Singita bought a hundred and seventy-eight acres of exhausted farmland and has been putting the forest back \u2014 a quarter of a million indigenous trees so far, and a nursery on site that grows them. Everything is handled: permits, the transfer, the porters, the boots you forgot. If you are doing this once, do it here." },
             { name: "Wilderness Bisate", area: "Volcanoes", rate: null, note: "Six green dome-villas built into the eroded cone of an old volcano, with the Bisate amphitheatre falling away beneath you and the peaks in front. Architecturally the most striking thing in the country and much photographed for good reason. Smaller and more intimate than Kwitonda, with the same serious reforestation record behind it." },
             { name: "One&Only Gorilla's Nest", area: "Volcanoes", rate: null, note: "Set in a working eucalyptus forest at the foot of the volcanoes, and the largest of the three \u2014 the easiest choice for a family or a group travelling together, and the most conventionally hotel-like of them. Excellent spa, which after a hard trek is not a small thing." },
           ],
           ticketsTitle: "How the permits work",
-          ticketNote: "The permit is issued by the Rwanda Development Board, is dated to one specific morning and one specific gorilla family, and cannot be moved or resold once issued. Ninety-six exist per day for the whole country. Over the dry seasons they go months ahead, and there is no waiting list to join.\n\nYou do not need to approach the RDB yourself. Every lodge here applies on your behalf as part of the booking, which is the reason the lodge is the first thing to settle rather than the last. Ask them to confirm your permit is issued and dated before you book international flights.\n\nThe published permit rate has been US$1,500 per person per trek. Confirm the current figure with your lodge when you book \u2014 it is set by the RDB and we do not hold it.",
+          ticketNote: "The permit is issued by the Rwanda Development Board, is dated to one specific morning and one specific gorilla family, and cannot be moved or resold once issued. Ninety-six exist per day for the whole country. Over the dry seasons they go months ahead, and there is no waiting list to join.\n\nSingita and Wilderness both apply for permits on your behalf as part of the stay, which is the reason the lodge is the first thing to settle rather than the last. Not every property does \u2014 One&Only points guests to the RDB or a licensed operator \u2014 so ask the question when you enquire. Either way, get your permit issued and dated before you book international flights.\n\nPermit pricing is set by the RDB and moves; your lodge will quote the current figure when it applies for you.",
           stepsTitle: "How to build it, in order",
           steps: [
-            { h: "Choose the lodge and let it get your permits", b: "six to twelve months out for June to September or December to February. The lodge applies to the RDB; you confirm the dates. Nothing else can be booked sensibly until the permit morning is fixed." },
+            { h: "Choose the lodge, and settle the permits with it", b: "six to twelve months out for June to September or December to February. Ask straight away whether they apply to the RDB for you \u2014 Singita and Wilderness do. Nothing else can be booked sensibly until the permit morning is fixed." },
             { h: "Decide how many mornings", b: "one trek is what most people book and it is enough. Two is better \u2014 a second permit on a different family, on a different part of the mountain, and the second one is calmer because you know what is coming. Add golden monkey trekking as a third morning; it is a fraction of the cost and completely different in character." },
             { h: "Book flights into Kigali", b: "RwandAir, Qatar, Turkish, KLM and Brussels all serve KGL. Land the day before your first trek at the latest \u2014 never the same morning." },
             { h: "Settle the transfer", b: "road or helicopter, arranged by the lodge. Three hours up, twenty-five minutes if you fly." },
@@ -11273,6 +11280,8 @@ function OneList({ onPick, onBack, onHome }) {
       pickSettle: gg.pickSettle || ("We never fly you in on the day of the main event. We'll set your arrival a day or two ahead so you land with time to settle — and how long you stay in " + (ev.city || "town") + " is yours to widen next."),
       recapLabel: gg.recapLabel || "Debenture day",
       picked: gg.pickedLabel || "\u2713 Locked",
+      stayWord: gg.stayWord || "hotel",
+      stayEg: gg.stayEg || "e.g. Claridge's",
       ticketsTitle: gg.ticketsTitle || "Getting in, the right way",
       beyondTitle: gg.beyondTitle || "Beyond the main event",
       cur: gg.cur || "£",
@@ -11422,12 +11431,12 @@ function OneList({ onPick, onBack, onHome }) {
                   <div style={{ fontSize: on ? 15 : 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
                     <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
-                    <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : "Choose this hotel →"}</span>
+                    <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : `Select ${s.name} →`}</span>
                   </div>
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
                   {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book direct — tap any hotel below to change.</div> : null}
                 </button>); };
-            const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
+            const collection = (g.stayCollection && FAVORITES[g.stayCollection]) ? FAVORITES[g.stayCollection].filter((f) => !g.stay.some((s) => s.name === f.name)).filter((f) => !g.stayArea || dnrm(f.area || "").indexOf(dnrm(g.stayArea)) === 0).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
             const isKnown = (nm) => g.stay.some((s) => s.name === nm) || collection.some((s) => s.name === nm);
             const selName = stayPick ? stayPick.name : null;
             const inFeat = selName && g.stay.some((s) => s.name === selName);
@@ -11443,17 +11452,17 @@ function OneList({ onPick, onBack, onHome }) {
               {featOrdered.map((s, k) => stayCard(s, k))}
             </div>
             {collection.length ? (<div style={{ marginTop: 18 }}>
-              <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>The full Paris collection</div>
-              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10 }}>Every palace and grande-dame we book in Paris — choose any of them and we'll arrange the cars out to Roland-Garros.</div>
+              <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>The full {g.stayCollection || bareCity(ev.city)} collection</div>
+              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10 }}>{`Every ${L.stayWord} on our list for ${g.stayCollection || bareCity(ev.city)}. Choose any of them and book direct.`}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {collOrdered.map((s, k) => stayCard(s, k + 100))}
               </div>
             </div>) : null}
-            <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — final rates confirmed with you.</div>
+            <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — the property quotes the real one.</div>
             <div style={{ marginTop: 18 }}>
-              <div style={{ fontSize: 14, color: t.inkSoft, marginBottom: 8 }}>Prefer a different hotel? Type its name and we'll source it for you.</div>
+              <div style={{ fontSize: 14, color: t.inkSoft, marginBottom: 8 }}>{`Somewhere else in mind? Name it and we will tell you what we know about it.`}</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <input value={stayType} onChange={(e) => setStayType(e.target.value)} placeholder="e.g. Claridge's" style={{ flex: "1 1 220px", fontSize: 15, padding: "12px 13px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink, outline: "none" }} />
+                <input value={stayType} onChange={(e) => setStayType(e.target.value)} placeholder={L.stayEg} style={{ flex: "1 1 220px", fontSize: 15, padding: "12px 13px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink, outline: "none" }} />
                 <button onClick={() => { const n = stayType.trim(); if (n) setStayPick({ name: n, area: "Your choice", rate: null, note: "We'll source and confirm this hotel for you — rates on request." }); }} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 10, padding: "12px 20px", fontSize: 14, fontWeight: 500, cursor: "pointer" }}>Choose this →</button>
               </div>
             </div>
