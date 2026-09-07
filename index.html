@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M393";
+const BUILD = "M397";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7337,6 +7337,12 @@ const AIRPORTS = {
   // the US, Caribbean Airlines everywhere — intercontinental. Tobago (TAB) takes British Airways
   // seasonally and Condor, plus the air bridge — intercontinental for the app's purposes.
   "Rwanda": { code: "KGL", scale: "intercontinental" }, "Kigali": { code: "KGL", scale: "intercontinental" },
+  // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
+  // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
+  "Tromsø": { code: "TOS", scale: "regional" }, "Alta": { code: "ALF", scale: "regional" },
+  "Abisko": { code: "KRN", scale: "regional" }, "Kiruna": { code: "KRN", scale: "regional" },
+  "Rovaniemi": { code: "RVN", scale: "regional" }, "Levi": { code: "KTT", scale: "regional" },
+  "Saariselkä": { code: "IVL", scale: "regional" }, "Svalbard": { code: "LYR", scale: "regional" },
   "Port of Spain": { code: "POS", scale: "intercontinental" }, "Tobago": { code: "TAB", scale: "intercontinental" },
   // DOMINICA. Douglas-Charles (DOM) takes American from Miami and the regional carriers from
   // Antigua, St Maarten and San Juan — sellable, listed, and the door. Canefield by Roseau is
@@ -7728,6 +7734,10 @@ const ZONE = {
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
   "iceland": ["Reykjavik"],
+  // The aurora zone. Kept OUT of continental-europe deliberately: these are Arctic destinations
+  // reached on their own routes, and lumping them in with Paris and Rome would have the distance
+  // and drive-time rules treating a Lapland transfer as a European city hop.
+  "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
   "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Middleburg","Boca Raton","San Miguel de Allende","Menlo Park","Quer\u00e9taro","Caldwell","Boise","Nashville","Oxford, Mississippi","Greenville, Mississippi","Jackson, Mississippi","Marianna","Oklahoma City","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
@@ -7933,6 +7943,9 @@ const COORDS = {
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
+  // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
+  "Tromsø": [69.65,18.96], "Alta": [69.97,23.27], "Abisko": [68.35,18.83], "Kiruna": [67.86,20.23],
+  "Rovaniemi": [66.50,25.73], "Levi": [67.80,24.80], "Saariselkä": [68.42,27.42], "Svalbard": [78.22,15.63],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
   "Port of Spain": [10.65,-61.51], "Tobago": [11.22,-60.72], "Dominica": [15.42,-61.35], "Aruba": [12.52,-69.97], "Cura\u00e7ao": [12.17,-68.99], "Curacao": [12.17,-68.99], "Bonaire": [12.18,-68.26],
   "Martinique": [14.64,-61.02], "Guadeloupe": [16.24,-61.53], "St Kitts": [17.30,-62.73], "Nevis": [17.15,-62.58],
@@ -8225,6 +8238,7 @@ const CITY_ALIASES = {
   "new york": "New York City", "nyc": "New York City", "manhattan": "New York City", "new york ny": "New York City",
   "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
   "sf": "San Francisco", "san fran": "San Francisco",
+  "tromso": "Tromsø", "tromsø": "Tromsø", "swedish lapland": "Abisko", "finnish lapland": "Levi", "lapland": "Levi", "longyearbyen": "Svalbard",
   "kigali": "Rwanda", "volcanoes national park": "Rwanda", "volcanoes": "Rwanda", "musanze": "Rwanda", "ruhengeri": "Rwanda", "kinigi": "Rwanda", "virunga": "Rwanda",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
@@ -9540,7 +9554,7 @@ function VoyageOne() {
     const seededDines = seedKind === "dine" ? (ev.aecDays || []).map((d) => ({ name: d.tierName || d.label, level: "Destination", date: d.date, price: null })) : [];
     const seededTours = (ev.costume && evDates.length) ? [{ name: "Costume fitting · " + ev.costume.name, price: null, date: iso(addDays(new Date(evDates[0] + "T00:00:00"), -1)) }] : [];
     if (depart && ret) setDates({ depart, ret });
-    setDests([{ id: newId(), city: ev.city, air: ev.airport, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
+    setDests([{ id: newId(), city: ev.city, air: ev.airport, fromExperience: true, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
@@ -11034,7 +11048,45 @@ const ONE_LIST = {
     ],
     "Polar & Expedition": [
       { title: "Antarctica Expedition", city: "Ushuaia, Argentina", airport: "EZE", airportName: "Buenos Aires (gateway)", start: "", end: "", dateLabel: "Nov–Mar season", nights: 8, blurb: "The white continent by luxury expedition ship — penguins, calving glaciers, the last true wilderness." },
-      { title: "The Northern Lights", city: "Tromsø", airport: "TOS", airportName: "Tromsø", start: "", end: "", dateLabel: "Aurora season · Oct–Mar", nights: 4, blurb: "Chase the aurora above the Arctic Circle from a private glass lodge — by snowmobile, sled, and sky." },
+      { title: "The Northern Lights", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)", start: "", end: "", dateLabel: "Late Sept – late March", nights: 5, blurb: "Not Reykjavik. The aurora belongs to a band of the Arctic that runs through northern Norway, Sweden and Finland — and the whole trip turns on clear sky.",
+        photo: "northern lights Tromsø Norway",
+        gallery: ["northern lights aurora Norway Arctic", "Lyngen Alps Tromsø winter", "Abisko Sweden winter night"],
+        guide: {
+          cur: "€",
+          daysTitle: "How you actually see them",
+          daysIntro: "First, the thing nobody selling you a trip will say: THE AURORA IS NOT A DESTINATION, IT IS A FORECAST. Nobody can promise it. What a good trip does is stack every odd in your favour — and the odds are almost entirely about one thing.\n\nCLOUD, NOT LATITUDE. The lights are up there most clear nights of the season. What stops you seeing them is weather. So the right question is not \u2018where is furthest north\u2019 but \u2018where has the most clear nights, and can I move when it clouds over\u2019.\n\nThat single test is why REYKJAVIK IS THE WRONG ANSWER. Iceland sits at 64°N, just south of the band where the aurora actually sits, it is an island in the North Atlantic with the cloud to match, and the capital has streetlights. It is the most marketed aurora destination and close to the least reliable.\n\nThe band you want runs 66–70°N through northern Norway, Swedish Lapland and Finnish Lapland. Directly overhead, not on the horizon.\n\nAND GIVE IT FIVE NIGHTS. Two is a coin toss and people fly home angry. Five means a run of bad weather still leaves you two or three chances, and the difference in the odds between two nights and five is enormous — far bigger than the difference between any two lodges.",
+          stayLead: "Where to base yourself",
+          stayWord: "lodge",
+          stayEg: "e.g. a lodge in the Lyngen Alps",
+          stayNote: "THREE BASES, AND THEY ARE NOT INTERCHANGEABLE.\n\nTROMSØ AND THE LYNGEN ALPS, NORWAY — 69°N, directly under the band, and the one with real infrastructure: direct flights from Oslo several times a day, proper restaurants, and — the thing that matters — roads. When the coast clouds over, a guided chase drives you inland or across to Finland until you find a hole. The ability to MOVE is worth more than any window.\n\nABISKO, SWEDISH LAPLAND — 68°N, and the statistical winner. It sits in the rain shadow of the Scandinavian mountains, which produces the famous ‘blue hole of Abisko’: a patch of reliably clear sky when everything around it is socked in. Fewer roads and fewer options for dinner, but the highest clear-night rate in the region.\n\nFINNISH LAPLAND — 67–69°N, inland and therefore colder and drier than the Norwegian coast. This is glass-igloo country, and the one that works best with children: huskies, reindeer, and Christmas built into the place.\n\nWORTH KNOWING ABOUT GLASS IGLOOS: they photograph beautifully and they cannot move. Book one for a night or two as part of the trip, not for the whole of it — if the cloud sits over you for four nights, a glass roof shows you the underside of it.",
+          ticketsTitle: "When to go",
+          ticketNote: "THE SEASON IS LATE SEPTEMBER TO LATE MARCH, and it is set by darkness rather than by the aurora. In summer the sun never properly sets this far north, so there is nothing to see even on the most active night of the year.\n\nTHE EQUINOXES ARE THE INSIDER PICK. Late September and March run measurably more geomagnetic activity than the months either side — a real, documented effect of how the Earth's field lines up with the solar wind around the equinox. You also get milder weather, open roads, and in September the lakes are not yet frozen, so you can photograph the lights reflected. Most people book December. They have chosen the coldest weather and the worst of the coastal cloud.\n\nDECEMBER TO FEBRUARY gives the longest nights and the deepest cold, and is the right answer if you want the whole Arctic winter — huskies, snowmobiles, reindeer, Christmas.\n\nMOON PHASE matters far less than people think; a bright aurora outshines a full moon easily. Cloud is the only thing that beats you.\n\nAnd the solar cycle is on your side: the current cycle peaked in 2024–25, and the years just after a peak are historically when the biggest storms land.",
+          stepsTitle: "How to build it, in order",
+          steps: [
+            { h: "Pick the base, then give it five nights", b: "Tromsø if you want to be able to chase, Abisko if you want the best odds standing still, Finnish Lapland if there are children. Five nights minimum; four if you truly cannot." },
+            { h: "Book a guided chase for most of the nights, not one", b: "This is the single most important booking of the trip and the one people under-buy. A good guide is watching cloud maps all afternoon and will drive two hours to a clear valley — sometimes over a border. One booked night is a lottery ticket; four is a plan." },
+            { h: "Fly in through Oslo, Stockholm or Helsinki", b: "There is no long-haul into the aurora zone. Everything connects: Oslo to Tromsø, Stockholm to Kiruna for Abisko, Helsinki to Kittilä or Ivalo for Lapland. Give the connection real time — winter delays are routine and the last flight north goes early." },
+            { h: "Fill the days, because the lights are a night activity", b: "Whale watching off Tromsø in November and December, dog sledding, reindeer, the Ice Hotel at Jukkasjärvi near Abisko, snowmobiling. The days are what you actually remember; the aurora is the thing you hope for." },
+            { h: "Get the clothes right", b: "Most lodges lend proper Arctic outerwear — ask before you buy any. See the notes." },
+          ],
+          beyondTitle: "The rest of the trip",
+          beyond: [
+            { h: "Whale watching, Tromsø", b: "Late October to January, orcas and humpbacks follow the herring into the fjords north of the city. One of the great wildlife sightings in Europe and almost nobody comes for it." },
+            { h: "The Ice Hotel, Jukkasjärvi", b: "Twenty minutes from Kiruna, rebuilt from the river every winter. Worth one night as an experience and a warm room the rest — which is exactly how they sell it." },
+            { h: "Dog sledding, properly", b: "Not the twenty-minute version. A half-day out with your own team, through forest, in silence apart from the dogs." },
+            { h: "Svalbard, if you want the extreme", b: "78°N and four months of polar night, so the aurora can appear at what should be lunchtime. Genuine expedition territory rather than a holiday." },
+          ],
+          notes: [
+            "NOBODY CAN PROMISE YOU THE LIGHTS. Any operator who does is selling you something they do not control. What you buy is the number of chances — that is why nights matter more than anything.",
+            "THEY OFTEN LOOK GREY TO THE NAKED EYE. A faint aurora reads as a pale, moving smear; the camera sees the green. A strong one is unmistakable and needs no help. Go knowing this and you will not be disappointed by the first one.",
+            "DRESS FROM THE LODGE, NOT THE SHOP. Most good lodges lend full Arctic outerwear and boots, which are better than anything you would buy for one trip. Ask what is provided before spending on kit. Bring thermal base layers, wool socks and glove liners — those are yours.",
+            "SPARE BATTERIES, KEPT WARM. Cold flattens a camera or phone battery in minutes. Inside pocket, against your body.",
+            "STANDING STILL IN MINUS TWENTY IS THE HARD PART. Chases involve long waits outside. Boot warmers, a flask, and a vehicle you can retreat to — ask your guide what the plan is for warming up.",
+            "IT IS DARK MOST OF THE DAY IN DECEMBER AND JANUARY. Around Tromsø the sun does not clear the horizon at all from late November to mid-January. Beautiful blue light for a few hours, and a shock if nobody told you.",
+            "THE AURORA HAPPENS ON ITS OWN SCHEDULE, usually between about nine and one. Eat early, sleep late, and do not book anything demanding for the mornings.",
+          ],
+          handoff: "Next: flights up through Oslo, Stockholm or Helsinki, and your nights in the Arctic. Everything is booked by you, direct with the lodge and the guides.",
+        } },
     ],
     "Ski & Powder": [
       { title: "Japan, Deep Winter", city: "Niseko", airport: "CTS", airportName: "Sapporo New Chitose", start: "", end: "", dateLabel: "Powder weeks · Jan–Feb", nights: 6, blurb: "The lightest snow on earth, an onsen at dusk, kaiseki by night." },
@@ -13113,7 +13165,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
     </div>
   </div>);
 }
-function HotelPicker({ city, nights, pick, upd }) {
+function HotelPicker({ city, nights, pick, upd, fromExperience }) {
   const favs = lookup(FAVORITES, city) || [];
   // OPEN ON THE FIRST TAB THAT HAS SOMETHING IN IT. The default used to be Ultra Luxury,
   // unconditionally, which was fine when most curated cities had one. After the Sept 2026 tier
@@ -13136,6 +13188,14 @@ function HotelPicker({ city, nights, pick, upd }) {
   const liveAll = live ? Object.keys(remote.items || {}).reduce((acc, k) => acc.concat(remote.items[k] || []), []) : [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
+  const chosenName = pick.stay ? dnrm(pick.stay.name || "") : null;
+  const [showOthers, setShowOthers] = useState(false);
+  // A new city, or a cleared choice, starts from the open list again.
+  useEffect(() => { setShowOthers(false); }, [city, chosenName]);
+  const favChosen = chosenName ? levelFavs.filter((s) => dnrm(s.name) === chosenName) : [];
+  const favRest = chosenName ? levelFavs.filter((s) => dnrm(s.name) !== chosenName) : levelFavs;
+  const collapse = !!fromExperience && favChosen.length > 0 && !showOthers;
+  const favOrdered = collapse ? favChosen : [...favChosen, ...favRest];
   // THE LOCK NOW COVERS EVERY TIER. Ultra Luxury was always curated-only; Luxury and Best used
   // to be filled from the live Google feed, tiered by a star class synthesised from price band
   // and review count. That is how Zagreb — a city nobody has curated — came to offer hotels
@@ -13203,11 +13263,15 @@ function HotelPicker({ city, nights, pick, upd }) {
     {!collapsed && level && levelFavs.length > 0 && (<>
       <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-        {levelFavs.map((s, k) => { const sel = pick.stay && pick.stay.name === s.name; return (
-          <FavHotelCard key={k} s={s} city={city} cur={favCur} sel={!!sel}
-            onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} />); })}
+        {favOrdered.map((s, k) => { const sel = chosenName && dnrm(s.name) === chosenName; return (
+          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel}
+            onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} /></div>); })}
       </div>
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Tap a hotel to open it up and choose — then book it direct with the property.</div>
+      {fromExperience && favChosen.length && favRest.length ? (
+        <button onClick={() => setShowOthers(!showOthers)} style={{ marginTop: 12, background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
+          {showOthers ? "Hide the other options" : `See the other ${favRest.length} ${favRest.length === 1 ? "option" : "options"} in ${bareCity(city)}`}
+        </button>) : null}
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>{collapse ? "This is your choice — book it direct with the property, or see the other options above to change it." : "Tap one to open it up and choose — then book it direct with the property."}</div>
       {pick.stay && pick.stay.name ? (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px" }}>
         <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 9 }}>{pick.stay.name} — have you booked it yet?</div>
         <BookingRow item={pick.stay} onSet={(patch) => upd({ stay: { ...pick.stay, ...patch } })} />
@@ -13748,7 +13812,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
         <div style={{ maxWidth: 320 }}><LabeledCity label="Base town" value={baseTown} onChange={(v) => upd({ baseTown: v })} placeholder="Town name" big={false} /></div>
       </Panel>)}
       {baseTown && <Panel icon={BedDouble} title={`Where to stay in ${baseTown} · ${d.days} ${d.days === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}>
-        <HotelPicker city={baseTown} nights={d.days} pick={pick} upd={upd} />
+        <HotelPicker city={baseTown} nights={d.days} pick={pick} upd={upd} fromExperience={!!d.fromExperience} />
       </Panel>}
       {baseTown && gwNote && <Panel icon={Car} title={`Getting from ${gwNote.air} to ${baseTown}`}>
         {transferOptions(gwNote.air, baseTown).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
@@ -14202,7 +14266,7 @@ function CitySection({ d, i, p, from, legSched }) {
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
           </Panel>
-        : d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} /></Panel>}
+        : d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} fromExperience={!!d.fromExperience} /></Panel>}
       {/* At a ranch, a safari camp or a river lodge, "restaurants nearby" and "spas nearby" are
           not just unhelpful — they are wrong. There is nothing nearby. The property feeds you,
           guides you and has its own spa, and offering a list of the village's options makes the
