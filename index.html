@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M389";
+const BUILD = "M390";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7276,6 +7276,13 @@ const CITY_ARRIVAL = {
   // then said nothing about the twenty miles of open water between SXM and their hotel. Worse on
   // the way out: the flight home leaves St Maarten and nothing connected them back to it. The
   // hop is the trip here, in both directions, and it is now a choice on the screen like any other.
+  // Rwanda's lodges are all at Volcanoes, and the airport is not. Every client makes this
+  // transfer twice and the return one matters more — a trek finishes late morning and an
+  // international departure will not wait for a slow road.
+  "Rwanda": { icon: "car", note: "You land at Kigali (KGL) and the gorillas are at Volcanoes National Park, in the far northwest. There is no airstrip up there \u2014 it is a road transfer or a helicopter, and every lodge arranges the road one as a matter of course. TIME IT AROUND THE PERMIT: treks begin with a briefing at park headquarters at seven in the morning, so you want to be at the lodge the night before, never arriving the same day. Coming back, a trek can run to early afternoon before you are off the mountain \u2014 do not book an evening international departure on a trekking day.", modes: [
+    { mode: "Road transfer from Kigali", why: "Two and a half to three hours on a good tarmac road, climbing the whole way, and genuinely one of the most beautiful drives in Africa \u2014 terraced hills, and the volcanoes appearing in front of you. Your lodge arranges it and it is usually included; confirm that when you book rather than assuming.", price: null },
+    { mode: "Helicopter from Kigali", why: "Around twenty-five minutes over the hills instead of three hours on them. Worth it on a short stay, when the trek is the morning after you land, or for anyone who does not want the drive twice. Arranged through the lodge.", price: null },
+  ] },
   "St Barth": { icon: "plane", note: "You cannot fly to St Barth from anywhere far. Everything routes through St Maarten (SXM), and the last leg is a ten-minute hop over the ridge at Col de la Tourmente onto a very short runway \u2014 a landing worth being awake for. GOING HOME IS THE SAME LEG IN REVERSE, and it is the one people forget: Gustave III closes at dusk with no night landings ever, the hops fill over festive week, and you want to be back at SXM three hours before a long-haul departure. Book the return hop at the same time as the outbound one, not the week before.", modes: [
     { mode: "Winair", why: "The scheduled hop, ten minutes, several departures an hour in season. Baggage limits are real and small \u2014 a second seat for luggage is normal here. Your hotel will book it for you if you would rather they did.", price: null, link: "https://www.fly-winair.sx", linkLabel: "Winair" },
     { mode: "St Barth Commuter", why: "The island's own airline and the other half of the scheduled service, plus private charters on the same ten-minute crossing when the schedule does not suit.", price: null, link: "https://www.stbarthcommuter.com", linkLabel: "St Barth Commuter" },
@@ -8213,6 +8220,7 @@ const CITY_ALIASES = {
   "new york": "New York City", "nyc": "New York City", "manhattan": "New York City", "new york ny": "New York City",
   "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
   "sf": "San Francisco", "san fran": "San Francisco",
+  "kigali": "Rwanda", "volcanoes national park": "Rwanda", "volcanoes": "Rwanda", "musanze": "Rwanda", "ruhengeri": "Rwanda", "kinigi": "Rwanda", "virunga": "Rwanda",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
   "bvi": "British Virgin Islands", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "road town": "British Virgin Islands",
@@ -10968,7 +10976,52 @@ const ONE_LIST = {
   },
   "Signature Journeys": {
     "Safari & Wildlife": [
-      { title: "Gorilla Trekking, Rwanda", city: "Kigali", airport: "KGL", airportName: "Kigali Intl", start: "", end: "", dateLabel: "Best Jun–Sep & Dec–Feb", nights: 5, blurb: "An hour on foot with a mountain gorilla family in the Volcanoes — the rarest encounter in the wild." },
+      { title: "Gorilla Trekking, Rwanda", city: "Rwanda", airport: "KGL", airportName: "Kigali Intl (gateway)", start: "", end: "", dateLabel: "Best Jun–Sep & Dec–Feb", nights: 5, blurb: "An hour on foot with a mountain gorilla family in the Volcanoes — the rarest encounter in the wild.",
+        photo: "Singita Kwitonda Lodge Rwanda",
+        gallery: ["Singita Kwitonda Lodge Rwanda", "mountain gorilla Volcanoes National Park Rwanda", "Volcanoes National Park Rwanda landscape", "Bisate Lodge Rwanda"],
+        guide: {
+          cur: "$",
+          daysTitle: "What the hour is actually like",
+          daysIntro: "There are around a thousand mountain gorillas left, and every one of them lives on the same range of volcanoes shared by Rwanda, Uganda and the DRC. You cannot see them anywhere else on earth. Not in a zoo \u2014 there has never been a mountain gorilla in captivity.\n\nRwanda is the civilised way to do it. You sleep in one of the best lodges in Africa, drive forty minutes to the park gate, and walk. Sometimes it is ninety minutes uphill through nettles and bamboo; sometimes the family has come down to the farmland and you are there in twenty. Nobody can tell you in advance.\n\nThen a silverback the size of a small car looks up, decides you are not interesting, and goes back to eating. A juvenile rolls down the slope past your feet. You have exactly one hour, and it goes in about ten minutes.\n\nTHE WHOLE TRIP HANGS ON A PERMIT. Rwanda issues ninety-six a day \u2014 twelve habituated families, eight people each, no exceptions and no standby. That single piece of paper is the reservation; everything else is arranged around it.\n\nThe lodge is how you get one. Book the lodge first and it applies for your permits as part of the stay.",
+          stayLead: "The lodges at Volcanoes",
+          stayNote: "Four lodges, three of them within sight of the volcanoes. This is the booking that matters \u2014 it sets your permit, your transfer and your trekking mornings, so it comes before everything else. Choose one and it moves to the top; then book it direct.",
+          stayCollection: "Rwanda",
+          stay: [
+            { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, note: "The one to want, and the reason most people come to Rwanda rather than Uganda. Eight suites and a private four-bedroom house on the park boundary itself, each with its own heated plunge pool and a fireplace, looking straight up at Sabyinyo, Gahinga and Muhabura. Singita bought a hundred and seventy-eight acres of exhausted farmland and has been putting the forest back \u2014 a quarter of a million indigenous trees so far, and a nursery on site that grows them. Everything is handled: permits, the transfer, the porters, the boots you forgot. If you are doing this once, do it here." },
+            { name: "Wilderness Bisate", area: "Volcanoes", rate: null, note: "Six green dome-villas built into the eroded cone of an old volcano, with the Bisate amphitheatre falling away beneath you and the peaks in front. Architecturally the most striking thing in the country and much photographed for good reason. Smaller and more intimate than Kwitonda, with the same serious reforestation record behind it." },
+            { name: "One&Only Gorilla's Nest", area: "Volcanoes", rate: null, note: "Set in a working eucalyptus forest at the foot of the volcanoes, and the largest of the three \u2014 the easiest choice for a family or a group travelling together, and the most conventionally hotel-like of them. Excellent spa, which after a hard trek is not a small thing." },
+          ],
+          ticketsTitle: "How the permits work",
+          ticketNote: "The permit is issued by the Rwanda Development Board, is dated to one specific morning and one specific gorilla family, and cannot be moved or resold once issued. Ninety-six exist per day for the whole country. Over the dry seasons they go months ahead, and there is no waiting list to join.\n\nYou do not need to approach the RDB yourself. Every lodge here applies on your behalf as part of the booking, which is the reason the lodge is the first thing to settle rather than the last. Ask them to confirm your permit is issued and dated before you book international flights.\n\nThe published permit rate has been US$1,500 per person per trek. Confirm the current figure with your lodge when you book \u2014 it is set by the RDB and we do not hold it.",
+          stepsTitle: "How to build it, in order",
+          steps: [
+            { h: "Choose the lodge and let it get your permits", b: "six to twelve months out for June to September or December to February. The lodge applies to the RDB; you confirm the dates. Nothing else can be booked sensibly until the permit morning is fixed." },
+            { h: "Decide how many mornings", b: "one trek is what most people book and it is enough. Two is better \u2014 a second permit on a different family, on a different part of the mountain, and the second one is calmer because you know what is coming. Add golden monkey trekking as a third morning; it is a fraction of the cost and completely different in character." },
+            { h: "Book flights into Kigali", b: "RwandAir, Qatar, Turkish, KLM and Brussels all serve KGL. Land the day before your first trek at the latest \u2014 never the same morning." },
+            { h: "Settle the transfer", b: "road or helicopter, arranged by the lodge. Three hours up, twenty-five minutes if you fly." },
+            { h: "Give Kigali a day", b: "on the way in or the way out. The Genocide Memorial is not optional if you want to understand where you are, and the city is safe, clean and far more interesting than anyone expects." },
+            { h: "Get the kit right", b: "gaiters and thick gardening gloves are the two things people wish they had. See the notes below." },
+          ],
+          beyondTitle: "The rest of the trip",
+          beyond: [
+            { h: "Golden monkey trekking", b: "The other primate on the same volcanoes, and a completely different hour \u2014 fast, noisy, acrobatic, and in bamboo forest rather than up a mountain. A fraction of the permit price and the best second morning available." },
+            { h: "The Dian Fossey tomb hike", b: "Three hours up to the ruins of Karisoke, where she worked for eighteen years and where she is buried beside Digit. Steep, wet, and the emotional heart of the whole place if you have read the book." },
+            { h: "Kigali Genocide Memorial", b: "Where more than two hundred and fifty thousand people are buried. It is quiet, superbly done and extremely hard. Allow half a day and do not plan anything demanding afterwards." },
+            { h: "Nyungwe Forest", b: "Ancient rainforest in the southwest, chimpanzees, and a canopy walkway strung across a ravine. A four-hour drive from Kigali, and the natural add-on if you want a second week." },
+            { h: "Akagera, for the Big Five", b: "Two and a half hours east of Kigali, and now a proper Big Five park again after lion and rhino were brought back. Rwanda is the only country where you can do gorillas and a Big Five safari in the same week." },
+          ],
+          notes: [
+            "MINIMUM AGE FIFTEEN, STRICTLY ENFORCED. It is a health rule, not a policy \u2014 gorillas share enough of our DNA to catch what we carry. Nobody younger goes, whatever the family is paying.",
+            "GAITERS AND GARDENING GLOVES. The stinging nettles on those slopes are waist-high and vicious, and every trekker who did not bring thick gloves regrets it within twenty minutes. Long sleeves, long trousers tucked into boots.",
+            "HIRE A PORTER. Around twenty dollars, they carry your bag and haul you up the steep bits, and the money goes to people from the villages around the park \u2014 many of them former poachers. There is no reason not to.",
+            "TELL THEM HONESTLY HOW FIT YOU ARE. Families are allocated at the seven a.m. briefing and some live much further up than others. If you say you want an easier walk, you will usually get one \u2014 but only if you say so before the allocation, not after.",
+            "IT WILL RAIN. This is rainforest at three thousand metres and there is no dry month, only drier ones. Waterproofs, and a dry bag for your camera.",
+            "NO FLASH, AND KEEP BACK SEVEN METRES. The distance rule is real and the trackers enforce it \u2014 though nobody has explained the rule to the gorillas, who wander through it constantly.",
+            "ONE HOUR MEANS ONE HOUR. It starts when the family is found. Do not spend it behind a phone.",
+            "THE DRY SEASONS ARE JUNE TO SEPTEMBER AND DECEMBER TO FEBRUARY \u2014 easier walking and better light, and the months permits sell out first. The wet months are cheaper, greener and much muddier, and the gorillas do not care either way.",
+          ],
+          handoff: "Plan this trip opens Rwanda \u2014 the four lodges, the flights into Kigali, and the transfer up to Volcanoes. Everything is booked by you, direct with the lodge, and the lodge is the one that applies for your gorilla permits.",
+        } },
       { title: "The Galápagos", city: "Galápagos", airport: "UIO", airportName: "Quito (gateway)", start: "", end: "", dateLabel: "Year-round · driest Jun–Dec", nights: 6, blurb: "A private yacht among the islands that taught the world about life — tortoises, boobies, sea lions." },
     ],
     "Polar & Expedition": [
