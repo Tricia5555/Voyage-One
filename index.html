@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M397";
+const BUILD = "M399";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10997,7 +10997,7 @@ const ONE_LIST = {
     "Safari & Wildlife": [
       { title: "Gorilla Trekking, Rwanda", city: "Rwanda", airport: "KGL", airportName: "Kigali Intl (gateway)", start: "", end: "", dateLabel: "Best Jun–Sep & Dec–Feb", nights: 5, blurb: "An hour on foot with a mountain gorilla family in the Volcanoes — the rarest encounter in the wild.",
         photo: "Singita Kwitonda Lodge Rwanda",
-        gallery: ["mountain gorilla Volcanoes National Park Rwanda", "Volcanoes National Park Rwanda landscape", "Bisate Lodge Rwanda"],
+        gallery: ["mountain gorilla Volcanoes National Park Rwanda", "Bisate Lodge Rwanda"],
         guide: {
           cur: "$",
           daysTitle: "What the hour is actually like",
@@ -11026,11 +11026,11 @@ const ONE_LIST = {
           ],
           beyondTitle: "The rest of the trip",
           beyond: [
-            { h: "Golden monkey trekking", b: "The other primate on the same volcanoes, and a completely different hour \u2014 fast, noisy, acrobatic, and in bamboo forest rather than up a mountain. A fraction of the permit price and the best second morning available." },
-            { h: "The Dian Fossey tomb hike", b: "Three hours up to the ruins of Karisoke, where she worked for eighteen years and where she is buried beside Digit. Steep, wet, and the emotional heart of the whole place if you have read the book." },
-            { h: "Kigali Genocide Memorial", b: "Where more than two hundred and fifty thousand people are buried. It is quiet, superbly done and extremely hard. Allow half a day and do not plan anything demanding afterwards." },
-            { h: "Nyungwe Forest", b: "Ancient rainforest in the southwest, chimpanzees, and a canopy walkway strung across a ravine. A four-hour drive from Kigali, and the natural add-on if you want a second week." },
-            { h: "Akagera, for the Big Five", b: "Two and a half hours east of Kigali, and now a proper Big Five park again after lion and rhino were brought back. Rwanda is the only country where you can do gorillas and a Big Five safari in the same week." },
+            { name: "Golden monkey trekking", note: "The other primate on the same volcanoes, and a completely different hour \u2014 fast, noisy, acrobatic, and in bamboo forest rather than up a mountain. A fraction of the permit price and the best second morning available." },
+            { name: "The Dian Fossey tomb hike", note: "Three hours up to the ruins of Karisoke, where she worked for eighteen years and where she is buried beside Digit. Steep, wet, and the emotional heart of the whole place if you have read the book." },
+            { name: "Kigali Genocide Memorial", note: "Where more than two hundred and fifty thousand people are buried. It is quiet, superbly done and extremely hard. Allow half a day and do not plan anything demanding afterwards." },
+            { name: "Nyungwe Forest", note: "Ancient rainforest in the southwest, chimpanzees, and a canopy walkway strung across a ravine. A four-hour drive from Kigali, and the natural add-on if you want a second week." },
+            { name: "Akagera, for the Big Five", note: "Two and a half hours east of Kigali, and now a proper Big Five park again after lion and rhino were brought back. Rwanda is the only country where you can do gorillas and a Big Five safari in the same week." },
           ],
           notes: [
             "MINIMUM AGE FIFTEEN, STRICTLY ENFORCED. It is a health rule, not a policy \u2014 gorillas share enough of our DNA to catch what we carry. Nobody younger goes, whatever the family is paying.",
@@ -11054,12 +11054,22 @@ const ONE_LIST = {
         guide: {
           cur: "€",
           daysTitle: "How you actually see them",
-          daysIntro: "First, the thing nobody selling you a trip will say: THE AURORA IS NOT A DESTINATION, IT IS A FORECAST. Nobody can promise it. What a good trip does is stack every odd in your favour — and the odds are almost entirely about one thing.\n\nCLOUD, NOT LATITUDE. The lights are up there most clear nights of the season. What stops you seeing them is weather. So the right question is not \u2018where is furthest north\u2019 but \u2018where has the most clear nights, and can I move when it clouds over\u2019.\n\nThat single test is why REYKJAVIK IS THE WRONG ANSWER. Iceland sits at 64°N, just south of the band where the aurora actually sits, it is an island in the North Atlantic with the cloud to match, and the capital has streetlights. It is the most marketed aurora destination and close to the least reliable.\n\nThe band you want runs 66–70°N through northern Norway, Swedish Lapland and Finnish Lapland. Directly overhead, not on the horizon.\n\nAND GIVE IT FIVE NIGHTS. Two is a coin toss and people fly home angry. Five means a run of bad weather still leaves you two or three chances, and the difference in the odds between two nights and five is enormous — far bigger than the difference between any two lodges.",
+          daysIntro: "First, the thing nobody selling you a trip will say: THE AURORA IS NOT A DESTINATION, IT IS A FORECAST. Nobody can promise it. What a good trip does is stack every odd in your favour — and the odds are almost entirely about one thing.\n\nCLOUD, NOT LATITUDE. The lights are up there most clear nights of the season. What stops you seeing them is weather. So the right question is not \u2018where is furthest north\u2019 but \u2018where has the most clear nights, and can I move when it clouds over\u2019.\n\nThat single test is why REYKJAVIK IS THE WRONG ANSWER. Iceland sits at 64°N, just south of the band where the aurora actually sits, it is an island in the North Atlantic with the cloud to match, and the capital has streetlights. It is the most marketed aurora destination and close to the least reliable.\n\nThe band you want runs 66–70°N through northern Norway, Swedish Lapland and Finnish Lapland. Directly overhead, not on the horizon.\n\nBELOW YOU CHOOSE YOUR BASE — three of them, and they are genuinely different trips. Then, when to go, which most people get wrong.\n\nAND GIVE IT FIVE NIGHTS. Two is a coin toss and people fly home angry. Five means a run of bad weather still leaves you two or three chances, and the difference in the odds between two nights and five is enormous — far bigger than the difference between any two lodges.",
+          basePicksTitle: "Choose your base",
+          basePicksHelp: "This is the decision, and it changes the trip more than anything else you pick. Choose one and Plan this trip builds around it — flights, nights and all.",
+          basePicks: [
+            { name: "Tromsø and the Lyngen Alps", sub: "Norway · 69°N · fly via Oslo", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)",
+              note: "The one that can move. Direct flights from Oslo several times a day, proper restaurants, and roads in every direction — so when the coast clouds over, a guided chase drives inland or across into Finland until it finds clear sky. Whales in the fjords in November and December. Choose this if you want the best all-round trip and the ability to outrun weather." },
+            { name: "Abisko", sub: "Swedish Lapland · 68°N · fly via Stockholm to Kiruna", city: "Abisko", airport: "KRN", airportName: "Kiruna (via Stockholm)",
+              note: "The statistical winner. It sits in the rain shadow of the mountains, which produces the ‘blue hole of Abisko’ — a patch of reliably clear sky when everything around it is closed in. Fewer roads and far less to do at dinner. Choose this if the lights are the point and you will accept a quieter trip to get them." },
+            { name: "Finnish Lapland", sub: "Levi and Saariselkä · 67–69°N · fly via Helsinki", city: "Levi", airport: "KTT", airportName: "Kittilä (via Helsinki)",
+              note: "Inland, so colder and drier than the Norwegian coast, and the one that works with children — huskies, reindeer, snowmobiles and Christmas built into the place. This is glass-igloo country. Choose this if the days matter as much as the nights." },
+          ],
           stayLead: "Where to base yourself",
           stayWord: "lodge",
           stayEg: "e.g. a lodge in the Lyngen Alps",
           stayNote: "THREE BASES, AND THEY ARE NOT INTERCHANGEABLE.\n\nTROMSØ AND THE LYNGEN ALPS, NORWAY — 69°N, directly under the band, and the one with real infrastructure: direct flights from Oslo several times a day, proper restaurants, and — the thing that matters — roads. When the coast clouds over, a guided chase drives you inland or across to Finland until you find a hole. The ability to MOVE is worth more than any window.\n\nABISKO, SWEDISH LAPLAND — 68°N, and the statistical winner. It sits in the rain shadow of the Scandinavian mountains, which produces the famous ‘blue hole of Abisko’: a patch of reliably clear sky when everything around it is socked in. Fewer roads and fewer options for dinner, but the highest clear-night rate in the region.\n\nFINNISH LAPLAND — 67–69°N, inland and therefore colder and drier than the Norwegian coast. This is glass-igloo country, and the one that works best with children: huskies, reindeer, and Christmas built into the place.\n\nWORTH KNOWING ABOUT GLASS IGLOOS: they photograph beautifully and they cannot move. Book one for a night or two as part of the trip, not for the whole of it — if the cloud sits over you for four nights, a glass roof shows you the underside of it.",
-          ticketsTitle: "When to go",
+          ticketsTitle: "When to go — and why most people pick the wrong month",
           ticketNote: "THE SEASON IS LATE SEPTEMBER TO LATE MARCH, and it is set by darkness rather than by the aurora. In summer the sun never properly sets this far north, so there is nothing to see even on the most active night of the year.\n\nTHE EQUINOXES ARE THE INSIDER PICK. Late September and March run measurably more geomagnetic activity than the months either side — a real, documented effect of how the Earth's field lines up with the solar wind around the equinox. You also get milder weather, open roads, and in September the lakes are not yet frozen, so you can photograph the lights reflected. Most people book December. They have chosen the coldest weather and the worst of the coastal cloud.\n\nDECEMBER TO FEBRUARY gives the longest nights and the deepest cold, and is the right answer if you want the whole Arctic winter — huskies, snowmobiles, reindeer, Christmas.\n\nMOON PHASE matters far less than people think; a bright aurora outshines a full moon easily. Cloud is the only thing that beats you.\n\nAnd the solar cycle is on your side: the current cycle peaked in 2024–25, and the years just after a peak are historically when the biggest storms land.",
           stepsTitle: "How to build it, in order",
           steps: [
@@ -11071,10 +11081,10 @@ const ONE_LIST = {
           ],
           beyondTitle: "The rest of the trip",
           beyond: [
-            { h: "Whale watching, Tromsø", b: "Late October to January, orcas and humpbacks follow the herring into the fjords north of the city. One of the great wildlife sightings in Europe and almost nobody comes for it." },
-            { h: "The Ice Hotel, Jukkasjärvi", b: "Twenty minutes from Kiruna, rebuilt from the river every winter. Worth one night as an experience and a warm room the rest — which is exactly how they sell it." },
-            { h: "Dog sledding, properly", b: "Not the twenty-minute version. A half-day out with your own team, through forest, in silence apart from the dogs." },
-            { h: "Svalbard, if you want the extreme", b: "78°N and four months of polar night, so the aurora can appear at what should be lunchtime. Genuine expedition territory rather than a holiday." },
+            { name: "Whale watching, Tromsø", note: "Late October to January, orcas and humpbacks follow the herring into the fjords north of the city. One of the great wildlife sightings in Europe and almost nobody comes for it." },
+            { name: "The Ice Hotel, Jukkasjärvi", note: "Twenty minutes from Kiruna, rebuilt from the river every winter. Worth one night as an experience and a warm room the rest — which is exactly how they sell it." },
+            { name: "Dog sledding, properly", note: "Not the twenty-minute version. A half-day out with your own team, through forest, in silence apart from the dogs." },
+            { name: "Svalbard, if you want the extreme", note: "78°N and four months of polar night, so the aurora can appear at what should be lunchtime. Genuine expedition territory rather than a holiday." },
           ],
           notes: [
             "NOBODY CAN PROMISE YOU THE LIGHTS. Any operator who does is selling you something they do not control. What you buy is the number of chances — that is why nights matter more than anything.",
@@ -11264,6 +11274,7 @@ function OneList({ onPick, onBack, onHome }) {
   const [openDay, setOpenDay] = useState(null);
   const [costumePick, setCostumePick] = useState(null);
   const [stayPick, setStayPick] = useState(null);
+  const [basePick, setBasePick] = useState(null);
   const [stayType, setStayType] = useState("");
   // dineSel: a shortlist of tables (name -> {name,area,note,stars}); dineType: free-text request.
   const [dineSel, setDineSel] = useState({});
@@ -11318,12 +11329,13 @@ function OneList({ onPick, onBack, onHome }) {
     // Most experiences need the pick — the Venice ball tier and the Wimbledon match days set
     // the dates. Where the pick is just the client's own shortlist, gating the button behind it
     // stranded them on the page. picksOptional says so and the button is live on arrival.
-    const ready = !needPick || !!(g && g.picksOptional) || selDays.length > 0;
+    const baseReady = !(g && g.basePicks && g.basePicks.length) || !!basePick;
+    const ready = (!needPick || !!(g && g.picksOptional) || selDays.length > 0) && baseReady;
     const selDayLabels = selDays.map((d) => d.label);
     const sortedDays = selDays.map((d) => d.date).sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
     const dineList = Object.keys(dineSel).map((n) => dineSel[n]);
-    const planEv = { ...ev, ...planDates, stay: stayPick || null, aecDays: selDays, costume: costumePick || null, dining: dineList };
+    const planEv = { ...ev, ...planDates, ...(basePick ? { city: basePick.city, airport: basePick.airport, airportName: basePick.airportName || basePick.name } : {}), stay: stayPick || null, aecDays: selDays, costume: costumePick || null, dining: dineList };
     const gg = g || {};
     const L = {
       daysTitle: gg.daysTitle || "The days",
@@ -11404,6 +11416,21 @@ function OneList({ onPick, onBack, onHome }) {
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
             {g.daysIntro ? <div style={{ marginBottom: 14 }}>{proseBlock(g.daysIntro, { fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 })}</div> : null}
+            {g.basePicks ? (<div style={{ marginBottom: 18 }}>
+              {secHead(g.basePicksTitle || "Where to base yourself")}
+              {g.basePicksHelp ? <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.basePicksHelp}</div> : null}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {g.basePicks.map((bp, bi) => { const on = basePick && basePick.name === bp.name; return (
+                  <button key={bi} onClick={() => setBasePick(on ? null : bp)} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: on ? "17px 18px" : "13px 15px", cursor: "pointer" }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontFamily: font.display, fontSize: on ? 22 : 18, color: on ? t.paper : t.ink, lineHeight: 1.2 }}>{bp.name}</span>
+                      {bp.sub ? <span style={{ display: "block", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: on ? t.brassLight : t.brass, marginTop: 5 }}>{bp.sub}</span> : null}
+                      {bp.note ? <span style={{ display: "block", fontSize: on ? 14.5 : 13.5, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{bp.note}</span> : null}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass, whiteSpace: "nowrap", marginTop: 3 }}>{on ? "\u2713 Your base" : "Choose"}</span>
+                  </button>); })}
+              </div>
+            </div>) : null}
             {arriveCallout}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
@@ -11458,7 +11485,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {photoBand(1)}
-          {g.tickets ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
           {photoBand(2)}
           {g.costumes ? (<div>{secHead(g.costumesTitle || "Costumes & masks")}{g.costumeNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.costumeNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -11511,7 +11538,7 @@ function OneList({ onPick, onBack, onHome }) {
                 {collOrdered.map((s, k) => stayCard(s, k + 100))}
               </div>
             </div>) : null}
-            <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — the property quotes the real one.</div>
+            {[...g.stay, ...collection].some((x) => x && x.rate) ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 8, fontStyle: "italic" }}>Indicative nightly rates where shown — the property quotes the real one.</div> : null}
             <div style={{ marginTop: 18 }}>
               <div style={{ fontSize: 14, color: t.inkSoft, marginBottom: 8 }}>{`Somewhere else in mind? Name it and we will tell you what we know about it.`}</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
