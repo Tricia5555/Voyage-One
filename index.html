@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M403";
+const BUILD = "M404";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -231,15 +231,19 @@ const EXPERIENCE_LODGING = [
   // below Voyage One's five-star floor and is listed anyway, because the destination is remote,
   // no true five-star exists, and the property materially improves the trip. Never to be shown as
   // Luxury or Ultra Luxury — the tier says what it is.
-  "Lyngen Lodge", "Abisko Mountain Lodge",
+  "Lyngen Lodge", "Lyngen North",
+  "Abisko Mountain Lodge", "STF Abisko Turiststation",
   "Arctic TreeHouse Hotel", "Apukka Resort",
   "Levin Iglut", "Northern Lights Ranch", "Reindeer Manor",
+  // NOT NAMED IN THE BRIEF. It says only "the strongest appropriate city hotel" for Tromsø and
+  // warns against falsely elevating one, so these two sit here rather than in Luxury. Which city
+  // hotel Tromsø should carry — or whether it should carry one at all — is Tricia's call.
   "Clarion Hotel The Edge", "Scandic Ishavshotel",
 ];
 const BEST_AVAILABLE = [
-  // AURORA ZONE, functional tier. Everything the brief names sits in EXPERIENCE_LODGING above;
-  // these two remain Best because they are what they are — a mountain station and an ice hotel.
-  "STF Abisko Turiststation", "ICEHOTEL",
+  // WITHHELD, not deleted: ICEHOTEL at Jukkasjärvi. It is a real and famous property but the
+  // Northern Lights brief does not name it, so it is off the page pending Tricia's decision.
+  // "ICEHOTEL",
   "M\u00f6venpick Resort Petra", "Petra Marriott Hotel",
   // Zapallar has no five-star hotel and will not have one. Isla Seca is the right answer there.
   "Hotel Isla Seca",
@@ -2409,21 +2413,21 @@ const FAVORITES = {
     { name: "Great Plains Zarafa Camp", area: "Selinda", rate: null, ourTake: "Four vast tents in a private wilderness, conservation at its soul." },
   ],
   "Tromsø": [
-    { name: "Lyngen Lodge", area: "Djupvik, Lyngen Alps · 2 hr from Tromsø", rate: null, ourTake: "EXPERIENCE LODGING, and the reason is worth saying plainly: this is not a five-star hotel and does not pretend to be one. Eight rooms, sixteen guests at most, fully staffed with its own chefs, hosts and activity guides, in a remote mountain setting where the aurora often appears straight off the terrace. Meals, equipment and the whole activity programme are handled on the property. It is special because of what it IS, not because of a star rating." },
-    { name: "Clarion Hotel The Edge", area: "Tromsø harbour", rate: null, ourTake: "The strongest city hotel in Tromsø, on the harbour looking across to the Arctic Cathedral — and honestly below the Voyage One five-star floor, which is why it is not filed as Luxury. It is here because the city half of this trip needs a good bed within walking distance of the restaurants and the tour pickups, and this is the best of them." },
-    { name: "Scandic Ishavshotel", area: "Tromsø harbour", rate: null, ourTake: "The sail-roofed one on the quay, and the other sound city choice. Sea-view rooms over the harbour, everything walkable. Same caveat as The Edge: a very good city hotel, not a luxury one." },
+    { name: "Lyngen Lodge", area: "Lyngen Alps · 2 hr from Tromsø", rate: null, ourTake: "EXPERIENCE LODGING, and the value is the remoteness rather than a star rating. Around eight rooms and sixteen guests at most, fully staffed with its own chefs, hosts and activity guides, in a mountain setting where the aurora can often be watched straight from the lodge. A strong Arctic activity programme and all meals handled on the property. NOT a conventional five-star hotel, and not filed as one." },
+    { name: "Lyngen North", area: "Lyngen region", rate: null, ourTake: "EXPERIENCE LODGING. Design-forward, glass-fronted rooms built for watching the sky from bed, in a properly remote setting. The alternative to Lyngen Lodge for clients who care most about the architecture and the view rather than the full-board hosted programme." },
+    { name: "Clarion Hotel The Edge", area: "Tromsø harbour", rate: null, ourTake: "A practical city base for the nights either side of Lyngen — on the harbour, walking distance to the restaurants and the tour pickups. It does not meet the Voyage One five-star standard and is deliberately not filed as Luxury." },
+    { name: "Scandic Ishavshotel", area: "Tromsø harbour", rate: null, ourTake: "The sail-roofed hotel on the quay, and the other sound city option. Sea-view rooms over the harbour. Same honest caveat as The Edge: a good city hotel, not a luxury one." },
   ],
   "Abisko": [
-    { name: "Abisko Mountain Lodge", area: "Abisko village", rate: null, ourTake: "EXPERIENCE LODGING and the right base here. Well located, comfortable, properly run, with on-site dining and its own guided aurora outings. THE ROOMS ARE SIMPLE AND RELATIVELY SMALL — that is the trade, and it is a fair one, because pretending a five-star hotel exists in Abisko would be a lie. You are here for the sky." },
-    { name: "STF Abisko Turiststation", area: "Inside Abisko National Park", rate: null, ourTake: "The mountain station inside the park, at the foot of the chairlift to the Aurora Sky Station. Functional and adventure-oriented rather than a hotel — useful operationally, and unbeatable on position, but go in knowing what it is." },
-    { name: "ICEHOTEL", area: "Jukkasjärvi · 1 hr 30 from Abisko", rate: null, ourTake: "Carved from the Torne river and rebuilt every December with art suites by a different set of designers each season. One night, then a warm room — which is how they sell it. Worth building in around Kiruna rather than as a base." },
+    { name: "Abisko Mountain Lodge", area: "Abisko", rate: null, ourTake: "EXPERIENCE LODGING and the right base in Abisko. Practical, comfortable, well located, with an on-site restaurant and a respected adventure-lodge atmosphere. THE ROOMS ARE SIMPLE AND RELATIVELY SMALL — that is the trade you make for the clearest skies in the region, and it is a fair one." },
+    { name: "STF Abisko Turiststation", area: "Abisko National Park", rate: null, ourTake: "FUNCTIONAL EXPERIENCE LODGING — the backup, and useful when it is. Unbeatable access to the national park and the Aurora Sky Station lift, and built for outdoor activity rather than comfort. More adventure station than hotel, and we would rather say that than sell it as something else." },
   ],
   "Rovaniemi": [
-    { name: "Arctic TreeHouse Hotel", area: "Rovaniemi", rate: null, ourTake: "EXPERIENCE LODGING. Glass-fronted nests raised into the forest, with private-villa options for families who want more room. Visually one of the most striking places to stay in Lapland, genuinely good for aurora watching from bed, and a very easy sell to children." },
+    { name: "Arctic TreeHouse Hotel", area: "Rovaniemi", rate: null, ourTake: "EXPERIENCE LODGING. Glass-fronted nests raised into the forest, visually one of the most striking places to stay in Lapland and genuinely good for watching the aurora from bed. ASK FOR AN ARCTIC GLASSHOUSE OR ABOVE — the smallest TreeHouse Suites are noticeably tighter than the category you want, and the private villas are there for families who need the room." },
     { name: "Apukka Resort", area: "Rovaniemi", rate: null, ourTake: "EXPERIENCE LODGING, and probably the easiest family recommendation in the whole of Lapland. Glass-roofed accommodation, an aurora programme of its own, reindeer and huskies on site, thermal clothing and transfers included. If a family wants THE FULL LAPLAND FANTASY handled for them, this is the one." },
   ],
   "Levi": [
-    { name: "Levin Iglut", area: "Utsuvaara fell · 9 km from Levi", rate: null, ourTake: "EXPERIENCE LODGING. Thermal glass igloos high on the fell, which puts you above the valley haze — the reason the aurora reads so well from here. Restaurant Utsu on site is the best cooking in Levi. The suite igloos are the ones to take." },
+    { name: "Levin Iglut — Golden Crown", area: "Utsuvaara fell · 9 km from Levi", rate: null, ourTake: "EXPERIENCE LODGING. Thermal glass igloos high on the fell, which puts you above the valley haze — the reason the aurora reads so well from here. TAKE A SUITE IGLOO: around fifty-three square metres with a private terrace and an outdoor jacuzzi, and a different proposition from the smallest igloos. Restaurant Utsu is on site." },
     { name: "Northern Lights Ranch", area: "Köngäs · near Levi", rate: null, ourTake: "EXPERIENCE LODGING. Around sixteen Sky View cabins and no more, with reindeer grazing beside the restaurant and an aurora-viewing setup built into the design. Intimate in a way the resort hotels are not." },
     { name: "Reindeer Manor", area: "Levi", rate: null, ourTake: "EXPERIENCE LODGING. About ten glass-igloo suites with private jacuzzis and reindeer on the property. Family-friendly and thoroughly experiential — the one that makes children remember the trip." },
   ],
@@ -6276,32 +6280,26 @@ const LOCALFAV = {
   // NO ARTIST OR DJ IS NAMED ANYWHERE, deliberately. Nikki Beach and Gyp Sea announce their
   // programmes in the autumn and they change every year; hard-coding one would be wrong within
   // twelve months. Re-verify each autumn.
+  // THE AURORA ZONE, per Tricia's Northern Lights paste list. WITHHELD, not deleted, pending her
+  // decision: Emmas Drømmekjøkken, Fiskekompaniet, Bardus Bistro, Mathallen and Risø in Tromsø;
+  // Restaurang Lapporten and Veranda near Abisko; Roka Street Bistro in Rovaniemi; King Crab
+  // House and Ristorante Renna in Levi. All real, none named in the brief, so none on the page.
+  // Nili was also wrongly filed under Levi here — it is a Rovaniemi restaurant and has moved.
   "tromsø": [
-    { n: "Emmas Drømmekjøkken", us:0, contact: { tel: "+47 77 63 77 30" },
-      note: "Tromsø's long-standing best table — ‘Emma’s dream kitchen’, upstairs on Kirkegata, doing northern Norwegian cooking properly. BOOK IT BEFORE YOU FLY: it is small and it fills weeks ahead in aurora season." },
-    { n: "Fiskekompaniet", us:0, contact: { tel: "+47 77 68 76 00" },
-      note: "On the quay, and the serious fish restaurant in town — king crab, halibut, scallops, much of it landed within sight of the window. The one to take people to." },
-    { n: "Smak", us:0, note: "A tasting menu built entirely from northern Norwegian ingredients, and the most ambitious cooking in the city. Small room, one sitting, book ahead." },
-    { n: "Bardus Bistro", us:0, note: "The relaxed, reliable one — a good bistro in the centre where you can eat well without ceremony after a day outside." },
-    { n: "Mathallen Tromsø", us:0, note: "Delicatessen at the front, restaurant behind. The best lunch in town and the place to buy what you want to take to the cabin." },
-    { n: "Risø Mat & Kaffebar", us:0, note: "The coffee bar the town actually uses. Where the day starts before a chase night." },
+    { n: "Restaurant Smak", us:0, note: "THE special dinner in Tromsø. A tasting menu with a strong northern Norwegian identity built on Arctic seafood — polished, and the right choice for the one big evening of the city half of this trip. Small room; book it before you fly." },
+    { n: "Lyngen Lodge dining", us:0, note: "For lodge guests, and the reason not to go looking for dinner out at Lyngen. Full board — breakfast, lunch and snacks after the day's activity, then a three-course dinner built on local Arctic ingredients: fish, reindeer, lamb. THE DINING IS PART OF THE EXPERIENCE, not an add-on, and the lodge is two hours from anywhere you would rather eat." },
   ],
   "abisko": [
-    { n: "Brasserie Fjällköket", us:0, note: "At Abisko Mountain Lodge, and the special dinner of this leg — local Arctic ingredients, cooked properly, in the one place here doing it. NON-RESIDENTS CAN USUALLY BOOK, but ring ahead; they cook for numbers." },
-    { n: "STF Abisko Turiststation Restaurant", us:0, note: "Panoramic windows over Lake Torneträsk and the Lapporten pass. Straightforward mountain-station food and a very good breakfast buffet — you are eating here for the view and the convenience, and both are excellent." },
-    { n: "Restaurang Lapporten, Björkliden", us:0, note: "Twenty minutes up the valley at Björkliden, and the alternative when Abisko is full. Local cooking, ski-slope setting." },
-    { n: "Veranda, ICEHOTEL", us:0, note: "At Jukkasjärvi near Kiruna, and the most ambitious kitchen in Swedish Lapland — reindeer, char, cloudberries, done seriously. Worth the drive on an Icehotel night." },
+    { n: "Brasserie Fjällköket", us:0, note: "At Abisko Mountain Lodge, and the primary special dinner for Abisko — local Arctic ingredients and seasonal northern cooking, on site, which in Abisko matters more than it would anywhere else. The strongest integrated dinner in the area by some distance." },
   ],
   "rovaniemi": [
-    { n: "Nili", us:0, note: "The classic Lapland table — reindeer, elk, Arctic char and cloudberries in a log room. Where you go for the flavours people come north for." },
-    { n: "Arctic Restaurant", us:0, note: "The polished modern Scandinavian dinner in Rovaniemi, and the one to book for the grown-up evening of the trip." },
-    { n: "Roka Street Bistro", us:0, note: "Casual and very good — the easy lunch or unfussy dinner after a day with the huskies. Small, so book it." },
+    { n: "Nili", us:0, note: "The primary traditional Lapland dinner — reindeer, Arctic fish, berries and mushrooms, in a room with a real sense of place. The one that tastes like where you are." },
+    { n: "Rakas Restaurant & Bar", us:0, note: "At the Arctic TreeHouse Hotel, and the polished on-property option — modern Scandinavian in a good-looking room. Convenient if you are staying there and worth a table if you are not." },
+    { n: "Arctic Restaurant", us:0, note: "Contemporary northern cooking on Arctic ingredients, in the centre of town. The alternative to Nili when you want the modern version rather than the traditional one." },
   ],
   "levi": [
-    { n: "Restaurant Utsu", us:0, note: "At Levin Iglut on the Utsuvaara fell, and the best cooking in Levi by a distance — a short surprise menu that changes constantly, Arctic char and duck done with real ambition. Reservations essential, and open to non-residents." },
-    { n: "Nili", us:0, note: "The Lappish institution: reindeer, elk, char and cloudberries in a log room hung with Sami textiles. Touristy in the best sense, and the food is genuinely good." },
-    { n: "King Crab House", us:0, note: "Exactly what it says. Barents Sea king crab, simply cooked, and the one dish people fly north for without realising it." },
-    { n: "Ristorante Renna", us:0, note: "Italian, in Lapland, and much better than that has any right to be — the answer on the fourth night when nobody can face another reindeer." },
+    { n: "Restaurant Utsu", us:0, note: "At Levin Iglut, and the best table in Levi — refined Nordic cooking on local ingredients, served in a glass-roofed dining room where the aurora can quite genuinely appear over dinner. RESERVATIONS STRONGLY RECOMMENDED." },
+    { n: "Restaurant Northern Lights Ranch", us:0, note: "Nordic and Lappish cooking with an international hand, and a reindeer enclosure beside the dining room — which makes it the easy family choice as well as a good dinner. Very convenient if you are staying at the Ranch." },
   ],
   "st barth": [
     { n: "Bagatelle St Barth", us:0, contact: { tel: "+590 590 27 51 51" },
@@ -11137,6 +11135,7 @@ const ONE_LIST = {
           stepsTitle: "How to build it, in order",
           steps: [
             { h: "Pick the base, then give it three nights at least", b: "Tromsø and Lyngen if you want the best-balanced trip, Abisko if the odds are all that matter, Rovaniemi or Levi if there are children. THREE NIGHTS IN THE AURORA ZONE IS THE MINIMUM AND FOUR IS BETTER. For Tromsø the shape is two nights in the city, then two or three at Lyngen." },
+            { h: "At Lyngen, eat at the lodge", b: "Full board is how Lyngen Lodge works and the dining is part of the experience — breakfast, lunch and something hot after the activity, then a three-course dinner on Arctic ingredients. Do not plan to go out; there is nowhere within two hours you would rather be. Save the restaurant evening for Tromsø, and make it Smak." },
             { h: "Book a guided chase for most of the nights, not one", b: "This is the single most important booking of the trip and the one people under-buy. A good guide is watching cloud maps all afternoon and will drive two hours to a clear valley — sometimes over a border. One booked night is a lottery ticket; four is a plan." },
             { h: "Book the connection on ONE ticket", b: "There is no long-haul into the aurora zone — every route connects, and which hub depends entirely on the base you chose: Oslo for Tromsø, Stockholm for Kiruna and Abisko, Helsinki for Kittilä and Levi. Put the short northern leg on the same ticket as the long-haul, so a winter delay is the airline’s problem and not yours. The last flight north goes early in the evening; miss it and you lose a night of your five." },
             { h: "Fill the days, because the lights are a night activity", b: "Whale watching off Tromsø in November and December, dog sledding, reindeer, the Ice Hotel at Jukkasjärvi near Abisko, snowmobiling. The days are what you actually remember; the aurora is the thing you hope for." },
