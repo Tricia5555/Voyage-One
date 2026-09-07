@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M399";
+const BUILD = "M400";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11387,6 +11387,24 @@ function OneList({ onPick, onBack, onHome }) {
           {/* An optional narrative opener: what this event actually IS, before we ask anyone to
               choose anything. Only renders when the event supplies it, so nothing else changes. */}
           {g.about ? (<div>{secHead(g.aboutTitle || "The festival")}<div style={{ display: "flex", flexDirection: "column", gap: 13 }}>{g.about.map((x, k) => (<div key={k} style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.68 }}>{x}</div>))}</div></div>) : null}
+            {/* An experience with no day picks still has an argument to make. Branches A and B
+                render daysIntro themselves; this covers the third, where it used to vanish. */}
+            {!picks && g.daysIntro ? (<div style={{ marginBottom: 18 }}>{secHead(L.daysTitle)}{proseBlock(g.daysIntro, { fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 })}</div>) : null}
+            {g.basePicks ? (<div style={{ marginBottom: 18 }}>
+              {secHead(g.basePicksTitle || "Where to base yourself")}
+              {g.basePicksHelp ? <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.basePicksHelp}</div> : null}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {g.basePicks.map((bp, bi) => { const on = basePick && basePick.name === bp.name; return (
+                  <button key={bi} onClick={() => setBasePick(on ? null : bp)} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: on ? "17px 18px" : "13px 15px", cursor: "pointer" }}>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: "block", fontFamily: font.display, fontSize: on ? 22 : 18, color: on ? t.paper : t.ink, lineHeight: 1.2 }}>{bp.name}</span>
+                      {bp.sub ? <span style={{ display: "block", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: on ? t.brassLight : t.brass, marginTop: 5 }}>{bp.sub}</span> : null}
+                      {bp.note ? <span style={{ display: "block", fontSize: on ? 14.5 : 13.5, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{bp.note}</span> : null}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass, whiteSpace: "nowrap", marginTop: 3 }}>{on ? "\u2713 Your base" : "Choose"}</span>
+                  </button>); })}
+              </div>
+            </div>) : null}
           {picks && multiMode ? (<div>
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
@@ -11416,21 +11434,6 @@ function OneList({ onPick, onBack, onHome }) {
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
             {g.daysIntro ? <div style={{ marginBottom: 14 }}>{proseBlock(g.daysIntro, { fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 })}</div> : null}
-            {g.basePicks ? (<div style={{ marginBottom: 18 }}>
-              {secHead(g.basePicksTitle || "Where to base yourself")}
-              {g.basePicksHelp ? <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.basePicksHelp}</div> : null}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {g.basePicks.map((bp, bi) => { const on = basePick && basePick.name === bp.name; return (
-                  <button key={bi} onClick={() => setBasePick(on ? null : bp)} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, textAlign: "left", background: on ? t.pine : t.white, border: `1.5px solid ${on ? t.pine : t.line}`, borderRadius: 11, padding: on ? "17px 18px" : "13px 15px", cursor: "pointer" }}>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: "block", fontFamily: font.display, fontSize: on ? 22 : 18, color: on ? t.paper : t.ink, lineHeight: 1.2 }}>{bp.name}</span>
-                      {bp.sub ? <span style={{ display: "block", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: on ? t.brassLight : t.brass, marginTop: 5 }}>{bp.sub}</span> : null}
-                      {bp.note ? <span style={{ display: "block", fontSize: on ? 14.5 : 13.5, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{bp.note}</span> : null}
-                    </span>
-                    <span style={{ fontSize: 13, fontWeight: on ? 700 : 600, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal", color: on ? t.brassLight : t.brass, whiteSpace: "nowrap", marginTop: 3 }}>{on ? "\u2713 Your base" : "Choose"}</span>
-                  </button>); })}
-              </div>
-            </div>) : null}
             {arriveCallout}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {picks.map((p, k) => { const on = aecPick && aecPick.label === p.label; return (
