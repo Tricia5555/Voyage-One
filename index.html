@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M400";
+const BUILD = "M403";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -40,7 +40,7 @@ const t = {
   line: "#E4DDD0", card: "#F3EEE4", mist: "#EDE9E0", white: "#FFFFFF",
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
-const LEVELS = ["UltraLux", "Luxury", "ExpLux", "Best"];
+const LEVELS = ["UltraLux", "Luxury", "ExpLux", "ExpLodge", "Best"];
 // EXPERIENCE LUXURY. A tier for places where the right way to be there is not a hotel at all —
 // a Wadi Rum desert camp, a tented lodge on the migration route, a riad with six rooms. These
 // are not compromises and must not be filed as Best, which means "the ceiling here is below
@@ -226,7 +226,20 @@ const SEASON = {
   "Cartagena": { window: "December to April", note: "The dry season, and hot regardless. From May the humidity becomes heavy and the afternoon rain arrives; October is the wettest month of the year." },
 };
 function seasonFor(city) { if (!city) return null; const k = Object.keys(SEASON).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? SEASON[k] : null; }
+const EXPERIENCE_LODGING = [
+  // THE ARCTIC EXCEPTION, Sept 2026, per Tricia's Northern Lights brief. Every property here sits
+  // below Voyage One's five-star floor and is listed anyway, because the destination is remote,
+  // no true five-star exists, and the property materially improves the trip. Never to be shown as
+  // Luxury or Ultra Luxury — the tier says what it is.
+  "Lyngen Lodge", "Abisko Mountain Lodge",
+  "Arctic TreeHouse Hotel", "Apukka Resort",
+  "Levin Iglut", "Northern Lights Ranch", "Reindeer Manor",
+  "Clarion Hotel The Edge", "Scandic Ishavshotel",
+];
 const BEST_AVAILABLE = [
+  // AURORA ZONE, functional tier. Everything the brief names sits in EXPERIENCE_LODGING above;
+  // these two remain Best because they are what they are — a mountain station and an ice hotel.
+  "STF Abisko Turiststation", "ICEHOTEL",
   "M\u00f6venpick Resort Petra", "Petra Marriott Hotel",
   // Zapallar has no five-star hotel and will not have one. Isla Seca is the right answer there.
   "Hotel Isla Seca",
@@ -689,6 +702,7 @@ const ULX_ALNUM = ULTRA_LUX.map(ulxAlnum);
 const ULX_TOKENSETS = ULTRA_LUX.map(ulxTokens);
 const EXP_ALNUM = EXPERIENCE_LUX.map(ulxAlnum);
 const BEST_ALNUM = BEST_AVAILABLE.map(ulxAlnum);
+const LODGE_ALNUM = EXPERIENCE_LODGING.map(ulxAlnum);
 const BEST_TOKENSETS = BEST_AVAILABLE.map(ulxTokens);
 const EXP_TOKENSETS = EXPERIENCE_LUX.map(ulxTokens);
 // The canon matcher, shared by Ultra Luxury and Experience Luxury so the two tiers can never
@@ -766,6 +780,7 @@ function strictCanon(name, alnums) {
 function tierOf(name) {
   if (strictCanon(name, ULX_ALNUM)) return "UltraLux";
   if (strictCanon(name, EXP_ALNUM)) return "ExpLux";
+  if (strictCanon(name, LODGE_ALNUM)) return "ExpLodge";
   if (strictCanon(name, BEST_ALNUM)) return "Best";
   return "Luxury";
 }
@@ -2392,6 +2407,25 @@ const FAVORITES = {
   ],
   "Botswana": [
     { name: "Great Plains Zarafa Camp", area: "Selinda", rate: null, ourTake: "Four vast tents in a private wilderness, conservation at its soul." },
+  ],
+  "Tromsø": [
+    { name: "Lyngen Lodge", area: "Djupvik, Lyngen Alps · 2 hr from Tromsø", rate: null, ourTake: "EXPERIENCE LODGING, and the reason is worth saying plainly: this is not a five-star hotel and does not pretend to be one. Eight rooms, sixteen guests at most, fully staffed with its own chefs, hosts and activity guides, in a remote mountain setting where the aurora often appears straight off the terrace. Meals, equipment and the whole activity programme are handled on the property. It is special because of what it IS, not because of a star rating." },
+    { name: "Clarion Hotel The Edge", area: "Tromsø harbour", rate: null, ourTake: "The strongest city hotel in Tromsø, on the harbour looking across to the Arctic Cathedral — and honestly below the Voyage One five-star floor, which is why it is not filed as Luxury. It is here because the city half of this trip needs a good bed within walking distance of the restaurants and the tour pickups, and this is the best of them." },
+    { name: "Scandic Ishavshotel", area: "Tromsø harbour", rate: null, ourTake: "The sail-roofed one on the quay, and the other sound city choice. Sea-view rooms over the harbour, everything walkable. Same caveat as The Edge: a very good city hotel, not a luxury one." },
+  ],
+  "Abisko": [
+    { name: "Abisko Mountain Lodge", area: "Abisko village", rate: null, ourTake: "EXPERIENCE LODGING and the right base here. Well located, comfortable, properly run, with on-site dining and its own guided aurora outings. THE ROOMS ARE SIMPLE AND RELATIVELY SMALL — that is the trade, and it is a fair one, because pretending a five-star hotel exists in Abisko would be a lie. You are here for the sky." },
+    { name: "STF Abisko Turiststation", area: "Inside Abisko National Park", rate: null, ourTake: "The mountain station inside the park, at the foot of the chairlift to the Aurora Sky Station. Functional and adventure-oriented rather than a hotel — useful operationally, and unbeatable on position, but go in knowing what it is." },
+    { name: "ICEHOTEL", area: "Jukkasjärvi · 1 hr 30 from Abisko", rate: null, ourTake: "Carved from the Torne river and rebuilt every December with art suites by a different set of designers each season. One night, then a warm room — which is how they sell it. Worth building in around Kiruna rather than as a base." },
+  ],
+  "Rovaniemi": [
+    { name: "Arctic TreeHouse Hotel", area: "Rovaniemi", rate: null, ourTake: "EXPERIENCE LODGING. Glass-fronted nests raised into the forest, with private-villa options for families who want more room. Visually one of the most striking places to stay in Lapland, genuinely good for aurora watching from bed, and a very easy sell to children." },
+    { name: "Apukka Resort", area: "Rovaniemi", rate: null, ourTake: "EXPERIENCE LODGING, and probably the easiest family recommendation in the whole of Lapland. Glass-roofed accommodation, an aurora programme of its own, reindeer and huskies on site, thermal clothing and transfers included. If a family wants THE FULL LAPLAND FANTASY handled for them, this is the one." },
+  ],
+  "Levi": [
+    { name: "Levin Iglut", area: "Utsuvaara fell · 9 km from Levi", rate: null, ourTake: "EXPERIENCE LODGING. Thermal glass igloos high on the fell, which puts you above the valley haze — the reason the aurora reads so well from here. Restaurant Utsu on site is the best cooking in Levi. The suite igloos are the ones to take." },
+    { name: "Northern Lights Ranch", area: "Köngäs · near Levi", rate: null, ourTake: "EXPERIENCE LODGING. Around sixteen Sky View cabins and no more, with reindeer grazing beside the restaurant and an aurora-viewing setup built into the design. Intimate in a way the resort hotels are not." },
+    { name: "Reindeer Manor", area: "Levi", rate: null, ourTake: "EXPERIENCE LODGING. About ten glass-igloo suites with private jacuzzis and reindeer on the property. Family-friendly and thoroughly experiential — the one that makes children remember the trip." },
   ],
   "Rwanda": [
     { name: "One&Only Gorilla's Nest", area: "Volcanoes National Park", rate: null, ourTake: "An eucalyptus-forest lodge at the foot of the gorilla volcanoes." },
@@ -6242,6 +6276,33 @@ const LOCALFAV = {
   // NO ARTIST OR DJ IS NAMED ANYWHERE, deliberately. Nikki Beach and Gyp Sea announce their
   // programmes in the autumn and they change every year; hard-coding one would be wrong within
   // twelve months. Re-verify each autumn.
+  "tromsø": [
+    { n: "Emmas Drømmekjøkken", us:0, contact: { tel: "+47 77 63 77 30" },
+      note: "Tromsø's long-standing best table — ‘Emma’s dream kitchen’, upstairs on Kirkegata, doing northern Norwegian cooking properly. BOOK IT BEFORE YOU FLY: it is small and it fills weeks ahead in aurora season." },
+    { n: "Fiskekompaniet", us:0, contact: { tel: "+47 77 68 76 00" },
+      note: "On the quay, and the serious fish restaurant in town — king crab, halibut, scallops, much of it landed within sight of the window. The one to take people to." },
+    { n: "Smak", us:0, note: "A tasting menu built entirely from northern Norwegian ingredients, and the most ambitious cooking in the city. Small room, one sitting, book ahead." },
+    { n: "Bardus Bistro", us:0, note: "The relaxed, reliable one — a good bistro in the centre where you can eat well without ceremony after a day outside." },
+    { n: "Mathallen Tromsø", us:0, note: "Delicatessen at the front, restaurant behind. The best lunch in town and the place to buy what you want to take to the cabin." },
+    { n: "Risø Mat & Kaffebar", us:0, note: "The coffee bar the town actually uses. Where the day starts before a chase night." },
+  ],
+  "abisko": [
+    { n: "Brasserie Fjällköket", us:0, note: "At Abisko Mountain Lodge, and the special dinner of this leg — local Arctic ingredients, cooked properly, in the one place here doing it. NON-RESIDENTS CAN USUALLY BOOK, but ring ahead; they cook for numbers." },
+    { n: "STF Abisko Turiststation Restaurant", us:0, note: "Panoramic windows over Lake Torneträsk and the Lapporten pass. Straightforward mountain-station food and a very good breakfast buffet — you are eating here for the view and the convenience, and both are excellent." },
+    { n: "Restaurang Lapporten, Björkliden", us:0, note: "Twenty minutes up the valley at Björkliden, and the alternative when Abisko is full. Local cooking, ski-slope setting." },
+    { n: "Veranda, ICEHOTEL", us:0, note: "At Jukkasjärvi near Kiruna, and the most ambitious kitchen in Swedish Lapland — reindeer, char, cloudberries, done seriously. Worth the drive on an Icehotel night." },
+  ],
+  "rovaniemi": [
+    { n: "Nili", us:0, note: "The classic Lapland table — reindeer, elk, Arctic char and cloudberries in a log room. Where you go for the flavours people come north for." },
+    { n: "Arctic Restaurant", us:0, note: "The polished modern Scandinavian dinner in Rovaniemi, and the one to book for the grown-up evening of the trip." },
+    { n: "Roka Street Bistro", us:0, note: "Casual and very good — the easy lunch or unfussy dinner after a day with the huskies. Small, so book it." },
+  ],
+  "levi": [
+    { n: "Restaurant Utsu", us:0, note: "At Levin Iglut on the Utsuvaara fell, and the best cooking in Levi by a distance — a short surprise menu that changes constantly, Arctic char and duck done with real ambition. Reservations essential, and open to non-residents." },
+    { n: "Nili", us:0, note: "The Lappish institution: reindeer, elk, char and cloudberries in a log room hung with Sami textiles. Touristy in the best sense, and the food is genuinely good." },
+    { n: "King Crab House", us:0, note: "Exactly what it says. Barents Sea king crab, simply cooked, and the one dish people fly north for without realising it." },
+    { n: "Ristorante Renna", us:0, note: "Italian, in Lapland, and much better than that has any right to be — the answer on the fourth night when nobody can face another reindeer." },
+  ],
   "st barth": [
     { n: "Bagatelle St Barth", us:0, contact: { tel: "+590 590 27 51 51" },
       note: "Gustavia harbour, reachable by boat or car — the island's signature dinner-into-party room. ASK FOR AN INSIDE TABLE: the inside room carries the atmosphere, and taking whatever is offered is how people end up on the quiet terrace." },
@@ -11000,13 +11061,13 @@ const ONE_LIST = {
         gallery: ["mountain gorilla Volcanoes National Park Rwanda", "Bisate Lodge Rwanda"],
         guide: {
           cur: "$",
-          daysTitle: "What the hour is actually like",
+          daysTitle: "What it is really like",
           daysIntro: "There are around a thousand mountain gorillas left, and every one of them lives on the same range of volcanoes shared by Rwanda, Uganda and the DRC. You cannot see them anywhere else on earth. Not in a zoo \u2014 there has never been a mountain gorilla in captivity.\n\nRwanda is the civilised way to do it. You sleep in one of the best lodges in Africa, drive forty minutes to the park gate, and walk. Sometimes it is ninety minutes uphill through nettles and bamboo; sometimes the family has come down to the farmland and you are there in twenty. Nobody can tell you in advance.\n\nThen a silverback the size of a small car looks up, decides you are not interesting, and goes back to eating. A juvenile rolls down the slope past your feet. You have exactly one hour, and it goes in about ten minutes.\n\nTHE WHOLE TRIP HANGS ON A PERMIT. Rwanda issues ninety-six a day \u2014 twelve habituated families, eight people each, no exceptions and no standby. That single piece of paper is the reservation; everything else is arranged around it.\n\nThe lodge is how you get one. Book the lodge first and it applies for your permits as part of the stay.",
           stayWord: "lodge",
           stayEg: "e.g. Sabyinyo Silverback Lodge",
           stayArea: "Volcanoes",
           stayLead: "The lodges at Volcanoes National Park",
-          stayNote: "WHY THE VOLCANOES ARE THE DIVIDER: mountain gorillas live on one range and nowhere else \u2014 the Virunga volcanoes, shared by Rwanda, Uganda and the DRC. Volcanoes National Park is the Rwandan side of that range, so being at the volcanoes IS being at the gorillas. Every lodge below is on its edge, within forty minutes of the park gate where treks begin. Anything further out means a longer drive before a seven a.m. briefing.\n\nThis is also the booking that matters most \u2014 it drives your permit, your transfer and your trekking mornings. Choose one and it moves to the top; then book it direct.",
+          stayNote: "THREE LODGES, ALL ON THE PARK BOUNDARY.\n\nWHY THE VOLCANOES ARE THE DIVIDER: mountain gorillas live on one range and nowhere else \u2014 the Virunga volcanoes, shared by Rwanda, Uganda and the DRC. Volcanoes National Park is the Rwandan side of that range, so being at the volcanoes IS being at the gorillas. Every lodge below is on its edge, within forty minutes of the park gate where treks begin. Anything further out means a longer drive before a seven a.m. briefing.\n\nThis is also the booking that matters most \u2014 it drives your permit, your transfer and your trekking mornings. Choose one and it moves to the top; then book it direct.",
           stayCollection: "Rwanda",
           stay: [
             { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, note: "The one to want, and the reason most people come to Rwanda rather than Uganda. Suites and a private four-bedroom house, Kataza, on the park boundary itself \u2014 each with a heated plunge pool and indoor and outdoor fireplaces, looking straight up at Sabyinyo, Gahinga and Muhabura. Singita bought a hundred and seventy-eight acres of exhausted farmland and has been putting the forest back \u2014 a quarter of a million indigenous trees so far, and a nursery on site that grows them. Everything is handled: permits, the transfer, the porters, the boots you forgot. If you are doing this once, do it here." },
@@ -11042,40 +11103,42 @@ const ONE_LIST = {
             "ONE HOUR MEANS ONE HOUR. It starts when the family is found. Do not spend it behind a phone.",
             "THE DRY SEASONS ARE JUNE TO SEPTEMBER AND DECEMBER TO FEBRUARY \u2014 easier walking and better light, and the months permits sell out first. The wet months are cheaper, greener and much muddier, and the gorillas do not care either way.",
           ],
-          handoff: "Plan this trip opens Rwanda \u2014 the four lodges, the flights into Kigali, and the transfer up to Volcanoes. Everything is booked by you, direct with the lodge, and the lodge is the one that applies for your gorilla permits.",
+          handoff: "Plan this trip opens Rwanda \u2014 the three lodges at the volcanoes, the flights into Kigali, and the transfer up to Volcanoes. Everything is booked by you, direct with the lodge, and the lodge is the one that applies for your gorilla permits.",
         } },
       { title: "The Galápagos", city: "Galápagos", airport: "UIO", airportName: "Quito (gateway)", start: "", end: "", dateLabel: "Year-round · driest Jun–Dec", nights: 6, blurb: "A private yacht among the islands that taught the world about life — tortoises, boobies, sea lions." },
     ],
     "Polar & Expedition": [
       { title: "Antarctica Expedition", city: "Ushuaia, Argentina", airport: "EZE", airportName: "Buenos Aires (gateway)", start: "", end: "", dateLabel: "Nov–Mar season", nights: 8, blurb: "The white continent by luxury expedition ship — penguins, calving glaciers, the last true wilderness." },
-      { title: "The Northern Lights", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)", start: "", end: "", dateLabel: "Late Sept – late March", nights: 5, blurb: "Not Reykjavik. The aurora belongs to a band of the Arctic that runs through northern Norway, Sweden and Finland — and the whole trip turns on clear sky.",
+      { title: "The Northern Lights", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)", start: "", end: "", dateLabel: "Late Sept – late March", nights: 4, blurb: "Not Reykjavik. The aurora belongs to a band of the Arctic that runs through northern Norway, Sweden and Finland — and the whole trip turns on clear sky.",
         photo: "northern lights Tromsø Norway",
         gallery: ["northern lights aurora Norway Arctic", "Lyngen Alps Tromsø winter", "Abisko Sweden winter night"],
         guide: {
           cur: "€",
           daysTitle: "How you actually see them",
-          daysIntro: "First, the thing nobody selling you a trip will say: THE AURORA IS NOT A DESTINATION, IT IS A FORECAST. Nobody can promise it. What a good trip does is stack every odd in your favour — and the odds are almost entirely about one thing.\n\nCLOUD, NOT LATITUDE. The lights are up there most clear nights of the season. What stops you seeing them is weather. So the right question is not \u2018where is furthest north\u2019 but \u2018where has the most clear nights, and can I move when it clouds over\u2019.\n\nThat single test is why REYKJAVIK IS THE WRONG ANSWER. Iceland sits at 64°N, just south of the band where the aurora actually sits, it is an island in the North Atlantic with the cloud to match, and the capital has streetlights. It is the most marketed aurora destination and close to the least reliable.\n\nThe band you want runs 66–70°N through northern Norway, Swedish Lapland and Finnish Lapland. Directly overhead, not on the horizon.\n\nBELOW YOU CHOOSE YOUR BASE — three of them, and they are genuinely different trips. Then, when to go, which most people get wrong.\n\nAND GIVE IT FIVE NIGHTS. Two is a coin toss and people fly home angry. Five means a run of bad weather still leaves you two or three chances, and the difference in the odds between two nights and five is enormous — far bigger than the difference between any two lodges.",
-          basePicksTitle: "Choose your base",
-          basePicksHelp: "This is the decision, and it changes the trip more than anything else you pick. Choose one and Plan this trip builds around it — flights, nights and all.",
+          daysIntro: "First, the thing nobody selling you a trip will say: THE AURORA IS NOT A DESTINATION, IT IS A FORECAST. Nobody can promise it. What a good trip does is stack every odd in your favour — and the odds are almost entirely about one thing.\n\nCLOUD, NOT LATITUDE. The lights are up there most clear nights of the season. What stops you seeing them is weather. So the right question is not \u2018where is furthest north\u2019 but \u2018where has the most clear nights, and can I move when it clouds over\u2019.\n\nThat single test is why REYKJAVIK IS THE WRONG ANSWER. Iceland sits at 64°N, just south of the band where the aurora actually sits, it is an island in the North Atlantic with the cloud to match, and the capital has streetlights. It is the most marketed aurora destination and close to the least reliable.\n\nThe band you want runs 66–70°N through northern Norway, Swedish Lapland and Finnish Lapland. Directly overhead, not on the horizon.\n\nBELOW YOU CHOOSE YOUR BASE — three of them, and they are genuinely different trips. Then, when to go, which most people get wrong.\n\nSO DO NOT BUY A NIGHT. Buy an Arctic trip built around the chance of seeing them. THREE NIGHTS IN THE AURORA ZONE IS THE FLOOR AND FOUR IS BETTER — cloud, weather, solar activity and local conditions all get a vote, and one evening guarantees nothing whatsoever. Nobody can promise you the lights, and anyone who does is selling something they do not control. What you are buying is the number of chances.",
+          basePicksTitle: "Three ways to do this, and they are not equivalent",
+          basePicksHelp: "The difference between these matters more than anything else you will decide, so it is on the table before you book rather than after. Choose one and Plan this trip builds around it — flights, nights and all.",
           basePicks: [
-            { name: "Tromsø and the Lyngen Alps", sub: "Norway · 69°N · fly via Oslo", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)",
-              note: "The one that can move. Direct flights from Oslo several times a day, proper restaurants, and roads in every direction — so when the coast clouds over, a guided chase drives inland or across into Finland until it finds clear sky. Whales in the fjords in November and December. Choose this if you want the best all-round trip and the ability to outrun weather." },
-            { name: "Abisko", sub: "Swedish Lapland · 68°N · fly via Stockholm to Kiruna", city: "Abisko", airport: "KRN", airportName: "Kiruna (via Stockholm)",
-              note: "The statistical winner. It sits in the rain shadow of the mountains, which produces the ‘blue hole of Abisko’ — a patch of reliably clear sky when everything around it is closed in. Fewer roads and far less to do at dinner. Choose this if the lights are the point and you will accept a quieter trip to get them." },
-            { name: "Finnish Lapland", sub: "Levi and Saariselkä · 67–69°N · fly via Helsinki", city: "Levi", airport: "KTT", airportName: "Kittilä (via Helsinki)",
-              note: "Inland, so colder and drier than the Norwegian coast, and the one that works with children — huskies, reindeer, snowmobiles and Christmas built into the place. This is glass-igloo country. Choose this if the days matter as much as the nights." },
+            { name: "Tromsø and the Lyngen Alps", sub: "BEST OVERALL · Norway · connect through Oslo", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)",
+              note: "The best-balanced version of this trip, and the right answer for a first-timer. Tromsø gives you roads — so a guided chase can drive out from under cloud — plus restaurants, bars, museums, whale watching, dog sledding and Sámi experiences to fill the daylight. Then Lyngen adds the part a city cannot: dramatic Arctic mountains, real privacy, and the aurora appearing straight off the lodge terrace. TWO NIGHTS IN TROMSØ, THEN TWO OR THREE IN LYNGEN. Best for couples, adults, and anyone who wants both the city and the wilderness." },
+            { name: "Abisko", sub: "BEST PURE AURORA ODDS · Swedish Lapland · connect through Stockholm to Kiruna", city: "Abisko", airport: "KRN", airportName: "Kiruna (via Stockholm)",
+              note: "Choose this if SEEING THE LIGHTS beats everything else. Abisko's famously dry microclimate gives it the clearest skies in the region and the best odds you can buy. THE TRADE IS REAL AND WE WILL NOT PRETEND OTHERWISE: fewer roads, few places to eat, much less to do in daylight, and a weaker hotel product than anywhere else on this page. The strength here is aurora probability, not the hotel scene. Best for serious aurora seekers and photographers." },
+            { name: "Rovaniemi", sub: "BEST FOR YOUNGER CHILDREN · Finland · connect through Helsinki", city: "Rovaniemi", airport: "RVN", airportName: "Rovaniemi (via Helsinki)",
+              note: "The family answer for small children, and the only one on this page with Santa in it. Reindeer, huskies, glass-roofed rooms in the forest, and programming built so that parents are not assembling anything. If this is a first family trip to Lapland and the children are young, start here." },
+            { name: "Levi", sub: "BEST FOR OLDER CHILDREN · Finland · connect through Helsinki to Kittilä", city: "Levi", airport: "KTT", airportName: "Kittilä (via Helsinki)",
+              note: "The other Finnish answer, and the better one once children are old enough to ski. A proper resort village — more restaurants, more polished infrastructure, skiing and aurora in the same week. KITTILÄ AIRPORT IS FIFTEEN MINUTES AWAY, which after a long day of connections is worth more than it sounds." },
           ],
-          stayLead: "Where to base yourself",
+          stayLead: "Where to stay",
           stayWord: "lodge",
           stayEg: "e.g. a lodge in the Lyngen Alps",
-          stayNote: "THREE BASES, AND THEY ARE NOT INTERCHANGEABLE.\n\nTROMSØ AND THE LYNGEN ALPS, NORWAY — 69°N, directly under the band, and the one with real infrastructure: direct flights from Oslo several times a day, proper restaurants, and — the thing that matters — roads. When the coast clouds over, a guided chase drives you inland or across to Finland until you find a hole. The ability to MOVE is worth more than any window.\n\nABISKO, SWEDISH LAPLAND — 68°N, and the statistical winner. It sits in the rain shadow of the Scandinavian mountains, which produces the famous ‘blue hole of Abisko’: a patch of reliably clear sky when everything around it is socked in. Fewer roads and fewer options for dinner, but the highest clear-night rate in the region.\n\nFINNISH LAPLAND — 67–69°N, inland and therefore colder and drier than the Norwegian coast. This is glass-igloo country, and the one that works best with children: huskies, reindeer, and Christmas built into the place.\n\nWORTH KNOWING ABOUT GLASS IGLOOS: they photograph beautifully and they cannot move. Book one for a night or two as part of the trip, not for the whole of it — if the cloud sits over you for four nights, a glass roof shows you the underside of it.",
+          stayNote: "A WORD ON HOW THESE ARE GRADED. Several of the properties here are filed as EXPERIENCE LODGING rather than Luxury, and that is deliberate. North of the Arctic Circle a true five-star hotel very often does not exist, and calling one of these Luxury to fill the gap would be dishonest. Experience Lodging means the destination is remote, no five-star exists, and the property earns its place by materially improving the trip — clean, well run, respected and right for where it is. Lyngen Lodge is the clearest case: eight rooms, sixteen guests, its own chefs and guides, and special for what it is rather than for a star rating.\n\nTHREE BASES, AND THEY ARE NOT INTERCHANGEABLE.\n\nTROMSØ AND THE LYNGEN ALPS, NORWAY — 69°N, directly under the band, and the one with real infrastructure: direct flights from Oslo several times a day, proper restaurants, and — the thing that matters — roads. When the coast clouds over, a guided chase drives you inland or across to Finland until you find a hole. The ability to MOVE is worth more than any window.\n\nABISKO, SWEDISH LAPLAND — 68°N, and the statistical winner. It sits in the rain shadow of the Scandinavian mountains, which produces the famous ‘blue hole of Abisko’: a patch of reliably clear sky when everything around it is socked in. Fewer roads and fewer options for dinner, but the highest clear-night rate in the region.\n\nFINNISH LAPLAND — 67–69°N, inland and therefore colder and drier than the Norwegian coast. This is glass-igloo country, and the one that works best with children: huskies, reindeer, and Christmas built into the place.\n\nWORTH KNOWING ABOUT GLASS IGLOOS: they photograph beautifully and they cannot move. Book one for a night or two as part of the trip, not for the whole of it — if the cloud sits over you for four nights, a glass roof shows you the underside of it.",
           ticketsTitle: "When to go — and why most people pick the wrong month",
           ticketNote: "THE SEASON IS LATE SEPTEMBER TO LATE MARCH, and it is set by darkness rather than by the aurora. In summer the sun never properly sets this far north, so there is nothing to see even on the most active night of the year.\n\nTHE EQUINOXES ARE THE INSIDER PICK. Late September and March run measurably more geomagnetic activity than the months either side — a real, documented effect of how the Earth's field lines up with the solar wind around the equinox. You also get milder weather, open roads, and in September the lakes are not yet frozen, so you can photograph the lights reflected. Most people book December. They have chosen the coldest weather and the worst of the coastal cloud.\n\nDECEMBER TO FEBRUARY gives the longest nights and the deepest cold, and is the right answer if you want the whole Arctic winter — huskies, snowmobiles, reindeer, Christmas.\n\nMOON PHASE matters far less than people think; a bright aurora outshines a full moon easily. Cloud is the only thing that beats you.\n\nAnd the solar cycle is on your side: the current cycle peaked in 2024–25, and the years just after a peak are historically when the biggest storms land.",
           stepsTitle: "How to build it, in order",
           steps: [
-            { h: "Pick the base, then give it five nights", b: "Tromsø if you want to be able to chase, Abisko if you want the best odds standing still, Finnish Lapland if there are children. Five nights minimum; four if you truly cannot." },
+            { h: "Pick the base, then give it three nights at least", b: "Tromsø and Lyngen if you want the best-balanced trip, Abisko if the odds are all that matter, Rovaniemi or Levi if there are children. THREE NIGHTS IN THE AURORA ZONE IS THE MINIMUM AND FOUR IS BETTER. For Tromsø the shape is two nights in the city, then two or three at Lyngen." },
             { h: "Book a guided chase for most of the nights, not one", b: "This is the single most important booking of the trip and the one people under-buy. A good guide is watching cloud maps all afternoon and will drive two hours to a clear valley — sometimes over a border. One booked night is a lottery ticket; four is a plan." },
-            { h: "Fly in through Oslo, Stockholm or Helsinki", b: "There is no long-haul into the aurora zone. Everything connects: Oslo to Tromsø, Stockholm to Kiruna for Abisko, Helsinki to Kittilä or Ivalo for Lapland. Give the connection real time — winter delays are routine and the last flight north goes early." },
+            { h: "Book the connection on ONE ticket", b: "There is no long-haul into the aurora zone — every route connects, and which hub depends entirely on the base you chose: Oslo for Tromsø, Stockholm for Kiruna and Abisko, Helsinki for Kittilä and Levi. Put the short northern leg on the same ticket as the long-haul, so a winter delay is the airline’s problem and not yours. The last flight north goes early in the evening; miss it and you lose a night of your five." },
             { h: "Fill the days, because the lights are a night activity", b: "Whale watching off Tromsø in November and December, dog sledding, reindeer, the Ice Hotel at Jukkasjärvi near Abisko, snowmobiling. The days are what you actually remember; the aurora is the thing you hope for." },
             { h: "Get the clothes right", b: "Most lodges lend proper Arctic outerwear — ask before you buy any. See the notes." },
           ],
@@ -12755,6 +12818,22 @@ function GettingAroundPanel({ city }) {
 // of guesses that would be wrong the moment a brand opened or closed a counter.
 //
 // Pickup only. Where the car is returned is the client's business, settled at booking.
+const CONNECT_VIA = {
+  "Tromsø": { hub: "Oslo (OSL)", note: "Nothing long-haul flies into Tromsø. Every route connects through Oslo — book OSL–TOS on the SAME TICKET as the long-haul, so a delay is the airline's problem rather than yours. OSLO IS A GATEWAY, NOT A BASE: you pass through it, you do not stay there and fly north and back each night. Land in Tromsø and stay in the Arctic for the whole run. The last flight north leaves early in the evening; miss it and you lose a night." },
+  "Alta": { hub: "Oslo (OSL)", note: "Connects through Oslo, usually via Tromsø. Book it on one ticket." },
+  "Abisko": { hub: "Stockholm (ARN)", note: "You fly Stockholm to Kiruna, then an hour and a half on to Abisko by road or rail. Only two or three flights a day serve Kiruna, so the connection has to be planned rather than assumed. The overnight train from Stockholm is the alternative and stops at Abisko itself." },
+  "Kiruna": { hub: "Stockholm (ARN)", note: "Two or three flights a day from Stockholm. Book the connection on one ticket and leave real time for it." },
+  "Levi": { hub: "Helsinki (HEL)", note: "You fly Helsinki to Kittilä, which is fifteen minutes from Levi. Seasonal direct flights also run from London and Amsterdam in winter — worth checking before routing through Helsinki. The Santa Claus overnight train from Helsinki to Kolari is the other way in." },
+  "Saariselkä": { hub: "Helsinki (HEL)", note: "Helsinki to Ivalo, then half an hour by road. A handful of flights a day and they fill over Christmas." },
+  "Svalbard": { hub: "Oslo (OSL)", note: "Oslo or Tromsø to Longyearbyen only. A short season of flights and no alternative route — book it before anything else." },
+  "Rwanda": { hub: "Kigali (KGL)", note: "RwandAir, Qatar, Turkish, KLM and Brussels all serve Kigali. Land the day before your first trek at the latest — never the same morning." },
+};
+function connectVia(city) {
+  if (!city) return null;
+  const key = resolvePlace(city) || bareCity(city);
+  const k = Object.keys(CONNECT_VIA).find((x) => x.toLowerCase() === String(key).toLowerCase());
+  return k ? CONNECT_VIA[k] : null;
+}
 const RENTAL_US_PRIMARY = [
   { key: "National", site: "https://www.nationalcar.com", note: "Emerald Club — bypass the counter, take your pick off the aisle, and go." },
   { key: "SIXT", site: "https://www.sixt.com", note: "The premium European fleet — BMW, Mercedes, Audi, Range Rover where it is stocked." },
@@ -12947,6 +13026,10 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   return (<><Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
     <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>
     {ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
+    {arriveBy === "Flight" && connectVia(to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Connect through {connectVia(to).hub}</div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{connectVia(to).note}</div>
+    </div>) : null}
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
@@ -13239,7 +13322,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience }) {
   // The feed is still fetched, because it supplies PHOTOGRAPHS and addresses for hotels we have
   // already chosen. It no longer decides what appears.
   const liveRows = [];
-  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l === "ExpLux" ? "Experience Luxury" : l);
+  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l === "ExpLux" ? "Experience Luxury" : l === "ExpLodge" ? "Experience Lodging" : l);
   // Once a hotel is chosen the rest are noise: a stay is decided once and rarely revisited, unlike
   // a restaurant. Show the choice and fold the others away. Tapping a tier chip brings the full
   // list straight back, which is how anyone would expect to change their mind.
@@ -13266,10 +13349,11 @@ function HotelPicker({ city, nights, pick, upd, fromExperience }) {
   const bestCurated = favs.some((s2) => tierOf(s2.name) === "Best");
   // Best appears only where it has been curated — there is no longer a feed to fall back on.
   const showBest = bestCurated;
-  const tiers = LEVELS.filter((l) => (l === "Best" ? showBest : l === "ExpLux" ? expHas : true));
+  const lodgeHas = favs.some((s) => tierOf(s.name) === "ExpLodge");
+  const tiers = LEVELS.filter((l) => (l === "Best" ? showBest : l === "ExpLux" ? expHas : l === "ExpLodge" ? lodgeHas : true));
   // If the tab a client is on stops existing — Best or Experience chips are only on the page
   // where they have content — fall to the first tier that has some, not to Luxury by reflex.
-  useEffect(() => { if (level === "Best" && !showBest) setLevel(firstTier); if (level === "ExpLux" && !expHas) setLevel(firstTier); }, [showBest, expHas, level, firstTier]);
+  useEffect(() => { if (level === "Best" && !showBest) setLevel(firstTier); if (level === "ExpLux" && !expHas) setLevel(firstTier); if (level === "ExpLodge" && !lodgeHas) setLevel(firstTier); }, [showBest, expHas, lodgeHas, level, firstTier]);
   const collapsed = !!chosen && !openList;
   const showLevel = (l) => { setLevel(l); setOpenList(true); };
   return (<>
