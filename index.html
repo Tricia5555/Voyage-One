@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M412";
+const BUILD = "M414";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7404,6 +7404,7 @@ const AIRPORTS = {
   "El Chaltén": { code: "FTE", scale: "regional" },
   // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
   // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
+  "Oslo": { code: "OSL", scale: "intercontinental" }, "Stockholm": { code: "ARN", scale: "intercontinental" }, "Helsinki": { code: "HEL", scale: "intercontinental" },
   "Tromsø": { code: "TOS", scale: "regional" }, "Alta": { code: "ALF", scale: "regional" },
   "Abisko": { code: "KRN", scale: "regional" }, "Kiruna": { code: "KRN", scale: "regional" },
   "Rovaniemi": { code: "RVN", scale: "regional" }, "Levi": { code: "KTT", scale: "regional" },
@@ -7790,7 +7791,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina"],
@@ -8009,6 +8010,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
+  "Oslo": [59.91,10.75], "Stockholm": [59.33,18.07], "Helsinki": [60.17,24.94],
   "Tromsø": [69.65,18.96], "Alta": [69.97,23.27], "Abisko": [68.35,18.83], "Kiruna": [67.86,20.23],
   "Rovaniemi": [66.50,25.73], "Levi": [67.80,24.80], "Saariselkä": [68.42,27.42], "Svalbard": [78.22,15.63],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
@@ -9619,7 +9621,17 @@ function VoyageOne() {
     const seededDines = seedKind === "dine" ? (ev.aecDays || []).map((d) => ({ name: d.tierName || d.label, level: "Destination", date: d.date, price: null })) : [];
     const seededTours = (ev.costume && evDates.length) ? [{ name: "Costume fitting · " + ev.costume.name, price: null, date: iso(addDays(new Date(evDates[0] + "T00:00:00"), -1)) }] : [];
     if (depart && ret) setDates({ depart, ret });
-    setDests([{ id: newId(), city: ev.city, air: ev.airport, fromExperience: true, mode: "full", nights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
+    // SEARCHING THE WHOLE JOURNEY AS ONE FLIGHT COLLAPSES THE CHOICE OF AIRLINE. Miami to El
+    // Calafate returns Aerolíneas and almost nothing else, because Aerolíneas is the only carrier
+    // that operates BOTH the long-haul and the domestic leg and so is the only one able to ticket
+    // it end to end. Split the journey at the gateway and the long-haul opens up to every airline
+    // that flies it, while the short leg is a separate, cheap, frequent hop.
+    // So an experience can declare a VIA stop, and Plan this trip seeds it as a real first
+    // destination with its own night and its own flight search, rather than as advice nobody acts on.
+    const viaStop = ev.via ? [{ id: newId(), city: ev.via.city, air: ev.via.air, fromExperience: true, mode: "full", nights: ev.via.nights || 1, days: 2, arriveBy: "Flight",
+      pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }] : [];
+    const mainNights = ev.via ? Math.max(1, nights - (ev.via.nights || 1)) : nights;
+    setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   const removeTrip = async (id) => {
@@ -11122,11 +11134,11 @@ const ONE_LIST = {
           basePicksTitle: "Where to start \u2014 and this is a decision, not a formality",
           basePicksHelp: "Most clients should do the first two together: four nights in Torres del Paine, then three at El Calafate. Choose where the trip BEGINS and Plan this trip builds from there; the second leg is added on the next screen.",
           basePicks: [
-            { name: "Torres del Paine", sub: "CHILE \u00b7 START HERE \u00b7 4 nights \u00b7 via Santiago and Punta Arenas", city: "Torres del Paine", airport: "PUQ", airportName: "Punta Arenas (via Santiago)",
+            { name: "Torres del Paine", sub: "CHILE \u00b7 START HERE \u00b7 4 nights \u00b7 a night in Santiago on the way", city: "Torres del Paine", airport: "PUQ", airportName: "Punta Arenas (via Santiago)", via: { city: "Santiago", air: "SCL", nights: 1 },
               note: "The Patagonia of the photographs and the heart of the trip. The three towers, the Cuernos, Grey Glacier, guanacos and the highest density of PUMAS anywhere on earth. It also holds the four best lodges on the continent. FOUR NIGHTS, NOT THREE \u2014 the towers hide in cloud for days at a time and you are buying chances. The price is the journey: Santiago, then Punta Arenas, then four to five hours by road." },
-            { name: "El Calafate", sub: "ARGENTINA \u00b7 3 nights \u00b7 via Buenos Aires", city: "El Calafate", airport: "FTE", airportName: "El Calafate (via Buenos Aires)",
+            { name: "El Calafate", sub: "ARGENTINA \u00b7 3 nights \u00b7 a night in Buenos Aires on the way", city: "El Calafate", airport: "FTE", airportName: "El Calafate (via Buenos Aires)", via: { city: "Buenos Aires", air: "EZE", nights: 1 },
               note: "GLACIERS AND ESTANCIA COUNTRY, and much the easier arrival \u2014 the airport is twenty minutes from town. PERITO MORENO is the reason: five kilometers across, sixty meters high, and one of the very few major glaciers on earth that is not retreating. You stand on a walkway and watch buildings of ice fall off it, and the sound arrives after they do. Gentler days than Chile, and real Argentine Patagonia \u2014 lamb, horses, an asado that takes all afternoon." },
-            { name: "El Chalt\u00e9n", sub: "ARGENTINA \u00b7 OPTIONAL EXTENSION \u00b7 3 nights \u00b7 for walkers", city: "El Chalt\u00e9n", airport: "FTE", airportName: "El Calafate, then 3 hr overland",
+            { name: "El Chalt\u00e9n", sub: "ARGENTINA \u00b7 OPTIONAL EXTENSION \u00b7 3 nights \u00b7 for walkers", city: "El Chalt\u00e9n", airport: "FTE", airportName: "El Calafate, then 3 hr overland", via: { city: "Buenos Aires", air: "EZE", nights: 1 },
               note: "FITZ ROY, and the most serious mountain scenery in Patagonia. This is the extension for people who actually want to walk \u2014 Laguna de los Tres, Laguna Capri, glacial valleys, the Los Huemules reserve. DO NOT ADD IT TO EVERY TRIP. It is three more nights, reached three hours overland from El Calafate, and it is wasted on someone who wanted glaciers and a fire." },
           ],
           stayFromBase: true,
@@ -11176,13 +11188,13 @@ const ONE_LIST = {
           basePicksTitle: "Three ways to do this, and they are not equivalent",
           basePicksHelp: "The difference between these matters more than anything else you will decide, so it is on the table before you book rather than after. Choose one and Plan this trip builds around it — flights, nights and all.",
           basePicks: [
-            { name: "Tromsø and the Lyngen Alps", sub: "BEST OVERALL · Norway · one stop via Oslo", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)",
+            { name: "Tromsø and the Lyngen Alps", sub: "BEST OVERALL · Norway · one stop via Oslo", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)", via: { city: "Oslo", air: "OSL", nights: 1 },
               note: "The best-balanced version of this trip, and the right answer for a first-timer. Tromsø gives you roads — so a guided chase can drive out from under cloud — plus restaurants, bars, museums, whale watching, dog sledding and Sámi experiences to fill the daylight. Then Lyngen adds the part a city cannot: dramatic Arctic mountains, real privacy, and the aurora appearing straight off the lodge terrace. TWO NIGHTS IN TROMSØ, THEN TWO OR THREE IN LYNGEN. Best for couples, adults, and anyone who wants both the city and the wilderness." },
-            { name: "Abisko", sub: "BEST PURE AURORA ODDS · Swedish Lapland · connect through Stockholm to Kiruna", city: "Abisko", airport: "KRN", airportName: "Kiruna (via Stockholm)",
+            { name: "Abisko", sub: "BEST PURE AURORA ODDS · Swedish Lapland · connect through Stockholm to Kiruna", city: "Abisko", airport: "KRN", airportName: "Kiruna (via Stockholm)", via: { city: "Stockholm", air: "ARN", nights: 1 },
               note: "Choose this if SEEING THE LIGHTS beats everything else. Abisko's famously dry microclimate gives it the clearest skies in the region and the best odds you can buy. THE TRADE IS REAL AND WE WILL NOT PRETEND OTHERWISE: fewer roads, few places to eat, much less to do in daylight, and a weaker hotel product than anywhere else on this page. The strength here is aurora probability, not the hotel scene. Best for serious aurora seekers and photographers." },
-            { name: "Rovaniemi", sub: "BEST FOR YOUNGER CHILDREN · Finland · connect through Helsinki", city: "Rovaniemi", airport: "RVN", airportName: "Rovaniemi (via Helsinki)",
+            { name: "Rovaniemi", sub: "BEST FOR YOUNGER CHILDREN · Finland · connect through Helsinki", city: "Rovaniemi", airport: "RVN", airportName: "Rovaniemi (via Helsinki)", via: { city: "Helsinki", air: "HEL", nights: 1 },
               note: "The family answer for small children, and the only one on this page with Santa in it. Reindeer, huskies, glass-roofed rooms in the forest, and programming built so that parents are not assembling anything. If this is a first family trip to Lapland and the children are young, start here." },
-            { name: "Levi", sub: "BEST FOR OLDER CHILDREN · Finland · connect through Helsinki to Kittilä", city: "Levi", airport: "KTT", airportName: "Kittilä (via Helsinki)",
+            { name: "Levi", sub: "BEST FOR OLDER CHILDREN · Finland · connect through Helsinki to Kittilä", city: "Levi", airport: "KTT", airportName: "Kittilä (via Helsinki)", via: { city: "Helsinki", air: "HEL", nights: 1 },
               note: "The other Finnish answer, and the better one once children are old enough to ski. A proper resort village — more restaurants, more polished infrastructure, skiing and aurora in the same week. KITTILÄ AIRPORT IS FIFTEEN MINUTES AWAY, which after a long day of connections is worth more than it sounds." },
           ],
           stayFromBase: true,
@@ -11457,7 +11469,7 @@ function OneList({ onPick, onBack, onHome }) {
     const sortedDays = selDays.map((d) => d.date).sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
     const dineList = Object.keys(dineSel).map((n) => dineSel[n]);
-    const planEv = { ...ev, ...planDates, ...(basePick ? { city: basePick.city, airport: basePick.airport, airportName: basePick.airportName || basePick.name } : {}), stay: stayPick || null, aecDays: selDays, costume: costumePick || null, dining: dineList };
+    const planEv = { ...ev, ...planDates, ...(basePick ? { city: basePick.city, airport: basePick.airport, airportName: basePick.airportName || basePick.name, via: basePick.via || null } : {}), stay: stayPick || null, aecDays: selDays, costume: costumePick || null, dining: dineList };
     const gg = g || {};
     const L = {
       daysTitle: gg.daysTitle || "The days",
@@ -12895,10 +12907,10 @@ const CONNECT_VIA = {
   "Levi": { hub: "Helsinki (HEL)", note: "You fly Helsinki to Kittilä, which is fifteen minutes from Levi. Seasonal direct flights also run from London and Amsterdam in winter — worth checking before routing through Helsinki. The Santa Claus overnight train from Helsinki to Kolari is the other way in." },
   "Saariselkä": { hub: "Helsinki (HEL)", note: "Helsinki to Ivalo, then half an hour by road. A handful of flights a day and they fill over Christmas." },
   "Svalbard": { hub: "Oslo (OSL)", note: "Oslo or Tromsø to Longyearbyen only. A short season of flights and no alternative route — book it before anything else." },
-  "Torres del Paine": { hub: "Santiago (SCL)", note: "Two flights to get here and no way around it. Long-haul into SANTIAGO, then three and a half hours south to PUNTA ARENAS, then four to five hours by road up to the park. Puerto Natales (PNT) has a seasonal field that halves the drive when it is running — worth asking about, because it is the difference between an easy arrival and a long one.\n\nBOOK THE SANTIAGO–PUNTA ARENAS LEG ON THE SAME TICKET as the long-haul, and give yourself a night in Santiago on the way in if the connection is tight. Most lodges include the road transfer from Punta Arenas or Puerto Natales; confirm that rather than assuming it." },
+  "Torres del Paine": { hub: "Santiago (SCL)", note: "SEARCH THIS AS TWO FLIGHTS, NOT ONE — asking for the whole journey at once hands it to whichever single airline happens to fly both legs, and hides everyone else. Split it at Santiago and every carrier on the long-haul competes for you.\n\nTwo flights to get here and no way around it. Long-haul into SANTIAGO, then three and a half hours south to PUNTA ARENAS, then four to five hours by road up to the park. Puerto Natales (PNT) has a seasonal field that halves the drive when it is running — worth asking about, because it is the difference between an easy arrival and a long one.\n\nBOOK THE SANTIAGO–PUNTA ARENAS LEG ON THE SAME TICKET as the long-haul, and give yourself a night in Santiago on the way in if the connection is tight. Most lodges include the road transfer from Punta Arenas or Puerto Natales; confirm that rather than assuming it." },
   "Puerto Natales": { hub: "Santiago (SCL)", note: "Long-haul into Santiago, then south to Punta Arenas (PUQ) and about three hours north by road. The seasonal Puerto Natales field (PNT) is far quicker when it is open." },
   "El Chaltén": { hub: "Buenos Aires (EZE), then El Calafate", note: "There is no airport at El Chaltén. You fly Buenos Aires to EL CALAFATE (FTE) and drive about three hours north — a beautiful road along Lago Argentino with Fitz Roy appearing at the end of it. Explora includes the transfer. THIS IS WHY EL CHALTÉN IS AN EXTENSION RATHER THAN A TRIP: it attaches to the El Calafate leg, and adding it means three more nights, not one more day." },
-  "El Calafate": { hub: "Buenos Aires (EZE)", note: "Long-haul into BUENOS AIRES, then about three hours south to El Calafate (FTE), which is twenty minutes from town and the closest airport to any of the Patagonian lodges.\n\nTHE CATCH IS THE CITY, NOT THE FLIGHT: most international arrivals land at EZE and almost all domestic flights south leave from AEP, the downtown airport. That is a transfer across Buenos Aires with traffic — allow three hours, or better, spend a night in the city and go the next morning. It is not a hardship." },
+  "El Calafate": { hub: "Buenos Aires (EZE)", note: "SEARCH THIS AS TWO FLIGHTS, NOT ONE. Ask for Miami to El Calafate as a single journey and you will be offered Aerolíneas Argentinas and very little else — not because it is the best airline but because it is the only one flying BOTH legs, so it is the only one able to sell you the whole thing on one ticket.\n\nSplit it at Buenos Aires and the long-haul opens up: American, LATAM, Delta, United and Aerolíneas all compete for it, in every cabin. The domestic leg south is then a short, frequent, inexpensive hop.\n\nTHAT IS WHY WE PUT A NIGHT IN BUENOS AIRES IN THE PLAN. It buys you the choice of airline, and it removes the day's real hazard: international flights land at EZE and almost every southbound domestic leaves from AEP downtown, which is a cross-city transfer in Buenos Aires traffic. Doing that on the same day, on separate tickets, is how people miss Patagonia. Sleep in the city, fly south rested, and have dinner somewhere very good on the way through." },
   "Rwanda": { hub: "Kigali (KGL)", note: "RwandAir, Qatar, Turkish, KLM and Brussels all serve Kigali. Land the day before your first trek at the latest — never the same morning." },
 };
 function connectVia(city) {
@@ -13043,6 +13055,7 @@ const LODGE_IS_THE_RESTAURANT = {
   "El Calafate": "EOLO includes its dining, and the point of an estancia twenty-three kilometers out on the steppe is that you are out on the steppe. Lamb, beef, trout, regional produce and Argentine wine, at the lodge. Do not drive back into town at night.",
   "El Chaltén": "Explora includes every meal, the bar, and trail lunches on full-day excursions — Argentine beef, lamb, seasonal vegetables and regional wines. There is no reason to go into the village for dinner.",
   "Puerto Natales": "Your lodge handles dinner. This is a base town rather than a dining destination.",
+  "Abisko": "There is no restaurant scene in Abisko and pretending otherwise would mislead you. Dinner is BRASSERIE FJÄLLKÖKET at Abisko Mountain Lodge — local Arctic ingredients, seasonal northern cooking, and the strongest integrated dinner in the area by a distance. Non-residents can usually book, but ring ahead; they cook for numbers. The mountain station has a straightforward restaurant of its own with the Lapporten view.",
   "Rwanda": "The lodges are inside or beside the park and full board is how they work. Dinner is at the lodge, and after a trek you will not want it any other way.",
 };
 function lodgeDining(city) {
@@ -13057,6 +13070,8 @@ const LODGE_DRIVES_YOU = [
   "Tromsø", "Abisko", "Kiruna", "Levi", "Rovaniemi", "Saariselkä", "Alta", "Svalbard",
   // Rwanda — the lodge arranges every transfer and the park runs the trek.
   "Rwanda",
+  // The one-night gateway stops. You land, sleep and fly on; a hire car is pure friction.
+  "Oslo", "Stockholm", "Helsinki", "Santiago", "Buenos Aires",
 ];
 function lodgeDrivesYou(city) {
   const key = resolvePlace(city) || bareCity(city);
