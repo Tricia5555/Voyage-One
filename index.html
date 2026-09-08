@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M411";
+const BUILD = "M412";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12722,7 +12722,7 @@ function southAmerica(city) {
 // are shown as names and never as links. Confirm each one trades, insures and meets the
 // standard before this reaches a client.
 const SA_CHAUFFEUR = {
-  AR: [{ n: "FFGR Argentina", note: "Private chauffeur, airport transfers and full or multi-day service, bilingual, across Buenos Aires, Mendoza, Bariloche, Salta, Ushuaia and Patagonia." }],
+  AR: [{ n: "FFGR Argentina", web: "https://www.ffgrargentina.com", note: "Private chauffeur, airport transfers and full or multi-day service, bilingual, across Buenos Aires, Mendoza, Bariloche, Salta, Ushuaia and Patagonia." }],
   CL: [{ n: "Tourevo", note: "Entirely private, never shared \u2014 bilingual driver-guides, Jaguar, Porsche Cayenne and Mercedes VIP vehicles, and a dedicated concierge." }],
   UY: [{ n: "Driver & Butler", note: "Montevideo, Carrasco, Punta del Este and Colonia \u2014 airport transfers, full-day chauffeur and longer journeys." }],
   PE: [{ n: "DJA Luxury", note: "Lima \u2014 executive cars and premium SUVs, airport meet-and-greet, flight monitoring, discreet." },
@@ -12776,6 +12776,7 @@ const SA_DEST = {
   // PATAGONIA: the lodges drive. Awasi gives every villa its own guide and 4x4; Tierra, Explora
   // and EOLO all run their own guided excursions with their own vehicles, and the airport
   // transfers are part of the rate. Renting a car here means paying twice for a worse day.
+  "Buenos Aires": { d: "rec", r: "no" },
   "Torres del Paine": { d: "rec", r: "no" }, "El Calafate": { d: "rec", r: "no" },
   "El Chalt\u00e9n": { d: "rec", r: "no" }, "Puerto Natales": { d: "rec", r: "no" },
 
@@ -12852,9 +12853,10 @@ function GettingAroundPanel({ city }) {
       {chauffeurs.map((x, i) => (<div key={i} style={{ marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${t.line}` }}>
         <div style={{ fontSize: 14.5, color: t.ink, fontWeight: 500 }}>{x.n}</div>
         <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 2 }}>{x.note}</div>
+        {x.web ? <a href={brandedLink(x.web, { kind: "driver", name: x.n, city: bareCity(city) })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 6, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Contact {x.n} ↗</a> : null}
       </div>))}
       <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 10 }}>
-        Arranged by us and confirmed with you before anything is committed \u2014 there is nothing to book here.
+        These are the operators we would use. You book direct with them, and they confirm the vehicle and the price with you.
       </div>
     </div>
     {cars.length > 0 && (<div>
@@ -13034,6 +13036,20 @@ function RentalRow({ b, faded }) {
 
 // city = where the car is COLLECTED (the city this drive starts from, or the city they
 // are staying in). destination = where they are driving, used only for the advisory notes.
+const LODGE_IS_THE_RESTAURANT = {
+  // Patagonia — Awasi is Relais & Châteaux; Tierra, Explora and EOLO all include meals and
+  // drinks. There is nothing in the nearest town worth the drive, and the drive is long.
+  "Torres del Paine": "Every lodge here is remote and all-inclusive — Awasi's restaurant is Relais & Châteaux, and Tierra and Explora both include all meals and drinks. The dining is part of what you are paying for, and the nearest town is a long way over gravel. Eat at the lodge.",
+  "El Calafate": "EOLO includes its dining, and the point of an estancia twenty-three kilometers out on the steppe is that you are out on the steppe. Lamb, beef, trout, regional produce and Argentine wine, at the lodge. Do not drive back into town at night.",
+  "El Chaltén": "Explora includes every meal, the bar, and trail lunches on full-day excursions — Argentine beef, lamb, seasonal vegetables and regional wines. There is no reason to go into the village for dinner.",
+  "Puerto Natales": "Your lodge handles dinner. This is a base town rather than a dining destination.",
+  "Rwanda": "The lodges are inside or beside the park and full board is how they work. Dinner is at the lodge, and after a trek you will not want it any other way.",
+};
+function lodgeDining(city) {
+  const key = resolvePlace(city) || bareCity(city);
+  const k = Object.keys(LODGE_IS_THE_RESTAURANT).find((x) => x.toLowerCase() === String(key).toLowerCase());
+  return k ? LODGE_IS_THE_RESTAURANT[k] : null;
+}
 const LODGE_DRIVES_YOU = [
   // Patagonia — all-inclusive lodges with their own guides and vehicles, transfers in the rate.
   "Torres del Paine", "El Calafate", "El Chaltén", "Puerto Natales",
@@ -13676,6 +13692,13 @@ function accoladeBadge(r) {
   return "Recommended";
 }
 function DinePicker({ city, pick, upd, nights, dayLabel }) {
+  // WHERE THE LODGE IS THE RESTAURANT, DO NOT OFFER A RESTAURANT PICKER. Showing tabs of tables
+  // to a client at Awasi or EOLO invites them to drive an hour each way for something worse than
+  // what is already included. Say so once, plainly, and give the screen back.
+  const lodgeNote = lodgeDining(city);
+  if (lodgeNote) return (<Panel icon={Utensils} title={`Dining in ${bareCity(city)}`}>
+    <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6 }}>{lodgeNote}</div>
+  </Panel>);
   // Three categories, everywhere. DESTINATION = Michelin star (1–3) + James Beard + World's 50 Best
   // top 100 + La Liste 95+ (a 1★ in a capital dense with top stars drops to Recommended UNLESS it
   // also holds another credential). RECOMMENDED = those demoted 1★ plus the great non-starred
