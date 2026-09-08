@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M406";
+const BUILD = "M408";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -314,7 +314,7 @@ const EXPERIENCE_LUX = [
   "Explora Valle Sagrado", "Sanctuary Lodge, A Belmond Hotel", "Titilaka",              // Peru
   "Tierra Atacama Hotel & Spa", "Explora Atacama", "Explora Patagonia",                 // Chile
   "Refugia Chiloé", "Explora Rapa Nui",
-  "EOLO – Patagonia's Spirit", "Explora El Chaltén",                                    // Argentina
+  "EOLO – Patagonia's Spirit", "Explora El Chaltén", "Explora Torres del Paine Conservation Reserve", "Explora El Calafate",                                    // Argentina
   "UXUA Casa Hotel & Spa",                                                              // Brazil
   "Hacienda Bambusa",                                                                   // Colombia
   "Mashpi Lodge", "Pikaia Lodge", "Hacienda Zuleta",                                    // Ecuador
@@ -1907,12 +1907,13 @@ const FAVORITES = {
     { name: "Pristine Iguazú Luxury Camp", area: "Misiones", rate: null, ourTake: "Tented suites in the Atlantic rainforest, the jungle audible all night. Not a resort, and not trying to be." },
   ],
   "El Calafate": [
-    { name: "EOLO – Patagonia's Spirit", area: "El Calafate", rate: null, ourTake: "A Relais & Châteaux estancia alone on 10,000 acres between the town and the Perito Moreno glacier. Mandatory." },
-    { name: "Pristine Glaciers Luxury Camp", area: "El Calafate", rate: null, ourTake: "Domes facing the ice field, with nothing between you and it." },
-    { name: "Los Ponchos Hotel", area: "El Calafate", rate: null, ourTake: "In town, comfortable and well run \u2014 the practical night either side of the glacier." },
+    { name: "EOLO \u2013 Patagonia's Spirit", area: "Estancia, 23 km from El Calafate", rate: null, ourTake: "THE BEST EXISTING CHOICE IN EL CALAFATE. Seventeen rooms on a working estancia with the steppe running to the mountains in every direction \u2014 understated, Relais & Ch\u00e2teaux, and the strongest sense of Argentine Patagonia you can buy. Rooms run roughly 37 to 48 square meters and are designed around the view; there are NO TELEVISIONS, by design. Private guides and activities available, and Perito Moreno is about fifty minutes away." },
+    { name: "Explora El Calafate", area: "El Calafate \u00b7 OPENING DECEMBER 2026", rate: null, ourTake: "NEW, AND POTENTIALLY THE EASIEST WAY TO DO ALL OF PATAGONIA. Explora is deliberately building a cross-border network \u2014 Torres del Paine, El Calafate and El Chalt\u00e9n under one company \u2014 which would make the logistics of a three-stop trip considerably simpler. DO NOT ASSUME IT OUTRANKS EOLO until it has opened and been seen." },
+    { name: "Pristine Glaciers Luxury Camp", area: "El Calafate", rate: null, ourTake: "A remote camp for clients who want the landscape at its least mediated. Not tiered by Voyage One yet." },
+    { name: "Los Ponchos Hotel", area: "El Calafate town", rate: null, ourTake: "A town hotel, useful only as a practical night around a flight. Not tiered by Voyage One yet." },
   ],
-  "El Chaltén": [
-    { name: "Explora El Chaltén", area: "Los Huemules Reserve", rate: null, ourTake: "Inside a private conservation reserve at the foot of Fitz Roy, guided walks from the door. An exploration lodge, not a hotel." },
+  "El Chalt\u00e9n": [
+    { name: "Explora El Chalt\u00e9n", area: "Los Huemules Conservation Reserve", rate: null, ourTake: "THE CLEAR FIRST CHOICE, and one of the easiest properties anywhere for us to recommend, because the whole experience is integrated. Twenty rooms \u2014 seventeen rooms and three suites \u2014 inside the 14,000-acre Los Huemules Conservation Reserve, directly beside Los Glaciares National Park. MORE THAN THIRTY GUIDED EXPLORATIONS, in small groups, matched to your fitness. All meals, all drinks, transfers, park fees and spa access are included. You arrive and everything is handled." },
   ],
   "Bariloche": [
     { name: "Llao Llao Resort, Golf-Spa", area: "Nahuel Huapi", rate: null, ourTake: "The great Argentine landmark hotel, on a spit between two lakes with the Andes behind. Traditional, and irreplaceable." },
@@ -1957,10 +1958,11 @@ const FAVORITES = {
     { name: "Our Habitas Atacama", area: "San Pedro de Atacama", rate: null, ourTake: "Lower-key and more design-led than the four above, for travellers who want the desert without the ceremony." },
   ],
   "Torres del Paine": [
-    { name: "Awasi Patagonia", area: "Torres del Paine", rate: null, keys: 3, ourTake: "Fourteen villas, each with its own guide and 4x4. Among the very best hotels in South America, and it is not close." },
-    { name: "Tierra Patagonia Hotel & Spa", area: "Torres del Paine", rate: null, keys: 3, ourTake: "A great curved shell of weathered timber on the lake shore facing the towers \u2014 one of the continent's architectural destinations." },
-    { name: "Explora Patagonia", area: "Torres del Paine", rate: null, keys: 2, ourTake: "Alone by the Salto Chico waterfall inside the park itself, and essential for anyone who came to walk." },
-    { name: "Patagonia Camp", area: "Lago Toro", rate: null, ourTake: "Yurts on raised walkways above the lake \u2014 canvas, wood stoves, and the wind on the roof at night." },
+    { name: "Awasi Patagonia", area: "Private reserve, Torres del Paine", rate: 4850, ourTake: "THE BEST PURE LUXURY IN PATAGONIA and the one to lead with when a client says they want the very best. Sixteen standalone villas on a private reserve with direct views of the towers. THE DIFFERENTIATOR IS THE MODEL: every villa gets its OWN PRIVATE GUIDE AND OWN 4x4, so your days are built around you rather than a group timetable \u2014 leave at five for pumas, turn back when the weather closes, change plan at breakfast. A Relais & Ch\u00e2teaux restaurant, fully hosted rates including guiding, meals, drinks and excursions. Minimum three nights; TAKE FOUR, so the weather has to cooperate only once." },
+    { name: "Tierra Patagonia Hotel & Spa", area: "Lake Sarmiento, Torres del Paine", rate: null, ourTake: "THE ARCHITECTURE AND WELLNESS CHOICE. One of the most beautiful lodge designs anywhere \u2014 low, timber, folded into the ridge above Lake Sarmiento so that it almost disappears \u2014 with extraordinary views and a serious spa. Guided excursions and all-inclusive dining. Quieter and more serene than a conventional resort. Take this over Awasi when design, spa and stillness matter more than having a guide assigned only to you." },
+    { name: "Explora Patagonia", area: "Salto Chico, inside the park", rate: null, ourTake: "THE BEST FOR SERIOUS EXPLORATION. An exceptional position inside the park itself, and an all-inclusive exploration model built around expert guides and excursions matched to your fitness rather than a fixed schedule. All meals and drinks included. Its strength is the quality of the guiding and the depth of the programme rather than Aman-level hotel product \u2014 which is exactly why it is filed as Experience Luxury and not above it." },
+    { name: "Explora Torres del Paine Conservation Reserve", area: "Private reserve \u00b7 OPENING DECEMBER 2026", rate: null, ourTake: "NEW, AND WORTH WATCHING. About ten rooms on a former sheep ranch turned private conservation reserve \u2014 smaller and more intimate than the original Explora lodge, with gaucho culture, paleontology and private reserve trails alongside access to the classic Torres del Paine landscapes. Filed as Experience Luxury and deliberately not higher: it has not operated long enough for anyone to judge it, including us." },
+    { name: "Patagonia Camp", area: "Lago Toro", rate: null, ourTake: "Yurts on raised walkways above Lago Toro, outside the park \u2014 the lightest-footprint way to stay in this landscape and a genuinely different night. Comfortable rather than luxurious, and the right answer for someone who wants the setting without the lodge formality." },
   ],
   "Puerto Natales": [
     { name: "The Singular Patagonia", area: "Puerto Bories", rate: null, keys: 2, ourTake: "A converted 1915 lamb-processing plant on the fjord, machinery intact as a museum below \u2014 a destination rather than a staging post for the park." },
@@ -7396,6 +7398,10 @@ const AIRPORTS = {
   // the US, Caribbean Airlines everywhere — intercontinental. Tobago (TAB) takes British Airways
   // seasonally and Condor, plus the air bridge — intercontinental for the app's purposes.
   "Rwanda": { code: "KGL", scale: "intercontinental" }, "Kigali": { code: "KGL", scale: "intercontinental" },
+  "Punta Arenas": { code: "PUQ", scale: "regional" }, "Puerto Natales": { code: "PNT", scale: "regional" },
+  // El Chaltén has no airport at all — it is three hours overland from El Calafate, which is why
+  // the extension is an add-on to that leg rather than a separate arrival.
+  "El Chaltén": { code: "FTE", scale: "regional" },
   // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
   // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
   "Tromsø": { code: "TOS", scale: "regional" }, "Alta": { code: "ALF", scale: "regional" },
@@ -11105,8 +11111,61 @@ const ONE_LIST = {
         } },
       { title: "The Galápagos", city: "Galápagos", airport: "UIO", airportName: "Quito (gateway)", start: "", end: "", dateLabel: "Year-round · driest Jun–Dec", nights: 6, blurb: "A private yacht among the islands that taught the world about life — tortoises, boobies, sea lions." },
     ],
-    "Polar & Expedition": [
-      { title: "Antarctica Expedition", city: "Ushuaia, Argentina", airport: "EZE", airportName: "Buenos Aires (gateway)", start: "", end: "", dateLabel: "Nov–Mar season", nights: 8, blurb: "The white continent by luxury expedition ship — penguins, calving glaciers, the last true wilderness." },
+    "Wild & Remote": [
+      { title: "The One \u2014 Patagonia", city: "Torres del Paine", airport: "PUQ", airportName: "Punta Arenas (via Santiago)", start: "", end: "", dateLabel: "Nov\u2013Mar \u00b7 shoulder is better", nights: 7, blurb: "The end of the world, done right. Granite towers, blue ice and gaucho country \u2014 across two countries, from lodges that hand you a private guide and a 4x4 and ask what you feel like doing.",
+        photo: "Torres del Paine granite towers sunrise Chile",
+        gallery: ["Perito Moreno glacier calving Argentina", "guanaco Patagonia steppe wildlife", "Awasi Patagonia villa Torres del Paine", "Fitz Roy El Chalten Argentina"],
+        guide: {
+          cur: "$",
+          daysTitle: "What Patagonia really is",
+          daysIntro: "Patagonia is not a place so much as a weather system with mountains in it. Three granite towers that turn red for about four minutes at sunrise. Glaciers the size of cities calving into water the color of antifreeze. Guanacos on an empty steppe, condors overhead, gauchos who still work it on horseback, and a wind that has crossed the entire Pacific without hitting anything and arrives with an opinion.\n\nDO NOT TREAT IT AS ONE DESTINATION. That is the single most common mistake, and it is what makes people come home saying it was too rushed. The strongest version of this trip combines TORRES DEL PAINE in Chile with EL CALAFATE in Argentina, and adds EL CHALT\u00c9N if the client is a walker. Different countries, different landscapes, different airports, an international border in the middle.\n\nSEVEN NIGHTS IS THE MINIMUM WORTH DOING. Nine or ten is the right answer. Eleven or twelve does the whole thing. Four days is not a Patagonia trip, it is a photograph of one.\n\nAND THE LODGE IS THE TRIP HERE, more than anywhere else we send people. The good ones are all-inclusive by design: your room, every meal, and a daily choice of guided excursions with their own guides and vehicles. At Awasi every villa gets its own private guide and its own 4x4 \u2014 which in a place where the weather rewrites the day at ten in the morning is worth more than any amount of marble.",
+          basePicksTitle: "Where to start \u2014 and this is a decision, not a formality",
+          basePicksHelp: "Most clients should do the first two together: four nights in Torres del Paine, then three at El Calafate. Choose where the trip BEGINS and Plan this trip builds from there; the second leg is added on the next screen.",
+          basePicks: [
+            { name: "Torres del Paine", sub: "CHILE \u00b7 START HERE \u00b7 4 nights \u00b7 via Santiago and Punta Arenas", city: "Torres del Paine", airport: "PUQ", airportName: "Punta Arenas (via Santiago)",
+              note: "The Patagonia of the photographs and the heart of the trip. The three towers, the Cuernos, Grey Glacier, guanacos and the highest density of PUMAS anywhere on earth. It also holds the four best lodges on the continent. FOUR NIGHTS, NOT THREE \u2014 the towers hide in cloud for days at a time and you are buying chances. The price is the journey: Santiago, then Punta Arenas, then four to five hours by road." },
+            { name: "El Calafate", sub: "ARGENTINA \u00b7 3 nights \u00b7 via Buenos Aires", city: "El Calafate", airport: "FTE", airportName: "El Calafate (via Buenos Aires)",
+              note: "GLACIERS AND ESTANCIA COUNTRY, and much the easier arrival \u2014 the airport is twenty minutes from town. PERITO MORENO is the reason: five kilometers across, sixty meters high, and one of the very few major glaciers on earth that is not retreating. You stand on a walkway and watch buildings of ice fall off it, and the sound arrives after they do. Gentler days than Chile, and real Argentine Patagonia \u2014 lamb, horses, an asado that takes all afternoon." },
+            { name: "El Chalt\u00e9n", sub: "ARGENTINA \u00b7 OPTIONAL EXTENSION \u00b7 3 nights \u00b7 for walkers", city: "El Chalt\u00e9n", airport: "FTE", airportName: "El Calafate, then 3 hr overland",
+              note: "FITZ ROY, and the most serious mountain scenery in Patagonia. This is the extension for people who actually want to walk \u2014 Laguna de los Tres, Laguna Capri, glacial valleys, the Los Huemules reserve. DO NOT ADD IT TO EVERY TRIP. It is three more nights, reached three hours overland from El Calafate, and it is wasted on someone who wanted glaciers and a fire." },
+          ],
+          stayFromBase: true,
+          stayWord: "lodge",
+          stayEg: "e.g. an estancia outside town",
+          stayLead: "Where to stay",
+          stayNote: "These are the lodges for the leg you chose above \u2014 choose another and this list changes with it.\n\nTHEY ALL WORK THE SAME WAY, and it is not how hotels usually work. Full board, everything included, and each morning a choice of guided excursions with the lodge's own guides and vehicles: a two-hour lakeside walk, a full day to the base of the towers, a horseback afternoon with the gauchos, a 4x4 day looking for condors. You say what you feel like and it is handled. This is why choosing the lodge IS choosing the trip.\n\nAWASI GOES FURTHER THAN THE REST: a private guide and a private 4x4 for every villa, so nothing is shared and nothing is on a timetable. In a place where the weather rewrites the plan at ten in the morning, that is the real luxury.\n\nThere are very few beds in this landscape. Nine to twelve months out for the shoulder months, and Awasi has a three-night minimum.",
+          ticketsTitle: "When to go \u2014 and why everyone picks the wrong month",
+          ticketNote: "THE SEASON IS NOVEMBER TO MARCH, the austral summer. Outside it most lodges simply close.\n\nLATE DECEMBER, JANUARY AND FEBRUARY are peak: the longest days, the most people, the highest rates \u2014 and the most wind. Patagonian wind in high summer regularly runs at fifty or sixty miles an hour on the exposed sections and it will genuinely knock you over.\n\nNOVEMBER, EARLY DECEMBER AND MARCH ARE THE BETTER BALANCE. Fewer people, still plenty of daylight, strong wildlife, and none of the peak-season pressure on beds. In March the lenga forests turn red and gold across the whole park.\n\nAND IN ANY MONTH, THE WEATHER IS UNPREDICTABLE. Sun, sleet, wind and complete stillness inside six hours is an ordinary Patagonian day. Leave flexibility in the itinerary rather than a fixed plan \u2014 it is the single best thing you can do for the trip.",
+          stepsTitle: "How to build it, in order",
+          steps: [
+            { h: "Decide how active you actually are", b: "This matters more here than the hotel. LOW: 4x4 exploration, boat excursions, short walks, viewpoints, wildlife, horseback, spa. MODERATE: half-day hikes, longer walks, glacier walks. HIGH: Base Torres, Fitz Roy, long trekking, glacier trekking. PATAGONIA IS NOT ONLY FOR SERIOUS HIKERS, and the lodges are very good at matching people to days \u2014 but only if you tell them the truth at the first briefing." },
+            { h: "Book the lodges nine to twelve months out", b: "There are very few beds in this landscape and they go early for the shoulder months. Awasi has a three-night minimum; take four. The lodge is the trip, so this is the booking that decides everything else." },
+            { h: "Give it seven nights minimum", b: "Four nights Torres del Paine, three at El Calafate is the core itinerary for most clients. Nine or ten nights is the right answer. Stay longer in fewer places rather than adding stops." },
+            { h: "Book the domestic legs on the same ticket", b: "Santiago to Punta Arenas, or Buenos Aires to El Calafate. Both are over three hours, and both are the leg that strands people when the long-haul runs late. Note that Buenos Aires arrivals land at EZE and most southbound flights leave from AEP, across the city." },
+            { h: "Have the border crossing arranged for you", b: "TORRES DEL PAINE TO EL CALAFATE IS AN INTERNATIONAL BORDER, not a hotel transfer \u2014 four to five hours with immigration at each end, and sometimes a change of vehicle and driver. Your lodge or its ground operator should handle the paperwork, the timing buffer and the luggage. Do not improvise it, and build the day in rather than discovering it." },
+            { h: "Schedule the puma tracking early in the stay", b: "Sightings are never guaranteed. Putting it on your first full day leaves room for a second attempt if the weather or the animals do not cooperate." },
+            { h: "Do not fill every day", b: "The most common mistake after under-nighting is over-scheduling. Leave at least one slow half-day around the lodge on each leg. This is not an endurance test." },
+          ],
+          beyondTitle: "What to actually do",
+          beyond: [
+            { name: "Private puma tracking", note: "Torres del Paine holds the densest puma population on earth, and Awasi runs private tracking inside its own reserve at additional cost. Dawn and dusk, with trackers who know individual animals. NEVER GUARANTEED \u2014 which is exactly why you book it for early in the stay." },
+            { name: "Base Torres", note: "The iconic hike: eight to nine hours return, steep at the end, up a boulder field to a lake with the three towers rising straight out of it. Demanding, and NOT for everyone. Nobody should feel they have failed Patagonia for choosing a scenic drive instead." },
+            { name: "Perito Moreno, at your own pace", note: "Three ways to do it. EASY: private guide, the walkways, a scenic boat \u2014 still utterly spectacular and right for older travelers and families. ACTIVE: boat plus a short ice trek. VERY ACTIVE: a longer trek on the ice, for strong walkers only. Do not rush it between flights; give it a proper day." },
+            { name: "Horseback with the gauchos", note: "One of the strongest experiences in Patagonia and badly underrated. Private riding where possible \u2014 excellent for experienced riders, for families, and for anyone who wants the scenery without a nine-hour walk." },
+            { name: "Condors, guanacos and the steppe", note: "A half-day of wildlife and open country, and the perfect counterweight to a hard hiking day. Not every day should be strenuous." },
+            { name: "Fitz Roy, from El Chalt\u00e9n", note: "If you take the extension: Laguna de los Tres for strong hikers, Laguna Capri for a shorter day, plus glacial valleys, Lago del Desierto and the Los Huemules reserve. Explora runs more than thirty guided explorations there, matched to fitness." },
+          ],
+          notes: [
+            "THE LODGE RESTAURANT IS THE RESTAURANT. These places are remote by design and the dining is part of what you are buying \u2014 Awasi is Relais & Ch\u00e2teaux, and Tierra, Explora and EOLO all include meals and drinks. DO NOT DRIVE INTO TOWN LOOKING FOR DINNER. There is nothing there worth leaving for.",
+            "THE WIND IS THE WEATHER. Fifty to sixty miles an hour is an ordinary summer afternoon on the exposed sections. A windproof shell matters more than a thick coat.",
+            "THIS IS NOT A FASHION-RESORT TRIP, even at these prices. Waterproof shell, windproof layer, fleece, hiking trousers, waterproof boots with ankle support, gloves, warm hat, sunglasses, sunscreen, small daypack. Even luxury clients need proper outdoor kit.",
+            "THE TOWERS ARE OFTEN INVISIBLE, and that is normal \u2014 cloud sits on them for days. It is the whole argument for four nights rather than three.",
+            "SUN AT THIS LATITUDE IS FIERCE. The ozone layer is thin over southern Patagonia and people burn badly on overcast days. High factor, and proper sunglasses on ice.",
+            "TWO COUNTRIES MEANS PASSPORTS AND A REAL BORDER. Check current entry requirements before you travel, and keep passports accessible rather than packed.",
+            "THERE IS ALMOST NO PHONE SIGNAL, and satellite wifi at the lodges is limited at best. Tell people at home before you go.",
+          ],
+          handoff: "Plan this trip opens the leg you chose \u2014 the lodges, the flights down and the transfer in. Add the second leg on the next screen. Everything is booked by you, direct with the lodge, and the lodge arranges the guiding, the transfers and the border crossing.",
+        } },
       { title: "The Northern Lights", city: "Tromsø", airport: "TOS", airportName: "Tromsø (via Oslo)", start: "", end: "", dateLabel: "Late Sept – late March", nights: 4, blurb: "Not Reykjavik. The aurora belongs to a band of the Arctic that runs through northern Norway, Sweden and Finland — and the whole trip turns on clear sky.",
         photo: "northern lights Tromsø Norway",
         gallery: ["northern lights aurora Norway Arctic", "Lyngen Alps Tromsø winter", "Abisko Sweden winter night"],
@@ -12828,6 +12887,10 @@ const CONNECT_VIA = {
   "Levi": { hub: "Helsinki (HEL)", note: "You fly Helsinki to Kittilä, which is fifteen minutes from Levi. Seasonal direct flights also run from London and Amsterdam in winter — worth checking before routing through Helsinki. The Santa Claus overnight train from Helsinki to Kolari is the other way in." },
   "Saariselkä": { hub: "Helsinki (HEL)", note: "Helsinki to Ivalo, then half an hour by road. A handful of flights a day and they fill over Christmas." },
   "Svalbard": { hub: "Oslo (OSL)", note: "Oslo or Tromsø to Longyearbyen only. A short season of flights and no alternative route — book it before anything else." },
+  "Torres del Paine": { hub: "Santiago (SCL)", note: "Two flights to get here and no way around it. Long-haul into SANTIAGO, then three and a half hours south to PUNTA ARENAS, then four to five hours by road up to the park. Puerto Natales (PNT) has a seasonal field that halves the drive when it is running — worth asking about, because it is the difference between an easy arrival and a long one.\n\nBOOK THE SANTIAGO–PUNTA ARENAS LEG ON THE SAME TICKET as the long-haul, and give yourself a night in Santiago on the way in if the connection is tight. Most lodges include the road transfer from Punta Arenas or Puerto Natales; confirm that rather than assuming it." },
+  "Puerto Natales": { hub: "Santiago (SCL)", note: "Long-haul into Santiago, then south to Punta Arenas (PUQ) and about three hours north by road. The seasonal Puerto Natales field (PNT) is far quicker when it is open." },
+  "El Chaltén": { hub: "Buenos Aires (EZE), then El Calafate", note: "There is no airport at El Chaltén. You fly Buenos Aires to EL CALAFATE (FTE) and drive about three hours north — a beautiful road along Lago Argentino with Fitz Roy appearing at the end of it. Explora includes the transfer. THIS IS WHY EL CHALTÉN IS AN EXTENSION RATHER THAN A TRIP: it attaches to the El Calafate leg, and adding it means three more nights, not one more day." },
+  "El Calafate": { hub: "Buenos Aires (EZE)", note: "Long-haul into BUENOS AIRES, then about three hours south to El Calafate (FTE), which is twenty minutes from town and the closest airport to any of the Patagonian lodges.\n\nTHE CATCH IS THE CITY, NOT THE FLIGHT: most international arrivals land at EZE and almost all domestic flights south leave from AEP, the downtown airport. That is a transfer across Buenos Aires with traffic — allow three hours, or better, spend a night in the city and go the next morning. It is not a hardship." },
   "Rwanda": { hub: "Kigali (KGL)", note: "RwandAir, Qatar, Turkish, KLM and Brussels all serve Kigali. Land the day before your first trek at the latest — never the same morning." },
 };
 function connectVia(city) {
