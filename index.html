@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M430";
+const BUILD = "M431";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8449,6 +8449,10 @@ const DRIVE_LIMIT_KM = 300;
 // 180 km is flown daily, New York to Philadelphia at 130 km is not. Under this, the app stops
 // offering flights and points at the road instead, which is the honest answer.
 const TOO_CLOSE_TO_FLY_KM = 145;
+// A ferry is offered only when the curated table has the crossing AND it is a crossing a client
+// would actually take. Six hours is already a long day on a boat with luggage; beyond about 400 km
+// there is no scheduled passenger service worth putting in front of anyone.
+const FERRY_OFFER_MAX_MIN = 360, FERRY_OFFER_MAX_KM = 400;
 const ISLAND_OF = {
   // EVERY ISLAND IS AN ISLAND. drivable() asked two questions: same zone, and under the drive
   // limit. Athens to Santorini passes both \u2014 same zone, about 230 km \u2014 so the app offered a car
@@ -12888,6 +12892,8 @@ function useGround(from, to) {
   useEffect(() => {
     let dead = false;
     if (!a || !b || sameCity(a, b)) { setState(null); return; }
+    const iA = islandOf(a), iB = islandOf(b);
+    if ((iA || iB) && iA !== iB) { setState(null); return; }   // no road between landmasses
     const key = `${a}|${b}`.toLowerCase();
     if (GROUND_CACHE[key] !== undefined) { setState(GROUND_CACHE[key]); return; }
     // Resolve BOTH endpoints to real coordinates first — code-aware, so "Birmingham (BHM)"
@@ -13401,6 +13407,10 @@ function lodgeDining(city) {
   const k = Object.keys(LODGE_IS_THE_RESTAURANT).find((x) => x.toLowerCase() === String(key).toLowerCase());
   return k ? LODGE_IS_THE_RESTAURANT[k] : null;
 }
+const NO_HIRE_CAR_ISLANDS = [
+  "Mykonos", "Santorini", "Paros", "Milos", "Syros", "Sifnos", "Kea", "Capri",
+  "Bequia", "Canouan", "Petit St Vincent", "Mustique", "Harbour Island", "Staniel Cay",
+];
 const LODGE_DRIVES_YOU = [
   // Patagonia — all-inclusive lodges with their own guides and vehicles, transfers in the rate.
   "Torres del Paine", "El Calafate", "El Chaltén", "Puerto Natales",
@@ -13412,8 +13422,8 @@ const LODGE_DRIVES_YOU = [
   "Oslo", "Stockholm", "Helsinki", "Santiago", "Buenos Aires",
 ];
 function lodgeDrivesYou(city) {
-  const key = resolvePlace(city) || bareCity(city);
-  return LODGE_DRIVES_YOU.some((x) => x.toLowerCase() === String(key).toLowerCase());
+  const key = dnrm(resolvePlace(city) || bareCity(city));
+  return LODGE_DRIVES_YOU.concat(NO_HIRE_CAR_ISLANDS).some((x) => dnrm(x) === key);
 }
 function RentalPanel({ city, destination, compact }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
@@ -13476,11 +13486,15 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   const allowedRaw = feasibleModes(ground, distanceKm(from, to));
   const iaX = islandOf(from), ibX = islandOf(to);
   const acrossWater = !!((iaX || ibX) && iaX !== ibX);
-  const stripRoad = (list) => acrossWater ? list.filter((m) => m.key !== "Chauffeur" && m.key !== "Self-drive" && m.key !== "Train") : list;
-  const waterModes = () => {
+  const stripRoad = (list) => acrossWater ? list.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry())) : list;
+  const realFerry = () => {
     const f = ferryBetween(from, to);
-    return ARRIVE.filter((m) => m.key === "Flight" || (m.key === "Ferry" && f));
+    if (f == null || f > FERRY_OFFER_MAX_MIN) return null;
+    const km = distanceKm(from, to);
+    if (km != null && km > FERRY_OFFER_MAX_KM) return null;
+    return f;
   };
+  const waterModes = () => ARRIVE.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry()));
   let allowed = allowedRaw ? stripRoad(allowedRaw) : (acrossWater ? stripRoad(ARRIVE) : null);
   if (allowed && allowed.length === 0) allowed = acrossWater ? waterModes() : null;
   if (allowed && allowed.length === 0) allowed = null;
