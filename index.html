@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M421";
+const BUILD = "M422";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13350,7 +13350,17 @@ function RentalPanel({ city, destination, compact }) {
 function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate, returnDate, pax }) {
   const grounds = ["Train", "Chauffeur", "Self-drive"];
   const ground = useGround(from, to);
-  const allowed = feasibleModes(ground, distanceKm(from, to));
+  // THE THIRD ROAD TO THE SAME BUG. drivable() and driveEstimate() are both guarded, but the MODE
+  // CHIPS come from useGround() \u2014 a live Google routing call \u2014 and Google will happily plan a car
+  // onto a ferry and call it a nine-hour drive. So Chauffeur and Self-drive stayed on the chip row
+  // for Athens to Santorini however many times the estimator refused to price it. Strip the road
+  // and rail chips when the two ends are on different islands with no short ferry we know about.
+  // Flight remains, which is the only true answer.
+  const allowedRaw = feasibleModes(ground, distanceKm(from, to));
+  const iaX = islandOf(from), ibX = islandOf(to);
+  const acrossWater = !!((iaX || ibX) && iaX !== ibX && !drivable(from, to));
+  const stripRoad = (list) => acrossWater ? list.filter((m) => m.key !== "Chauffeur" && m.key !== "Self-drive" && m.key !== "Train") : list;
+  const allowed = allowedRaw ? stripRoad(allowedRaw) : (acrossWater ? stripRoad(ARRIVE) : null);
   const options = allowed || ARRIVE;
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
   // If the current choice turns out to be impossible for this leg, move to a sensible one.
