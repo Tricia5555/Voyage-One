@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M427";
+const BUILD = "M428";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1312,6 +1312,25 @@ const FAVORITES = {
   "Marbella": [
     { name: "Marbella Club", area: "Golden Mile", rate: null, ourTake: "The original Costa del Sol legend — beachfront bungalows and old-world glamour." },
     { name: "Finca Cortesin", area: "Casares", rate: null, ourTake: "A vast Andalusian estate with championship golf and one of Europe's great spas." },
+  ],
+  // ═══ SARDINIA — Tricia's gap audit, Sept 2026 ═══════════════════════════════════════════════
+  // ALL SIX ARE LUXURY. None is Ultra Luxury, by instruction. Three carry a deliberate,
+  // property-specific exception recorded here so nobody undoes it later: Cala di Volpe is
+  // Forbes VERIFIED rather than Five-Star, and Pitrizza and 7Pines are Forbes FOUR-Star — all
+  // three are approved as Luxury anyway because the officially five-star standing, the physical
+  // product and the destination stature clearly clear the Voyage One floor.
+  // WATCHLIST, NOT LOADED: Cervo Hotel (Porto Cervo), Cascioni Eco Retreat, Aethos Sardinia,
+  // La Villa del Re. Also NOT loaded in the south, by instruction: Casa Cl\u00e0t, Palazzo Tirso,
+  // Conrad Chia Laguna. A Michelin Key is not proof of five-star caliber and was not used as one.
+  // FUTURE: Pitrizza is expected to become CHEVAL BLANC PITRIZZA COSTA SMERALDA. When it does,
+  // RE-AUDIT THIS RECORD for possible Ultra Luxury \u2014 DO NOT CREATE A SECOND ENTRY.
+  "Sardinia": [
+    { name: "Hotel Cala di Volpe, a Luxury Collection Hotel", area: "Costa Smeralda \u00b7 Olbia (OLB)", rate: null, ourTake: "One of the hotels that DEFINED Costa Smeralda, built in the 1960s to look like an old fishing village and still the address everyone knows. A private beach on its own bay, a very large suite inventory, a Shiseido spa, and golf, tennis and yachting through the resort. Officially five-star and the stature to match." },
+    { name: "Romazzino, a Belmond Hotel, Costa Smeralda", area: "Costa Smeralda \u00b7 Olbia (OLB)", rate: null, ourTake: "Belmond, on a private white-sand beach, and the most refined of the original Costa Smeralda resorts after its recent repositioning. Quieter and more private than Cala di Volpe, with the same pedigree behind it." },
+    { name: "Hotel Pitrizza", area: "Liscia di Vacca, Costa Smeralda \u00b7 Olbia (OLB)", rate: null, ourTake: "The most secluded of the three Aga Khan-era hotels \u2014 around sixty-five rooms, suites and villas scattered through the granite above Liscia di Vacca, and a famous seawater pool cut straight into the rock. The strongest villa product on the coast and the one to take for privacy." },
+    { name: "7Pines Resort Sardinia", area: "Baja Sardinia \u00b7 Olbia (OLB)", rate: null, ourTake: "Suites and villas above Baja Sardinia looking out to the Maddalena archipelago, with a serious spa. Newer and more contemporary than the Costa Smeralda classics, and it works for families as well as couples." },
+    { name: "Petra Segreta Resort & Spa", area: "San Pantaleo \u00b7 Olbia (OLB)", rate: null, ourTake: "Around twenty-seven rooms on a hillside inland at San Pantaleo, Relais & Ch\u00e2teaux, many suites with heated private pools, and FUOCO SACRO holding a Michelin star on site. Unusually intimate for this island, and the answer for anyone who wants Sardinia without the Costa Smeralda scene." },
+    { name: "Villa del Parco & Spa", area: "Forte Village, south Sardinia \u00b7 Cagliari (CAG)", rate: null, ourTake: "THE OTHER END OF THE ISLAND \u2014 about forty-five minutes from Cagliari and four hours from Costa Smeralda, so check your airport. A Leading Hotels of the World five-star sitting as a hotel-within-a-resort inside Forte Village, which gives it real intimacy plus the spa and sports infrastructure of a very large resort behind it." },
   ],
   "Mallorca": [
     { name: "Cap Rocat", area: "Cala Blava", rate: null, ourTake: "ULTRA LUXURY, and it earns the tier on singularity alone. Twenty-four rooms inside a 19th-century military fortress on the cliffs above the bay of Palma, the top suites carved into former cannon emplacements. Two Michelin Keys, extraordinarily private, and there is nothing else like it in the Mediterranean." },
@@ -7516,6 +7535,7 @@ const AIRPORTS = {
   "El Chaltén": { code: "FTE", scale: "regional" },
   // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
   // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
+  "Sardinia": { code: "OLB", scale: "regional" },
   "Ibiza": { code: "IBZ", scale: "regional" }, "Menorca": { code: "MAH", scale: "regional" },
   // Formentera has no airport — it is the ferry from Ibiza, half an hour across.
   "Formentera": { code: "IBZ", scale: "regional" },
@@ -7924,6 +7944,7 @@ const ZONE = {
   // The aurora zone. Kept OUT of continental-europe deliberately: these are Arctic destinations
   // reached on their own routes, and lumping them in with Paris and Rome would have the distance
   // and drive-time rules treating a Lapland transfer as a European city hop.
+  "sardinia": ["Sardinia"],
   "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
@@ -8134,6 +8155,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
+  "Sardinia": [40.92,9.51],
   "Ibiza": [38.91,1.43], "Menorca": [39.95,4.11], "Formentera": [38.70,1.44],
   "Crete": [35.24,24.81], "Paros": [37.08,25.15], "Kea": [37.63,24.34], "Corfu": [39.62,19.92],
   "Zakynthos": [37.79,20.90], "Rhodes": [36.43,28.22], "Kos": [36.89,27.29], "Milos": [36.69,24.44],
@@ -8490,6 +8512,8 @@ const CITY_ALIASES = {
   "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
   "sf": "San Francisco", "san fran": "San Francisco",
   "tromso": "Tromsø", "tromsø": "Tromsø", "swedish lapland": "Abisko", "finnish lapland": "Levi", "lapland": "Levi", "longyearbyen": "Svalbard",
+  "porto cervo": "Sardinia", "costa smeralda": "Sardinia", "olbia": "Sardinia", "cagliari": "Sardinia",
+  "baja sardinia": "Sardinia", "san pantaleo": "Sardinia", "arzachena": "Sardinia", "forte village": "Sardinia", "sardegna": "Sardinia",
   "kigali": "Rwanda", "volcanoes national park": "Rwanda", "volcanoes": "Rwanda", "musanze": "Rwanda", "ruhengeri": "Rwanda", "kinigi": "Rwanda", "virunga": "Rwanda",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
@@ -13185,6 +13209,7 @@ const CONNECT_VIA = {
   "Puerto Natales": { hub: "Santiago (SCL)", note: "Long-haul into Santiago, then south to Punta Arenas (PUQ) and about three hours north by road. The seasonal Puerto Natales field (PNT) is far quicker when it is open." },
   "El Chaltén": { hub: "Buenos Aires (EZE), then El Calafate", note: "There is no airport at El Chaltén. You fly Buenos Aires to EL CALAFATE (FTE) and drive about three hours north — a beautiful road along Lago Argentino with Fitz Roy appearing at the end of it. Explora includes the transfer. THIS IS WHY EL CHALTÉN IS AN EXTENSION RATHER THAN A TRIP: it attaches to the El Calafate leg, and adding it means three more nights, not one more day." },
   "El Calafate": { hub: "Buenos Aires (EZE)", note: "SEARCH THIS AS TWO FLIGHTS, NOT ONE. Ask for Miami to El Calafate as a single journey and you will be offered Aerolíneas Argentinas and very little else — not because it is the best airline but because it is the only one flying BOTH legs, so it is the only one able to sell you the whole thing on one ticket.\n\nSplit it at Buenos Aires and the long-haul opens up: American, LATAM, Delta, United and Aerolíneas all compete for it, in every cabin. The domestic leg south is then a short, frequent, inexpensive hop.\n\nTHAT IS WHY WE PUT A NIGHT IN BUENOS AIRES IN THE PLAN. It buys you the choice of airline, and it removes the day's real hazard: international flights land at EZE and almost every southbound domestic leaves from AEP downtown, which is a cross-city transfer in Buenos Aires traffic. Doing that on the same day, on separate tickets, is how people miss Patagonia. Sleep in the city, fly south rested, and have dinner somewhere very good on the way through." },
+  "Sardinia": { hub: "Rome (FCO) or Milan (MXP)", note: "SARDINIA HAS TWO AIRPORTS AND THEY ARE FOUR HOURS APART. OLBIA (OLB) serves Costa Smeralda and the whole north \u2014 Cala di Volpe, Romazzino, Pitrizza, 7Pines, Petra Segreta. CAGLIARI (CAG) serves the south and is about forty-five minutes from Forte Village. Check which end your hotel is at before you book flights; this is the single most common mistake made on this island.\n\nBoth take direct European flights through the summer and thin out sharply in winter. Intercontinental connects at Rome or Milan." },
   // THE BALEARICS. Unlike the Greek islands these have heavy direct European service in season,
   // so the hub note is about the long-haul only.
   "Ibiza": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Ibiza (IBZ) takes direct flights from all over Europe through the summer, so from within Europe there is usually no connection at all. Intercontinental routes through MADRID or BARCELONA. Out of season the direct services thin out sharply." },
@@ -13433,12 +13458,18 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   const iaX = islandOf(from), ibX = islandOf(to);
   const acrossWater = !!((iaX || ibX) && iaX !== ibX);
   const stripRoad = (list) => acrossWater ? list.filter((m) => m.key !== "Chauffeur" && m.key !== "Self-drive" && m.key !== "Train") : list;
-  const allowed = allowedRaw ? stripRoad(allowedRaw) : (acrossWater ? stripRoad(ARRIVE) : null);
-  const options = allowed || ARRIVE;
+  const waterModes = () => {
+    const f = ferryBetween(from, to);
+    return ARRIVE.filter((m) => m.key === "Flight" || (m.key === "Ferry" && f));
+  };
+  let allowed = allowedRaw ? stripRoad(allowedRaw) : (acrossWater ? stripRoad(ARRIVE) : null);
+  if (allowed && allowed.length === 0) allowed = acrossWater ? waterModes() : null;
+  if (allowed && allowed.length === 0) allowed = null;
+  const options = (allowed && allowed.length) ? allowed : ARRIVE;
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
   // If the current choice turns out to be impossible for this leg, move to a sensible one.
   useEffect(() => {
-    if (allowed && arriveBy && !allowed.some((m) => m.key === arriveBy)) chooseMode(allowed[0].key);
+    if (allowed && allowed.length && arriveBy && !allowed.some((m) => m.key === arriveBy)) chooseMode(allowed[0].key);
   }, [allowed && allowed.map((m) => m.key).join(","), arriveBy]);
   // Always recompute the time/label from the current cities, then overlay whatever was saved on
   // the trip (mode, any price). A leg chosen before this feature existed has a stored ground with
