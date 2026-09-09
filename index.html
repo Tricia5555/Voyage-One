@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M428";
+const BUILD = "M430";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1324,9 +1324,20 @@ const FAVORITES = {
   // Conrad Chia Laguna. A Michelin Key is not proof of five-star caliber and was not used as one.
   // FUTURE: Pitrizza is expected to become CHEVAL BLANC PITRIZZA COSTA SMERALDA. When it does,
   // RE-AUDIT THIS RECORD for possible Ultra Luxury \u2014 DO NOT CREATE A SECOND ENTRY.
+  // SARDINIA — Tricia's gap audit, Sept 2026. All six are LUXURY; none is Ultra Luxury.
+  // Cala di Volpe, Pitrizza and 7Pines are property-specific exceptions: Forbes rates them below
+  // five-star, and Voyage One approves them on official standing and total product.
+  // WATCHLIST, NOT LOADED: Cervo Hotel (Porto Cervo), Cascioni Eco Retreat, Aethos Sardinia,
+  // La Villa del Re. Also deliberately absent: Casa Clàt, Palazzo Tirso, Conrad Chia Laguna and
+  // the rest of Forte Village — only the approved five-star component is loaded.
   "Sardinia": [
     { name: "Hotel Cala di Volpe, a Luxury Collection Hotel", area: "Costa Smeralda \u00b7 Olbia (OLB)", rate: null, ourTake: "One of the hotels that DEFINED Costa Smeralda, built in the 1960s to look like an old fishing village and still the address everyone knows. A private beach on its own bay, a very large suite inventory, a Shiseido spa, and golf, tennis and yachting through the resort. Officially five-star and the stature to match." },
     { name: "Romazzino, a Belmond Hotel, Costa Smeralda", area: "Costa Smeralda \u00b7 Olbia (OLB)", rate: null, ourTake: "Belmond, on a private white-sand beach, and the most refined of the original Costa Smeralda resorts after its recent repositioning. Quieter and more private than Cala di Volpe, with the same pedigree behind it." },
+    // PITRIZZA IS EXPECTED TO BECOME CHEVAL BLANC PITRIZZA COSTA SMERALDA after its renovation and
+    // management change. When that happens, RENAME AND RE-AUDIT THIS RECORD for possible Ultra
+    // Luxury — do not create a second entry. Loaded as Luxury by a property-specific Voyage One
+    // exception: Forbes currently rates it four-star, but it is officially five-star and the
+    // privacy, villa product and Costa Smeralda pedigree clear the floor.
     { name: "Hotel Pitrizza", area: "Liscia di Vacca, Costa Smeralda \u00b7 Olbia (OLB)", rate: null, ourTake: "The most secluded of the three Aga Khan-era hotels \u2014 around sixty-five rooms, suites and villas scattered through the granite above Liscia di Vacca, and a famous seawater pool cut straight into the rock. The strongest villa product on the coast and the one to take for privacy." },
     { name: "7Pines Resort Sardinia", area: "Baja Sardinia \u00b7 Olbia (OLB)", rate: null, ourTake: "Suites and villas above Baja Sardinia looking out to the Maddalena archipelago, with a serious spa. Newer and more contemporary than the Costa Smeralda classics, and it works for families as well as couples." },
     { name: "Petra Segreta Resort & Spa", area: "San Pantaleo \u00b7 Olbia (OLB)", rate: null, ourTake: "Around twenty-seven rooms on a hillside inland at San Pantaleo, Relais & Ch\u00e2teaux, many suites with heated private pools, and FUOCO SACRO holding a Michelin star on site. Unusually intimate for this island, and the answer for anyone who wants Sardinia without the Costa Smeralda scene." },
@@ -6979,6 +6990,14 @@ function keepInView(i) {
 // places it instantly. Big cities are deliberately absent — nobody needs "Paris, France" — so the
 // rule is: qualify a place only when the name alone would leave someone guessing.
 const PLACE_REGION = {
+  // Greek islands, Sept 2026.
+  "santorini": "Greece", "mykonos": "Greece", "crete": "Greece", "paros": "Greece", "kea": "Greece",
+  "corfu": "Greece", "zakynthos": "Greece", "rhodes": "Greece", "kos": "Greece", "milos": "Greece",
+  "syros": "Greece", "sifnos": "Greece", "athens": "Greece", "costa navarino": "Greece", "porto heli": "Greece",
+  // Balearics.
+  "mallorca": "Spain", "ibiza": "Spain", "menorca": "Spain", "formentera": "Spain",
+  // Italian islands.
+  "sardinia": "Italy", "capri": "Italy", "taormina": "Italy", "palermo": "Italy",
   "philipsburg": "Montana", "saratoga": "Wyoming", "greenough": "Montana", "darby": "Montana",
   "big sky": "Montana", "granby": "Colorado", "steamboat springs": "Colorado", "wickenburg": "Arizona",
   "solvang": "California", "park city": "Utah", "canyon point": "Utah", "meadows of dan": "Virginia",
