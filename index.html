@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M419";
+const BUILD = "M421";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -467,7 +467,9 @@ const ULTRA_LUX = [
   "Mandarin Oriental Ritz Madrid", "Four Seasons Hotel Madrid", "Marbella Club", "Finca Cortesin",
   "Cap Rocat", "La Residencia, a Belmond Hotel", "Six Senses Douro Valley", "Sublime Comporta",
   // Greece
-  "Amanzoe", "Four Seasons Astir Palace Athens", "One&Only Aesthesis", "One&Only Kéa Island",
+  "Amanzoe", "Four Seasons Astir Palace Athens", "One&Only Aesthesis",
+  // One&Only Kéa Island removed from Ultra Luxury Sept 2026 per the Greek islands audit: it is
+  // exceptional, and not yet proven to the Aman-level bar. Luxury until Voyage One says otherwise.
   "Mandarin Oriental Costa Navarino",
   // Ireland
   "Adare Manor", "Ballyfin", "Ashford Castle",
@@ -1329,7 +1331,6 @@ const FAVORITES = {
     { name: "Amanzoe", area: "Porto Heli", rate: null, ourTake: "A hilltop acropolis of marble pavilions above the Peloponnese coast." },
   ],
   "Kea": [
-    { name: "One&Only Kéa Island", area: "Kea", rate: null, ourTake: "A serene Cycladic hideaway on an under-the-radar island, all sea and quiet." },
   ],
   "Costa Navarino": [
     { name: "Mandarin Oriental Costa Navarino", area: "Messinia", rate: null, ourTake: "A beachfront sanctuary on the unspoiled Messinian coast, with dune-framed golf." },
@@ -1956,6 +1957,87 @@ const FAVORITES = {
     { name: "Tierra Atacama Hotel & Spa", area: "San Pedro de Atacama", rate: null, keys: 1, ourTake: "On an old cattle corral facing Licancabur, all-inclusive and guided, with the best spa in the north." },
     { name: "Explora Atacama", area: "San Pedro de Atacama", rate: null, keys: 1, ourTake: "The original exploration lodge \u2014 forty guided routes from the door and a horse ranch attached." },
     { name: "Our Habitas Atacama", area: "San Pedro de Atacama", rate: null, ourTake: "Lower-key and more design-led than the four above, for travellers who want the desert without the ceremony." },
+  ],
+  // ═══ THE GREEK ISLANDS — Tricia's gap audit, Sept 2026 ═══════════════════════════════════════
+  // EVERY PROPERTY HERE IS LUXURY. Not one is Ultra Luxury, deliberately and by instruction: that
+  // category stays Aman-level, and an extraordinary caldera view with a plunge pool does not
+  // reach it. Luxury is the DEFAULT tier — a property earns it by appearing here and by being
+  // absent from the three tier lists — so nothing below is added to ULTRA_LUX or anything else.
+  // Porto Zante is the one future re-check candidate and is NOT promoted now.
+  // WATCHLIST, NOT LOADED, pending Voyage One approval: Fouquet's Mykonos; Elysium Resort & Spa
+  // and Atrium Prestige (Rhodes); White Pebble Suites and Milos Cove (Milos); Elies Resort
+  // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
+  // therefore carry no inventory at all, which is the correct answer rather than an empty page
+  // filled with something weaker.
+  "Mykonos": [
+    { name: "Kalesma Mykonos", area: "Aleomándra", rate: null, ourTake: "Suites and villas along a ridge above the sea, done in stone and wood rather than the white-and-chrome the island usually reaches for. Quiet, grown-up, and the one to take if Mykonos nightlife is not the reason you are coming." },
+    { name: "Myconian Utopia Resort", area: "Elia Beach", rate: null, ourTake: "Relais & Châteaux above Elia, terraced down the hillside with private pools and a serious spa. Elia is the longest beach on the island and the calmest of the famous ones." },
+    { name: "Myconian Panoptis Escape", area: "Elia Beach", rate: null, ourTake: "The most private of the Myconian houses — fewer rooms, more space, and the sense of a hillside to yourself while Elia is still below you." },
+    { name: "Mykonos Grand Hotel & Resort", area: "Agios Ioannis", rate: null, ourTake: "On the beach at Agios Ioannis looking across to Delos, and one of the few genuinely beachfront luxury properties on the island rather than a hillside above one." },
+    { name: "Numo Mykonos", area: "Ornos", rate: null, ourTake: "Design-led and adults-only above Ornos bay, with a strong pool scene and an easy walk to the water. Younger in feel than the Myconian houses." },
+    { name: "Katikies Mykonos", area: "Agios Ioannis", rate: null, ourTake: "The Katikies house on Mykonos — the same white, cave-cut aesthetic that made the Santorini original, applied to a sunset-facing slope at Agios Ioannis." },
+    { name: "Myconian Villa Collection", area: "Elia Beach", rate: null, ourTake: "Villa-format accommodation within the Myconian group, for parties who want their own walls and pool with hotel service behind them." },
+    { name: "Myconian Korali Relais & Châteaux", area: "Mykonos Town", rate: null, ourTake: "Relais & Châteaux, and the one within reach of Mykonos Town on foot — which on this island is either the whole point or precisely what you are avoiding." },
+  ],
+  "Santorini": [
+    { name: "Grace Hotel, Auberge Collection", area: "Imerovigli", rate: null, ourTake: "The most polished hotel on the caldera and the one that reads as a proper hotel rather than a collection of cave suites. Imerovigli sits at the highest point of the rim, so the view is the best on the island and the crowds of Oia are twenty minutes away." },
+    { name: "Katikies Santorini", area: "Oia", rate: null, ourTake: "The original, and the property that set the visual language every other caldera hotel has borrowed since — white terraces stepping down the cliff at Oia, infinity pools hanging over the drop." },
+    { name: "Katikies Kirini Suites & Spa", area: "Oia", rate: null, ourTake: "Katikies' quieter sister a little along the Oia cliff, with a good spa and rather less foot traffic past the terrace." },
+    { name: "Andronis Luxury Suites", area: "Oia", rate: null, ourTake: "Cut into the Oia cliff at the sunset end, with private plunge pools and one of the better restaurants on the rim. Central to Oia, which cuts both ways." },
+    { name: "Andronis Arcadia", area: "Oia", rate: null, ourTake: "The larger, more resort-shaped Andronis — more space, more facilities, and a better answer than the cliff suites for anyone travelling with family." },
+    { name: "Saint Santorini", area: "Oia", rate: null, ourTake: "Small, contemporary and adults-only above Ammoudi Bay, with the sunset directly in front of it." },
+    { name: "Istoria", area: "Perissa", rate: null, ourTake: "On the BLACK SAND at Perissa rather than the caldera, which makes it the rarest thing on Santorini: a beach hotel. Design-led, calm, and a genuine alternative for anyone who wants to swim from their hotel rather than look down at the sea from it." },
+    { name: "Sandblu Santorini", area: "Perivolos", rate: null, ourTake: "Adults-only on the southern beaches, contemporary and quiet, and far from the Oia crush." },
+    { name: "Santorini Secret Suites & Spa", area: "Oia", rate: null, ourTake: "Caldera-edge suites at Oia with plunge pools and a well-regarded terrace restaurant." },
+  ],
+  "Paros": [
+    { name: "Parilio", area: "Naoussa", rate: null, ourTake: "The best hotel on Paros and one of the most beautiful in the Cyclades — a low, sculptural courtyard building in white stone, inland from Naoussa. Architecturally serious in a way very little on these islands is." },
+    { name: "Cosme, a Luxury Collection Resort", area: "Naoussa", rate: null, ourTake: "On the water at Naoussa bay, contemporary and easy, with the best of the island's restaurants and harbour a short way along the coast." },
+    { name: "Andronis Minois", area: "Parikia", rate: null, ourTake: "Andronis on Paros — quieter than their Santorini houses, set above Parikia with gardens and a pool rather than a cliff." },
+    { name: "Cove Paros", area: "Kolymbithres", rate: null, ourTake: "Overlooking Kolymbithres and its strange wind-carved rocks, adults-only and design-forward." },
+    { name: "Summer Senses Luxury Resort", area: "Punda", rate: null, ourTake: "A larger resort on the south of the island with several pools and a spa — the most conventional-resort option on Paros, and the easiest with children." },
+  ],
+  "Kea": [
+    { name: "One&Only Kéa Island", area: "Kéa", rate: null, ourTake: "AN IMPORTANT ADDITION and the only international luxury resort on an island most people have never heard of. Villas with private pools across a headland, One&Only management, real privacy and no crowds — because Kea has no airport and is reached by ferry from Lavrio on the Athens coast. That awkwardness is the whole reason it is as quiet as it is. Filed as Luxury for now, deliberately: exceptional, and not yet proven to Voyage One's beyond-luxury bar." },
+  ],
+  "Crete": [
+    { name: "Elounda Beach Hotel & Villas", area: "Elounda", rate: null, ourTake: "One of the founding names of Greek luxury and still one of the best addresses in Elounda — waterfront villas with private pools on the Mirabello Gulf." },
+    { name: "Elounda Peninsula Luxury Resort", area: "Elounda", rate: null, ourTake: "All-suite, all with private pools, on its own peninsula — the most exclusive of the Elounda group and among the strongest resort products in Greece." },
+    { name: "Daios Cove", area: "Agios Nikolaos", rate: null, ourTake: "Terraced down a private cove with its own beach, most rooms with a pool, and a funicular to the water. Dramatic, and much newer in feel than the Elounda grandes dames." },
+    { name: "Acro Suites", area: "Agia Pelagia", rate: null, ourTake: "Cave-style suites cut into the cliff on the north coast near Heraklion — adults-only, wellness-led, and visually one of the most striking places to stay on Crete." },
+    { name: "Phaea Blue", area: "Agia Pelagia", rate: null, ourTake: "On the beach at Agia Pelagia, contemporary and easy, and one of the better answers on Crete for a family that also wants design." },
+    { name: "Minos Beach Art Hotel", area: "Agios Nikolaos", rate: null, ourTake: "Bungalows and villas scattered through gardens on the waterfront, with a serious sculpture collection through the grounds — the most characterful property in the area and quite unlike a conventional resort." },
+    { name: "Nana Princess", area: "Hersonissos", rate: null, ourTake: "Adults-only, all-suite, most with private heated pools — the most indulgent room product on the north coast." },
+    { name: "Domes Zeen Chania", area: "Chania", rate: null, ourTake: "A beach-village layout of standalone crafted cottages on the WEST of the island near Chania — which is two and a half hours from Elounda, so choose your side of Crete before you book flights." },
+    { name: "Domes of Elounda", area: "Elounda", rate: null, ourTake: "Suites and villas facing Spinalonga island, family-strong, with an adults-only wing for couples who want both under one roof." },
+    { name: "Pnoé Breathing Life", area: "Chania", rate: null, ourTake: "Small, adults-only and wellness-focused on the west of the island — quiet, and a very different Crete from the big Elounda resorts." },
+  ],
+  "Corfu": [
+    { name: "Domes Miramare, a Luxury Collection Resort", area: "Moraitika", rate: null, ourTake: "THE LEAD PROPERTY ON CORFU. Adults-only, on its own beach, in the grounds of what was once a royal residence — the most polished thing on the island and the one to book first." },
+    { name: "Ikos Odisia", area: "Gouvia", rate: null, ourTake: "The Ikos take on all-inclusive, which is nothing like what that phrase usually means — several restaurants of real quality, a good spa, and the strongest family proposition on Corfu." },
+    { name: "Domes of Corfu", area: "Glyfada", rate: null, ourTake: "On the west coast at Glyfada with the best sunsets on the island, and a family-friendly counterweight to the adults-only Miramare." },
+  ],
+  "Zakynthos": [
+    { name: "Porto Zante Villas & Spa", area: "Tragaki", rate: null, ourTake: "Around fifteen villas on a private beach, each with its own pool, and the most private luxury product in the Ionian. THE ONE GREEK-ISLAND PROPERTY FLAGGED FOR A FUTURE ULTRA LUXURY RE-CHECK — scarcity, privacy and service potential all point that way. It stays Luxury for now, by instruction." },
+    { name: "Lesante Cape Resort & Villas", area: "Akrotiri", rate: null, ourTake: "Adults-only on the northern headland, with villas, private pools and views across to Kefalonia." },
+  ],
+  "Rhodes": [
+    { name: "Kókkini Porta Rossa", area: "Rhodes Old Town", rate: null, ourTake: "Five suites inside the medieval walls of Rhodes Old Town, in a restored Ottoman-era mansion. Tiny, personal, and completely unlike the beach resorts the island is known for — you sleep inside a World Heritage site." },
+  ],
+  "Kos": [
+    { name: "OKU Kos", area: "Marmari", rate: null, ourTake: "Low-slung, adults-only and deliberately laid-back on the beach at Marmari — the best-judged hotel on Kos and a world away from the island's package reputation." },
+    { name: "Lango Design Hotel & Spa", area: "Lambi", rate: null, ourTake: "Adults-only and design-led near Kos Town, with a good spa and an easy walk to the harbour." },
+    { name: "Albergo Gelsomino", area: "Kos Town", rate: null, ourTake: "A restored 1930s Italian-era building in the middle of Kos Town — small, characterful, and the town option rather than a beach one." },
+  ],
+  "Milos": [
+    { name: "Domes White Coast Milos", area: "Pahena", rate: null, ourTake: "Adults-only, on the water, all suites with private pools — and on an island whose lunar coastline is the reason to come, it is the one property that matches the landscape." },
+  ],
+  "Syros": [
+    { name: "Argini Syros", area: "Ermoupoli", rate: null, ourTake: "Small and contemporary above Ermoupoli, the neoclassical capital of the Cyclades — an island of opera houses and marble squares rather than white cubes." },
+    { name: "Aristide Hotel", area: "Ermoupoli", rate: null, ourTake: "A restored 19th-century merchant's mansion in Ermoupoli with a courtyard and a very good kitchen. The most charming small hotel in the Cyclades and almost nobody outside Greece knows it." },
+  ],
+  "Sifnos": [
+    { name: "Verina Astra", area: "Poulati", rate: null, ourTake: "A handful of suites on the cliff at Poulati with the whole Aegean in front of them. SIFNOS IS THE ISLAND GREEKS GO TO EAT — it is the home of Greek cookery writing and the food is the reason to come. No airport; ferry from Piraeus." },
   ],
   "Torres del Paine": [
     { name: "Awasi Patagonia", area: "Private reserve, Torres del Paine", rate: 4850, ourTake: "THE BEST PURE LUXURY IN PATAGONIA and the one to lead with when a client says they want the very best. Sixteen standalone villas on a private reserve with direct views of the towers. THE DIFFERENTIATOR IS THE MODEL: every villa gets its OWN PRIVATE GUIDE AND OWN 4x4, so your days are built around you rather than a group timetable \u2014 leave at five for pumas, turn back when the weather closes, change plan at breakfast. A Relais & Ch\u00e2teaux restaurant, fully hosted rates including guiding, meals, drinks and excursions. Minimum three nights; TAKE FOUR, so the weather has to cooperate only once." },
@@ -7404,6 +7486,12 @@ const AIRPORTS = {
   "El Chaltén": { code: "FTE", scale: "regional" },
   // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
   // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
+  "Crete": { code: "HER", scale: "regional" }, "Paros": { code: "PAS", scale: "regional" },
+  "Corfu": { code: "CFU", scale: "regional" }, "Zakynthos": { code: "ZTH", scale: "regional" },
+  "Rhodes": { code: "RHO", scale: "regional" }, "Kos": { code: "KGS", scale: "regional" },
+  "Milos": { code: "MLO", scale: "regional" }, "Syros": { code: "JSY", scale: "regional" },
+  // Kea and Sifnos have no airfield at all \u2014 both are reached by ferry from the Athens coast.
+  "Kea": { code: "ATH", scale: "regional" }, "Sifnos": { code: "ATH", scale: "regional" },
   "Oslo": { code: "OSL", scale: "intercontinental" }, "Stockholm": { code: "ARN", scale: "intercontinental" }, "Helsinki": { code: "HEL", scale: "intercontinental" },
   "Tromsø": { code: "TOS", scale: "regional" }, "Alta": { code: "ALF", scale: "regional" },
   "Abisko": { code: "KRN", scale: "regional" }, "Kiruna": { code: "KRN", scale: "regional" },
@@ -7803,6 +7891,8 @@ const ZONE = {
   // The aurora zone. Kept OUT of continental-europe deliberately: these are Arctic destinations
   // reached on their own routes, and lumping them in with Paris and Rome would have the distance
   // and drive-time rules treating a Lapland transfer as a European city hop.
+  "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
+  "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
   "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Middleburg","Boca Raton","San Miguel de Allende","Menlo Park","Quer\u00e9taro","Caldwell","Boise","Nashville","Oxford, Mississippi","Greenville, Mississippi","Jackson, Mississippi","Marianna","Oklahoma City","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
@@ -8010,6 +8100,9 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
+  "Crete": [35.24,24.81], "Paros": [37.08,25.15], "Kea": [37.63,24.34], "Corfu": [39.62,19.92],
+  "Zakynthos": [37.79,20.90], "Rhodes": [36.43,28.22], "Kos": [36.89,27.29], "Milos": [36.69,24.44],
+  "Syros": [37.44,24.94], "Sifnos": [36.98,24.71],
   "Oslo": [59.91,10.75], "Stockholm": [59.33,18.07], "Helsinki": [60.17,24.94],
   "Tromsø": [69.65,18.96], "Alta": [69.97,23.27], "Abisko": [68.35,18.83], "Kiruna": [67.86,20.23],
   "Rovaniemi": [66.50,25.73], "Levi": [67.80,24.80], "Saariselkä": [68.42,27.42], "Svalbard": [78.22,15.63],
@@ -8285,7 +8378,9 @@ const ISLAND_OF = {
   // Two places on the SAME island drive normally (Taormina to Palermo across Sicily). Anything
   // else involving an island needs a ferry we actually know about, or it is a flight. Places not
   // listed here are mainland and behave exactly as before, so the rest of the map is untouched.
-  "Santorini": "Santorini", "Mykonos": "Mykonos", "Crete": "Crete",
+  "Santorini": "Santorini", "Mykonos": "Mykonos", "Crete": "Crete", "Paros": "Paros", "Kea": "Kea",
+  "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
+  "Syros": "Syros", "Sifnos": "Sifnos",
   "Capri": "Capri", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Madeira": "Madeira",
   "St Barth": "St Barth", "St Maarten": "St Maarten", "Anguilla": "Anguilla", "Antigua": "Antigua",
@@ -13026,6 +13121,20 @@ const CONNECT_VIA = {
   "Puerto Natales": { hub: "Santiago (SCL)", note: "Long-haul into Santiago, then south to Punta Arenas (PUQ) and about three hours north by road. The seasonal Puerto Natales field (PNT) is far quicker when it is open." },
   "El Chaltén": { hub: "Buenos Aires (EZE), then El Calafate", note: "There is no airport at El Chaltén. You fly Buenos Aires to EL CALAFATE (FTE) and drive about three hours north — a beautiful road along Lago Argentino with Fitz Roy appearing at the end of it. Explora includes the transfer. THIS IS WHY EL CHALTÉN IS AN EXTENSION RATHER THAN A TRIP: it attaches to the El Calafate leg, and adding it means three more nights, not one more day." },
   "El Calafate": { hub: "Buenos Aires (EZE)", note: "SEARCH THIS AS TWO FLIGHTS, NOT ONE. Ask for Miami to El Calafate as a single journey and you will be offered Aerolíneas Argentinas and very little else — not because it is the best airline but because it is the only one flying BOTH legs, so it is the only one able to sell you the whole thing on one ticket.\n\nSplit it at Buenos Aires and the long-haul opens up: American, LATAM, Delta, United and Aerolíneas all compete for it, in every cabin. The domestic leg south is then a short, frequent, inexpensive hop.\n\nTHAT IS WHY WE PUT A NIGHT IN BUENOS AIRES IN THE PLAN. It buys you the choice of airline, and it removes the day's real hazard: international flights land at EZE and almost every southbound domestic leaves from AEP downtown, which is a cross-city transfer in Buenos Aires traffic. Doing that on the same day, on separate tickets, is how people miss Patagonia. Sleep in the city, fly south rested, and have dinner somewhere very good on the way through." },
+  // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
+  // to island-hop by ferry and the distances are longer than the map suggests.
+  "Santorini": { hub: "Athens (ATH)", note: "Santorini has its own airport (JTR) with seasonal European connections, but nothing long-haul \u2014 everything routes through ATHENS. Book the Athens leg on the same ticket. In high summer the flights and the fast ferries both sell out weeks ahead." },
+  "Mykonos": { hub: "Athens (ATH)", note: "Mykonos (JMK) takes seasonal European flights but everything intercontinental connects at ATHENS. Same-day connections are tight in August; a night in Athens is not a hardship." },
+  "Paros": { hub: "Athens (ATH)", note: "Paros (PAS) is a small field with Athens flights, or two to four hours by ferry from Piraeus. Fly if you can." },
+  "Milos": { hub: "Athens (ATH)", note: "A short Athens flight into Milos (MLO), or a longer ferry from Piraeus." },
+  "Syros": { hub: "Athens (ATH)", note: "Tiny airport (JSY) with Athens flights, and a good ferry service from Piraeus \u2014 Syros is the administrative capital of the Cyclades, so it is better connected than its size suggests." },
+  "Kea": { hub: "Athens (ATH)", note: "NO AIRPORT. Kea is reached by ferry from LAVRIO on the Athens coast \u2014 about an hour on the water, and Lavrio is roughly an hour from Athens airport. That awkwardness is exactly why the island is as quiet as it is." },
+  "Sifnos": { hub: "Athens (ATH)", note: "NO AIRPORT. Ferry from Piraeus, two to five hours depending on the boat. Sifnos rewards the effort and is the best island in the Cyclades to eat on." },
+  "Crete": { hub: "Athens (ATH)", note: "Crete has two airports \u2014 HERAKLION (HER) for Elounda and the east, CHANIA (CHQ) for the west. Check which side your hotel is on before booking: they are two and a half hours apart. Both take seasonal European flights; intercontinental connects at Athens." },
+  "Corfu": { hub: "Athens (ATH)", note: "Corfu (CFU) takes plenty of seasonal European flights and is one of the easier Greek islands to reach. Intercontinental still connects at Athens." },
+  "Rhodes": { hub: "Athens (ATH)", note: "Rhodes (RHO) is well served across the summer from Europe; intercontinental connects at Athens." },
+  "Kos": { hub: "Athens (ATH)", note: "Kos (KGS) takes seasonal European flights, or connect through Athens." },
+  "Zakynthos": { hub: "Athens (ATH)", note: "Zakynthos (ZTH) is seasonal and European; intercontinental connects at Athens." },
   "Rwanda": { hub: "Kigali (KGL)", note: "RwandAir, Qatar, Turkish, KLM and Brussels all serve Kigali. Land the day before your first trek at the latest — never the same morning." },
 };
 function connectVia(city) {
