@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M424";
+const BUILD = "M426";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1314,8 +1314,38 @@ const FAVORITES = {
     { name: "Finca Cortesin", area: "Casares", rate: null, ourTake: "A vast Andalusian estate with championship golf and one of Europe's great spas." },
   ],
   "Mallorca": [
-    { name: "Cap Rocat", area: "Cala Blava", rate: null, ourTake: "A former military fortress on the sea, transformed into a dramatic private hideaway." },
-    { name: "La Residencia, a Belmond Hotel", area: "Deià", rate: null, ourTake: "Two manor houses in the artists' village of Deià, gardens tumbling to the coast." },
+    { name: "Cap Rocat", area: "Cala Blava", rate: null, ourTake: "ULTRA LUXURY, and it earns the tier on singularity alone. Twenty-four rooms inside a 19th-century military fortress on the cliffs above the bay of Palma, the top suites carved into former cannon emplacements. Two Michelin Keys, extraordinarily private, and there is nothing else like it in the Mediterranean." },
+    { name: "La Residencia, a Belmond Hotel", area: "Dei\u00e0", rate: null, ourTake: "ULTRA LUXURY. Two manor houses above Dei\u00e0 in the Tramuntana, olive terraces falling to the sea, seventy-three rooms and two Michelin Keys. The classic stay-for-the-hotel property on Mallorca \u2014 people book it and barely leave the grounds." },
+    { name: "Four Seasons Resort Mallorca at Formentor", area: "Formentor", rate: null, ourTake: "The restored icon of the island, reopened under Four Seasons in 2024 after a complete rebuild \u2014 110 rooms on a private estate at the tip of the Formentor peninsula. The physical product is as strong as anything in Spain. Not Ultra Luxury yet, deliberately: it is new." },
+    { name: "Hotel Can Ferrereta", area: "Santany\u00ed", rate: null, ourTake: "A 17th-century townhouse in Santany\u00ed turned into one of the most refined small hotels in Spain \u2014 two Michelin Keys, contemporary design against old stone, and real privacy in the quiet southeast." },
+    { name: "Cap Vermell Grand Hotel", area: "Canyamel", rate: null, ourTake: "A large suite-led resort on the northeast coast with golf and a serious spa \u2014 the most conventional-resort answer on Mallorca and the easiest with a family." },
+    { name: "Finca Serena Mallorca", area: "Montu\u00efri", rate: null, ourTake: "Rural luxury in the middle of the island: vineyards, olive groves, wellness, and no coast at all. The one to take when you want Mallorca without the sea and without anyone else." },
+    { name: "Son Brull Hotel & Spa", area: "Pollen\u00e7a", rate: null, ourTake: "An 18th-century monastery below the Tramuntana, intimate and quietly excellent, with a good spa and a kitchen worth staying in for." },
+    { name: "Can Bordoy Grand House & Garden", area: "Palma", rate: null, ourTake: "A restored mansion in the old town of Palma with a walled garden nobody expects to find behind the door. The most charming town hotel on the island." },
+    { name: "Es Princep", area: "Palma", rate: null, ourTake: "Contemporary five-star in Palma overlooking the old city walls and the sea, with a rooftop that gets the cathedral in profile." },
+    { name: "Sant Francesc Hotel Singular", area: "Palma", rate: null, ourTake: "A 19th-century palace on a quiet square in the historic centre of Palma \u2014 boutique, beautifully done, and a short walk from everything." },
+    { name: "El Lloren\u00e7 Parc de la Mar", area: "Palma", rate: null, ourTake: "Small and design-led beside the cathedral park in Palma, with a strong rooftop and restaurant programme." },
+  ],
+  // BALEARIC WATCHLIST — NOT LOADED, pending Voyage One approval: MONDRIAN IBIZA (load only once
+  // current official five-star status is confirmed), CAP MENORCA (same), TERANKA FORMENTERA
+  // (Michelin-selected and appealing, but no confirmed official five-star classification).
+  // Michelin Keys alone are not proof of five-star status and were not treated as such here.
+  "Ibiza": [
+    { name: "Ibiza Gran Hotel", area: "Ibiza Town", rate: null, ourTake: "The island's established grand hotel and the only one carrying Spain's Five-Star Grand Luxe designation \u2014 all-suite, a major spa, the marina at the door and LA GAIA holding a Michelin star inside it. The town choice, and the serious one." },
+    { name: "Six Senses Ibiza", area: "Cala Xarraca", rate: null, ourTake: "Up in the wild NORTH of the island, which is a different Ibiza entirely from the one people picture \u2014 pine, red rock and empty coves. Six Senses wellness done properly, and the most private luxury on Ibiza. If a client says they want Ibiza but not THAT Ibiza, this is the answer." },
+    { name: "Nobu Hotel Ibiza Bay", area: "Talamanca", rate: null, ourTake: "On Talamanca bay, ten minutes from Ibiza Town \u2014 152 rooms and suites, a Six Senses spa, and the strongest food and drink programme of any hotel on the island. Family-friendly by day and thoroughly grown-up at night." },
+    { name: "7Pines Resort Ibiza", area: "Sant Josep", rate: null, ourTake: "Suites and villas stepping down the cliff on the west coast with ES VEDR\u00c0 directly in front \u2014 the best sunset view of any hotel in the Balearics, and a serious spa behind it." },
+    { name: "BLESS Hotel Ibiza", area: "Cala Nova", rate: null, ourTake: "On the beach at Cala Nova on the quieter east coast, with a rooftop, a good spa and a younger, more design-led feel than the grand hotels." },
+  ],
+  "Menorca": [
+    { name: "Villa Le Blanc, a Gran Meli\u00e1 Hotel", area: "Santo Tom\u00e1s", rate: null, ourTake: "A properly repositioned five-star on the south coast facing the sea \u2014 the most polished resort product on an island that has very deliberately never built many. Sustainability-led and genuinely quiet." },
+    { name: "Vestige Son Vell", area: "Ciutadella", rate: null, ourTake: "A thirty-four-suite 18th-century manor estate with its own semi-private cove \u2014 restored with real care and the most experiential place to stay on Menorca. Feels like a house you have been lent." },
+    { name: "Torralbenc", area: "Alaior", rate: null, ourTake: "A whitewashed farm estate above the south coast with its own vineyard \u2014 intimate, a Michelin Key, and one of the benchmark hotels of the island." },
+    { name: "Faustino Gran", area: "Ciutadella", rate: null, ourTake: "A historic building in the heart of Ciutadella, the prettiest town in the Balearics \u2014 five-star, central, and a rare town-hotel option on an island of rural estates." },
+    { name: "Cristine Bedfor", area: "Mah\u00f3n", rate: null, ourTake: "A distinctive small hotel in Mah\u00f3n, strong on design and personal service, in the middle of the island's harbour town." },
+  ],
+  "Formentera": [
+    { name: "Five Flowers Hotel & Spa Formentera", area: "Es Pujols", rate: null, ourTake: "THE ONLY FIVE-STAR HOTEL ON FORMENTERA, per the island's own tourism authority \u2014 adults-only, at Es Pujols, with a spa. Formentera is thin on luxury by design and by geography: no airport, ferry only from Ibiza, and that is exactly why the beaches are what they are." },
   ],
   "Douro Valley": [
     { name: "Six Senses Douro Valley", area: "Lamego", rate: null, ourTake: "A 19th-century manor over the terraced vineyards, wellness and wine in equal measure." },
@@ -7486,6 +7516,9 @@ const AIRPORTS = {
   "El Chaltén": { code: "FTE", scale: "regional" },
   // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
   // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
+  "Ibiza": { code: "IBZ", scale: "regional" }, "Menorca": { code: "MAH", scale: "regional" },
+  // Formentera has no airport — it is the ferry from Ibiza, half an hour across.
+  "Formentera": { code: "IBZ", scale: "regional" },
   "Crete": { code: "HER", scale: "regional" }, "Paros": { code: "PAS", scale: "regional" },
   "Corfu": { code: "CFU", scale: "regional" }, "Zakynthos": { code: "ZTH", scale: "regional" },
   "Rhodes": { code: "RHO", scale: "regional" }, "Kos": { code: "KGS", scale: "regional" },
@@ -7891,6 +7924,7 @@ const ZONE = {
   // The aurora zone. Kept OUT of continental-europe deliberately: these are Arctic destinations
   // reached on their own routes, and lumping them in with Paris and Rome would have the distance
   // and drive-time rules treating a Lapland transfer as a European city hop.
+  "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
@@ -8100,6 +8134,7 @@ const COORDS = {
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
+  "Ibiza": [38.91,1.43], "Menorca": [39.95,4.11], "Formentera": [38.70,1.44],
   "Crete": [35.24,24.81], "Paros": [37.08,25.15], "Kea": [37.63,24.34], "Corfu": [39.62,19.92],
   "Zakynthos": [37.79,20.90], "Rhodes": [36.43,28.22], "Kos": [36.89,27.29], "Milos": [36.69,24.44],
   "Syros": [37.44,24.94], "Sifnos": [36.98,24.71],
@@ -8271,7 +8306,7 @@ function knownDrive(a, b) {
 }
 function driveEstimate(a, b) {
   const ia = islandOf(a), ib = islandOf(b);
-  if ((ia || ib) && ia !== ib) { const f = ferryBetween(a, b); if (!f || f > FERRY_LIMIT_MIN) return null; }
+  if ((ia || ib) && ia !== ib) return null;   // no road across water, ferry or not
   const known = knownDrive(a, b);
   if (known) { const h = Math.floor(known.mins / 60), m = known.mins % 60;
     return { km: known.km, mins: known.mins, real: true, label: h > 0 ? `${h} hr ${m > 0 ? m + " min" : ""}`.trim() : `${m} min` }; }
@@ -8385,7 +8420,7 @@ const ISLAND_OF = {
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
   "Capri": "Capri", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
-  "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Madeira": "Madeira",
+  "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
   "St Barth": "St Barth", "St Maarten": "St Maarten", "Anguilla": "Anguilla", "Antigua": "Antigua",
   "Barbados": "Barbados", "St Lucia": "St Lucia", "Bermuda": "Bermuda", "Mustique": "Mustique",
   "Harbour Island": "Eleuthera", "Eleuthera": "Eleuthera", "Nevis": "Nevis", "St Kitts": "St Kitts",
@@ -8403,10 +8438,7 @@ function islandOf(place) {
 }
 function drivable(a, b) {
   const ia = islandOf(a), ib = islandOf(b);
-  if ((ia || ib) && ia !== ib) {
-    const f = ferryBetween(a, b);
-    return !!(f && f <= FERRY_LIMIT_MIN);
-  }
+  if ((ia || ib) && ia !== ib) return false;
   // Unknown place? We cannot claim a road exists. Better honest "no" than an invented drive.
   if (!known(a) || !known(b)) return ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN ? true : false;
   if (ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN) return true; // a short hop counts
@@ -13134,6 +13166,12 @@ const CONNECT_VIA = {
   "Puerto Natales": { hub: "Santiago (SCL)", note: "Long-haul into Santiago, then south to Punta Arenas (PUQ) and about three hours north by road. The seasonal Puerto Natales field (PNT) is far quicker when it is open." },
   "El Chaltén": { hub: "Buenos Aires (EZE), then El Calafate", note: "There is no airport at El Chaltén. You fly Buenos Aires to EL CALAFATE (FTE) and drive about three hours north — a beautiful road along Lago Argentino with Fitz Roy appearing at the end of it. Explora includes the transfer. THIS IS WHY EL CHALTÉN IS AN EXTENSION RATHER THAN A TRIP: it attaches to the El Calafate leg, and adding it means three more nights, not one more day." },
   "El Calafate": { hub: "Buenos Aires (EZE)", note: "SEARCH THIS AS TWO FLIGHTS, NOT ONE. Ask for Miami to El Calafate as a single journey and you will be offered Aerolíneas Argentinas and very little else — not because it is the best airline but because it is the only one flying BOTH legs, so it is the only one able to sell you the whole thing on one ticket.\n\nSplit it at Buenos Aires and the long-haul opens up: American, LATAM, Delta, United and Aerolíneas all compete for it, in every cabin. The domestic leg south is then a short, frequent, inexpensive hop.\n\nTHAT IS WHY WE PUT A NIGHT IN BUENOS AIRES IN THE PLAN. It buys you the choice of airline, and it removes the day's real hazard: international flights land at EZE and almost every southbound domestic leaves from AEP downtown, which is a cross-city transfer in Buenos Aires traffic. Doing that on the same day, on separate tickets, is how people miss Patagonia. Sleep in the city, fly south rested, and have dinner somewhere very good on the way through." },
+  // THE BALEARICS. Unlike the Greek islands these have heavy direct European service in season,
+  // so the hub note is about the long-haul only.
+  "Ibiza": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Ibiza (IBZ) takes direct flights from all over Europe through the summer, so from within Europe there is usually no connection at all. Intercontinental routes through MADRID or BARCELONA. Out of season the direct services thin out sharply." },
+  "Mallorca": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Palma (PMI) is one of the busiest airports in Spain in summer with direct flights across Europe. Intercontinental connects at Madrid or Barcelona." },
+  "Menorca": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Ma\u00f3 (MAH) is small and strongly seasonal \u2014 good direct European service May to October, much thinner outside it, when you connect through Barcelona or Palma." },
+  "Formentera": { hub: "Ibiza (IBZ)", note: "NO AIRPORT. Formentera is reached only by ferry from Ibiza \u2014 about half an hour from Ibiza Town, running frequently in season. Fly to Ibiza, then cross. That extra step is precisely why Formentera stayed quiet while Ibiza did not." },
   // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
   // to island-hop by ferry and the distances are longer than the map suggests.
   "Santorini": { hub: "Athens (ATH)", note: "Santorini has its own airport (JTR) with seasonal European connections, but nothing long-haul \u2014 everything routes through ATHENS. Book the Athens leg on the same ticket. In high summer the flights and the fast ferries both sell out weeks ahead." },
@@ -13374,7 +13412,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   // Flight remains, which is the only true answer.
   const allowedRaw = feasibleModes(ground, distanceKm(from, to));
   const iaX = islandOf(from), ibX = islandOf(to);
-  const acrossWater = !!((iaX || ibX) && iaX !== ibX && !drivable(from, to));
+  const acrossWater = !!((iaX || ibX) && iaX !== ibX);
   const stripRoad = (list) => acrossWater ? list.filter((m) => m.key !== "Chauffeur" && m.key !== "Self-drive" && m.key !== "Train") : list;
   const allowed = allowedRaw ? stripRoad(allowedRaw) : (acrossWater ? stripRoad(ARRIVE) : null);
   const options = allowed || ARRIVE;
@@ -15376,6 +15414,15 @@ function onwardOptions(hub, city) {
 }
 function recommendOnward(list, city) {
   if (!list.length) return null;
+  // ACROSS WATER, THE FLIGHT IS USUALLY THE RIGHT ANSWER even when the ferry looks quicker on
+  // paper. The list is sorted on minutes, so a 2 hr 30 crossing beat a 40-minute flight and the
+  // app recommended it. That arithmetic ignores what a ferry actually is with luggage: a queue
+  // at the port, an hour before boarding, cases hauled up a ramp, no assigned seat in high
+  // season, and a crossing that gets cancelled when the meltemi blows. Offer the boat, by all
+  // means \u2014 it is beautiful \u2014 but do not recommend it over flying by default.
+  const boat = list.find((x) => x.mode === "Ferry");
+  const air = list.find((x) => x.mode === "Connecting flight");
+  if (boat && air) return { pick: air, why: `The flight is the sane way to do this leg. The ferry is genuinely lovely and it is there if you want it \u2014 but with luggage it means a port queue, boarding well before departure, and a crossing that the wind can cancel outright. Take the boat when the crossing IS the point, not when you are trying to arrive.` };
   const rail = list.find((x) => x.mode === "Fast train");
   if (rail && rail.mins <= 240) return { pick: rail, why: carTrouble(city) ? `The train wins on time and drops you in the centre — and ${city} is a place you do not want a car anyway.` : "The train wins on time, and puts you down in the middle of town." };
   const fastest = list[0];
