@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M431";
+const BUILD = "M432";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2029,6 +2029,30 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ CAPRI + ISCHIA — Tricia's gap audit, Sept 2026 ══════════════════════════════════════════
+  // EVERY PROPERTY HERE IS LUXURY. No Ultra Luxury on either island, deliberately: Capri has many
+  // famous hotels and fame is not the bar. Jumeirah Capri Palace and Quisisana are approved as
+  // property-specific exceptions — Forbes rates them below five-star, and Voyage One approves on
+  // official standing, product and market position. Listed in Tricia's preferred order.
+  // WATCHLIST, NOT LOADED: Punta Tragara (Capri) and Miramare Sea Resort & Spa (Ischia), both
+  // pending confirmation of current five-star status. Botania is loaded, with the standing
+  // instruction that if its official five-star classification lapses it is FLAGGED FOR REVIEW
+  // rather than downgraded automatically.
+  "Capri": [
+    { name: "J.K. Place Capri", area: "Marina Grande", rate: null, ourTake: "THE BEST SMALL-SCALE CHOICE ON CAPRI and the one to lead with. Around twenty-two rooms above Marina Grande, Michele B\u00f6nan interiors that feel like a very rich friend's house rather than a hotel, sea views from almost every room and its own beach access. Forbes-verified luxury, and the most private thing on the island." },
+    { name: "Hotel La Palma, Oetker Collection", area: "Capri Town", rate: null, ourTake: "THE CAPRI TOWN CHOICE, and the fashionable one since Oetker restored it completely. The oldest hotel on the island, now intimate and beautifully done, a minute from the Piazzetta and Via Camerelle — which is either the entire point or precisely what you are avoiding." },
+    { name: "Jumeirah Capri Palace", area: "Anacapri", rate: null, ourTake: "THE WELLNESS CHOICE, up in quieter ANACAPRI rather than Capri town. A serious contemporary art collection through the building, a medical spa with a real reputation, two-Michelin-starred L'Olivo, and beach-club access at Il Riccio. The Executive Floor gives five suites their own lobby, concierge and e-butler." },
+    { name: "Grand Hotel Quisisana", area: "Capri Town", rate: null, ourTake: "THE GRANDE DAME. Directly on Via Camerelle beside the Piazzetta, 150 rooms, a large spa and pools, and a century and a half of being the address on Capri. Bigger and more formal than the boutiques — take it when the client wants the classic, social, seen-in-the-lobby version of the island." },
+    { name: "Capri Tiberio Palace", area: "Capri Town", rate: null, ourTake: "THE DESIGN CHOICE — boutique, characterful and rather playful interiors, a good spa, and a central position without the formality of the grand hotels. Forbes-verified luxury." },
+    { name: "Hotel Caesar Augustus", area: "Anacapri", rate: null, ourTake: "THE CLIFFSIDE ROMANTIC. A thousand feet straight above the sea in Anacapri, family-run, about forty-nine rooms and six suites, and a terrace view down the Bay of Naples that is genuinely among the great hotel views in Europe. Forbes-verified luxury." },
+  ],
+  "Ischia": [
+    { name: "Mezzatorre Hotel & Thermal Spa", area: "Forio", rate: null, ourTake: "THE ONE TO LEAD WITH ON ISCHIA. A 16th-century watchtower on its own wooded clifftop headland, run by Pellicano Hotels — so it has the same knowing, unfussy Italian confidence as Il Pellicano itself. Thermal spa, sea access down through the pines, and a private-estate atmosphere the bigger resorts cannot manufacture." },
+    { name: "Regina Isabella", area: "Lacco Ameno", rate: null, ourTake: "THE OLD-SCHOOL JET-SET CHOICE, and Ischia's most storied hotel — the 1950s Angelo Rizzoli set drank here. A hundred and twenty-one rooms, a serious thermal spa, four pools, a private beach, two tennis courts and Michelin-starred Indaco. Thoroughly Italian in the best sense." },
+    { name: "San Montano Resort & Spa", area: "Lacco Ameno", rate: null, ourTake: "THE WELLNESS AND VIEWS CHOICE. Three hectares of Mediterranean garden on a headland above the bay, an infinity pool with the sea beneath it, multiple thermal pools and a polished spa operation." },
+    { name: "Botania Relais & Spa", area: "Forio", rate: null, ourTake: "THE SMALL GARDEN CHOICE — ten separate Mediterranean-style buildings scattered through three hectares of garden, which makes it unusually private for its price. Wellness-led, quiet, and the least resort-like thing on the island." },
+    { name: "Excelsior Belvedere Hotel & Spa", area: "Ischia Porto", rate: null, ourTake: "THE CLASSIC CENTRAL CHOICE. A former noble residence in the middle of Ischia with its own private beach, thermal wellness and a long-standing, well-dressed clientele who have been coming for decades." },
+  ],
   "Mykonos": [
     { name: "Kalesma Mykonos", area: "Aleomándra", rate: null, ourTake: "Suites and villas along a ridge above the sea, done in stone and wood rather than the white-and-chrome the island usually reaches for. Quiet, grown-up, and the one to take if Mykonos nightlife is not the reason you are coming." },
     { name: "Myconian Utopia Resort", area: "Elia Beach", rate: null, ourTake: "Relais & Châteaux above Elia, terraced down the hillside with private pools and a serious spa. Elia is the longest beach on the island and the calmest of the famous ones." },
@@ -6997,7 +7021,7 @@ const PLACE_REGION = {
   // Balearics.
   "mallorca": "Spain", "ibiza": "Spain", "menorca": "Spain", "formentera": "Spain",
   // Italian islands.
-  "sardinia": "Italy", "capri": "Italy", "taormina": "Italy", "palermo": "Italy",
+  "sardinia": "Italy", "capri": "Italy", "ischia": "Italy", "taormina": "Italy", "palermo": "Italy",
   "philipsburg": "Montana", "saratoga": "Wyoming", "greenough": "Montana", "darby": "Montana",
   "big sky": "Montana", "granby": "Colorado", "steamboat springs": "Colorado", "wickenburg": "Arizona",
   "solvang": "California", "park city": "Utah", "canyon point": "Utah", "meadows of dan": "Virginia",
@@ -7555,6 +7579,8 @@ const AIRPORTS = {
   // Aurora zone. Every one of these is a domestic connection from Oslo, Stockholm or Helsinki —
   // naming them here stops the nearest-airport lookup wandering across a border the way Rwanda's did.
   "Sardinia": { code: "OLB", scale: "regional" },
+  // Capri and Ischia have no airports — both are boat from Naples, so Naples is the air gateway.
+  "Capri": { code: "NAP", scale: "regional" }, "Ischia": { code: "NAP", scale: "regional" },
   "Ibiza": { code: "IBZ", scale: "regional" }, "Menorca": { code: "MAH", scale: "regional" },
   // Formentera has no airport — it is the ferry from Ibiza, half an hour across.
   "Formentera": { code: "IBZ", scale: "regional" },
@@ -7964,7 +7990,7 @@ const ZONE = {
   // reached on their own routes, and lumping them in with Paris and Rome would have the distance
   // and drive-time rules treating a Lapland transfer as a European city hop.
   "sardinia": ["Sardinia"],
-  "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"],
+  "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"], "ischia": ["Ischia"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
@@ -8175,7 +8201,7 @@ const COORDS = {
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
-  "Ibiza": [38.91,1.43], "Menorca": [39.95,4.11], "Formentera": [38.70,1.44],
+  "Ischia": [40.73,13.90], "Ibiza": [38.91,1.43], "Menorca": [39.95,4.11], "Formentera": [38.70,1.44],
   "Crete": [35.24,24.81], "Paros": [37.08,25.15], "Kea": [37.63,24.34], "Corfu": [39.62,19.92],
   "Zakynthos": [37.79,20.90], "Rhodes": [36.43,28.22], "Kos": [36.89,27.29], "Milos": [36.69,24.44],
   "Syros": [37.44,24.94], "Sifnos": [36.98,24.71],
@@ -8362,7 +8388,7 @@ function driveEstimate(a, b) {
 // Short ferry hops are a real way to travel with your bags. Overnight crossings are not
 // "roaming" — they're a journey. Minutes, one way.
 const FERRIES = [
-  ["Capri", "Sorrento", 25], ["Capri", "Positano", 40], ["Capri", "Naples", 50], ["Capri", "Amalfi", 65],
+  ["Capri", "Sorrento", 25], ["Ischia", "Naples", 60], ["Ischia", "Capri", 70], ["Capri", "Positano", 40], ["Capri", "Naples", 50], ["Capri", "Amalfi", 65],
   ["Positano", "Amalfi", 30], ["Sorrento", "Positano", 40], ["Sorrento", "Naples", 45], ["Amalfi", "Salerno", 35],
   ["Santorini", "Mykonos", 150], ["Mykonos", "Athens", 150],
   // Honduras. The Galaxy Wave, La Ceiba to Roatán, about seventy-five minutes and the honest way
@@ -8464,7 +8490,7 @@ const ISLAND_OF = {
   "Santorini": "Santorini", "Mykonos": "Mykonos", "Crete": "Crete", "Paros": "Paros", "Kea": "Kea",
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
-  "Capri": "Capri", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
+  "Capri": "Capri", "Ischia": "Ischia", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
   // Caribbean, confirmed Sept 2026.
   "Tobago": "Tobago", "Port of Spain": "Trinidad", "Dominica": "Dominica", "Curacao": "Cura\u00e7ao",
@@ -13243,6 +13269,8 @@ const CONNECT_VIA = {
   "Formentera": { hub: "Ibiza (IBZ)", note: "NO AIRPORT. Formentera is reached only by ferry from Ibiza \u2014 about half an hour from Ibiza Town, running frequently in season. Fly to Ibiza, then cross. That extra step is precisely why Formentera stayed quiet while Ibiza did not." },
   // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
   // to island-hop by ferry and the distances are longer than the map suggests.
+  "Capri": { hub: "Naples (NAP)", note: "NO AIRPORT, AND NO ROAD. Capri is reached only by boat from NAPLES or Sorrento — the fast hydrofoil takes about fifty minutes from Naples. Fly into Naples, then cross. CARS ARE EFFECTIVELY BANNED for visitors and the island is walked, taken by funicular or by open taxi, so do not plan around a vehicle." },
+  "Ischia": { hub: "Naples (NAP)", note: "NO AIRPORT. Ischia is an hour by hydrofoil from NAPLES, and larger and slower-paced than Capri — it is a thermal-spa island that Italians go to, rather than a day-trip stage. Fly into Naples and cross." },
   "Santorini": { hub: "Athens (ATH)", note: "Santorini has its own airport (JTR) with seasonal European connections, but nothing long-haul \u2014 everything routes through ATHENS. Book the Athens leg on the same ticket. In high summer the flights and the fast ferries both sell out weeks ahead." },
   "Mykonos": { hub: "Athens (ATH)", note: "Mykonos (JMK) takes seasonal European flights but everything intercontinental connects at ATHENS. Same-day connections are tight in August; a night in Athens is not a hardship." },
   "Paros": { hub: "Athens (ATH)", note: "Paros (PAS) is a small field with Athens flights, or two to four hours by ferry from Piraeus. Fly if you can." },
