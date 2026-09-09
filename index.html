@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M414";
+const BUILD = "M416";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9275,6 +9275,24 @@ function Panel({ icon: Icon, title, right, children }) {
 // NAMING A CARRIER WITHOUT A WAY TO REACH IT IS HALF AN ANSWER. Arrival options can now carry
 // a link, shown under the row so the client goes straight to the operator that flies the leg.
 // An <a> cannot be nested inside the row's <button>, so it sits beneath it as a sibling.
+// The handoff itself. Shown only once a flight is actually chosen, so it reads as "now go and
+// buy this one" rather than as another thing to browse.
+function FlightBookLinks({ flight, dateISO, returnISO, city }) {
+  if (!flight || !flight.chosen) return null;
+  const air = airlineBooking(flight);
+  const search = flightSearchLink(flight, dateISO, returnISO);
+  if (!air && !search) return null;
+  const btn = { display: "inline-block", fontSize: 13.5, fontWeight: 600, padding: "9px 15px", borderRadius: 999, textDecoration: "none", marginRight: 8, marginTop: 8 };
+  return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+    <div style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Book this flight</div>
+    {air ? <a href={brandedLink(air.url, { kind: "flight", name: air.name, city: city || "" })} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: t.pine, color: t.paper }}>Book with {air.name} \u2197</a> : null}
+    {search ? <a href={search} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: "none", border: `1px solid ${t.line}`, color: t.inkSoft }}>Open with your dates \u2197</a> : null}
+    <div style={{ fontSize: 13, color: t.ink, marginTop: 10, fontWeight: 500 }}>{flightSearchLine(flight, dateISO, returnISO)}</div>
+    <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 9 }}>
+      The airline\u2019s own site will not accept a pre-filled itinerary from us, so those are your search details above \u2014 and BOOKING DIRECT IS THE RIGHT WAY ANYWAY: it is the only place your frequent-flyer number, Known Traveler, points, upgrades and any credit on file will apply. \u201cOpen with your dates\u201d starts the search already filled in and hands you through to the airline. Everything opens in a new tab, so your trip stays here \u2014 come back and mark it Booked. The fare above is what the search returned; the airline quotes its own price and that is the one you pay.
+    </div>
+  </div>);
+}
 function OptionRow({ selected, onClick, title, desc, sub, price, link, linkLabel }) {
   return (<div>
   <button onClick={onClick} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, width: "100%", textAlign: "left", padding: "13px 15px", borderRadius: 12, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.mist : t.white, marginBottom: 8 }}>
@@ -12899,6 +12917,68 @@ function GettingAroundPanel({ city }) {
 // of guesses that would be wrong the moment a brand opened or closed a counter.
 //
 // Pickup only. Where the car is returned is the client's business, settled at booking.
+// ── BOOKING THE FLIGHT. Voyage One is not the merchant of record and does not issue tickets, so
+// the honest answer is a clean handoff: the client picks the flight here, we send them to the
+// airline that actually sells it, and they come back and mark it booked.
+//
+// Keyed by IATA code, which we already hold on every offer inside flightNo ("AA904" -> AA).
+// Deep links that prefill an itinerary are NOT standardised, differ per airline and break
+// silently; a broken deep link is worse than a homepage. So these are the carriers' own booking
+// pages, which are stable, plus a Google Flights fallback that prefills the actual route and
+// date. That fallback is the important half: it means no airline is ever a dead end.
+const AIRLINE_SITE = {
+  AA: ["American Airlines", "https://www.aa.com"], DL: ["Delta", "https://www.delta.com"],
+  UA: ["United", "https://www.united.com"], AS: ["Alaska Airlines", "https://www.alaskaair.com"],
+  B6: ["JetBlue", "https://www.jetblue.com"], WN: ["Southwest", "https://www.southwest.com"],
+  AC: ["Air Canada", "https://www.aircanada.com"], BA: ["British Airways", "https://www.britishairways.com"],
+  VS: ["Virgin Atlantic", "https://www.virginatlantic.com"], IB: ["Iberia", "https://www.iberia.com"],
+  AY: ["Finnair", "https://www.finnair.com"], SK: ["SAS", "https://www.flysas.com"],
+  DY: ["Norwegian", "https://www.norwegian.com"], WF: ["Wider\u00f8e", "https://www.wideroe.no"],
+  FI: ["Icelandair", "https://www.icelandair.com"], LH: ["Lufthansa", "https://www.lufthansa.com"],
+  LX: ["SWISS", "https://www.swiss.com"], OS: ["Austrian", "https://www.austrian.com"],
+  SN: ["Brussels Airlines", "https://www.brusselsairlines.com"], AF: ["Air France", "https://www.airfrance.com"],
+  KL: ["KLM", "https://www.klm.com"], AZ: ["ITA Airways", "https://www.ita-airways.com"],
+  TP: ["TAP Air Portugal", "https://www.flytap.com"], TK: ["Turkish Airlines", "https://www.turkishairlines.com"],
+  EK: ["Emirates", "https://www.emirates.com"], QR: ["Qatar Airways", "https://www.qatarairways.com"],
+  EY: ["Etihad", "https://www.etihad.com"], SQ: ["Singapore Airlines", "https://www.singaporeair.com"],
+  CX: ["Cathay Pacific", "https://www.cathaypacific.com"], NH: ["ANA", "https://www.ana.co.jp"],
+  JL: ["Japan Airlines", "https://www.jal.co.jp"], QF: ["Qantas", "https://www.qantas.com"],
+  NZ: ["Air New Zealand", "https://www.airnewzealand.com"], LA: ["LATAM", "https://www.latamairlines.com"],
+  AR: ["Aerol\u00edneas Argentinas", "https://www.aerolineas.com.ar"], CM: ["Copa", "https://www.copaair.com"],
+  AV: ["Avianca", "https://www.avianca.com"], ET: ["Ethiopian", "https://www.ethiopianairlines.com"],
+  WB: ["RwandAir", "https://www.rwandair.com"], KQ: ["Kenya Airways", "https://www.kenya-airways.com"],
+  SA: ["South African Airways", "https://www.flysaa.com"], MS: ["EgyptAir", "https://www.egyptair.com"],
+  AI: ["Air India", "https://www.airindia.com"], TG: ["Thai Airways", "https://www.thaiairways.com"],
+  KE: ["Korean Air", "https://www.koreanair.com"], OZ: ["Asiana", "https://flyasiana.com"],
+};
+function airlineBooking(flight) {
+  if (!flight) return null;
+  const code = (flight.flightNo || "").trim().slice(0, 2).toUpperCase();
+  const hit = AIRLINE_SITE[code];
+  if (hit) return { name: hit[0], url: hit[1] };
+  return null;
+}
+// The universal fallback — one URL shape, every route, never rots.
+function flightSearchLink(flight, dateISO, returnISO) {
+  const a = flight && flight.depAirport, b = flight && flight.arrAirport;
+  if (!a || !b) return null;
+  const cab = flight.cabin ? ` in ${String(flight.cabin).toLowerCase()}` : "";
+  const q = `Flights from ${a} to ${b}`
+    + (dateISO ? ` on ${dateISO}` : "")
+    + (returnISO && returnISO !== dateISO ? ` through ${returnISO}` : "")
+    + cab;
+  return "https://www.google.com/travel/flights?q=" + encodeURIComponent(q);
+}
+// Written out for the client to retype on the airline site, because that is what they will
+// actually have to do. Dates in full so nobody transposes a month.
+function flightSearchLine(flight, dateISO, returnISO) {
+  const fmt = (d) => { if (!d) return ""; const x = new Date(d + "T00:00:00"); return isNaN(x) ? d : x.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); };
+  const bits = [`${flight.depAirport} \u2192 ${flight.arrAirport}`];
+  if (dateISO) bits.push("out " + fmt(dateISO));
+  if (returnISO && returnISO !== dateISO) bits.push("back " + fmt(returnISO));
+  if (flight.cabin) bits.push(flight.cabin);
+  return bits.join("  \u00b7  ");
+}
 const CONNECT_VIA = {
   "Tromsø": { hub: "Oslo (OSL) — usually", note: "Nothing long-haul flies into Tromsø, so every route connects somewhere. WHY OSLO IS WORTH ASKING FOR: it is the fastest way in and normally the only stop you make. Oslo has nonstop service from the US East Coast and then many flights a day up to Tromsø, under two hours. Route through Frankfurt or Zurich instead and you are usually making TWO connections rather than one, which adds hours and another chance to miss a bag.\n\nTHE CATCH, IF YOU FLY FIRST: the Scandinavian carriers sell Business, not First. Filter for First and the search will hand you Lufthansa or SWISS through Frankfurt or Zurich, because that is where First actually exists — and you pay for it in elapsed time. In Business, the Oslo routing reappears. Decide which you care about more; on this trip we would take the shorter day.\n\nOSLO IS A GATEWAY, NOT A BASE. You pass through it. You do not stay there and fly north and back each night. And book the northern leg on the SAME TICKET as the long-haul — the last flight to Tromsø goes early in the evening, and if a delay makes you miss it on a separate ticket, the night is yours to pay for." },
   "Alta": { hub: "Oslo (OSL)", note: "Connects through Oslo, usually via Tromsø. Book it on one ticket." },
@@ -13123,7 +13203,7 @@ function RentalPanel({ city, destination, compact }) {
   </Panel>);
 }
 
-function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate, pax }) {
+function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate, returnDate, pax }) {
   const grounds = ["Train", "Chauffeur", "Self-drive"];
   const ground = useGround(from, to);
   const allowed = feasibleModes(ground, distanceKm(from, to));
@@ -13148,6 +13228,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
       : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />}
+    {arriveBy === "Flight" ? <FlightBookLinks flight={pick.flight} dateISO={flightDate} returnISO={returnDate} city={to} /> : null}
     {arriveBy === "Flight" && pick.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
       <BookingRow item={pick.flight} onSet={(patch) => upd({ flight: { ...pick.flight, ...patch } })} />
     </div>) : null}
@@ -14452,7 +14533,7 @@ function CitySection({ d, i, p, from, legSched }) {
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
     </div>)}
     {needsHub && !gw && <HubPanel from={flyFrom} city={surfaceTarget} date={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} pick={pick} upd={upd} />}
-    <ArrivalPanel pax={partySize(p)} from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
+    <ArrivalPanel pax={partySize(p)} from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} returnDate={i === 0 && p.dates ? p.dates.ret : ""} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
         // The title has to agree with the mode actually chosen. It used to say "fly into
         // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
         // by rail — so Florence → Portofino read as a flight, offered no flights (there are
@@ -14579,6 +14660,7 @@ function ReturnSection({ p, rc, blocked }) {
         <AlertTriangle size={15} color="#B0563A" style={{ marginTop: 2, flexShrink: 0 }} />
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>Settle your nights first. Booking a flight home while the schedule is short a night is how people end up sleeping in an airport — fix the stays above and this opens up.</div>
       </div> : <FlightPicker from={departAirport} to={p.homeCity} pick={{ flight: rp.flight }} upd={(patch) => upd(patch)} date={p.dates && p.dates.ret ? p.dates.ret : ""} pax={partySize(p)} />}
+      <FlightBookLinks flight={rp.flight} dateISO={p.dates && p.dates.ret ? p.dates.ret : ""} city={p.homeCity} />
       {rp.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
         <BookingRow item={rp.flight} onSet={(patch) => upd({ flight: { ...rp.flight, ...patch } })} />
       </div>) : null}
