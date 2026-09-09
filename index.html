@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M426";
+const BUILD = "M427";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8421,6 +8421,25 @@ const ISLAND_OF = {
   "Syros": "Syros", "Sifnos": "Sifnos",
   "Capri": "Capri", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
+  // Caribbean, confirmed Sept 2026.
+  "Tobago": "Tobago", "Port of Spain": "Trinidad", "Dominica": "Dominica", "Curacao": "Cura\u00e7ao",
+  "Bonaire": "Bonaire", "Martinique": "Martinique", "Guadeloupe": "Guadeloupe",
+  "St Vincent": "St Vincent", "Bequia": "Bequia", "Canouan": "Canouan", "Petit St Vincent": "Petit St Vincent",
+  "Grand Cayman": "Grand Cayman", "Little Cayman": "Little Cayman",
+  "St Thomas": "St Thomas", "St John": "St John", "St Croix": "St Croix",
+  "Turks & Caicos": "Turks and Caicos",
+  // Puerto Rico — one island, three destinations on it.
+  "San Juan": "Puerto Rico", "Dorado": "Puerto Rico", "R\u00edo Grande, Puerto Rico": "Puerto Rico",
+  // Jamaica — one island, six destinations on it, so they drive to each other normally.
+  "Montego Bay": "Jamaica", "Negril": "Jamaica", "Ocho Rios": "Jamaica", "Port Antonio": "Jamaica",
+  "Kingston": "Jamaica", "Blue Mountains, Jamaica": "Jamaica",
+  // The Bahamas — separate islands, and you fly or take a boat between them.
+  "Nassau": "New Providence", "Paradise Island": "New Providence",
+  "Exuma": "Exumas", "Exumas": "Exumas", "Great Exuma": "Exumas", "Staniel Cay": "Exumas",
+  "North Eleuthera": "Eleuthera", "San Salvador": "San Salvador",
+  "Andros, Bahamas": "Andros", "Andros Town": "Andros", "South Andros": "Andros",
+  // Same island under the file's own spelling.
+  "Easter Island": "Rapa Nui",
   "St Barth": "St Barth", "St Maarten": "St Maarten", "Anguilla": "Anguilla", "Antigua": "Antigua",
   "Barbados": "Barbados", "St Lucia": "St Lucia", "Bermuda": "Bermuda", "Mustique": "Mustique",
   "Harbour Island": "Eleuthera", "Eleuthera": "Eleuthera", "Nevis": "Nevis", "St Kitts": "St Kitts",
@@ -8431,10 +8450,10 @@ const ISLAND_OF = {
   "Bali": "Bali", "Phuket": "Phuket", "Bora Bora": "Bora Bora", "Fiji": "Fiji", "Rapa Nui": "Rapa Nui",
   "Iceland": "Iceland", "Reykjavik": "Iceland", "Svalbard": "Svalbard", "Sri Lanka": "Sri Lanka",
 };
+const ISLAND_LOOKUP = (() => { const m = {}; Object.keys(ISLAND_OF).forEach((k) => { m[dnrm(k)] = ISLAND_OF[k]; }); return m; })();
 function islandOf(place) {
   const key = resolvePlace(place) || bareCity(place);
-  const k = Object.keys(ISLAND_OF).find((x) => x.toLowerCase() === String(key).toLowerCase());
-  return k ? ISLAND_OF[k] : null;
+  return ISLAND_LOOKUP[dnrm(key)] || null;
 }
 function drivable(a, b) {
   const ia = islandOf(a), ib = islandOf(b);
