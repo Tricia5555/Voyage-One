@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M416";
+const BUILD = "M419";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8177,6 +8177,8 @@ function knownDrive(a, b) {
   return hit ? { mins: hit[2], km: hit[3] } : null;
 }
 function driveEstimate(a, b) {
+  const ia = islandOf(a), ib = islandOf(b);
+  if ((ia || ib) && ia !== ib) { const f = ferryBetween(a, b); if (!f || f > FERRY_LIMIT_MIN) return null; }
   const known = knownDrive(a, b);
   if (known) { const h = Math.floor(known.mins / 60), m = known.mins % 60;
     return { km: known.km, mins: known.mins, real: true, label: h > 0 ? `${h} hr ${m > 0 ? m + " min" : ""}`.trim() : `${m} min` }; }
@@ -8275,7 +8277,38 @@ const DRIVE_LIMIT_KM = 300;
 // 180 km is flown daily, New York to Philadelphia at 130 km is not. Under this, the app stops
 // offering flights and points at the road instead, which is the honest answer.
 const TOO_CLOSE_TO_FLY_KM = 145;
+const ISLAND_OF = {
+  // EVERY ISLAND IS AN ISLAND. drivable() asked two questions: same zone, and under the drive
+  // limit. Athens to Santorini passes both \u2014 same zone, about 230 km \u2014 so the app offered a car
+  // and a chauffeur across 230 km of Aegean. Zones are continents, not coastlines, so they can
+  // never catch this. What was missing is the landmass.
+  // Two places on the SAME island drive normally (Taormina to Palermo across Sicily). Anything
+  // else involving an island needs a ferry we actually know about, or it is a flight. Places not
+  // listed here are mainland and behave exactly as before, so the rest of the map is untouched.
+  "Santorini": "Santorini", "Mykonos": "Mykonos", "Crete": "Crete",
+  "Capri": "Capri", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
+  "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Madeira": "Madeira",
+  "St Barth": "St Barth", "St Maarten": "St Maarten", "Anguilla": "Anguilla", "Antigua": "Antigua",
+  "Barbados": "Barbados", "St Lucia": "St Lucia", "Bermuda": "Bermuda", "Mustique": "Mustique",
+  "Harbour Island": "Eleuthera", "Eleuthera": "Eleuthera", "Nevis": "Nevis", "St Kitts": "St Kitts",
+  "Turks and Caicos": "Turks and Caicos", "Cura\u00e7ao": "Cura\u00e7ao", "Aruba": "Aruba", "Grenada": "Grenada",
+  "British Virgin Islands": "British Virgin Islands", "Virgin Gorda": "British Virgin Islands", "Tortola": "British Virgin Islands",
+  "Maldives": "Maldives", "Mauritius": "Mauritius", "Seychelles": "Seychelles", "Zanzibar": "Zanzibar",
+  "Maui": "Maui", "Kauai": "Kauai", "Lanai": "Lanai", "Big Island": "Big Island", "Oahu": "Oahu",
+  "Bali": "Bali", "Phuket": "Phuket", "Bora Bora": "Bora Bora", "Fiji": "Fiji", "Rapa Nui": "Rapa Nui",
+  "Iceland": "Iceland", "Reykjavik": "Iceland", "Svalbard": "Svalbard", "Sri Lanka": "Sri Lanka",
+};
+function islandOf(place) {
+  const key = resolvePlace(place) || bareCity(place);
+  const k = Object.keys(ISLAND_OF).find((x) => x.toLowerCase() === String(key).toLowerCase());
+  return k ? ISLAND_OF[k] : null;
+}
 function drivable(a, b) {
+  const ia = islandOf(a), ib = islandOf(b);
+  if ((ia || ib) && ia !== ib) {
+    const f = ferryBetween(a, b);
+    return !!(f && f <= FERRY_LIMIT_MIN);
+  }
   // Unknown place? We cannot claim a road exists. Better honest "no" than an invented drive.
   if (!known(a) || !known(b)) return ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN ? true : false;
   if (ferryBetween(a, b) && ferryBetween(a, b) <= FERRY_LIMIT_MIN) return true; // a short hop counts
@@ -8285,6 +8318,8 @@ function drivable(a, b) {
   return km == null ? false : km <= DRIVE_LIMIT_KM;
 }
 function whyNotDrivable(a, b) {
+  const ia = islandOf(a), ib = islandOf(b);
+  if ((ia || ib) && ia !== ib) return "across water — fly or take a ferry";
   const za = zoneOf(a), zb = zoneOf(b);
   if (za && zb && za !== zb) return "a flight away";
   const km = distanceKm(a, b);
@@ -11708,7 +11743,7 @@ function OneList({ onPick, onBack, onHome }) {
             const dineCard = (s, k) => { const on = !!dineSel[s.name]; return (
                 <button key={k} onClick={() => setDineSel((prev) => { const n = { ...prev }; if (on) delete n[s.name]; else n[s.name] = { name: s.name, area: s.area || null, note: s.note || null, stars: s.stars || 0 }; return n; })} style={{ textAlign: "left", background: on ? t.pine : t.white, border: `2px solid ${on ? t.brass : t.line}`, borderRadius: 14, padding: "15px 17px", cursor: "pointer" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                    <div style={{ fontFamily: font.display, fontSize: 20, color: on ? t.paper : t.ink }}>{s.name}{s.stars ? <span style={{ fontSize: 13, color: on ? t.brassLight : t.brass, marginLeft: 8 }}>{"★".repeat(s.stars)}</span> : null}</div>
+                    <div style={{ fontFamily: font.display, fontSize: 20, color: on ? t.paper : t.ink }}>{s.name}</div>
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: on ? t.brassLight : t.brass, fontWeight: 500 }}>{s.area}</div> : null}
                   </div>
                   {s.note ? <div style={{ fontSize: 13.5, color: on ? "#D8D2C6" : t.inkSoft, lineHeight: 1.55, marginTop: 5 }}>{s.note}</div> : null}
@@ -13274,8 +13309,7 @@ function PlaceRow({ item, selected, onClick, sub, price }) {
         <span style={{ fontSize: 15, color: t.ink }}>{item.name}</span>
         {item.band ? <span style={{ fontSize: 13, whiteSpace: "nowrap", color: t.brass, letterSpacing: "0.06em" }} title={item.bandNote || ""}>{item.band}</span> : (price ? <span style={{ fontSize: 14, whiteSpace: "nowrap" }}>{price}</span> : null)}
       </span>
-      {item.stars ? <span style={{ display: "block", fontSize: 12, color: t.brass, marginTop: 3, letterSpacing: "0.1em" }}>{"★".repeat(item.stars)}<span style={{ color: t.line }}>{"★".repeat(5 - item.stars)}</span>{item.rating ? <span style={{ color: t.inkFaint, letterSpacing: "normal", marginLeft: 6 }}>Google {item.rating}{item.reviews ? ` · ${item.reviews.toLocaleString()}` : ""}</span> : null}</span>
-        : item.rating ? <span style={{ display: "block", fontSize: 11.5, color: t.brass, marginTop: 2 }}>★ {item.rating}{item.reviews ? ` · ${item.reviews.toLocaleString()} reviews` : ""}</span> : null}
+      {null}
       {item.desc ? <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 4, lineHeight: 1.45 }}>{item.desc}</span> : null}
       <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{sub}</span>
     </span>
@@ -13400,6 +13434,7 @@ function BookingPrompt() {
       if (document.visibilityState !== "visible") return;
       let p = PENDING_BOOKING;
       if (!p) { try { p = JSON.parse(localStorage.getItem("voyage-one:pending") || "null"); } catch (e) { p = null; } }
+      if (p && p.kind === "flight") return;
       if (p && Date.now() - p.at > 15000 && Date.now() - p.at < 1000 * 60 * 60 * 6) setPend(p);
     };
     document.addEventListener("visibilitychange", check); window.addEventListener("focus", check);
@@ -13443,7 +13478,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
   const photo = s.photo || info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
-  const rating = s.rating || info.rating;
+  const rating = null;   // Google crowd rating — deliberately not shown. See note above.
   const tier = tierProp || tierOf(s.name);
   const [broken, setBroken] = useState(false);
   const showImg = photo && !broken;
