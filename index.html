@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M422";
+const BUILD = "M424";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8342,8 +8342,11 @@ function connection(a, b) {
   const za = zoneOf(a), zb = zoneOf(b);
   const sameLand = za === zb; // both are known here, so this is a real comparison
   const km = distanceKm(a, b);
+  const iA = islandOf(a), iB = islandOf(b);
+  if ((iA || iB) && iA !== iB) return (fm && fm <= FERRY_LIMIT_MIN) ? { mode: "Ferry", label: `${minsLabel(fm)} ferry`, mins: fm } : null;
   if (sameLand && km != null && km <= DRIVE_LIMIT_KM) {
     const dr = driveEstimate(a, b);
+    if (!dr) return (fm && fm <= FERRY_LIMIT_MIN) ? { mode: "Ferry", label: `${minsLabel(fm)} ferry`, mins: fm } : null;
     if (fm && fm <= FERRY_LIMIT_MIN && dr && fm < dr.km / 72 * 60) return { mode: "Ferry", label: `${minsLabel(fm)} ferry`, mins: fm };
     return { mode: "Drive", label: `${dr.label} drive`, km: dr.km };
   }
@@ -12762,6 +12765,16 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
               // Florence is a rail market, and the empty list on its own reads as a fault in the
               // app. If there is a real surface connection, name it and its journey time instead
               // of leaving a blank. Universal: driven by the connection data, not a list of pairs.
+              // ACROSS WATER, THE ANSWER IS NOT "SWITCH TO A CHAUFFEUR". When no fares come back
+              // for an island leg the old fallback reached for connection(), got a road answer
+              // out of zone-and-distance, and told the client to drive nine hours and 296 km
+              // instead of flying. connection() refuses across water now, but this branch should
+              // say the true thing rather than fall through to a shrug.
+              const iF = islandOf(from), iT = islandOf(to);
+              if ((iF || iT) && iF !== iT) {
+                const fmins = ferryBetween(from, to);
+                return (<>No live {cabin} fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""}. THIS LEG IS OVER WATER \u2014 there is no road{fmins ? <> and the alternative is the ferry, about {minsLabel(fmins)}</> : ", so it is a short flight or a boat"}. Try another date, or a different cabin.</>);
+              }
               const conn = connection(from, to);
               if (conn && conn.label) {
                 return (<>Airlines don't really fly {bareCity(from)} to {bareCity(to)} — it's a surface route. <strong style={{ color: t.ink }}>{conn.label}</strong>{conn.km ? ` (${conn.km} km)` : ""} is how this leg is actually done, and it will very likely beat flying once airports are counted. Switch <strong style={{ color: t.ink }}>Travel here by</strong> above to rail or a chauffeur.</>);
@@ -13332,7 +13345,10 @@ function RentalPanel({ city, destination, compact }) {
     {dropped.length > 0 && <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5, marginTop: -2, marginBottom: 8 }}>
       {fmtList(dropped.map((b) => b.key))} {dropped.length === 1 ? "has" : "have"} no branch we can find in {bareCity(city)}, so {dropped.length === 1 ? "it is" : "they are"} not offered here.
     </div>}
-    {more.length > 0 && (open
+    {shown.length === 0 && dropped.length > 0 ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, background: t.mist, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+      We cannot find a branch for any of the companies we would use in {bareCity(city)}. On smaller islands the rental market is local operators and scooters rather than the international names — your hotel is the right place to ask, and they will have someone they use.
+    </div> : null}
+    {shown.length > 0 && more.length > 0 && (open
       ? <div style={{ marginTop: 6 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Also approved</div>
           {more.map((b) => <RentalRow key={b.key} b={b} faded />)}
@@ -14096,6 +14112,8 @@ function isDestinationItself(name, city) {
   const n = placeNorm(name), d = placeNorm(city);
   if (!n || !d) return false;
   if (n === d) return true;
+  const extraToken = (x, y) => x.startsWith(y + " ") && x.slice(y.length + 1).split(" ").length === 1;
+  if (extraToken(n, d) || extraToken(d, n)) return true;
   const cn = placeCanon(name), cd = placeCanon(city);
   if ((cn === cd || n === cd || cn === d) && sharedHead(n, d) >= 4) return true;
   return false;
