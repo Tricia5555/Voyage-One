@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M435";
+const BUILD = "M436";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9639,11 +9639,11 @@ function FlightBookLinks({ flight, dateISO, returnISO, city }) {
   const btn = { display: "inline-block", fontSize: 13.5, fontWeight: 600, padding: "9px 15px", borderRadius: 999, textDecoration: "none", marginRight: 8, marginTop: 8 };
   return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
     <div style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Book this flight</div>
-    {air ? <a href={brandedLink(air.url, { kind: "flight", name: air.name, city: city || "" })} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: t.pine, color: t.paper }}>Book with {air.name} \u2197</a> : null}
-    {search ? <a href={search} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: "none", border: `1px solid ${t.line}`, color: t.inkSoft }}>Open with your dates \u2197</a> : null}
+    {air ? <a href={brandedLink(air.url, { kind: "flight", name: air.name, city: city || "" })} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: t.pine, color: t.paper }}>Book with {air.name} ↗</a> : null}
+    {search ? <a href={search} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: "none", border: `1px solid ${t.line}`, color: t.inkSoft }}>Open with your dates ↗</a> : null}
     <div style={{ fontSize: 13, color: t.ink, marginTop: 10, fontWeight: 500 }}>{flightSearchLine(flight, dateISO, returnISO)}</div>
     <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 9 }}>
-      The airline\u2019s own site will not accept a pre-filled itinerary from us, so those are your search details above \u2014 and BOOKING DIRECT IS THE RIGHT WAY ANYWAY: it is the only place your frequent-flyer number, Known Traveler, points, upgrades and any credit on file will apply. \u201cOpen with your dates\u201d starts the search already filled in and hands you through to the airline. Everything opens in a new tab, so your trip stays here \u2014 come back and mark it Booked. The fare above is what the search returned; the airline quotes its own price and that is the one you pay.
+      The airline’s own site will not accept a pre-filled itinerary from us, so those are your search details above — and BOOKING DIRECT IS THE RIGHT WAY ANYWAY: it is the only place your frequent-flyer number, Known Traveler, points, upgrades and any credit on file will apply. “Open with your dates” starts the search already filled in and hands you through to the airline. Everything opens in a new tab, so your trip stays here \u2014 come back and mark it Booked. The fare above is what the search returned; the airline quotes its own price and that is the one you pay.
     </div>
   </div>);
 }
@@ -13001,7 +13001,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
               const iF = islandOf(from), iT = islandOf(to);
               if ((iF || iT) && iF !== iT) {
                 const fmins = ferryBetween(from, to);
-                return (<>No live {cabin} fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""}. THIS LEG IS OVER WATER \u2014 there is no road{fmins ? <> and the alternative is the ferry, about {minsLabel(fmins)}</> : ", so it is a short flight or a boat"}. Try another date, or a different cabin.</>);
+                return (<>No live {cabin} fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""}. THIS LEG IS OVER WATER — there is no road{fmins ? <> and the alternative is the ferry, about {minsLabel(fmins)}</> : ", so it is a short flight or a boat"}. Try another date, or a different cabin.</>);
               }
               const conn = connection(from, to);
               if (conn && conn.label) {
@@ -13270,7 +13270,7 @@ function GettingAroundPanel({ city }) {
       {(open || rule.r === "rec" ? cars : cars.slice(0, 1)).map((b) => <RentalRow key={b.key} b={b} />)}
       {!open && rule.r !== "rec" && cars.length > 1 && <button onClick={() => setOpen(true)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13 }}>View more options</button>}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>
-        You book direct with the company \u2014 Voyage One never holds the reservation or the payment.
+        You book direct with the company — Voyage One never holds the reservation or the payment.
       </div>
     </div>)}
   </Panel>);
@@ -13346,7 +13346,7 @@ function flightSearchLink(flight, dateISO, returnISO) {
 // actually have to do. Dates in full so nobody transposes a month.
 function flightSearchLine(flight, dateISO, returnISO) {
   const fmt = (d) => { if (!d) return ""; const x = new Date(d + "T00:00:00"); return isNaN(x) ? d : x.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); };
-  const bits = [`${flight.depAirport} \u2192 ${flight.arrAirport}`];
+  const bits = [`${flight.depAirport} → ${flight.arrAirport}`];
   if (dateISO) bits.push("out " + fmt(dateISO));
   if (returnISO && returnISO !== dateISO) bits.push("back " + fmt(returnISO));
   if (flight.cabin) bits.push(flight.cabin);
