@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M433";
+const BUILD = "M434";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8530,6 +8530,9 @@ const TOO_CLOSE_TO_FLY_KM = 145;
 // would actually take. Six hours is already a long day on a boat with luggage; beyond about 400 km
 // there is no scheduled passenger service worth putting in front of anyone.
 const FERRY_OFFER_MAX_MIN = 360, FERRY_OFFER_MAX_KM = 400;
+// A gateway airport has to be a drive you would actually make. Past four hours you fly somewhere
+// else instead, and a "drive" longer than that is usually the router crossing water.
+const GATEWAY_MAX_DRIVE_MIN = 240;
 const ISLAND_OF = {
   // EVERY ISLAND IS AN ISLAND. drivable() asked two questions: same zone, and under the drive
   // limit. Athens to Santorini passes both \u2014 same zone, about 230 km \u2014 so the app offered a car
@@ -8542,6 +8545,7 @@ const ISLAND_OF = {
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
   "Capri": "Capri", "Ischia": "Ischia", "Taormina": "Sicily", "Agrigento": "Sicily", "Sciacca": "Sicily",
+  "Catania": "Sicily", "Trapani": "Sicily", "Comiso": "Sicily", "Pantelleria": "Pantelleria", "Lampedusa": "Lampedusa",
   "Noto": "Sicily", "Mount Etna": "Sicily", "Syracuse": "Sicily", "Vulcano": "Vulcano", "Salina": "Salina", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
   // Caribbean, confirmed Sept 2026.
@@ -10042,7 +10046,14 @@ function VoyageOne() {
       // (picking Gleneagles, not picking Auchterarder), carry that stay across. Otherwise the app
       // asks where to stay in a village the traveller only reached because of the hotel itself.
       const carried = patch.pick && patch.pick.stay ? patch.pick.stay : null;
-      return { ...x, ...patch, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
+      // AND ARRIVE THE SENSIBLE WAY. Every new stop opened on the flight search regardless of
+      // distance, so Taormina to Sciacca — 250 km on one island — offered Catania to Rome to
+      // Palermo: three and a quarter hours in the air to cover four hours of road. The chips
+      // were right; the default was not. Where the previous stop is genuinely drivable, open on
+      // the ground option. The traveller can still switch to Flight; it is simply not the guess.
+      const prevExit = i > 0 ? exitPoint(d[i - 1]) : "";
+      const arrive = (prevExit && patch.city && drivable(prevExit, patch.city)) ? "Chauffeur" : (patch.arriveBy || x.arriveBy);
+      return { ...x, ...patch, arriveBy: arrive, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
     }
     return { ...x, ...patch };
   }));
@@ -10321,7 +10332,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         </div>
         {!canSave && !user && <div style={{ fontSize: 12.5, color: t.brass, maxWidth: 460, lineHeight: 1.5 }}>This browser will not let Voyage One save journeys — private browsing usually causes this. You can still plan a trip, but it will not be here when you come back.</div>}
         {user && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, lineHeight: 1.5 }}>Journeys are saved to your account, on every device you sign in from.</div>}
-        {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desk.</div>}
+        {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desktop.</div>}
       </div>
     </main>
     <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<span style={{ opacity: 0.5 }}>Build&nbsp;2★·{BUILD}</span></footer>
@@ -14809,12 +14820,21 @@ function useGateway(city) {
         // neighbouring airport and you go overland.
         // The endpoint flags an airport as this city's own by proximity (name-independent), so
         // Florence's "Amerigo Vespucci" is correctly recognized as Florence's airport.
-        const ownHere = opts.find((o) => o.isOwn);
-        if (!ownHere && opts.length) {
+        const homeIsland = islandOf(bare);
+        const reachable = opts.filter((o) => {
+          if (o.driveMin != null && o.driveMin > GATEWAY_MAX_DRIVE_MIN) return false;
+          const oi = islandOf(o.city);
+          if (homeIsland && oi && homeIsland !== oi) return false;
+          if (!homeIsland && oi) return false;          // mainland city, island airport
+          return true;
+        });
+        const ownHere = reachable.find((o) => o.isOwn);
+        if (!ownHere && reachable.length) {
+          const opts2 = reachable;
           // Prefer nearest option that actually has service; else nearest.
-          const best = opts.find((o) => o.hasService) || opts[0];
+          const best = opts2.find((o) => o.hasService) || opts2[0];
           const driveTxt = best.driveMin != null ? `about ${best.driveMin < 90 ? best.driveMin + " min" : (best.driveMin / 60).toFixed(1) + " hr"}` : (best.km ? `about ${best.km} km` : "a short drive");
-          const g = { air: best.city, code: best.code, km: best.km, driveMin: best.driveMin, options: opts,
+          const g = { air: best.city, code: best.code, km: best.km, driveMin: best.driveMin, options: opts2,
             note: `${bare} has no airport of its own. The nearest is ${best.city} (${best.code}), ${driveTxt} by road — you fly there and go overland. Pick a different airport below if you prefer.`, computed: true };
           GATEWAY_CACHE[ck] = g;
         } else {
