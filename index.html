@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M434";
+const BUILD = "M435";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -470,7 +470,8 @@ const ULTRA_LUX = [
   "Mandarin Oriental Munich", "Brenners Park-Hotel & Spa Baden-Baden",
   // Spain & Portugal
   "Mandarin Oriental Ritz Madrid", "Four Seasons Hotel Madrid", "Marbella Club", "Finca Cortesin",
-  "Cap Rocat", "La Residencia, a Belmond Hotel", "Six Senses Douro Valley", "Sublime Comporta",
+  "Cap Rocat", "La Residencia, a Belmond Hotel",
+  "Domaine de Murtoli", "Six Senses Douro Valley", "Sublime Comporta",
   // Greece
   "Amanzoe", "Four Seasons Astir Palace Athens", "One&Only Aesthesis",
   // One&Only Kéa Island removed from Ultra Luxury Sept 2026 per the Greek islands audit: it is
@@ -2068,6 +2069,34 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ CORSICA — Tricia's gap audit, Sept 2026 ═════════════════════════════════════════════════
+  // ULTRA LUXURY is DOMAINE DE MURTOLI and nothing else on the island. Everything below it is
+  // Luxury, and an official five-star classification alone was NOT treated as qualifying.
+  // NOT LOADED: Hostellerie du Moulin des Oliviers (a satellite house of Marinca, priced below
+  // Voyage One Luxury territory), Dominique Colonna (Corte) and La Dimora (Oletta) — both hold
+  // Michelin Keys, and a Michelin Key is not a Voyage One Luxury proof.
+  // Le Mouflon d'Or is flagged for a possible future Ultra review if it matures; NOT now.
+  "Sartène": [
+    { name: "Domaine de Murtoli", area: "Sartène, southwest Corsica \u00b7 Figari (FSC)", rate: null, ourTake: "ULTRA LUXURY, and the only property on Corsica at that level. NOT REALLY A HOTEL AT ALL: 2,500 hectares of private Corsican countryside running down to its own beach, with twenty restored stone sheepfolds scattered across it as individual houses, most with their own heated pool, plus a nine or ten room hotel at the centre. Golf, riding, fishing, and food and wine from the estate itself. One of France's original three-Michelin-Key hotels, and the most singular thing in the western Mediterranean." },
+  ],
+  "Porto-Vecchio": [
+    { name: "Casadelmar", area: "Porto-Vecchio \u00b7 Figari (FSC)", rate: null, ourTake: "Corsica's strongest modern luxury hotel \u2014 thirty-four rooms of sharp contemporary architecture stepping down to a private beach on the gulf, a good spa, and a restaurant holding TWO MICHELIN STARS. The design choice on the island." },
+    { name: "Grand H\u00f4tel de Cala Rossa", area: "Lecci, Porto-Vecchio \u00b7 Figari (FSC)", rate: null, ourTake: "The established Corsican grande dame of the south \u2014 thirty-nine rooms in a private park directly on the beach, with a spa and tennis, and a family clientele that has been coming for generations. Softer and more traditional than Casadelmar." },
+    { name: "Les Regalia H\u00f4tel & Spa", area: "Pinarello \u00b7 Figari (FSC)", rate: null, ourTake: "Twenty-one rooms and three suites above the bay at Pinarello, twenty minutes north of Porto-Vecchio \u2014 intimate, panoramic, with a heated pool and a full spa. The small and personal option in the south." },
+  ],
+  "Bonifacio": [
+    { name: "Version Maquis Citadelle", area: "Bonifacio \u00b7 Figari (FSC)", rate: null, ourTake: "Twenty-two suites looking across at the citadel on its white cliffs, with an infinity pool and a spa. Small, private and beautifully judged. THE ONLY BONIFACIO PROPERTY WE LOAD \u2014 the town is remarkable and that is not a reason to manufacture a second choice." },
+  ],
+  "Calvi": [
+    { name: "La Signoria", area: "Calvi \u00b7 Calvi (CLY)", rate: null, ourTake: "An 18th-century residence in gardens and eucalyptus outside Calvi \u2014 thirty rooms, suites and villas, a strong spa, and the refined, quiet, slightly aristocratic version of northwest Corsica." },
+    { name: "La Villa Calvi", area: "Calvi \u00b7 Calvi (CLY)", rate: null, ourTake: "High above the town in extensive private grounds with several pools and an exceptional view down over Calvi and its citadel. Larger and more resort-shaped than La Signoria, with a serious restaurant." },
+  ],
+  "Propriano": [
+    { name: "H\u00f4tel Marinca & Spa", area: "Olmeto, Gulf of Valinco \u00b7 Ajaccio (AJA)", rate: null, ourTake: "Fifty-five rooms right on the water in the Gulf of Valinco, with several pools, a substantial spa and a private-beach feel. The best base on Corsica's west coast." },
+  ],
+  "Zonza": [
+    { name: "Domaine Le Mouflon d'Or", area: "Zonza, Alta Rocca \u00b7 Ajaccio (AJA)", rate: null, ourTake: "Relais & Ch\u00e2teaux, reopened in 2025 after a complete transformation \u2014 a nineteen-hectare estate high in the Alta Rocca mountains with a 1,200 square metre spa. THE MOUNTAIN CORSICA STAY, and completely different from the coast: forest, granite needles and cold rivers. Worth watching; if it matures at the very top end it may warrant an Ultra review, but not yet." },
+  ],
   // ═══ CAPRI + ISCHIA — Tricia's gap audit, Sept 2026 ══════════════════════════════════════════
   // EVERY PROPERTY HERE IS LUXURY. No Ultra Luxury on either island, deliberately: Capri has many
   // famous hotels and fame is not the bar. Jumeirah Capri Palace and Quisisana are approved as
@@ -7061,6 +7090,8 @@ const PLACE_REGION = {
   "mallorca": "Spain", "ibiza": "Spain", "menorca": "Spain", "formentera": "Spain",
   // Italian islands.
   "sardinia": "Italy", "capri": "Italy", "ischia": "Italy", "taormina": "Italy", "palermo": "Italy",
+  "porto-vecchio": "Corsica, France", "bonifacio": "Corsica, France", "calvi": "Corsica, France",
+  "sartène": "Corsica, France", "propriano": "Corsica, France", "zonza": "Corsica, France",
   "agrigento": "Italy", "sciacca": "Italy", "noto": "Italy", "mount etna": "Italy", "syracuse": "Italy",
   "vulcano": "Aeolian Islands", "salina": "Aeolian Islands",
   "philipsburg": "Montana", "saratoga": "Wyoming", "greenough": "Montana", "darby": "Montana",
@@ -7624,6 +7655,11 @@ const AIRPORTS = {
   "Capri": { code: "NAP", scale: "regional" }, "Ischia": { code: "NAP", scale: "regional" },
   // Sicily has two airports and they are three hours apart: CATANIA for the east, PALERMO for
   // the west. Getting this wrong is the most common Sicilian planning mistake.
+  // CORSICA has three airports and they serve different ends of a long island: FIGARI for the
+  // south, CALVI for the northwest, AJACCIO for the west and the mountains.
+  "Porto-Vecchio": { code: "FSC", scale: "regional" }, "Bonifacio": { code: "FSC", scale: "regional" },
+  "Sartène": { code: "FSC", scale: "regional" }, "Calvi": { code: "CLY", scale: "regional" },
+  "Propriano": { code: "AJA", scale: "regional" }, "Zonza": { code: "AJA", scale: "regional" },
   "Taormina": { code: "CTA", scale: "regional" }, "Mount Etna": { code: "CTA", scale: "regional" },
   "Noto": { code: "CTA", scale: "regional" }, "Syracuse": { code: "CTA", scale: "regional" },
   "Agrigento": { code: "PMO", scale: "regional" }, "Sciacca": { code: "PMO", scale: "regional" },
@@ -8040,6 +8076,7 @@ const ZONE = {
   "sardinia": ["Sardinia"],
   "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"], "ischia": ["Ischia"],
   "vulcano": ["Vulcano"], "salina": ["Salina"],
+  "corsica": ["Porto-Vecchio","Bonifacio","Calvi","Sartène","Propriano","Zonza"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
@@ -8250,6 +8287,8 @@ const COORDS = {
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
+  "Porto-Vecchio": [41.59,9.28], "Bonifacio": [41.39,9.16], "Calvi": [42.57,8.76],
+  "Sartène": [41.62,8.97], "Propriano": [41.68,8.90], "Zonza": [41.75,9.17],
   "Agrigento": [37.31,13.58], "Sciacca": [37.51,13.08], "Noto": [36.89,15.07], "Mount Etna": [37.75,15.00],
   "Syracuse": [37.08,15.28], "Vulcano": [38.40,14.96], "Salina": [38.56,14.85],
   "Ischia": [40.73,13.90], "Ibiza": [38.91,1.43], "Menorca": [39.95,4.11], "Formentera": [38.70,1.44],
@@ -8545,6 +8584,8 @@ const ISLAND_OF = {
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
   "Capri": "Capri", "Ischia": "Ischia", "Taormina": "Sicily", "Agrigento": "Sicily", "Sciacca": "Sicily",
+  "Porto-Vecchio": "Corsica", "Bonifacio": "Corsica", "Calvi": "Corsica", "Sartène": "Corsica",
+  "Propriano": "Corsica", "Zonza": "Corsica", "Ajaccio": "Corsica", "Bastia": "Corsica", "Figari": "Corsica",
   "Catania": "Sicily", "Trapani": "Sicily", "Comiso": "Sicily", "Pantelleria": "Pantelleria", "Lampedusa": "Lampedusa",
   "Noto": "Sicily", "Mount Etna": "Sicily", "Syracuse": "Sicily", "Vulcano": "Vulcano", "Salina": "Salina", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
@@ -13332,6 +13373,13 @@ const CONNECT_VIA = {
   "Formentera": { hub: "Ibiza (IBZ)", note: "NO AIRPORT. Formentera is reached only by ferry from Ibiza \u2014 about half an hour from Ibiza Town, running frequently in season. Fly to Ibiza, then cross. That extra step is precisely why Formentera stayed quiet while Ibiza did not." },
   // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
   // to island-hop by ferry and the distances are longer than the map suggests.
+  // CORSICA. Good seasonal direct service from mainland France; everything else connects.
+  "Porto-Vecchio": { hub: "Paris, Nice or Marseille", note: "FIGARI (FSC) is the airport for the south of Corsica, about half an hour from Porto-Vecchio. Direct flights run from Paris, Nice and Marseille in season, and thin out sharply outside it \u2014 intercontinental connects on the mainland. The overnight ferry from Nice, Marseille or Livorno is the other way in, and takes a car with you." },
+  "Bonifacio": { hub: "Paris, Nice or Marseille", note: "Figari (FSC) again, about forty minutes north. Same seasonal pattern as Porto-Vecchio." },
+  "Sartène": { hub: "Paris, Nice or Marseille", note: "Figari (FSC) is the nearest airport, roughly an hour. Ajaccio (AJA) is the alternative from the north." },
+  "Calvi": { hub: "Paris, Nice or Marseille", note: "CALVI (CLY) is a small field right beside the town with seasonal French and European flights. Bastia (BIA) is the bigger alternative, about two hours away by road." },
+  "Propriano": { hub: "Paris, Nice or Marseille", note: "AJACCIO (AJA) is the airport, a little over an hour up the coast. Figari also works from the south." },
+  "Zonza": { hub: "Paris, Nice or Marseille", note: "Ajaccio (AJA) or Figari (FSC), each roughly an hour and a half into the Alta Rocca mountains. THE DRIVE IS THE POINT here \u2014 it is one of the great mountain roads in Europe, and it is slow." },
   "Vulcano": { hub: "Catania (CTA)", note: "NO AIRPORT. Fly to CATANIA, drive about two hours to MILAZZO, then a hydrofoil of roughly forty-five minutes. The Aeolians are a commitment and that is the whole reason they are what they are. Crossings are weather-dependent \u2014 build a buffer either side rather than connecting tightly to a flight." },
   "Salina": { hub: "Catania (CTA)", note: "NO AIRPORT. Catania, then about two hours to MILAZZO and a hydrofoil, usually via Vulcano or Lipari. The greenest and quietest of the Aeolians. Weather can stop the boats; do not plan a same-day connection to a long-haul." },
   "Capri": { hub: "Naples (NAP)", note: "NO AIRPORT, AND NO ROAD. Capri is reached only by boat from NAPLES or Sorrento — the fast hydrofoil takes about fifty minutes from Naples. Fly into Naples, then cross. CARS ARE EFFECTIVELY BANNED for visitors and the island is walked, taken by funicular or by open taxi, so do not plan around a vehicle." },
