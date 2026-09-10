@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M436";
+const BUILD = "M438";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2069,6 +2069,34 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ THE CANARY ISLANDS — Tricia's gap audit, SECOND REVISION, Sept 2026 ═══════════════════
+  // THIS REPLACES THE EARLIER CANARY AUDIT LOADED IN M437 and is stricter. Changes made:
+  //   Tenerife  — Corales Beach and Corales Suites replaced by CORALES RESORT and CORALES VILLAS;
+  //                ROYAL RIVER added; HOTEL BOT\u00c1NICO withheld (absent from the new list).
+  //   Lanzarote — HOTEL FARIONES added; PARADISUS SALINAS withheld (absent from the new list).
+  //   Fuerteventura — SECRETS BAH\u00cdA REAL moved to VERIFY. The island now has NO key at all,
+  //                which is the honest form of "no approved inventory yet".
+  // NO ULTRA LUXURY anywhere in the Canaries. Official five-star status alone is NOT Voyage One
+  // Luxury — that is why Lopesan Villa del Conde, Lopesan Costa Meloneras, H10 Playa Meloneras,
+  // Salobre, Hotel Volc\u00e1n and Secrets Lanzarote are all absent despite being officially five-star.
+  // WITHHELD, NOT DELETED, pending Tricia's word: Hotel Bot\u00e1nico, Paradisus Salinas Lanzarote,
+  // Secrets Bah\u00eda Real, Royal Hideaway Corales Beach, Royal Hideaway Corales Suites.
+  // ALSO WATCHLIST: The Retreat at Abama / Las Terrazas de Abama Suites.
+  "Tenerife": [
+    { name: "The Ritz-Carlton Tenerife, Abama", area: "Gu\u00eda de Isora \u00b7 Tenerife South (TFS)", rate: null, ourTake: "The benchmark resort on the island \u2014 a large ochre-red palace above its own private beach on the quiet southwest coast, with extensive gardens, a major spa and the best food in the Canaries: M.B holds two Michelin stars. Strong suite and penthouse inventory, and it works very well for families." },
+    { name: "Royal Hideaway Corales Resort", area: "Costa Adeje \u00b7 Tenerife South (TFS)", rate: null, ourTake: "The most design-led hotel on Tenerife \u2014 a striking contemporary building on the water at La Caleta, with serious cooking, excellent suites and a grown-up, unhurried feel. The contemporary choice against Bah\u00eda del Duque's traditional one." },
+    { name: "Royal Hideaway Corales Villas", area: "Costa Adeje \u00b7 Tenerife South (TFS)", rate: null, ourTake: "Opened in 2025 and classified Five-Star GRAND LUXURY \u2014 Spain's highest grade. Villa-forward, private, and the newest luxury product on the island. FLAGGED FOR A FUTURE ULTRA RE-AUDIT once it has operated long enough to judge; Luxury for now." },
+    { name: "Royal River Luxury Hotel", area: "Costa Adeje \u00b7 Tenerife South (TFS)", rate: null, ourTake: "A true five-star boutique resort with a strong private villa product, generous pools and landscaping, and an intimate scale that the big Costa Adeje resorts cannot match." },
+    { name: "Bah\u00eda del Duque", area: "Costa Adeje \u00b7 Tenerife South (TFS)", rate: null, ourTake: "One of the resorts that defined Canarian luxury \u2014 a village of Canarian-colonial buildings in subtropical gardens above the beach, with villas, a major spa and decades of service depth. Traditional, in the best sense." },
+  ],
+  "Gran Canaria": [
+    { name: "Seaside Grand Hotel Residencia", area: "Maspalomas \u00b7 Las Palmas (LPA)", rate: null, ourTake: "THE FIRST HOTEL TO SHOW ON GRAN CANARIA. Officially Five-Star Grand Luxury \u2014 Spain's highest classification \u2014 and a Leading Hotel of the World, but only ninety-four rooms: a low-rise cluster of villa-style buildings in palm gardens beside the Maspalomas dunes, with a service reputation nothing else on the island approaches. Discreet in a way Gran Canaria generally is not." },
+    { name: "Santa Catalina, a Royal Hideaway Hotel", area: "Las Palmas \u00b7 Las Palmas (LPA)", rate: null, ourTake: "The island's grande dame, open since 1890 and completely restored \u2014 Five-Star Grand Luxury, a Michelin Key, a good spa, a rooftop and Michelin-starred Poemas. THE CITY CHOICE, and a genuinely different trip from the southern resorts." },
+  ],
+  "Lanzarote": [
+    { name: "Hotel Fariones", area: "Puerto del Carmen \u00b7 Arrecife (ACE)", rate: null, ourTake: "The island's original hotel, comprehensively rebuilt and now one of its strongest \u2014 five-star, direct sea access, mature gardens, and a polished contemporary product that reads nothing like its 1960s origins." },
+    { name: "Princesa Yaiza Suite Hotel Resort", area: "Playa Blanca \u00b7 Arrecife (ACE)", rate: null, ourTake: "Beachfront on Playa Dorada, all-suite, with six pools, a full thalassotherapy spa and nine restaurants. Large, and still luxury \u2014 the product clears the floor comfortably and the family infrastructure is the best on Lanzarote." },
+  ],
   // ═══ CORSICA — Tricia's gap audit, Sept 2026 ═════════════════════════════════════════════════
   // ULTRA LUXURY is DOMAINE DE MURTOLI and nothing else on the island. Everything below it is
   // Luxury, and an official five-star classification alone was NOT treated as qualifying.
@@ -7090,6 +7118,8 @@ const PLACE_REGION = {
   "mallorca": "Spain", "ibiza": "Spain", "menorca": "Spain", "formentera": "Spain",
   // Italian islands.
   "sardinia": "Italy", "capri": "Italy", "ischia": "Italy", "taormina": "Italy", "palermo": "Italy",
+  "tenerife": "Canary Islands, Spain", "gran canaria": "Canary Islands, Spain",
+  "lanzarote": "Canary Islands, Spain", "fuerteventura": "Canary Islands, Spain",
   "porto-vecchio": "Corsica, France", "bonifacio": "Corsica, France", "calvi": "Corsica, France",
   "sartène": "Corsica, France", "propriano": "Corsica, France", "zonza": "Corsica, France",
   "agrigento": "Italy", "sciacca": "Italy", "noto": "Italy", "mount etna": "Italy", "syracuse": "Italy",
@@ -7655,6 +7685,11 @@ const AIRPORTS = {
   "Capri": { code: "NAP", scale: "regional" }, "Ischia": { code: "NAP", scale: "regional" },
   // Sicily has two airports and they are three hours apart: CATANIA for the east, PALERMO for
   // the west. Getting this wrong is the most common Sicilian planning mistake.
+  // THE CANARIES. Each island has its own airport with heavy year-round European service; only
+  // the intercontinental leg needs a mainland connection. Tenerife has two \u2014 TFS in the south,
+  // where almost all the luxury sits, and TFN in the north for Puerto de la Cruz.
+  "Tenerife": { code: "TFS", scale: "regional" }, "Gran Canaria": { code: "LPA", scale: "regional" },
+  "Lanzarote": { code: "ACE", scale: "regional" }, "Fuerteventura": { code: "FUE", scale: "regional" },
   // CORSICA has three airports and they serve different ends of a long island: FIGARI for the
   // south, CALVI for the northwest, AJACCIO for the west and the mountains.
   "Porto-Vecchio": { code: "FSC", scale: "regional" }, "Bonifacio": { code: "FSC", scale: "regional" },
@@ -8077,6 +8112,7 @@ const ZONE = {
   "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"], "ischia": ["Ischia"],
   "vulcano": ["Vulcano"], "salina": ["Salina"],
   "corsica": ["Porto-Vecchio","Bonifacio","Calvi","Sartène","Propriano","Zonza"],
+  "tenerife": ["Tenerife"], "gran-canaria": ["Gran Canaria"], "lanzarote": ["Lanzarote"], "fuerteventura": ["Fuerteventura"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
@@ -8287,6 +8323,7 @@ const COORDS = {
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
+  "Tenerife": [28.29,-16.63], "Gran Canaria": [27.96,-15.60], "Lanzarote": [29.03,-13.63], "Fuerteventura": [28.36,-14.05],
   "Porto-Vecchio": [41.59,9.28], "Bonifacio": [41.39,9.16], "Calvi": [42.57,8.76],
   "Sartène": [41.62,8.97], "Propriano": [41.68,8.90], "Zonza": [41.75,9.17],
   "Agrigento": [37.31,13.58], "Sciacca": [37.51,13.08], "Noto": [36.89,15.07], "Mount Etna": [37.75,15.00],
@@ -8584,6 +8621,8 @@ const ISLAND_OF = {
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
   "Capri": "Capri", "Ischia": "Ischia", "Taormina": "Sicily", "Agrigento": "Sicily", "Sciacca": "Sicily",
+  "Tenerife": "Tenerife", "Gran Canaria": "Gran Canaria", "Lanzarote": "Lanzarote", "Fuerteventura": "Fuerteventura",
+  "La Palma": "La Palma", "La Gomera": "La Gomera", "El Hierro": "El Hierro", "La Graciosa": "La Graciosa",
   "Porto-Vecchio": "Corsica", "Bonifacio": "Corsica", "Calvi": "Corsica", "Sartène": "Corsica",
   "Propriano": "Corsica", "Zonza": "Corsica", "Ajaccio": "Corsica", "Bastia": "Corsica", "Figari": "Corsica",
   "Catania": "Sicily", "Trapani": "Sicily", "Comiso": "Sicily", "Pantelleria": "Pantelleria", "Lampedusa": "Lampedusa",
@@ -13373,6 +13412,10 @@ const CONNECT_VIA = {
   "Formentera": { hub: "Ibiza (IBZ)", note: "NO AIRPORT. Formentera is reached only by ferry from Ibiza \u2014 about half an hour from Ibiza Town, running frequently in season. Fly to Ibiza, then cross. That extra step is precisely why Formentera stayed quiet while Ibiza did not." },
   // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
   // to island-hop by ferry and the distances are longer than the map suggests.
+  "Tenerife": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Tenerife has TWO AIRPORTS and it matters: TFS (Tenerife South) serves Costa Adeje, La Caleta and Gu\u00eda de Isora, where nearly all the luxury is; TFN in the north is for Puerto de la Cruz and is about an hour and a quarter from the southern resorts. Heavy year-round service from across Europe; intercontinental connects at Madrid." },
+  "Gran Canaria": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Las Palmas (LPA) takes direct flights from across Europe all year. Maspalomas is about half an hour south of the airport, Las Palmas city about twenty minutes north." },
+  "Lanzarote": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Arrecife (ACE) has strong year-round European service. Playa Blanca is about forty minutes south, Costa Teguise fifteen minutes north." },
+  "Fuerteventura": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Fuerteventura (FUE) is well served from Europe. Corralejo is about forty minutes north of the airport." },
   // CORSICA. Good seasonal direct service from mainland France; everything else connects.
   "Porto-Vecchio": { hub: "Paris, Nice or Marseille", note: "FIGARI (FSC) is the airport for the south of Corsica, about half an hour from Porto-Vecchio. Direct flights run from Paris, Nice and Marseille in season, and thin out sharply outside it \u2014 intercontinental connects on the mainland. The overnight ferry from Nice, Marseille or Livorno is the other way in, and takes a car with you." },
   "Bonifacio": { hub: "Paris, Nice or Marseille", note: "Figari (FSC) again, about forty minutes north. Same seasonal pattern as Porto-Vecchio." },
