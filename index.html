@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M438";
+const BUILD = "M441";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -373,6 +373,7 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favorite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  "Reid's Palace, a Belmond Hotel",
   // ══ THE AMERICAS — RE-TIERED 3 SEPT 2026 ON TRICIA'S HOTEL TIER CORRECTIONS ══════════
   // The standard is Aman-level, and the correction document is explicit that this file does NOT
   // decide tier. Michelin Keys, Forbes, LHW, Relais & Châteaux, brand, rate and fame are none of
@@ -2069,6 +2070,33 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ NICE — Tricia's gap audit, REVISED, Sept 2026 ═════════════════════════════════════════
+  // THIS REPLACES the Nice list loaded in M440. Changes: H\u00d4TEL DU COUVENT added and now LEADS;
+  // ANANTARA PLAZA added; PALAIS DE LA M\u00c9DITERRAN\u00c9E withheld — it is officially five-star and
+  // Voyage One does not need every official five-star property. Listed in the preferred order.
+  // NO ULTRA LUXURY in Nice, deliberately: the best hotels here are excellent and none clears
+  // the Aman-level bar, and a major destination is not a reason to invent one.
+  // NOT LOADED: Hyatt Regency Nice Palais de la M\u00e9diterran\u00e9e, Boscolo Nice Hotel & Spa.
+  // NICE MEANS NICE: \u00c8ze, Saint-Jean-Cap-Ferrat, Monaco, Roquebrune-Cap-Martin and Saint-Tropez
+  // are separate destinations and their hotels must never be folded in here. No alias points at
+  // Nice, so nothing rolls up — if one is ever added, this rule is why it should not be.
+  "Nice": [
+    { name: "H\u00f4tel du Couvent, a Luxury Collection Hotel", area: "Old Nice \u00b7 Nice (NCE)", rate: null, ourTake: "THE ONE TO LEAD WITH IN NICE. Eighty-eight rooms in a 17th-century convent in the old town, reopened after a long and very serious restoration \u2014 cloister gardens, terraced orchards, and a wellness complex built on Roman bathing rather than spa treatments. It has a sense of place that no seafront hotel in Nice can match, and it feels far more Voyage One than simply taking the biggest famous name." },
+    { name: "Le Negresco", area: "Promenade des Anglais \u00b7 Nice (NCE)", rate: null, ourTake: "The pink dome on the Promenade, open since 1913 and still privately owned \u2014 a hotel that doubles as a museum, with a serious art collection through the public rooms and Le Chantecler in the middle of it. Idiosyncratic rather than corporate, and far too important to Nice to leave out: a property-specific Voyage One inclusion, since Forbes verifies it as luxury without giving it five stars." },
+    { name: "Anantara Plaza Nice Hotel", area: "Nice \u00b7 Nice (NCE)", rate: null, ourTake: "A Belle \u00c9poque landmark on the edge of the old town, restored as Anantara's first hotel in France \u2014 polished international five-star service, sea views, and the best rooftop in the city. The contemporary choice against the other two." },
+  ],
+  // ═══ MADEIRA — Tricia's list, Sept 2026 ═════════════════════════════════════════════════════
+  // ULTRA LUXURY is REID'S PALACE and nothing else. The other four are Luxury.
+  // NOT LOADED, by instruction: Casa Velha do Palheiro, Enotel Lido, Barcel\u00f3 Funchal Oldtown.
+  // Official five-star classification alone is not enough, and no Madeira hotel may be added or
+  // promoted without Voyage One approval.
+  "Madeira": [
+    { name: "Reid's Palace, a Belmond Hotel", area: "Funchal \u00b7 Funchal (FNC)", rate: null, ourTake: "ULTRA LUXURY, and one of the great hotels of the Atlantic. Open since 1891 on a headland above Funchal harbour, in ten acres of subtropical garden dropping to the sea \u2014 Churchill painted from the terrace and afternoon tea there is still an institution. Belmond service, and the sort of place people return to for forty years." },
+    { name: "The Cliff Bay", area: "Funchal \u00b7 Funchal (FNC)", rate: null, ourTake: "On its own promontory west of Funchal with direct sea access and a proper spa, and home to IL GALLO D'ORO, the island's benchmark restaurant. The most complete resort product in Madeira." },
+    { name: "Les Suites at The Cliff Bay", area: "Funchal \u00b7 Funchal (FNC)", rate: null, ourTake: "The Relais & Ch\u00e2teaux suites-only house within The Cliff Bay \u2014 a separate, quieter hotel with its own entrance and pool, and the resort's facilities behind it. The private version of the same address." },
+    { name: "Savoy Palace", area: "Funchal \u00b7 Funchal (FNC)", rate: null, ourTake: "The big contemporary statement on the Funchal seafront \u2014 a large, glossy hotel with a rooftop, an extensive spa and the most polished modern product on the island." },
+    { name: "The Reserve", area: "Funchal \u00b7 Funchal (FNC)", rate: null, ourTake: "The adults-only, suites-led house within the Savoy group \u2014 smaller and more private than Savoy Palace, for people who want the facilities without the scale." },
+  ],
   // ═══ THE CANARY ISLANDS — Tricia's gap audit, SECOND REVISION, Sept 2026 ═══════════════════
   // THIS REPLACES THE EARLIER CANARY AUDIT LOADED IN M437 and is stricter. Changes made:
   //   Tenerife  — Corales Beach and Corales Suites replaced by CORALES RESORT and CORALES VILLAS;
@@ -7118,6 +7146,7 @@ const PLACE_REGION = {
   "mallorca": "Spain", "ibiza": "Spain", "menorca": "Spain", "formentera": "Spain",
   // Italian islands.
   "sardinia": "Italy", "capri": "Italy", "ischia": "Italy", "taormina": "Italy", "palermo": "Italy",
+  "madeira": "Portugal", "funchal": "Portugal",
   "tenerife": "Canary Islands, Spain", "gran canaria": "Canary Islands, Spain",
   "lanzarote": "Canary Islands, Spain", "fuerteventura": "Canary Islands, Spain",
   "porto-vecchio": "Corsica, France", "bonifacio": "Corsica, France", "calvi": "Corsica, France",
@@ -7688,6 +7717,7 @@ const AIRPORTS = {
   // THE CANARIES. Each island has its own airport with heavy year-round European service; only
   // the intercontinental leg needs a mainland connection. Tenerife has two \u2014 TFS in the south,
   // where almost all the luxury sits, and TFN in the north for Puerto de la Cruz.
+  "Madeira": { code: "FNC", scale: "regional" },
   "Tenerife": { code: "TFS", scale: "regional" }, "Gran Canaria": { code: "LPA", scale: "regional" },
   "Lanzarote": { code: "ACE", scale: "regional" }, "Fuerteventura": { code: "FUE", scale: "regional" },
   // CORSICA has three airports and they serve different ends of a long island: FIGARI for the
@@ -8112,6 +8142,7 @@ const ZONE = {
   "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"], "ischia": ["Ischia"],
   "vulcano": ["Vulcano"], "salina": ["Salina"],
   "corsica": ["Porto-Vecchio","Bonifacio","Calvi","Sartène","Propriano","Zonza"],
+  "madeira": ["Madeira"],
   "tenerife": ["Tenerife"], "gran-canaria": ["Gran Canaria"], "lanzarote": ["Lanzarote"], "fuerteventura": ["Fuerteventura"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
@@ -8323,6 +8354,7 @@ const COORDS = {
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
+  "Madeira": [32.65,-16.91],
   "Tenerife": [28.29,-16.63], "Gran Canaria": [27.96,-15.60], "Lanzarote": [29.03,-13.63], "Fuerteventura": [28.36,-14.05],
   "Porto-Vecchio": [41.59,9.28], "Bonifacio": [41.39,9.16], "Calvi": [42.57,8.76],
   "Sartène": [41.62,8.97], "Propriano": [41.68,8.90], "Zonza": [41.75,9.17],
@@ -8699,6 +8731,7 @@ const CITY_ALIASES = {
   "tromso": "Tromsø", "tromsø": "Tromsø", "swedish lapland": "Abisko", "finnish lapland": "Levi", "lapland": "Levi", "longyearbyen": "Svalbard",
   "porto cervo": "Sardinia", "costa smeralda": "Sardinia", "olbia": "Sardinia", "cagliari": "Sardinia",
   "baja sardinia": "Sardinia", "san pantaleo": "Sardinia", "arzachena": "Sardinia", "forte village": "Sardinia", "sardegna": "Sardinia",
+  "funchal": "Madeira", "madeira island": "Madeira",
   "kigali": "Rwanda", "volcanoes national park": "Rwanda", "volcanoes": "Rwanda", "musanze": "Rwanda", "ruhengeri": "Rwanda", "kinigi": "Rwanda", "virunga": "Rwanda",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
@@ -13412,6 +13445,7 @@ const CONNECT_VIA = {
   "Formentera": { hub: "Ibiza (IBZ)", note: "NO AIRPORT. Formentera is reached only by ferry from Ibiza \u2014 about half an hour from Ibiza Town, running frequently in season. Fly to Ibiza, then cross. That extra step is precisely why Formentera stayed quiet while Ibiza did not." },
   // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
   // to island-hop by ferry and the distances are longer than the map suggests.
+  "Madeira": { hub: "Lisbon (LIS)", note: "Funchal (FNC) takes direct flights from across Europe year-round \u2014 Madeira is a winter destination as much as a summer one, which is unusual at this latitude. Intercontinental connects at LISBON. THE APPROACH IS FAMOUS: the runway is built out on pillars over the sea and the landing is genuinely spectacular, occasionally diverted in high wind." },
   "Tenerife": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Tenerife has TWO AIRPORTS and it matters: TFS (Tenerife South) serves Costa Adeje, La Caleta and Gu\u00eda de Isora, where nearly all the luxury is; TFN in the north is for Puerto de la Cruz and is about an hour and a quarter from the southern resorts. Heavy year-round service from across Europe; intercontinental connects at Madrid." },
   "Gran Canaria": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Las Palmas (LPA) takes direct flights from across Europe all year. Maspalomas is about half an hour south of the airport, Las Palmas city about twenty minutes north." },
   "Lanzarote": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Arrecife (ACE) has strong year-round European service. Playa Blanca is about forty minutes south, Costa Teguise fifteen minutes north." },
