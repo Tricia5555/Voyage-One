@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M432";
+const BUILD = "M433";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -231,6 +231,9 @@ const EXPERIENCE_LODGING = [
   // below Voyage One's five-star floor and is listed anyway, because the destination is remote,
   // no true five-star exists, and the property materially improves the trip. Never to be shown as
   // Luxury or Ultra Luxury — the tier says what it is.
+  // Salina, Sept 2026: charming, Michelin-starred kitchen, and its rates and scale do not reach
+  // the Voyage One five-star floor. Loaded as Experience Lodging so Salina has honest coverage.
+  "Hotel Signum",
   "Lyngen Lodge", "Lyngen North",
   "Abisko Mountain Lodge", "STF Abisko Turiststation",
   "Arctic TreeHouse Hotel", "Apukka Resort",
@@ -454,7 +457,9 @@ const ULTRA_LUX = [
   // Italy — Venice
   "Aman Venice", "Belmond Hotel Cipriani", "The Gritti Palace",
   // Italy — Sicily
-  "San Domenico Palace Taormina", "Villa Sant'Andrea, a Belmond Hotel",
+  "San Domenico Palace Taormina", "Grand Hotel Timeo, a Belmond Hotel",
+  // Villa Sant'Andrea removed from Ultra Luxury Sept 2026 per the Sicily audit: Belmond, two
+  // Michelin Keys, and still LUXURY not Ultra. Its sister Timeo is the Ultra one in Taormina.,
   // Italy — Puglia / Dolomites
   "Borgo Egnazia", "Aman Rosa Alpina",
   // Switzerland
@@ -1265,9 +1270,43 @@ const FAVORITES = {
     { name: "Caruso, a Belmond Hotel", area: "Ravello", rate: null, ourTake: "An infinity pool that spills toward the sea, a thousand feet up." },
     { name: "Borgo Santandrea", area: "Amalfi", rate: null, ourTake: "A design-led cliff hotel with its own beach club on the water." },
   ],
+  // ═══ SICILY + THE AEOLIANS — Tricia's gap audit, Sept 2026 ══════════════════════════════════
+  // ULTRA LUXURY is San Domenico Palace and Grand Hotel Timeo only. Villa Sant'Andrea was tiered
+  // Ultra in this file and has been DEMOTED to Luxury per the audit.
+  // WATCHLIST, NOT LOADED: Metropole Taormina, NH Collection Taormina, Q92 Noto, Seven Rooms
+  // Villadorata, Country House Villadorata, DonnaCarmela, Villa Neri, Lùme Syracuse, Donna Coraly,
+  // Eremo della Giubiliana, Locanda Don Serafino.
+  // NO INVENTORY, DELIBERATELY: Lipari, Panarea, Stromboli, Filicudi, Alicudi. Panarea is
+  // fashionable and beautiful and its hotels still do not clear the floor. Voyage One shows
+  // nothing rather than inventing a "best available" — and Michelin Keys are not a Luxury proof.
   "Taormina": [
-    { name: "San Domenico Palace Taormina", area: "Taormina", rate: null, ourTake: "A former convent on the cliff — the Four Seasons of 'White Lotus' fame, with Etna in view." },
-    { name: "Villa Sant'Andrea, a Belmond Hotel", area: "Taormina Mare", rate: null, ourTake: "A garden villa right on the bay at Mazzarò, steps from the sea." },
+    { name: "San Domenico Palace Taormina", area: "Taormina \u00b7 Catania (CTA)", rate: null, ourTake: "ULTRA LUXURY, and the only three-Michelin-Key hotel in Sicily. A 14th-century Dominican convent on the cliff, run by Four Seasons since 2021 \u2014 cloisters, gardens hanging over the sea, and Etna smoking on the horizon. The White Lotus effect has made it famous; it was the best hotel in Sicily before that and still is." },
+    { name: "Grand Hotel Timeo, a Belmond Hotel", area: "Beside the Greek Theatre, Taormina \u00b7 Catania (CTA)", rate: null, ourTake: "ULTRA LUXURY. Belmond, two Michelin Keys, and a position nothing can rival \u2014 directly beside the Greek Theatre with Etna and the whole bay in front of the terrace. One of the defining grand hotels of Italy, and the hotel is part of why people come to Taormina at all." },
+    { name: "Villa Sant'Andrea, a Belmond Hotel", area: "Mazzar\u00f2 Bay, Taormina Mare \u00b7 Catania (CTA)", rate: null, ourTake: "Timeo's sister down at sea level on Mazzar\u00f2 Bay \u2014 around sixty-nine rooms, a private beach and a residential, villa-party feel. Two Michelin Keys. TAKE THIS ONE IF YOU WANT THE SEA; take Timeo if you want the view of it. Many clients do a few nights of each." },
+    { name: "The Ashbee Hotel", area: "Taormina \u00b7 Catania (CTA)", rate: null, ourTake: "A historic villa turned high-end boutique on the edge of the old town, intimate in a way the grand hotels are not, with St. George by Heinz Beck for dinner." },
+  ],
+  "Palermo": [
+    { name: "Villa Igiea, a Rocco Forte Hotel", area: "Acquasanta, Palermo \u00b7 Palermo (PMO)", rate: null, ourTake: "A seaside Art Nouveau palace above the bay, restored by Rocco Forte and now much the best hotel in Palermo \u2014 grand public rooms, terraced gardens down to the water, and a service culture the city has nothing else like. THE ONLY PALERMO HOTEL WE LOAD, deliberately: there is no second one at this level and we will not invent choice." },
+  ],
+  "Agrigento": [
+    { name: "Villa Athena Resort", area: "Valley of the Temples, Agrigento \u00b7 Palermo (PMO)", rate: null, ourTake: "An 18th-century villa INSIDE the archaeological park, with the Temple of Concordia lit up at night from the terrace. There is no other hotel in Italy with a view like it, and the position alone justifies the stay." },
+    { name: "ADLER Spa Resort Sicilia", area: "Siculiana Marina \u00b7 Palermo (PMO)", rate: null, ourTake: "Two Michelin Keys, and a serious modern wellness resort on the Torre Salsa nature reserve half an hour west of Agrigento \u2014 empty coastline, a large spa, and a much calmer base than the town." },
+  ],
+  "Sciacca": [
+    { name: "Verdura Resort, a Rocco Forte Hotel", area: "Sciacca \u00b7 Palermo (PMO)", rate: null, ourTake: "Rocco Forte's 230-hectare estate on the southwest coast \u2014 two championship golf courses, a very large spa, a kilometre and a half of private shoreline, and the best resort infrastructure in Sicily. The answer for a family or a golf week rather than a touring trip." },
+  ],
+  "Noto": [
+    { name: "Il San Corrado di Noto", area: "Noto, Val di Noto \u00b7 Catania (CTA)", rate: null, ourTake: "A restored baroque estate outside Noto with private villas and pools among the almond groves \u2014 the most polished luxury in the Val di Noto, and the right base for the baroque towns and the southeast coast." },
+    { name: "Masseria della Volpe", area: "Noto \u00b7 Catania (CTA)", rate: null, ourTake: "A refined countryside masseria with a Michelin Key, beautifully done in old stone, with a spa and real quiet. Smaller and more personal than San Corrado." },
+  ],
+  "Mount Etna": [
+    { name: "Monaci delle Terre Nere", area: "Zafferana Etnea, Etna \u00b7 Catania (CTA)", rate: null, ourTake: "A working biodynamic wine estate on the black volcanic soil of Etna's eastern slope \u2014 a Michelin Key, striking design in restored farm buildings, and a genuine sense of place. THE ETNA STAY, and completely different from the coast an hour below." },
+  ],
+  "Vulcano": [
+    { name: "Therasia Resort Sea & Spa", area: "Vulcanello, Vulcano \u00b7 Catania then Milazzo", rate: null, ourTake: "The only five-star on Vulcano, on a headland looking across the strait to Lipari \u2014 a substantial spa, several restaurants including two Michelin-starred kitchens, and sunsets over the archipelago that are the reason people come. Reached by hydrofoil; the Aeolians take effort." },
+  ],
+  "Salina": [
+    { name: "Hotel Signum", area: "Malfa, Salina \u00b7 Catania then Milazzo", rate: null, ourTake: "EXPERIENCE LODGING, and filed that way honestly: a charming, sophisticated family-run house in Malfa with a Michelin-starred kitchen and wonderful island character \u2014 but a scale and rate that do not reach the Voyage One five-star floor, and we would rather say so than dress it up. The best place to stay on the greenest of the Aeolians, on its own terms." },
   ],
   "Puglia": [
     { name: "Borgo Egnazia", area: "Savelletri", rate: null, ourTake: "A village-like resort in whitewashed stone, with golf, spa and a private beach." },
@@ -7022,6 +7061,8 @@ const PLACE_REGION = {
   "mallorca": "Spain", "ibiza": "Spain", "menorca": "Spain", "formentera": "Spain",
   // Italian islands.
   "sardinia": "Italy", "capri": "Italy", "ischia": "Italy", "taormina": "Italy", "palermo": "Italy",
+  "agrigento": "Italy", "sciacca": "Italy", "noto": "Italy", "mount etna": "Italy", "syracuse": "Italy",
+  "vulcano": "Aeolian Islands", "salina": "Aeolian Islands",
   "philipsburg": "Montana", "saratoga": "Wyoming", "greenough": "Montana", "darby": "Montana",
   "big sky": "Montana", "granby": "Colorado", "steamboat springs": "Colorado", "wickenburg": "Arizona",
   "solvang": "California", "park city": "Utah", "canyon point": "Utah", "meadows of dan": "Virginia",
@@ -7581,6 +7622,13 @@ const AIRPORTS = {
   "Sardinia": { code: "OLB", scale: "regional" },
   // Capri and Ischia have no airports — both are boat from Naples, so Naples is the air gateway.
   "Capri": { code: "NAP", scale: "regional" }, "Ischia": { code: "NAP", scale: "regional" },
+  // Sicily has two airports and they are three hours apart: CATANIA for the east, PALERMO for
+  // the west. Getting this wrong is the most common Sicilian planning mistake.
+  "Taormina": { code: "CTA", scale: "regional" }, "Mount Etna": { code: "CTA", scale: "regional" },
+  "Noto": { code: "CTA", scale: "regional" }, "Syracuse": { code: "CTA", scale: "regional" },
+  "Agrigento": { code: "PMO", scale: "regional" }, "Sciacca": { code: "PMO", scale: "regional" },
+  // The Aeolians have no airfield: hydrofoil from Milazzo, which is two hours from Catania.
+  "Vulcano": { code: "CTA", scale: "regional" }, "Salina": { code: "CTA", scale: "regional" },
   "Ibiza": { code: "IBZ", scale: "regional" }, "Menorca": { code: "MAH", scale: "regional" },
   // Formentera has no airport — it is the ferry from Ibiza, half an hour across.
   "Formentera": { code: "IBZ", scale: "regional" },
@@ -7980,7 +8028,7 @@ const ZONE = {
   "continental-europe": ["Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
-  "sicily": ["Palermo","Taormina"],
+  "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
   "capri": ["Capri"],
   "mallorca": ["Mallorca"],
   "santorini": ["Santorini"],
@@ -7991,6 +8039,7 @@ const ZONE = {
   // and drive-time rules treating a Lapland transfer as a European city hop.
   "sardinia": ["Sardinia"],
   "ibiza": ["Ibiza"], "menorca": ["Menorca"], "formentera": ["Formentera"], "ischia": ["Ischia"],
+  "vulcano": ["Vulcano"], "salina": ["Salina"],
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
@@ -8201,6 +8250,8 @@ const COORDS = {
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
+  "Agrigento": [37.31,13.58], "Sciacca": [37.51,13.08], "Noto": [36.89,15.07], "Mount Etna": [37.75,15.00],
+  "Syracuse": [37.08,15.28], "Vulcano": [38.40,14.96], "Salina": [38.56,14.85],
   "Ischia": [40.73,13.90], "Ibiza": [38.91,1.43], "Menorca": [39.95,4.11], "Formentera": [38.70,1.44],
   "Crete": [35.24,24.81], "Paros": [37.08,25.15], "Kea": [37.63,24.34], "Corfu": [39.62,19.92],
   "Zakynthos": [37.79,20.90], "Rhodes": [36.43,28.22], "Kos": [36.89,27.29], "Milos": [36.69,24.44],
@@ -8388,7 +8439,7 @@ function driveEstimate(a, b) {
 // Short ferry hops are a real way to travel with your bags. Overnight crossings are not
 // "roaming" — they're a journey. Minutes, one way.
 const FERRIES = [
-  ["Capri", "Sorrento", 25], ["Ischia", "Naples", 60], ["Ischia", "Capri", 70], ["Capri", "Positano", 40], ["Capri", "Naples", 50], ["Capri", "Amalfi", 65],
+  ["Capri", "Sorrento", 25], ["Vulcano", "Salina", 40], ["Vulcano", "Lipari", 15], ["Ischia", "Naples", 60], ["Ischia", "Capri", 70], ["Capri", "Positano", 40], ["Capri", "Naples", 50], ["Capri", "Amalfi", 65],
   ["Positano", "Amalfi", 30], ["Sorrento", "Positano", 40], ["Sorrento", "Naples", 45], ["Amalfi", "Salerno", 35],
   ["Santorini", "Mykonos", 150], ["Mykonos", "Athens", 150],
   // Honduras. The Galaxy Wave, La Ceiba to Roatán, about seventy-five minutes and the honest way
@@ -8490,7 +8541,8 @@ const ISLAND_OF = {
   "Santorini": "Santorini", "Mykonos": "Mykonos", "Crete": "Crete", "Paros": "Paros", "Kea": "Kea",
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
-  "Capri": "Capri", "Ischia": "Ischia", "Taormina": "Sicily", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
+  "Capri": "Capri", "Ischia": "Ischia", "Taormina": "Sicily", "Agrigento": "Sicily", "Sciacca": "Sicily",
+  "Noto": "Sicily", "Mount Etna": "Sicily", "Syracuse": "Sicily", "Vulcano": "Vulcano", "Salina": "Salina", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
   // Caribbean, confirmed Sept 2026.
   "Tobago": "Tobago", "Port of Spain": "Trinidad", "Dominica": "Dominica", "Curacao": "Cura\u00e7ao",
@@ -13269,6 +13321,8 @@ const CONNECT_VIA = {
   "Formentera": { hub: "Ibiza (IBZ)", note: "NO AIRPORT. Formentera is reached only by ferry from Ibiza \u2014 about half an hour from Ibiza Town, running frequently in season. Fly to Ibiza, then cross. That extra step is precisely why Formentera stayed quiet while Ibiza did not." },
   // THE GREEK ISLANDS all connect through Athens. Worth saying plainly, because the temptation is
   // to island-hop by ferry and the distances are longer than the map suggests.
+  "Vulcano": { hub: "Catania (CTA)", note: "NO AIRPORT. Fly to CATANIA, drive about two hours to MILAZZO, then a hydrofoil of roughly forty-five minutes. The Aeolians are a commitment and that is the whole reason they are what they are. Crossings are weather-dependent \u2014 build a buffer either side rather than connecting tightly to a flight." },
+  "Salina": { hub: "Catania (CTA)", note: "NO AIRPORT. Catania, then about two hours to MILAZZO and a hydrofoil, usually via Vulcano or Lipari. The greenest and quietest of the Aeolians. Weather can stop the boats; do not plan a same-day connection to a long-haul." },
   "Capri": { hub: "Naples (NAP)", note: "NO AIRPORT, AND NO ROAD. Capri is reached only by boat from NAPLES or Sorrento — the fast hydrofoil takes about fifty minutes from Naples. Fly into Naples, then cross. CARS ARE EFFECTIVELY BANNED for visitors and the island is walked, taken by funicular or by open taxi, so do not plan around a vehicle." },
   "Ischia": { hub: "Naples (NAP)", note: "NO AIRPORT. Ischia is an hour by hydrofoil from NAPLES, and larger and slower-paced than Capri — it is a thermal-spa island that Italians go to, rather than a day-trip stage. Fly into Naples and cross." },
   "Santorini": { hub: "Athens (ATH)", note: "Santorini has its own airport (JTR) with seasonal European connections, but nothing long-haul \u2014 everything routes through ATHENS. Book the Athens leg on the same ticket. In high summer the flights and the fast ferries both sell out weeks ahead." },
