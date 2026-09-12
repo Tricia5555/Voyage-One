@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M441";
+const BUILD = "M445";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -424,7 +424,7 @@ const ULTRA_LUX = [
   "Raffles Doha", "Rosewood Doha", "Mandarin Oriental Doha", "Four Seasons Hotel Doha",
   "Four Seasons Resort at The Pearl", "The Ned Doha",
   "Banyan Tree AlUla", "The Chedi Hegra",
-  "Selman Marrakech", "Park Hyatt Marrakech",
+  "Selman Marrakech", 
   "Four Seasons Hotel Gresham Palace Budapest", "Matild Palace",
   // Croatia — Sept 2026. Six only. Split and Lake Bled are deliberately absent: their ceiling
   // is Luxury and saying so is the point of the tier.
@@ -437,7 +437,7 @@ const ULTRA_LUX = [
   "Al Moudira Hotel", "Four Seasons Resort Sharm El Sheikh",
   "Four Seasons Hotel Amman", "The Ritz-Carlton Amman",
   "Mandarin Oriental Muscat", "The Chedi Muscat", "Shangri-La Al Husn",
-  "Six Senses Zighy Bay", "Alila Jabal Akhdar", "Anantara Al Jabal Al Akhdar Resort",
+  "Six Senses Zighy Bay", "Anantara Al Jabal Al Akhdar Resort",
   // United Kingdom — London
   "Claridge's", "The Connaught", "The Berkeley", "The Emory", "The Dorchester", "45 Park Lane",
   "The Peninsula London", "Raffles London at The OWO", "Bulgari Hotel London",
@@ -541,7 +541,7 @@ const ULTRA_LUX = [
   "Four Seasons Hong Kong",
   // Japan
   "Aman Tokyo", "Bulgari Hotel Tokyo", "Mandarin Oriental Tokyo", "The Peninsula Tokyo",
-  "Four Seasons Hotel Tokyo at Otemachi", "Aman Kyoto", "Four Seasons Kyoto", "Park Hyatt Kyoto",
+  "Four Seasons Hotel Tokyo at Otemachi", "Aman Kyoto", "Four Seasons Kyoto", 
   "The Ritz-Carlton Kyoto", "Gora Kadan", "Hoshinoya Kyoto",
   // China
   "Aman Summer Palace Beijing", "Amanyangyun Shanghai", "Capella Shanghai", "Rosewood Beijing",
@@ -1072,6 +1072,7 @@ const FAVORITES = {
     { name: "The St. Regis Istanbul", area: "Nişantaşı", rate: null, ourTake: "Butler-service glamour in the chic Nişantaşı shopping district.", contact: { addr: "Mim Kemal Öke Cd. 35, Istanbul", web: "marriott.com" } },
     { name: "The Ritz-Carlton Istanbul", area: "Şişli", rate: null, ourTake: "Bosphorus views and a hammam-led spa above the city.", contact: { addr: "Aşıklar Cd. 15, Istanbul", web: "ritzcarlton.com" } },
     { name: "Shangri-La Bosphorus Istanbul", area: "Beşiktaş", rate: null, ourTake: "A waterside hotel by Dolmabahçe with an Asian-accented spa.", contact: { addr: "Sinanpaşa, Hayrettin İskelesi Sk. 1, Istanbul", web: "shangri-la.com" } },
+    // PARK HYATT is carried at LUXURY and is never Ultra Luxury. Every OTHER Hyatt brand — Hyatt Regency, Grand Hyatt, Andaz, Alila, Thompson, Miraval, Secrets, Dreams, Zoetry — stays withheld.
     { name: "Park Hyatt Istanbul", area: "Nişantaşı", rate: null, ourTake: "A discreet design hotel in a 1920s building in Nişantaşı.", contact: { addr: "Bronz Sk. 4, Istanbul", web: "hyatt.com" } },
   ],
   "Amsterdam": [
@@ -1525,6 +1526,7 @@ const FAVORITES = {
     { name: "M\u00f6venpick Resort & Spa Dead Sea", area: "Sweimeh", rate: null, ourTake: "Built as a stone village around courtyards, with a serious spa." },
   ],
   "Aqaba": [
+    // HYATT, Sept 2026: carried at LUXURY. No Hyatt property is Ultra Luxury.
     { name: "Hyatt Regency Aqaba Ayla Resort", area: "Ayla", rate: null, ourTake: "On the Ayla lagoon with its own beach \u2014 the easiest base for diving the Red Sea." },
 
     { name: "Al Manara, a Luxury Collection Hotel", area: "Ayla", rate: null, ourTake: "The Red Sea end of a Jordan itinerary, with reef diving from the door." },
@@ -1547,6 +1549,7 @@ const FAVORITES = {
     { name: "Six Senses Zighy Bay", area: "Zighy Bay", rate: null, ourTake: "Reached by boat, mountain road or paraglider \u2014 stone villas on a beach between cliffs and sea." },
   ],
   "Jabal Akhdar": [
+    // HYATT, Sept 2026: carried at LUXURY. No Hyatt property is Ultra Luxury.
     { name: "Alila Jabal Akhdar", area: "Jabal Akhdar", rate: null, ourTake: "Cut into the canyon rim at 2,000 meters, built of local stone and genuinely dramatic." },
     { name: "Anantara Al Jabal Al Akhdar Resort", area: "Jabal Akhdar", rate: null, ourTake: "The highest resort in the region, with cliff-edge dining and cool nights in high summer." },
   ],
@@ -1722,6 +1725,7 @@ const FAVORITES = {
   "Peninsula Papagayo": [
     { name: "Four Seasons Resort Costa Rica at Peninsula Papagayo", area: "Papagayo", rate: null, keys: 2, ourTake: "On a narrow isthmus with beaches on both sides and a Tom Fazio course between them \u2014 the country's benchmark resort." },
     { name: "Nekajui, a Ritz-Carlton Reserve", area: "Papagayo", rate: null, keys: 2, ourTake: "Opened 2025, the first Ritz-Carlton Reserve in the Americas \u2014 built into the forest above the water and instantly one of Costa Rica's best." },
+    // HYATT, Sept 2026: carried at LUXURY. No Hyatt property is Ultra Luxury.
     { name: "Andaz Peninsula Papagayo Resort", area: "Papagayo", rate: null, ourTake: "Larger and livelier on Culebra Bay, and the family answer on the peninsula." },
   ],
   "Guanacaste": [
@@ -1883,6 +1887,7 @@ const FAVORITES = {
   "Bogotá": [
     { name: "Four Seasons Hotel Casa Medina Bogotá", area: "Zona G", rate: null, ourTake: "A protected 1940s building of hand-carved beams and stone, sixty-two rooms, in the restaurant quarter. Far more character than any tower in the city." },
     { name: "Four Seasons Hotel Bogotá", area: "Zona Rosa", rate: null, ourTake: "The contemporary sister, in the middle of the shopping and the nightlife." },
+    // HYATT, Sept 2026: carried at LUXURY. No Hyatt property is Ultra Luxury.
     { name: "Grand Hyatt Bogotá", area: "Ciudad Empresarial", rate: null, ourTake: "Big, modern and well run, with the best hotel gym and pool in the city." },
     { name: "Sofitel Bogotá Victoria Regia", area: "Zona T", rate: null, ourTake: "Small and French in Zona T, walking distance to the restaurants." },
     { name: "JW Marriott Hotel Bogotá", area: "Calle 73", rate: null, ourTake: "Reliable, central and geared to a working trip." },
@@ -1985,6 +1990,7 @@ const FAVORITES = {
   // Uco Valley is its own destination an hour and a half further south.
   "Buenos Aires": [
     { name: "Four Seasons Hotel Buenos Aires", area: "Recoleta", rate: null, ourTake: "A belle époque mansion joined to a modern tower \u2014 the mansion suites are the best rooms in the city." },
+    // PARK HYATT is carried at LUXURY and is never Ultra Luxury. Every OTHER Hyatt brand — Hyatt Regency, Grand Hyatt, Andaz, Alila, Thompson, Miraval, Secrets, Dreams, Zoetry — stays withheld.
     { name: "Palacio Duhau – Park Hyatt Buenos Aires", area: "Recoleta", rate: null, ourTake: "A 1930s palace with a terraced garden between it and the new wing, and the best cheese room in South America." },
     { name: "Alvear Palace Hotel", area: "Recoleta", rate: null, ourTake: "Louis XV and a great deal of marble \u2014 the old grand hotel of Buenos Aires, and still where the city takes tea." },
     { name: "Faena Hotel Buenos Aires", area: "Puerto Madero", rate: null, ourTake: "Starck in a converted grain mill: red velvet, unicorns, a cabaret. Not for everyone, unforgettable for the right client." },
@@ -2070,6 +2076,21 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ ZERMATT — Tricia's classification, Sept 2026 ═══════════════════════════════════════════
+  // FIVE LUXURY, NO ULTRA. Being one of the best hotels in Zermatt is not a reason to promote
+  // one — Ultra stays reserved for Aman-level properties.
+  // EXCLUDED, by instruction: Matterhorn FOCUS Design Hotel and Schweizerhof Zermatt — both hold
+  // Michelin Keys and both are officially 4-Star Superior, which does not meet the Voyage One
+  // true-five-star requirement. A Michelin Key is not a five-star classification.
+  // Also excluded: 22 SUMMITS, Backstage Hotel Vernissage, Boutique Hotel Matthiol, Monte Rosa.
+  // Do not add Zermatt hotels to increase inventory. Quality over quantity.
+  "Zermatt": [
+    { name: "CERVO Mountain Resort", area: "Zermatt \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "One of the strongest hotels in Zermatt and the contemporary one \u2014 a cluster of design-forward chalets on the hillside above the village, with TWO MICHELIN KEYS, a very good spa and several restaurants. The best ski experience of the five: you come off the Sunnegga side almost at the door." },
+    { name: "The Omnia", area: "Zermatt \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "Built into the rock above the centre and reached by a lift through the cliff \u2014 a small, exceptionally sophisticated mountain lodge where the design and the Matterhorn view do the talking. Five-Star Superior, one Michelin Key. The connoisseur's choice." },
+    { name: "Mont Cervin Palace", area: "Zermatt \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "The grand hotel in the middle of the village, open since 1852 \u2014 traditional Swiss luxury done properly, with a large spa and the service depth that only comes from a century and a half of practice. Five-Star Superior, one Michelin Key." },
+    { name: "Grand Hotel Zermatterhof", area: "Zermatt \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "The other classic address, built by the village itself in 1879 and still owned by it. Central, formal, with a good spa and restaurants \u2014 the alternative to Mont Cervin rather than a lesser version of it. Five-Star Superior, one Michelin Key." },
+    { name: "Riffelalp Resort 2222m", area: "Riffelalp, 2,222 m \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "A COMPLETELY DIFFERENT TRIP from staying in the village. High on the Gornergrat railway at 2,222 metres, ski-in and ski-out, with Europe's highest open-air pool and the Matterhorn filling the window. You leave the village behind entirely \u2014 which for the right client is the entire point, and for the wrong one is isolation. Five-Star Superior." },
+  ],
   // ═══ NICE — Tricia's gap audit, REVISED, Sept 2026 ═════════════════════════════════════════
   // THIS REPLACES the Nice list loaded in M440. Changes: H\u00d4TEL DU COUVENT added and now LEADS;
   // ANANTARA PLAZA added; PALAIS DE LA M\u00c9DITERRAN\u00c9E withheld — it is officially five-star and
@@ -2374,6 +2395,7 @@ const FAVORITES = {
     { name: "Four Seasons Hotel Doha", area: "West Bay", rate: null, ourTake: "The established grande dame, private beach and marina, and still where the city does business." },
     { name: "Four Seasons Resort at The Pearl", area: "The Pearl", rate: null, ourTake: "Resort rather than city hotel, out on the reclaimed island with the water on three sides." },
     { name: "The Ned Doha", area: "Doha", rate: null, ourTake: "A converted ministry building, members' club downstairs, and the most interesting rooms in the city." },
+    // PARK HYATT is carried at LUXURY and is never Ultra Luxury. Every OTHER Hyatt brand — Hyatt Regency, Grand Hyatt, Andaz, Alila, Thompson, Miraval, Secrets, Dreams, Zoetry — stays withheld.
     { name: "Park Hyatt Doha", area: "Msheireb", rate: null, ourTake: "Restrained and low-rise in the old quarter, for anyone tired of towers." },
     { name: "Sharq Village & Spa, a Ritz-Carlton Hotel", area: "Doha", rate: null, ourTake: "Built as a Qatari village on its own beach \u2014 the Six Senses spa is the reason to come." },
     { name: "The Ritz-Carlton Doha", area: "West Bay Lagoon", rate: null, ourTake: "On the lagoon with a private marina, the classic family choice." },
@@ -2445,6 +2467,7 @@ const FAVORITES = {
   ],
   "Marrakech": [
     { name: "Selman Marrakech", area: "Route d'Amizmiz", rate: null, ourTake: "Arabian horses in the stables and a 90-metre pool facing the Atlas \u2014 an estate rather than a hotel." },
+    // WITHHELD Sept 2026 — Voyage One does not carry Hyatt properties. Restorable as-is.
     { name: "Park Hyatt Marrakech", area: "Palmeraie", rate: null, ourTake: "Newest of the palmeraie houses, on the golf, with the mountains behind." },
     { name: "Four Seasons Resort Marrakech", area: "Hivernage", rate: null, ourTake: "Gardens and pools between the medina and the Menara \u2014 the easy, generous choice for a family." },
     { name: "Nobu Hotel Marrakech", area: "Hivernage", rate: null, ourTake: "The loud one, with the restaurant everyone books and a rooftop to match." },
@@ -2625,6 +2648,7 @@ const FAVORITES = {
   "Kyoto": [
     { name: "Aman Kyoto", area: "Northern hills", rate: null, ourTake: "A hidden garden sanctuary in a mossy forest below Kinkaku-ji." },
     { name: "Four Seasons Kyoto", area: "Higashiyama", rate: null, ourTake: "Built around an 800-year-old pond garden in the temple district." },
+    // WITHHELD Sept 2026 — Voyage One does not carry Hyatt properties. Restorable as-is.
     { name: "Park Hyatt Kyoto", area: "Higashiyama", rate: null, ourTake: "On the lanes below Kodai-ji, steps from Kiyomizu — pure Kyoto." },
     { name: "The Ritz-Carlton Kyoto", area: "Kamogawa", rate: null, ourTake: "Riverside elegance with the Higashiyama mountains beyond." },
     { name: "Hoshinoya Kyoto", area: "Arashiyama", rate: null, ourTake: "A riverboat-access ryokan retreat among the Arashiyama maples." },
@@ -2909,6 +2933,7 @@ const FAVORITES = {
     { name: "Four Seasons Resort Nevis", area: "Pinney's Beach", rate: null, ourTake: "The resort that put Nevis on the map: Pinney's Beach, the golf course climbing the volcano, tennis, a spa, and a village of villas and estate homes with their own pools and an ambassador each. Big, and the villa product is remarkable; the resort is classified as a whole, and Luxury by instruction, at its very top." },
   ],
   "St Kitts": [
+    // PARK HYATT is carried at LUXURY and is never Ultra Luxury. Every OTHER Hyatt brand — Hyatt Regency, Grand Hyatt, Andaz, Alila, Thompson, Miraval, Secrets, Dreams, Zoetry — stays withheld.
     { name: "Park Hyatt St. Kitts Christophe Harbour", area: "Banana Bay, south-east peninsula", rate: null, ourTake: "A contemporary resort on a quiet bay at the tip of the peninsula, looking across the Narrows to Nevis \u2014 pool suites, villas, a good spa and the Christophe Harbour marina behind it. The conventional luxury of St Kitts." },
   ],
   // ── ST VINCENT & THE GRENADINES, IN FULL ────────────────────────────────────────────
@@ -3398,6 +3423,7 @@ const FAVORITES = {
     { name: "The Hazelton Hotel", area: "Yorkville", rate: null, ourTake: "Small, private and properly Torontonian — the discreet choice in Yorkville." },
     { name: "The St. Regis Toronto", area: "Financial District", rate: null, ourTake: "Butler service high above the financial district, with the city laid out beneath." },
     { name: "The Ritz-Carlton, Toronto", area: "Entertainment District", rate: null, ourTake: "Polished and central, by Roy Thomson Hall — excellent, and a step below the very top." },
+    // PARK HYATT is carried at LUXURY and is never Ultra Luxury. Every OTHER Hyatt brand — Hyatt Regency, Grand Hyatt, Andaz, Alila, Thompson, Miraval, Secrets, Dreams, Zoetry — stays withheld.
     { name: "Park Hyatt Toronto", area: "Yorkville", rate: null, ourTake: "Restored and reopened, with the rooftop bar Toronto has been drinking at for seventy years." },
     { name: "Shangri-La Toronto", area: "Entertainment District", rate: null, ourTake: "Contemporary and calm on University Avenue, with one of the best spas downtown." },
   ],
@@ -13625,7 +13651,10 @@ function lodgeDining(city) {
   const k = Object.keys(LODGE_IS_THE_RESTAURANT).find((x) => x.toLowerCase() === String(key).toLowerCase());
   return k ? LODGE_IS_THE_RESTAURANT[k] : null;
 }
-const NO_HIRE_CAR_ISLANDS = [
+const NO_HIRE_CAR = [
+  // CAR-FREE BY LAW, not merely awkward: Zermatt admits no combustion cars at all. You park at
+  // Täsch and take the shuttle train the last five miles.
+  "Zermatt",
   "Mykonos", "Santorini", "Paros", "Milos", "Syros", "Sifnos", "Kea", "Capri",
   "Bequia", "Canouan", "Petit St Vincent", "Mustique", "Harbour Island", "Staniel Cay",
 ];
@@ -13641,7 +13670,7 @@ const LODGE_DRIVES_YOU = [
 ];
 function lodgeDrivesYou(city) {
   const key = dnrm(resolvePlace(city) || bareCity(city));
-  return LODGE_DRIVES_YOU.concat(NO_HIRE_CAR_ISLANDS).some((x) => dnrm(x) === key);
+  return LODGE_DRIVES_YOU.concat(NO_HIRE_CAR).some((x) => dnrm(x) === key);
 }
 function RentalPanel({ city, destination, compact }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
