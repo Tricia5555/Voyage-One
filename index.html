@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M452";
+const BUILD = "M453";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2171,20 +2171,22 @@ const FAVORITES = {
     { name: "Grand Hotel Zermatterhof", area: "Zermatt \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "The other classic address, built by the village itself in 1879 and still owned by it. Central, formal, with a good spa and restaurants \u2014 the alternative to Mont Cervin rather than a lesser version of it. Five-Star Superior, one Michelin Key." },
     { name: "Riffelalp Resort 2222m", area: "Riffelalp, 2,222 m \u00b7 Zurich (ZRH), then rail", rate: null, ourTake: "A COMPLETELY DIFFERENT TRIP from staying in the village. High on the Gornergrat railway at 2,222 metres, ski-in and ski-out, with Europe's highest open-air pool and the Matterhorn filling the window. You leave the village behind entirely \u2014 which for the right client is the entire point, and for the wrong one is isolation. Five-Star Superior." },
   ],
-  // ═══ NICE — Tricia's gap audit, REVISED, Sept 2026 ═════════════════════════════════════════
-  // THIS REPLACES the Nice list loaded in M440. Changes: H\u00d4TEL DU COUVENT added and now LEADS;
-  // ANANTARA PLAZA added; PALAIS DE LA M\u00c9DITERRAN\u00c9E withheld — it is officially five-star and
-  // Voyage One does not need every official five-star property. Listed in the preferred order.
-  // NO ULTRA LUXURY in Nice, deliberately: the best hotels here are excellent and none clears
-  // the Aman-level bar, and a major destination is not a reason to invent one.
-  // NOT LOADED: Hyatt Regency Nice Palais de la M\u00e9diterran\u00e9e, Boscolo Nice Hotel & Spa.
+  // ═══ NICE — Tricia's classification, THIRD PASS, Sept 2026 ═════════════════════════════════
+  // FOUR LUXURY, NO ULTRA. This supersedes M440 (Negresco + Palais) and M441 (du Couvent,
+  // Negresco, Anantara). PALAIS DE LA M\u00c9DITERRAN\u00c9E IS BACK IN — it was withheld in M441 and is
+  // restored here, so the file has now held three different Nice lists in one day.
+  // ONE PROPERTY, ONE RECORD: the hotel operates as Hyatt Regency Nice Palais de la
+  // M\u00e9diterran\u00e9e. Do NOT create a second entry under the Hyatt name.
+  // EXCLUDED: Maison Albar Le Victoria (Amex Hotel Collection rather than Fine Hotels + Resorts;
+  // let it establish a track record), Boscolo Nice, Radisson Blu Nice.
   // NICE MEANS NICE: \u00c8ze, Saint-Jean-Cap-Ferrat, Monaco, Roquebrune-Cap-Martin and Saint-Tropez
   // are separate destinations and their hotels must never be folded in here. No alias points at
   // Nice, so nothing rolls up — if one is ever added, this rule is why it should not be.
   "Nice": [
-    { name: "H\u00f4tel du Couvent, a Luxury Collection Hotel", area: "Old Nice \u00b7 Nice (NCE)", rate: null, ourTake: "THE ONE TO LEAD WITH IN NICE. Eighty-eight rooms in a 17th-century convent in the old town, reopened after a long and very serious restoration \u2014 cloister gardens, terraced orchards, and a wellness complex built on Roman bathing rather than spa treatments. It has a sense of place that no seafront hotel in Nice can match, and it feels far more Voyage One than simply taking the biggest famous name." },
-    { name: "Le Negresco", area: "Promenade des Anglais \u00b7 Nice (NCE)", rate: null, ourTake: "The pink dome on the Promenade, open since 1913 and still privately owned \u2014 a hotel that doubles as a museum, with a serious art collection through the public rooms and Le Chantecler in the middle of it. Idiosyncratic rather than corporate, and far too important to Nice to leave out: a property-specific Voyage One inclusion, since Forbes verifies it as luxury without giving it five stars." },
-    { name: "Anantara Plaza Nice Hotel", area: "Nice \u00b7 Nice (NCE)", rate: null, ourTake: "A Belle \u00c9poque landmark on the edge of the old town, restored as Anantara's first hotel in France \u2014 polished international five-star service, sea views, and the best rooftop in the city. The contemporary choice against the other two." },
+    { name: "H\u00f4tel du Couvent, a Luxury Collection Hotel", area: "Old Nice \u00b7 Nice (NCE)", rate: null, ourTake: "THE ONE TO LEAD WITH IN NICE. Eighty-eight rooms in a 17th-century convent in the old town, reopened after a long and very serious restoration \u2014 cloister gardens, terraced orchards, and a wellness complex built on Roman bathing rather than spa treatments. It has a sense of place that no seafront hotel in Nice can match." },
+    { name: "Le Negresco", area: "Promenade des Anglais \u00b7 Nice (NCE)", rate: null, ourTake: "THE CLASSIC NICE HOTEL. The pink dome on the Promenade, open since 1913 and still privately owned \u2014 a hotel that doubles as a museum, with a serious art collection through the public rooms and Le Chantecler in the middle of it. Leading Hotels of the World, and idiosyncratic in a way no group could reproduce." },
+    { name: "Anantara Plaza Nice Hotel", area: "Nice \u00b7 Nice (NCE)", rate: null, ourTake: "A Belle \u00c9poque landmark on the edge of the old town, restored as Anantara's first hotel in France \u2014 polished international five-star service, sea views, and the best rooftop in the city. The contemporary choice." },
+    { name: "H\u00f4tel Palais de la M\u00e9diterran\u00e9e", area: "Promenade des Anglais \u00b7 Nice (NCE)", rate: null, ourTake: "The great Art Deco facade on the Promenade, with the most striking frontage in Nice, sea views, a large terrace and a pool. The full-service seafront option \u2014 more conventional than the other three and none the worse for it." },
   ],
   // ═══ MADEIRA — Tricia's list, Sept 2026 ═════════════════════════════════════════════════════
   // ULTRA LUXURY is REID'S PALACE and nothing else. The other four are Luxury.
