@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M446";
+const BUILD = "M448";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2076,6 +2076,29 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ CHARLESTON — Tricia's corrected list, Sept 2026 ═══════════════════════════════════════
+  // THREE LUXURY IN THE CITY, NO ULTRA. The fourth property of that audit, THE SANCTUARY AT
+  // KIAWAH ISLAND, stays under its own Kiawah Island key — it is a resort island twenty-five
+  // miles down the coast and a different trip, so it is not duplicated here.
+  // CHARLESTON PLACE AND HOTEL BENNETT ARE FORBES FOUR-STAR AND ARE NOT DOWNGRADED FOR IT:
+  // both are independently credible luxury hotels and meet the Voyage One Luxury standard.
+  // Quality over quantity — do not add further Charleston inns to lengthen the list.
+  "Charleston": [
+    { name: "Charleston Place", area: "Historic District \u00b7 Charleston (CHS)", rate: null, ourTake: "The city's landmark hotel, in the middle of the historic district on Meeting Street with King Street shopping at the door. Large, full-service and comprehensively renovated \u2014 the traditional Charleston stay, and the easiest to recommend for a first visit. Forbes Four-Star, and independently credible luxury by any reading." },
+    { name: "Hotel Bennett", area: "Marion Square \u00b7 Charleston (CHS)", rate: null, ourTake: "Facing Marion Square, and the most polished newer hotel in Charleston \u2014 marble, a rooftop pool bar, and a serious spa. More contemporary and more glamorous than Charleston Place without leaving the centre." },
+    { name: "Zero George Street", area: "Ansonborough \u00b7 Charleston (CHS)", rate: null, ourTake: "THE INTIMATE OPTION \u2014 five restored 19th-century houses around a courtyard on a quiet Ansonborough lane, with a small, very good kitchen and a cooking school. Nothing like a hotel, and the right answer for a client who wants Charleston rather than a Charleston hotel." },
+  ],
+  // ═══ ST ANDREWS — Tricia's classification, Sept 2026 ════════════════════════════════════════
+  // THREE LUXURY, NO ULTRA. Nothing in St Andrews reaches the Aman-level bar.
+  // EXCLUDED, by instruction: Kinnettles Hotel (marketed as five-star, does not rise to the
+  // level of the three above), Rufflets St Andrews (attractive country house, not needed at this
+  // level), and SEATON HOUSE — promising and new, and Voyage One waits for an established
+  // independent track record before loading it. Do not add hotels to create inventory.
+  "St Andrews": [
+    { name: "Old Course Hotel, Golf Resort & Spa", area: "Beside the Road Hole \u00b7 Edinburgh (EDI)", rate: null, ourTake: "THE PRIMARY RECOMMENDATION FOR SERIOUS GOLFERS, and not a close call. It stands directly over the seventeenth \u2014 the Road Hole \u2014 with the Old Course beneath the windows, and it is a full-service resort behind that: Kohler Waters Spa, several restaurants, and a further substantial refurbishment completed in 2026. If golf is the reason for the trip, this is the hotel." },
+    { name: "Rusacks St Andrews", area: "Overlooking the 1st and 18th \u00b7 Edinburgh (EDI)", rate: null, ourTake: "One of the best-positioned golf hotels anywhere \u2014 looking straight down the first and eighteenth fairways, with the R&A clubhouse beside it. Smaller, more stylish and far more personality-driven than the Old Course Hotel. THE CHOICE FOR CLIENTS WHO WANT THE POSITION WITHOUT THE RESORT." },
+    { name: "Fairmont St Andrews", area: "Kittocks, 3 km south \u00b7 Edinburgh (EDI)", rate: null, ourTake: "A large five-star resort on a cliff-top estate just outside town, with two championship courses of its own, a spa and a dramatic North Sea setting. THE FULL-RESORT ANSWER \u2014 take it when the party wants everything on site rather than to walk out into the middle of St Andrews." },
+  ],
   // ═══ EDINBURGH — Tricia's classification, Sept 2026 ═════════════════════════════════════════
   // FOUR LUXURY, NO ULTRA. The Balmoral is the strongest grand hotel in the city and stays
   // LUXURY under Voyage One's deliberately narrow Ultra standard.
@@ -7524,6 +7547,7 @@ const GATEWAY = {
   "Santa Fe": { air: "Albuquerque", note: "Santa Fe has its own field (SAF) with American and United from Dallas, Phoenix and Denver, which is the door when the connection lines up; otherwise fly to Albuquerque (ABQ) and it is an hour north on the interstate. The hotels send cars from either." },
   "Scottsdale": { air: "Phoenix", note: "Fly to Phoenix (PHX), then twenty minutes to Scottsdale. The Canyon Suites sends its house car." },
   "Banff": { air: "Calgary", note: "Fly to Calgary (YYC), then about 1 hr 30 into the mountains." },
+  "St Andrews": { air: "Edinburgh", note: "St Andrews has no airport. Fly to EDINBURGH (EDI) and drive about an hour and a half up the Fife coast, or take the train to Leuchars and a ten-minute taxi. Glasgow is a similar distance from the west." },
   "Zermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then rail — Zermatt is car-free, so the train is the only way in." },
   "Chamonix": { air: "Geneva", note: "Fly to Geneva (GVA), then about an hour by road." },
   "Courchevel": { air: "Lyon", note: "Fly to Lyon (LYS), then roughly 2 hr 30 up the valley." },
