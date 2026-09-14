@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M453";
+const BUILD = "M466";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -373,6 +373,9 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favorite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  "The Greenwich Hotel", "The Fifth Avenue Hotel", "Casa Cipriani New York",
+  "Hotel Bel-Air",
+  "Zaborin",
   "Reid's Palace, a Belmond Hotel",
   // ══ THE AMERICAS — RE-TIERED 3 SEPT 2026 ON TRICIA'S HOTEL TIER CORRECTIONS ══════════
   // The standard is Aman-level, and the correction document is explicit that this file does NOT
@@ -506,7 +509,7 @@ const ULTRA_LUX = [
   "Taj Lake Palace", "RAAS Devigarh",
   // The Inn at Little Washington came down to Luxury on 4 Sept 2026: the restaurant is the
   // defining element, and the hotel is Five-Star, not beyond it. Raffles Boston not yet re-audited.
-  // Raffles Boston withheld 4 Sept 2026 — unnamed by the New England audit. Sage Lodge not yet audited.
+  // Raffles Boston: RESOLVED Sept 2026 — restored at LUXURY, not Ultra. Sage Lodge not yet audited.
   "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
@@ -994,6 +997,23 @@ const HOTELS = {
 // Our own hand-picked favorites for a city, pinned to the TOP of the hotel picker above the
 // live browse list. Names must match what the One List guides seed, so a hotel chosen there
 // shows up already selected here. Rates are indicative placeholders until live rates connect.
+// ══ STANDING RULE ON REMOVALS — added on Tricia's instruction, Sept 2026 ═══════════════════
+// BEFORE ANY PURGE, AUDIT OR STANDARD IS APPLIED, SAY WHAT IT WILL DO OUTSIDE THE GEOGRAPHY
+// BEING DISCUSSED. The California re-audit of 4 Sept withheld eleven properties "pending
+// confirmation", including all four San Francisco candidates and Hotel Bel-Air. The
+// confirmation never came, the records were not kept, and San Francisco silently became a
+// destination with no hotels — discovered ten days later by a client trip, not by anyone
+// watching. A rule applied to one region reached a city nobody had raised.
+//
+// EVERY AUDIT MUST END WITH AN EXPLICIT DISPOSITION: KEEP, REMOVE or RECLASSIFY.
+// "WITHHOLD UNTIL CONFIRMED" is TEMPORARY ONLY and must never cause a previously approved hotel
+// to disappear from the active database without a completed review. While research is pending,
+// LEAVE THE EXISTING CLASSIFICATION ACTIVE until the review produces a confirmed reason to change
+// it. Suppressing first and confirming later is what lost San Francisco for ten days.
+//
+// SO: name the collateral before acting, and NEVER remove a record outright. Withheld means
+// COMMENTED IN PLACE, with its full text, so one word restores it. A name in a comment is not
+// a record — it cannot be restored, and that is how these eleven were lost.
 const FAVORITES = {
   "London": [
     { name: "Claridge's", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The definitive London address — Art Deco glamour and the lobby everyone wants to be seen in.", contact: { addr: "Brook Street, Mayfair, London W1K 4HR", web: "claridges.com" } },
@@ -1161,7 +1181,14 @@ const FAVORITES = {
   "Krabi": [
     { name: "Phulay Bay, a Ritz-Carlton Reserve", area: "Andaman coast", rate: null, ourTake: "A jungle-and-sea Reserve on the Andaman coast near Krabi.", contact: { web: "ritzcarlton.com" } },
   ],
+  // ═══ BOSTON — WITHHELD HOTELS RESTORED, Sept 2026 ══════════════════════════════════════════
+  // All three confirmed and restored; no WITHHOLD or PENDING designation remains on any of them.
+  // NO ULTRA LUXURY in Boston. Raffles was sitting in the Ultra canon note when it was withheld
+  // and comes back at LUXURY, not above it.
   "Boston": [
+    { name: "Raffles Boston", area: "Back Bay \u00b7 Boston (BOS)", rate: null, ourTake: "Restored Sept 2026. One of Boston's strongest contemporary hotels \u2014 147 rooms in a new Back Bay tower, a Guerlain spa, serious dining and a sky lobby with the city underneath it. Forbes Verified Luxury." },
+    { name: "The Newbury Boston", area: "Overlooking the Public Garden \u00b7 Boston (BOS)", rate: null, ourTake: "Restored Sept 2026. The old Ritz on Arlington Street, rebuilt and now facing the PUBLIC GARDEN from the best address in the city \u2014 286 rooms including ninety suites, and Contessa on the roof. Forbes Verified Luxury." },
+    { name: "The Ritz-Carlton, Boston", area: "Boston Common \u00b7 Boston (BOS)", rate: null, ourTake: "Restored Sept 2026. Full-service beside Boston Common, with generous rooms, suites and a Club Lounge. Not the most distinctive hotel in the city and it clears the Voyage One threshold comfortably. Forbes Verified Luxury." },
   // ── NEW ENGLAND — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Two Ultra Luxury — Ocean
   // House at Watch Hill and Twin Farms — and three Luxury: both Boston Four Seasons and The
   // Chanler at Newport. WITHHELD pending confirmation: The Newbury, Mandarin Oriental Boston,
@@ -2076,6 +2103,21 @@ const FAVORITES = {
   // (Sifnos); Naxian Utopia and Laguna Coast Resort (Naxos); Pnoēs Tinos. Naxos and Tinos
   // therefore carry no inventory at all, which is the correct answer rather than an empty page
   // filled with something weaker.
+  // ═══ NISEKO — Tricia's classification, Sept 2026 ═══════════════════════════════════════════
+  // ONE ULTRA, FOUR LUXURY. This closes the second LIVE DEAD END: the Japan, Deep Winter
+  // experience sends clients to Niseko, and until now they arrived to find no hotels at all.
+  // THE RITZ-CARLTON RESERVE NAME IS NOT A TIER. Higashiyama is LUXURY, not Ultra — independent
+  // reviews have questioned whether the service reaches the usual Reserve standard.
+  // PARK HYATT HANAZONO is Luxury under the house Hyatt rule and is too large and resort-like
+  // for Ultra regardless. EXCLUDED: The Vale, AYA, Skye, Chatrium, Hinode Hills, SUiboku Hirafu,
+  // Sansui. Niseko has a great many expensive luxury residences; that is not a reason to list them.
+  "Niseko": [
+    { name: "Zaborin", area: "Hanazono forest \u00b7 New Chitose (CTS)", rate: null, ourTake: "ULTRA LUXURY, and the most special place to stay in Niseko by a distance. Fifteen villa suites in birch forest, each with TWO private onsen \u2014 one indoor, one open to the snow \u2014 and a kaiseki kitchen worth the trip on its own. Two Michelin Keys. NOT SKI-IN, SKI-OUT: choose it for privacy, food and onsen rather than slope convenience, and put the skiing elsewhere in the trip if that is the point." },
+    { name: "Park Hyatt Niseko Hanazono", area: "Hanazono \u00b7 New Chitose (CTS)", rate: null, ourTake: "THE PRIMARY SKI RECOMMENDATION and probably the best all-round luxury ski hotel in Niseko \u2014 true ski-in and ski-out on Hanazono, very large rooms, a serious onsen and spa, and the best dining on the mountain. Forbes Verified Luxury, one Michelin Key. Excellent, and too large and resort-like for Ultra." },
+    { name: "Higashiyama Niseko Village, a Ritz-Carlton Reserve", area: "Niseko Village \u00b7 New Chitose (CTS)", rate: null, ourTake: "Fifty rooms and suites with ski access and its own onsen, in a quieter part of the mountain than Hirafu. A Michelin Key. Filed as Luxury deliberately \u2014 the Reserve name is not a classification, and the service has been questioned against that standard." },
+    { name: "MUWA Niseko", area: "Grand Hirafu \u00b7 New Chitose (CTS)", rate: null, ourTake: "Ski-in and ski-out at Grand Hirafu, with large apartment-style accommodation, good restaurants and strong wellness. A Michelin Key two years running. THE FAMILY AND LONG-STAY ANSWER \u2014 proper kitchens and living space rather than hotel rooms." },
+    { name: "Setsu Niseko", area: "Hirafu \u00b7 New Chitose (CTS)", rate: null, ourTake: "Named Japan's Best Ski Hotel at the 2025 World Ski Awards, and a Michelin Key for the second year. Sophisticated residences in Hirafu with excellent wellness and onsen, and the village's restaurants and bars on the doorstep \u2014 the liveliest of the five." },
+  ],
   // ═══ NAPLES — Tricia's classification, Sept 2026 ═══════════════════════════════════════════
   // THREE LUXURY, NO ULTRA. This closes a LIVE DEAD END: The America's Cup experience sends
   // clients to Naples, and until now they arrived to find no hotels at all.
@@ -3213,16 +3255,26 @@ const FAVORITES = {
     { name: "The Dunmore", area: "Pink Sands Beach", rate: null, ourTake: "The classic on the beach itself, cottages in the gardens and the best-placed pool on the island. Where Harbour Island has always stayed." },
   ],
 
+  // ═══ NEW YORK — WITHHELD HOTELS RESTORED, Sept 2026 ════════════════════════════════════════
+  // All three confirmed and restored to ULTRA LUXURY, which is where they were before the audit
+  // that did not name them. No WITHHOLD or PENDING designation remains on any of them, and these
+  // classifications are FINAL unless a completed audit gives a specific reason to change them.
+  "The Hamptons": [
+    { name: "Topping Rose House", area: "Bridgehampton \u00b7 New York (JFK)", rate: null, ourTake: "Restored Sept 2026. Twenty-two rooms in an 1842 Greek Revival house in Bridgehampton, with a spa, a pool, a one-acre working farm and a Jean-Georges kitchen \u2014 plus transport down to the beach, which in the Hamptons matters more than it sounds. Forbes Verified Luxury. EXACTLY THE KIND OF SMALL DESTINATION HOTEL that belongs in Voyage One." },
+  ],
   "New York City": [
+    { name: "The Greenwich Hotel", area: "Tribeca \u00b7 New York (JFK/EWR)", rate: null, ourTake: "ULTRA LUXURY, restored Sept 2026. Eighty-eight rooms in Tribeca, no two alike, with a lantern-lit pool in a reconstructed Kyoto farmhouse underneath and a drawing room only guests ever see. Forbes Verified Luxury. NOT SIMPLY A GOOD BOUTIQUE HOTEL \u2014 the privacy, individuality and scarcity are what the Ultra tier exists for." },
+    { name: "The Fifth Avenue Hotel", area: "NoMad \u00b7 New York (JFK/EWR)", rate: null, ourTake: "ULTRA LUXURY, restored Sept 2026. A hundred and fifty-three rooms across an 1862 mansion and a new tower behind it, with interiors of a density and confidence nothing else in New York attempts. Forbes Verified Luxury, and a substantial suite product." },
+    { name: "Casa Cipriani New York", area: "Battery Maritime Building \u00b7 New York (JFK/EWR)", rate: null, ourTake: "ULTRA LUXURY, restored Sept 2026. THREE MICHELIN KEYS, in the restored Battery Maritime Building on the water at the foot of Manhattan \u2014 a private club with rooms attached rather than a hotel with a club in it. Exactly the kind of property the Ultra tier is meant to capture." },
   // ── NEW YORK — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Three Ultra Luxury — Aman (on
   // the definition itself, whatever Forbes says), The Mark, The Carlyle — and six Luxury. The
   // Lowell came down. Baccarat, the Peninsula, the Pierre and the Mandarin Oriental are in as
   // Luxury by instruction. THE FOUR SEASONS IS KEPT: approved as Luxury in the spot-check earlier
   // the same day on its Forbes Five-Star, and its absence from the full audit's list reads as an
-  // omission, not a verdict — flagged to Tricia. WITHHELD, unnamed by the audit: The Greenwich
-  // Hotel, The Fifth Avenue Hotel, Casa Cipriani — all three had been in the Ultra canon.
-  // EXCLUDED: Park Hyatt (Four-Star). Topping Rose House and Lake Placid Lodge are withheld
-  // pending confirmation; the Hudson Valley's Wildflower Farms, Inness, Troutbeck and Glenmere
+  // omission, not a verdict — flagged to Tricia. RESOLVED Sept 2026: The Greenwich Hotel, The
+  // Fifth Avenue Hotel and Casa Cipriani are RESTORED TO ULTRA LUXURY, where they were before.
+  // EXCLUDED: Park Hyatt (Four-Star). Topping Rose House and Lake Placid Lodge are RESOLVED
+  // Sept 2026 and restored at Luxury; the Hudson Valley's Wildflower Farms, Inness, Troutbeck and Glenmere
   // are named and not loaded.
     { name: "Aman New York", area: "Fifth Avenue", rate: null, ourTake: "A serene three-floor spa sanctuary above Fifth Avenue, with a jazz club below." },
     { name: "Four Seasons Hotel New York", area: "57th Street, Midtown", rate: null, ourTake: "Pei's limestone tower on 57th, the tallest rooms in the city and a Forbes Five-Star. True city luxury, and Luxury by instruction \u2014 not the tier above." },
@@ -3248,6 +3300,7 @@ const FAVORITES = {
   // Ultra address in Los Angeles) and SINGLETHREAD (five rooms above three Michelin stars in
   // Healdsburg). Both are one word from Tricia away from going back.
   "Los Angeles": [
+    { name: "Hotel Bel-Air", area: "Bel Air · Los Angeles (LAX)", rate: null, ourTake: "ULTRA LUXURY, restored Sept 2026. Twelve acres of canyon garden above Sunset with a swan lake at the entrance — bungalow accommodation, Dorchester service, and privacy that no other Los Angeles hotel can approach. Forbes Five-Star, and arguably the most Ultra address in the city." },
     { name: "The Beverly Hills Hotel", area: "Beverly Hills", rate: null, ourTake: "The Pink Palace \u2014 the Polo Lounge, the bungalows where the century's stories happened, and a Forbes Five-Star to this day. The scarcest rooms in Los Angeles are the signature bungalows, and they are the reason it sits in the tier it does." },
     { name: "Maybourne Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "Claridge's and the Connaught's owners in the Golden Triangle \u2014 Forbes Five-Star in 2026, exceptional suites, and the Maybourne way of looking after people. The polished modern Ultra Luxury of Beverly Hills." },
     { name: "Four Seasons Hotel Los Angeles at Beverly Hills", area: "Beverly Hills", rate: null, ourTake: "The Four Seasons on Doheny with the pool the industry does its deals around. True luxury, and Luxury by instruction." },
@@ -3257,10 +3310,51 @@ const FAVORITES = {
   // until Bacara or Ojai is confirmed. Big Sur has no hotel: Post Ranch Inn is Forbes Four-Star
   // and the audit follows the rule exactly.
   "Santa Barbara": [
+    { name: "The Ritz-Carlton Bacara, Santa Barbara", area: "Goleta coast · Santa Barbara (SBA)", rate: null, ourTake: "Restored Sept 2026. Seventy-eight acres of oceanfront on the Goleta coast, with three pools above the Pacific, a large spa and full resort depth. The Santa Barbara coastal answer when the town itself is not the point." },
     { name: "Rosewood Miramar Beach", area: "Montecito", rate: null, ourTake: "Rooms on the sand itself at Montecito, a triple Five-Star \u2014 hotel, spa and restaurant \u2014 and the old-Hollywood ease of the place. The beachfront suites are beyond-luxury product, and the hotel is Ultra Luxury on the strength of them." },
     { name: "San Ysidro Ranch", area: "Montecito, in the foothills", rate: null, ourTake: "Thirty-eight cottages in the gardens where the Kennedys honeymooned and Olivier married Vivien Leigh \u2014 private patios, outdoor showers, meals included, and a discretion that is the whole point. Ultra Luxury on the total product, by instruction, whatever the guides say this year." },
   ],
+  // ═══ CALIFORNIA RESTORATION — Sept 2026 ════════════════════════════════════════════════════
+  // Eleven hotels restored after the 4 Sept re-audit left them in "withhold until confirmed" and
+  // the confirmation was never completed. HOTEL BEL-AIR returns at ULTRA LUXURY — it is not
+  // downgraded because of a temporary audit hold. The other ten are Luxury.
+  // SINGLETHREAD was the twelfth and last, restored separately at Luxury on Tricia's word.
+  // ALL TWELVE withheld California hotels are now back. Nothing from the 4 Sept operation remains
+  // unresolved.
+  "Beverly Hills": [
+    { name: "L'Ermitage Beverly Hills", area: "Burton Way · Los Angeles (LAX)", rate: null, ourTake: "Restored Sept 2026. Intimate and deliberately discreet, with unusually large rooms for Beverly Hills and service that works on recognition rather than ceremony. The quiet alternative to the Sunset hotels." },
+  ],
+  "Ojai": [
+    { name: "Ojai Valley Inn", area: "Ojai · Los Angeles (LAX)", rate: null, ourTake: "Restored Sept 2026. Two hundred and twenty acres in the Ojai valley — golf, tennis, pools, a serious spa and a real culinary programme, ninety minutes from Los Angeles and a world away from it. A destination resort rather than a hotel." },
+  ],
+  "Pebble Beach": [
+    { name: "The Lodge at Pebble Beach", area: "Pebble Beach · Monterey (MRY)", rate: null, ourTake: "Restored Sept 2026. Above the eighteenth green at Pebble Beach Golf Links with Stillwater Cove beyond it — ESSENTIAL for the location, the golf access and the history. There is no substitute for this address." },
+    { name: "Casa Palmero at Pebble Beach", area: "Pebble Beach · Monterey (MRY)", rate: null, ourTake: "Restored Sept 2026. A small Mediterranean villa within Pebble Beach Resorts, with pre-arrival planning and personal valets. THE PRIVATE WAY TO DO PEBBLE BEACH — the same access, none of the lobby. (Correct name: Casa Palmero, not Palermo.)" },
+  ],
+  "Healdsburg": [
+    { name: "SingleThread Farms", area: "Healdsburg \u00b7 San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026, and the last of the withheld California hotels to come back. FIVE ROOMS above the three-Michelin-star SingleThread, with privileged access to a table that is otherwise among the hardest in America to get. Forbes Verified Luxury \u2014 the tiny scale is not a shortfall, it is the product: a working farm, a kitchen, and an ultra-intimate inn operating as one thing. For a client who travels for food, privacy and a personalised experience, there is nothing else like it in wine country." },
+    { name: "Montage Healdsburg", area: "Healdsburg · San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026, and the clearest restoration of the set: FORBES FIVE-STAR 2026, AAA Five Diamond and two Michelin Keys. A 258-acre wine-country estate of hillside bungalows above the vines, with a substantial spa. Should never have been left unresolved." },
+    { name: "Farmhouse Inn", area: "Forestville · San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026. Twenty-five rooms in the Russian River valley with high-touch service and a very good kitchen — the boutique alternative to the big Sonoma resorts, and the more personal stay." },
+  ],
+  "Palm Springs": [
+    { name: "The Ritz-Carlton, Rancho Mirage", area: "Rancho Mirage · Palm Springs (PSP)", rate: null, ourTake: "Restored Sept 2026. On a bluff six hundred feet above the Coachella Valley, with the whole desert laid out below and the San Jacinto mountains behind. Full-service, with a large spa — the desert luxury answer." },
+  ],
+  // ═══ SAN FRANCISCO — DATA RECOVERY, Sept 2026 ══════════════════════════════════════════════
+  // THESE FOUR WERE IN VOYAGE ONE AND WERE LOST. The California re-audit of 4 Sept 2026 withheld
+  // "all four San Francisco candidates" pending a confirmation that never came, and withheld was
+  // implemented as DELETION WITH A NAME IN A COMMENT — so the records could not be restored and
+  // had to be re-supplied. San Francisco kept its coordinates, its SFO mapping and its Michelin
+  // restaurants, which is why the city still appeared with food and no beds.
+  // NO ULTRA LUXURY in San Francisco. All four are Luxury.
+  "San Francisco": [
+    { name: "Four Seasons Hotel San Francisco", area: "757 Market Street · San Francisco (SFO)", rate: null, ourTake: "The city's dependable luxury address, high above Market Street in the middle of everything — SoMa, Union Square and the museums all on foot. Large rooms by San Francisco standards, and the service consistency Four Seasons is bought for." },
+    { name: "Four Seasons Hotel San Francisco at Embarcadero", area: "222 Sansome Street · San Francisco (SFO)", rate: null, ourTake: "The second Four Seasons, occupying the top eleven floors of a Financial District tower — so every room looks out over the bay, the bridges or the city. Sophisticated and quiet, and the better of the two for a view." },
+    { name: "The Ritz-Carlton, San Francisco", area: "600 Stockton Street · San Francisco (SFO)", rate: null, ourTake: "The neoclassical landmark on NOB HILL, with a colonnaded facade and a Club Level that does the work of a concierge floor properly. Classic, formal, and the most traditionally grand of the four." },
+    { name: "Palace Hotel, a Luxury Collection Hotel", area: "2 New Montgomery Street · San Francisco (SFO)", rate: null, ourTake: "The historic grande dame, open since 1875 and rebuilt after 1906 — and the Garden Court beneath its stained-glass dome is one of the great hotel rooms in America. Take it for the building and the history." },
+  ],
   "Napa Valley": [
+    { name: "Bardessono Hotel and Spa", area: "Yountville · San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026. A small, serious hotel in the middle of Yountville — walking distance to more Michelin stars per head than anywhere in America. Two Michelin Keys, and every room has its own treatment space." },
+    { name: "Four Seasons Resort and Residences Napa Valley", area: "Calistoga · San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026. Eighty-five rooms inside a WORKING VINEYARD at the top of the valley, with two pools, a spa and its own winery. The newest of the valley's luxury resorts and the most complete." },
     { name: "Auberge du Soleil", area: "Rutherford", rate: null, ourTake: "Fifty rooms on a hillside olive grove above the valley, a Forbes Five-Star and a Michelin table on the terrace \u2014 the address in Napa, and the one people plan the trip around." },
     { name: "Meadowood Napa Valley", area: "St Helena", rate: null, ourTake: "A 250-acre private valley of cottages in the oaks, a Five-Star spa, tennis and the deepest wine program in the county. Forbes Five-Star, and Ultra Luxury on seclusion alone." },
   ],
@@ -3273,8 +3367,9 @@ const FAVORITES = {
   // confirmation; SingleThread was in the file and is withheld, unmentioned by the audit.
   // ── FLORIDA — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD ─────────────────────────
   // Two Ultra Luxury, both in Miami; eight Luxury across five keys. VERIFY BEFORE LOADING, by
-  // instruction, so withheld: The Ritz-Carlton Naples, Four Seasons Orlando, The Colony Palm
-  // Beach, The Boca Raton (component by component), Ritz-Carlton Coconut Grove and Key Biscayne.
+  // instruction, so withheld: RESOLVED Sept 2026 — The Ritz-Carlton Naples, Four Seasons Orlando
+  // and The Boca Raton are live; THE COLONY PALM BEACH is restored at Luxury. STILL UNRESOLVED:
+  // Ritz-Carlton Coconut Grove and Ritz-Carlton Key Biscayne, neither of which has a record left.
   // EXCLUDED: The Biltmore, Doral, Inn on Fifth, JW Marriott Orlando, Conrad Orlando (watchlist),
   // The Marker. RITZ-CARLTON BAL HARBOUR is closed for works until 7 December 2026 and is to be
   // re-audited after; not loaded. FAENA MIAMI was in the file and in the Ultra canon, and the
@@ -3290,7 +3385,9 @@ const FAVORITES = {
   "Florida Keys": [
     { name: "Little Palm Island Resort & Spa", area: "Little Torch Key, by boat", rate: null, ourTake: "A boat-access private-island escape, adults only, castaway-chic." },
   ],
+  // ═══ PALM BEACH — THE COLONY RESTORED, Sept 2026 ═══════════════════════════════════════════
   "Palm Beach": [
+    { name: "The Colony Hotel", area: "Worth Avenue \u00b7 Palm Beach (PBI)", rate: null, ourTake: "Restored Sept 2026 at LUXURY. The pink landmark a block from Worth Avenue and the beach \u2014 eighty-nine rooms plus villas and bungalows, Swifty's for dinner, and a pool scene that IS Palm Beach. Forbes Verified Luxury. SMALLER AND FAR MORE CHARACTERFUL than the big resorts, which is exactly why it belongs." },
     { name: "Four Seasons Resort Palm Beach", area: "South end of the island", rate: null, ourTake: "Twenty-eight consecutive years of Forbes Five-Star, freshly redone by Martin Brudnizki, on the beach at the quiet south end. True Five-Star, and Luxury by instruction." },
     { name: "The Breakers Palm Beach", area: "Palm Beach, on the ocean", rate: null, ourTake: "The Flagler-era palace on the Atlantic \u2014 two courses, a mile of beach, a serious spa and the clientele that has come for a century. One of the great American resorts, and Luxury on its scale." },
   ],
@@ -3345,7 +3442,9 @@ const FAVORITES = {
     { name: "Hotel Jerome, Auberge Collection", area: "Downtown Aspen", rate: null, ourTake: "The 1889 silver-boom hotel on Main Street, renovated at length and run by Auberge, with unusually big rooms and the bar the town drinks in. Luxury by instruction." },
     { name: "The St. Regis Aspen Resort", area: "Downtown Aspen, by the gondola", rate: null, ourTake: "Butlers, a Five-Star spa and a courtyard pool a block from the lift. The full-service luxury of Aspen; the hotel itself is Luxury, by instruction." },
   ],
+  // ═══ JACKSON HOLE — WITHHELD HOTEL RESTORED, Sept 2026 ═════════════════════════════════════
   "Jackson Hole": [
+    { name: "Caldera House", area: "Teton Village \u00b7 Jackson Hole (JAC)", rate: null, ourTake: "Restored Sept 2026 at LUXURY. A design-led alpine residence and private club at the base of Jackson Hole Mountain Resort \u2014 eight suites, not a full-service hotel, and not pretending to be. Its strength is the position, the architecture, the privacy and ski access straight onto the tram. The small-scale luxury residence, against Amangani's resort." },
     { name: "Amangani", area: "East Gros Ventre Butte, above the valley", rate: null, ourTake: "An Aman on a butte with the Tetons across the valley and the elk refuge below \u2014 forty suites of sandstone and redwood, reopened in 2026 after a full renovation. Ultra Luxury on the definition itself: it is literally the standard the tier is named for." },
   ],
   "Big Sky": [
@@ -3408,9 +3507,18 @@ const FAVORITES = {
   ],
   // ── LAS VEGAS — 4 SEPT 2026 ON THE STRICT STANDARD. Two Luxury, no Ultra, and both are hotels
   // within hotels: the audit's point is that the casino resorts are Four-Star and their villas do
-  // not lift them. Encore Tower Suites is withheld pending confirmation; Four Seasons, Waldorf
+  // not lift them. RESOLVED Sept 2026: ENCORE RESTORED at Luxury as the full resort. Four Seasons, Waldorf
   // Astoria, Wynn Las Vegas and Encore themselves are named and out. Idaho and Alaska have no hotel.
+  // ═══ LAS VEGAS — ENCORE RESTORED, Sept 2026 ════════════════════════════════════════════════
+  // FLAGGED FOR TRICIA: this REVERSES the 4 Sept audit rather than completing it. That audit
+  // withheld only ENCORE TOWER SUITES — the hotel-within-a-hotel — and named ENCORE ITSELF, with
+  // Wynn Las Vegas, Four Seasons and Waldorf Astoria, as excluded, on the reasoning that the
+  // casino resorts are Four-Star and their villas do not lift them. The instruction of Sept 2026
+  // restores the FULL RESORT at Luxury. That leaves Wynn Las Vegas out while its sister Encore is
+  // in, and the other two Vegas entries are still hotels-within-hotels. Implemented as instructed
+  // and recorded here so the inconsistency is visible rather than buried.
   "Las Vegas": [
+    { name: "Encore Las Vegas Resort", area: "Las Vegas Strip \u00b7 Las Vegas (LAS)", rate: null, ourTake: "Restored Sept 2026 at LUXURY. Forbes Verified Luxury, and the clearest luxury-resort choice on the Strip \u2014 all-suite rooms, extensive dining, pools, a large spa and a polished service environment. THE CASINO-RESORT FORMAT AND SCALE are what keep it out of Ultra Luxury, not the quality." },
     { name: "Skylofts at MGM Grand", area: "The Strip, within MGM Grand", rate: null, ourTake: "Fifty-one two-storey lofts on the top floors of the MGM Grand with their own entrance, butlers and cars \u2014 Forbes Five-Star, and the scarcest thing on the Strip. Luxury by instruction, and a different hotel from the one it sits on top of." },
     { name: "Wynn Tower Suites", area: "The Strip, within Wynn Las Vegas", rate: null, ourTake: "Wynn's private enclave: its own entrance, elevators and pool, personalised service and villas renovated at seventy million dollars. The Tower Suites are Luxury; Wynn Las Vegas itself is not on this list, by instruction." },
   ],
@@ -3486,7 +3594,12 @@ const FAVORITES = {
   "Watch Hill": [
     { name: "Ocean House", area: "Watch Hill, Rhode Island", rate: null, ourTake: "The yellow grand hotel on the bluff, rebuilt board by board \u2014 sixty-nine rooms, a private beach, a floor valet on call around the clock, and a Five-Star spa and a Five-Star table under the same roof. The great coastal hotel of New England, and Ultra Luxury on the strength of all of it." },
   ],
+  // ═══ ADIRONDACKS + THE HAMPTONS — WITHHELD HOTELS RESTORED, Sept 2026 ══════════════════════
+  // Both confirmed and restored at LUXURY. No WITHHOLD or PENDING designation remains.
+  // Lake Placid Lodge sits with The Point under Adirondacks rather than in its own key — a client
+  // searches the region, not the village.
   "Adirondacks": [
+    { name: "Lake Placid Lodge", area: "Lake Placid \u00b7 Albany (ALB) or Burlington (BTV)", rate: null, ourTake: "Restored Sept 2026. Thirty lakeside cabins and cottages on Lake Placid in the Great Camp tradition \u2014 twig furniture, stone fireplaces in every room, and the Adirondacks going on forever behind it. Forbes Verified Luxury, and a genuine year-round destination rather than a summer one." },
     { name: "The Point", area: "Saranac Lake", rate: null, ourTake: "A former Rockefeller Great Camp — house-party luxury on a private lake." },
   ],
   "Tofino": [
@@ -7355,7 +7468,8 @@ const PLACE_REGION = {
   "solden": "Austria", "st anton": "Austria", "lech": "Austria", "oberlech": "Austria",
   "ischgl": "Austria", "kitzbuhel": "Austria", "andermatt": "Switzerland", "laax": "Switzerland",
   "crans-montana": "Switzerland", "st moritz": "Switzerland", "gstaad": "Switzerland",
-  "zermatt": "Switzerland", "edinburgh": "Scotland", "mexico city": "Mexico", "naples": "Italy", "verbier": "Switzerland", "are": "Sweden", "portofino": "Italy",
+  "zermatt": "Switzerland", "edinburgh": "Scotland", "mexico city": "Mexico", "naples": "Italy",
+  "the hamptons": "New York", "adirondacks": "New York", "beverly hills": "California", "ojai": "California", "pebble beach": "California", "healdsburg": "California", "palm springs": "California", "san francisco": "California", "verbier": "Switzerland", "are": "Sweden", "portofino": "Italy",
   "baqueira beret": "Spanish Pyrenees", "portillo": "Chile", "queenstown": "New Zealand",
 };
 // What goes on a card so nobody has to guess where in the world they are being sent. Wyoming and
@@ -7811,6 +7925,13 @@ const AIRPORTS = {
   // TRINIDAD & TOBAGO. Piarco (POS) takes British Airways from Gatwick, American and JetBlue from
   // the US, Caribbean Airlines everywhere — intercontinental. Tobago (TAB) takes British Airways
   // seasonally and Condor, plus the air bridge — intercontinental for the app's purposes.
+  "Niseko": { code: "CTS", scale: "regional" },
+  // California additions. Beverly Hills flies into LAX; Ojai is LAX or Santa Barbara; Pebble
+  // Beach is Monterey; Healdsburg is San Francisco or Santa Rosa; Palm Springs has its own field.
+  "The Hamptons": { code: "JFK", scale: "intercontinental" }, "Adirondacks": { code: "ALB", scale: "regional" },
+  "Beverly Hills": { code: "LAX", scale: "intercontinental" }, "Ojai": { code: "LAX", scale: "intercontinental" },
+  "Pebble Beach": { code: "MRY", scale: "regional" }, "Healdsburg": { code: "SFO", scale: "intercontinental" },
+  "Palm Springs": { code: "PSP", scale: "regional" },
   "Mexico City": { code: "MEX", scale: "intercontinental" },
   "Rwanda": { code: "KGL", scale: "intercontinental" }, "Kigali": { code: "KGL", scale: "intercontinental" },
   "Punta Arenas": { code: "PUQ", scale: "regional" }, "Puerto Natales": { code: "PNT", scale: "regional" },
@@ -8224,11 +8345,11 @@ function transferOptions(from, to) {
   const dr = road ? driveEstimate(from, to) : null;
   const drTxt = dr && dr.label ? ` About ${dr.label} by road.` : "";
   const out = [];
-  if (road) out.push({ mode: "Private transfer", why: `Met at arrivals and driven door to door.${drTxt}`, price: null });
-  else if (ferry) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock, and across by boat — your hotel will usually arrange the whole chain.`, price: null });
+  if (road) out.push({ mode: "Private transfer", why: `ASK YOUR HOTEL TO ARRANGE THIS — they have a driver they use and it is the simplest call you will make.${drTxt} We name a chauffeur company only where we have vetted one.`, price: null });
+  else if (ferry) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock and across by boat — ask your hotel to arrange the whole chain, which they will do as a matter of course.`, price: null });
   else out.push({ mode: "Private transfer", why: `No road from ${bareCity(from)} — the onward leg is by air or sea, and your hotel arranges it. The note above says how.`, price: null });
   if (ferry) out.push({ mode: "Ferry", why: ferryWarn(from, to) || `About ${ferry} minutes across the water, with a taxi at each end.`, price: null });
-  if (road) out.push({ mode: "Hire car", why: `Your own car from the airport — freedom, at the cost of finding your own way.${drTxt}`, price: null });
+  if (road) out.push({ mode: "Rental car", why: `Your own car from the airport — freedom, at the cost of finding your own way.${drTxt}`, price: null });
   return out;
 }
 function dayTripsFor(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(DAYTRIPS).find((x) => x.toLowerCase() === r); return k ? DAYTRIPS[k] : []; }
@@ -8257,7 +8378,7 @@ const ZONE = {
   "crete": ["Crete"], "paros": ["Paros"], "kea": ["Kea"], "corfu": ["Corfu"], "zakynthos": ["Zakynthos"],
   "rhodes": ["Rhodes"], "kos": ["Kos"], "milos": ["Milos"], "syros": ["Syros"], "sifnos": ["Sifnos"],
   "arctic-europe": ["Tromsø", "Alta", "Abisko", "Kiruna", "Rovaniemi", "Levi", "Saariselkä", "Svalbard"],
-  "north-america": ["Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Middleburg","Boca Raton","San Miguel de Allende","Menlo Park","Quer\u00e9taro","Caldwell","Boise","Nashville","Oxford, Mississippi","Greenville, Mississippi","Jackson, Mississippi","Marianna","Oklahoma City","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
+  "north-america": ["The Hamptons","Beverly Hills","Ojai","Pebble Beach","Healdsburg","Palm Springs","Miami","New York City","Los Angeles","San Francisco","Santa Barbara","Laguna Beach","San Diego","Scottsdale","Tucson","Santa Fe","Albuquerque","Austin","Dallas","Houston","San Antonio","New Orleans","Atlanta","Knoxville","Philadelphia","Baltimore","Washington, Virginia","Detroit","Middleburg","Boca Raton","San Miguel de Allende","Menlo Park","Quer\u00e9taro","Caldwell","Boise","Nashville","Oxford, Mississippi","Greenville, Mississippi","Jackson, Mississippi","Marianna","Oklahoma City","Harrodsburg","Wheeling","Huntington","Kohler","Milwaukee","Minneapolis","St Louis","Newport","Watch Hill","Providence","Portland, Maine","Burlington","Mystic","Kennebunk","Dover","Randolph","Pittsburgh","Nemacolin","Charlotte","Raleigh","Charleston","Savannah","Asheville","Greenville","Kiawah Island","Naples, Florida","Orlando","Fort Myers","Key West","Sarasota","Denver","Jackson Hole","Big Sky","Bozeman","Park City","Salt Lake City","Utah","Las Vegas","Chicago","Boston","Washington DC","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Phoenix","Calgary", "Whistler", "Montreal", "Quebec City", "North Hatley", "Mont-Tremblant", "Lake Louise", "Jasper", "Cape Breton", "Palm Beach", "Florida Keys", "Blackberry Farm", "Palmetto Bluff", "Sea Island", "Vermont", "Adirondacks", "Washington, Virginia", "Montana"],
   "south-america": ["Buenos Aires","Mendoza"],
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
@@ -8446,6 +8567,9 @@ const COORDS = {
   "New Orleans": [29.95,-90.07], "Austin": [30.27,-97.74], "Dallas": [32.78,-96.80], "Houston": [29.76,-95.37], "San Antonio": [29.42,-98.49],
   "Santa Fe": [35.69,-105.94], "Albuquerque": [35.08,-106.65], "Scottsdale": [33.49,-111.93], "Tucson": [32.22,-110.97], "Denver": [39.74,-104.99], "Jackson Hole": [43.48,-110.76], "Big Sky": [45.28,-111.40], "Bozeman": [45.68,-111.04],
   "Park City": [40.65,-111.50], "Salt Lake City": [40.76,-111.89], "Utah": [37.02,-111.55], "Las Vegas": [36.17,-115.14],
+  "The Hamptons": [40.94,-72.30],
+  "Beverly Hills": [34.07,-118.40], "Ojai": [34.45,-119.24], "Pebble Beach": [36.57,-121.95],
+  "Healdsburg": [38.61,-122.87], "Palm Springs": [33.83,-116.55],
   "Napa Valley": [38.30,-122.29], "Santa Barbara": [34.43,-119.64], "Laguna Beach": [33.54,-117.78], "San Diego": [32.72,-117.16], "Phoenix": [33.45,-112.07], "Calgary": [51.05,-114.07], "Sapporo": [43.06,141.35], "Sedona": [34.87,-111.76], "Aspen": [39.19,-106.82], "Banff": [51.18,-115.57], "Toronto": [43.65,-79.38],
   "Vancouver": [49.28,-123.12], "Mexico City": [19.43,-99.13], "Buenos Aires": [-34.60,-58.38], "Mendoza": [-32.89,-68.84],
   "Costa Rica": [9.75,-83.75], "Galápagos": [-0.74,-90.31], "Turks & Caicos": [21.69,-71.80],
@@ -8632,6 +8756,9 @@ const DRIVE_TIMES = [
   // along the Southern, and it is most of four hours. Figures below are mine, not verified.
   ["Belize City", "Mountain Pine Ridge", 165, 150], ["Belize City", "Placencia", 210, 250],
   ["Belize City", "Punta Gorda", 300, 330], ["Mountain Pine Ridge", "Placencia", 240, 245],
+  // Hokkaido, written down by me: the estimator sees 60 km straight and says under an hour; the
+  // road to Niseko winds and in winter it is slower still.
+  ["Sapporo", "Niseko", 120, 100], ["New Chitose", "Niseko", 120, 105],
   ["Placencia", "Punta Gorda", 150, 150], ["Mountain Pine Ridge", "Punta Gorda", 330, 330],
 ];
 function knownDrive(a, b) {
@@ -8759,6 +8886,9 @@ const ISLAND_OF = {
   // Two places on the SAME island drive normally (Taormina to Palermo across Sicily). Anything
   // else involving an island needs a ferry we actually know about, or it is a flight. Places not
   // listed here are mainland and behave exactly as before, so the rest of the map is untouched.
+  // Hokkaido. No road link to Honshu at all — the Seikan tunnel carries trains only — so a drive
+  // from Tokyo is not merely long, it does not exist.
+  "Niseko": "Hokkaido", "Sapporo": "Hokkaido",
   "Santorini": "Santorini", "Mykonos": "Mykonos", "Crete": "Crete", "Paros": "Paros", "Kea": "Kea",
   "Corfu": "Corfu", "Zakynthos": "Zakynthos", "Rhodes": "Rhodes", "Kos": "Kos", "Milos": "Milos",
   "Syros": "Syros", "Sifnos": "Sifnos",
@@ -8842,6 +8972,9 @@ const CITY_ALIASES = {
   "porto cervo": "Sardinia", "costa smeralda": "Sardinia", "olbia": "Sardinia", "cagliari": "Sardinia",
   "baja sardinia": "Sardinia", "san pantaleo": "Sardinia", "arzachena": "Sardinia", "forte village": "Sardinia", "sardegna": "Sardinia",
   "funchal": "Madeira", "madeira island": "Madeira",
+  "bridgehampton": "The Hamptons", "east hampton": "The Hamptons", "southampton": "The Hamptons",
+  "sag harbor": "The Hamptons", "montauk": "The Hamptons", "lake placid": "Adirondacks",
+  "rancho mirage": "Palm Springs", "forestville": "Healdsburg", "yountville": "Napa Valley", "calistoga": "Napa Valley",
   "kigali": "Rwanda", "volcanoes national park": "Rwanda", "volcanoes": "Rwanda", "musanze": "Rwanda", "ruhengeri": "Rwanda", "kinigi": "Rwanda", "virunga": "Rwanda",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
   "st barthelemy": "St Barth", "st barth\u00e9lemy": "St Barth", "st. barth\u00e9lemy": "St Barth", "saint-barth\u00e9lemy": "St Barth", "gustavia": "St Barth", "st jean": "St Barth",
@@ -9334,7 +9467,7 @@ function buildPrep(p) {
   const withTag = (tag) => places.filter((n) => traitsFor(n).includes(tag));
   const tags = new Set(); places.forEach((n) => traitsFor(n).forEach((x) => tags.add(x)));
   const has = (x) => tags.has(x);
-  const drives = (p.dests || []).some((d) => d.arriveBy === "Self-drive" || (d.pick && d.pick.transfer && d.pick.transfer.mode === "Hire car")) || p.returnMode === "Self-drive" || has("driving");
+  const drives = (p.dests || []).some((d) => d.arriveBy === "Self-drive" || (d.pick && d.pick.transfer && d.pick.transfer.mode === "Rental car")) || p.returnMode === "Self-drive" || has("driving");
   const longHaul = places.some((n) => isLongHaul(p.fromCity, n));
   const dressy = (p.dests || []).some((d) => (d.pick && (d.pick.dines || []).some((x) => x.level === "UltraLux")) || (d.pick && d.pick.stay && d.pick.stay.level === "UltraLux"));
   const dep = p.dates && p.dates.depart ? new Date(p.dates.depart + "T00:00:00") : null;
@@ -13569,6 +13702,7 @@ const CONNECT_VIA = {
   "Zonza": { hub: "Paris, Nice or Marseille", note: "Ajaccio (AJA) or Figari (FSC), each roughly an hour and a half into the Alta Rocca mountains. THE DRIVE IS THE POINT here \u2014 it is one of the great mountain roads in Europe, and it is slow." },
   "Vulcano": { hub: "Catania (CTA)", note: "NO AIRPORT. Fly to CATANIA, drive about two hours to MILAZZO, then a hydrofoil of roughly forty-five minutes. The Aeolians are a commitment and that is the whole reason they are what they are. Crossings are weather-dependent \u2014 build a buffer either side rather than connecting tightly to a flight." },
   "Salina": { hub: "Catania (CTA)", note: "NO AIRPORT. Catania, then about two hours to MILAZZO and a hydrofoil, usually via Vulcano or Lipari. The greenest and quietest of the Aeolians. Weather can stop the boats; do not plan a same-day connection to a long-haul." },
+  "Niseko": { hub: "Tokyo (HND or NRT)", note: "Niseko is on HOKKAIDO, a separate island with no road from Honshu \u2014 the Seikan tunnel carries trains only. Fly into Tokyo, then a domestic flight to NEW CHITOSE (CTS) near Sapporo, then about two hours by road to the mountain. Most hotels arrange the transfer; confirm it, because winter road conditions are not something to improvise." },
   "Capri": { hub: "Naples (NAP)", note: "NO AIRPORT, AND NO ROAD. Capri is reached only by boat from NAPLES or Sorrento — the fast hydrofoil takes about fifty minutes from Naples. Fly into Naples, then cross. CARS ARE EFFECTIVELY BANNED for visitors and the island is walked, taken by funicular or by open taxi, so do not plan around a vehicle." },
   "Ischia": { hub: "Naples (NAP)", note: "NO AIRPORT. Ischia is an hour by hydrofoil from NAPLES, and larger and slower-paced than Capri — it is a thermal-spa island that Italians go to, rather than a day-trip stage. Fly into Naples and cross." },
   "Santorini": { hub: "Athens (ATH)", note: "Santorini has its own airport (JTR) with seasonal European connections, but nothing long-haul \u2014 everything routes through ATHENS. Book the Athens leg on the same ticket. In high summer the flights and the fast ferries both sell out weeks ahead." },
@@ -13643,7 +13777,12 @@ const US_RENTAL_ZONES = ["puerto-rico"];
 function rentalRegion(city) {
   if (!city) return null;
   const na = naCountry(city);
-  if (na) return na;                  // CA or MX, decided before isUS is consulted
+  // MEXICO REMOVED Sept 2026 on instruction: rental cars are offered in the US, CANADA and EUROPE
+  // only. Everywhere else this returns null and the panel never renders. Candidates if the list
+  // is widened later: Mexico, Australia, New Zealand, Japan, the UAE — all places where the
+  // international desks genuinely operate.
+  if (na === "MX") return null;
+  if (na) return na;                  // CA, decided before isUS is consulted
   if (isUS(city)) return "US";
   if (US_RENTAL_ZONES.includes(zoneOf(city))) return "US";
   const c = coordsFor(city);
@@ -13787,10 +13926,7 @@ function RentalPanel({ city, destination, compact }) {
     {dropped.length > 0 && <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5, marginTop: -2, marginBottom: 8 }}>
       {fmtList(dropped.map((b) => b.key))} {dropped.length === 1 ? "has" : "have"} no branch we can find in {bareCity(city)}, so {dropped.length === 1 ? "it is" : "they are"} not offered here.
     </div>}
-    {shown.length === 0 && dropped.length > 0 ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, background: t.mist, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
-      We cannot find a branch for any of the companies we would use in {bareCity(city)}. On smaller islands the rental market is local operators and scooters rather than the international names — your hotel is the right place to ask, and they will have someone they use.
-    </div> : null}
-    {shown.length > 0 && more.length > 0 && (open
+    {more.length > 0 && (open
       ? <div style={{ marginTop: 6 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Also approved</div>
           {more.map((b) => <RentalRow key={b.key} b={b} faded />)}
@@ -15832,7 +15968,7 @@ function onwardOptions(hub, city) {
   if (link && link.mode === "Ferry") out.push({ mode: "Ferry", label: link.label, why: `The crossing from ${hub} is the way in — and it's the pleasant part of the day.`, mins: (link.mins || 120) + 60, price: null });
   const ap = airportFor(city);
   if (ap) out.push({ mode: "Connecting flight", label: "~1 hr in the air, ~3 hr all in", why: "A short hop on regional metal. Cheap in air time, expensive in airport time — and a second chance to lose a bag.", mins: 230, price: null });
-  if (dr && dr.km < 120) out.push({ mode: "Hire car here", label: `${dr.label} · ${dr.km} km`, why: "Only worth it if you want the car for what comes after.", mins: Math.round((dr.km / 72) * 60) + 40, price: null });
+  if (dr && dr.km < 120) out.push({ mode: "Rental car here", label: `${dr.label} · ${dr.km} km`, why: "Only worth it if you want the car for what comes after.", mins: Math.round((dr.km / 72) * 60) + 40, price: null });
   return out.sort((a, b) => a.mins - b.mins);
 }
 function recommendOnward(list, city) {
@@ -15973,7 +16109,7 @@ function buildReview(p, sch) {
 
     // 5. A car where a car is a punishment.
     const trouble = carTrouble(d.city);
-    const selfDrive = d.arriveBy === "Self-drive" || (d.pick && d.pick.transfer && d.pick.transfer.mode === "Hire car");
+    const selfDrive = d.arriveBy === "Self-drive" || (d.pick && d.pick.transfer && d.pick.transfer.mode === "Rental car");
     if (trouble && selfDrive) {
       add("think", `Do you actually want a car in ${d.city}?`, `${trouble} If the car is for what comes after ${d.city}, pick it up on the way out instead — you will not miss it for a moment while you are here.`);
     } else if (trouble && destNights(d) >= 2 && !selfDrive) {
