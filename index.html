@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M469";
+const BUILD = "M471";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8350,7 +8350,11 @@ function ferryWarn(a, b) { const A = placeName(a), B = placeName(b); return FERR
 // True only where Voyage One has drivers: the USA, and South America, where the chauffeur table
 // names companies. Everywhere else we give the distance and offer no private transfer at all.
 function driversHere(city) {
-  try { return !!(isUS(city) || southAmerica(city)); } catch (e) { return false; }
+  // NOBODY, Sept 2026. Drivers were limited to the USA and South America, then removed entirely:
+  // the South American copy talked about armoured vehicles, which is not the tone, and a client
+  // does not need telling that a hotel can arrange a car. The DISTANCE is the useful part and it
+  // is shown everywhere. Return true here again only when a vetted operator is actually carried.
+  return false;
 }
 function transferOptions(from, to) {
   const ferry = ferryBetween(from, to);
@@ -13329,6 +13333,15 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
               // out of zone-and-distance, and told the client to drive nine hours and 296 km
               // instead of flying. connection() refuses across water now, but this branch should
               // say the true thing rather than fall through to a shrug.
+              // FIRST CLASS IS BARELY DISTRIBUTED. Duffel asks for the cabin across the WHOLE
+              // journey, so British Airways selling Miami–London in First with a Club Europe hop
+              // to Paris does not come back as a First offer, and Lufthansa First is largely not
+              // sold through third parties at all. An empty result therefore means "not sellable
+              // here", NOT "no first class on this route" — and we must not imply the second.
+              if (cabin === "First") {
+                const gl = flightSearchLink({ depAirport: from, arrAirport: to, cabin: "first" }, date);
+                return (<>No FIRST fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""} — and that is about distribution, not availability. Airlines sell very little first class through third parties, and a journey is only returned as First if EVERY leg is First, so a long-haul in First with a short connection in business will not appear here.{gl ? <> Open <a href={gl} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600 }}>the full first-class search</a> to see what the airlines are actually selling, and book direct.</> : null} Switching to Business will usually fill this list.</>);
+              }
               const iF = islandOf(from), iT = islandOf(to);
               if ((iF || iT) && iF !== iT) {
                 const fmins = ferryBetween(from, to);
@@ -13569,6 +13582,12 @@ const SA_RENTAL_LINE = {
 
 function GettingAroundPanel({ city }) {
   const [open, setOpen] = useState(false);
+  // RETIRED Sept 2026. This panel named chauffeur companies across seven South American countries
+  // with a contact for exactly one of them, and described armoured vehicles. Drivers are no longer
+  // offered anywhere; the distance is shown instead. Kept in place, dark, so it can be revived
+  // whole if a vetted operator network is ever curated.
+  return null;
+  /* eslint-disable no-unreachable */
   if (!city || !southAmerica(city)) return null;
   const k = saKey(city);
   const cc = saCountry(city);
