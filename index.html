@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M471";
+const BUILD = "M473";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8349,6 +8349,26 @@ const FERRY_WARN = {
 function ferryWarn(a, b) { const A = placeName(a), B = placeName(b); return FERRY_WARN[A + "|" + B] || FERRY_WARN[B + "|" + A] || null; }
 // True only where Voyage One has drivers: the USA, and South America, where the chauffeur table
 // names companies. Everywhere else we give the distance and offer no private transfer at all.
+// The two American rail corridors. Everything else in the US gets no Train option.
+// The Acela line end to end. Boston, Philadelphia and Wilmington added Sept 2026 on Tricia's word:
+// these are journeys a Voyage One client genuinely makes — Boston to New York in First on Acela is
+// faster than flying once airports are counted, and nothing about it is low end.
+const US_RAIL_NORTHEAST = ["New York City", "Newark", "Boston", "Philadelphia", "Providence", "Mystic", "Baltimore", "Washington DC", "Newport"];
+const US_RAIL_FLORIDA = ["Miami", "Orlando", "Palm Beach", "Boca Raton"];
+function usRailOk(a, b) {
+  const A = dnrm(bareCity(a || "")), B = dnrm(bareCity(b || ""));
+  const inList = (L, x) => L.some((y) => dnrm(y) === x);
+  const bothIn = (L) => inList(L, A) && inList(L, B);
+  return bothIn(US_RAIL_NORTHEAST) || bothIn(US_RAIL_FLORIDA);
+}
+// True when a Train option is defensible for this pair.
+function railSensible(a, b) {
+  const usA = (() => { try { return !!isUS(a); } catch (e) { return false; } })();
+  const usB = (() => { try { return !!isUS(b); } catch (e) { return false; } })();
+  if (!usA && !usB) return true;          // outside the US, unchanged
+  if (usA !== usB) return false;          // no rail between the US and anywhere else
+  return usRailOk(a, b);
+}
 function driversHere(city) {
   // NOBODY, Sept 2026. Drivers were limited to the USA and South America, then removed entirely:
   // the South American copy talked about armoured vehicles, which is not the tone, and a client
@@ -13992,7 +14012,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     const l = acrossWater ? list.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry())) : list;
     // No Chauffeur chip outside the USA and South America, and no Self-drive outside the regions
     // where we actually carry rental companies. Offering a mode we cannot support is the problem.
-    return l.filter((m) => (m.key !== "Chauffeur" || driversHere(to)) && (m.key !== "Self-drive" || !!rentalRegion(to)));
+    return l.filter((m) => (m.key !== "Chauffeur" || driversHere(to)) && (m.key !== "Self-drive" || !!rentalRegion(to)) && (m.key !== "Train" || railSensible(from, to)));
   };
   const realFerry = () => {
     const f = ferryBetween(from, to);
