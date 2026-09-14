@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M466";
+const BUILD = "M469";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -509,7 +509,8 @@ const ULTRA_LUX = [
   "Taj Lake Palace", "RAAS Devigarh",
   // The Inn at Little Washington came down to Luxury on 4 Sept 2026: the restaurant is the
   // defining element, and the hotel is Five-Star, not beyond it. Raffles Boston not yet re-audited.
-  // Raffles Boston: RESOLVED Sept 2026 — restored at LUXURY, not Ultra. Sage Lodge not yet audited.
+  // Raffles Boston: RESOLVED Sept 2026 — restored at LUXURY, not Ultra. SAGE LODGE: RESOLVED
+  // Sept 2026 — confirmed ULTRA LUXURY on three Michelin Keys and 1,200 acres near Yellowstone.
   "Sage Lodge", "Maybourne Beverly Hills", "Montage Laguna Beach",
   // Morocco
   "Royal Mansour Marrakech", "La Mamounia", "Amanjena", "Mandarin Oriental Marrakech", "The Oberoi Marrakech",
@@ -585,7 +586,8 @@ const ULTRA_LUX = [
   // be Ultra on their own, but the resort is classified as a whole.
   "Rosewood Little Dix Bay", "Necker Island", "The Branson Beach Estate",
   // Bermuda re-audited — 4 Sept 2026, on the strict standard. NONE. Rosewood, The Loren and the
-  // St Regis are Luxury; Hamilton Princess deleted; Cambridge Beaches withheld pending verification.
+  // St Regis are Luxury; Hamilton Princess deleted. CAMBRIDGE BEACHES: RESOLVED Sept 2026 — NOT
+  // CARRIED, on Tricia's own knowledge of the property. Disposition final.
   // St Martin / Sint Maarten — 4 Sept 2026, on the strict standard. NONE. La Samanna is Luxury;
   // the JW Marriott on the Dutch side is named and excluded.
   // Trinidad & Tobago in full — 4 Sept 2026, on the strict standard. NONE. Hyatt Regency and
@@ -597,14 +599,16 @@ const ULTRA_LUX = [
   // Aruba, Curaçao & Bonaire in full — 4 Sept 2026, on the strict standard. NONE on any of the
   // three. Boardwalk (two Michelin Keys, the only Keys in the ABC islands), Bucuti & Tara and the
   // Ritz-Carlton on Aruba; Baoase on Curaçao; Harbour Village, The Bellafonte and Delfins on
-  // Bonaire — all Luxury by instruction. Sandals Royal Curaçao is withheld pending Tricia's call.
+  // Bonaire — all Luxury by instruction. SANDALS ROYAL CURAÇAO: RESOLVED Sept 2026 — NOT CARRIED.
+  // VOYAGE ONE CARRIES NO SANDALS PROPERTY AT PRESENT; treat the whole brand as out unless that
+  // changes. Disposition final.
   // Martinique & Guadeloupe in full — 4 Sept 2026, on the strict standard. NONE on either. La
   // Suite Villa and French Coco are Luxury; La Toubana is Guadeloupe's one Luxury hotel, and
   // the curation says one is preferable to lowering the bar. Cap Est is withheld pending
   // verification of its operating status and condition.
   // St Kitts & Nevis in full — 4 Sept 2026, on the strict standard. NONE. Four Seasons Nevis is
   // the very top of Luxury by instruction; Park Hyatt and Montpelier are Luxury; Golden Rock is
-  // Experience. Belle Mont Farm is withheld pending verification of its operating status.
+  // Experience. BELLE MONT FARM: RESOLVED Sept 2026 — NOT CARRIED, rejected on review. Final.
   // St Vincent & the Grenadines in full — 4 Sept 2026, on the strict standard. One conventional
   // hotel: thirty-nine keys with butlers throughout, on Canouan — and the curation is explicit
   // that it is THIS Mandarin Oriental, not the brand, that clears the bar. Cotton House, Canouan
@@ -3369,14 +3373,19 @@ const FAVORITES = {
   // Two Ultra Luxury, both in Miami; eight Luxury across five keys. VERIFY BEFORE LOADING, by
   // instruction, so withheld: RESOLVED Sept 2026 — The Ritz-Carlton Naples, Four Seasons Orlando
   // and The Boca Raton are live; THE COLONY PALM BEACH is restored at Luxury. STILL UNRESOLVED:
-  // Ritz-Carlton Coconut Grove and Ritz-Carlton Key Biscayne, neither of which has a record left.
+  // Ritz-Carlton Coconut Grove and Key Biscayne: RESOLVED Sept 2026, both restored at Luxury.
   // EXCLUDED: The Biltmore, Doral, Inn on Fifth, JW Marriott Orlando, Conrad Orlando (watchlist),
   // The Marker. RITZ-CARLTON BAL HARBOUR is closed for works until 7 December 2026 and is to be
   // re-audited after; not loaded. FAENA MIAMI was in the file and in the Ultra canon, and the
   // audit does not mention it at all — withheld, not deleted, like Bel-Air; one word restores it.
   // NAPLES IS KEYED "Naples, Florida": "Naples" is Italy in this file — coordinates, Capodichino,
   // the Capri ferry — and a bare key would have put the Ritz-Carlton Tiburón on the Bay of Naples.
+  // ═══ MIAMI — WITHHELD HOTELS RESTORED, Sept 2026 ═══════════════════════════════════════════
+  // Both restored at LUXURY. Filed under Miami with their neighbourhood in the area line rather
+  // than as separate keys — a client searches Miami, not Coconut Grove.
   "Miami": [
+    { name: "The Ritz-Carlton Coconut Grove, Miami", area: "Coconut Grove \u00b7 Miami (MIA)", rate: null, ourTake: "Restored Sept 2026 at LUXURY. A hundred and fifteen rooms with private balconies over Biscayne Bay and the skyline, in leafy COCONUT GROVE rather than on the beach \u2014 quieter, more residential, and a genuinely different Miami. Forbes Verified Luxury." },
+    { name: "The Ritz-Carlton Key Biscayne, Miami", area: "Key Biscayne \u00b7 Miami (MIA)", rate: null, ourTake: "Restored Sept 2026 at LUXURY. Twelve oceanfront acres on KEY BISCAYNE, across the causeway and a world away from South Beach \u2014 a large spa, pools, serious tennis and full resort depth. The family answer in Miami. Forbes Verified Luxury." },
     { name: "Four Seasons Hotel at The Surf Club", area: "Surfside", rate: null, ourTake: "The 1930 Surf Club restored around a Four Seasons \u2014 the cabanas, the Thomas Keller table, a residential quiet on the sand at Surfside, and suites that feel like the private club it was. One of the two Florida hotels that stand with the world's best." },
     { name: "Acqualina Resort & Residences", area: "Sunny Isles Beach", rate: null, ourTake: "Forbes Five-Star for fourteen consecutive years and a Five-Star spa to match \u2014 a Mediterranean palazzo on the sand with a staff-to-guest attention nothing else on the coast approaches. Ultra Luxury on consistency, by instruction." },
     { name: "The Setai Miami Beach", area: "South Beach, Collins Avenue", rate: null, ourTake: "Art Deco meets Asia on Collins Avenue \u2014 three pools, a serious kitchen and a stillness South Beach does not otherwise have. Forbes Five-Star, and Luxury by instruction: true Five-Star, not quite the rarity of the two above." },
@@ -8338,6 +8347,11 @@ const FERRY_WARN = {
   "st barth|st maarten": "Not recommended: a thirty-minute taxi from the airport to the dock, then a crossing that is usually rough. The ten-minute flight is the way.",
 };
 function ferryWarn(a, b) { const A = placeName(a), B = placeName(b); return FERRY_WARN[A + "|" + B] || FERRY_WARN[B + "|" + A] || null; }
+// True only where Voyage One has drivers: the USA, and South America, where the chauffeur table
+// names companies. Everywhere else we give the distance and offer no private transfer at all.
+function driversHere(city) {
+  try { return !!(isUS(city) || southAmerica(city)); } catch (e) { return false; }
+}
 function transferOptions(from, to) {
   const ferry = ferryBetween(from, to);
   const za = zoneOf(from), zb = zoneOf(to);
@@ -8345,11 +8359,13 @@ function transferOptions(from, to) {
   const dr = road ? driveEstimate(from, to) : null;
   const drTxt = dr && dr.label ? ` About ${dr.label} by road.` : "";
   const out = [];
-  if (road) out.push({ mode: "Private transfer", why: `ASK YOUR HOTEL TO ARRANGE THIS — they have a driver they use and it is the simplest call you will make.${drTxt} We name a chauffeur company only where we have vetted one.`, price: null });
-  else if (ferry) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock and across by boat — ask your hotel to arrange the whole chain, which they will do as a matter of course.`, price: null });
-  else out.push({ mode: "Private transfer", why: `No road from ${bareCity(from)} — the onward leg is by air or sea, and your hotel arranges it. The note above says how.`, price: null });
+  if (road && driversHere(to)) out.push({ mode: "Private transfer", why: `Met at arrivals and driven door to door.${drTxt}`, price: null });
+  else if (ferry && driversHere(to)) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock, and across by boat.`, price: null });
+  // Not the USA and not South America: no private transfer is offered at all. What the client
+  // needs is the DISTANCE, so that is what they get — stated, not sold.
+  else if (road) out.push({ mode: "By road", why: dr && dr.label ? `${bareCity(from)} to ${bareCity(to)} is about ${dr.label}${dr.km ? `, ${dr.km} km` : ""}.` : `${bareCity(from)} to ${bareCity(to)} is a road journey.`, price: null, info: true });
   if (ferry) out.push({ mode: "Ferry", why: ferryWarn(from, to) || `About ${ferry} minutes across the water, with a taxi at each end.`, price: null });
-  if (road) out.push({ mode: "Rental car", why: `Your own car from the airport — freedom, at the cost of finding your own way.${drTxt}`, price: null });
+  if (road && rentalRegion(to)) out.push({ mode: "Rental car", why: `Your own car from the airport — freedom, at the cost of finding your own way.${drTxt}`, price: null });
   return out;
 }
 function dayTripsFor(region) { if (!region) return []; const r = bareCity(region).toLowerCase(); const k = Object.keys(DAYTRIPS).find((x) => x.toLowerCase() === r); return k ? DAYTRIPS[k] : []; }
@@ -13953,7 +13969,12 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   const allowedRaw = feasibleModes(ground, distanceKm(from, to));
   const iaX = islandOf(from), ibX = islandOf(to);
   const acrossWater = !!((iaX || ibX) && iaX !== ibX);
-  const stripRoad = (list) => acrossWater ? list.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry())) : list;
+  const stripRoad = (list) => {
+    const l = acrossWater ? list.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry())) : list;
+    // No Chauffeur chip outside the USA and South America, and no Self-drive outside the regions
+    // where we actually carry rental companies. Offering a mode we cannot support is the problem.
+    return l.filter((m) => (m.key !== "Chauffeur" || driversHere(to)) && (m.key !== "Self-drive" || !!rentalRegion(to)));
+  };
   const realFerry = () => {
     const f = ferryBetween(from, to);
     if (f == null || f > FERRY_OFFER_MAX_MIN) return null;
