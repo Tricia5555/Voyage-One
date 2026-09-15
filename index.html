@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M494";
+const BUILD = "M495";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -79,6 +79,59 @@ const AREA_GROUPS = {
   "Capri": {
     "Capri Town": ["capri town", "marina grande"],
     "Anacapri": ["anacapri"],
+  },
+  // HONG KONG divides on the harbour, which is the only question that matters there.
+  "Hong Kong": {
+    "Hong Kong Island": ["central", "admiralty"],
+    "Kowloon": ["tsim sha tsui", "victoria dockside"],
+  },
+  "Mexico City": {
+    "Paseo de la Reforma": ["paseo de la reforma"],
+    "Polanco": ["polanco", "presidente masaryk polanco"],
+  },
+  // BANGKOK: the river is a different city from the centre. Riverside means boats and quiet;
+  // Ploenchit means the Skytrain at the door and everything within twenty minutes.
+  "Bangkok": {
+    "Riverside": ["riverside"],
+    "Ploenchit & the centre": ["ploenchit", "nai lert park"],
+  },
+  // NISEKO divides by which side of the mountain you ski from, which decides the whole week.
+  "Niseko": {
+    "Hanazono": ["hanazono", "hanazono forest"],
+    "Grand Hirafu": ["grand hirafu", "hirafu"],
+    "Niseko Village": ["niseko village"],
+  },
+  // KRUGER is not one place. Sabi Sand is a private reserve with traversing rights and the best
+  // leopard viewing in Africa; the national park and Thornybush are different propositions.
+  "Kruger": {
+    "Sabi Sand": ["sabi sand"],
+    "Kruger National Park": ["kruger"],
+    "Thornybush": ["thornybush"],
+  },
+  "Santiago": {
+    "El Golf & Las Condes": ["el golf", "las condes"],
+    "Lastarria & the centre": ["lastarria", "centro"],
+  },
+  "Ischia": {
+    "Forio & the west": ["forio"],
+    "Lacco Ameno": ["lacco ameno"],
+    "Ischia Porto": ["ischia porto"],
+  },
+  // THE BVI ARE SEPARATE ISLANDS and several are private. Which one you choose decides whether
+  // you can leave it at all.
+  "British Virgin Islands": {
+    "Virgin Gorda": ["virgin gorda", "virgin gorda north sound"],
+    "Private islands": ["necker island exclusive use and a few individual stay weeks", "moskito island by the villa or exclusive use", "peter island"],
+    "Scrub Island": ["scrub island"],
+  },
+  "S\u00e3o Paulo": {
+    "Jardins": ["jardins"],
+    "Elsewhere in the city": ["cidade matarazzo", "panamby", "parque da cidade"],
+  },
+  "Los Cabos": {
+    "San Jos\u00e9 & the Corridor": ["san jose del cabo", "corridor", "puerto los cabos"],
+    "The East Cape": ["east cape", "costa palmas east cape"],
+    "The Jalisco coast": ["jalisco coast"],
   },
   "Doha": {
     "West Bay": ["west bay", "west bay lagoon"],
