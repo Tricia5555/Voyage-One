@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M495";
+const BUILD = "M499";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -81,6 +81,15 @@ const AREA_GROUPS = {
     "Anacapri": ["anacapri"],
   },
   // HONG KONG divides on the harbour, which is the only question that matters there.
+  // MONACO IS TWO SQUARE KILOMETRES and only two of these hotels are actually in it. The other
+  // four are in FRANCE \u2014 \u00c8ze, Cap-Ferrat and Beaulieu \u2014 and they are here because a client asking
+  // for Monaco, especially for the Grand Prix, genuinely wants them within reach. So they are
+  // kept and labelled honestly as NEARBY rather than quietly presented as Monaco.
+  // The principality first, the coast underneath it.
+  "Monaco": {
+    "In Monaco": ["on the circuit", "steps off"],
+    "Nearby \u2014 the French Riviera": ["eze france", "eze sur mer france", "cap ferrat france", "beaulieu france"],
+  },
   "Hong Kong": {
     "Hong Kong Island": ["central", "admiralty"],
     "Kowloon": ["tsim sha tsui", "victoria dockside"],
@@ -259,7 +268,32 @@ const AREA_GROUPS = {
 };
 // A filter has to narrow something. Fewer than this many hotels, or fewer than two groups with
 // anything in them, and the chips are noise.
+const NEARBY_LABEL = "Nearby";
 const AREA_MIN_HOTELS = 6;
+// ══ NEARBY HOTELS ════════════════════════════════════════════════════════════════════════════
+// A destination may SHOW another's hotels without owning them. Monaco is two square kilometres
+// and holds two great hotels; the Riviera legends an hour either side are in France and belong
+// to their own towns. Rather than duplicate a record — which is how Delaire Graff ended up in
+// the file twice — the picker borrows, and the borrowed rows are labelled NEARBY with the town
+// and the travel time on every card. NICE MEANS NICE still holds: nothing is folded silently
+// into the main list, it sits in its own clearly named group one tap away.
+const NEARBY_CITIES = {
+  "Nice": ["Monaco"],
+  "Monaco": [],
+  "French Riviera": ["Nice", "Monaco"],
+};
+function nearbyFavs(city) {
+  const key = Object.keys(NEARBY_CITIES).find((x) => dnrm(x) === dnrm(bareCity(city || "")));
+  if (!key) return [];
+  const out = [];
+  (NEARBY_CITIES[key] || []).forEach((src) => {
+    (lookup(FAVORITES, src) || []).forEach((h) => {
+      if (out.some((x) => dnrm(x.name) === dnrm(h.name))) return;
+      out.push({ ...h, nearbyFrom: src });
+    });
+  });
+  return out;
+}
 // TURKISH ı IS NOT AN ACCENTED i. It is its own letter with no decomposition, so the usual
 // accent-stripping turns "Sarıyer" into "sar yer" and "Nişantaşı" into "nisantas" — and three
 // Istanbul hotels fell out of every group. ş and ğ decompose normally; ı and İ have to be
@@ -1307,10 +1341,10 @@ const FAVORITES = {
   "Monaco": [
     { name: "Hôtel de Paris Monte-Carlo", area: "On the circuit", rate: 3200, desc: "The 1864 grande dame on Place du Casino, literally on the track, home to Le Louis XV." },
     { name: "Hôtel Hermitage Monte-Carlo", area: "Steps off", rate: 2600, desc: "Belle Époque icon behind Casino Square, the Eiffel winter-garden dome — quieter and romantic." },
-    { name: "Château de la Chèvre d'Or", area: "Èze village", rate: 1600, desc: "A Relais & Châteaux clifftop legend in the medieval village, two Michelin stars — off-campus and calm." },
-    { name: "Cap Estel", area: "Èze-sur-Mer", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
-    { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
-    { name: "La Réserve de Beaulieu", area: "Beaulieu", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
+    { name: "Château de la Chèvre d'Or", area: "Èze, France · 25 min from Monaco", rate: 1600, desc: "A Relais & Châteaux clifftop legend in the medieval village, two Michelin stars — off-campus and calm." },
+    { name: "Cap Estel", area: "Èze-sur-Mer, France · 20 min from Monaco", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
+    { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat, France · 30 min from Monaco", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
+    { name: "La Réserve de Beaulieu", area: "Beaulieu, France · 15 min by train", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
   ],
   "Paris": [
     { name: "Four Seasons George V", area: "8th · off the Champs-Élysées", rate: null, ourTake: "The palace of palaces — three Michelin stars and the city's most famous florals.", contact: { addr: "31 Avenue George V, 75008 Paris", web: "fourseasons.com/paris" } },
@@ -7809,7 +7843,7 @@ const PLACE_REGION = {
   "ischgl": "Austria", "kitzbuhel": "Austria", "andermatt": "Switzerland", "laax": "Switzerland",
   "crans-montana": "Switzerland", "st moritz": "Switzerland", "gstaad": "Switzerland",
   "zermatt": "Switzerland", "edinburgh": "Scotland", "mexico city": "Mexico", "naples": "Italy",
-  "the hamptons": "New York", "adirondacks": "New York", "beverly hills": "California", "ojai": "California", "pebble beach": "California", "healdsburg": "California", "palm springs": "California", "san francisco": "California", "verbier": "Switzerland", "are": "Sweden", "portofino": "Italy",
+  "french riviera": "France", "the hamptons": "New York", "adirondacks": "New York", "beverly hills": "California", "ojai": "California", "pebble beach": "California", "healdsburg": "California", "palm springs": "California", "san francisco": "California", "verbier": "Switzerland", "are": "Sweden", "portofino": "Italy",
   "baqueira beret": "Spanish Pyrenees", "portillo": "Chile", "queenstown": "New Zealand",
 };
 // What goes on a card so nobody has to guess where in the world they are being sent. Wyoming and
@@ -8536,7 +8570,7 @@ const AIRPORTS = {
   "Venice": { code: "VCE", scale: "intercontinental" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
   "Porto": { code: "OPO", scale: "regional" }, "Faro": { code: "FAO", scale: "regional" },
-  "Pisa": { code: "PSA", scale: "regional" }, "Nice": { code: "NCE", scale: "regional" },
+  "Pisa": { code: "PSA", scale: "regional" }, "French Riviera": { code: "NCE", scale: "intercontinental" }, "Nice": { code: "NCE", scale: "regional" },
   "Marseille": { code: "MRS", scale: "regional" }, "Santorini": { code: "JTR", scale: "regional" },
   "Mykonos": { code: "JMK", scale: "regional" }, "Mallorca": { code: "PMI", scale: "regional" },
   "Geneva": { code: "GVA", scale: "regional" }, "Lyon": { code: "LYS", scale: "regional" },
@@ -8736,7 +8770,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -8962,7 +8996,7 @@ const COORDS = {
   "Comporta": [38.38,-8.78], "Évora": [38.57,-7.91], "Algarve": [37.09,-8.25], "Faro": [37.02,-7.93], "Douro Valley": [41.16,-7.79], "Portugal": [39.40,-8.22],
   "Amsterdam": [52.37,4.90], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
   "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
-  "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
+  "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
@@ -9353,6 +9387,7 @@ const CITY_ALIASES = {
   "funchal": "Madeira", "madeira island": "Madeira",
   "bridgehampton": "The Hamptons", "east hampton": "The Hamptons", "southampton": "The Hamptons",
   "sag harbor": "The Hamptons", "montauk": "The Hamptons", "lake placid": "Adirondacks",
+  "cote d azur": "French Riviera", "côte d'azur": "French Riviera", "riviera": "French Riviera",
   "rancho mirage": "Palm Springs", "forestville": "Healdsburg", "yountville": "Napa Valley", "calistoga": "Napa Valley",
   "kigali": "Rwanda", "volcanoes national park": "Rwanda", "volcanoes": "Rwanda", "musanze": "Rwanda", "ruhengeri": "Rwanda", "kinigi": "Rwanda", "virunga": "Rwanda",
   "st barts": "St Barth", "st barths": "St Barth", "st. barth": "St Barth", "st. barths": "St Barth", "st-barth": "St Barth", "saint barthelemy": "St Barth", "saint barth": "St Barth",
@@ -14716,11 +14751,19 @@ function HotelPicker({ city, nights, pick, upd, fromExperience }) {
   // so a client who wants Mayfair sees the Mayfair hotels and nothing else.
   const [area, setArea] = useState("");
   useEffect(() => { setArea(""); }, [city, level]);
-  const areaOpts = areaGroupsFor(city, levelFavs, favs);
-  const areaFavs = (area && areaOpts) ? levelFavs.filter((s) => {
+  // Borrowed hotels obey the tier you are looking at, and never appear in the main group.
+  const nearRows = nearbyFavs(city).filter((s) => tierOf(s.name) === level);
+  const areaOpts = (() => {
+    const base = areaGroupsFor(city, levelFavs, favs) || [];
+    if (!nearRows.length) return base.length >= 2 ? base : null;
+    const withNear = base.concat([{ label: NEARBY_LABEL, names: nearRows.map((n) => n.name), nearby: true }]);
+    return withNear.length >= 2 ? withNear : null;
+  })();
+  const allRows = levelFavs.concat(nearRows);
+  const areaFavs = (area && areaOpts) ? allRows.filter((s) => {
     const g = areaOpts.find((o) => o.label === area);
     return g ? g.names.indexOf(s.name) !== -1 : true;
-  }) : levelFavs;
+  }) : allRows;
   const chosenName = pick.stay ? dnrm(pick.stay.name || "") : null;
   const [showOthers, setShowOthers] = useState(false);
   // A new city, or a cleared choice, starts from the open list again.
