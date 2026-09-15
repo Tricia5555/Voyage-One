@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M475";
+const BUILD = "M479";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -924,7 +924,7 @@ function michTier(m, dense) {
   // are genuine credentials and they qualify a restaurant for the list, but neither is
   // destination-defining: a Discovery listing is not a Top 50 place, and a ranking held three
   // years ago is not a ranking held now. They carry a restaurant into Recommended and no further.
-  const cred = m && typeof m === "object" && (m.bob || m.jb || m.f5 || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
+  const cred = m && typeof m === "object" && (m.dest || m.bob || m.jb || m.f5 || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
 }
@@ -1145,14 +1145,19 @@ const FAVORITES = {
     { name: "Baumanière Les Baux-de-Provence", area: "Les Baux-de-Provence", rate: null, ourTake: "A Relais & Châteaux legend below the citadel, with Michelin dining.", contact: { addr: "Mas de Baumanière, Les Baux-de-Provence", web: "baumaniere.com" } },
   ],
   "Franschhoek": [
-    { name: "La Residence Franschhoek", area: "Franschhoek", rate: null, ourTake: "The Royal Portfolio's opulent vineyard estate — theatrical suites, peacocks, real grandeur.", contact: { addr: "Elandskloof Farm, Franschhoek", web: "theroyalportfolio.com" } },
-    { name: "Leeu Estates", area: "Franschhoek", rate: null, ourTake: "An art-filled wine estate in the Leeu Collection, gardens and a fine spa.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "leeucollection.com" } },
-    { name: "Babylonstoren Farm Hotel", area: "Simondium", rate: null, ourTake: "A working Cape Dutch farm with a world-famous garden and farm-to-table table.", contact: { addr: "Klapmuts-Simondium Rd, Simondium", web: "babylonstoren.com" } },
-    { name: "Mont Rochelle", area: "Franschhoek", rate: null, ourTake: "Richard Branson's mountain vineyard hotel above the valley.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "virginlimitededition.com" } },
-    { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
+    { name: "La Residence Franschhoek", area: "Franschhoek \u00b7 Cape Town (CPT)", rate: null, ourTake: "ULTRA LUXURY. Sixteen suites and villas on an estate in the Franschhoek valley \u2014 The Royal Portfolio at its most theatrical, with extraordinary interiors, gardens, vineyards and peacocks on the lawn. Leading Hotels of the World, and one of the most distinctive hotels in South Africa.", contact: { addr: "Elandskloof Farm, Franschhoek", web: "theroyalportfolio.com" } },
+    // WITHHELD Sept 2026 \u2014 the Cape Winelands list was replaced with three properties and these
+    // fall outside it. Attractive, expensive and locally well regarded is not the bar. Restorable
+    // as written; nothing has been deleted.
+    // { name: "Leeu Estates", area: "Franschhoek", rate: null, ourTake: "An art-filled wine estate in the Leeu Collection, gardens and a fine spa.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "leeucollection.com" } },
+    // { name: "Babylonstoren Farm Hotel", area: "Simondium", rate: null, ourTake: "A working Cape Dutch farm with a world-famous garden and farm-to-table table.", contact: { addr: "Klapmuts-Simondium Rd, Simondium", web: "babylonstoren.com" } },
+    // { name: "Mont Rochelle", area: "Franschhoek", rate: null, ourTake: "Richard Branson's mountain vineyard hotel above the valley.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "virginlimitededition.com" } },
   ],
   "Stellenbosch": [
-    { name: "Delaire Graff Estate", area: "Helshoogte Pass", rate: null, ourTake: "Laurence Graff's art-and-diamonds wine estate on the pass, with lodges and a spa.", contact: { web: "delaire.co.za" } },
+    { name: "Delaire Graff Estate", area: "Helshoogte Pass \u00b7 Cape Town (CPT)", rate: null, ourTake: "ULTRA LUXURY. Laurence Graff's estate on the Helshoogte Pass between Stellenbosch and Franschhoek \u2014 lodges and villas with private pools, a serious art collection through the buildings, a strong spa, and a view down the valley that is the reason people book it. TWO MICHELIN KEYS. One of the two best addresses in the Winelands." },
+    { name: "Lanzerac Hotel & Spa", area: "Stellenbosch \u00b7 Cape Town (CPT)", rate: null, ourTake: "LUXURY. A historic wine estate on the edge of Stellenbosch with a substantial spa, cellar experiences and destination dining \u2014 Tourism Grading Council FIVE-STAR PREMIUM, and a genuine luxury property. It does not have the rarity or exclusivity of Delaire Graff or La Residence, and it is not pretending to." },
+    // Delaire Graff Estate is filed under STELLENBOSCH; the duplicate record here was removed
+    // Sept 2026 so one hotel has one record. It sits on the pass between the two valleys.
   ],
   "Bordeaux": [
     { name: "Les Sources de Caudalie", area: "Martillac", rate: null, ourTake: "A vineyard retreat at Château Smith Haut Lafitte — the birthplace of vinothérapie.", contact: { web: "sources-caudalie.com" } },
@@ -5255,6 +5260,10 @@ const ACCOLADES = {
   "cancale": [{ n: "Breizh Café Cancale", bib:1 }],
   "cannara": [{ n: "Perbacco - Vini e Cucina", bib:1 }],
   "cannes": [{ n: "Aux Bons Enfants", bib:1 }],
+  // Franschhoek. La Petite Colombe is DESTINATION by Voyage One judgement on the combination of
+  // Eat Out 3 stars (2026) and LUXE Restaurant of the Year 2024 — not because LUXE alone ranks
+  // with the international lists. It must not sit merely in Local Favorites.
+  "franschhoek": [{ n: "La Petite Colombe", dest:1, eo:3, eoy:2026, luxe:2024 }],
   "cape town": [{ n: "La Colombe", w:55, wy:2025 }, { n: "Fyn", w:82, wy:2025 }, { n: "Salsify at the Roundhouse", w:88, wy:2025 }],
   "capri leone": [{ n: "Antica Filanda", bib:1 }],
   "capriata d orba": [{ n: "Il Moro", bib:1 }],
@@ -8369,13 +8378,20 @@ function railSensible(a, b) {
   if (usA !== usB) return false;          // no rail between the US and anywhere else
   return usRailOk(a, b);
 }
-function driversHere(city) {
-  // NOBODY, Sept 2026. Drivers were limited to the USA and South America, then removed entirely:
-  // the South American copy talked about armoured vehicles, which is not the tone, and a client
-  // does not need telling that a hotel can arrange a car. The DISTANCE is the useful part and it
-  // is shown everywhere. Return true here again only when a vetted operator is actually carried.
-  return false;
+// ══ VETTED DRIVERS ═══════════════════════════════════════════════════════════════════════════
+// Drivers were removed worldwide in Sept 2026 because we were offering something we could not
+// supply. A driver is named ONLY where Voyage One actually knows the company. One line per
+// operator, keyed by destination; everywhere else the client sees the distance and nothing more.
+const VETTED_DRIVERS = {
+  "Miami": { name: "Ocean Drive Limousine", web: "https://www.oceandrivelimo.com", tel: "+1 305 374 7182",
+    note: "Used by Voyage One. Twenty years in South Florida, their own fleet, and based across the road from MIA \u2014 which is why airport pickups actually work. Ask for a sedan or an SUV for Art Week; the schedule moves and they keep up." },
+};
+function vettedDriver(city) {
+  const key = dnrm(resolvePlace(city) || bareCity(city || ""));
+  const k = Object.keys(VETTED_DRIVERS).find((x) => dnrm(x) === key);
+  return k ? VETTED_DRIVERS[k] : null;
 }
+function driversHere(city) { return !!vettedDriver(city); }
 function transferOptions(from, to) {
   const ferry = ferryBetween(from, to);
   const za = zoneOf(from), zb = zoneOf(to);
@@ -8383,8 +8399,9 @@ function transferOptions(from, to) {
   const dr = road ? driveEstimate(from, to) : null;
   const drTxt = dr && dr.label ? ` About ${dr.label} by road.` : "";
   const out = [];
-  if (road && driversHere(to)) out.push({ mode: "Private transfer", why: `Met at arrivals and driven door to door.${drTxt}`, price: null });
-  else if (ferry && driversHere(to)) out.push({ mode: "Private transfer", why: `Met at arrivals, taken to the dock, and across by boat.`, price: null });
+  const vd = vettedDriver(to);
+  if (road && vd) out.push({ mode: "Private transfer", why: `${vd.name} \u2014 ${vd.note}${drTxt}`, price: null, link: vd.web, linkLabel: `Contact ${vd.name}` });
+  else if (ferry && vd) out.push({ mode: "Private transfer", why: `${vd.name} to the dock, then across by boat.`, price: null, link: vd.web, linkLabel: `Contact ${vd.name}` });
   // Not the USA and not South America: no private transfer is offered at all. What the client
   // needs is the DISTANCE, so that is what they get — stated, not sold.
   else if (road) out.push({ mode: "By road", why: dr && dr.label ? `${bareCity(from)} to ${bareCity(to)} is about ${dr.label}${dr.km ? `, ${dr.km} km` : ""}.` : `${bareCity(from)} to ${bareCity(to)} is a road journey.`, price: null, info: true });
@@ -11512,7 +11529,7 @@ const ONE_LIST = {
           ],
           notes: [
             "THE HIGHEST VERSION IS NOT THE BUSIEST VERSION. No more than one major evening commitment per night, one deliberately low day in the middle, late breakfasts where they help, and protected afternoon rest. Art Week is physically and socially demanding and the people who enjoy it are the ones who paced it.",
-            "A DEDICATED PRIVATE DRIVER IS NOT A LUXURY HERE, IT IS THE ITINERARY WORKING. The week moves between the Convention Center, the Design District, Coconut Grove, Coral Gables, Brickell, Key Biscayne, downtown museums and private residences, often at short notice. Arrange one for the principal days.",
+            "A DEDICATED PRIVATE DRIVER IS NOT A LUXURY HERE, IT IS THE ITINERARY WORKING. The week moves between the Convention Center, the Design District, Coconut Grove, Coral Gables, Brickell, Key Biscayne, downtown museums and private residences, often at short notice. WE USE OCEAN DRIVE LIMOUSINE \u2014 twenty years in South Florida, their own fleet, based across the road from MIA. Book them for the principal days, not by the trip.",
             "ALLOW SUBSTANTIAL BUFFER TIME. Art Week traffic makes short distances unpredictable, and a schedule of high-value appointments should never depend on exact timing between them.",
             "BOOK THE RESTAURANTS WHEN YOU BOOK THE HOTEL. Miami's best tables are gone months before Art Week, and the ones left in December are not the ones you want. Aim for one opening-night or collector dinner, one Design District dinner, one refined Coconut Grove or Coral Gables dinner, one oceanfront meal, and one intimate final night.",
             "AVOID RESTAURANTS THAT NEED A LONG CROSS-CITY TRANSFER unless the meal is genuinely exceptional. In Art Week traffic a forty-minute drive each way costs you the evening.",
