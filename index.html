@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M479";
+const BUILD = "M481";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -14105,6 +14105,14 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
       : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />}
+    {vettedDriver(to) ? (() => { const vd = vettedDriver(to); return (
+      <div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Your driver in {bareCity(to)}</div>
+        <div style={{ fontSize: 14, color: t.ink, fontWeight: 500 }}>{vd.name}</div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{vd.note}</div>
+        <a href={brandedLink(vd.web, { kind: "driver", name: vd.name, city: bareCity(to) })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 8, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Contact {vd.name} ↗</a>
+        {vd.tel ? <span style={{ fontSize: 13, color: t.inkSoft, marginLeft: 12 }}>{vd.tel}</span> : null}
+      </div>); })() : null}
     {arriveBy === "Flight" ? <FlightBookLinks flight={pick.flight} dateISO={flightDate} returnISO={returnDate} city={to} /> : null}
     {arriveBy === "Flight" && pick.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
       <BookingRow item={pick.flight} onSet={(patch) => upd({ flight: { ...pick.flight, ...patch } })} />
