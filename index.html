@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M481";
+const BUILD = "M486";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -924,6 +924,10 @@ function michTier(m, dense) {
   // are genuine credentials and they qualify a restaurant for the list, but neither is
   // destination-defining: a Discovery listing is not a Top 50 place, and a ranking held three
   // years ago is not a ranking held now. They carry a restaurant into Recommended and no further.
+  // LUXE RESTAURANT AWARDS (South Africa) are a credible NATIONAL/REGIONAL signal and are NOT
+  // equivalent to Michelin, World's 50 Best, La Liste or James Beard. A LUXE award alone does not
+  // reach Destination — note it as a secondary credential. La Petite Colombe qualifies on the
+  // COMBINATION: LUXE Restaurant of the Year 2024, Eat Out three stars, and national standing.
   const cred = m && typeof m === "object" && (m.dest || m.bob || m.jb || m.f5 || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
@@ -6766,11 +6770,83 @@ function regionMembers() {
   });
   return REGION_MEMBERS;
 }
+// About forty-five minutes of road. Far enough for the Amalfi Coast and the Winelands, short
+// enough that no county or country accidentally becomes one restaurant scene.
+// HOW FAR A PLACE REACHES DEPENDS ON HOW HUNGRY IT IS. Tricia's rule, and it is better than a
+// single radius: the emptier the town, the further it is worth driving.
+//   5 OR MORE top tables — it feeds you. Stay put. Tokyo, Paris, New York, Miami.
+//   1 TO 4 — you have somewhere to eat, so only go out for something genuinely close: TEN MILES.
+//   NONE AT ALL — you have to travel, so the net goes wider: TWENTY MILES.
+// This is what makes Stellenbosch work. It has no tables of its own, so it reaches twenty miles
+// and finds La Petite Colombe fifteen miles away in Franschhoek. Amalfi has four, so it reaches
+// ten and picks up Positano and Ravello along the coast road and no further.
+// Distances are STRAIGHT-LINE, so the rule is already conservative where the roads are worst —
+// ten kilometres on the Amalfi coast is forty minutes of hairpins.
+const DINE_RADIUS_SOME_KM = 16;   // 10 miles, for a town with a few tables of its own
+const DINE_RADIUS_NONE_KM = 32;   // 20 miles, for a town with none
+const DINE_SELF_SUFFICIENT = 5;   // at or above this, a place never reaches out
+function dineReachKm(canon) {
+  const key = Object.keys(DINING).find((x) => dnrm(x) === canon);
+  const n = (key ? (DINING[key] || []) : []).length;
+  if (n >= DINE_SELF_SUFFICIENT) return 0;
+  return n >= 1 ? DINE_RADIUS_SOME_KM : DINE_RADIUS_NONE_KM;
+}
+
+let DINE_SIB_CACHE = null;
+function dineSiblings(canon) {
+  if (!DINE_SIB_CACHE) {
+    DINE_SIB_CACHE = {};
+    const byRegion = {};
+    Object.keys(PLACE_REGION).forEach((town) => {
+      const head = String(PLACE_REGION[town] || "").split(",")[0].trim().toLowerCase();
+      if (!head) return;
+      (byRegion[head] = byRegion[head] || []).push(dnrm(town));
+    });
+    Object.keys(byRegion).forEach((head) => {
+      const towns = Array.from(new Set(byRegion[head]));
+      towns.forEach((a) => {
+        const ca = coordsFor(a); if (!ca) return;
+        const ia = islandOf(a);
+        const reach = dineReachKm(a);
+        const near = reach ? towns.filter((b) => {
+          if (b === a) return false;
+          const cb = coordsFor(b); if (!cb) return false;
+          if (islandOf(b) !== ia) return false;
+          const d = distanceKm(a, b);
+          return d != null && d <= reach;
+        }) : [];
+        if (near.length) DINE_SIB_CACHE[a] = (DINE_SIB_CACHE[a] || []).concat(near);
+      });
+    });
+  }
+  return DINE_SIB_CACHE[canon] || [];
+}
 function dineCityKeys(city){
   const raw = bareCity(city); const low = raw.toLowerCase();
   const al = CITY_ALIASES[low] || CITY_ALIASES[low.split(",")[0].trim()];
   const canon = dnrm(al || raw);
   if (NYC_KEYS.indexOf(canon) !== -1) return NYC_KEYS.slice();   // boroughs are one city (bidirectional)
+  // SITE-WIDE: TOWNS THAT SHARE A REGION AND ARE WITHIN DINNER RANGE EAT TOGETHER.
+  // Hardcoding pairs does not scale — Stellenbosch and Franschhoek were the symptom, and the
+  // Amalfi Coast, Lake Como, Burgundy, Bordeaux, Champagne, the Dolomites and Fife have exactly
+  // the same shape. So this is a rule, not a list: two places group when they carry the SAME
+  // region label, sit on the SAME landmass, and are inside DINE_RADIUS_KM of each other.
+  //
+  // The distance gate is what makes it safe. Region labels in this file range from "Cape
+  // Winelands" to "California" to "Greece", and without a radius "Greece" would put Santorini
+  // and Crete in one dining pool. Coordinates are required on BOTH sides — if we do not know
+  // where somewhere is, we do not group it. Ignorance is not proximity.
+  // AND ONLY WHERE THE TOWN NEEDS IT. Tricia's point, and it is the right axis: in Tokyo or New
+  // York you do not drive out of town for dinner, because the best tables are already on your
+  // street. In Provence or on the Amalfi Coast, twenty minutes for a great table is nothing.
+  // There is NO WORLDWIDE DEFINITION OF "TOWN" — the word means a royal charter in England, an
+  // incorporation filing in the US and a population threshold in Japan, and none of them
+  // predicts restaurants. So the test is not what a place is called, or how many people live
+  // there. It is whether it already feeds you: a place with enough top tables of its own does
+  // not reach out, a place without them does. Measured from our own data, which is the only
+  // definition that matters here.
+  const sib = dineSiblings(canon);
+  if (sib.length) return [canon].concat(sib);
   if (canon === "los angeles") return LA_METRO_KEYS.slice();     // greater-LA discovery (hub → members)
   const members = regionMembers()[(al || raw).toLowerCase().split(",")[0].trim()] || [];
   return [canon].concat(members.map(dnrm).filter((m) => m !== canon));
