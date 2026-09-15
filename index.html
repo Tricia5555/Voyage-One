@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M486";
+const BUILD = "M488";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10530,6 +10530,11 @@ function VoyageOne() {
     // (Renaming to the same place, or editing other fields, leaves picks alone.)
     const changingCity = Object.prototype.hasOwnProperty.call(patch, "city") &&
       (patch.city || "").trim().toLowerCase() !== (x.city || "").trim().toLowerCase();
+    // pickPatch merges against the CURRENT pick rather than replacing it with a stale copy.
+    if (!changingCity && Object.prototype.hasOwnProperty.call(patch, "pickPatch")) {
+      const { pickPatch, ...rest } = patch;
+      return { ...x, ...rest, pick: { ...(x.pick || {}), ...pickPatch } };
+    }
     if (changingCity) {
       // A fresh city clears the old picks — but if the caller is arriving FROM a chosen property
       // (picking Gleneagles, not picking Auchterarder), carry that stay across. Otherwise the app
@@ -14025,10 +14030,13 @@ function useRentalBrands(city, region, enabled) {
   }, [bare, region, enabled]);
   const at = (k) => RENTAL_CACHE[ck(k)];
   const settled = ALL.every((b) => at(b.key) !== undefined && at(b.key) !== "pending");
-  const here = (b) => at(b.key) !== false;
+  const confirmed = (b) => at(b.key) === true;
   // Until every answer is in, show the three defaults. The panel is never empty, and the
   // client never waits on a network call to see something useful.
-  const ranked = settled ? PRIMARY.filter(here).concat(RENTAL_BACKUP.filter(here)) : PRIMARY.slice();
+  const ranked = settled
+    ? PRIMARY.filter(confirmed).concat(PRIMARY.filter((b) => !confirmed(b)))
+        .concat(RENTAL_BACKUP.filter(confirmed)).concat(RENTAL_BACKUP.filter((b) => !confirmed(b)))
+    : PRIMARY.slice();
   const shown = ranked.slice(0, 3);
   const more = ALL.filter((b) => !shown.includes(b));
   const dropped = settled ? PRIMARY.filter((b) => at(b.key) === false) : [];
@@ -14990,7 +14998,7 @@ function StopCard({ stop, idx, stops, setStops, prevPlace, sched, setUndo }) {
 }
 function ExploreSection({ d, i, p, from, legSched }) {
   const pick = d.pick || {};
-  const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
+  const upd = (patch) => p.setDest(i, { pickPatch: patch });
   const region = d.city || "";
   const mode = pick.exploreMode || "";
   const rawStops = regionStops(region);
@@ -15436,7 +15444,7 @@ function useGateway(city) {
 function CitySection({ d, i, p, from, legSched }) {
   useGeoTick(); // a coordinate arriving late must repaint this panel
   const pick = d.pick || {};
-  const upd = (patch) => p.setDest(i, { pick: { ...pick, ...patch } });
+  const upd = (patch) => p.setDest(i, { pickPatch: patch });
   const nights = destNights(d);
   const tours = pick.tours || []; const spas = pick.spas || []; const sports = pick.sports || [];
   const gwRaw = useGateway(d.city);
