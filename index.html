@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M488";
+const BUILD = "M490";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -40,6 +40,67 @@ const t = {
   line: "#E4DDD0", card: "#F3EEE4", mist: "#EDE9E0", white: "#FFFFFF",
 };
 const font = { display: "'Cormorant Garamond', Georgia, serif", ui: "'Jost', system-ui, -apple-system, sans-serif" };
+// ══ NEIGHBOURHOODS ═══════════════════════════════════════════════════════════════════════════
+// Where you sleep in a big city is a decision before which hotel, and in some places it matters
+// more than the hotel does. The area is already on every record, but the raw labels are written
+// for a card, not for filtering: New York carries "Fifth Avenue", "Fifth Avenue, Midtown",
+// "Fifth Avenue at 61st", "53rd Street, Midtown" and "57th Street, Midtown" for what a client
+// simply calls MIDTOWN. So the raw area is mapped to the name people actually use.
+//
+// NOT DECIDED BY POPULATION. Crete is not a city and it is the best case in the file — Elounda
+// to Chania is two and a half hours, which is a bigger decision than any New York choice. Capri
+// is seven square miles and splitting it still matters. The test is whether the place has enough
+// hotels spread across enough areas for a filter to narrow anything: see AREA_MIN below.
+const AREA_GROUPS = {
+  "London": {
+    "Mayfair": ["mayfair", "park lane", "hanover square", "piccadilly", "st james s", "regent street"],
+    "Knightsbridge & Belgravia": ["knightsbridge", "belgravia", "hyde park corner", "chelsea"],
+    "Covent Garden & Westminster": ["strand", "whitehall", "holborn"],
+    "Marylebone": ["marylebone"],
+    "The City": ["the city"],
+  },
+  "Paris": {
+    "1st — Louvre & Tuileries": ["1st"],
+    "8th — Champs-Élysées & Golden Triangle": ["8th"],
+    "16th — Trocadéro & Passy": ["16th"],
+  },
+  "Crete": {
+    "Elounda": ["elounda"],
+    "Agios Nikolaos": ["agios nikolaos"],
+    "Agia Pelagia": ["agia pelagia"],
+    "Chania & the west": ["chania"],
+    "Hersonissos": ["hersonissos"],
+  },
+  "New York City": {
+    "Midtown": ["fifth avenue", "fifth avenue midtown", "fifth avenue at 61st", "53rd street midtown", "57th street midtown", "columbus circle"],
+    "Upper East Side": ["upper east side"],
+    "Downtown": ["tribeca", "battery maritime building", "nomad"],
+  },
+  "Capri": {
+    "Capri Town": ["capri town", "marina grande"],
+    "Anacapri": ["anacapri"],
+  },
+  "Cairo": {
+    "The Nile — Garden City & Corniche": ["garden city", "corniche", "downtown"],
+    "Giza & the Pyramids": ["giza"],
+    "Heliopolis": ["heliopolis"],
+  },
+};
+// A filter has to narrow something. Fewer than this many hotels, or fewer than two groups with
+// anything in them, and the chips are noise.
+const AREA_MIN_HOTELS = 6;
+function areaHead(a) { return dnrm(String(a || "").split("·")[0]); }
+function areaGroupsFor(city, rows) {
+  const key = Object.keys(AREA_GROUPS).find((x) => dnrm(x) === dnrm(bareCity(city || "")));
+  if (!key || (rows || []).length < AREA_MIN_HOTELS) return null;
+  const map = AREA_GROUPS[key];
+  const out = [];
+  Object.keys(map).forEach((label) => {
+    const hits = rows.filter((r) => map[label].some((a) => areaHead(r.area) === dnrm(a)));
+    if (hits.length) out.push({ label, names: hits.map((h) => h.name) });
+  });
+  return out.length >= 2 ? out : null;
+}
 const LEVELS = ["UltraLux", "Luxury", "ExpLux", "ExpLodge", "Best"];
 // EXPERIENCE LUXURY. A tier for places where the right way to be there is not a hotel at all —
 // a Wadi Rum desert camp, a tented lodge on the migration route, a riad with six rooms. These
@@ -14465,12 +14526,22 @@ function HotelPicker({ city, nights, pick, upd, fromExperience }) {
   const liveAll = live ? Object.keys(remote.items || {}).reduce((acc, k) => acc.concat(remote.items[k] || []), []) : [];
   const favCur = /london/i.test(bareCity(city)) ? "£" : "€";
   const levelFavs = level ? favs.filter((s) => tierOf(s.name) === level) : [];
+  // NEIGHBOURHOOD FILTER. Offered only where it narrows something, and always undoable — "All
+  // areas" is the default and one tap returns to it. It filters the curated list for this tier,
+  // so a client who wants Mayfair sees the Mayfair hotels and nothing else.
+  const [area, setArea] = useState("");
+  useEffect(() => { setArea(""); }, [city, level]);
+  const areaOpts = areaGroupsFor(city, levelFavs);
+  const areaFavs = (area && areaOpts) ? levelFavs.filter((s) => {
+    const g = areaOpts.find((o) => o.label === area);
+    return g ? g.names.indexOf(s.name) !== -1 : true;
+  }) : levelFavs;
   const chosenName = pick.stay ? dnrm(pick.stay.name || "") : null;
   const [showOthers, setShowOthers] = useState(false);
   // A new city, or a cleared choice, starts from the open list again.
   useEffect(() => { setShowOthers(false); }, [city, chosenName]);
-  const favChosen = chosenName ? levelFavs.filter((s) => dnrm(s.name) === chosenName) : [];
-  const favRest = chosenName ? levelFavs.filter((s) => dnrm(s.name) !== chosenName) : levelFavs;
+  const favChosen = chosenName ? areaFavs.filter((s) => dnrm(s.name) === chosenName) : [];
+  const favRest = chosenName ? areaFavs.filter((s) => dnrm(s.name) !== chosenName) : areaFavs;
   const collapse = !!fromExperience && favChosen.length > 0 && !showOthers;
   const favOrdered = collapse ? favChosen : [...favChosen, ...favRest];
   // THE LOCK NOW COVERS EVERY TIER. Ultra Luxury was always curated-only; Luxury and Best used
@@ -14526,6 +14597,11 @@ function HotelPicker({ city, nights, pick, upd, fromExperience }) {
       {collapsed && <button onClick={() => setOpenList(true)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 15px", color: t.ink, fontSize: 13 }}>Change hotel</button>}
       <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
     </div>
+    {!collapsed && areaOpts ? (<div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 12, alignItems: "center" }}>
+      <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginRight: 3 }}>Where in {bareCity(city)}</span>
+      <button onClick={() => setArea("")} style={{ background: !area ? t.pine : "none", color: !area ? t.paper : t.ink, border: `1px solid ${!area ? t.pine : t.line}`, borderRadius: 999, padding: "6px 13px", fontSize: 12.5 }}>All areas</button>
+      {areaOpts.map((o) => <button key={o.label} onClick={() => setArea(area === o.label ? "" : o.label)} style={{ background: area === o.label ? t.pine : "none", color: area === o.label ? t.paper : t.ink, border: `1px solid ${area === o.label ? t.pine : t.line}`, borderRadius: 999, padding: "6px 13px", fontSize: 12.5 }}>{o.label} <span style={{ opacity: .6 }}>{o.names.length}</span></button>)}
+    </div>) : null}
     {!collapsed && !level && <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5 }}>Choose <strong style={{ color: t.ink }}>Ultra Luxury</strong> or <strong style={{ color: t.ink }}>Luxury</strong>{city ? " to see our hotels in " + bareCity(city) : " to see the hotels"}.</div>}
     {collapsed && (<div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {(() => {
