@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M509";
+const BUILD = "M510";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -281,6 +281,55 @@ const AREA_GROUPS = {
 // A filter has to narrow something. Fewer than this many hotels, or fewer than two groups with
 // anything in them, and the chips are noise.
 const NEARBY_LABEL = "Nearby";
+// ══ ANNUAL EVENTS ROLL THEMSELVES ════════════════════════════════════════════════════════════
+// The One List is full of events that happen every year, and their dates were typed in by hand.
+// That fails in two ways at once: an event goes into the past and still sits on the list, and
+// an event three weeks away is shown as bookable when our own copy says it sells out a year
+// ahead. Neither is caught by anything — only by someone noticing.
+//
+// So an event may declare HOW IT RECURS and HOW MUCH NOTICE it needs, and the app works out
+// which edition to show. Two kinds of rule cover almost everything:
+//   { nth: 3, dow: 0, month: 11 }  — the third Sunday of November   (dow: 0 = Sunday)
+//   { day: 2, month: 7 }           — the 2nd of July, a fixed date
+// LEAD is the months of notice the experience genuinely needs. Inside that window the card
+// shows NEXT year's edition, because this year's is gone whatever the calendar says.
+//
+// An event with no rule is left exactly as typed — nothing is invented. Cannes, the Grand Prix
+// calendar and anything tied to Easter move on their own schedule and a guess would be worse
+// than a human. Those still need Tricia, and the list below says which.
+function nthDowOfMonth(year, month, dow, nth) {
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  const shift = (dow - first.getUTCDay() + 7) % 7;
+  return new Date(Date.UTC(year, month - 1, 1 + shift + (nth - 1) * 7));
+}
+function occurrenceFor(rule, year) {
+  if (!rule) return null;
+  if (rule.day) return new Date(Date.UTC(year, rule.month - 1, rule.day));
+  if (rule.nth && rule.dow != null) return nthDowOfMonth(year, rule.month, rule.dow, rule.nth);
+  return null;
+}
+// The edition a client should actually be looking at.
+function liveDates(ev, today) {
+  if (!ev || !ev.recur || !ev.start) return null;
+  const now = today || new Date();
+  const leadMs = (ev.lead || 6) * 30.4 * 86400000;
+  const base = new Date(ev.start + "T00:00:00");
+  const anchor = occurrenceFor(ev.recur, base.getUTCFullYear());
+  if (!anchor) return null;
+  const offset = Math.round((base - anchor) / 86400000);          // start vs the ruled day
+  const span = Math.round((new Date(ev.end + "T00:00:00") - base) / 86400000);
+  for (let y = now.getUTCFullYear(); y <= now.getUTCFullYear() + 3; y += 1) {
+    const occ = occurrenceFor(ev.recur, y);
+    if (!occ) return null;
+    const start = new Date(occ.getTime() + offset * 86400000);
+    if (start - now > leadMs) {
+      const end = new Date(start.getTime() + span * 86400000);
+      const iso = (d) => d.toISOString().slice(0, 10);
+      return { start: iso(start), end: iso(end), day: occ, year: y };
+    }
+  }
+  return null;
+}
 const AREA_MIN_HOTELS = 6;
 // ══ NEARBY HOTELS ════════════════════════════════════════════════════════════════════════════
 // A destination may SHOW another's hotels without owning them. Monaco is two square kilometres
@@ -14825,6 +14874,32 @@ function useHotelInfo(city, name) {
 }
 // The hotel tile: a photo to entice, the name, the est. price. Selected, it spans full width and
 // opens up — bigger photo, our take, and the contacts.
+// ══ ONE PLACE, ONE MAP ═══════════════════════════════════════════════════════════════════════
+// A map of a whole city covered in pins does not answer the question anyone is asking, which is
+// "where is MINE". So there is no destination map: a map appears only when a traveller opens one
+// property, and it shows that property alone. The neighbourhood chips already do the work of
+// narrowing a city down; this is the last step, and it is about one hotel, one table, one course.
+//
+// Google's MAPS EMBED API is free — no per-load charge — and takes a plain text query, so no place
+// ID or coordinates are needed. The key below is PUBLIC BY DESIGN: it is restricted in the Google
+// console to the Maps Embed API alone and to this domain, so it cannot touch the Places quota and
+// is worthless anywhere else. It is NOT the server-side key, which never reaches the browser.
+const MAPS_EMBED_KEY = "AIzaSyCjUtbHi9D9CiMOskqtV1cniOpQOFjt38k";
+function PlaceMap({ name, city, area }) {
+  const [open, setOpen] = useState(false);
+  if (!name) return null;
+  const q = [name, area && !/\([A-Z]{3}\)/.test(area) ? area.split("\u00b7")[0].trim() : "", bareCity(city || "")]
+    .filter(Boolean).join(", ");
+  const src = `https://www.google.com/maps/embed/v1/place?key=${MAPS_EMBED_KEY}&q=${encodeURIComponent(q)}&zoom=15`;
+  return (<div style={{ marginTop: 10 }}>
+    <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>
+      {open ? "Hide the map" : "Where is it?"}
+    </button>
+    {open ? (<div style={{ marginTop: 9, borderRadius: 12, overflow: "hidden", border: `1px solid ${t.line}` }}>
+      <iframe title={`Map of ${name}`} src={src} width="100%" height="230" style={{ border: 0, display: "block" }} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+    </div>) : null}
+  </div>);
+}
 function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
   // way the presentation is identical — one card for every hotel.
@@ -14856,6 +14931,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
+        <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
     </div>
@@ -15150,6 +15226,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
         {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
         {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
         {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
+      <div onClick={(e) => e.stopPropagation()}><PlaceMap name={r.n} city={city} area={info.area} /></div>
         {site ? <a href={brandedLink(site, { kind: "restaurant", name: r.n, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which day?" /></div>
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 10 }}><BookingRow item={found} onSet={onSet} timeLabel="What time?" /></div>
