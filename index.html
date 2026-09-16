@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M502";
+const BUILD = "M507";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -89,6 +89,18 @@ const AREA_GROUPS = {
   "Monaco": {
     "In Monaco": ["on the circuit", "steps off"],
     "Nearby \u2014 the French Riviera": ["eze france", "eze sur mer france", "cap ferrat france", "beaulieu france"],
+  },
+  // TAORMINA and ZERMATT are only four and five hotels, but in both the split IS the decision.
+  // Timeo stands over the Greek Theatre; Villa Sant'Andrea is down at sea level on the bay, and
+  // clients routinely take nights in both. Riffelalp is at 2,222 metres on the Gornergrat railway
+  // \u2014 ski-in, ski-out, and you leave the village behind entirely.
+  "Taormina": {
+    "The town & the theatre": ["taormina", "beside the greek theatre taormina"],
+    "Mazzar\u00f2 Bay \u2014 sea level": ["mazzaro bay taormina mare"],
+  },
+  "Zermatt": {
+    "Zermatt village": ["zermatt"],
+    "Riffelalp \u2014 2,222 m": ["riffelalp 2 222 m"],
   },
   "Hong Kong": {
     "Hong Kong Island": ["central", "admiralty"],
@@ -296,6 +308,8 @@ const NEARBY_CITIES = {
   "Cape Winelands": ["Stellenbosch", "Franschhoek"],
   "Aeolian Islands": ["Vulcano", "Salina"],
   "Sonoma County": ["Healdsburg"],
+  "Los Angeles": ["Beverly Hills"],
+  "Beverly Hills": ["Los Angeles"],
 };
 function nearbyFavs(city) {
   const key = Object.keys(NEARBY_CITIES).find((x) => dnrm(x) === dnrm(bareCity(city || "")));
@@ -1451,6 +1465,17 @@ const FAVORITES = {
     // { name: "Leeu Estates", area: "Franschhoek", rate: null, ourTake: "An art-filled wine estate in the Leeu Collection, gardens and a fine spa.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "leeucollection.com" } },
     // { name: "Babylonstoren Farm Hotel", area: "Simondium", rate: null, ourTake: "A working Cape Dutch farm with a world-famous garden and farm-to-table table.", contact: { addr: "Klapmuts-Simondium Rd, Simondium", web: "babylonstoren.com" } },
     // { name: "Mont Rochelle", area: "Franschhoek", rate: null, ourTake: "Richard Branson's mountain vineyard hotel above the valley.", contact: { addr: "Dassenberg Rd, Franschhoek", web: "virginlimitededition.com" } },
+  ],
+  // ═══ BURGUNDY — Tricia's destination buildout, Sept 2026 ═══════════════════════════════════
+  // THREE LUXURY, NO ULTRA. Burgundy is a wine, culinary and cultural destination for Voyage One,
+  // not a hotel stop, and it is presented that way: seven Destination restaurants across the
+  // C\u00f4te de Beaune, the H\u00f4tel-Dieu as an essential visit, and the Hospices auction in November.
+  // NOT LOADED, by instruction: Hostellerie C\u00e8dre and H\u00f4tel Le Cep — attractive and officially
+  // five-star, and the three below are stronger. Do not expand the list to add inventory.
+  "Burgundy": [
+    { name: "Hostellerie de Levernois", area: "Levernois \u00b7 Lyon (LYS)", rate: null, ourTake: "THE PRIMARY RECOMMENDATION. A Relais & Ch\u00e2teaux country estate in parkland five minutes outside Beaune \u2014 elegant, full-service, with a good spa, gardens along a stream, and MICHELIN-STARRED TABLE DE LEVERNOIS in the house. The refined country stay with the town on the doorstep." },
+    { name: "COMO Le Montrachet", area: "Puligny-Montrachet \u00b7 Lyon (LYS)", rate: null, ourTake: "Twenty-eight rooms in the middle of PULIGNY-MONTRACHET \u2014 which for anyone serious about white Burgundy is the address, not merely a location. Contemporary COMO interiors inside old village buildings, one Michelin Key. THE SETTING IS PART OF THE EXPERIENCE: you walk out among the greatest white-wine vineyards on earth." },
+    { name: "Domaine de Rymska & Spa", area: "Saint-Jean-de-Tr\u00e9zy \u00b7 Lyon (LYS)", rate: null, ourTake: "Relais & Ch\u00e2teaux, about ten rooms and suites on a working estate with a stud farm, thirty kilometres from Beaune \u2014 a spa, farm-to-table cooking and real quiet. One Michelin Key. THE ESTATE VERSION of Burgundy, for a client who would rather be in the country than in the town." },
   ],
   "Stellenbosch": [
     { name: "Delaire Graff Estate", area: "Helshoogte Pass \u00b7 Cape Town (CPT)", rate: null, ourTake: "ULTRA LUXURY. Laurence Graff's estate on the Helshoogte Pass between Stellenbosch and Franschhoek \u2014 lodges and villas with private pools, a serious art collection through the buildings, a strong spa, and a view down the valley that is the reason people book it. TWO MICHELIN KEYS. One of the two best addresses in the Winelands." },
@@ -4776,6 +4801,7 @@ const DINING = {
   "Peralada": [{ n: "Castell Peralada", s: 1 }],
   "Périgueux": [{ n: "L'Essentiel", s: 1 }],
   "Perl": [{ n: "Victor's Fine Dining by Christian Bau", s: 3 }],
+  "Pommard": [{ n: "Auprès du Clocher", s: 1 }],
   "Pernand-Vergelesses": [{ n: "Le Charlemagne", s: 1 }],
   "Perugia": [{ n: "Ada", s: 1 }],
   "Pesaro": [{ n: "Nostrano", s: 1 }],
@@ -7043,7 +7069,7 @@ const NYC_KEYS = ["new york city", "new york", "manhattan", "brooklyn", "queens"
 // discovery — one-way, so an LA trip surfaces them while each keeps its own address. (The Bay
 // Area is deliberately NOT grouped: San Francisco, Oakland, Berkeley et al. stand as separate
 // cities, per instruction.)
-const LA_METRO_KEYS = ["los angeles", "alhambra", "pasadena", "santa monica", "arcadia", "glendale", "rosemead", "bell gardens", "temple city", "monrovia", "hermosa beach", "cerritos"];
+const LA_METRO_KEYS = ["los angeles", "beverly hills", "bel air", "alhambra", "pasadena", "santa monica", "arcadia", "glendale", "rosemead", "bell gardens", "temple city", "monrovia", "hermosa beach", "cerritos"];
 // A REGION GATHERS ITS TOWNS. The Michelin and accolade tables are keyed by the town the
 // restaurant is in — Bellagio, Cernobbio, Positano, Yountville — and a destination like "Lake
 // Como" or "Napa Valley" looked itself up, found nothing, and told the client there was no
@@ -7142,7 +7168,7 @@ function dineCityKeys(city){
   // definition that matters here.
   const sib = dineSiblings(canon);
   if (sib.length) return [canon].concat(sib);
-  if (canon === "los angeles") return LA_METRO_KEYS.slice();     // greater-LA discovery (hub → members)
+  if (LA_METRO_KEYS.indexOf(canon) !== -1) return LA_METRO_KEYS.slice();   // greater LA, both ways
   const members = regionMembers()[(al || raw).toLowerCase().split(",")[0].trim()] || [];
   return [canon].concat(members.map(dnrm).filter((m) => m !== canon));
 }
@@ -7250,6 +7276,8 @@ const TOURS = {
   // St Barth's first curated Days Out. Google returns Fort Karl with no description at all, so it
   // was being dropped as unexplained — this is Tricia's line, and it now leads the list while the
   // described live results still follow beneath it.
+  // THE ESSENTIAL BURGUNDY VISIT, and the reason Beaune looks the way it does.
+  "Burgundy": [["H\u00f4tel-Dieu \u2014 Hospices de Beaune", null, "Founded in 1443 as a charitable hospital for the poor and still owning some sixty hectares of Burgundy vineyards. The multicoloured glazed-tile roof is the image of the region; inside are the great hall of the paupers' ward, the pharmacy and Rogier van der Weyden's Last Judgement. Absolutely include it.", { find: "Hospices de Beaune H\u00f4tel-Dieu" }]],
   "St Barth": [["Fort Karl", null, "A historic military fort above Gustavia, built by the Swedes in 1789.", { find: "Fort Karl Gustavia" }]],
   "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
   "Florence": [["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
@@ -7858,6 +7886,18 @@ const PLACE_REGION = {
   "ischgl": "Austria", "kitzbuhel": "Austria", "andermatt": "Switzerland", "laax": "Switzerland",
   "crans-montana": "Switzerland", "st moritz": "Switzerland", "gstaad": "Switzerland",
   "zermatt": "Switzerland", "edinburgh": "Scotland", "mexico city": "Mexico", "naples": "Italy",
+  "burgundy": "France", "umbria": "Italy", "scottish highlands": "Scotland", "cotswolds": "England",
+  // Member towns, so the region pulls their tables. Beaune, Pommard and Meursault were already
+  // labelled Burgundy; the rest were not, which is why searching the region found almost nothing.
+  "dijon": "Burgundy, France", "chagny": "Burgundy, France", "joigny": "Burgundy, France",
+  "puligny-montrachet": "Burgundy, France", "chassagne-montrachet": "Burgundy, France",
+  "pernand-vergelesses": "Burgundy, France", "levernois": "Burgundy, France",
+  "saint-jean-de-tr\u00e9zy": "Burgundy, France", "beaune": "Burgundy, France",
+  "chablis": "Burgundy, France", "vougeot": "Burgundy, France", "gevrey-chambertin": "Burgundy, France",
+  "perugia": "Umbria, Italy", "assisi": "Umbria, Italy", "orvieto": "Umbria, Italy",
+  "spoleto": "Umbria, Italy", "todi": "Umbria, Italy", "norcia": "Umbria, Italy",
+  "inverness": "Scottish Highlands, Scotland", "torridon": "Scottish Highlands, Scotland",
+  "fort william": "Scottish Highlands, Scotland", "portree": "Scottish Highlands, Scotland",
   "cyclades": "Greece", "balearics": "Spain", "corsica": "France", "canary islands": "Spain",
   "french west indies": "Caribbean", "the grenadines": "Caribbean", "cape winelands": "South Africa",
   "aeolian islands": "Italy", "sonoma county": "California",
@@ -8588,7 +8628,10 @@ const AIRPORTS = {
   "Venice": { code: "VCE", scale: "intercontinental" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
   "Porto": { code: "OPO", scale: "regional" }, "Faro": { code: "FAO", scale: "regional" },
-  "Pisa": { code: "PSA", scale: "regional" }, "French Riviera": { code: "NCE", scale: "intercontinental" }, "Nice": { code: "NCE", scale: "regional" },
+  "Pisa": { code: "PSA", scale: "regional" }, "French Riviera": { code: "NCE", scale: "intercontinental" },
+  // BURGUNDY is TGV country \u2014 Paris to Dijon is under two hours \u2014 but Lyon is the closer airport.
+  "Burgundy": { code: "LYS", scale: "regional" }, "Umbria": { code: "FCO", scale: "intercontinental" },
+  "Scottish Highlands": { code: "INV", scale: "regional" }, "Cotswolds": { code: "LHR", scale: "intercontinental" }, "Nice": { code: "NCE", scale: "regional" },
   "Marseille": { code: "MRS", scale: "regional" }, "Santorini": { code: "JTR", scale: "regional" },
   "Mykonos": { code: "JMK", scale: "regional" }, "Mallorca": { code: "PMI", scale: "regional" },
   "Geneva": { code: "GVA", scale: "regional" }, "Lyon": { code: "LYS", scale: "regional" },
@@ -8788,7 +8831,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -9015,7 +9058,8 @@ const COORDS = {
   "Amsterdam": [52.37,4.90], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
   "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26],
-  "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
+  "Burgundy": [47.02,4.84], "Umbria": [43.11,12.39], "Scottish Highlands": [57.48,-4.22],
+  "Cotswolds": [51.83,-1.75], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
   "Aeolian Islands": [38.48,14.95], "Sonoma County": [38.51,-122.80], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
@@ -9413,6 +9457,9 @@ const CITY_ALIASES = {
   // Nobody types "Napa Valley" — they type NAPA. Nobody says "Cape Cod" in New England, they say
   // THE CAPE. A destination should answer to its spoken name, not only its formal one, and an
   // alias costs nothing: no record, no data, no maintenance.
+  "the cotswolds": "Cotswolds", "the highlands": "Scottish Highlands",
+  "highlands": "Scottish Highlands", "the scottish highlands": "Scottish Highlands",
+  "bourgogne": "Burgundy", "cote d or": "Burgundy",
   "napa": "Napa Valley", "wine country": "Napa Valley", "sonoma": "Sonoma County",
   "russian river": "Sonoma County",
   "hamptons": "The Hamptons", "the hamptons": "The Hamptons", "east end": "The Hamptons",
@@ -11945,6 +11992,52 @@ const ONE_LIST = {
           handoff: "Plan this trip opens Miami \u2014 the hotels, the tables under Local Favorites, and the flights into MIA. Everything is booked by you, direct. Fair access comes from Art Basel and the galleries, and the art advisor is engaged separately and well before you travel.",
         } },
       { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2026-10-15", end: "2026-10-19", dateLabel: "Through Nov 22, 2026", nights: 4, blurb: "The Giardini and Arsenale pavilions — the art world's grandest exhibition, before it closes." },
+    ],
+    // ═══ FOOD & WINE — a new One List category, Sept 2026 ══════════════════════════════════════
+    // Opened for the Hospices de Beaune auction, which fitted none of the eighteen sporting,
+    // cultural and wild categories that existed. It gives a home to the other great culinary
+    // dates too — Alba's truffle season, Bordeaux en primeur, San Sebasti\u00e1n — as they are built.
+    "Food & Wine": [
+      { title: "The Hospices de Beaune Wine Auction", city: "Burgundy", airport: "LYS", airportName: "Lyon Saint-Exup\u00e9ry", start: "2026-11-13", end: "2026-11-17", dateLabel: "Nov 14\u201316, 2026", nights: 4, photo: "Hospices de Beaune glazed tile roof",
+        gallery: ["Beaune Burgundy vineyards autumn", "Ch\u00e2teau du Clos de Vougeot", "Burgundy wine barrels cellar"],
+        blurb: "Les Trois Glorieuses \u2014 three days in November when the whole wine world comes to Beaune. Watch the auction, or buy a barrel and spend the next two years following it.",
+        guide: {
+          cur: "\u20ac",
+          daysTitle: "Why this one is different",
+          daysIntro: "LES TROIS GLORIOUSES is the most celebrated wine weekend of the year, and the Hospices de Beaune sale at the centre of it is the most famous charity auction in wine \u2014 running since 1859, conducted now by Sotheby's, selling the newest vintage from sixty hectares of vineyards the Hospices has been given over five centuries.\n\nYOU CAN SIMPLY ATTEND, and it is a wonderful weekend. But the reason this is on the One List is that YOU CAN ALSO BUY.\n\nA barrel of Burgundy is about 288 bottles. You bid on one \u2014 or on a fraction of one with friends, a club or a company \u2014 and appoint a n\u00e9gociant-\u00e9leveur to raise the wine. It stays in Burgundy for eighteen months to two years while it matures. You come back and taste it from the barrel. You choose bottles or magnums, and the historic Hospices label is printed with YOUR name on it, or your family's, or your club's. Then the cases are shipped.\n\nSo the weekend does not end on the Monday. It ends years later at a dinner, pouring a wine whose story began with the three days you spent in Beaune. THAT is what makes it a One List experience rather than a wine trip.",
+          stayWord: "hotel",
+          stayCollection: "Burgundy",
+          stayLead: "Where to stay",
+          stayNote: "BOOK THE HOTEL BEFORE ANYTHING ELSE. Beaune has a few hundred good beds and the whole wine trade arrives at once; the weekend sells out the best part of a year ahead, and rates bear no relation to the rest of November.\n\nHOSTELLERIE DE LEVERNOIS is the primary recommendation \u2014 a Relais & Ch\u00e2teaux estate five minutes outside Beaune, full-service, with a Michelin-starred kitchen in the house. COMO LE MONTRACHET puts you in Puligny-Montrachet itself, which for a serious wine traveller is the point. DOMAINE DE RYMSKA is thirty kilometres out and the quietest of the three.",
+          ticketsTitle: "Access \u2014 and how the buying actually works",
+          ticketNote: "AUCTION SEATING IN THE HALLES DE BEAUNE IS LIMITED and arranged in advance; it is not a room you walk into. The sale is on SUNDAY 15 NOVEMBER 2026, the 166th.\n\nTO BID YOU GO THROUGH A N\u00c9GOCIANT. Private buyers do not bid directly \u2014 you appoint a n\u00e9gociant-\u00e9leveur who bids for you, then raises and bottles the wine. ALBERT BICHOT is historically one of the major Hospices buyers and runs a dedicated private-client service; JEAN-DAVID CAMUS there guides buyers through selection, bidding, \u00e9levage, bottling, labels and delivery. LUDIVINE GRIVEAU-GEMMA is the winemaker and technical director of the Hospices domaine.\n\nTASTE BEFORE YOU BID. The new vintage is shown in the days before the sale, and choosing a cuv\u00e9e without tasting it is how people end up with a barrel they did not want.\n\nA FRACTIONAL SHARE IS OFTEN THE RIGHT ANSWER. 288 bottles is a great deal of wine; a family, a group of friends or a company can take a barrel between them and split the cases.",
+          stepsTitle: "The three glorious days",
+          steps: [
+            { h: "Saturday \u2014 Ch\u00e2teau du Clos de Vougeot", b: "The Chapitre dinner of the CONFR\u00c9RIE DES CHEVALIERS DU TASTEVIN, held in the great 12th-century cellar of the Clos de Vougeot \u2014 five hundred at table, singing, and a good deal of Burgundy. ACCESS IS LIMITED and has to be arranged well in advance; it is not bought at the door." },
+            { h: "Sunday morning \u2014 the Hospices", b: "Private tastings and auction preparation. This is when you settle which cuv\u00e9e you are after and what you are prepared to pay for it, with your n\u00e9gociant beside you." },
+            { h: "Sunday afternoon \u2014 the auction", b: "The 166th sale, in the HALLES DE BEAUNE opposite the H\u00f4tel-Dieu, conducted by Sotheby's. Seating is by advance arrangement. The barrels go one by one and the room is full of people who have done this for thirty years." },
+            { h: "Sunday evening \u2014 the gala", b: "The official auction gala dinner, in the H\u00d4TEL-DIEU itself \u2014 dinner under the fifteenth-century roof, which is as close as anyone gets to dining inside the building's history." },
+            { h: "Monday \u2014 La Paul\u00e9e de Meursault", b: "One of the legendary lunches of the wine world, at the Ch\u00e2teau de Meursault. Winemakers, n\u00e9gociants and invited guests bring extraordinary bottles from their own cellars and pour them for whoever is sitting near them. BY INVITATION OR SPECIAL ARRANGEMENT \u2014 the hardest of the three days to get into, and the one people talk about afterwards." },
+            { h: "Afterwards \u2014 the part that lasts", b: "Your wine stays in Burgundy for eighteen months to two years. Come back and taste it from the barrel during \u00e9levage. Choose bottles or large formats, settle the label, and have the cases shipped when it is ready." },
+          ],
+          beyondTitle: "While you are there",
+          beyond: [
+            { name: "H\u00f4tel-Dieu \u2014 Hospices de Beaune", note: "Founded 1443, and the reason any of this exists. The glazed-tile roof, the paupers' ward, the pharmacy and Van der Weyden's Last Judgement. Go even if you have seen it." },
+            { name: "The C\u00f4te de Beaune villages", note: "Puligny-Montrachet, Chassagne-Montrachet, Meursault, Pommard, Volnay \u2014 the greatest white-wine ground on earth, and all of it within twenty minutes of Beaune." },
+            { name: "Maison Lameloise, Chagny", note: "THREE MICHELIN STARS, twenty minutes south, and one of the most important restaurants in France. Book it the day you book the hotel." },
+            { name: "The starred tables of the C\u00f4te", note: "Fourteen starred restaurants sit within the region \u2014 Table de Levernois, Le Charlemagne at Pernand-Vergelesses, Ed.Em at Chassagne-Montrachet, Aupr\u00e8s du Clocher at Pommard, and five in Dijon." },
+            { name: "Private domaine visits", note: "The weekend is when every grower in Burgundy is at home and in a good mood. Visits that are impossible in August are arranged in November \u2014 through your n\u00e9gociant or your hotel." },
+          ],
+          notes: [
+            "THE WEEKEND SELLS OUT A YEAR AHEAD. Hotel first, then auction seating, then the dinners. Working in any other order will not succeed.",
+            "MID-NOVEMBER IN BURGUNDY IS COLD, GREY AND OFTEN WET, and that is part of it \u2014 the vines are bare, the cellars are freezing and the wine is the whole point. Bring a proper coat and shoes you can stand in.",
+            "THE CHAPITRE AND LA PAUL\u00c9E ARE THE HARD ONES. The auction can be arranged; those two run on invitation and long relationships, so ask early and accept that one of them may not come off.",
+            "A BARREL IS 288 BOTTLES and a serious commitment of money and cellar space. Fractional shares exist precisely because of that, and there is nothing second-rate about taking one.",
+            "THE LABEL RULES ARE THE HOSPICES', NOT YOURS. Personalisation with a family, club or company name is allowed within their conventions \u2014 agree the wording before bottling, not after.",
+            "LYON IS THE NEAREST AIRPORT, about two hours by road. Paris is further but the TGV to Dijon takes well under two hours and Beaune is twenty minutes beyond it.",
+          ],
+          handoff: "Plan this trip opens BURGUNDY \u2014 the three hotels, the fourteen starred tables across the C\u00f4te, and flights into Lyon. Hotels and restaurants are booked by you, direct. Auction seating, the Chapitre dinner, La Paul\u00e9e and any bidding go through a n\u00e9gociant and should be started many months ahead.",
+        } },
     ],
     "Music & Opera": [
       { title: "Salzburg Festival", city: "Salzburg", airport: "SZG", airportName: "Salzburg W. A. Mozart", start: "2027-07-24", end: "2027-07-29", dateLabel: "Mid-July–Aug 2027", nights: 4, photo: "Grosses Festspielhaus Salzburg festival", gallery: ["Domplatz Salzburg cathedral square Jedermann stage", "Felsenreitschule Salzburg rock riding school", "Salzburg Altstadt Hohensalzburg fortress", "Fuschlsee lake Salzkammergut"], blurb: "Four nights, three performances, and one of Europe's great cultural traditions — Jedermann on the cathedral square, a major opera, and the Vienna Philharmonic.", guide: {
