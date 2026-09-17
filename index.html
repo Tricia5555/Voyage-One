@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M510";
+const BUILD = "M511";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8188,6 +8188,24 @@ const GATEWAY = {
   "Santa Fe": { air: "Albuquerque", note: "Santa Fe has its own field (SAF) with American and United from Dallas, Phoenix and Denver, which is the door when the connection lines up; otherwise fly to Albuquerque (ABQ) and it is an hour north on the interstate. The hotels send cars from either." },
   "Scottsdale": { air: "Phoenix", note: "Fly to Phoenix (PHX), then twenty minutes to Scottsdale. The Canyon Suites sends its house car." },
   "Banff": { air: "Calgary", note: "Fly to Calgary (YYC), then about 1 hr 30 into the mountains." },
+  // ══ REGION DESTINATIONS NEED A GATEWAY, NOT JUST AN AIRPORT ════════════════════════════════
+  // AIRPORTS says which field to search; GATEWAY says which one the client actually flies into.
+  // Without a gateway the app falls back to a live nearest-airport lookup, and for Burgundy that
+  // found DIJON or DOLE — forty minutes from Beaune and served by almost nothing — while the page
+  // promised Lyon. A curated gateway makes the page and the flight agree.
+  "Burgundy": { air: "Lyon", note: "Fly into LYON (LYS), then about two hours north to Beaune. Dijon and Dole have small fields much closer, and almost no useful service \u2014 do not be tempted. From Paris the TGV to Dijon takes under two hours and Beaune is twenty minutes beyond it, which for many clients beats flying." },
+  "Umbria": { air: "Rome", note: "Fly into ROME (FCO) and drive up \u2014 about two hours to Perugia. Perugia's own field (PEG) is tiny and seasonal. Florence is a similar distance from northern Umbria." },
+  "Scottish Highlands": { air: "Inverness", note: "INVERNESS (INV) is the Highland airport and connects through London, Edinburgh or Amsterdam. Edinburgh is three hours south by road if the fares are better." },
+  "Cotswolds": { air: "London Heathrow", note: "HEATHROW (LHR) is the practical gateway, about ninety minutes by road. Birmingham is closer to the northern Cotswolds if the routing suits." },
+  "Cyclades": { air: "Athens", note: "Everything routes through ATHENS (ATH). The islands have small seasonal fields and the ferries are slow \u2014 book the Athens leg on the same ticket." },
+  "Balearics": { air: "Palma", note: "PALMA (PMI) is the main gateway; Ibiza (IBZ) and Ma\u00f3 (MAH) have their own fields with heavy summer service from across Europe." },
+  "Canary Islands": { air: "Tenerife South", note: "TENERIFE SOUTH (TFS) for Tenerife, Las Palmas (LPA) for Gran Canaria, Arrecife (ACE) for Lanzarote. All take direct European flights year-round; intercontinental connects at Madrid." },
+  "Cape Winelands": { air: "Cape Town", note: "CAPE TOWN (CPT), then about forty minutes to Stellenbosch or an hour to Franschhoek. There is no closer airport and no reason to want one." },
+  "French West Indies": { air: "St Maarten or Pointe-\u00e0-Pitre", note: "St Barth connects through ST MAARTEN (SXM); Guadeloupe and Martinique have their own international fields with direct service from Paris." },
+  "The Grenadines": { air: "Barbados or St Vincent", note: "Most routings connect at BARBADOS (BGI) or St Vincent (SVD), then a small aircraft or a boat. Canouan and Mustique have their own strips." },
+  "Aeolian Islands": { air: "Catania", note: "CATANIA (CTA), then about two hours to Milazzo and a hydrofoil. Crossings are weather-dependent \u2014 do not connect tightly to a flight." },
+  "Sonoma County": { air: "San Francisco", note: "SAN FRANCISCO (SFO) and about ninety minutes north. Santa Rosa (STS) is much closer with limited West Coast service." },
+  "French Riviera": { air: "Nice", note: "NICE (NCE) serves the whole coast \u2014 Monaco is thirty minutes east, Cannes thirty minutes west, and the Riviera villages in between." },
   "St Andrews": { air: "Edinburgh", note: "St Andrews has no airport. Fly to EDINBURGH (EDI) and drive about an hour and a half up the Fife coast, or take the train to Leuchars and a ten-minute taxi. Glasgow is a similar distance from the west." },
   "Zermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then rail — Zermatt is car-free, so the train is the only way in." },
   "Chamonix": { air: "Geneva", note: "Fly to Geneva (GVA), then about an hour by road." },
