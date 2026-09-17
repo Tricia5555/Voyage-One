@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M515";
+const BUILD = "M519";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11468,22 +11468,22 @@ const ONE_LIST = {
           { label: "No.1 Court Debenture (per person, per day)", price: "≈ £850–£2,250 est." },
         ],
           bookOrder: [
-            { what: "Debentures, or the ballot", when: "Twelve to eighteen months ahead", why: "This is the only genuinely scarce thing and everything else waits on it. Debenture seats for Centre and No.1 Court are traded all year and the good ones go early; the public ballot opens in the autumn for the following summer and is a lottery, not a purchase. UNTIL YOU HOLD SEATS YOU DO NOT HAVE A TRIP." },
+            { what: "Your Debenture seats", when: "Twelve to eighteen months ahead", why: "The only genuinely scarce thing here, and everything else waits on it. Debenture days for Centre and No.1 Court are traded all year on the official market and the best ones go early. YOU BUY THEM DIRECT FROM THE BROKERS who trade them — we tell you which, and what a fair price looks like. Worth knowing that the public ballot is a different route altogether: a lottery, and its seats carry no access to the lounges, restaurants or gardens, which is most of what makes the day." },
             { what: "The hotel", when: "As soon as you have tickets, ten to twelve months out", why: "London has beds, but the ones near the All England Club do not, and the fortnight prices like a different city. Book the moment the seats are confirmed." },
             { what: "The restaurants", when: "Three to six months out", why: "London's best tables release at different intervals \u2014 some ninety days, some a month. Set reminders rather than trying all at once." },
             { what: "Flights", when: "About eleven months out, when airline schedules open", why: "LAST, and deliberately. Heathrow from anywhere is not the constraint, and schedules for the following summer only load around eleven months ahead. Nothing is lost by waiting." },
           ],
         ticketNote: "Estimates, per person, in pounds — Debentures are sold in pairs, with larger groups available at a premium. Every Debenture seat is a prime position on Centre or No.1 Court, valid all day and with access to most of the outside courts, and it includes the exclusive Debenture Holders' Lounge — a choice of excellent bars and restaurants overlooking the grounds. We confirm the exact cost before anything is committed.",
         beyond: [
-          { name: "A table worth the trip", note: "We hold the seats that don't come easily — a three-star tasting menu, or the room everyone is talking about this season." },
+          { name: "A table worth the trip", note: "The tables we point you at are award-winning without exception — stars, a Bib, or a place on one of the serious lists. Open the map on any of them and you see exactly where it sits in relation to the courts and to your hotel, which in London in July is the whole question." },
           { name: "The season in full swing", note: "London in July: a night at the Opera or the Proms, the great galleries, Chelsea and Mayfair at their best." },
-          { name: "Privately, behind the ropes", note: "An after-hours view of the Crown Jewels, a curator-led morning, a private gallery hour — arranged for you alone." },
+          { name: "The Crown Jewels, before the crowds", note: "They sit under armed guard in the JEWEL HOUSE at the Tower of London — 23,578 stones, kept there since 1661 and still worn at a coronation and the State Opening of Parliament. In July the queue is the enemy, and there is a way round it: Historic Royal Palaces sells a SPECIAL OPENING CEREMONY ticket that takes you in before the gates open, to watch the seven-hundred-year-old ceremony and stand first in line as the Jewel House opens. Advance booking only, and worth a reminder in the diary. Book it direct.", link: "https://www.hrp.org.uk/tower-of-london/visit/tickets-and-prices/", linkLabel: "Historic Royal Palaces" },
           { name: "Out of town, if you wish", note: "An easy day to Oxford, Blenheim or Windsor by car — and back to London for dinner." },
         ],
         notes: [
-          "Jet-lag, solved: from New York or Boston, take an early-evening flight and you land in London first thing — a full day to settle before any tennis. If you sleep poorly on planes whatever the seat, this is the single best thing you can do.",
+          "JET LAG, THE WAY WE DO IT: from New York or Boston take the 8am departure rather than the overnight. You land around dinner time, eat something light, and go to bed at a normal London hour — and you should wake close to right. No red-eye will give you that, whatever the seat turns into.",
           "Cars, not cabs, on the big days — and leave early; the roads around the grounds bottleneck badly.",
-          "No strict dress code on the grounds, but the Debenture lounges lean smart — a jacket is welcome.",
+          "DRESS: there is no enforced code on the grounds, but look around and almost every woman is in a dress and almost every gentleman in a jacket. In the members’ areas the gentlemen wear ties, and it lifts the whole occasion. Dress for the room you hope to be invited into.",
           "The ritual: strawberries and cream with a glass of English sparkling, taken at the top of the hill.",
         ],
       } },
@@ -13153,12 +13153,20 @@ function OneList({ onPick, onBack, onHome }) {
     return (<div style={shell}>
       {back(() => setCat(null), "back to categories")}
       {head(cat, "What kind?")}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 16, maxWidth: 780, margin: "0 auto" }}>
-        {types.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={{ ...rowTile, minHeight: 128, justifyContent: "space-between" }}>
-          <span style={{ fontFamily: font.display, fontSize: 22, color: t.paper, lineHeight: 1.14, overflowWrap: "anywhere" }}>{ty}</span>
-          <span style={{ fontSize: 13, color: t.brassLight }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
-          <span style={cArw}>See them →</span>
-        </button>))}
+      {/* THE ROW PATTERN WAS BEING COMPUTED AND THROWN AWAY. This was an auto-fit grid, which packs
+          as many columns as will fit — five categories became four across and one orphan beneath.
+          Now the rows are honoured, and every tile is sized to the WIDEST row in the pattern, so a
+          short row is centred at the same width rather than stretching to fill. Arts & Culture
+          reads three across and two centred under them. */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 780, margin: "0 auto" }}>
+        {rows.map((row, ri) => { const cols = Math.max(...rows.map((r) => r.length));
+          return (<div key={ri} style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+            {row.map((ty) => (<button key={ty} onClick={() => setType(ty)} style={{ ...rowTile, minHeight: 128, justifyContent: "space-between", flex: `0 1 calc((100% - ${(cols - 1) * 16}px) / ${cols})`, minWidth: 150 }}>
+              <span style={{ fontFamily: font.display, fontSize: 22, color: t.paper, lineHeight: 1.14, overflowWrap: "anywhere" }}>{ty}</span>
+              <span style={{ fontSize: 13, color: t.brassLight }}>{(ONE_LIST[cat][ty] || []).length} to choose from</span>
+              <span style={cArw}>See them →</span>
+            </button>))}
+          </div>); })}
       </div>
     </div>);
   }
