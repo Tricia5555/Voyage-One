@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M533";
+const BUILD = "M535";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10174,7 +10174,7 @@ function arrivalChain(d, from) {
   const land = parseHM(f.arrive);
   if (land == null) return null;
   const city = d.city || "";
-  const air = f.arrAirport;
+  const air = f.arrAirport || pickupPoint(d);
   const drive = driveEstimate(air, city) || driveEstimate(bareCity(air), bareCity(city));
   const driveMins = drive && drive.mins ? drive.mins : 0;
   const sameZone = zoneOf(from) && zoneOf(city) && zoneOf(from) === zoneOf(city);
@@ -14773,8 +14773,21 @@ function airportCity(code) {
 function pickupPoint(d) {
   const f = d && d.pick && d.pick.flight;
   if (f && f.arrAirport) { const c = airportCity(f.arrAirport); if (c) return c; }
+  // THE TRAVELLER MAY HAVE CHOSEN THE AIRPORT THEMSELVES. pick.hub is exactly that \u2014 fly into
+  // Milan and drive down to Florence, because there is no useful direct service. That choice was
+  // being ignored here, so the car was still offered at the destination. It is the arrival, and
+  // the arrival is where you collect a car.
+  const pk = (d && d.pick) || {};
+  if (pk.hub) return bareCity(pk.hub);
+  if (pk.gatewayPick) return bareCity(pk.gatewayPick);
   const g = gatewayFor(d && d.city);
   if (g && g.air && !sameCity(g.air, d.city)) return g.air;
+  // NO FLIGHT CHOSEN YET, AND NO GATEWAY \u2014 but the destination still borrows an airport, and that
+  // is where a car is collected. Sciacca's field is PMO, which is Palermo: the town has no airport
+  // of its own and nobody hires a car in Sciacca. Where a place HAS its own airport this resolves
+  // back to itself and nothing changes.
+  const own = d && d.city ? lookup(AIRPORTS, d.city) : null;
+  if (own && own.code) { const c = airportCity(own.code); if (c && !sameCity(c, d.city)) return c; }
   return (d && d.city) || "";
 }
 function CarBooking({ car: carIn, upd, defFrom, defTo }) {
