@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M536";
+const BUILD = "M541";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9817,6 +9817,11 @@ function groundOption(mode, from, to) {
 }
 function exitPoint(d) {
   if (!d) return "";
+  // THE TRAVELLER DECIDES WHERE THEY LEAVE FROM. Everything below is a good guess; none of it is
+  // a rule. Fly into Lisbon, work up through the Douro, drop the car in Porto and fly out of
+  // Porto \u2014 no amount of inference gets there reliably, and being locked into the arrival city is
+  // the one outcome that is always wrong. So an explicit choice, when made, beats every guess.
+  if (d.exitFrom && String(d.exitFrom).trim()) return String(d.exitFrom).trim();
   // A CAR DROPPED SOMEWHERE ELSE MOVES THE WHOLE TRIP. Pick up in Milan, drop in Florence, and the
   // next flight leaves Florence; drive on to Rome and it leaves Rome. Recorded, so it is honoured.
   const car = d.pick && d.pick.car;
@@ -14790,6 +14795,37 @@ function pickupPoint(d) {
   if (own && own.code) { const c = airportCity(own.code); if (c && !sameCity(c, d.city)) return c; }
   return (d && d.city) || "";
 }
+// Where the next flight leaves from. Suggestions are drawn from the trip itself \u2014 the city, its
+// gateway, where the car is being dropped, the last stop on a roam \u2014 and anything else can be
+// typed. One tap clears it and the app goes back to working it out.
+function ExitFrom({ d, setDest, suggested }) {
+  const [open, setOpen] = useState(false);
+  const cur = d.exitFrom || "";
+  const opts = [];
+  const push = (x) => { const v = String(x || "").trim(); if (v && !opts.some((o) => sameCity(o, v))) opts.push(v); };
+  push(d.city);
+  const g = gatewayFor(d.city); if (g && g.air) push(g.air);
+  const car = d.pick && d.pick.car; if (car && car.to) push(car.to);
+  ((d.pick && d.pick.stops) || []).forEach((st) => push(st.name));
+  if (d.pick && d.pick.baseTown) push(d.pick.baseTown);
+  return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+      <span style={{ fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Flying out from</span>
+      <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>{open ? "Done" : "Change"}</button>
+    </div>
+    <div style={{ fontSize: 15, color: t.ink, marginTop: 4 }}>{bareCity(cur || suggested || d.city)}{!cur ? <span style={{ fontSize: 12.5, color: t.inkFaint }}> · worked out from your trip</span> : null}</div>
+    {open ? (<div style={{ marginTop: 9 }}>
+      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 8 }}>
+        {opts.map((o) => { const on = cur && sameCity(cur, o); return (
+          <button key={o} onClick={() => setDest({ exitFrom: on ? "" : o })}
+            style={{ background: on ? t.pine : "none", color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "6px 13px", fontSize: 12.5, cursor: "pointer" }}>{bareCity(o)}</button>); })}
+        {cur ? <button onClick={() => setDest({ exitFrom: "" })} style={{ background: "none", color: t.inkSoft, border: `1px solid ${t.line}`, borderRadius: 999, padding: "6px 13px", fontSize: 12.5, cursor: "pointer" }}>Work it out for me</button> : null}
+      </div>
+      <input value={cur} onChange={(e) => setDest({ exitFrom: e.target.value })} placeholder="Or type another city"
+        style={{ fontSize: 13.5, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 9, background: t.white, color: t.ink, width: "100%", boxSizing: "border-box" }} />
+    </div>) : null}
+  </div>);
+}
 function CarBooking({ car: carIn, upd, defFrom, defTo }) {
   const car = carIn || {};
   const set = (patch) => upd({ car: { ...car, ...patch } });
@@ -15878,7 +15914,6 @@ function ExploreSection({ d, i, p, from, legSched }) {
         {transferOptions(gwNote.air, baseTown).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>}
       {baseTown && <GettingAroundPanel city={baseTown} />}
-      {baseTown && d.arriveBy !== "Self-drive" && <RentalPanel city={pickupPoint(d)} destination={baseTown} compact car={d.pick && d.pick.car} upd={upd} />}
       {baseTown && <Panel icon={Utensils} title={`Dining in ${baseTown}`}><DinePicker city={baseTown} pick={pick} upd={upd} nights={legSched ? nightsIn(legSched) : []} /></Panel>}
       {baseTown && sportsFor(baseTown).length > 0 && <Panel icon={Trophy} title={`Sport in ${baseTown}`}><ListPicker city={baseTown} rows={sportsFor(baseTown)} chosen={pick.sports || []} onToggle={(name, price, sel) => upd({ sports: sel ? (pick.sports || []).filter((x) => x.name !== name) : [...(pick.sports || []), { name, price, date: "" }] })} nights={legSched ? daysIn(legSched) : []} label="Which day?" onDate={(name, dt) => upd({ sports: (pick.sports || []).map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       {baseTown && outTrips.length > 0 && (<Panel icon={Compass} title={`Days out from ${baseTown}`}>
@@ -15895,6 +15930,13 @@ function ExploreSection({ d, i, p, from, legSched }) {
         })}
       </Panel>)}
     </div>)}
+
+      {/* A CAR IS MOST NEEDED WHERE THERE IS NO BASE. Both of these were gated on baseTown, which
+          only exists when the traveller picks ONE hotel and takes day trips. Choose "move town to
+          town" \u2014 the mode a car is actually for \u2014 and the rental panel and the departure-city
+          control both vanished. They belong to the leg, not to the base. */}
+      {region && d.arriveBy !== "Self-drive" && <RentalPanel city={pickupPoint(d)} destination={baseTown || region} compact car={d.pick && d.pick.car} upd={upd} />}
+      {region && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
 
     {mode === "roam" && suggestions.length === 0 && (<div style={{ marginTop: 18, background: t.mist, borderRadius: 14, padding: "18px" }}>
       <div style={{ fontFamily: font.display, fontSize: 20, marginBottom: 4 }}>Which region are you roaming?</div>
@@ -16331,6 +16373,7 @@ function CitySection({ d, i, p, from, legSched }) {
     })()}
     {d.city && <GettingAroundPanel city={d.city} />}
       {d.arriveBy !== "Self-drive" && d.city && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
+      {d.city && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
