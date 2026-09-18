@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M526";
+const BUILD = "M533";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9817,6 +9817,10 @@ function groundOption(mode, from, to) {
 }
 function exitPoint(d) {
   if (!d) return "";
+  // A CAR DROPPED SOMEWHERE ELSE MOVES THE WHOLE TRIP. Pick up in Milan, drop in Florence, and the
+  // next flight leaves Florence; drive on to Rome and it leaves Rome. Recorded, so it is honoured.
+  const car = d.pick && d.pick.car;
+  if (car && car.booked && car.to && String(car.to).trim()) return String(car.to).trim();
   if (d.mode === "open") {
     const gw = gatewayFor(d.city);
     if (gw) return gw.air;
@@ -14735,7 +14739,69 @@ function lodgeDrivesYou(city) {
   const key = dnrm(resolvePlace(city) || bareCity(city));
   return LODGE_DRIVES_YOU.concat(NO_HIRE_CAR).some((x) => dnrm(x) === key);
 }
-function RentalPanel({ city, destination, compact }) {
+// ══ DID YOU ACTUALLY TAKE THE CAR, AND WHERE DID YOU LEAVE IT ════════════════════════════════
+// The app offered a car and then forgot about it. That is not a cosmetic gap: WHERE YOU DROP THE
+// CAR DECIDES WHERE THE NEXT FLIGHT LEAVES FROM. Pick up in Milan and drop in Florence and you fly
+// out of Florence; drive on to Rome instead and you fly out of Rome, and the whole shape of the
+// trip changes. So the booking is recorded \u2014 taken or not, from where, to where \u2014 and the drop-off
+// feeds exitPoint, which is what the next leg is built from.
+// WHERE YOU COLLECT A CAR IS WHERE YOU LAND, NOT WHERE YOU ARE GOING. The rental panel was being
+// shown for the destination \u2014 offering a car in Sciacca when the flight lands at Palermo, and in
+// Florence when it lands at Malpensa. Nobody hires a car in the town they drove to. So the pick-up
+// point is resolved from the arrival airport of the chosen flight, then the gateway, and only then
+// the destination itself. The DESTINATION still governs the advice \u2014 whether a car is a liability
+// once you are there, and what kind of vehicle the roads want.
+// EIGHTEEN CODES SERVE MORE THAN ONE DESTINATION, because towns without an airfield borrow one:
+// PMO is Palermo, Agrigento and Sciacca; CTA is Catania and six Sicilian and Aeolian places.
+// Reversing the table naively returns whichever came first, which is how the pick-up point became
+// Agrigento. The airport's OWN city is named here, and everything else falls out of the table.
+const AIRPORT_PRIMARY = {
+  PMO: "Palermo", CTA: "Catania", NAP: "Naples", FCO: "Rome", LHR: "London", LAX: "Los Angeles",
+  SFO: "San Francisco", NCE: "Nice", LYS: "Lyon", ATH: "Athens", IBZ: "Ibiza", CTS: "Sapporo",
+  KGL: "Kigali", KRN: "Kiruna", AJA: "Ajaccio", FSC: "Figari", FTE: "El Calafate", RTB: "Roat\u00e1n",
+  JFK: "New York City", EWR: "New York City", LGA: "New York City",
+};
+const AIRPORT_CITY = (() => {
+  const m = { ...AIRPORT_PRIMARY };
+  Object.keys(AIRPORTS).forEach((c) => { const k = AIRPORTS[c] && AIRPORTS[c].code; if (k && !m[k]) m[k] = c; });
+  return m;
+})();
+function airportCity(code) {
+  const c = String(code || "").trim().toUpperCase();
+  return AIRPORT_CITY[c] || null;
+}
+function pickupPoint(d) {
+  const f = d && d.pick && d.pick.flight;
+  if (f && f.arrAirport) { const c = airportCity(f.arrAirport); if (c) return c; }
+  const g = gatewayFor(d && d.city);
+  if (g && g.air && !sameCity(g.air, d.city)) return g.air;
+  return (d && d.city) || "";
+}
+function CarBooking({ car: carIn, upd, defFrom, defTo }) {
+  const car = carIn || {};
+  const set = (patch) => upd({ car: { ...car, ...patch } });
+  const from = car.from != null ? car.from : (defFrom || "");
+  const to = car.to != null ? car.to : (defTo || "");
+  const fld = { fontSize: 13.5, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 9, background: t.white, color: t.ink, width: "100%", boxSizing: "border-box" };
+  return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+    <div style={{ fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Did you book a car?</div>
+    <div style={{ display: "flex", gap: 8, marginBottom: car.booked ? 11 : 0 }}>
+      {["Booked", "Not yet"].map((lab) => { const on = lab === "Booked" ? !!car.booked : !car.booked;
+        return (<button key={lab} onClick={() => set({ booked: lab === "Booked" })}
+          style={{ background: on ? t.pine : "none", color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "6px 14px", fontSize: 12.5, cursor: "pointer" }}>{lab}</button>); })}
+    </div>
+    {car.booked ? (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+      <label style={{ fontSize: 12, color: t.inkSoft }}>Picked up<input style={fld} value={from} onChange={(e) => set({ from: e.target.value })} placeholder={defFrom || "Airport or city"} /></label>
+      <label style={{ fontSize: 12, color: t.inkSoft }}>Dropping off<input style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City"} /></label>
+      <label style={{ fontSize: 12, color: t.inkSoft }}>Company<input style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
+      <label style={{ fontSize: 12, color: t.inkSoft }}>Reference<input style={fld} value={car.ref || ""} onChange={(e) => set({ ref: e.target.value })} placeholder="Confirmation" /></label>
+      {to && !sameCity(to, defTo || "") ? <div style={{ gridColumn: "1 / -1", fontSize: 12.5, color: t.pine, lineHeight: 1.5 }}>
+        Noted — you are leaving the car in <strong>{bareCity(to)}</strong>, so the next leg is built from there.
+      </div> : null}
+    </div>) : null}
+  </div>);
+}
+function RentalPanel({ city, destination, compact, car, upd }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
   const [want, setWant] = useState(!compact);
   const [open, setOpen] = useState(false);
@@ -14778,6 +14844,7 @@ function RentalPanel({ city, destination, compact }) {
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 10, lineHeight: 1.5 }}>
       Chosen on service, coverage and premium availability — both vary by destination. You book direct with the company; Voyage One never holds the reservation or the payment.
     </div>
+    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} /> : null}
   </Panel>);
 }
 
@@ -14874,7 +14941,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       </a>
     ) : null}
   </Panel>
-  {arriveBy === "Self-drive" && <RentalPanel city={from} destination={to} />}
+  {arriveBy === "Self-drive" && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} />}
   </>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
@@ -16250,7 +16317,7 @@ function CitySection({ d, i, p, from, legSched }) {
       </div>);
     })()}
     {d.city && <GettingAroundPanel city={d.city} />}
-      {d.arriveBy !== "Self-drive" && d.city && <RentalPanel city={d.city} destination={d.city} compact />}
+      {d.arriveBy !== "Self-drive" && d.city && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
@@ -17210,11 +17277,11 @@ function ItineraryView(p) {
       rows.push(<ItinLine key="ac" label={`${bareCity(ch.air)} \u2192 ${bareCity(ch.city)}`}
         sub={`${bits.join(" \u00b7 ")} \u2014 in ${bareCity(ch.city)} about ${hm(ch.arrive)}${ch.nextDay ? " the next day" : ""}`} />);
       if (ch.desk) rows.push(<div key="acr" style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, margin: "2px 0 4px 2px" }}>
-        Most of the big companies now let you complete check-in online and walk straight to the car \u2014 Sixt does, and the others are worth asking. Do it before you fly and the half hour above largely disappears.
+        Most of the big companies now let you complete check-in online and walk straight to the car — Sixt does, and the others are worth asking. Do it before you fly and the half hour above largely disappears.
       </div>);
       const stops = ch.driveMins >= 90 ? onTheWay(ch.air, ch.city) : [];
       if (stops.length) rows.push(<div key="acs" style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, margin: "2px 0 4px 2px" }}>
-        On the road: <strong style={{ color: t.ink }}>{stops.map((x) => x.name).join(", ")}</strong> \u2014 each has award-winning tables if you want to break the drive.
+        On the road: <strong style={{ color: t.ink }}>{stops.map((x) => x.name).join(", ")}</strong> — each has award-winning tables if you want to break the drive.
       </div>);
       return null; })()}
     if (d.mode === "open") {
