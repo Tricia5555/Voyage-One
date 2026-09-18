@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M522";
+const BUILD = "M526";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9126,6 +9126,18 @@ const COORDS = {
   "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26],
   "Burgundy": [47.02,4.84], "Umbria": [43.11,12.39], "Scottish Highlands": [57.48,-4.22],
+  // ROUTE TOWNS. Not destinations we sell — places with award-winning tables that sit on the roads
+  // between places we do sell, so a long transfer can suggest a stop. Coordinates only; adding one
+  // here does not put a town in the picker.
+  "Bologna": [44.49,11.34], "Modena": [44.65,10.93], "Parma": [44.80,10.33], "Piacenza": [45.05,9.69],
+  "Reggio Emilia": [44.70,10.63], "Ferrara": [44.84,11.62], "Rimini": [44.06,12.57], "Mantua": [45.16,10.79],
+  "Verona": [45.44,10.99], "Padua": [45.41,11.88], "Vicenza": [45.55,11.55], "Brescia": [45.54,10.22],
+  "Bergamo": [45.70,9.67], "Cremona": [45.13,10.02], "Genoa": [44.41,8.93], "Turin": [45.07,7.69],
+  "Lucca": [43.84,10.50], "Arezzo": [43.46,11.88], "Terni": [42.56,12.65], "Salerno": [40.68,14.77],
+  "Lyon": [45.76,4.84], "Dijon": [47.32,5.04], "Avignon": [43.95,4.81], "Aix-en-Provence": [43.53,5.45],
+  "Montpellier": [43.61,3.88], "Toulouse": [43.60,1.44], "Tours": [47.39,0.69], "Orl\u00e9ans": [47.90,1.90],
+  "Reims": [49.26,4.03], "Strasbourg": [48.57,7.75], "Rouen": [49.44,1.10], "Nantes": [47.22,-1.55],
+  "Rennes": [48.11,-1.68], "Clermont-Ferrand": [45.78,3.08], "Valence": [44.93,4.89],
   "Cotswolds": [51.83,-1.75], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
@@ -10108,6 +10120,67 @@ function legNights(d) {
   return d.nights;
 }
 // Turns the trip into real dates. Everything bookable hangs off this.
+// ══ WHEN YOU ACTUALLY ARRIVE ═════════════════════════════════════════════════════════════════
+// The itinerary took the flight's landing time and printed it against the DESTINATION. Land at
+// Milan at noon and it said you were in Florence at noon — three and a half hours of Italy
+// unaccounted for. A landing is not an arrival. What sits between them is the same everywhere:
+// getting off the aircraft, immigration, bags, customs, then whatever takes you to the city.
+//
+// AIRPORT_CLEAR is deliberately generous. Ninety minutes for an international arrival is not
+// pessimism, it is a Tuesday at Malpensa with two wide-bodies on stand; a domestic hop is
+// quicker. A rental desk adds half an hour that nobody ever remembers.
+const CLEAR_INTL_MIN = 90, CLEAR_DOM_MIN = 45, RENTAL_DESK_MIN = 30;
+function parseHM(t) {
+  const m = String(t || "").match(/(\d{1,2}):(\d{2})/);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+function hm(mins) {
+  const d = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(d / 60), mm = d % 60;
+  return `${h}:${String(mm).padStart(2, "0")}`;
+}
+// The honest chain from wheels-down to the hotel door. Returns null when there is nothing to
+// add \u2014 a flight straight into the city you are staying in needs no explanation.
+// ON THE WAY. A town counts if going through it adds less than a fifth to the journey — that is
+// what "on the road to" means — and if it has tables worth stopping for. Straight-line, like every
+// other distance test here, so it is conservative in mountains, which is the right direction.
+const DETOUR_MAX = 1.18;
+function onTheWay(a, b) {
+  const ca = coordsFor(a), cb = coordsFor(b);
+  if (!ca || !cb) return [];
+  const D = distanceKm(a, b);
+  if (!D || D < 120) return [];                       // a short hop needs no stop
+  const out = [];
+  Object.keys(DINING).forEach((town) => {
+    const t = bareCity(town);
+    if (dnrm(t) === dnrm(bareCity(a)) || dnrm(t) === dnrm(bareCity(b))) return;
+    if (!coordsFor(t)) return;
+    if (islandOf(t) !== islandOf(a) || islandOf(t) !== islandOf(b)) return;
+    const d1 = distanceKm(a, t), d2 = distanceKm(t, b);
+    if (d1 == null || d2 == null) return;
+    const ratio = (d1 + d2) / D;
+    if (ratio <= DETOUR_MAX) out.push({ name: t, ratio, along: d1 });
+  });
+  return out.sort((x, y) => x.along - y.along).slice(0, 3);
+}
+function arrivalChain(d, from) {
+  const pk = (d && d.pick) || {};
+  const f = pk.flight;
+  if (!f || !f.arrive || !f.arrAirport) return null;
+  const land = parseHM(f.arrive);
+  if (land == null) return null;
+  const city = d.city || "";
+  const air = f.arrAirport;
+  const drive = driveEstimate(air, city) || driveEstimate(bareCity(air), bareCity(city));
+  const driveMins = drive && drive.mins ? drive.mins : 0;
+  const sameZone = zoneOf(from) && zoneOf(city) && zoneOf(from) === zoneOf(city);
+  const clear = sameZone ? CLEAR_DOM_MIN : CLEAR_INTL_MIN;
+  const desk = /self-drive|rental/i.test(d.arriveBy || "") ? RENTAL_DESK_MIN : 0;
+  if (!driveMins && !desk) return null;                       // nothing worth spelling out
+  const total = clear + desk + driveMins;
+  return { land, clear, desk, driveMins, total, arrive: land + total, km: drive && drive.km, air, city,
+           nextDay: land + total >= 1440 };
+}
 function schedule(p) {
   const out = { legs: [], valid: false, nights: 0, allowed: null, end: null };
   if (!p.dates || !p.dates.depart) return out;
@@ -17129,6 +17202,21 @@ function ItineraryView(p) {
     const rows = [];
     if (d.arriveBy === "Flight" && pk.flight) rows.push(<ItinLine key="f" label={`Fly · ${pk.flight.airline || "airline TBC"}${pk.flight.flightNo ? " " + pk.flight.flightNo : ""}`} sub={`${pk.flight.cabin || "cabin TBC"}${pk.flight.depart ? " · departs " + pk.flight.depart : ""}${pk.flight.arrive ? " → " + pk.flight.arrive : ""}${pk.flight.dayOffset > 0 ? ` (+${pk.flight.dayOffset}d)` : ""}${pk.flight.stops === 0 ? " · nonstop" : pk.flight.stops > 0 ? ` · ${pk.flight.stops} stop` : ""}${pk.flight.totalMin ? ` · ${Math.floor(pk.flight.totalMin / 60)}h ${pk.flight.totalMin % 60}m total` : ""}`} price={pk.flight.price != null ? pk.flight.price : null} />);
     else if (pk.ground) rows.push(<ItinLine key="g" label={`${d.arriveBy} from ${from || "start"}`} price={pk.ground.price} />);
+    // THE GAP BETWEEN LANDING AND ARRIVING, spelled out rather than skipped.
+    {(() => { const ch = arrivalChain(d, from); if (!ch) return null;
+      const bits = [`land ${hm(ch.land)}`, `airport ${minsLabel(ch.clear)}`];
+      if (ch.desk) bits.push(`rental desk ${minsLabel(ch.desk)}`);
+      if (ch.driveMins) bits.push(`${minsLabel(ch.driveMins)} by road${ch.km ? ` \u00b7 ${ch.km} km` : ""}`);
+      rows.push(<ItinLine key="ac" label={`${bareCity(ch.air)} \u2192 ${bareCity(ch.city)}`}
+        sub={`${bits.join(" \u00b7 ")} \u2014 in ${bareCity(ch.city)} about ${hm(ch.arrive)}${ch.nextDay ? " the next day" : ""}`} />);
+      if (ch.desk) rows.push(<div key="acr" style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, margin: "2px 0 4px 2px" }}>
+        Most of the big companies now let you complete check-in online and walk straight to the car \u2014 Sixt does, and the others are worth asking. Do it before you fly and the half hour above largely disappears.
+      </div>);
+      const stops = ch.driveMins >= 90 ? onTheWay(ch.air, ch.city) : [];
+      if (stops.length) rows.push(<div key="acs" style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, margin: "2px 0 4px 2px" }}>
+        On the road: <strong style={{ color: t.ink }}>{stops.map((x) => x.name).join(", ")}</strong> \u2014 each has award-winning tables if you want to break the drive.
+      </div>);
+      return null; })()}
     if (d.mode === "open") {
       if (pk.exploreMode === "base") {
         if (pk.baseTown) rows.push(<div key="bt" style={{ fontSize: 12, color: t.brass, marginBottom: 2 }}>Based in {pk.baseTown} — one hotel, days out</div>);
