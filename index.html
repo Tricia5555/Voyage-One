@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M521";
+const BUILD = "M522";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12850,7 +12850,18 @@ function OneList({ onPick, onBack, onHome }) {
       ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label, evening: /night/i.test(multiSel[date].tier || "") }))
       : tierMode
       ? (ballTier ? [{ date: aecPick.date, tierName: ballTier.match || ballTier.tier, label: aecPick.label + " · " + ballTier.tier, evening: !/lunch|beach club|day bed|daytime/i.test((ballTier.tier || "") + " " + (ballTier.label || "")) }] : [])
-      : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)) : []);
+      : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)).map((d) => {
+          // THE COURT TRAVELS WITH THE DAY. Picking Centre for Saturday and No.1 for Sunday was
+          // only true on this page; the trip itself still carried the raw label with both prices
+          // on it. Rewrite the label to the court actually chosen so the itinerary, the booking
+          // row and the summary all say the same thing.
+          const c = dayCourt[d.date];
+          if (!c) return d;
+          const opts = courtOptions(d.label) || [];
+          const hit = opts.find((o) => o.name === c);
+          const head = d.label.split("\u00b7").slice(0, 2).join("\u00b7").trim();
+          return { ...d, court: c, label: head + " \u00b7 " + c + (hit ? " " + hit.price : "") };
+        }) : []);
     // Most experiences need the pick — the Venice ball tier and the Wimbledon match days set
     // the dates. Where the pick is just the client's own shortlist, gating the button behind it
     // stranded them on the page. picksOptional says so and the button is live on arrival.
