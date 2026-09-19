@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M567";
+const BUILD = "M568";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8899,6 +8899,27 @@ const PARADIGM_INCLUDES = ["Personal airport greeter", "Fast Track where availab
     note: "Preferred provider. A personal greeter meets you, takes you through passport control and security by the fast lane where the airport allows it, handles the bags, and walks you to your driver, the lounge or the gate. Trustpilot 4.5 from 83 reviews, 94% of them five stars. Book direct.",
     includes: PARADIGM_INCLUDES };
 });
+// ITALY — Paradigm again, Tricia's preferred Italian provider. Prices are for one to two
+// passengers here (Paris is one to three). Where they quote rather than price, the card says
+// "quote" and does not invent a figure. ROME FIUMICINO is priced on quote only, and its note
+// carries Tricia's instruction: never promise a guaranteed immigration Fast Track there.
+const PARADIGM_IT = { name: "Paradigm Meet & Greet", web: "https://www.paradigmairportservices.com/", email: "info@paradigmairportservices.com", tel: "+39 0522 205500", mobile: "+39 339 714 2158" };
+const PARADIGM_IT_INCLUDES = ["Personal airport greeter", "Arrival, departure or transit", "Security and passport control", "Baggage", "Porter by arrangement", "Escort to driver, lounge or gate", "Fast Track where available and permitted"];
+const PARADIGM_IT_NOTE = "Preferred Italian provider. A personal greeter meets you and takes you through security and passport control by the fast lane where the airport allows it, handles the bags, and walks you to your driver, the lounge or the gate. Trustpilot 4.5 from 83 reviews, 94% of them five stars. Book direct.";
+[
+  ["MXP", "Milan Malpensa",  [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", "\u20ac309", "1\u20132 passengers"]]],
+  ["VCE", "Venice Marco Polo", [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
+  ["FLR", "Florence Peretola", [["Arrival", "\u20ac329", "up to 2 passengers"], ["Departure", "\u20ac329", "up to 2 passengers"], ["Transit", null, "on quote"]]],
+  ["NAP", "Naples Capodichino", [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
+  ["PMO", "Palermo Falcone\u2013Borsellino", [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
+  ["CIA", "Rome Ciampino", [["Arrival", "\u20ac289", "1\u20132 passengers"], ["Departure", "\u20ac289", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
+].forEach(([code, airport, tiers]) => {
+  AIRPORT_ASSIST[code] = { ...PARADIGM_IT, airport, tiers: tiers.map(([n, f, i]) => ({ name: n, from: f, includes: [i] })), note: PARADIGM_IT_NOTE, includes: PARADIGM_IT_INCLUDES };
+});
+AIRPORT_ASSIST.FCO = { ...PARADIGM_IT, airport: "Rome Fiumicino",
+  tiers: [["Arrival", null, "on quote"], ["Departure", null, "on quote"], ["Transit", null, "on quote"]].map(([n, f, i]) => ({ name: n, from: f, includes: [i] })),
+  note: "Preferred Italian provider, priced on quote at Fiumicino \u2014 ask for the current figure when you book. A personal greeter, security and passport assistance, bags handled, and an escort to your driver, lounge or gate. Fast Track at Fiumicino is at the airport's discretion and IS NOT GUARANTEED; nobody can promise it, and we do not. Trustpilot 4.5 from 83 reviews. Book direct.",
+  includes: PARADIGM_IT_INCLUDES };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -8912,7 +8933,7 @@ function AssistCard({ code, when }) {
       {a.tiers.map((tr) => (<div key={tr.name} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 9, padding: "9px 11px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine }}>{tr.name}</span>
-          <span style={{ fontSize: 12.5, color: t.inkSoft }}>{tr.from ? `from ${tr.from}` : "priced on booking"}</span>
+          <span style={{ fontSize: 12.5, color: t.inkSoft }}>{tr.from ? `from ${tr.from}` : "on quote"}</span>
         </div>
         <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{tr.includes.join(" · ")}</div>
       </div>))}
@@ -8920,6 +8941,7 @@ function AssistCard({ code, when }) {
     <div style={{ marginTop: 9, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
       <a className="vo-noprint" href={brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Book {a.name} →</a>
       <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span>
+      {a.mobile ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.mobile}</span> : null}
       <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span>
     </div>
   </div>);
