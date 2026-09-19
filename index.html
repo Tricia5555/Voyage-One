@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M563";
+const BUILD = "M566";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8870,6 +8870,47 @@ const VETTED_DRIVERS = {
   "Miami": { name: "Ocean Drive Limousine", web: "https://www.oceandrivelimo.com", tel: "+1 305 374 7182",
     note: "Used by Voyage One. Twenty years in South Florida, their own fleet, and based across the road from MIA \u2014 which is why airport pickups actually work. Ask for a sedan or an SUV for Art Week; the schedule moves and they keep up." },
 };
+// ══ AIRPORT ASSISTANCE ═══════════════════════════════════════════════════════════════════════
+// A meet-and-greet through the airport, keyed by the AIRPORT the flight lands at or leaves from
+// — not by the city, because Heathrow serves London and also the Cotswolds and half of England.
+// Tiers are shown as the provider sells them. Tricia's rule for Heathrow: the private-terminal
+// and tarmac service is NOT displayed, whatever the provider offers.
+const AIRPORT_ASSIST = {
+  LHR: { airport: "London Heathrow", name: "VIP Assist", web: "https://www.vipassist.co.uk/book-now/book-now-london-heathrow", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
+    tiers: [
+      { name: "Bronze", from: "£170", includes: ["Personal agent", "Fast Track where available"] },
+      { name: "Silver", from: "£250", includes: ["Personal agent", "Fast Track where available", "Luggage porter", "Electric golf buggy"] },
+      { name: "Gold",   from: "£350", includes: ["Personal agent", "Fast Track where available", "Luggage porter", "Electric golf buggy", "Chauffeur airport transfer"] },
+    ],
+    note: "Preferred provider. Met at the aircraft door or the kerb, walked through the terminal by your own agent, Fast Track through immigration and security where the airport allows it. Book direct." },
+};
+// VIP Assist also sells eight French airports as a Silver-only service, but with NO PUBLISHED PRICE
+// on the page. Tricia's rule: we do not offer what we cannot price. Heathrow only, until a French
+// provider with a stated price is chosen.
+function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
+function AssistCard({ code, when }) {
+  const a = airportAssist(code);
+  if (!a) return null;
+  return (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
+    <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` · ${when}` : ""}</div>
+    <div style={{ fontSize: 14, color: t.ink, fontWeight: 500 }}>{a.name}</div>
+    <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{a.note}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
+      {a.tiers.map((tr) => (<div key={tr.name} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 9, padding: "9px 11px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine }}>{tr.name}</span>
+          <span style={{ fontSize: 12.5, color: t.inkSoft }}>{tr.from ? `from ${tr.from}` : "priced on booking"}</span>
+        </div>
+        <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{tr.includes.join(" · ")}</div>
+      </div>))}
+    </div>
+    <div style={{ marginTop: 9, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+      <a className="vo-noprint" href={brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Book {a.name} →</a>
+      <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span>
+      <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span>
+    </div>
+  </div>);
+}
 function vettedDriver(city) {
   const key = dnrm(resolvePlace(city) || bareCity(city || ""));
   const k = Object.keys(VETTED_DRIVERS).find((x) => dnrm(x) === key);
@@ -15044,6 +15085,9 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     {arriveBy === "Flight" && pick.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
       <BookingRow item={pick.flight} onSet={(patch) => upd({ flight: { ...pick.flight, ...patch } })} />
     </div>) : null}
+    {/* THE NEXT THING AFTER A BOOKED FLIGHT: someone to meet it. Offered once the flight is chosen
+        or booked, for the airport it actually lands at. */}
+    {arriveBy === "Flight" && pick.flight && (pick.flight.chosen || pick.flight.booked) ? <AssistCard code={pick.flight.arrAirport || iataFor(to)} when="on arrival" /> : null}
     {arriveBy === "Chauffeur" ? (() => {
       // WHAT A DRIVER MEANS CHANGES WITH THE DISTANCE, so the wording does too. One sentence for
       // every leg either oversells a twenty-minute airport run or undersells a day across
@@ -16558,7 +16602,10 @@ function ReturnSection({ p, rc, blocked }) {
       {blocked ? <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: "#FBEEE9", border: "1px solid #D9A08B", borderRadius: 12, padding: "13px 15px" }}>
         <AlertTriangle size={15} color="#B0563A" style={{ marginTop: 2, flexShrink: 0 }} />
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>Settle your nights first. Booking a flight home while the schedule is short a night is how people end up sleeping in an airport — fix the stays above and this opens up.</div>
-      </div> : <FlightPicker from={departAirport} to={p.homeCity} pick={{ flight: rp.flight }} upd={(patch) => upd(patch)} date={p.dates && p.dates.ret ? p.dates.ret : ""} pax={partySize(p)} />}
+      </div> : <>
+      <FlightPicker from={departAirport} to={p.homeCity} pick={{ flight: rp.flight }} upd={(patch) => upd(patch)} date={p.dates && p.dates.ret ? p.dates.ret : ""} pax={partySize(p)} />
+      {rp.flight && (rp.flight.chosen || rp.flight.booked) ? <AssistCard code={rp.flight.depAirport || iataFor(departAirport)} when="on departure" /> : null}
+    </>}
       <FlightBookLinks flight={rp.flight} dateISO={p.dates && p.dates.ret ? p.dates.ret : ""} city={p.homeCity} />
       {rp.flight ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
         <BookingRow item={rp.flight} onSet={(patch) => upd({ flight: { ...rp.flight, ...patch } })} />
