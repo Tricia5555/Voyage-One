@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M549";
+const BUILD = "M550";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17387,11 +17387,16 @@ function ItineraryView(p) {
     const { total, onRequest: or, estimated: es } = destCost(d, from, partySize(p)); grand += total; onRequest += or || 0; estimated += es || 0;
     const pk = d.pick || {};
     const rows = [];
-    if (d.arriveBy === "Flight" && pk.flight) { const F = pk.flight;
+    // A RECORDED FLIGHT IS PRINTED WHATEVER THE ARRIVAL MODE SAYS. This was gated on arriveBy
+    // being "Flight", so a traveller who booked ITA to Palermo and then switched the arrival to
+    // a car \u2014 because the ground is being met by friends \u2014 lost the flight from the itinerary
+    // entirely. The flight was recorded; it happened; it prints.
+    if (pk.flight && (pk.flight.chosen || pk.flight.booked)) { const F = pk.flight;
       const route = (F.depAirport && F.arrAirport) ? `${F.depAirport} \u2192 ${F.arrAirport}` : "";
-      const status = F.booked ? (F.ref ? `Booked \u00b7 ${F.ref}` : "Booked") : "Not booked yet";
+      const status = F.booked ? (F.ref ? `Booked \u00b7 ${F.ref}` : "Booked \u00b7 no reference given") : "Not booked yet";
       rows.push(<ItinLine key="f" label={`Fly \u00b7 ${F.airline || "airline TBC"}${F.flightNo ? " " + F.flightNo : ""}`}
-        sub={[route, F.cabin || "cabin TBC", F.depart ? `departs ${F.depart}` : "", F.arrive ? `arrives ${F.arrive}${F.dayOffset > 0 ? ` (+${F.dayOffset}d)` : ""}` : "",
+        sub={[route, F.cabin || "cabin TBC",
+              (F.depart || F.arrive) ? [F.depart ? `departs ${F.depart}` : "", F.arrive ? `arrives ${F.arrive}${F.dayOffset > 0 ? ` (+${F.dayOffset}d)` : ""}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded",
               F.stops === 0 ? "nonstop" : (F.stops > 0 ? `${F.stops} stop` : ""), status].filter(Boolean).join(" \u00b7 ")}
         price={F.price} />); }
     else if (pk.ground) rows.push(<ItinLine key="g" label={`${d.arriveBy} from ${from || "start"}`} price={pk.ground.price} />);
