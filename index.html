@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M555";
+const BUILD = "M557";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15422,11 +15422,15 @@ function HotelPicker({ city, nights, pick, upd, fromExperience }) {
           {showOthers ? "Hide the other options" : `See the other ${favRest.length} ${favRest.length === 1 ? "option" : "options"} in ${bareCity(city)}`}
         </button>) : null}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>{collapse ? "This is your choice — book it direct with the property, or see the other options above to change it." : "Tap one to open it up and choose — then book it direct with the property."}</div>
+    </>)}
+      {/* A HOTEL YOU BOOKED ELSEWHERE STILL NEEDS A PLACE TO SAY SO. This sat inside the expanded
+          picker, so a collapsed card, a hotel from the live feed, or one seeded by an experience
+          — Villa San Michele, Verdura, both Four Seasons — had no booked tab at all. Whenever a
+          hotel is chosen, the tab is here. */}
       {pick.stay && pick.stay.name ? (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px" }}>
         <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 9 }}>{pick.stay.name} — have you booked it yet?</div>
         <BookingRow item={pick.stay} onSet={(patch) => upd({ stay: { ...pick.stay, ...patch } })} />
       </div>) : null}
-    </>)}
     {!collapsed && level && (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
       {!remote.loading && levelFavs.length === 0 && liveRows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No Ultra Luxury hotel on our list for ${bareCity(city) || "this city"} yet.` : `More ${lbl(level)} options for ${bareCity(city) || "this city"} are on the way.`}</div>}
@@ -17603,11 +17607,16 @@ function ItineraryView(p) {
       <div style={{ marginTop: 40 }}>
         <DayByDay p={p} sch={sch} />
       </div>
-      {p.returnFrom && p.homeCity && (() => { const dt = departTime(p.returnFrom, p.homeCity); const end = sch.end;
+      {p.returnFrom && p.homeCity && (() => { const end = sch.end;
+        // A CHOSEN FLIGHT SPEAKS FOR ITSELF. The generalisation — "transatlantic services leave in
+        // the morning" — exists only for a leg with nothing chosen. Beside an American Airlines
+        // flight booked for 13:00 it is not just noise, it is wrong. Facts when we have them.
+        const rfH = rp && rp.flight; const known = !!(rfH && (rfH.chosen || rfH.booked));
+        const dt = known ? null : departTime(p.returnFrom, p.homeCity);
         return (<div style={{ marginTop: 22, background: t.card, borderRadius: 16, padding: "18px 20px" }}>
           <div style={{ fontSize: 10.5, letterSpacing: "0.18em", textTransform: "uppercase", color: t.inkFaint }}>Home</div>
           <div style={{ fontFamily: font.display, fontSize: 22, marginTop: 4 }}>{p.returnFrom} → {p.homeCity}</div>
-          <div style={{ fontSize: 13, color: t.inkSoft, marginTop: 3 }}>{end ? fmtDay(end) : "date TBC"}{dt ? ` · departs about ${dt.time}` : ""}{rp && rp.flight && rp.flight.airline ? ` · ${rp.flight.airline}, ${rp.flight.cabin || "cabin TBC"}` : " · flight not chosen"}</div>
+          <div style={{ fontSize: 13, color: t.inkSoft, marginTop: 3 }}>{end ? fmtDay(end) : "date TBC"}{known && rfH.depart ? ` · departs ${rfH.depart}` : (dt ? ` · departs about ${dt.time}` : "")}{known ? ` · ${rfH.airline || "airline TBC"}${rfH.flightNo ? " " + rfH.flightNo : ""}, ${rfH.cabin || "cabin TBC"}${rfH.booked ? (rfH.ref ? ` · Booked · ${rfH.ref}` : " · Booked") : ""}` : " · flight not chosen"}</div>
           {dt && <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5, lineHeight: 1.5 }}>{dt.note}</div>}
         </div>); })()}
       {/* Said once, plainly, near the top of the document. Choosing a date here is planning, not
