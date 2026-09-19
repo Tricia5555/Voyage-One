@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M541";
+const BUILD = "M545";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15452,6 +15452,19 @@ function LiveDineRow({ item, city, found, onToggle, onDate, nights, sub, price, 
 // Booked or not, and at what time. Everything on this site is planned rather than reserved, so
 // the traveller needs somewhere to record what they have actually secured — otherwise the plan
 // and the reality drift apart and nobody knows which tables still need a phone call.
+// One line that says everything known about a stay: how long, which tier, whether it is booked,
+// the reference, and a number to ring. A printed sheet should not send anyone back to a browser.
+function stayLine(stay, nights) {
+  if (!stay) return "";
+  const bits = [`${nights} ${nights === 1 ? "night" : "nights"}`];
+  if (stay.level) bits.push(stay.level);
+  if (stay.area) bits.push(bareCity(String(stay.area).split("\u00b7")[0].trim()));
+  bits.push(stay.booked ? (stay.ref ? `Booked \u00b7 ${stay.ref}` : "Booked") : "Not booked yet");
+  const c = stay.contact || {};
+  if (c.tel) bits.push(c.tel);
+  if (c.web) bits.push(String(c.web).replace(/^https?:\/\//, ""));
+  return bits.join(" \u00b7 ");
+}
 function BookingRow({ item, onSet, timeLabel }) {
   const booked = !!(item && item.booked);
   const pill = (on) => ({ border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : "transparent", color: on ? t.paper : t.inkSoft, borderRadius: 999, padding: "7px 15px", fontSize: 13, fontWeight: on ? 600 : 400 });
@@ -17323,8 +17336,30 @@ function ItineraryView(p) {
     const { total, onRequest: or, estimated: es } = destCost(d, from, partySize(p)); grand += total; onRequest += or || 0; estimated += es || 0;
     const pk = d.pick || {};
     const rows = [];
-    if (d.arriveBy === "Flight" && pk.flight) rows.push(<ItinLine key="f" label={`Fly · ${pk.flight.airline || "airline TBC"}${pk.flight.flightNo ? " " + pk.flight.flightNo : ""}`} sub={`${pk.flight.cabin || "cabin TBC"}${pk.flight.depart ? " · departs " + pk.flight.depart : ""}${pk.flight.arrive ? " → " + pk.flight.arrive : ""}${pk.flight.dayOffset > 0 ? ` (+${pk.flight.dayOffset}d)` : ""}${pk.flight.stops === 0 ? " · nonstop" : pk.flight.stops > 0 ? ` · ${pk.flight.stops} stop` : ""}${pk.flight.totalMin ? ` · ${Math.floor(pk.flight.totalMin / 60)}h ${pk.flight.totalMin % 60}m total` : ""}`} price={pk.flight.price != null ? pk.flight.price : null} />);
+    if (d.arriveBy === "Flight" && pk.flight) { const F = pk.flight;
+      const route = (F.depAirport && F.arrAirport) ? `${F.depAirport} \u2192 ${F.arrAirport}` : "";
+      const status = F.booked ? (F.ref ? `Booked \u00b7 ${F.ref}` : "Booked") : "Not booked yet";
+      rows.push(<ItinLine key="f" label={`Fly \u00b7 ${F.airline || "airline TBC"}${F.flightNo ? " " + F.flightNo : ""}`}
+        sub={[route, F.cabin || "cabin TBC", F.depart ? `departs ${F.depart}` : "", F.arrive ? `arrives ${F.arrive}${F.dayOffset > 0 ? ` (+${F.dayOffset}d)` : ""}` : "",
+              F.stops === 0 ? "nonstop" : (F.stops > 0 ? `${F.stops} stop` : ""), status].filter(Boolean).join(" \u00b7 ")}
+        price={F.price} />); }
     else if (pk.ground) rows.push(<ItinLine key="g" label={`${d.arriveBy} from ${from || "start"}`} price={pk.ground.price} />);
+    // THE ITINERARY SHOULD BE EVERYTHING WE KNOW. A car was recorded \u2014 company, pick-up, drop-off,
+    // reference \u2014 and none of it reached the page you print. Neither did the route, the airline
+    // reference, or a telephone number for the hotel. If a client is standing in an airport with a
+    // sheet of paper, everything they might need is on it, and anything we are unsure of is stated
+    // so they can check rather than discover.
+    {(() => { const car = pk.car; if (!car || !car.booked) return null;
+      const bits = [];
+      if (car.company) bits.push(car.company);
+      const cf = car.from || pickupPoint(d), ct = car.to || d.city;
+      if (cf || ct) bits.push(`${bareCity(cf)} \u2192 ${bareCity(ct)}`);
+      bits.push(car.ref ? `Booked \u00b7 ${car.ref}` : "Booked");
+      rows.push(<ItinLine key="car" label="Rental car" sub={bits.join(" \u00b7 ")} />);
+      if (ct && !sameCity(ct, cf)) rows.push(<div key="cardrop" style={{ fontSize: 12, color: t.brass, lineHeight: 1.5, margin: "2px 0 4px 2px" }}>
+        Dropping the car in <strong>{bareCity(ct)}</strong> — so the next flight leaves from there. Check that is still what you want.
+      </div>);
+      return null; })()}
     // THE GAP BETWEEN LANDING AND ARRIVING, spelled out rather than skipped.
     {(() => { const ch = arrivalChain(d, from); if (!ch) return null;
       const bits = [`land ${hm(ch.land)}`, `airport ${minsLabel(ch.clear)}`];
@@ -17344,7 +17379,7 @@ function ItineraryView(p) {
       if (pk.exploreMode === "base") {
         if (pk.baseTown) rows.push(<div key="bt" style={{ fontSize: 12, color: t.brass, marginBottom: 2 }}>Based in {pk.baseTown} — one hotel, days out</div>);
         if (pk.transfer) rows.push(<ItinLine key="tr" label={`${pk.transfer.mode} from ${gatewayFor(d.city) ? gatewayFor(d.city).air : "the airport"}`} sub="both ways" price={pk.transfer.price * 2} />);
-        if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={`${d.days} nights · ${pk.stay.level}`} price={pk.stay.nightly != null ? pk.stay.nightly * d.days : null} />);
+        if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={stayLine(pk.stay, d.days)} price={pk.stay.nightly != null ? pk.stay.nightly * d.days : null} />);
         (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
         (pk.sports || []).forEach((x, k) => rows.push(<ItinLine key={"spb" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "sport · date TBC"} price={x.price} />));
         (pk.days || []).forEach((x, k) => {
@@ -17367,7 +17402,7 @@ function ItineraryView(p) {
     } else {
       if (pk.onward) rows.push(<ItinLine key="ow" label={`${pk.onward.mode} · ${pk.hub} → ${d.city}`} sub={pk.onward.label} price={pk.onward.price} />);
       if (pk.transfer) rows.push(<ItinLine key="tr" label={`${pk.transfer.mode} from ${gatewayFor(d.city) ? gatewayFor(d.city).air : "the airport"}`} sub="both ways" price={pk.transfer.price * 2} />);
-      if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={`${destNights(d)} nights · ${pk.stay.level}`} price={pk.stay.nightly * destNights(d)} />);
+      if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={stayLine(pk.stay, destNights(d))} price={pk.stay.nightly * destNights(d)} />);
       (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
       (pk.spas || []).forEach((x, k) => rows.push(<ItinLine key={"sp" + k} label={x.name} sub="spa" price={x.price} />));
       (pk.tours || []).forEach((x, k) => rows.push(<ItinLine key={"tr" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "tour · date TBC"} price={x.price} />));
