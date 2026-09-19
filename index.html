@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M557";
+const BUILD = "M559";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10094,7 +10094,6 @@ function buildPrep(p) {
   if (longHaul) before.push(["Expect the new biometric border", "Europe's Entry/Exit System has been live since April 2026 — fingerprints and a face scan on arrival. No fee, nothing to apply for, but allow extra time at passport control."]);
   if (longHaul && etias) before.push(["Watch for ETIAS", "The EU's travel authorisation launches in the last quarter of 2026 — €20, online, valid three years. It is not open yet, so any site taking applications today is a scam. Check the official EU site before you fly."]);
   if (drives && longHaul) before.push(["An International Driving Permit", "Most of Europe requires one alongside your license, and rental desks increasingly ask. AAA issues them in person, same day, for a few dollars — you cannot get one once you have left."]);
-  if (longHaul) before.push(["A plan for the first day", `The eastbound redeye lands you in ${places[0] || "Europe"} in the morning, tired. Hold the room from the night before so you can drop bags and go — or treat the first day gently and let the trip properly begin on day two.`]);
   // Worth saying on any trip — a card can be frozen in Newport as easily as in Naples. But
   // foreign-transaction fees are a fact about crossing a border, and a domestic traveller who
   // is told to check for them learns that this app does not know where they are going.
@@ -16973,12 +16972,20 @@ function PrepPanel({ p }) {
     <span style={{ width: 5, height: 5, borderRadius: 999, background: t.brass, marginTop: 8, flexShrink: 0 }} />
     <span><span style={{ fontSize: 14.5, color: t.ink }}>{title}</span><span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 2 }}>{why}</span></span>
   </div>);
+  // THE SECOND SENTENCE IS THE ONE THAT MATTERS. "Nothing with a thin heel" is a checklist; "the
+  // cobbles in Florence are beautiful, polished and merciless" is advice, and the client can work
+  // out the shoes. Packing rows print the specific line only. Before-you-leave rows keep their
+  // titles, which are actions.
+  const PackRow = ([title, why], k) => (<div key={k} style={{ display: "flex", gap: 11, alignItems: "flex-start", padding: "8px 0" }}>
+    <span style={{ width: 5, height: 5, borderRadius: 999, background: t.brass, marginTop: 8, flexShrink: 0 }} />
+    <span style={{ fontSize: 14, color: t.ink, lineHeight: 1.5 }}>{why}</span>
+  </div>);
   return (<div className="vo-note-card" style={{ marginTop: 30, background: t.card, borderRadius: 18, padding: "26px 24px" }}>
     <Eyebrow>Before you go</Eyebrow>
     <div style={{ fontFamily: font.display, fontSize: 26, margin: "8px 0 4px" }}>Notes for this trip</div>
     <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5, maxWidth: 480 }}>Drawn from where you're going, when, and what you've chosen — not a generic checklist.</div>
     {citySections.length > 0 && (<div style={{ marginTop: 22 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.pine, marginBottom: 10 }}>While you're there</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.pine, marginBottom: 10 }}>More thoughts on your destinations</div>
       {citySections.map((sec, si) => (<div key={"sec" + si} style={{ marginBottom: 18 }}>
         <div style={{ fontFamily: font.display, fontSize: 19, color: t.ink, marginBottom: 7 }}>{sec.city}</div>
         {sec.items.map((it, k) => (<div key={"ci" + k} style={{ borderLeft: `2px solid ${t.brass}`, paddingLeft: 14, margin: "0 0 11px" }}>
@@ -16988,11 +16995,11 @@ function PrepPanel({ p }) {
       </div>))}
     </div>)}
     {pack.length > 0 && (<div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Worth packing</div>
-      {pack.map(Row)}
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Worth knowing before you pack</div>
+      {pack.map(PackRow)}
     </div>)}
     {before.length > 0 && (<div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Sort before you leave</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Before you leave</div>
       {before.map(Row)}
     </div>)}
   </div>);
@@ -17202,7 +17209,7 @@ function buildReview(p, sch) {
         const tightDinner = dinners.length > 0 && arrH !== null && arrH >= 16;   // land 4pm+ → dinner is tight after bags & check-in
         const tightDay = daytime.length > 0 && arrH !== null && arrH >= 13;       // land afternoon → a full museum/tour that day is a stretch
         if (tightDinner || tightDay) {
-          add("think", `${fmtList(sameDay.map((x) => x.name))} the day you land in ${d.city}`,
+          add("think", `${fmtList(sameDay.map((x) => x.name))} the day you arrive in ${d.city}`,
             `Your flight gets in around ${fl0.arrive} — after clearing the airport and checking in, ${tightDinner ? "a dinner that evening is tight" : "that is a lot for arrival day"}. It sits better on another day while you are in ${d.city} — move the reservation, not the flight.`);
         } else if (arrH === null) {
           add("think", `${fmtList(sameDay.map((x) => x.name))} on the day you arrive in ${d.city}`,
@@ -17212,23 +17219,9 @@ function buildReview(p, sch) {
       }
     }
 
-    // 2. The Florence problem: a regional airport quoted as a long-haul destination.
-    if (longHaul && ap && ap.scale === "regional" && d.arriveBy === "Flight") {
-      const hub = hubFor(target);
-      if (hub) {
-        const land = "09:00"; // an overnight from the east coast puts you down mid-morning
-        const clear = 60;     // passport, bags, out of the terminal
-        const toTown = 50;    // airport into the city
-        const railT = hub.rail;
-        const driveT = hub.drive ? Math.round((hub.drive.km / 72) * 60) : null;
-        const byRail = railT != null ? clockAdd(land, clear + toTown + railT) : null;
-        const byRoad = driveT != null ? clockAdd(land, clear + 30 + driveT) : null;
-        const byAir = clockAdd(land, clear + 120 + 70 + 40); // connection wait, hop, transfer at the far end
-        add("think", `“${p.fromCity} to ${d.city}” is not a flight`,
-          `${d.city} (${ap.code}) takes regional aircraft only — nothing crosses the Atlantic into it. Any fare you are quoted is really ${p.fromCity} to a hub, then a connection. The nearest hub you can reach on the ground is ${hub.hub} (${AIRPORTS[hub.hub].code}).\n\nAn overnight lands about 09:00. From there:\n${railT != null ? `· Rail — an hour to clear the airport, ~50 min into ${hub.hub}, then ${mins(railT)} on the fast train. In ${d.city} around ${byRail.label}, and you arrive in the middle of town.\n` : ""}${driveT != null ? `· Drive — clear the airport, pick up the car, ${mins(driveT)} on the road. In ${d.city} around ${byRoad.label}, tired, with a car you now have to park.\n` : ""}· Connect by air — a 2 hr layover, the hop itself, then ${d.city}'s airport into town. Around ${byAir.label}. Two takeoffs on no sleep to arrive no earlier.\n\n${railT != null ? "The train wins on time, comfort and where it puts you down." : "The road is the honest option here."}`);
-      }
-    }
-
+    // 2. (Removed.) The "Florence problem" finding invented a 09:00 landing and a "connect by
+    //    air" option that does not exist for Florence. The arrival chain on the leg itself now
+    //    says exactly when you land, where, and how you reach the city — from the real flight.
     // 3. A long transfer straight off a redeye.
     if (longHaul && gw && !sameCity(gw.air, d.city)) {
       const dr = driveEstimate(gw.air, d.city);
@@ -17379,10 +17372,10 @@ function ExpertPanel({ p, sch }) {
   const tone = { stop: { bg: "#FBEEE9", line: "#D9A08B", ink: "#B0563A", word: "Fix this" }, think: { bg: t.white, line: t.brassLight, ink: t.brass, word: "Worth rethinking" }, note: { bg: t.white, line: t.line, ink: t.inkFaint, word: "Worth knowing" } };
   const order = ["stop", "think", "note"];
   return (<div style={{ marginTop: 30 }}>
-    <div style={{ background: t.ink, color: t.paper, borderRadius: "18px 18px 0 0", padding: "20px 24px 18px" }}>
-      <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", opacity: 0.65 }}>Before you commit</div>
-      <div style={{ fontFamily: font.display, fontSize: 27, marginTop: 5 }}>A second read of this trip</div>
-      <div style={{ fontSize: 13, opacity: 0.72, lineHeight: 1.5, marginTop: 4, maxWidth: 480 }}>What someone who has done this route would tell you, before you start paying for it.</div>
+    <div style={{ background: t.pine, color: t.paper, borderRadius: "18px 18px 0 0", padding: "20px 24px 18px", textAlign: "center" }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brassLight }}>Before you commit</div>
+      <div style={{ fontFamily: font.display, fontSize: 27, marginTop: 5, letterSpacing: "0.06em", textTransform: "uppercase" }}>A Second Read of This Trip</div>
+      <div style={{ fontSize: 13, opacity: 0.85, lineHeight: 1.5, marginTop: 6, maxWidth: 480, margin: "6px auto 0" }}>What someone who has done this route would tell you, before you start paying for it.</div>
     </div>
     <div style={{ border: `1px solid ${t.line}`, borderTop: "none", borderRadius: "0 0 18px 18px", padding: "6px 14px 14px", background: t.card }}>
       {order.flatMap((lvl) => findings.filter((f) => f.level === lvl)).map((f, k) => { const c = tone[f.level];
@@ -17549,7 +17542,20 @@ function ItineraryView(p) {
     return <ItinLeg key={i} n={i + 1} title={d.city || `Stop ${i + 1}`} meta={meta}>{rows.length ? rows : <div style={{ fontSize: 13, color: t.inkFaint }}>Nothing selected yet.</div>}</ItinLeg>;
   });
   const rc = returnCost(p); grand += rc.total;
-  const route = [p.fromCity, ...p.dests.map((d) => d.city), p.homeCity].filter(Boolean).join("  ·  ");
+  // CITIES, NEVER A COUNTRY. A town-to-town leg through Portugal is Lisbon, the Douro and Porto
+  // — "Portugal" on a line of cities reads wrong. The stops are listed where they exist; the base
+  // town where there is one; the region only if nothing has been chosen yet.
+  const routeCities = [];
+  const pushCity = (c) => { const v = bareCity(String(c || "").trim()); if (v && !routeCities.some((x) => sameCity(x, v))) routeCities.push(v); };
+  pushCity(p.fromCity);
+  p.dests.forEach((d) => {
+    const pk = d.pick || {};
+    if (d.mode === "open" && pk.exploreMode === "roam" && (pk.stops || []).length) (pk.stops || []).forEach((st) => pushCity(st.name));
+    else if (d.mode === "open" && pk.baseTown) pushCity(pk.baseTown);
+    else pushCity(d.city);
+  });
+  pushCity(p.homeCity);
+  const route = routeCities.join("  ·  ");
   return (<div className="vo-fade" style={{ minHeight: "100vh" }}>
     <header className="vo-noprint" style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,48px)" }}>
       <button onClick={p.onEdit} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, display: "flex", alignItems: "center", gap: 8, fontSize: 13.5 }}><Pencil size={15} /> Edit</button>
@@ -17564,28 +17570,21 @@ function ItineraryView(p) {
           usually absent from the PDF, leaving a gray rectangle at the top of the document a
           client had been sent. Type and rules always print, at any size, on any device — and
           this is a private travel document, not a brochure. */}
-      <div className="vo-hero" style={{ marginTop: 24, background: t.pine, borderRadius: 18, padding: "34px 28px", textAlign: "center", color: t.paper }}>
-        <div style={{ fontSize: 11, letterSpacing: "0.34em", textTransform: "uppercase", color: t.brassLight }}>Voyage One</div>
-        <div style={{ height: 1, background: "rgba(201,175,126,.45)", margin: "14px auto", maxWidth: 190 }} />
-        <div style={{ fontFamily: font.display, fontSize: 27, lineHeight: 1.15, letterSpacing: "0.02em" }}>Private Travel Atelier</div>
-        <div style={{ height: 1, background: "rgba(201,175,126,.45)", margin: "14px auto", maxWidth: 190 }} />
-        <div style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: t.paper }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
+      {/* ONE HEADER. The green atelier card and the "Planned Itinerary" block below it said the same
+          thing twice, so they are one block now: title, who it is for, the dates, the cities — in
+          gold and white on Voyage One green. The booking guidance sits beneath in a white card. */}
+      <div className="vo-hero" style={{ marginTop: 24, background: t.pine, borderRadius: 18, padding: "36px 28px 32px", textAlign: "center", color: t.paper }}>
+        <div style={{ fontSize: 12, letterSpacing: "0.34em", textTransform: "uppercase", color: t.brassLight, fontWeight: 600 }}>Voyage One</div>
+        <div style={{ fontFamily: font.display, fontSize: "clamp(26px,4.5vw,40px)", lineHeight: 1.1, letterSpacing: "0.06em", textTransform: "uppercase", color: t.paper, marginTop: 8 }}>Planned Itinerary</div>
+        <div style={{ height: 1, background: "rgba(201,175,126,.55)", margin: "18px auto", maxWidth: 220 }} />
+        {p.tripName ? <div style={{ fontFamily: font.display, fontSize: 20, color: t.brassLight, letterSpacing: "0.02em", marginBottom: 6 }}>{p.tripName}</div> : null}
+        <div style={{ fontFamily: font.display, fontSize: "clamp(24px,4vw,34px)", lineHeight: 1.15, color: t.brassLight }}>Curated for {nameLine(p.travelers)}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: t.paper, marginTop: 16 }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
+        {route && <div style={{ fontSize: 12.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brassLight, maxWidth: 640, margin: "12px auto 0", lineHeight: 1.9 }}>{route}</div>}
       </div>
-      <div style={{ marginTop: 14, background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 14, padding: "13px 16px" }}>
-        <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Booking your plans</div>
-        <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.55 }}>Every hotel, restaurant and planned activity here has a website and a telephone number attached. Book them directly — and mark each one <strong>Booked</strong> as you go, so this stays an accurate record of what is actually held.</div>
-      </div>
-      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "40px 0", borderBottom: `1px solid ${t.line}` }}>
-        <Eyebrow>Voyage One · Planned Itinerary</Eyebrow>
-        {/* Only ever show a name she typed herself. The auto-generated one collapsed a
-            six-city trip to "Rome to Milan", which reads as the whole itinerary and is
-            wrong — the real route is the line of cities below. A generated summary that
-            contradicts the thing under it is worse than no summary. */}
-        {p.tripName ? <div style={{ fontFamily: font.display, fontSize: 22, color: t.brass, letterSpacing: "0.02em" }}>{p.tripName}</div> : null}
-        <h1 style={{ fontFamily: font.display, fontWeight: 400, margin: 0, fontSize: "clamp(34px,6vw,58px)", lineHeight: 1.05 }}>Curated for<br />{nameLine(p.travelers)}</h1>
-        <Rule w={56} />
-        <div style={{ fontSize: 15, fontWeight: 600, letterSpacing: "0.06em", color: t.ink }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
-        {route && <div style={{ fontSize: 12.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, maxWidth: 560, lineHeight: 1.8 }}>{route}</div>}
+      <div style={{ marginTop: 14, background: t.white, border: `1px solid ${t.brassLight}`, borderRadius: 14, padding: "16px 20px", textAlign: "center" }}>
+        <div style={{ fontFamily: font.display, fontSize: 22, letterSpacing: "0.04em", color: t.pine, marginBottom: 8 }}>Booking your plans</div>
+        <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, textAlign: "left" }}>Every hotel, restaurant and planned activity here has a website and a telephone number attached. Book them directly — and mark each one <strong>Booked</strong> as you go, so this stays a true record of what is arranged and what is still to do. Where a reservation was made by phone or through someone else, mark it Booked all the same; the itinerary prints what you tell it.</div>
       </div>
       <ExpertPanel p={p} sch={sch} />
       {mapPoints.length > 0 && (() => {
@@ -17619,13 +17618,6 @@ function ItineraryView(p) {
           <div style={{ fontSize: 13, color: t.inkSoft, marginTop: 3 }}>{end ? fmtDay(end) : "date TBC"}{known && rfH.depart ? ` · departs ${rfH.depart}` : (dt ? ` · departs about ${dt.time}` : "")}{known ? ` · ${rfH.airline || "airline TBC"}${rfH.flightNo ? " " + rfH.flightNo : ""}, ${rfH.cabin || "cabin TBC"}${rfH.booked ? (rfH.ref ? ` · Booked · ${rfH.ref}` : " · Booked") : ""}` : " · flight not chosen"}</div>
           {dt && <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5, lineHeight: 1.5 }}>{dt.note}</div>}
         </div>); })()}
-      {/* Said once, plainly, near the top of the document. Choosing a date here is planning, not
-          a reservation — and someone who assumes otherwise arrives at a restaurant that has never
-          heard of them. Worth a whole panel rather than a small gray line under a link. */}
-      <div className="vo-noprint" style={{ marginTop: 20, background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 16, padding: "18px 20px" }}>
-        <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 6 }}>Booking your plans</div>
-        <div style={{ fontSize: 15, color: t.ink, lineHeight: 1.6 }}>Every hotel, restaurant and planned activity has a website and a telephone number attached — use the <strong>Visit / reserve</strong> button beside each one. Mark them <strong>Booked</strong> as you go and this stays a true record of what is held and what still needs a call.</div>
-      </div>
       <PrepPanel p={p} />
       <div style={{ marginTop: 20, background: t.ink, color: t.paper, borderRadius: 18, padding: "26px 26px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div><Eyebrow color={t.brassLight}>Estimated total</Eyebrow><div style={{ fontSize: 12, color: "rgba(251,250,246,.6)", marginTop: 6 }}>Indicative — final on booking</div>{estimated > 0 && <div style={{ fontSize: 12, color: "rgba(251,250,246,.72)", marginTop: 5, maxWidth: 330 }}>Includes {estimated} hotel {estimated === 1 ? "rate" : "rates"} estimated from our published nightly guide.</div>}{onRequest > 0 && <div style={{ fontSize: 12, color: "rgba(251,250,246,.72)", marginTop: 5, maxWidth: 330 }}>Plus {onRequest} {onRequest === 1 ? "item" : "items"} at rates on request, not yet counted above.</div>}</div>
