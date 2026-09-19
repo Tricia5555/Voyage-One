@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M551";
+const BUILD = "M555";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13817,7 +13817,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   const [dPrice, setDPrice] = useState("");
   const [dCabin, setDCabin] = useState("Economy");
   const saveDelta = () => {
-    upd({ flight: { cabin: dCabin, price: dPrice ? Number(dPrice) : null, airline: "Delta", flightNo: (dNo || "").trim(), depart: (dDep || "").trim(), arrive: (dArr || "").trim(), stops: 0, chosen: true, real: false, source: "delta" } });
+    upd({ flight: { cabin: dCabin, price: dPrice ? Number(dPrice) : null, airline: "Delta", flightNo: (dNo || "").trim(), depart: (dDep || "").trim(), arrive: (dArr || "").trim(), depAirport: iataFor(from) || bareCity(from), arrAirport: iataFor(to) || bareCity(to), stops: 0, chosen: true, real: false, source: "delta" } });
     setDeltaOpen(false);
   };
   // Emirates side-panel — same pattern as Delta: not in our fare feed, so open their search and
@@ -13829,7 +13829,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   const [ePrice, setEPrice] = useState("");
   const [eCabin, setECabin] = useState("Business");
   const saveEmirates = () => {
-    upd({ flight: { cabin: eCabin, price: ePrice ? Number(ePrice) : null, airline: "Emirates", flightNo: (eNo || "").trim(), depart: (eDep || "").trim(), arrive: (eArr || "").trim(), stops: 0, chosen: true, real: false, source: "emirates" } });
+    upd({ flight: { cabin: eCabin, price: ePrice ? Number(ePrice) : null, airline: "Emirates", flightNo: (eNo || "").trim(), depart: (eDep || "").trim(), arrive: (eArr || "").trim(), depAirport: iataFor(from) || bareCity(from), arrAirport: iataFor(to) || bareCity(to), stops: 0, chosen: true, real: false, source: "emirates" } });
     setEmiratesOpen(false);
   };
   // ══ BOOKED ELSEWHERE ═══════════════════════════════════════════════════════════════════════
@@ -14813,26 +14813,28 @@ function airportCity(code) {
   const c = String(code || "").trim().toUpperCase();
   return AIRPORT_CITY[c] || null;
 }
-function pickupPoint(d) {
-  const f = d && d.pick && d.pick.flight;
-  if (f && f.arrAirport) { const c = airportCity(f.arrAirport); if (c) return c; }
-  // THE TRAVELLER MAY HAVE CHOSEN THE AIRPORT THEMSELVES. pick.hub is exactly that \u2014 fly into
-  // Milan and drive down to Florence, because there is no useful direct service. That choice was
-  // being ignored here, so the car was still offered at the destination. It is the arrival, and
-  // the arrival is where you collect a car.
-  const pk = (d && d.pick) || {};
-  if (pk.hub) return bareCity(pk.hub);
-  if (pk.gatewayPick) return bareCity(pk.gatewayPick);
-  const g = gatewayFor(d && d.city);
-  if (g && g.air && !sameCity(g.air, d.city)) return g.air;
-  // NO FLIGHT CHOSEN YET, AND NO GATEWAY \u2014 but the destination still borrows an airport, and that
-  // is where a car is collected. Sciacca's field is PMO, which is Palermo: the town has no airport
-  // of its own and nobody hires a car in Sciacca. Where a place HAS its own airport this resolves
-  // back to itself and nothing changes.
-  const own = d && d.city ? lookup(AIRPORTS, d.city) : null;
-  if (own && own.code) { const c = airportCity(own.code); if (c && !sameCity(c, d.city)) return c; }
-  return (d && d.city) || "";
+// ══ WHERE THE PLANE LANDS — ONE ANSWER, READ FROM WHAT THE SITE ALREADY DECIDED ═══════════════
+// The flight panel decides the landing airport in one expression:
+//     flyInto = pick.hub || pick.gatewayPick || the resolved gateway || the city
+// and that is the airport the traveller SAW and CLICKED. The itinerary must read the same thing,
+// in the same order, and not rebuild it from guesses. One addition on top: if a flight has been
+// chosen, its own arrival airport is the ticket and overrides everything.
+function landingCity(d) {
+  if (!d) return "";
+  const pk = d.pick || {};
+  const f = pk.flight;
+  if (f && f.arrAirport) { const c = airportCity(f.arrAirport); if (c) return c; return airportLabel(f.arrAirport) || String(f.arrAirport); }
+  if (pk.hub) return bareCity(pk.hub);                                                   // "fly into Milan" — clicked
+  if (pk.gatewayPick) return bareCity(pk.gatewayPick);                                   // a gateway option — clicked
+  if (d.gatewayAir && !sameCity(d.gatewayAir, d.city)) return bareCity(d.gatewayAir);    // what the site resolved and showed
+  const g = gatewayFor(d.city);
+  if (g && g.air && !sameCity(g.air, d.city)) return bareCity(g.air);                    // curated gateway
+  const own = d.city ? lookup(AIRPORTS, d.city) : null;
+  if (own && own.code) { const c = airportCity(own.code); if (c && !sameCity(c, d.city)) return c; }   // a borrowed field
+  return d.city || "";
 }
+// Where a hire car is collected is where the plane lands. Same answer, older name.
+function pickupPoint(d) { return landingCity(d); }
 // Where the next flight leaves from. Suggestions are drawn from the trip itself \u2014 the city, its
 // gateway, where the car is being dropped, the last stop on a roam \u2014 and anything else can be
 // typed. One tap clears it and the app goes back to working it out.
@@ -14862,6 +14864,25 @@ function ExitFrom({ d, setDest, suggested }) {
       <input value={cur} onChange={(e) => setDest({ exitFrom: e.target.value })} placeholder="Or type another city"
         style={{ fontSize: 13.5, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 9, background: t.white, color: t.ink, width: "100%", boxSizing: "border-box" }} />
     </div>) : null}
+  </div>);
+}
+// ══ WHAT THIS LEG HAS RECORDED ═══════════════════════════════════════════════════════════════
+// One line at the top of every leg saying what the app actually holds for it — the flight, the
+// car, the hotel, each with its booked state. If something you entered is not on this line, it
+// was not stored, and that is the fault to chase; if it IS here and missing from the itinerary,
+// the fault is in the printing. Ends the guessing about which.
+function LegRecord({ d }) {
+  const pk = (d && d.pick) || {};
+  const bits = [];
+  const st = (x) => x && x.booked ? " · booked" : " · not booked";
+  if (pk.flight && (pk.flight.chosen || pk.flight.booked)) bits.push(`Flight: ${pk.flight.airline || "airline TBC"}${pk.flight.arrAirport ? " to " + pk.flight.arrAirport : ""}${st(pk.flight)}`);
+  if (pk.car && pk.car.booked) bits.push(`Car: ${pk.car.company || "company not given"} ${bareCity(pk.car.from || "")} → ${bareCity(pk.car.to || "")}${st(pk.car)}`);
+  if (pk.stay && pk.stay.name) bits.push(`Hotel: ${pk.stay.name}${st(pk.stay)}`);
+  if (d && d.exitFrom) bits.push(`Leaving from: ${bareCity(d.exitFrom)}`);
+  if (!bits.length) return null;
+  return (<div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.6, background: t.card, border: `1px solid ${t.line}`, borderRadius: 10, padding: "8px 12px", marginBottom: 12 }}>
+    <span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginRight: 8 }}>Recorded on this leg</span>
+    {bits.join("  ·  ")}
   </div>);
 }
 function CarBooking({ car: carIn, upd, defFrom, defTo }) {
@@ -16384,6 +16405,7 @@ function CitySection({ d, i, p, from, legSched }) {
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
     </div>)}
     {needsHub && !gw && <HubPanel from={flyFrom} city={surfaceTarget} date={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} pick={pick} upd={upd} />}
+    <LegRecord d={d} />
     <ArrivalPanel pax={partySize(p)} from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} returnDate={i === 0 && p.dates ? p.dates.ret : ""} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
         // The title has to agree with the mode actually chosen. It used to say "fly into
         // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
@@ -16613,9 +16635,10 @@ function DayByDay({ p, sch }) {
       const pf = pk.flight;
       const legFrom = exitPoint(dests[i - 1]);
       if (pf && (pf.chosen || pf.booked)) {
-        const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${bareCity(city)}`;
+        const landAt = bareCity(pickupPoint(d)) || bareCity(city);
+        const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${landAt}`;
         const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked yet";
-        add(isoOf(lg.arrive), { icon: "plane", label: `Fly ${bareCity(legFrom)} to ${bareCity(city)} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
+        add(isoOf(lg.arrive), { icon: "plane", label: `Fly ${bareCity(legFrom)} to ${landAt} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
           sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded", st].filter(Boolean).join(" \u00b7 ") });
       } else if (pk.ground) {
         add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} \u2014 ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
@@ -16663,9 +16686,14 @@ function DayByDay({ p, sch }) {
       // is two different cities in one sentence: Malpensa is Milan, and Florence is three and a
       // half hours further on. Name the place you actually land in, then add a separate line for
       // reaching the destination, with the road time in it.
-      const arrAir = (f && f.arrAirport) || iataFor(dests[0].city) || dests[0].airport;
+      // UNIVERSAL: the plane lands where pickupPoint says it lands. That function already reads
+      // the chosen flight's airport, then the hub the traveller picked, then the gateway, then the
+      // destination's own field \u2014 in that order. Anything less than all four gets it wrong for
+      // somebody: a Delta flight typed in by hand has no airport on it, a hub choice was being
+      // ignored, and a town with no airfield borrows one. Resolve it once, here, from everything.
+      const landCity = bareCity(pickupPoint(dests[0])) || bareCity(dests[0].city) || "";
+      const arrAir = (f && f.arrAirport) || iataFor(landCity) || iataFor(dests[0].city) || dests[0].airport;
       const arrTime = f && f.arrive ? f.arrive : null;
-      const landCity = (arrAir && airportCity(arrAir)) || bareCity(dests[0].city) || "";
       add(isoOf(lg0.arrive), { icon: "plane", label: `Arrive ${landCity}${arrAir ? ` — ${airportLabel(arrAir)}` : ""}${arrTime ? ` at ${arrTime}` : ""}`, sub: f && f.dayOffset > 0 ? "Overnight flight — you land the next morning" : "" });
       const ch0 = arrivalChain(dests[0], p.fromCity);
       if (ch0 && ch0.driveMins) add(isoOf(lg0.arrive), { icon: "car", label: `Reach ${bareCity(dests[0].city)} about ${hm(ch0.arrive)}${ch0.nextDay ? " the next day" : ""}`,
