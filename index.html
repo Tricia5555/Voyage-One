@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M559";
+const BUILD = "M560";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10376,7 +10376,17 @@ function FontStyles() {
       .vo-hero { padding: 20px 18px !important; break-after: avoid; }
       .vo-hero div[style*="27"] { font-size: 20px !important; }
       /* Whitespace designed for scrolling, tightened for a page. */
-      .vo-leg, .vo-note-card, .vo-map-card { padding: 9px 11px !important; margin-bottom: 7px !important; break-inside: avoid; page-break-inside: avoid; }
+      .vo-leg, .vo-note-card, .vo-map-card { padding: 9px 11px !important; margin-bottom: 0 !important; break-inside: avoid; page-break-inside: avoid; }
+      /* A LETTER PAGE. No air between the cards, and no card ever split across a page: a day, a
+         finding, a note starts on the next sheet if it will not fit whole on this one. */
+      @page { size: letter; margin: 12mm 12mm; }
+      .vo-block { break-inside: avoid !important; page-break-inside: avoid !important; margin-top: 0 !important; margin-bottom: 4px !important; border-radius: 8px !important; }
+      .vo-hero { margin-top: 0 !important; margin-bottom: 4px !important; }
+      /* Gold on green does not survive a printer. The masthead prints in white, the name largest. */
+      .vo-hero, .vo-hero * { color: #fff !important; }
+      .vo-hero .vo-h-name { font-size: 24px !important; line-height: 1.1 !important; }
+      .vo-hero .vo-h-title { font-size: 15px !important; letter-spacing: 0.1em !important; }
+      [style*="marginTop: 30"], [style*="marginTop: 22"], [style*="marginTop: 20"], [style*="marginTop: 14"] { margin-top: 4px !important; }
       img { max-height: 110px !important; object-fit: cover !important; break-inside: avoid; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       .vo-fade { animation: none !important; }
@@ -16741,7 +16751,7 @@ function DayByDay({ p, sch }) {
       const dinners = items.filter((it) => it.icon === "dine").map((it) => it.label);
       const clash = eveEvents.length && dinners.length;
       const hasItems = items.length;
-      return (<div key={k} style={{ background: t.white, border: `1.5px solid ${t.pine}`, borderRadius: 14, padding: "15px 18px" }}>
+      return (<div key={k} className="vo-block" style={{ background: t.white, border: `1.5px solid ${t.pine}`, borderRadius: 14, padding: "15px 18px" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginBottom: hasItems ? 12 : 0 }}>
           <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink }}>{weekday}, {dateline}</div>
           {city ? <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 500 }}>{city}</div> : null}
@@ -16981,11 +16991,8 @@ function PrepPanel({ p }) {
     <span style={{ fontSize: 14, color: t.ink, lineHeight: 1.5 }}>{why}</span>
   </div>);
   return (<div className="vo-note-card" style={{ marginTop: 30, background: t.card, borderRadius: 18, padding: "26px 24px" }}>
-    <Eyebrow>Before you go</Eyebrow>
-    <div style={{ fontFamily: font.display, fontSize: 26, margin: "8px 0 4px" }}>Notes for this trip</div>
-    <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5, maxWidth: 480 }}>Drawn from where you're going, when, and what you've chosen — not a generic checklist.</div>
-    {citySections.length > 0 && (<div style={{ marginTop: 22 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.pine, marginBottom: 10 }}>More thoughts on your destinations</div>
+    <div style={{ fontFamily: font.display, fontSize: 24, letterSpacing: "0.06em", textTransform: "uppercase", color: t.pine, textAlign: "center", marginBottom: 14 }}>More thoughts on your destinations</div>
+    {citySections.length > 0 && (<div style={{ marginTop: 6 }}>
       {citySections.map((sec, si) => (<div key={"sec" + si} style={{ marginBottom: 18 }}>
         <div style={{ fontFamily: font.display, fontSize: 19, color: t.ink, marginBottom: 7 }}>{sec.city}</div>
         {sec.items.map((it, k) => (<div key={"ci" + k} style={{ borderLeft: `2px solid ${t.brass}`, paddingLeft: 14, margin: "0 0 11px" }}>
@@ -16995,11 +17002,10 @@ function PrepPanel({ p }) {
       </div>))}
     </div>)}
     {pack.length > 0 && (<div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Worth knowing before you pack</div>
       {pack.map(PackRow)}
     </div>)}
     {before.length > 0 && (<div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Before you leave</div>
+      <div style={{ fontFamily: font.display, fontSize: 24, letterSpacing: "0.06em", textTransform: "uppercase", color: t.pine, textAlign: "center", margin: "18px 0 8px" }}>Before you leave</div>
       {before.map(Row)}
     </div>)}
   </div>);
@@ -17375,11 +17381,10 @@ function ExpertPanel({ p, sch }) {
     <div style={{ background: t.pine, color: t.paper, borderRadius: "18px 18px 0 0", padding: "20px 24px 18px", textAlign: "center" }}>
       <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brassLight }}>Before you commit</div>
       <div style={{ fontFamily: font.display, fontSize: 27, marginTop: 5, letterSpacing: "0.06em", textTransform: "uppercase" }}>A Second Read of This Trip</div>
-      <div style={{ fontSize: 13, opacity: 0.85, lineHeight: 1.5, marginTop: 6, maxWidth: 480, margin: "6px auto 0" }}>What someone who has done this route would tell you, before you start paying for it.</div>
     </div>
     <div style={{ border: `1px solid ${t.line}`, borderTop: "none", borderRadius: "0 0 18px 18px", padding: "6px 14px 14px", background: t.card }}>
       {order.flatMap((lvl) => findings.filter((f) => f.level === lvl)).map((f, k) => { const c = tone[f.level];
-        return (<div key={k} style={{ background: c.bg, border: `1px solid ${c.line}`, borderRadius: 14, padding: "16px 18px", marginTop: 10 }}>
+        return (<div key={k} className="vo-block" style={{ background: c.bg, border: `1px solid ${c.line}`, borderRadius: 14, padding: "16px 18px", marginTop: 10 }}>
           <div style={{ display: "flex", gap: 9, alignItems: "center", marginBottom: 6 }}>
             {f.level === "stop" ? <AlertTriangle size={14} color={c.ink} /> : f.level === "think" ? <Compass size={14} color={c.ink} /> : <ScrollText size={14} color={c.ink} />}
             <span style={{ fontSize: 10.5, letterSpacing: "0.16em", textTransform: "uppercase", color: c.ink }}>{c.word}</span>
@@ -17412,6 +17417,7 @@ function LegDiagnostic({ p }) {
     rows.push(line(`dines=${(pk.dines || []).length} tours=${(pk.tours || []).length} sports=${(pk.sports || []).length} spas=${(pk.spas || []).length} days=${(pk.days || []).length}`, 1));
     rows.push(line("\u00A0", 0));
   });
+  if (typeof window === "undefined" || window.location.hash !== "#diag") return null;   // not a client control
   return (<div className="vo-noprint" style={{ marginTop: 22 }}>
     <button onClick={() => setOpen(!open)} style={{ background: "none", border: `1px dashed ${t.line}`, borderRadius: 10, padding: "8px 14px", color: t.inkFaint, fontSize: 12 }}>{open ? "Hide" : "Show"} trip diagnostic</button>
     {open && <div style={{ marginTop: 10, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
@@ -17575,10 +17581,10 @@ function ItineraryView(p) {
           gold and white on Voyage One green. The booking guidance sits beneath in a white card. */}
       <div className="vo-hero" style={{ marginTop: 24, background: t.pine, borderRadius: 18, padding: "36px 28px 32px", textAlign: "center", color: t.paper }}>
         <div style={{ fontSize: 12, letterSpacing: "0.34em", textTransform: "uppercase", color: t.brassLight, fontWeight: 600 }}>Voyage One</div>
-        <div style={{ fontFamily: font.display, fontSize: "clamp(26px,4.5vw,40px)", lineHeight: 1.1, letterSpacing: "0.06em", textTransform: "uppercase", color: t.paper, marginTop: 8 }}>Planned Itinerary</div>
+        <div className="vo-h-title" style={{ fontFamily: font.display, fontSize: "clamp(22px,3.6vw,30px)", lineHeight: 1.1, letterSpacing: "0.08em", textTransform: "uppercase", color: t.paper, marginTop: 8 }}>Planned Itinerary</div>
         <div style={{ height: 1, background: "rgba(201,175,126,.55)", margin: "18px auto", maxWidth: 220 }} />
         {p.tripName ? <div style={{ fontFamily: font.display, fontSize: 20, color: t.brassLight, letterSpacing: "0.02em", marginBottom: 6 }}>{p.tripName}</div> : null}
-        <div style={{ fontFamily: font.display, fontSize: "clamp(24px,4vw,34px)", lineHeight: 1.15, color: t.brassLight }}>Curated for {nameLine(p.travelers)}</div>
+        <div className="vo-h-name" style={{ fontFamily: font.display, fontSize: "clamp(32px,5.5vw,52px)", lineHeight: 1.1, color: t.paper }}>Curated for {nameLine(p.travelers)}</div>
         <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: t.paper, marginTop: 16 }}>{fmtRange(p.dates.depart, p.dates.ret)}</div>
         {route && <div style={{ fontSize: 12.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brassLight, maxWidth: 640, margin: "12px auto 0", lineHeight: 1.9 }}>{route}</div>}
       </div>
