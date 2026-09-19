@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M550";
+const BUILD = "M551";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -16605,6 +16605,27 @@ function DayByDay({ p, sch }) {
     return (dests[i] && dests[i].city) || ""; } } return ""; };
   dests.forEach((d, i) => {
     const pk = d.pick || {}; const lg = sch.legs[i]; const city = d.city || "";
+    // EVERY LEG, NOT JUST THE FIRST AND THE LAST. The timeline only ever wrote a flight entry for
+    // the arrival and the journey home, so a trip through Florence, Palermo and Lisbon printed
+    // two flights and lost the three in between \u2014 along with every hire car. Whatever is recorded
+    // on a leg is written on the day that leg happens, booked or not.
+    if (i > 0 && lg) {
+      const pf = pk.flight;
+      const legFrom = exitPoint(dests[i - 1]);
+      if (pf && (pf.chosen || pf.booked)) {
+        const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${bareCity(city)}`;
+        const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked yet";
+        add(isoOf(lg.arrive), { icon: "plane", label: `Fly ${bareCity(legFrom)} to ${bareCity(city)} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
+          sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded", st].filter(Boolean).join(" \u00b7 ") });
+      } else if (pk.ground) {
+        add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} \u2014 ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
+      }
+    }
+    if (lg && pk.car && pk.car.booked) {
+      const cf = pk.car.from || pickupPoint(d), ct = pk.car.to || city;
+      add(isoOf(lg.arrive), { icon: "car", label: `Rental car \u2014 ${pk.car.company || "company not recorded"}`,
+        sub: `${bareCity(cf)} \u2192 ${bareCity(ct)} \u00b7 ${pk.car.ref ? `Booked \u00b7 ${pk.car.ref}` : "Booked \u00b7 no reference given"}` });
+    }
     if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked yet"}` });
     // A roaming leg keeps its hotels and tables on its stops, not on the leg itself. This
     // builder only ever looked at pick.stay, so a whole country came out as a run of empty
