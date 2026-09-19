@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M546";
+const BUILD = "M549";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13832,6 +13832,23 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
     upd({ flight: { cabin: eCabin, price: ePrice ? Number(ePrice) : null, airline: "Emirates", flightNo: (eNo || "").trim(), depart: (eDep || "").trim(), arrive: (eArr || "").trim(), stops: 0, chosen: true, real: false, source: "emirates" } });
     setEmiratesOpen(false);
   };
+  // ══ BOOKED ELSEWHERE ═══════════════════════════════════════════════════════════════════════
+  // A flight only existed in the plan if it came out of our fare feed or one of the two airline
+  // side-panels. Book ITA direct, or on the phone, or through anyone else, and there was nowhere
+  // to say so \u2014 the leg stayed empty and the itinerary printed "not booked yet" against a seat
+  // already paid for. If the traveller says it is booked, it is booked. Airline and route are
+  // enough; everything else is optional and the record is plainly marked as theirs, not ours.
+  const [ownOpen, setOwnOpen] = useState(false);
+  const [oAir, setOAir] = useState(""); const [oNo, setONo] = useState("");
+  const [oDep, setODep] = useState(""); const [oArr, setOArr] = useState("");
+  const [oRef, setORef] = useState(""); const [oCabin, setOCabin] = useState("Business");
+  const saveOwn = () => {
+    upd({ flight: { cabin: oCabin, price: null, airline: (oAir || "").trim() || "Airline", flightNo: (oNo || "").trim(),
+      depart: (oDep || "").trim(), arrive: (oArr || "").trim(),
+      depAirport: iataFor(from) || bareCity(from), arrAirport: iataFor(to) || bareCity(to),
+      stops: null, chosen: true, real: false, source: "own", booked: true, ref: (oRef || "").trim() } });
+    setOwnOpen(false);
+  };
   const live = useLiveFlights(from, to, date, cabin, stopsFilter, whenFilter);
   // Choosing a cabin keeps the selection but clears any specific chosen flight until you pick one.
   const chooseCabin = (c) => { upd({ flight: { cabin: c, price: null, chosen: false } }); };
@@ -13840,6 +13857,26 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   if (!from || !to) return <div style={{ fontSize: 13, color: t.inkFaint }}>Name both cities and the route appears here.</div>;
   const chosen = f && f.chosen ? f : null;
   const ticketedDay = (pick.sports || []).some((s) => s && s.date);
+  const ofld = { fontSize: 13.5, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 9, background: t.white, color: t.ink, width: "100%", boxSizing: "border-box" };
+  const ownPanel = (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+    <button onClick={() => setOwnOpen(!ownOpen)} style={{ background: "none", border: "none", padding: 0, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>
+      {ownOpen ? "Never mind" : "Already booked this flight yourself? Record it"}
+    </button>
+    {ownOpen ? (<div style={{ marginTop: 10 }}>
+      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginBottom: 9 }}>
+        {bareCity(from)} to {bareCity(to)}. The airline is all we need — fill in whatever else you have.
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Airline<input style={ofld} value={oAir} onChange={(e) => setOAir(e.target.value)} placeholder="ITA Airways" /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Flight no.<input style={ofld} value={oNo} onChange={(e) => setONo(e.target.value)} placeholder="Optional" /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Departs<input style={ofld} value={oDep} onChange={(e) => setODep(e.target.value)} placeholder="Optional" /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Arrives<input style={ofld} value={oArr} onChange={(e) => setOArr(e.target.value)} placeholder="Optional" /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Reference<input style={ofld} value={oRef} onChange={(e) => setORef(e.target.value)} placeholder="Optional" /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Cabin<select style={ofld} value={oCabin} onChange={(e) => setOCabin(e.target.value)}>{["Economy", "Premium", "Business", "First"].map((c) => <option key={c}>{c}</option>)}</select></label>
+      </div>
+      <button onClick={saveOwn} style={{ marginTop: 11, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Mark it booked</button>
+    </div>) : null}
+  </div>);
   return (<>
     {ticketedDay ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 14px", marginBottom: 12 }}><span style={{ fontSize: 15, lineHeight: 1.3 }}>✈</span><span style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>You hold tickets on this trip — arrive at least the day before your first event day so you're settled, never on the day itself. We've set your dates to land you ahead; keep it that way as you choose your flight.</span></div>) : null}
     <div style={{ background: t.card, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
@@ -14166,6 +14203,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
             })()}</div>
       </div>)}
     </div>)}
+    {ownPanel}
   </>);
 }
 // What is genuinely possible between two places, answered by Google rather than by a table
@@ -14865,6 +14903,11 @@ function RentalPanel({ city, destination, compact, car, upd }) {
       <span style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, flex: "1 1 220px" }}>Driving out for the day, or heading into the country around it? We will show you our top three picks.</span>
       <button onClick={() => setWant(true)} style={{ background: "none", border: `1px solid ${t.pineSoft}`, borderRadius: 999, padding: "10px 20px", color: t.pine, fontSize: 13.5, fontWeight: 500 }}>Rent a car here</button>
     </div>
+    {/* RECORDING A CAR YOU ALREADY HAVE IS NOT THE SAME AS SHOPPING FOR ONE. This panel opens
+        collapsed behind "Rent a car here", and the booked/not-booked control lived inside the
+        expanded half \u2014 so a traveller who had already hired a car had nowhere to say so, and the
+        itinerary never learned about it. The control belongs in both states. */}
+    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} /> : null}
   </Panel>);
   return (<Panel icon={Car} title={`Rental cars in ${bareCity(city)}`}>
     <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginBottom: 12 }}>
