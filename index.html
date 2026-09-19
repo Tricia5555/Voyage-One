@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M566";
+const BUILD = "M567";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8884,9 +8884,21 @@ const AIRPORT_ASSIST = {
     ],
     note: "Preferred provider. Met at the aircraft door or the kerb, walked through the terminal by your own agent, Fast Track through immigration and security where the airport allows it. Book direct." },
 };
-// VIP Assist also sells eight French airports as a Silver-only service, but with NO PUBLISHED PRICE
-// on the page. Tricia's rule: we do not offer what we cannot price. Heathrow only, until a French
-// provider with a stated price is chosen.
+// PARIS — PARADIGM MEET & GREET, Tricia's preferred provider for France. Priced per booking rather
+// than by tier: arrival, departure or transit, for one to three passengers. Trustpilot 4.5 across
+// 83 reviews at the time of loading. (VIP Assist sells the French airports too, with no published
+// price; not carried — we do not offer what we cannot price.)
+const PARADIGM_INCLUDES = ["Personal airport greeter", "Fast Track where available", "Passport control", "Security", "Baggage", "Escort to driver, lounge or gate"];
+[["CDG", "Paris Charles de Gaulle"], ["ORY", "Paris Orly"]].forEach(([code, name]) => {
+  AIRPORT_ASSIST[code] = { airport: name, name: "Paradigm Meet & Greet", web: "https://www.paradigmairportservices.com/en/aeroporto/paris-airport-vip-service/", email: "info@paradigmairportservices.com", tel: "+39 0522 205500",
+    tiers: [
+      { name: "Arrival",   from: "\u20ac249", includes: ["1\u20133 passengers"] },
+      { name: "Departure", from: "\u20ac249", includes: ["1\u20133 passengers"] },
+      { name: "Transit",   from: "\u20ac289", includes: ["1\u20133 passengers"] },
+    ],
+    note: "Preferred provider. A personal greeter meets you, takes you through passport control and security by the fast lane where the airport allows it, handles the bags, and walks you to your driver, the lounge or the gate. Trustpilot 4.5 from 83 reviews, 94% of them five stars. Book direct.",
+    includes: PARADIGM_INCLUDES };
+});
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -8895,6 +8907,7 @@ function AssistCard({ code, when }) {
     <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` · ${when}` : ""}</div>
     <div style={{ fontSize: 14, color: t.ink, fontWeight: 500 }}>{a.name}</div>
     <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{a.note}</div>
+    {a.includes ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>Includes:</strong> {a.includes.join(" \u00b7 ")}</div> : null}
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
       {a.tiers.map((tr) => (<div key={tr.name} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 9, padding: "9px 11px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
