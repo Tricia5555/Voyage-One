@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M568";
+const BUILD = "M569";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8899,27 +8899,20 @@ const PARADIGM_INCLUDES = ["Personal airport greeter", "Fast Track where availab
     note: "Preferred provider. A personal greeter meets you, takes you through passport control and security by the fast lane where the airport allows it, handles the bags, and walks you to your driver, the lounge or the gate. Trustpilot 4.5 from 83 reviews, 94% of them five stars. Book direct.",
     includes: PARADIGM_INCLUDES };
 });
-// ITALY — Paradigm again, Tricia's preferred Italian provider. Prices are for one to two
-// passengers here (Paris is one to three). Where they quote rather than price, the card says
-// "quote" and does not invent a figure. ROME FIUMICINO is priced on quote only, and its note
-// carries Tricia's instruction: never promise a guaranteed immigration Fast Track there.
-const PARADIGM_IT = { name: "Paradigm Meet & Greet", web: "https://www.paradigmairportservices.com/", email: "info@paradigmairportservices.com", tel: "+39 0522 205500", mobile: "+39 339 714 2158" };
-const PARADIGM_IT_INCLUDES = ["Personal airport greeter", "Arrival, departure or transit", "Security and passport control", "Baggage", "Porter by arrangement", "Escort to driver, lounge or gate", "Fast Track where available and permitted"];
-const PARADIGM_IT_NOTE = "Preferred Italian provider. A personal greeter meets you and takes you through security and passport control by the fast lane where the airport allows it, handles the bags, and walks you to your driver, the lounge or the gate. Trustpilot 4.5 from 83 reviews, 94% of them five stars. Book direct.";
-[
-  ["MXP", "Milan Malpensa",  [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", "\u20ac309", "1\u20132 passengers"]]],
-  ["VCE", "Venice Marco Polo", [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
-  ["FLR", "Florence Peretola", [["Arrival", "\u20ac329", "up to 2 passengers"], ["Departure", "\u20ac329", "up to 2 passengers"], ["Transit", null, "on quote"]]],
-  ["NAP", "Naples Capodichino", [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
-  ["PMO", "Palermo Falcone\u2013Borsellino", [["Arrival", "\u20ac269", "1\u20132 passengers"], ["Departure", "\u20ac309", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
-  ["CIA", "Rome Ciampino", [["Arrival", "\u20ac289", "1\u20132 passengers"], ["Departure", "\u20ac289", "1\u20132 passengers"], ["Transit", null, "on quote"]]],
-].forEach(([code, airport, tiers]) => {
-  AIRPORT_ASSIST[code] = { ...PARADIGM_IT, airport, tiers: tiers.map(([n, f, i]) => ({ name: n, from: f, includes: [i] })), note: PARADIGM_IT_NOTE, includes: PARADIGM_IT_INCLUDES };
-});
-AIRPORT_ASSIST.FCO = { ...PARADIGM_IT, airport: "Rome Fiumicino",
-  tiers: [["Arrival", null, "on quote"], ["Departure", null, "on quote"], ["Transit", null, "on quote"]].map(([n, f, i]) => ({ name: n, from: f, includes: [i] })),
-  note: "Preferred Italian provider, priced on quote at Fiumicino \u2014 ask for the current figure when you book. A personal greeter, security and passport assistance, bags handled, and an escort to your driver, lounge or gate. Fast Track at Fiumicino is at the airport's discretion and IS NOT GUARANTEED; nobody can promise it, and we do not. Trustpilot 4.5 from 83 reviews. Book direct.",
-  includes: PARADIGM_IT_INCLUDES };
+// ITALY — MILAN MALPENSA ONLY, and VIP Assist. Every other Italian airport was removed on
+// instruction (Paradigm at Rome, Venice, Florence, Naples, Palermo, Ciampino and Malpensa are all
+// gone). Further Italian airports are added ONLY after each service is individually verified as
+// a genuinely high-level VIP / Fast Track product. WORDING RULE for Italy: never "guaranteed
+// immigration clearance" or "guaranteed priority" — always "Fast Track and priority procedures
+// where available." No tarmac / private-terminal package is shown.
+AIRPORT_ASSIST.MXP = { airport: "Milan Malpensa", name: "VIP Assist", web: "https://www.vipassist.co.uk/locations/milan-malpensa-airport", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
+  tiers: [
+    { name: "Bronze", from: "\u00a3170", includes: ["Personal agent", "Fast Track lane where available"] },
+    { name: "Silver", from: "\u00a3250", includes: ["Personal agent", "Fast Track lane where available", "Luggage porter", "Electric golf buggy where available"] },
+    { name: "Gold",   from: "\u00a3350", includes: ["Personal agent", "Fast Track lane where available", "Luggage porter", "Electric golf buggy where available", "Chauffeur airport transfer"] },
+  ],
+  note: "Preferred provider at Malpensa. On arrival: your own 1-to-1 agent meets you at the aircraft or airbridge, takes you through immigration and customs using the airport's Fast Track and priority procedures where available, collects the bags with a porter and walks you to your waiting vehicle. On departure: met at the kerb, porter, check-in and security assistance, lounge, and an escort to the gate. Connections are handled gate to gate. Book direct.",
+  includes: ["Personal 1-to-1 agent", "Meet at aircraft, airbridge or kerb", "Fast Track and priority procedures where available", "Immigration, customs and security assistance", "Baggage and porter", "Lounge on departure and connection", "Escort to vehicle or gate"] };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
