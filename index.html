@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M576";
+const BUILD = "M577";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8970,6 +8970,16 @@ AIRPORT_ASSIST.BRU = { title: "Altitude VIP Service \u2014 Brussels", airport: "
   includes: ["Private VIP facility", "Personalised airport service", "Check-in handling", "Private security screening", "Food and beverage", "Private lounge", "Boarding assistance", "Limousine directly to the aircraft", "Flight monitoring"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
   note: "Preferred at Brussels, and it is the airport's own service. A private facility with its own screening, a lounge with food and drink, boarding handled, and a limousine across the apron to the aircraft. Priced on quote. Book direct." };
+// ══ DUBLIN — the airport's Platinum VIP. Private suite, dedicated screening, chauffeur to the
+// aircraft. Priced per passenger. No booking page was supplied, so the button opens an email.
+AIRPORT_ASSIST.DUB = { title: "Dublin Airport Platinum VIP", airport: "Dublin", name: "Dublin Airport Platinum VIP", web: null, email: "platinumvip@dublinairport.com", tel: "+353 1 944 4895", button: "Contact Platinum VIP",
+  headline: "The airport's own Platinum service: private check-in, dedicated screening, a private suite and a chauffeur to the aircraft.",
+  includes: ["Private check-in", "Dedicated security screening", "Customs and immigration handling", "Luxury private suite", "Refreshments", "Baggage handling", "Chauffeur directly to and from the aircraft"],
+  tiers: [
+    { name: "Arrival or departure", from: "\u20ac475", includes: ["\u20ac475 first passenger", "\u20ac330 each additional passenger"] },
+    { name: "Transit", from: "\u20ac625", includes: ["\u20ac625 first passenger", "\u20ac415 each additional passenger"] },
+  ],
+  note: "Preferred at Dublin, and it is the airport itself. Private check-in and dedicated screening, customs and immigration handled, a private suite with refreshments while you wait, and a chauffeur across the apron to or from the aircraft. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
