@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M596";
+const BUILD = "M597";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9186,6 +9186,19 @@ AIRPORT_ASSIST.EZE = { title: "VIPClub Preferential Pass \u2014 Buenos Aires", a
     tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
     note: `Preferred at Shanghai ${airport.split(" ")[1]}, and it is the Shanghai Airport Group itself. A personal escort takes you through the dedicated VIP channels rather than the public ones, with check-in handled and the VIP lounge — and the service is tailored to the party. Priced on quote. The second number is the airport's general hotline. Book direct.` };
 });
+// ══ MUMBAI — Elite Plus Meet & Assist, through the VIP / CIP lanes at immigration and security,
+// with a dedicated buggy. Priced per passenger, arrival and departure differ. 48 hours' notice.
+AIRPORT_ASSIST.BOM = { title: "Elite Plus VIP Meet & Assist \u2014 Mumbai", airport: "Mumbai Chhatrapati Shivaji Maharaj", name: "Elite Plus Meet & Assist", web: "https://prioritypass.fasttrack.aero/meet-and-assist-elite-plus-international-arrival-at-mumbai", email: null, tel: null, button: "Book Elite Plus",
+  headline: "Met at the aerobridge and taken through the VIP / CIP immigration lane by dedicated buggy, with a porter and an escort to the exit.",
+  phases: [
+    { name: "International arrival", may: ["Met at the aerobridge", "VIP / CIP immigration lane", "Dedicated buggy", "Porter", "Escort through the arrival process", "Escort to the airport exit"] },
+    { name: "International departure", may: ["Met at the kerb", "Porter", "Check-in assistance", "Dedicated VIP / CIP immigration lane", "Dedicated VIP / CIP security lane", "Lounge", "Buggy to the gate where available"] },
+  ],
+  tiers: [
+    { name: "International arrival", from: "USD 160", includes: ["USD 160 per passenger"] },
+    { name: "International departure", from: "USD 134", includes: ["USD 134 per passenger"] },
+  ],
+  note: "Preferred at Mumbai. Arriving, you are met at the aerobridge and taken by buggy to the VIP / CIP immigration lane, with a porter and an escort out to your car. Departing, met at the kerb, checked in, through the VIP / CIP lanes at immigration and security, the lounge, and a buggy to the gate where available. Book 48 hours ahead. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
