@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M601";
+const BUILD = "M602";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9244,6 +9244,15 @@ AIRPORT_ASSIST.CAI = { title: "Ahlan VIP Service \u2014 Cairo", airport: "Cairo 
     { name: "Meet & Assist only", from: "USD 100", includes: ["USD 100 per non-Egyptian passenger"] },
   ],
   note: "Preferred at Cairo, and it is the airport itself. Take the full VIP service: you are met under the aircraft with your name on a sign, driven to the VIP lounge, taken through Fast Track at border control with the bags collected, and escorted out — and on departure the formalities are done for you before a vehicle takes you to the aircraft. Meet & Assist alone is the lighter, half-price version. Book direct." };
+// ══ ABU DHABI — Salam Meet & Assist plus Fast Track at Zayed International. Two booking pages,
+// so the card carries two buttons. No published price; the card says so. The important detail:
+// Fast Track here covers BOTH security and immigration lanes.
+AIRPORT_ASSIST.AUH = { title: "Salam Meet & Assist + Fast Track \u2014 Abu Dhabi", airport: "Abu Dhabi Zayed International", name: "Salam", web: "https://www.zayedinternationalairport.ae/en/shop-dine-and-experience/premium-services/book-salam-service", button: "Book Salam",
+  web2: "https://www.zayedinternationalairport.ae/en/shop-dine-and-experience/premium-services/book-fast-track", button2: "Book Fast Track", email: null, tel: "+971 54 279 0063",
+  headline: "The airport's own Meet & Assist, with Fast Track lanes for both security and immigration.",
+  includes: ["Personal Meet & Assist", "Dedicated Fast Track lanes for security AND immigration", "Priority security screening", "Priority immigration", "Luggage assistance", "Buggy where available", "Priority check-in where available", "Lounge", "Boarding assistance"],
+  tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
+  note: "Preferred at Abu Dhabi, and it is the airport itself. Salam meets you and takes you through the dedicated Fast Track lanes — which here cover both security and immigration, not just one — with the bags handled, a buggy where available, the lounge, and boarding assistance. Book Salam and Fast Track on their own pages; email through the airport's reservation form. Priced on quote. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -9268,6 +9277,7 @@ function AssistCard({ code, when }) {
     </div>) : null}
     <div style={{ marginTop: 10, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
       <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : `mailto:${a.email}`} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button || `Book ${a.name}`}</a>
+      {a.web2 ? <a className="vo-noprint" href={brandedLink(a.web2, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button2 || "Book"}</a> : null}
       {a.email ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span> : null}
       {a.email2 ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email2}</span> : null}
       {a.tel ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span> : null}
