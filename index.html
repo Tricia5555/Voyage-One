@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M632";
+const BUILD = "M633";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -101,6 +101,13 @@ const AREA_GROUPS = {
   "Zermatt": {
     "Zermatt village": ["zermatt"],
     "Riffelalp \u2014 2,222 m": ["riffelalp 2 222 m"],
+  },
+  // THE AZORES divide on where you sleep on S\u00e3o Miguel: near Ponta Delgada, in the wild west, or
+  // a night in the Furnas valley \u2014 which is the recommendation whenever the itinerary allows.
+  "Azores": {
+    "Near Ponta Delgada": ["lagoa sao miguel"],
+    "The west \u2014 Sete Cidades": ["ginetes sao miguel"],
+    "Furnas \u2014 the geothermal valley": ["furnas sao miguel"],
   },
   "Hong Kong": {
     "Hong Kong Island": ["central", "admiralty"],
@@ -1526,6 +1533,15 @@ const FAVORITES = {
   // C\u00f4te de Beaune, the H\u00f4tel-Dieu as an essential visit, and the Hospices auction in November.
   // NOT LOADED, by instruction: Hostellerie C\u00e8dre and H\u00f4tel Le Cep — attractive and officially
   // five-star, and the three below are stronger. Do not expand the list to add inventory.
+  // ═══ AZORES — Tricia's list, Sept 2026 ══════════════════════════════════════════════════════
+  // THREE LUXURY, NO ULTRA, all on S\u00e3o Miguel. NOT CARRIED, by instruction: Octant Ponta Delgada
+  // and the Grand Hotel A\u00e7ores Atl\u00e2ntico \u2014 official five-star, below the standard. Do not expand
+  // this inventory with lesser five-stars to give more choice; quality over quantity.
+  "Azores": [
+    { name: "WHITE Exclusive Suites & Villas", area: "Lagoa, S\u00e3o Miguel \u00b7 Ponta Delgada (PDL)", rate: null, ourTake: "A very small, design-led property on the cliffs at Lagoa with the Atlantic straight below \u2014 the most distinctive sense of place on the island. Intimate, personal, and built for the sophisticated traveller rather than the resort crowd. THE FIRST CHOICE for a stay based near Ponta Delgada. Not Ultra Luxury, and not meant to be." },
+    { name: "SENSI Azores Nature & SPA", area: "Ginetes, S\u00e3o Miguel \u00b7 Ponta Delgada (PDL)", rate: null, ourTake: "Secluded at the far western end of S\u00e3o Miguel, in the green with the ocean beyond \u2014 privacy and quiet, a spa with an indoor pool, sauna and hammam, and the best base for the west: Sete Cidades, Mosteiros and the coast. For a client who wants nature and stillness more than a town." },
+    { name: "Octant Furnas", area: "Furnas, S\u00e3o Miguel \u00b7 Ponta Delgada (PDL)", rate: null, ourTake: "In the geothermal Furnas Valley \u2014 hot springs, steaming ground, the cozido cooked in the earth \u2014 with a strong wellness spa built around the thermal water. FURNAS IS ONE OF THE ESSENTIAL PLACES ON THE ISLAND, and this is the hotel for a night or two there rather than driving over from Ponta Delgada." },
+  ],
   "Burgundy": [
     { name: "Hostellerie de Levernois", area: "Levernois \u00b7 Lyon (LYS)", rate: null, ourTake: "THE PRIMARY RECOMMENDATION. A Relais & Ch\u00e2teaux country estate in parkland five minutes outside Beaune \u2014 elegant, full-service, with a good spa, gardens along a stream, and MICHELIN-STARRED TABLE DE LEVERNOIS in the house. The refined country stay with the town on the doorstep." },
     { name: "COMO Le Montrachet", area: "Puligny-Montrachet \u00b7 Lyon (LYS)", rate: null, ourTake: "Twenty-eight rooms in the middle of PULIGNY-MONTRACHET \u2014 which for anyone serious about white Burgundy is the address, not merely a location. Contemporary COMO interiors inside old village buildings, one Michelin Key. THE SETTING IS PART OF THE EXPERIENCE: you walk out among the greatest white-wine vineyards on earth." },
@@ -7959,7 +7975,7 @@ const PLACE_REGION = {
   "cortina d\u2019ampezzo": "Dolomites, Italy", "ortisei": "Dolomites, Italy", "selva di val gardena": "Dolomites, Italy",
   "bressanone": "Dolomites, Italy", "brunico": "Dolomites, Italy", "dobbiaco": "Dolomites, Italy", "moena": "Dolomites, Italy",
   "cavalese": "Dolomites, Italy", "madonna di campiglio": "Dolomites, Italy", "pinzolo": "Dolomites, Italy",
-  "greek islands": "Greece", "ionian islands": "Greece", "dodecanese": "Greece", "cyclades": "Greece", "balearics": "Spain", "corsica": "France", "canary islands": "Spain",
+  "azores": "Portugal", "greek islands": "Greece", "ionian islands": "Greece", "dodecanese": "Greece", "cyclades": "Greece", "balearics": "Spain", "corsica": "France", "canary islands": "Spain",
   "french west indies": "Caribbean", "the grenadines": "Caribbean", "cape winelands": "South Africa",
   "aeolian islands": "Italy", "sonoma county": "California",
   "french riviera": "France", "the hamptons": "New York", "adirondacks": "New York", "beverly hills": "California", "ojai": "California", "pebble beach": "California", "healdsburg": "California", "palm springs": "California", "san francisco": "California", "verbier": "Switzerland", "are": "Sweden", "portofino": "Italy",
@@ -8205,6 +8221,7 @@ const GATEWAY = {
   // Without a gateway the app falls back to a live nearest-airport lookup, and for Burgundy that
   // found DIJON or DOLE — forty minutes from Beaune and served by almost nothing — while the page
   // promised Lyon. A curated gateway makes the page and the flight agree.
+  "Azores": { air: "Ponta Delgada", note: "PONTA DELGADA (PDL) on S\u00e3o Miguel. Direct from Lisbon and Porto all year on TAP and Azores Airlines, about two and a half hours; from the US, seasonal nonstops from Boston and New York with Azores Airlines, otherwise through Lisbon. The island is small \u2014 Furnas is forty-five minutes from the airport, the west coast an hour \u2014 so one flight in and a car does the rest. The other islands are separate flights again and are not carried." },
   "Burgundy": { air: "Lyon", note: "Fly into LYON (LYS), then about two hours north to Beaune. Dijon and Dole have small fields much closer, and almost no useful service \u2014 do not be tempted. From Paris the TGV to Dijon takes under two hours and Beaune is twenty minutes beyond it, which for many clients beats flying." },
   "Umbria": { air: "Rome", note: "Fly into ROME (FCO) and drive up \u2014 about two hours to Perugia. Perugia's own field (PEG) is tiny and seasonal. Florence is a similar distance from northern Umbria." },
   "Scottish Highlands": { air: "Inverness", note: "INVERNESS (INV) is the Highland airport and connects through London, Edinburgh or Amsterdam. Edinburgh is three hours south by road if the fares are better." },
@@ -8712,6 +8729,9 @@ const AIRPORTS = {
   "Porto": { code: "OPO", scale: "regional" }, "Faro": { code: "FAO", scale: "regional" },
   "Pisa": { code: "PSA", scale: "regional" }, "French Riviera": { code: "NCE", scale: "intercontinental" },
   // BURGUNDY is TGV country \u2014 Paris to Dijon is under two hours \u2014 but Lyon is the closer airport.
+  // The Azores are S\u00e3o Miguel for our purposes; PONTA DELGADA (PDL) has direct service from Lisbon,
+  // Porto and, in season, Boston and New York.
+  "Azores": { code: "PDL", scale: "regional" },
   "Burgundy": { code: "LYS", scale: "regional" }, "Umbria": { code: "FCO", scale: "intercontinental" },
   "Scottish Highlands": { code: "INV", scale: "regional" }, "Cotswolds": { code: "LHR", scale: "intercontinental" }, "Nice": { code: "NCE", scale: "regional" },
   "Marseille": { code: "MRS", scale: "regional" }, "Santorini": { code: "JTR", scale: "regional" },
@@ -9381,7 +9401,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -9625,7 +9645,7 @@ const COORDS = {
   "Cortina d\u2019Ampezzo": [46.54,12.14], "Alta Badia": [46.58,11.90], "Ortisei": [46.57,11.67], "Selva di Val Gardena": [46.56,11.76],
   "Bressanone": [46.72,11.66], "Brunico": [46.80,11.94], "Dobbiaco": [46.73,12.22], "Moena": [46.38,11.66],
   "Cavalese": [46.29,11.46], "Madonna di Campiglio": [46.23,10.83], "Pinzolo": [46.16,10.77],
-  "Cotswolds": [51.83,-1.75], "Greek Islands": [36.9,25.0], "Ionian Islands": [39.0,20.0], "Dodecanese": [36.4,27.5], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
+  "Azores": [37.74,-25.67], "Cotswolds": [51.83,-1.75], "Greek Islands": [36.9,25.0], "Ionian Islands": [39.0,20.0], "Dodecanese": [36.4,27.5], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
   "Aeolian Islands": [38.48,14.95], "Sonoma County": [38.51,-122.80], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
@@ -9929,6 +9949,7 @@ const FERRY_OFFER_MAX_MIN = 360, FERRY_OFFER_MAX_KM = 400;
 // else instead, and a "drive" longer than that is usually the router crossing water.
 const GATEWAY_MAX_DRIVE_MIN = 240;
 const ISLAND_OF = {
+  "azores": "sao miguel", "s\u00e3o miguel": "sao miguel", "ponta delgada": "sao miguel", "furnas": "sao miguel",
   // EVERY ISLAND IS AN ISLAND. drivable() asked two questions: same zone, and under the drive
   // limit. Athens to Santorini passes both \u2014 same zone, about 230 km \u2014 so the app offered a car
   // and a chauffeur across 230 km of Aegean. Zones are continents, not coastlines, so they can
@@ -10029,6 +10050,7 @@ const CITY_ALIASES = {
   // THE CAPE. A destination should answer to its spoken name, not only its formal one, and an
   // alias costs nothing: no record, no data, no maintenance.
   "dolomiti": "Dolomites", "south tyrol": "Dolomites", "alto adige": "Dolomites", "cortina": "Dolomites",
+  "the azores": "Azores", "sao miguel": "Azores", "s\u00e3o miguel": "Azores", "ponta delgada": "Azores", "a\u00e7ores": "Azores", "acores": "Azores",
   "the cotswolds": "Cotswolds", "the highlands": "Scottish Highlands",
   "highlands": "Scottish Highlands", "the scottish highlands": "Scottish Highlands",
   "bourgogne": "Burgundy", "cote d or": "Burgundy",
@@ -15763,6 +15785,18 @@ function flightSearchLine(flight, dateISO, returnISO) {
   return bits.join("  \u00b7  ");
 }
 const CONNECT_VIA = {
+  // CORSICA. The island's fields are small and their year-round service is from PARIS-ORLY, Nice
+  // and Marseille — not Charles de Gaulle, where the transatlantics land. A morning arrival at
+  // CDG and an Orly departure is an hour across Paris, and the search shows it as a seventeen-hour
+  // "connection" — which is really a night in Paris. NICE is the cleaner gateway: nonstop from
+  // New York in season, then Air Corsica across the water in an hour. Same note for every
+  // Corsican town; only the island airport changes.
+  "Bonifacio": { hub: "Nice (NCE) — or a night in Paris", note: "FIGARI (FSC), twenty minutes from Bonifacio, is a small field. Its year-round flights are from PARIS-ORLY, NICE and MARSEILLE — not Charles de Gaulle, where flights from the US land — and most other routes run only July to October. That is why a search shows a very long connection: it is CDG to Orly across Paris, or an overnight.\n\nTHE CLEAN WAY IN IS NICE: nonstop from New York in season on Delta or United, then Air Corsica Nice–Figari, about an hour. Ask for Nice as the hub. Or land in Paris, spend the night, and take the morning Orly flight — which is a good trip in its own right." },
+  "Porto-Vecchio": { hub: "Nice (NCE) — or a night in Paris", note: "FIGARI (FSC), twenty-five minutes from Porto-Vecchio, flies year-round from PARIS-ORLY, NICE and MARSEILLE — not Charles de Gaulle, where flights from the US land. A long connection in a search is CDG to Orly across Paris, or an overnight.\n\nTHE CLEAN WAY IN IS NICE: nonstop from New York in season, then Air Corsica to Figari in about an hour. Ask for Nice as the hub. Or a night in Paris and the morning Orly flight." },
+  "Sart\u00e8ne": { hub: "Nice (NCE) — or a night in Paris", note: "FIGARI (FSC) is the airport, forty minutes away, and it flies year-round from PARIS-ORLY, NICE and MARSEILLE rather than Charles de Gaulle. Land in Nice and take Air Corsica across in an hour, or spend a night in Paris and fly from Orly in the morning." },
+  "Propriano": { hub: "Nice (NCE) — or a night in Paris", note: "AJACCIO (AJA) is the airport, about an hour away, with year-round service from PARIS-ORLY, NICE and MARSEILLE rather than Charles de Gaulle. Land in Nice and take Air Corsica across, or a night in Paris and the morning Orly flight." },
+  "Calvi": { hub: "Nice (NCE) — or a night in Paris", note: "CALVI (CLY) is small and mostly seasonal; year-round the island is reached from PARIS-ORLY, NICE and MARSEILLE, and BASTIA (BIA), ninety minutes away, has more service. Land in Nice and take Air Corsica across, or a night in Paris and the morning Orly flight." },
+  "Corsica": { hub: "Nice (NCE) — or a night in Paris", note: "Corsica's four airports — Ajaccio, Bastia, Figari and Calvi — are small, and their year-round flights are from PARIS-ORLY, NICE and MARSEILLE rather than Charles de Gaulle, where flights from the US land. A search that shows a very long connection is CDG to Orly across Paris, or an overnight.\n\nTHE CLEAN WAY IN IS NICE: nonstop from New York in season, then Air Corsica across the water in about an hour. Ask for Nice as the hub." },
   // CROATIA'S DOMESTIC AIR IS TWO CARRIERS AND MOSTLY VIA ZAGREB. Croatia Airlines is the flag
   // carrier and routes almost everything through its Zagreb hub — which is why Split to Dubrovnik,
   // 200 km apart, comes back as a connection. Trade Air flies the coast nonstop twice a week on a
