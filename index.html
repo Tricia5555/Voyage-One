@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M589";
+const BUILD = "M590";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9098,6 +9098,18 @@ AIRPORT_ASSIST.DXB = { title: "Marhaba Elite \u2014 Dubai", airport: "Dubai Inte
   includes: ["Dedicated one-to-one service", "Meet & Greet", "Fast-track immigration", "Porter", "Buggy transfer where available", "Lounge", "Dedicated VIP space with \u00e0 la carte dining", "Chauffeur-driven car", "Check-in assistance in Terminal 3", "Escort through airport procedures"],
   tiers: [{ name: "Elite", from: "USD 300.20", includes: ["From USD 300.20 per person"] }],
   note: "Preferred at Dubai. The Elite package: your own agent from the moment you land, fast-track immigration, a porter and a buggy where available, then a dedicated VIP space with \u00e0 la carte dining rather than the shared lounge, and a chauffeur-driven car. On departure, check-in is handled in Terminal 3. Book direct." };
+// ══ DOHA — Al Maha, Qatar Airways' own service at Hamad. The Platinum package is the one carried,
+// with its own inclusions for arrival, departure and transit. Pricing is given as a range across
+// all Al Maha services rather than a Platinum figure, so the card shows the range and says so.
+AIRPORT_ASSIST.DOH = { title: "Al Maha Platinum \u2014 Doha", airport: "Doha Hamad International", name: "Al Maha Services", web: "https://www.qatarairways.com/en/hia-hamad-international-airport/al-maha-services.html", email: "almahaservices@qatarairways.com.qa", tel: "+974 3329 1629", tel2: "+974 3326 6509", button: "Book Al Maha",
+  headline: "Qatar Airways' own Meet & Assist at Hamad: met at the aircraft, dedicated immigration facilities, the Al Maha lounges, priority boarding.",
+  phases: [
+    { name: "Platinum arrival", may: ["Met at the aircraft with a personalised name board", "Dedicated immigration clearance facilities", "Al Maha arrivals lounge", "Porter at baggage claim", "Escort to your receiving party"] },
+    { name: "Platinum departure", may: ["Personal Meet & Assist", "Expedited check-in", "Expedited immigration", "Al Maha lounge", "Priority boarding", "Assistance through to the aircraft"] },
+    { name: "Platinum transit", may: ["Met at the aircraft", "Transit formalities assistance", "Customs clearance assistance", "Lounge", "Priority boarding", "Escort to the onward flight"] },
+  ],
+  tiers: [{ name: "Platinum", from: "USD 31\u2013178", includes: ["Al Maha services range from about USD 31 to 178 depending on the service \u2014 confirm the Platinum price on booking"] }],
+  note: "Preferred at Doha, and it is the airline's own service. Platinum: met at the aircraft with your name on a board, dedicated immigration facilities, the Al Maha lounge, a porter, priority boarding, and an escort to whoever is meeting you — or to the onward flight in transit. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
