@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M585";
+const BUILD = "M586";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9068,6 +9068,13 @@ AIRPORT_ASSIST.ATH = { title: "Highpass \u2014 Athens", airport: "Athens Elefthe
     { name: "Departure \u2014 Gold", from: "\u20ac186", includes: ["\u20ac186 per adult"] },
   ],
   note: "Preferred at Athens — and Athens is where every island trip connects. On arrival: met with a name board, brought from the aircraft by personal transfer, priority passport control, a porter to the car. On departure the fuller Gold service: priority check-in and both security controls, priority passport control, the business lounge, and a transfer to the aircraft. Book direct." };
+// ══ BUCHAREST — the airport's own VIP Services, through the VIP / diplomatic channels. No price
+// published; the card says so. Two emails and two phones, all shown.
+AIRPORT_ASSIST.OTP = { title: "Bucharest Airport VIP Services", airport: "Bucharest Henri Coand\u0103", name: "Henri Coand\u0103 Airport VIP Services", web: "https://bucharestairports.ro/vip/contact-vip-si-business/", email: "vip1@cnab.ro", email2: "vip2@cnab.ro", tel: "+40 21 204 1212", tel2: "+40 21 204 1066", button: "Contact Bucharest VIP",
+  headline: "The airport's own VIP service, through the VIP and diplomatic security and passport channels.",
+  includes: ["Personal VIP assistance", "VIP / diplomatic security channel", "VIP / diplomatic passport-control channel", "Dedicated border-control flow for international arrivals", "VIP lounge", "Priority boarding assistance", "Limousine or VIP minibus to or from the aircraft where required", "Baggage assistance", "Check-in assistance"],
+  tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
+  note: "Preferred at Bucharest, and it is the airport itself. You go through the VIP and diplomatic channels for security and passport control — with a dedicated border flow for international arrivals — the VIP lounge, priority boarding, and a limousine or VIP minibus to the aircraft where it is needed. Priced on quote. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -9093,7 +9100,9 @@ function AssistCard({ code, when }) {
     <div style={{ marginTop: 10, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
       <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : `mailto:${a.email}`} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button || `Book ${a.name}`}</a>
       {a.email ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span> : null}
+      {a.email2 ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email2}</span> : null}
       {a.tel ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span> : null}
+      {a.tel2 ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel2}</span> : null}
       {a.mobile ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.mobile}</span> : null}
     </div>
   </div>);
