@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M633";
+const BUILD = "M637";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15796,6 +15796,37 @@ const CONNECT_VIA = {
   "Sart\u00e8ne": { hub: "Nice (NCE) — or a night in Paris", note: "FIGARI (FSC) is the airport, forty minutes away, and it flies year-round from PARIS-ORLY, NICE and MARSEILLE rather than Charles de Gaulle. Land in Nice and take Air Corsica across in an hour, or spend a night in Paris and fly from Orly in the morning." },
   "Propriano": { hub: "Nice (NCE) — or a night in Paris", note: "AJACCIO (AJA) is the airport, about an hour away, with year-round service from PARIS-ORLY, NICE and MARSEILLE rather than Charles de Gaulle. Land in Nice and take Air Corsica across, or a night in Paris and the morning Orly flight." },
   "Calvi": { hub: "Nice (NCE) — or a night in Paris", note: "CALVI (CLY) is small and mostly seasonal; year-round the island is reached from PARIS-ORLY, NICE and MARSEILLE, and BASTIA (BIA), ninety minutes away, has more service. Land in Nice and take Air Corsica across, or a night in Paris and the morning Orly flight." },
+  // ══ EVERY ISLAND GETS A NAMED HUB ═══════════════════════════════════════════════════════════
+  // The hub panel offers a hub only where the connection note names one with its code. Without
+  // that, an island — undrivable from anywhere — got no hub panel at all and only the ugliest
+  // single tickets. These name the gateway a good advisor would use, so the long-haul is searched
+  // to it and the hop across the water is booked separately.
+  "Sicily": { hub: "Rome (FCO)", note: "CATANIA (CTA) for the east — Taormina, Noto, Etna — and PALERMO (PMO) for the west, both with direct European service; from the US, one stop through ROME, and Alitalia's successor ITA flies Rome to both several times a day. Do not connect at Milan; Rome is the hub for Sicily." },
+  "Taormina": { hub: "Rome (FCO)", note: "CATANIA (CTA), an hour away, has direct European service and several ITA flights a day from ROME. From the US, connect at Rome — not Milan." },
+  "Noto": { hub: "Rome (FCO)", note: "CATANIA (CTA), about ninety minutes away, with several ITA flights a day from ROME. From the US, connect at Rome." },
+  "Mount Etna": { hub: "Rome (FCO)", note: "CATANIA (CTA), forty minutes away, with several ITA flights a day from ROME. From the US, connect at Rome." },
+  "Palermo": { hub: "Rome (FCO)", note: "PALERMO (PMO) has direct European service and several ITA flights a day from ROME. From the US, connect at Rome — not Milan." },
+  "Agrigento": { hub: "Rome (FCO)", note: "PALERMO (PMO) is the airport, about two hours away, with several ITA flights a day from ROME. From the US, connect at Rome." },
+  "Sciacca": { hub: "Rome (FCO)", note: "PALERMO (PMO) is the airport, about ninety minutes away, with several ITA flights a day from ROME. From the US, connect at Rome." },
+  "Bali": { hub: "Singapore (SIN)", note: "DENPASAR (DPS) has no US service. The clean routings are through SINGAPORE — nonstop from New York and San Francisco, then two and a half hours on Singapore Airlines — or through Doha or Dubai on Qatar and Emirates. Singapore is the one with the shortest hop." },
+  "Phuket": { hub: "Bangkok (BKK)", note: "PHUKET (HKT) has direct flights from the Gulf and much of Asia, but from the US the routing is through BANGKOK, then eighty minutes south, or through Singapore or Doha directly to Phuket." },
+  "Maldives": { hub: "Doha (DOH) or Dubai (DXB)", note: "MAL\u00c9 (MLE) is reached from the US through DOHA or DUBAI — Qatar and Emirates both fly nonstop from New York and connect on to Mal\u00e9 in four to five hours. Then the seaplane or speedboat, which is decided by the atoll." },
+  "Seychelles": { hub: "Doha (DOH) or Dubai (DXB)", note: "MAH\u00c9 (SEZ) is reached from the US through DOHA or DUBAI, then four hours south on Qatar or Emirates. Praslin and La Digue are a short flight or a boat from Mah\u00e9." },
+  "Sri Lanka": { hub: "Doha (DOH) or Dubai (DXB)", note: "COLOMBO (CMB) from the US is through DOHA or DUBAI on Qatar or Emirates, about four hours on. No nonstop exists." },
+  "Fiji": { hub: "Los Angeles (LAX)", note: "NADI (NAN) has NONSTOPS FROM LOS ANGELES and San Francisco on Fiji Airways — about eleven hours — which is the only way from the US. Connect at LAX." },
+  "Bora Bora": { hub: "Los Angeles (LAX)", note: "PAPEETE (PPT) has nonstops from LOS ANGELES on Air Tahiti Nui, Air France and Delta — about eight hours — then Air Tahiti fifty minutes to Bora Bora, booked separately. Connect at LAX." },
+  "Lanai": { hub: "Honolulu (HNL)", note: "LANAI (LNY) is a thirty-minute hop from HONOLULU on Hawaiian's Ohana or Mokulele, and Four Seasons runs its own service; from the mainland, fly to Honolulu and connect. Maui is the alternative, with a ferry." },
+  "St Barth": { hub: "St Maarten (SXM)", note: "ST BARTH (SBH) is a ten-minute flight from ST MAARTEN on Winair or Tradewind, booked separately. St Maarten has nonstops from New York, Miami and Boston. Tradewind also flies from San Juan." },
+  "Nevis": { hub: "St Kitts (SKB) or San Juan (SJU)", note: "NEVIS (NEV) is reached by a short flight from SAN JUAN on Tradewind, or by the water taxi from ST KITTS, which has nonstops from New York and Miami. The water taxi is fifteen minutes." },
+  "Bequia": { hub: "Barbados (BGI)", note: "BEQUIA (BQU) is a short flight from BARBADOS on SVG Air or Mustique Airways, booked separately; Barbados has nonstops from New York, Miami and Boston. Or fly to St Vincent and take the hour's ferry." },
+  "Mustique": { hub: "Barbados (BGI)", note: "MUSTIQUE (MQS) is a fifty-minute flight from BARBADOS on Mustique Airways, booked separately — the island arranges it. Barbados has nonstops from New York, Miami and Boston." },
+  "Canouan": { hub: "Barbados (BGI)", note: "CANOUAN (CIW) is a short flight from BARBADOS on SVG Air, booked separately; Barbados has nonstops from New York, Miami and Boston. The Mandarin Oriental will arrange it." },
+  "Harbour Island": { hub: "Nassau (NAS)", note: "NORTH ELEUTHERA (ELH) is a twenty-minute flight from NASSAU, then a five-minute water taxi across to Harbour Island. Nassau has nonstops from most of the US East Coast. Bahamasair and Pineapple Air fly the hop." },
+  "Negril": { hub: "Montego Bay (MBJ)", note: "MONTEGO BAY (MBJ) has nonstops from across the US; Negril is about ninety minutes west by road — a driver, not a rental." },
+  "Ocho Rios": { hub: "Montego Bay (MBJ)", note: "MONTEGO BAY (MBJ) has nonstops from across the US; Ocho Rios is about ninety minutes east on the north-coast highway." },
+  "Port Antonio": { hub: "Kingston (KIN)", note: "KINGSTON (KIN) is the closer airport, about two and a half hours over the mountains; Montego Bay is three and a half along the coast. Both have US nonstops. A driver, either way." },
+  "Easter Island": { hub: "Santiago (SCL)", note: "RAPA NUI (IPC) is reached ONLY from SANTIAGO, on LATAM, about five and a half hours. Santiago has nonstops from New York, Miami and Los Angeles." },
+  "Azores": { hub: "Lisbon (LIS) or Boston (BOS)", note: "PONTA DELGADA (PDL) has nonstops from BOSTON and New York on Azores Airlines and from LISBON on TAP, SATA and Ryanair. From the East Coast the Boston nonstop is the answer." },
   "Corsica": { hub: "Nice (NCE) — or a night in Paris", note: "Corsica's four airports — Ajaccio, Bastia, Figari and Calvi — are small, and their year-round flights are from PARIS-ORLY, NICE and MARSEILLE rather than Charles de Gaulle, where flights from the US land. A search that shows a very long connection is CDG to Orly across Paris, or an overnight.\n\nTHE CLEAN WAY IN IS NICE: nonstop from New York in season, then Air Corsica across the water in about an hour. Ask for Nice as the hub." },
   // CROATIA'S DOMESTIC AIR IS TWO CARRIERS AND MOSTLY VIA ZAGREB. Croatia Airlines is the flag
   // carrier and routes almost everything through its Zagreb hub — which is why Split to Dubrovnik,
@@ -15830,13 +15861,9 @@ const CONNECT_VIA = {
   "Gran Canaria": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Las Palmas (LPA) takes direct flights from across Europe all year. Maspalomas is about half an hour south of the airport, Las Palmas city about twenty minutes north." },
   "Lanzarote": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Arrecife (ACE) has strong year-round European service. Playa Blanca is about forty minutes south, Costa Teguise fifteen minutes north." },
   "Fuerteventura": { hub: "Madrid (MAD) or Barcelona (BCN)", note: "Fuerteventura (FUE) is well served from Europe. Corralejo is about forty minutes north of the airport." },
-  // CORSICA. Good seasonal direct service from mainland France; everything else connects.
-  "Porto-Vecchio": { hub: "Paris, Nice or Marseille", note: "FIGARI (FSC) is the airport for the south of Corsica, about half an hour from Porto-Vecchio. Direct flights run from Paris, Nice and Marseille in season, and thin out sharply outside it \u2014 intercontinental connects on the mainland. The overnight ferry from Nice, Marseille or Livorno is the other way in, and takes a car with you." },
-  "Bonifacio": { hub: "Paris, Nice or Marseille", note: "Figari (FSC) again, about forty minutes north. Same seasonal pattern as Porto-Vecchio." },
-  "Sartène": { hub: "Paris, Nice or Marseille", note: "Figari (FSC) is the nearest airport, roughly an hour. Ajaccio (AJA) is the alternative from the north." },
-  "Calvi": { hub: "Paris, Nice or Marseille", note: "CALVI (CLY) is a small field right beside the town with seasonal French and European flights. Bastia (BIA) is the bigger alternative, about two hours away by road." },
-  "Propriano": { hub: "Paris, Nice or Marseille", note: "AJACCIO (AJA) is the airport, a little over an hour up the coast. Figari also works from the south." },
-  "Zonza": { hub: "Paris, Nice or Marseille", note: "Ajaccio (AJA) or Figari (FSC), each roughly an hour and a half into the Alta Rocca mountains. THE DRIVE IS THE POINT here \u2014 it is one of the great mountain roads in Europe, and it is slow." },
+  // (The older Corsica entries that sat here were superseded by the ones at the top of the table,
+  //  which name Nice as the hub; JavaScript keeps the LAST duplicate key, so they had to go.)
+  "Zonza": { hub: "Nice (NCE) — or a night in Paris", note: "Ajaccio (AJA) or Figari (FSC), each roughly an hour and a half into the Alta Rocca mountains. THE DRIVE IS THE POINT here \u2014 it is one of the great mountain roads in Europe, and it is slow." },
   "Vulcano": { hub: "Catania (CTA)", note: "NO AIRPORT. Fly to CATANIA, drive about two hours to MILAZZO, then a hydrofoil of roughly forty-five minutes. The Aeolians are a commitment and that is the whole reason they are what they are. Crossings are weather-dependent \u2014 build a buffer either side rather than connecting tightly to a flight." },
   "Salina": { hub: "Catania (CTA)", note: "NO AIRPORT. Catania, then about two hours to MILAZZO and a hydrofoil, usually via Vulcano or Lipari. The greenest and quietest of the Aeolians. Weather can stop the boats; do not plan a same-day connection to a long-haul." },
   "Niseko": { hub: "Tokyo (HND or NRT)", note: "Niseko is on HOKKAIDO, a separate island with no road from Honshu \u2014 the Seikan tunnel carries trains only. Fly into Tokyo, then a domestic flight to NEW CHITOSE (CTS) near Sapporo, then about two hours by road to the mountain. Most hotels arrange the transfer; confirm it, because winter road conditions are not something to improvise." },
@@ -17412,7 +17439,7 @@ function HubPanel({ from, city, date, pick, upd }) {
       {hubs.map((h, k) => { const on = chosen === h.hub;
         return (<button key={h.hub} onClick={() => upd({ hub: on ? "" : h.hub, flight: null, onward: null })} style={{ textAlign: "left", padding: "11px 15px", borderRadius: 12, border: `1px solid ${on ? t.paper : "rgba(251,250,246,.28)"}`, background: on ? t.paper : "transparent", color: on ? t.ink : t.paper, minWidth: 150 }}>
           <div style={{ fontFamily: font.display, fontSize: 19 }}>{h.hub} <span style={{ fontSize: 12, opacity: 0.6 }}>{h.code}</span></div>
-          <div style={{ fontSize: 11.5, opacity: 0.75, marginTop: 2 }}>{h.rail != null ? `${minsLabel(h.rail)} by train` : `${h.drive.label} by road`}{k === 0 ? " · closest" : ""}</div>
+          <div style={{ fontSize: 11.5, opacity: 0.75, marginTop: 2 }}>{h.fly ? "about an hour by air, booked separately" : h.rail != null ? `${minsLabel(h.rail)} by train` : h.drive ? `${h.drive.label} by road` : ""}{k === 0 ? " · closest" : ""}</div>
         </button>); })}
     </div>
     {chosen && (<div style={{ marginTop: 20 }}>
@@ -18397,6 +18424,17 @@ function hubOptions(city) {
   const own = airportFor(city);
   if (own && own.scale === "intercontinental") return [];
   const out = [];
+  // AN ISLAND CANNOT BE DRIVEN TO FROM ANY HUB, so the loop below found nothing for Corsica, the
+  // hub panel never appeared, and the only fares were single tickets with an overnight in Paris.
+  // Where the connection note names a hub — "Nice (NCE)" for Bonifacio — that hub is offered
+  // outright, with a short flight as the way across. The long-haul is searched to the hub and
+  // the hop is booked separately, which is how anyone who knows the route actually does it.
+  const cv = connectVia(city);
+  if (cv && cv.hub) {
+    const m = String(cv.hub).match(/\(([A-Z]{3})\)/);
+    const hubCity = m ? airportCity(m[1]) : null;
+    if (hubCity && !sameCity(hubCity, city)) out.push({ hub: hubCity, code: m[1], rail: null, drive: null, best: 60, fly: true });
+  }
   Object.keys(AIRPORTS).forEach((h) => {
     if (AIRPORTS[h].scale !== "intercontinental") return;
     if (sameCity(h, city)) return;
@@ -18407,7 +18445,8 @@ function hubOptions(city) {
     if (t == null) return;
     out.push({ hub: h, code: AIRPORTS[h].code, rail, drive: dr, best: t });
   });
-  return out.sort((a, b) => a.best - b.best).slice(0, 3);
+  const seen = new Set();
+  return out.filter((x) => { const k = dnrm(x.hub); if (seen.has(k)) return false; seen.add(k); return true; }).sort((a, b) => a.best - b.best).slice(0, 3);
 }
 // How you finish the journey once the long-haul has landed.
 function onwardOptions(hub, city) {
@@ -18421,7 +18460,10 @@ function onwardOptions(hub, city) {
   if (dr) out.push({ mode: "Private driver", label: `${dr.label} · ${dr.km} km`, why: "Met at arrivals, door to door. Easiest on no sleep, and you can stop on the way.", mins: Math.round((dr.km / 72) * 60) + 20, price: null });
   if (link && link.mode === "Ferry") out.push({ mode: "Ferry", label: link.label, why: `The crossing from ${hub} is the way in — and it's the pleasant part of the day.`, mins: (link.mins || 120) + 60, price: null });
   const ap = airportFor(city);
-  if (ap) out.push({ mode: "Connecting flight", label: "~1 hr in the air, ~3 hr all in", why: "A short hop on regional metal. Cheap in air time, expensive in airport time — and a second chance to lose a bag.", mins: 230, price: null });
+  const acrossWater = !drivable(hub, city);
+  if (ap) out.push({ mode: acrossWater ? "Short flight" : "Connecting flight", label: acrossWater ? `about an hour in the air, ${bareCity(hub)} to ${ap.code}` : "~1 hr in the air, ~3 hr all in",
+    why: acrossWater ? `Booked separately from the long-haul — the island carriers do not sell through the transatlantic airlines. Land in ${bareCity(hub)}, clear, and take the hop; allow two hours between.` : "A short hop on regional metal. Cheap in air time, expensive in airport time — and a second chance to lose a bag.",
+    mins: acrossWater ? 170 : 230, price: null, link: flightSearchUrl(hub, city, "", "economy"), linkLabel: "Find the hop" });
   if (dr && dr.km < 120) out.push({ mode: "Rental car here", label: `${dr.label} · ${dr.km} km`, why: "Only worth it if you want the car for what comes after.", mins: Math.round((dr.km / 72) * 60) + 40, price: null });
   return out.sort((a, b) => a.mins - b.mins);
 }
