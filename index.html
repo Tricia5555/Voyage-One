@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M638";
+const BUILD = "M639";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11815,6 +11815,8 @@ function VoyageOne() {
 const NAV_PILL = { background: t.pine, color: t.paper, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "10px 18px", fontSize: 14, fontWeight: 700, letterSpacing: "0.05em", fontFamily: font.ui, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7, whiteSpace: "nowrap" };
 const NAV_TEXT = { background: "none", color: t.ink, border: "none", padding: "8px 6px", fontSize: 14.5, fontWeight: 700, letterSpacing: "0.03em", fontFamily: font.ui, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" };
 const NAV_PILL_LIGHT = NAV_TEXT;
+// The same voice as Basics, Departure, Destinations, Build — small capitals, dark, spaced.
+const NAV_STEP = { background: "none", border: "none", padding: "6px 10px", fontFamily: font.ui, fontSize: 11.5, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 700, color: t.ink, cursor: "pointer", whiteSpace: "nowrap" };
 // The menu: one dark ☰, and the secondary actions drop down beneath it.
 function NavMenu({ items }) {
   const [open, setOpen] = useState(false);
@@ -11832,8 +11834,8 @@ function NavMenu({ items }) {
 }
 function SignInBadge({ user, authReady, onOpen, onSignOut }) {
   if (!authReady) return null;
-  if (user) return (<button onClick={onSignOut} title={user.email} style={NAV_TEXT}>Sign out</button>);
-  return (<button onClick={onOpen} style={NAV_TEXT}><Lock size={14} /> Sign in · save your journeys</button>);
+  if (user) return (<button onClick={onSignOut} title={user.email} style={NAV_STEP}>Sign out</button>);
+  return (<button onClick={onOpen} style={NAV_STEP}>Sign in · save journeys</button>);
 }
 
 // The larger ask, and it only appears once there is something worth keeping — at the end of
@@ -12011,14 +12013,16 @@ function Planner(p) {
   const wrap = { maxWidth: p.step === 3 ? 1120 : 920, margin: "0 auto", padding: p.step === 3 ? "28px clamp(20px,5vw,48px) 150px" : "28px clamp(20px,5vw,48px) 120px" };
   return (<div className="vo-fade">
     <header style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,48px)" }}>
-      <button onClick={p.onHome} style={{ background: "none", border: "none", fontFamily: font.display, fontSize: 21, fontWeight: 700, color: t.ink, cursor: "pointer" }}>Voyage<span style={{ color: t.brass }}> One</span></button>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <button onClick={p.onHome} style={{ background: "none", border: "none", fontFamily: font.display, fontSize: 25, fontWeight: 800, color: t.ink, cursor: "pointer", padding: 0 }}>Voyage<span style={{ color: t.brass }}> One</span></button>
+        <button onClick={() => p.setStep(Math.max(0, p.step - 1))} disabled={p.step === 0} aria-label="Back a step"
+          style={{ ...NAV_PILL, padding: "8px 14px", opacity: p.step === 0 ? .35 : 1, cursor: p.step === 0 ? "default" : "pointer" }}><ArrowLeft size={15} /> Back</button>
+      </div>
       {/* Step navigation belongs up here, not only at the foot of the page. The Build step runs
           to several thousand pixels, so a Back button at the bottom may as well not exist — and
           the browser's own back button leaves the site entirely. Someone who reaches the flights
           and dislikes the connections wants to change the departure city, not start again. */}
       <div style={{ display: "flex", alignItems: "center", gap: 3, flexWrap: "wrap" }}>
-        <button onClick={() => p.setStep(Math.max(0, p.step - 1))} disabled={p.step === 0} aria-label="Back a step"
-          style={{ ...NAV_TEXT, opacity: p.step === 0 ? .35 : 1, cursor: p.step === 0 ? "default" : "pointer", marginRight: 6 }}><ArrowLeft size={15} /> Back</button>
         {steps.map((s, i) => (
           // Only steps already reached are clickable — jumping ahead to Build before there is a
           // destination produces an empty page and looks broken.
@@ -12030,10 +12034,8 @@ function Planner(p) {
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         {p.saved && <span style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.pineSoft, display: "flex", alignItems: "center", gap: 5 }}><Check size={13} /> {p.user ? "Saved to your account" : "Auto-saved here"}</span>}
-        <NavMenu items={[
-          { label: "Start over", onClick: () => { if (typeof window === "undefined" || window.confirm("Begin a new journey? This one stays saved on your list.")) p.startOver(); } },
-          p.authReady ? (p.user ? { label: "Sign out", onClick: p.onSignOut } : { label: "Sign in · save your journeys", onClick: p.onOpenAuth }) : null,
-        ]} />
+        <button onClick={() => { if (typeof window === "undefined" || window.confirm("Begin a new journey? This one stays saved on your list.")) p.startOver(); }} style={NAV_STEP}>Start over</button>
+        <SignInBadge user={p.user} authReady={p.authReady} onOpen={p.onOpenAuth} onSignOut={p.onSignOut} />
         <button onClick={p.onHome} style={NAV_PILL}><Home size={15} /> Home</button>
         <div style={{ display: "flex", gap: 6 }}>{steps.map((s, i) => <span key={s} style={{ width: i === p.step ? 22 : 8, height: 8, borderRadius: 999, background: i <= p.step ? t.pine : t.line, transition: "all .25s" }} />)}</div>
       </div>
@@ -13798,9 +13800,9 @@ function GuideWizard({ onBuild, onBack, onHome }) {
   const total = plan ? plan.legs.reduce((s2, l) => s2 + (l.nights || 0), 0) : 0;
   return (<div className="vo-fade" style={{ minHeight: "100vh" }}>
     <header className="vo-noprint" style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,56px)" }}>
-      <button onClick={() => step > 0 ? setStep(step === 10 ? 9 : step === 11 ? 9 : step - 1) : onBack()} style={NAV_TEXT}><ArrowLeft size={15} /> Back</button>
+      <button onClick={() => step > 0 ? setStep(step === 10 ? 9 : step === 11 ? 9 : step - 1) : onBack()} style={NAV_PILL}><ArrowLeft size={15} /> Back</button>
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <NavMenu items={[{ label: "Start over", onClick: onBack }]} />
+        <button onClick={onBack} style={NAV_STEP}>Start over</button>
         <button onClick={onHome} style={NAV_PILL}><Home size={15} /> Home</button>
       </div>
     </header>
@@ -14125,7 +14127,7 @@ function OneList({ onPick, onBack, onHome }) {
   const EVENT_ROWS = { "Golf": [2, 1], "Horse Racing & Polo": [2, 1, 2] };
   const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
-    <button onClick={fn} style={NAV_TEXT}><ArrowLeft size={15} /> {label}</button>
+    <button onClick={fn} style={NAV_PILL}><ArrowLeft size={15} /> {label}</button>
     {onHome ? <button onClick={onHome} style={NAV_PILL}><Home size={15} /> Home</button> : null}
   </div>);
   const head = (title, sub) => (<div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -18931,7 +18933,7 @@ function ItineraryView(p) {
       <div style={{ display: "flex", gap: 10 }}>
         <button onClick={() => printPaginated()} style={{ background: t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "10px 20px", color: t.paper, fontSize: 13.5 }}>Send as PDF</button>
         <SignInBadge user={p.user} authReady={p.authReady} onOpen={p.onOpenAuth} onSignOut={p.onSignOut} />
-        <button onClick={p.onEdit} style={NAV_TEXT}><ArrowLeft size={15} /> Back</button>
+        <button onClick={p.onEdit} style={NAV_PILL}><ArrowLeft size={15} /> Back</button>
         <button onClick={p.onHome} style={NAV_PILL}><Home size={15} /> Home</button>
       </div>
     </header>
