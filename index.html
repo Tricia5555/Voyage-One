@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M577";
+const BUILD = "M578";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8980,6 +8980,14 @@ AIRPORT_ASSIST.DUB = { title: "Dublin Airport Platinum VIP", airport: "Dublin", 
     { name: "Transit", from: "\u20ac625", includes: ["\u20ac625 first passenger", "\u20ac415 each additional passenger"] },
   ],
   note: "Preferred at Dublin, and it is the airport itself. Private check-in and dedicated screening, customs and immigration handled, a private suite with refreshments while you wait, and a chauffeur across the apron to or from the aircraft. Book direct." };
+// ══ FRANKFURT — Fraport's VIP Services. Exclusive checkpoint, limousine to the aircraft, private
+// suites. Prices are NET, VAT on top — said on the card, so nobody is surprised by the invoice.
+// Request at least 24 hours before the flight.
+AIRPORT_ASSIST.FRA = { title: "Frankfurt Airport VIP Services", airport: "Frankfurt am Main", name: "Fraport VIP Services", web: "https://vip.frankfurt-airport.com/en.html", email: "vip-services@fraport.de", tel: "+49 69 690-70366", button: "Book Frankfurt VIP",
+  headline: "The airport operator's own VIP service: an exclusive checkpoint, a limousine to the aircraft, and private suites.",
+  includes: ["Personal VIP agent", "Exclusive security checkpoint", "Immigration and border-control assistance", "Check-in assistance", "Baggage drop-off or collection", "VIP lounge", "Luxury limousine directly to and from the aircraft", "Food and beverages", "Private suites available"],
+  tiers: [{ name: "Arrival, departure or transfer", from: "\u20ac545 net", includes: ["\u20ac545 first passenger", "\u20ac340 each additional passenger", "Net prices \u2014 VAT is additional"] }],
+  note: "Preferred at Frankfurt, operated by Fraport — the airport company. A personal agent, an exclusive security checkpoint, immigration handled, the VIP lounge or a private suite, and a limousine across the apron to or from the aircraft. PRICES ARE NET AND VAT IS ADDED. Request at least 24 hours before the flight. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
