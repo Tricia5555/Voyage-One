@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M595";
+const BUILD = "M596";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9177,6 +9177,15 @@ AIRPORT_ASSIST.EZE = { title: "VIPClub Preferential Pass \u2014 Buenos Aires", a
   ],
   tiers: [{ name: "Preferential Pass", from: "USD 242", includes: ["USD 242 per person"] }],
   note: "Preferred at Buenos Aires, and it is the airport operator — Aeropuertos Argentina. On departure you clear an exclusive security checkpoint and exclusive passport control from the VIP lounge; on arrival, exclusive passport control and help with the bags. Operates around the clock. Book at least 72 hours ahead where you can, and certainly if you want baggage assistance. Book direct." };
+// ══ SHANGHAI — the Shanghai Airport Group's own VIP services, at both Pudong and Hongqiao. Each
+// airport has its own email; the phone lines are shared. Priced on quote; the card says so.
+[["PVG", "Shanghai Pudong", "pvg-service@shairport.com"], ["SHA", "Shanghai Hongqiao", "sha-service@shairport.com"]].forEach(([code, airport, email]) => {
+  AIRPORT_ASSIST[code] = { title: `Shanghai Airport VIP Services \u2014 ${airport.split(" ")[1]}`, airport, name: "Shanghai Airport VIP Services", web: "https://www.shairport.com/ensh/", email, tel: "+86 21 2238 2037", tel2: "+86 21 96990", button: "Contact Shanghai Airport VIP",
+    headline: "The airport group's own full-process VIP service: a personal escort through dedicated VIP channels, check-in handled, and the VIP lounge.",
+    includes: ["Personal VIP escort", "Dedicated VIP airport channels", "Check-in assistance", "VIP lounge", "Arrival and departure assistance", "Customised high-end airport handling"],
+    tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
+    note: `Preferred at Shanghai ${airport.split(" ")[1]}, and it is the Shanghai Airport Group itself. A personal escort takes you through the dedicated VIP channels rather than the public ones, with check-in handled and the VIP lounge — and the service is tailored to the party. Priced on quote. The second number is the airport's general hotline. Book direct.` };
+});
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
