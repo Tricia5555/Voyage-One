@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M606";
+const BUILD = "M610";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7947,6 +7947,13 @@ const PLACE_REGION = {
   "spoleto": "Umbria, Italy", "todi": "Umbria, Italy", "norcia": "Umbria, Italy",
   "inverness": "Scottish Highlands, Scotland", "torridon": "Scottish Highlands, Scotland",
   "fort william": "Scottish Highlands, Scotland", "portree": "Scottish Highlands, Scotland",
+  // The Dolomites pull their starred tables from the towns along the range — Cortina in the east,
+  // Val Gardena and the Alta Badia in the centre, Brunico and Bressanone on the northern edge, the
+  // Brenta group at Madonna di Campiglio in the west. Merano and Lagundo are South Tyrol and NOT
+  // labelled here. "Badia" in the dining table is Badia a Passignano in Tuscany and is left alone.
+  "cortina d\u2019ampezzo": "Dolomites, Italy", "ortisei": "Dolomites, Italy", "selva di val gardena": "Dolomites, Italy",
+  "bressanone": "Dolomites, Italy", "brunico": "Dolomites, Italy", "dobbiaco": "Dolomites, Italy", "moena": "Dolomites, Italy",
+  "cavalese": "Dolomites, Italy", "madonna di campiglio": "Dolomites, Italy", "pinzolo": "Dolomites, Italy",
   "cyclades": "Greece", "balearics": "Spain", "corsica": "France", "canary islands": "Spain",
   "french west indies": "Caribbean", "the grenadines": "Caribbean", "cape winelands": "South Africa",
   "aeolian islands": "Italy", "sonoma county": "California",
@@ -8336,7 +8343,7 @@ const GATEWAY = {
   "Jabal Akhdar": { air: "Muscat", note: "Fly to Muscat (MCT), then two hours and a mountain road. Four-wheel drive is required at the checkpoint, not optional." },
   "Wahiba Sands": { air: "Muscat", note: "Fly to Muscat (MCT), then about two and a half hours; the last stretch is soft sand and the camp will meet you." },
   "Serengeti": { air: "Kilimanjaro", note: "Fly to Kilimanjaro (JRO), then a light aircraft into the bush strips." },
-  "Dolomites": { air: "Venice", note: "Venice (VCE) is the usual gateway — about 2 hr by car into the mountains." },
+  "Dolomites": { air: "Venice", note: "VENICE (VCE) is the usual gateway and the one with transatlantic service \u2014 about two hours by road to Cortina at the eastern end, nearer three to San Cassiano and the Alta Badia in the centre. For the Alta Badia, INNSBRUCK (INN) is closer at about ninety minutes over the Brenner, but it is a small field with thin long-haul connections, so it suits a client already in Europe more than one arriving from the States. VERONA (VRP) is a third option at two and a half hours, useful if the fares are better. The mountain roads are good but slow: allow the time, and in winter give the driver a car with proper tyres." },
   "Provence": { air: "Marseille", note: "Marseille (MRS) or Nice (NCE) — then a car is essential." },
   "Napa Valley": { air: "San Francisco", note: "San Francisco (SFO) is the gateway — about 1 hr 30 north." },
   "Algarve": { air: "Faro", note: "Faro (FAO) sits right in the middle of the coast." },
@@ -9297,6 +9304,14 @@ AIRPORT_ASSIST.KWI = { title: "Hala Kuwait Meet & Assist \u2014 Kuwait City", ai
   ],
   tiers: [{ name: "Meet & Assist / Meet & Assist Plus", from: null, includes: ["Quote required \u2014 ask when you book", "Plus adds the Pearl Lounge"] }],
   note: "Preferred at Kuwait. Arriving, an assistant meets you and takes you through Fast Track immigration, helps with the visa on arrival where it applies, and with the bags. Departing or in transit, the formalities and check-in are handled and you are escorted to the gate; the Plus version adds the Pearl Lounge. Priced on quote through the airport's hospitality page. Book direct." };
+// ══ BAHRAIN — Hala Bahrain: Meet & Assist with Fast Track through both immigration and customs.
+// Price shown at booking, so the card says so. Two pages: Hala's own and the airport's.
+AIRPORT_ASSIST.BAH = { title: "Hala Bahrain \u2014 Meet & Assist + Fast Track", airport: "Bahrain International", name: "Hala Bahrain", web: "https://www.halabahrain.bh/", button: "Book Hala Bahrain",
+  web2: "https://www.bahrainairport.bh/airport-service/?category=1563&service=2529", button2: "Airport page", email: null, tel: null,
+  headline: "Meet & Assist with Fast Track through both immigration and customs, an escort, and the bags handled.",
+  includes: ["Personal Meet & Assist", "Fast Track through immigration", "Fast Track through customs formalities", "Airport escort", "Baggage assistance", "Porter available", "Lounge available", "Airport transportation available"],
+  tiers: [{ name: "Meet & Assist + Fast Track", from: null, includes: ["Current price shown at booking"] }],
+  note: "Preferred at Bahrain. An assistant meets you and takes you through Fast Track at immigration and at customs, with an escort through the terminal and the bags handled; a porter, the lounge and transport can be added. The price is shown when you book. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -9598,6 +9613,10 @@ const COORDS = {
   "Montpellier": [43.61,3.88], "Toulouse": [43.60,1.44], "Tours": [47.39,0.69], "Orl\u00e9ans": [47.90,1.90],
   "Reims": [49.26,4.03], "Strasbourg": [48.57,7.75], "Rouen": [49.44,1.10], "Nantes": [47.22,-1.55],
   "Rennes": [48.11,-1.68], "Clermont-Ferrand": [45.78,3.08], "Valence": [44.93,4.89],
+  // DOLOMITES DINING TOWNS. Coordinates only, so the region search can reach their tables.
+  "Cortina d\u2019Ampezzo": [46.54,12.14], "Alta Badia": [46.58,11.90], "Ortisei": [46.57,11.67], "Selva di Val Gardena": [46.56,11.76],
+  "Bressanone": [46.72,11.66], "Brunico": [46.80,11.94], "Dobbiaco": [46.73,12.22], "Moena": [46.38,11.66],
+  "Cavalese": [46.29,11.46], "Madonna di Campiglio": [46.23,10.83], "Pinzolo": [46.16,10.77],
   "Cotswolds": [51.83,-1.75], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
@@ -9996,6 +10015,7 @@ const CITY_ALIASES = {
   // Nobody types "Napa Valley" — they type NAPA. Nobody says "Cape Cod" in New England, they say
   // THE CAPE. A destination should answer to its spoken name, not only its formal one, and an
   // alias costs nothing: no record, no data, no maintenance.
+  "dolomiti": "Dolomites", "south tyrol": "Dolomites", "alto adige": "Dolomites", "cortina": "Dolomites",
   "the cotswolds": "Cotswolds", "the highlands": "Scottish Highlands",
   "highlands": "Scottish Highlands", "the scottish highlands": "Scottish Highlands",
   "bourgogne": "Burgundy", "cote d or": "Burgundy",
@@ -13790,7 +13810,23 @@ function StepBasics(p) {
     <div style={{ display: "flex", flexWrap: "wrap", gap: 40, maxWidth: 560 }}>
       {[["Leaving home", "depart"], ["Home again", "ret"]].map(([lab, key]) => (<div key={key} style={{ flex: "1 1 200px", display: "flex", flexDirection: "column", gap: 7 }}>
         <span style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, display: "flex", alignItems: "center", gap: 7 }}><Calendar size={13} /> {lab}</span>
-        <input type="date" value={p.dates[key]} onChange={(e) => p.setDates({ ...p.dates, [key]: e.target.value })} style={{ fontFamily: font.display, fontSize: 22, color: t.ink, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", outline: "none" }} />
+        {/* THE RETURN PICKER OPENS IN THE MONTH YOU ARE LEAVING. A native date picker opens at the
+            value it holds, or at today when empty — so with an October departure and an empty return,
+            it opened at September and made a September return one careless tap away. Now, choosing
+            a departure seeds the return one week later if the return is empty or earlier than the
+            departure, and the return field will not accept a date before the departure at all. */}
+        <input type="date" value={p.dates[key]} min={key === "ret" && p.dates.depart ? p.dates.depart : undefined}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (key === "depart") {
+              const r = p.dates.ret;
+              const seed = v ? (() => { const d = new Date(v + "T00:00:00"); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); })() : r;
+              p.setDates({ depart: v, ret: (!r || (v && r < v)) ? seed : r });
+            } else {
+              if (v && p.dates.depart && v < p.dates.depart) return;           // a return before you leave is not a date
+              p.setDates({ ...p.dates, ret: v });
+            }
+          }} style={{ fontFamily: font.display, fontSize: 22, color: t.ink, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", outline: "none" }} />
       </div>))}
     </div>
     <div style={{ marginTop: 40 }}>
