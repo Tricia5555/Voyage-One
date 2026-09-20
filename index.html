@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M590";
+const BUILD = "M591";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9110,6 +9110,19 @@ AIRPORT_ASSIST.DOH = { title: "Al Maha Platinum \u2014 Doha", airport: "Doha Ham
   ],
   tiers: [{ name: "Platinum", from: "USD 31\u2013178", includes: ["Al Maha services range from about USD 31 to 178 depending on the service \u2014 confirm the Platinum price on booking"] }],
   note: "Preferred at Doha, and it is the airline's own service. Platinum: met at the aircraft with your name on a board, dedicated immigration facilities, the Al Maha lounge, a porter, priority boarding, and an escort to whoever is meeting you — or to the onward flight in transit. Book direct." };
+// ══ BANGKOK — VIP Fast Track + Meet & Greet at Suvarnabhumi, through limousine.in.th. Priced per
+// passenger, with a golf-cart arrival tier by party size. THE OPERATOR SAYS THE ARRIVAL FAST TRACK
+// MAY BE TEMPORARILY UNAVAILABLE AT TIMES — so the card says availability must be confirmed
+// before booking, in the headline where it cannot be missed.
+AIRPORT_ASSIST.BKK = { title: "VIP Fast Track + Meet & Greet \u2014 Bangkok", airport: "Bangkok Suvarnabhumi", name: "VIP Fast Track Bangkok", web: "https://limousine.in.th/fast-track-immigration.php", email: null, tel: null, button: "Book Bangkok Fast Track",
+  headline: "Fast Lane passport control with a greeter and escort. CONFIRM AVAILABILITY BEFORE BOOKING — the operator says the arrival Fast Track may be temporarily unavailable at certain times.",
+  includes: ["Meet & Greet", "Fast Lane passport control", "Airport escort", "Golf cart option on arrival", "Porter assistance available", "Departure assistance"],
+  tiers: [
+    { name: "Arrival Fast Lane", from: "THB 1,299", includes: ["THB 1,299 per passenger"] },
+    { name: "Arrival with golf cart", from: "THB 2,799", includes: ["THB 2,799 for 1 passenger", "THB 4,098 for 2 passengers", "THB 5,397 for 3 passengers"] },
+    { name: "Departure VIP service", from: "THB 1,250", includes: ["THB 1,250 per passenger"] },
+  ],
+  note: "Preferred at Bangkok. A greeter meets you and takes you through the Fast Lane at passport control with an escort through the terminal — by golf cart if you take that option — and a porter where you want one; on departure, assistance through check-in and the formalities. The arrival Fast Track is subject to availability on the day: confirm it when you book, not when you land. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
