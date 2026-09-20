@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M570";
+const BUILD = "M571";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8911,6 +8911,22 @@ AIRPORT_ASSIST.MXP = { title: "VIP Assist \u2014 Milan Malpensa", airport: "Mila
     { name: "Connection", may: ["Meet at aircraft or gate", "Immigration Fast Track where available", "Baggage assistance", "Porter service", "Lounge escort", "Escort to onward gate"] },
   ],
   note: "Preferred provider at Malpensa. Contact them with your flight and they arrange the service. Fast Track depends on what the airport makes available on the day, and immigration decisions remain with the authorities." };
+// ══ SPAIN — AENA PREMIUM SERVICE, the airport operator's own product ═══════════════════════════
+// This qualifies where an ordinary meet-and-greet does not: a SEPARATE PASSENGER FLOW with its
+// own private security and passport-control checkpoints, a private escort, a private vehicle to
+// and from the aircraft, and the premium lounge. Not to be confused with Aena's standard Meet &
+// Assist, which is NOT carried — it is not sufficiently differentiated, and in Barcelona priority
+// immigration and customs access is specifically excluded from it. Madrid and Barcelona only.
+const AENA_WHY = ["Separate passenger flow", "Private security checkpoint", "Private passport-control checkpoint", "Private escort", "Private vehicle to and from the aircraft", "Premium lounge", "Check-in assistance", "Baggage handling available"];
+const AENA_TIERS = [
+  { name: "With handling", from: "\u20ac476.49", includes: ["1 passenger \u20ac476.49", "2 passengers \u20ac714.71", "3 passengers \u20ac952.93"] },
+  { name: "Without handling", from: "\u20ac376.65", includes: ["1 passenger \u20ac376.65", "2 passengers \u20ac564.96", "3 passengers \u20ac753.26"] },
+];
+const AENA_NOTE = "Aena's official Premium Service — the airport itself, not a third party. You are taken out of the public flow entirely: a private security checkpoint, a private passport-control checkpoint, a private escort, a private vehicle across the apron to or from the aircraft, and the premium lounge while you wait. Published price guide; confirm on booking. Book direct.";
+AIRPORT_ASSIST.MAD = { title: "Aena Premium Service \u2014 Madrid", airport: "Madrid Barajas", name: "Aena Premium Service", web: null, email: "mad.premium@aena.es", tel: "+34 917 438 773", mobile: "+34 678 227 405", button: "Contact Aena Premium",
+  headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS, note: AENA_NOTE };
+AIRPORT_ASSIST.BCN = { title: "Aena Premium Service \u2014 Barcelona", airport: "Barcelona El Prat", name: "Aena Premium Service", web: null, email: "bcn.premium@aena.es", tel: "+34 932 971 360", button: "Contact Aena Premium",
+  headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS, note: AENA_NOTE };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -8934,7 +8950,7 @@ function AssistCard({ code, when }) {
       </div>))}
     </div>) : null}
     <div style={{ marginTop: 10, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-      <a className="vo-noprint" href={brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button || `Book ${a.name}`}</a>
+      <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : `mailto:${a.email}`} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button || `Book ${a.name}`}</a>
       <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span>
       <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span>
       {a.mobile ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.mobile}</span> : null}
