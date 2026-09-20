@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M569";
+const BUILD = "M570";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8884,58 +8884,60 @@ const AIRPORT_ASSIST = {
     ],
     note: "Preferred provider. Met at the aircraft door or the kerb, walked through the terminal by your own agent, Fast Track through immigration and security where the airport allows it. Book direct." },
 };
-// PARIS — PARADIGM MEET & GREET, Tricia's preferred provider for France. Priced per booking rather
-// than by tier: arrival, departure or transit, for one to three passengers. Trustpilot 4.5 across
-// 83 reviews at the time of loading. (VIP Assist sells the French airports too, with no published
-// price; not carried — we do not offer what we cannot price.)
-const PARADIGM_INCLUDES = ["Personal airport greeter", "Fast Track where available", "Passport control", "Security", "Baggage", "Escort to driver, lounge or gate"];
-[["CDG", "Paris Charles de Gaulle"], ["ORY", "Paris Orly"]].forEach(([code, name]) => {
-  AIRPORT_ASSIST[code] = { airport: name, name: "Paradigm Meet & Greet", web: "https://www.paradigmairportservices.com/en/aeroporto/paris-airport-vip-service/", email: "info@paradigmairportservices.com", tel: "+39 0522 205500",
-    tiers: [
-      { name: "Arrival",   from: "\u20ac249", includes: ["1\u20133 passengers"] },
-      { name: "Departure", from: "\u20ac249", includes: ["1\u20133 passengers"] },
-      { name: "Transit",   from: "\u20ac289", includes: ["1\u20133 passengers"] },
-    ],
-    note: "Preferred provider. A personal greeter meets you, takes you through passport control and security by the fast lane where the airport allows it, handles the bags, and walks you to your driver, the lounge or the gate. Trustpilot 4.5 from 83 reviews, 94% of them five stars. Book direct.",
-    includes: PARADIGM_INCLUDES };
+// ══ FRANCE AND MILAN — VIP ASSIST, no prices shown ═══════════════════════════════════════════
+// Both are CONTACT listings, not priced menus: the service is described as "may include", the
+// client display carries a name, an email, a phone and one button, and the card promises nothing
+// the provider does not. Paradigm and every other previously loaded French or Italian provider
+// is gone. Malpensa is the ONLY Italian listing; further Italian airports are added only after
+// each is individually verified as a genuinely high-level service.
+//
+// DISPLAY LANGUAGE RULE, everywhere: "VIP Meet & Assist with Fast Track airport procedures
+// where available." Never "guaranteed immigration clearance" or "guaranteed Fast Track" — VIP
+// Assist themselves say Fast Track depends on the airport and immigration decisions rest with
+// the authorities.
+const VIP_FRANCE = { title: "VIP Assist \u2014 France", name: "VIP Assist", web: "https://www.vipassist.co.uk/", email: "booking@www.vipassist.co.uk", tel: "+44 20 3621 6092", button: "Contact VIP Assist",
+  headline: "VIP Meet & Assist with Fast Track airport procedures where available.",
+  mayInclude: ["Personal airport agent", "Aircraft or gate greeting", "Fast Track airport lanes where available", "Expedited security procedures", "Passport-control assistance", "Baggage assistance", "Porter service", "Lounge escort", "Escort to waiting vehicle"],
+  note: "Preferred provider for France. Contact them with your flight and they arrange the service for that airport. Fast Track depends on what the airport makes available on the day, and immigration decisions remain with the authorities." };
+[["CDG", "Paris Charles de Gaulle"], ["ORY", "Paris Orly"], ["NCE", "Nice C\u00f4te d\u2019Azur"], ["LYS", "Lyon Saint-Exup\u00e9ry"],
+ ["MRS", "Marseille Provence"], ["BOD", "Bordeaux-M\u00e9rignac"], ["MPL", "Montpellier"], ["TLS", "Toulouse Blagnac"]].forEach(([code, airport]) => {
+  AIRPORT_ASSIST[code] = { ...VIP_FRANCE, airport };
 });
-// ITALY — MILAN MALPENSA ONLY, and VIP Assist. Every other Italian airport was removed on
-// instruction (Paradigm at Rome, Venice, Florence, Naples, Palermo, Ciampino and Malpensa are all
-// gone). Further Italian airports are added ONLY after each service is individually verified as
-// a genuinely high-level VIP / Fast Track product. WORDING RULE for Italy: never "guaranteed
-// immigration clearance" or "guaranteed priority" — always "Fast Track and priority procedures
-// where available." No tarmac / private-terminal package is shown.
-AIRPORT_ASSIST.MXP = { airport: "Milan Malpensa", name: "VIP Assist", web: "https://www.vipassist.co.uk/locations/milan-malpensa-airport", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
-  tiers: [
-    { name: "Bronze", from: "\u00a3170", includes: ["Personal agent", "Fast Track lane where available"] },
-    { name: "Silver", from: "\u00a3250", includes: ["Personal agent", "Fast Track lane where available", "Luggage porter", "Electric golf buggy where available"] },
-    { name: "Gold",   from: "\u00a3350", includes: ["Personal agent", "Fast Track lane where available", "Luggage porter", "Electric golf buggy where available", "Chauffeur airport transfer"] },
+AIRPORT_ASSIST.MXP = { title: "VIP Assist \u2014 Milan Malpensa", airport: "Milan Malpensa", name: "VIP Assist", web: "https://www.vipassist.co.uk/locations/milan-malpensa-airport", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108", button: "Contact VIP Assist",
+  headline: "VIP Meet & Assist with Fast Track airport procedures where available.",
+  phases: [
+    { name: "Arrival", may: ["Personal 1-to-1 airport agent", "Meet at aircraft or airbridge", "Immigration Fast Track where available", "Customs assistance", "Baggage collection", "Porter service", "Escort to waiting vehicle"] },
+    { name: "Departure", may: ["Meet & Greet kerbside", "Porter", "Check-in assistance", "Fast Track where available", "Security and passport-control assistance", "Lounge escort", "Boarding-gate escort"] },
+    { name: "Connection", may: ["Meet at aircraft or gate", "Immigration Fast Track where available", "Baggage assistance", "Porter service", "Lounge escort", "Escort to onward gate"] },
   ],
-  note: "Preferred provider at Malpensa. On arrival: your own 1-to-1 agent meets you at the aircraft or airbridge, takes you through immigration and customs using the airport's Fast Track and priority procedures where available, collects the bags with a porter and walks you to your waiting vehicle. On departure: met at the kerb, porter, check-in and security assistance, lounge, and an escort to the gate. Connections are handled gate to gate. Book direct.",
-  includes: ["Personal 1-to-1 agent", "Meet at aircraft, airbridge or kerb", "Fast Track and priority procedures where available", "Immigration, customs and security assistance", "Baggage and porter", "Lounge on departure and connection", "Escort to vehicle or gate"] };
+  note: "Preferred provider at Malpensa. Contact them with your flight and they arrange the service. Fast Track depends on what the airport makes available on the day, and immigration decisions remain with the authorities." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
   if (!a) return null;
+  const list = (arr) => arr.join(" \u00b7 ");
   return (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
-    <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` · ${when}` : ""}</div>
-    <div style={{ fontSize: 14, color: t.ink, fontWeight: 500 }}>{a.name}</div>
+    <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` \u00b7 ${when}` : ""}</div>
+    <div style={{ fontSize: 14, color: t.ink, fontWeight: 500, textTransform: a.title ? "uppercase" : "none", letterSpacing: a.title ? ".04em" : 0 }}>{a.title || a.name}</div>
+    {a.headline ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 4 }}>{a.headline}</div> : null}
     <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{a.note}</div>
-    {a.includes ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>Includes:</strong> {a.includes.join(" \u00b7 ")}</div> : null}
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
+    {a.includes ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>Includes:</strong> {list(a.includes)}</div> : null}
+    {a.mayInclude ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>May include:</strong> {list(a.mayInclude)}</div> : null}
+    {a.phases ? (<div style={{ marginTop: 8, display: "grid", gap: 6 }}>{a.phases.map((ph) => (<div key={ph.name} style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55 }}><strong>{ph.name} may include:</strong> {list(ph.may)}</div>))}</div>) : null}
+    {a.tiers ? (<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
       {a.tiers.map((tr) => (<div key={tr.name} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 9, padding: "9px 11px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine }}>{tr.name}</span>
           <span style={{ fontSize: 12.5, color: t.inkSoft }}>{tr.from ? `from ${tr.from}` : "on quote"}</span>
         </div>
-        <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{tr.includes.join(" · ")}</div>
+        <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{list(tr.includes)}</div>
       </div>))}
-    </div>
-    <div style={{ marginTop: 9, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-      <a className="vo-noprint" href={brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Book {a.name} →</a>
+    </div>) : null}
+    <div style={{ marginTop: 10, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+      <a className="vo-noprint" href={brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button || `Book ${a.name}`}</a>
+      <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span>
       <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span>
       {a.mobile ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.mobile}</span> : null}
-      <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span>
     </div>
   </div>);
 }
