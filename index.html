@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M599";
+const BUILD = "M600";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9220,6 +9220,16 @@ AIRPORT_ASSIST.SGN = { title: "Tan Son Nhat VIP Fast Track \u2014 Ho Chi Minh Ci
     { name: "First Class departure Fast Track", from: "USD 110", includes: ["USD 110 per passenger"] },
   ],
   note: "Preferred at Ho Chi Minh City. Arriving, a greeter meets you and takes you through the priority passport lane, collects the bags with a porter, and walks you through customs to the car. Departing, check-in is handled, a porter carries everything, and you go through express security and the priority passport lane. The phone is the airport's line. Book direct." };
+// ══ TAIPEI — the Huan Yu VIP Terminal at Taoyuan: a private terminal with its own VIP rooms.
+// Priced per passenger one way or as a 30-day round trip; children half price, infants free.
+AIRPORT_ASSIST.TPE = { title: "Huan Yu VIP Terminal \u2014 Taipei", airport: "Taipei Taoyuan", name: "Huan Yu VIP Terminal", web: "https://www.hyvip.com.tw/en/reservation_1.php", email: null, tel: "+886 3 393 2525", tel2: "0800 268 999 (Taiwan toll-free)", button: "Book Huan Yu VIP",
+  headline: "A private VIP terminal of its own: a personal concierge, expedited security, immigration, customs and quarantine handled, and a private room.",
+  includes: ["Private VIP terminal", "Personal concierge", "Check-in assistance", "Expedited security clearance", "Immigration assistance", "Customs clearance assistance", "Quarantine formalities assistance", "Private VIP room", "Food and beverages", "Escort to and from the boarding gate", "Baggage assistance"],
+  tiers: [
+    { name: "One way", from: "NT$12,000", includes: ["NT$12,000 per passenger", "Child 2\u201311 NT$6,000", "Under 2 complimentary"] },
+    { name: "Round trip within 30 days", from: "NT$20,700", includes: ["NT$20,700 per passenger", "Child 2\u201311 NT$6,000", "Under 2 complimentary"] },
+  ],
+  note: "Preferred at Taipei. Huan Yu is a private terminal at Taoyuan with its own VIP rooms: a personal concierge handles check-in, security, immigration, customs and quarantine, you wait in a private room with food and drink, and you are escorted to or from the gate with the bags carried. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
