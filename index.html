@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M624";
+const BUILD = "M626";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11753,6 +11753,7 @@ function VoyageOne() {
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
     {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+      <HelpPanel screen={screen} step={step} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "oneList" && <OneList onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "plan" && <Planner {...shared} />}
@@ -13443,6 +13444,99 @@ const REGION_PROFILES = {
     moves: { base: "Marrakech, with the Atlas foothills and the Palmeraie around you", two: "Marrakech and Essaouira — the red city and the sea", journey: "Fez for the medina, Marrakech, then down to Essaouira on the coast" },
     note: "Marrakech is the anchor and has the hotels. Fez is the older, deeper medina and worth two nights for anyone who cares about history; Essaouira is the wind, the ramparts and the fish, and the place to end." },
 };
+// ══ EVERY COUNTRY WE CARRY, NOT ONLY THE FIVE WRITTEN BY HAND ══════════════════════════════
+// A country for every hotel city that has no region label — 218 of them — so "Greece", "Italy",
+// "Japan" or "Costa Rica" can be typed and the tab finds what we hold there. Facts only: where a
+// place is. Entries that are themselves a country map to themselves.
+const CITY_COUNTRY = {
+  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Agra": "India", "AlUla": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
+  "Amalfi Coast": "Italy", "Amman": "Jordan", "Amsterdam": "Netherlands", "Angra dos Reis": "Brazil", "Antigua Guatemala": "Guatemala", "Antioquia": "Colombia",
+  "Aqaba": "Jordan", "Arenal": "Costa Rica", "Arequipa": "Peru", "Aswan": "Egypt", "Atacama": "Chile", "Baden-Baden": "Germany", "Bagaces": "Costa Rica",
+  "Bajos del Toro": "Costa Rica", "Bali": "Indonesia", "Bangkok": "Thailand", "Barcelona": "Spain", "Bar\u00fa": "Colombia", "Basel": "Switzerland",
+  "Bay of Islands": "New Zealand", "Beijing": "China", "Berlin": "Germany", "Bhutan": "Bhutan", "Bijagua": "Costa Rica", "Bocas del Toro": "Panama",
+  "Bogot\u00e1": "Colombia", "Bora Bora": "French Polynesia", "Bordeaux": "France", "Botswana": "Botswana", "Brazilian Amazon": "Brazil", "Budapest": "Hungary",
+  "Buenos Aires": "Argentina", "B\u00fcrgenstock": "Switzerland", "Cairo": "Egypt", "Cape Breton": "Canada", "Cape Town": "South Africa", "Carmelo": "Uruguay",
+  "Cartagena": "Colombia", "Central Valley": "Costa Rica", "Champagne": "France", "Chiang Mai": "Thailand", "Chiang Rai": "Thailand", "Chilean Wine Country": "Chile",
+  "Chilo\u00e9": "Chile", "Coffee Country": "Colombia", "Colca Canyon": "Peru", "Colonia del Sacramento": "Uruguay", "Comporta": "Portugal", "Cotopaxi": "Ecuador",
+  "Cuenca": "Ecuador", "Cusco": "Peru", "Dead Sea": "Jordan", "Doha": "Qatar", "Dolomites": "Italy", "Dubai": "United Arab Emirates", "Dublin": "Ireland",
+  "Dubrovnik": "Croatia", "Easter Island": "Chile", "Ecuadorian Amazon": "Ecuador", "El Chalt\u00e9n": "Argentina", "El Gouna": "Egypt", "El Valle de Ant\u00f3n": "Panama",
+  "Elqui Valley": "Chile", "England": "England", "Essaouira": "Morocco", "Fernando de Noronha": "Brazil", "Fez": "Morocco", "Fiji": "Fiji", "Florence": "Italy",
+  "Fogo Island": "Canada", "French Polynesia": "French Polynesia", "Futangue": "Chile", "Gal\u00e1pagos": "Ecuador", "Geneva": "Switzerland", "Granada, Nicaragua": "Nicaragua",
+  "Guanacaste": "Costa Rica", "Guayaquil": "Ecuador", "Hacienda Zuleta": "Ecuador", "Hakone": "Japan", "Hamilton Island": "Australia", "Hong Kong": "Hong Kong",
+  "Hvar": "Croatia", "Iguaz\u00fa": "Argentina", "Igua\u00e7u Falls": "Brazil", "Ireland": "Ireland", "Ise-Shima": "Japan", "Islas Secas": "Panama", "Istanbul": "T\u00fcrkiye",
+  "Izu": "Japan", "Jabal Akhdar": "Oman", "Jaipur": "India", "Jasper": "Canada", "Java": "Indonesia", "Jodhpur": "India", "Jujuy": "Argentina", "Kangaroo Island": "Australia",
+  "Koh Kood": "Thailand", "Koh Samui": "Thailand", "Krabi": "Thailand", "Kruger": "South Africa", "Kyoto": "Japan", "La Paz": "Bolivia", "Lake Bled": "Slovenia",
+  "Lake Como": "Italy", "Lake Titicaca": "Peru", "Len\u00e7\u00f3is Maranhenses": "Brazil", "Levi": "Finland", "Lima": "Peru", "Lisbon": "Portugal", "London": "England",
+  "Los Angeles": "California", "Los Cabos": "Mexico", "Luxor": "Egypt", "Machu Picchu": "Peru", "Madagascar": "Madagascar", "Madrid": "Spain", "Maldives": "Maldives",
+  "Mali Lo\u0161inj": "Croatia", "Manuel Antonio": "Costa Rica", "Marrakech": "Morocco", "Masai Mara": "Kenya", "Mashpi": "Ecuador", "Medell\u00edn": "Colombia",
+  "Mendoza": "Argentina", "Milan": "Italy", "Monaco": "Monaco", "Mont-Tremblant": "Canada", "Montana": "Montana", "Montevideo": "Uruguay", "Montreal": "Canada",
+  "Munich": "Germany", "Musandam": "Oman", "Muscat": "Oman", "Nairobi": "Kenya", "Namibia": "Namibia", "Napa Valley": "California", "New York City": "New York",
+  "Ngorongoro": "Tanzania", "Nice": "France", "North Hatley": "Canada", "Nosara": "Costa Rica", "Okavango": "Botswana", "Osa Peninsula": "Costa Rica", "Pacuare": "Costa Rica",
+  "Pampas": "Argentina", "Panama City": "Panama", "Pantanal": "Brazil", "Paraty": "Brazil", "Paris": "France", "Peninsula Papagayo": "Costa Rica", "Peruvian Amazon": "Peru",
+  "Petra": "Jordan", "Phuket": "Thailand", "Prague": "Czechia", "Provence": "France", "Puerto Natales": "Chile", "Puerto Varas": "Chile", "Puglia": "Italy",
+  "Punta del Este": "Uruguay", "Quebec City": "Canada", "Quito": "Ecuador", "Ranthambore": "India", "Red Sea": "Saudi Arabia", "Rio de Janeiro": "Brazil",
+  "Riviera Maya": "Mexico", "Riviera Nayarit": "Mexico", "Rome": "Italy", "Rovaniemi": "Finland", "Rovinj": "Croatia", "Rwanda": "Rwanda", "R\u00edo Grande, Puerto Rico": "Puerto Rico",
+  "Sacred Valley": "Peru", "Salta": "Argentina", "Salvador": "Brazil", "Santa Catarina": "Brazil", "Santa Teresa": "Costa Rica", "Santiago": "Chile", "Serengeti": "Tanzania",
+  "Seychelles": "Seychelles", "Shanghai": "China", "Sharm El Sheikh": "Egypt", "Singapore": "Singapore", "Split": "Croatia", "Sri Lanka": "Sri Lanka", "St-Tropez": "France",
+  "Sucre": "Bolivia", "Sydney": "Australia", "S\u00e3o Paulo": "Brazil", "Tasmania": "Australia", "Tayrona": "Colombia", "Tofino": "Canada", "Tokyo": "Japan", "Toronto": "Canada",
+  "Trancoso": "Brazil", "Troms\u00f8": "Norway", "Tuscany": "Italy", "Udaipur": "India", "Uluru": "Australia", "Uyuni": "Bolivia", "Vale dos Vinhedos": "Brazil",
+  "Valpara\u00edso": "Chile", "Vancouver": "Canada", "Venice": "Italy", "Versailles": "France", "Victoria": "Canada", "Vienna": "Austria", "Villa La Angostura": "Argentina",
+  "Wadi Rum": "Jordan", "Wahiba Sands": "Oman", "Yao Noi": "Thailand", "Zapallar": "Chile", "Zurich": "Switzerland",
+};
+const COUNTRY_ALIASES = { "uae": "United Arab Emirates", "emirates": "United Arab Emirates", "turkey": "T\u00fcrkiye", "czech republic": "Czechia", "uk": "England", "united kingdom": "England", "britain": "England", "usa": "United States", "holland": "Netherlands", "the netherlands": "Netherlands", "tahiti": "French Polynesia", "kenya safari": "Kenya", "tanzania safari": "Tanzania" };
+// The country a hotel city belongs to: the label's last part, or the table above.
+function countryOfCity(city) {
+  const r = regionOf(city);
+  if (r) { const parts = String(r).split(",").map((x) => x.trim()); return parts[parts.length - 1]; }
+  const k = Object.keys(CITY_COUNTRY).find((x) => dnrm(x) === dnrm(city));
+  return k ? CITY_COUNTRY[k] : null;
+}
+// A PROFILE DERIVED FROM THE DATA, for any country or region head we carry and have not written
+// by hand. Members are every hotel city in it; the gateway is the one with the biggest airport;
+// the order is a nearest-neighbour chain from the gateway, which is what "travelling order" means
+// without a human; a town more than 300 km from the gateway or on another island is FAR; and the
+// facets come from what the hotels say about themselves. The advisor then writes the pitches.
+function derivedProfile(text) {
+  const q = dnrm(text || "");
+  if (!q) return null;
+  const qq = dnrm(COUNTRY_ALIASES[q] || q);
+  const cities = Object.keys(FAVORITES).filter((c) => (FAVORITES[c] || []).length);
+  let members = cities.filter((c) => { const co = countryOfCity(c); return co && dnrm(co) === qq; });
+  let name = null;
+  if (members.length) { const co = countryOfCity(members[0]); name = co; }
+  if (!members.length) {                           // a region head: "Tuscany", "Dolomites", "Cyclades", "Rajasthan"
+    members = cities.filter((c) => { const r = regionOf(c); return r && dnrm(String(r).split(",")[0]) === qq; });
+    if (members.length) name = String(regionOf(members[0])).split(",")[0].trim();
+  }
+  if (!members.length) {                           // a region we defined by borrowing (Cyclades, Balearics …)
+    const k = Object.keys(NEARBY_CITIES).find((x) => dnrm(x) === qq);
+    if (k && (NEARBY_CITIES[k] || []).length) { members = (NEARBY_CITIES[k] || []).filter((c) => (lookup(FAVORITES, c) || []).length); name = k; }
+  }
+  if (!members.length) return null;
+  const airScale = (c) => { const a = airportFor(c); return a ? (a.scale === "intercontinental" ? 3 : a.scale === "regional" ? 2 : 1) : 0; };
+  const gateway = members.slice().sort((x, y) => airScale(y) - airScale(x) || (FAVORITES[y] || []).length - (FAVORITES[x] || []).length)[0];
+  // travelling order: nearest-neighbour from the gateway
+  const rest = members.filter((c) => c !== gateway); const order = [gateway];
+  while (rest.length) {
+    const last = order[order.length - 1];
+    rest.sort((x, y) => (distanceKm(last, x) == null ? 1e9 : distanceKm(last, x)) - (distanceKm(last, y) == null ? 1e9 : distanceKm(last, y)));
+    order.push(rest.shift());
+  }
+  const gwIsland = islandOf(gateway);
+  const mem = order.map((c) => { const d = distanceKm(gateway, c); return { city: c, far: (d != null && d > 300) || (islandOf(c) !== gwIsland) }; });
+  // facets, from what the hotels say about themselves and where they are
+  const blurb = members.map((c) => (FAVORITES[c] || []).map((h) => (h.ourTake || "") + " " + (h.area || "")).join(" ")).join(" ").toLowerCase();
+  const F = [];
+  const add = (f, re2) => { if (re2.test(blurb)) F.push(f); };
+  add("city", /\b(city|capital|downtown|old town|centre|center)\b/); add("history", /\b(medieval|century|palace|castle|ruins|temple|historic|cathedral|walls)\b/);
+  add("food", /\b(michelin|restaurant|cuisine|chef|dining|tables?)\b/); add("wine", /\b(wine|vineyard|winery|vines|estate)\b/);
+  add("sea", /\b(beach|sea|bay|coast|ocean|shore)\b/); add("islands", /\b(island|islands|atoll)\b/); add("sailing", /\b(yacht|sailing|marina|boat)\b/);
+  add("mountains", /\b(mountain|alps|peak|hiking|trail|walking|glacier)\b/); add("wildlife", /\b(safari|game|wildlife|leopard|elephant|reserve|bush)\b/);
+  add("wellness", /\b(spa|wellness|hammam|thermal|onsen)\b/); add("desert", /\b(desert|dunes|oasis)\b/); add("golf", /\bgolf\b/); add("art", /\b(art|gallery|museum|design)\b/);
+  return { name, members: mem, gateway, facets: F.length ? F : ["city", "food", "history"], derived: true,
+    moves: { base: `${bareCity(gateway)}, and day trips from it`, two: `two of the places we carry in ${name}, chosen to sit close together`, journey: `a route through what we carry in ${name}, in travelling order` },
+    note: `We carry ${members.length} ${members.length === 1 ? "place" : "places"} in ${name}. The advisor will shape them around your answers; every hotel proposed is one we have vetted.` };
+}
 // Members may be plain names or { city, pitch, far }. Normalised here so everything else sees one shape.
 function guideMembers(profile) { return (profile.members || []).map((m) => (typeof m === "string" ? { city: m } : m)); }
 function guideProfileFor(text) {
@@ -13450,6 +13544,8 @@ function guideProfileFor(text) {
   if (!q) return null;
   const key = Object.keys(REGION_PROFILES).find((k) => dnrm(k) === q || (REGION_PROFILES[k].aliases || []).some((a) => dnrm(a) === q));
   if (key) return { name: key, ...REGION_PROFILES[key] };
+  const derived = derivedProfile(text);
+  if (derived && derived.members.length > 1) return derived;
   const city = resolvePlace(text);
   if (city && lookup(FAVORITES, city) && (lookup(FAVORITES, city) || []).length) {
     return { name: city, members: [{ city, pitch: `We carry ${bareCity(city)} itself — this shapes a stay there.` }], gateway: city, facets: ["city", "food", "history"], single: true,
@@ -13718,6 +13814,80 @@ function GuideWizard({ onBuild, onBack, onHome }) {
       </div>)}
     </div>
   </div>);
+}
+// ══ HELP ═════════════════════════════════════════════════════════════════════════════════════
+// A "?" on every screen. Behind it: a short written guide to the site, and a question box
+// answered by Claude through /api/help — which is allowed to know ONLY this guide, plus which
+// screen the person is on. It cannot invent a feature we do not have, because it only knows the
+// ones written here. DISCIPLINE: a build that changes how something works touches this guide.
+const HELP_GUIDE = [
+  { id: "ways-in", title: "The four ways in", text: "From the home screen you can start four ways. I KNOW WHERE AND WHEN: name your cities and dates and build the trip yourself — flights, hotels, tables, tours. I KNOW WHEN — LET'S EXPLORE: give a season and a mood (ski, beach, golf, fly-fishing, a region) and we suggest where. I KNOW WHERE BUT NOT HOW: name a country or a coast and answer a few questions; we shape the trip an advisor would, from what we carry. INSPIRE ME WITH AN EXPERIENCE: The One List — Wimbledon, the Masters, Art Basel — pick the moment and we set the dates and the plan." },
+  { id: "basics", title: "Basics, Departure, Destinations, Build", text: "The builder runs left to right across the top: BASICS (who is travelling, home city), DEPARTURE (dates and where you leave from), DESTINATIONS (the cities, in order, with nights), then BUILD, where each destination has its own section: how you arrive, the flight, the hotel, dining, things to do, and a car if one makes sense. Choosing a departure date seeds the return a week later so the picker opens in the right month; the return can never be before the departure." },
+  { id: "flights", title: "Flights", text: "In each destination's section the flight panel searches live fares into the airport the site chose — or a hub you pick, if you would rather fly into Milan and drive to Florence. Tap a fare to lock it in. If you booked elsewhere, or by phone, use ALREADY BOOKED THIS FLIGHT YOURSELF? RECORD IT under the panel: the airline is enough, everything else is optional, and it prints on the itinerary. Dates more than about eleven months out show no fares because airlines have not released them yet — the panel tells you when they open." },
+  { id: "booked", title: "Booked / Not booked", text: "Under every chosen hotel, flight and restaurant there is a BOOKED / NOT BOOKED row with a field for the confirmation number. Nothing detects anything — you tell it, which is right for a hotel you booked by phone or a group booking made months ago. The itinerary prints what you tell it. If you tap a Book direct link, the site asks fifteen seconds later whether you booked." },
+  { id: "cars", title: "Rental cars", text: "A car is offered at the airport you LAND at, not the town you are going to — Malpensa for Florence, Palermo for Sciacca. Under the panel, DID YOU BOOK A CAR? records the company, where you collected it and where you are dropping it. Where you drop the car decides where your next flight leaves from." },
+  { id: "exit", title: "Flying out from", text: "Each destination shows FLYING OUT FROM — what the site worked out, with a CHANGE link. Tap it to pick a different city (Porto instead of Lisbon, say) or type one. Your choice wins over every guess, including the car drop-off." },
+  { id: "hotels", title: "Hotels and neighbourhoods", text: "Hotels come in two tiers, LUXURY and ULTRA LUXURY, and every one has been vetted — there is nothing below five-star caliber on the site. In larger cities a WHERE IN [CITY] row lets you narrow to a neighbourhood: Mayfair, the 8th, Elounda. Tap a hotel to open it; WHERE IS IT? shows that hotel alone on a map. Some places also show a NEARBY group — Monaco's Riviera hotels, for instance — with the travel time on each card." },
+  { id: "dining", title: "Dining", text: "Every restaurant shown has won something — Michelin stars, a Bib Gourmand, a place on the 50 Best or La Liste, a Beard award. DESTINATION tables are the ones worth travelling for; RECOMMENDED are excellent and nearer. Small towns borrow tables from neighbours within reach, so a stay in Stellenbosch shows Franschhoek's. WHERE IS IT? maps any table." },
+  { id: "vip", title: "Airport assistance", text: "Once a flight is booked, if it lands at or leaves from an airport where we have a vetted meet-and-assist — Heathrow, Paris, Malpensa, Madrid, Zurich, Dubai, Singapore, Los Angeles and forty others — a card appears under the flight with the service, the price where published, and a button to book or contact them. Book direct; we hold nothing." },
+  { id: "itinerary", title: "The itinerary", text: "When the plan is built, the itinerary is the one page with everything you know: the masthead with your names and dates, the map, booking guidance, A SECOND READ (what an advisor would flag before you pay), the DAILY SCHEDULE with every flight, car, hotel and table, then MORE THOUGHTS ON YOUR DESTINATIONS and BEFORE YOU LEAVE. Every leg shows Booked or Not booked and the reference." },
+  { id: "print", title: "Printing and PDFs", text: "Press SEND AS PDF at the top of the itinerary. That goes through the print layout — letter pages, no buttons, days never split across a page — and from the preview you can save a PDF or print. Do not use Safari's share-sheet PDF: that copies the screen and ignores the print layout." },
+  { id: "saved", title: "Saved journeys", text: "Trips save automatically as you work. On this device they are kept in the browser; signed in, they are kept in your account and follow you. Clearing Safari's website data removes browser-kept trips. Open a saved journey from the home screen; everything you recorded is still there." },
+  { id: "onelist", title: "The One List", text: "Curated experiences — sport, culture, food and wine, the wild. Each has a guide: why it is different, where to stay, how access actually works, what to book in what order, and the days themselves. Pick your days (and, at Wimbledon, your court for each day), then PLAN THIS TRIP builds the trip around them with arrival a day or two ahead." },
+  { id: "search", title: "Searching for places", text: "Type what you would say out loud: Napa, Cabo, the Keys, St Barts, the Winelands, Como. Regions work too — the Cyclades, the Balearics, Corsica, the Dolomites, the French Riviera — and find everything we carry along them. If a place is not found, we do not carry it yet." },
+];
+function HelpPanel({ screen, step }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [ans, setAns] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [openSec, setOpenSec] = useState(null);
+  const where = screen === "plan" ? ["Basics", "Departure", "Destinations", "Build"][step] || "the planner" : screen === "itinerary" ? "the itinerary" : screen === "oneList" ? "The One List" : screen === "guide" ? "I know where but not how" : screen === "start" ? "the home screen" : "the landing page";
+  const askIt = async () => {
+    const question = q.trim(); if (!question) return;
+    setBusy(true); setAns(null);
+    let got = null;
+    try {
+      const r = await fetch("/api/help", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question, where, guide: HELP_GUIDE }) });
+      const j = r.ok ? await r.json() : null;
+      if (j && j.ok && j.answer) got = { text: j.answer, source: "advisor" };
+    } catch (e) { got = null; }
+    if (!got) {
+      // no API: find the guide section that best matches the words in the question
+      const words = question.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
+      const scored = HELP_GUIDE.map((g) => ({ g, s: words.reduce((a, w) => a + ((g.title + " " + g.text).toLowerCase().includes(w) ? 1 : 0), 0) })).sort((x, y) => y.s - x.s);
+      got = scored[0] && scored[0].s > 0 ? { text: scored[0].g.text, source: "guide", title: scored[0].g.title } : { text: "That is not something the guide covers. Try the sections below, or tell us and we will add it.", source: "none" };
+    }
+    setAns(got); setBusy(false);
+  };
+  return (<>
+    <button className="vo-noprint" onClick={() => setOpen(!open)} title="Help" style={{ position: "fixed", right: 18, bottom: 18, zIndex: 80, width: 46, height: 46, borderRadius: 999, background: t.pine, color: t.paper, border: "none", fontFamily: font.display, fontSize: 24, boxShadow: "0 6px 18px rgba(0,0,0,.18)", cursor: "pointer" }}>?</button>
+    {open ? (<div className="vo-noprint" style={{ position: "fixed", inset: 0, zIndex: 79, background: "rgba(34,29,25,.32)" }} onClick={() => setOpen(false)}>
+      <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "min(440px, 100%)", background: t.paper, boxShadow: "-8px 0 30px rgba(0,0,0,.18)", overflowY: "auto", padding: "24px 22px 90px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+          <div style={{ fontFamily: font.display, fontSize: 26, color: t.ink }}>Help</div>
+          <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 22, cursor: "pointer" }}>×</button>
+        </div>
+        <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 2 }}>You are on {where}.</div>
+        <div style={{ marginTop: 18 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Ask a question</div>
+          <textarea value={q} onChange={(e) => setQ(e.target.value)} placeholder="How do I say I already booked the hotel?" rows={2} style={{ width: "100%", boxSizing: "border-box", fontSize: 14.5, padding: "10px 12px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink, resize: "vertical" }} />
+          <button onClick={askIt} disabled={busy || !q.trim()} style={{ marginTop: 8, background: q.trim() ? t.pine : t.line, color: t.paper, border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>{busy ? "Thinking…" : "Ask"}</button>
+          {ans ? (<div style={{ marginTop: 14, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px", fontSize: 14, color: t.ink, lineHeight: 1.6 }}>
+            {ans.title ? <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>{ans.title}</div> : null}
+            {ans.text}
+          </div>) : null}
+        </div>
+        <div style={{ marginTop: 26 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>The guide</div>
+          {HELP_GUIDE.map((g) => (<div key={g.id} style={{ borderTop: `1px solid ${t.line}` }}>
+            <button onClick={() => setOpenSec(openSec === g.id ? null : g.id)} style={{ width: "100%", textAlign: "left", background: "none", border: "none", padding: "11px 0", fontSize: 15, color: t.ink, cursor: "pointer", display: "flex", justifyContent: "space-between" }}><span>{g.title}</span><span style={{ color: t.inkFaint }}>{openSec === g.id ? "−" : "+"}</span></button>
+            {openSec === g.id ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, paddingBottom: 12 }}>{g.text}</div> : null}
+          </div>))}
+        </div>
+      </div>
+    </div>) : null}
+  </>);
 }
 function StartChooser({ onKnow, onOpen, onInspire, onGuide, onHome }) {
   const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
