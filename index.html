@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M583";
+const BUILD = "M584";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9039,6 +9039,22 @@ AIRPORT_ASSIST.NCE = { title: "Nice C\u00f4te d\u2019Azur Airport Meet & Greet",
     { name: "Departure", from: "\u20ac258", includes: ["\u20ac258 including tax", "Up to 2 passengers", "2 pieces of luggage included"] },
   ],
   note: "Preferred at Nice, and it is the airport itself. On arrival you are greeted at the aircraft, walked through border control, and wait in a private lounge while the bags are collected — then handed to your driver, the Monaco helicopter or the rental desk. On departure: porter, check-in, Fast Track security and the lounge. Book direct." };
+// ══ ROME FIUMICINO — Highpass, individually verified and approved, the second Italian airport
+// after Malpensa. Priced per adult and per child for each of three services. The Italian wording
+// rule holds: priority and Fast Track procedures where available, never a guarantee of clearance.
+AIRPORT_ASSIST.FCO = { title: "Highpass \u2014 Rome Fiumicino", airport: "Rome Fiumicino", name: "Highpass", web: "https://highpass.aero/airports/services/fco", email: null, tel: null, button: "Book Highpass",
+  headline: "Fast Track Meet & Assist at Fiumicino: met with a name board, priority and Fast Track procedures where available, and a personal transfer from the aircraft.",
+  phases: [
+    { name: "Fast Track arrival", may: ["Personal transfer from the aircraft", "Passport-control escort", "Porter", "Met with a name board", "Escort through the arrival process"] },
+    { name: "Fast Track departure", may: ["Priority check-in", "Priority security", "Passport-control escort", "Porter", "Personal transfer toward the aircraft where applicable"] },
+    { name: "Transit", may: ["Priority security", "Priority passport control", "Transfer-desk assistance", "Met at the arrival gate", "Escort to the onward flight"] },
+  ],
+  tiers: [
+    { name: "Fast Track arrival", from: "\u20ac300", includes: ["\u20ac300 adult", "\u20ac170 child"] },
+    { name: "Fast Track departure", from: "\u20ac340", includes: ["\u20ac340 adult", "\u20ac205 child"] },
+    { name: "Transit", from: "\u20ac320", includes: ["\u20ac320 adult", "\u20ac120 child"] },
+  ],
+  note: "Preferred at Fiumicino. Met with a name board, escorted through passport control with a porter, and moved by personal transfer from the aircraft on arrival or toward it on departure where the airport allows. Priority lanes and Fast Track are used where available; immigration decisions remain with the authorities. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
