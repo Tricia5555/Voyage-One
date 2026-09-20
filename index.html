@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M627";
+const BUILD = "M628";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13559,6 +13559,20 @@ function derivedProfile(text) {
     moves: { base: `${bareCity(gateway)}, and day trips from it`, two: `two of the places we carry in ${name}, chosen to sit close together`, journey: `a route through what we carry in ${name}, in travelling order` },
     note: `We carry ${members.length} ${members.length === 1 ? "place" : "places"} in ${name}. The advisor will shape them around your answers; every hotel proposed is one we have vetted.` };
 }
+// EVERY NAME THE TAB CAN FIND — hand profiles, borrowed regions, region heads and countries with
+// hotels. This is what the advisor is handed when a client types something none of them match.
+function guideKnownPlaces() {
+  const out = new Set();
+  Object.keys(REGION_PROFILES).forEach((k) => out.add(k));
+  Object.keys(NEARBY_CITIES).forEach((k) => { if ((NEARBY_CITIES[k] || []).length) out.add(k); });
+  Object.keys(FAVORITES).forEach((c) => {
+    if (!(FAVORITES[c] || []).length) return;
+    const co = countryOfCity(c); if (co) out.add(co);
+    const r = regionOf(c); if (r) out.add(String(r).split(",")[0].trim());
+    out.add(c);
+  });
+  return Array.from(out).sort();
+}
 // Members may be plain names or { city, pitch, far }. Normalised here so everything else sees one shape.
 function guideMembers(profile) { return (profile.members || []).map((m) => (typeof m === "string" ? { city: m } : m)); }
 function guideProfileFor(text) {
@@ -13659,8 +13673,28 @@ function GuideWizard({ onBuild, onBack, onHome }) {
   const [plan, setPlan] = useState(null);
   const [source, setSource] = useState("");
   const [err, setErr] = useState("");
-  const profile = guideProfileFor(a.where);
+  const [resolved, setResolved] = useState(null);       // { typed, place } from the advisor
+  const [resolving, setResolving] = useState(false);
+  const profile = guideProfileFor(a.where) || (resolved && resolved.typed === a.where.trim() && resolved.place ? guideProfileFor(resolved.place) : null);
   const set = (patch) => setA({ ...a, ...patch });
+  // WHAT DID THEY MEAN? When the typed name matches nothing, the advisor is handed every place we
+  // carry and asked which one was meant — "the Aegean" is the Greek Islands, "the bottom of
+  // Argentina" is Patagonia. It answers with one of our names or nothing. Nobody adds synonyms
+  // by hand for this to work; the alias table is only the fast path.
+  useEffect(() => {
+    const typed = a.where.trim();
+    if (typed.length < 3 || guideProfileFor(typed) || (resolved && resolved.typed === typed) || resolving) return;
+    const h = setTimeout(async () => {
+      setResolving(true);
+      try {
+        const r = await fetch("/api/guide", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "resolve", answers: { where: typed }, region: typed, inventory: [{ city: "x", hotels: [{ name: "x", tier: "Luxury" }] }], known: guideKnownPlaces() }) });
+        const j = r.ok ? await r.json() : null;
+        setResolved({ typed, place: j && j.ok && j.place ? j.place : null });
+      } catch (e) { setResolved({ typed, place: null }); }
+      setResolving(false);
+    }, 700);
+    return () => clearTimeout(h);
+  }, [a.where]);
   const facets = profile ? (profile.facets || []) : [];
   const moves = profile ? profile.moves : null;
   const chip = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "10px 16px", fontSize: 14, cursor: "pointer", textAlign: "left" });
@@ -13721,7 +13755,9 @@ function GuideWizard({ onBuild, onBack, onHome }) {
         {q("Where", "Where do you want to go?", "A country, a coast, a region or a city. Croatia. The Dalmatian Coast. Patagonia. Morocco.")}
         <input value={a.where} onChange={(e) => set({ where: e.target.value })} placeholder="Croatia" autoFocus
           style={{ fontFamily: font.display, fontSize: 30, width: "100%", border: "none", borderBottom: `2px solid ${t.pine}`, background: "none", padding: "8px 0", color: t.ink, outline: "none" }} />
-        {a.where.trim().length > 2 && !profile ? (<div style={{ marginTop: 14, fontSize: 13.5, color: t.brass, lineHeight: 1.55 }}>
+        {resolved && resolved.place && profile ? <div style={{ marginTop: 10, fontSize: 12.5, color: t.inkFaint }}>Reading that as <strong style={{ color: t.pine }}>{resolved.place}</strong>.</div> : null}
+        {a.where.trim().length > 2 && !profile && (resolving || !(resolved && resolved.typed === a.where.trim())) ? (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkFaint }}>Checking what we carry there…</div>) : null}
+        {a.where.trim().length > 2 && !profile && !resolving && resolved && resolved.typed === a.where.trim() ? (<div style={{ marginTop: 14, fontSize: 13.5, color: t.brass, lineHeight: 1.55 }}>
           We do not yet carry anything we would put our name to in {a.where.trim()}. Voyage One only proposes hotels and places it has vetted, so rather than guess we would rather say so. Try a nearby region, or tell us and we will build it properly.
         </div>) : profile ? (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{profile.note}</div>) : null}
         {nav(!!profile, false)}
