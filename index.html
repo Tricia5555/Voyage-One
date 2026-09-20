@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M602";
+const BUILD = "M603";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9253,6 +9253,15 @@ AIRPORT_ASSIST.AUH = { title: "Salam Meet & Assist + Fast Track \u2014 Abu Dhabi
   includes: ["Personal Meet & Assist", "Dedicated Fast Track lanes for security AND immigration", "Priority security screening", "Priority immigration", "Luggage assistance", "Buggy where available", "Priority check-in where available", "Lounge", "Boarding assistance"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
   note: "Preferred at Abu Dhabi, and it is the airport itself. Salam meets you and takes you through the dedicated Fast Track lanes — which here cover both security and immigration, not just one — with the bags handled, a buggy where available, the lounge, and boarding assistance. Book Salam and Fast Track on their own pages; email through the airport's reservation form. Priced on quote. Book direct." };
+// ══ JEDDAH — Altanfeethi at King Abdulaziz International: a private entrance, private check-in,
+// fast-track passport and customs, and a luxury vehicle to the aircraft. Two information pages,
+// so two buttons. No published price; the card says so.
+AIRPORT_ASSIST.JED = { title: "Altanfeethi \u2014 Jeddah", airport: "Jeddah King Abdulaziz International", name: "Altanfeethi", web: "https://altanfeethi.com.sa/en/", button: "Altanfeethi",
+  web2: "https://www.kaia.sa/en/Airport-Services/Lounges/Altanfeethi", button2: "Airport page", email: null, tel: "+966 9200 11233",
+  headline: "A private VIP entrance, private check-in, fast-track passport control and customs, and a luxury vehicle to the aircraft.",
+  includes: ["Private VIP entrance", "Personal assistant", "Private check-in", "Fast-track passport control", "Fast-track customs", "Private security lane", "Baggage transfer and collection", "Luxury lounge", "Luxury vehicle to and from the aircraft", "Travel-arrangement assistance"],
+  tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
+  note: "Preferred at Jeddah. Altanfeethi is the separate-flow product: its own entrance, private check-in, a private security lane, fast-track passport control and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft — with an assistant who will also help with onward arrangements. Priced on quote; contact by phone or through Altanfeethi's booking channels. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
