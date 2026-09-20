@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M617";
+const BUILD = "M623";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9824,6 +9824,11 @@ const FERRIES = [
   ["Capri", "Sorrento", 25], ["Vulcano", "Salina", 40], ["Vulcano", "Lipari", 15], ["Ischia", "Naples", 60], ["Ischia", "Capri", 70], ["Capri", "Positano", 40], ["Capri", "Naples", 50], ["Capri", "Amalfi", 65],
   ["Positano", "Amalfi", 30], ["Sorrento", "Positano", 40], ["Sorrento", "Naples", 45], ["Amalfi", "Salerno", 35],
   ["Santorini", "Mykonos", 150], ["Mykonos", "Athens", 150],
+  // CROATIA. The Dalmatian coast is travelled by catamaran and by road, not by air. Split–Hvar is
+  // an hour by Krilo or Jadrolinija fast boat; Hvar–Dubrovnik and Split–Dubrovnik are the coastal
+  // catamarans, seasonal (roughly May to October) and about four hours. The road from Split to
+  // Dubrovnik is about three hours since the Pelješac bridge removed the Bosnian border crossing.
+  ["Split", "Hvar", 60], ["Hvar", "Dubrovnik", 210], ["Split", "Dubrovnik", 270], ["Hvar", "Split", 60],
   // Honduras. The Galaxy Wave, La Ceiba to Roatán, about seventy-five minutes and the honest way
   // to combine Pico Bonito with the island. Both spellings, for the reason given in FAVORITES.
   ["Roatán", "La Ceiba", 80], ["Roatan", "La Ceiba", 80],
@@ -11655,6 +11660,11 @@ function VoyageOne() {
     return { ...x, ...patch };
   }));
   const addDest = () => setDests((d) => [...d, { id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
+  // "OPEN TO SUGGESTIONS" IS RETIRED FROM EVERY SCREEN. Inside a trip it took someone who had
+  // chosen Florence and offered them the world, unpicking decisions already made; on the home
+  // screen it duplicated what the One List and "I know where but not how" do properly. The
+  // machinery stays so an old saved trip that holds an ideas stop still opens; nothing creates
+  // a new one.
   const addIdeas = () => setDests((d) => [...d, { id: newId(), city: "", mode: "ideas", nights: 2, days: 5, arriveBy: "Flight", ideaSel: { set: [], act: [], w: [] }, pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
   const removeDest = (i) => {
     const item = dests[i];
@@ -13377,33 +13387,64 @@ const FACET_LABELS = {
 };
 const REGION_PROFILES = {
   "Croatia": { aliases: ["dalmatian coast", "dalmatia", "croatian coast", "adriatic"],
-    members: ["Rovinj", "Split", "Hvar", "Dubrovnik"], gateway: "Dubrovnik",
+    getting: "CROATIA IS A DRIVING AND BOATING COUNTRY, and that is the point of it. The coast road is one of Europe's great drives, the islands are reached by fast catamaran, and Split to Dubrovnik is about three hours over the Pelje\u0161ac bridge. Air within the country is thin: only Croatia Airlines and Trade Air fly, and Croatia Airlines routes almost everything through Zagreb \u2014 so a 200 km hop becomes a six-hour connection. Fly in, fly out, and let the road and the sea do the rest.",
+    members: [
+      { city: "Rovinj", far: true, pitch: "Venetian Istria, and a different Croatia: a fishing town of narrow stone streets under a bell tower on the sea, truffles and Malvazija, and the quietest water on the coast. It is 600 km from Dubrovnik — a long day's drive or a connection through Zagreb — so it belongs to a long trip, or a trip of its own." },
+      { city: "Split", pitch: "The working city of the coast. Diocletian's Palace with a living city still inside its walls, the ferry port for every island, and the best food on the mainland. The natural place to start the coast." },
+      { city: "Hvar", pitch: "The island. Lavender on the hills, a harbour that fills with boats by June, the Pakleni islands a ten-minute taxi boat away, and the clearest sea in Croatia. The place people wish they had stayed longer." },
+      { city: "Dubrovnik", pitch: "The walled city, and the reason everyone comes. The walk on the walls at eight in the morning before the crowds, a swim off the rocks at Buža below the cliffs, and Lokrum and the Elaphiti islands an hour off by boat." },
+    ], gateway: "Dubrovnik",
     facets: ["history", "sea", "islands", "sailing", "food", "nightlife"],
-    moves: { base: "Dubrovnik, with the islands and the walls on your doorstep", two: "Dubrovnik and Hvar \u2014 the walled city and the island", journey: "the whole coast: Rovinj in Istria, then Split, Hvar and Dubrovnik" },
-    note: "The coast is the trip. Dubrovnik is the reason everyone comes and Hvar is where they wish they had stayed longer; Split is the working city between them, and Rovinj in the north is a different, Venetian Croatia." },
+    moves: { base: "Dubrovnik, with the islands and the walls on your doorstep", two: "Split or Hvar, then Dubrovnik — the island and the walled city", journey: "Split, Hvar and Dubrovnik down the coast; Rovinj in the north too if you have ten nights or more" },
+    note: "The coast is the trip. Dubrovnik is the reason everyone comes and Hvar is where they wish they had stayed longer; Split is the working city between them. Rovinj, in Istria, is a different Croatia six hundred kilometres north — wonderful, but a long trip's addition rather than a short one's." },
   "Portugal": { aliases: ["portuguese coast"],
-    members: ["Lisbon", "Comporta", "Douro Valley", "Madeira"], gateway: "Lisbon",
+    getting: "PORTUGAL IS SMALL AND EASY TO DRIVE: Lisbon to the Douro is three hours on good motorway, Lisbon to Comporta an hour. Trains are excellent between Lisbon and Porto. The one flight is Madeira, which is an island and cannot be driven to. There is no reason to fly within the mainland.",
+    members: [
+      { city: "Lisbon", pitch: "The capital, and always first: the hills, the trams, the tiles, the light off the river, and a restaurant scene that has become one of Europe's best. Sintra and the Cascais coast are day trips." },
+      { city: "Comporta", pitch: "An hour south of Lisbon and the opposite of it: rice fields, pine forest, and a long, empty Atlantic beach with almost nothing built on it. Where Lisbon goes to switch off." },
+      { city: "Douro Valley", pitch: "The oldest demarcated wine region in the world, terraced down to the river. Quintas you can stay in, port and the new dry reds, and a landscape that stops conversation. Three hours north of Lisbon, or a flight to Porto and an hour by road." },
+      { city: "Madeira", far: true, pitch: "The island — a flight from Lisbon, not a drive. Levada walks along the old irrigation channels, the cliffs at Cabo Girão, and Reid's Palace, which has been the reason to come for a hundred and thirty years." },
+    ], gateway: "Lisbon",
     facets: ["city", "food", "wine", "sea", "history", "golf"],
-    moves: { base: "Lisbon, with Sintra and the coast as day trips", two: "Lisbon and the Douro Valley \u2014 the city and the wine", journey: "Lisbon, then Comporta on the coast, then up to the Douro" },
-    note: "Lisbon first, always. Then a choice: the Douro for wine and river, Comporta for the long empty Atlantic beach an hour south, Madeira if you want the island \u2014 which is a flight, not a drive." },
+    moves: { base: "Lisbon, with Sintra and the coast as day trips", two: "Lisbon and the Douro Valley — the city and the wine", journey: "Lisbon, then Comporta on the coast, then up to the Douro" },
+    note: "Lisbon first, always. Then a choice: the Douro for wine and river, Comporta for the long empty Atlantic beach an hour south, Madeira if you want the island — which is a flight, not a drive." },
   "South Africa": { aliases: ["cape", "cape town and safari", "safari and cape town"],
-    members: ["Cape Town", "Franschhoek", "Stellenbosch", "Kruger"], gateway: "Cape Town",
+    getting: "THE CAPE IS DRIVEN, THE BUSH IS FLOWN. Cape Town, the Winelands and the coast are an easy hour or two apart by road and well worth driving. Kruger is a two-hour flight from Cape Town, and most of the private reserves have their own airstrip or a short transfer from Skukuza or Hoedspruit. Do the Cape first and the safari last, so you fly home from Johannesburg.",
+    members: [
+      { city: "Cape Town", pitch: "One of the great cities of the world to look at: the mountain, the two oceans, the Cape of Good Hope an hour south. Camps Bay for the beach, Constantia for the vines, Bo-Kaap for the colour." },
+      { city: "Franschhoek", pitch: "The prettiest of the Winelands towns, an hour from Cape Town — French Huguenot in origin, a single street of restaurants, and vineyards up every side valley. La Petite Colombe is here." },
+      { city: "Stellenbosch", pitch: "The university town and the heart of the Cape's wine: Cape Dutch gables, oak-lined streets, and the estates — Delaire Graff above all — with the mountains behind." },
+      { city: "Kruger", far: true, pitch: "The bush. A two-hour flight from Cape Town to a private reserve on the edge of the park — Sabi Sand for leopard, the best in Africa — with two game drives a day and nothing between you and the animals but a guide. The other half of the trip." },
+    ], gateway: "Cape Town",
     facets: ["wildlife", "city", "wine", "coast", "food", "golf"],
-    moves: { base: "Cape Town, with the Winelands as a day out", two: "Cape Town and a safari at Kruger \u2014 the classic pairing", journey: "Cape Town, the Winelands, then the flight north to Kruger" },
-    note: "South Africa is really two trips joined by a flight: the Cape \u2014 the city, the mountain, the wine \u2014 and the bush. Most people want both, and the order that works is the Cape first and the safari last, so you fly home from Johannesburg." },
+    moves: { base: "Cape Town, with the Winelands as a day out", two: "Cape Town and a safari at Kruger — the classic pairing", journey: "Cape Town, the Winelands, then the flight north to Kruger" },
+    note: "South Africa is really two trips joined by a flight: the Cape — the city, the mountain, the wine — and the bush. Most people want both, and the order that works is the Cape first and the safari last, so you fly home from Johannesburg." },
   "Patagonia": { aliases: ["patagonian", "argentine patagonia", "chilean patagonia", "tierra del fuego"],
-    members: ["Bariloche", "El Calafate", "El Chalt\u00e9n", "Torres del Paine", "Puerto Natales", "Ushuaia"], gateway: "Buenos Aires",
+    getting: "PATAGONIA IS FLOWN AND THEN DRIVEN. Every base is a flight from Buenos Aires or Santiago, and the legs between them are long: El Calafate to El Chalt\u00e9n three hours, El Calafate to Torres del Paine five to six with the border. The roads are good, straight and empty, and the driving is part of the experience \u2014 but allow the time, and never plan two transfers in a day.",
+    members: [
+      { city: "Bariloche", far: true, pitch: "The lakes: the Argentine Lake District, a Swiss-looking town on Nahuel Huapi with the Andes behind, chocolate shops, and the Seven Lakes road. The gentle, northern end of Patagonia." },
+      { city: "El Calafate", pitch: "The glacier. Perito Moreno is the reason — a wall of ice the height of a twenty-storey building, calving into the lake in front of you — and El Calafate is the town you see it from." },
+      { city: "El Chaltén", pitch: "The walking. Fitz Roy and Cerro Torre from the trailheads at the end of the village, day hikes to Laguna de los Tres and Laguna Capri. Three hours north of El Calafate, and for people who want to walk." },
+      { city: "Torres del Paine", pitch: "The mountains. The three granite towers, the guanaco on the steppe, the lodges that put the park at your door. The single most dramatic landscape in South America, and the one place in Patagonia to stay put for a few days." },
+      { city: "Puerto Natales", pitch: "The gateway town for Torres del Paine, on the fjord — a night here on the way in or out, a good fish restaurant, and the boat to the Balmaceda and Serrano glaciers." },
+      { city: "Ushuaia", far: true, pitch: "The end of the world: the southernmost city, the Beagle Channel, and the port every Antarctic ship leaves from. Worth it if you want the edge of the map, or if Antarctica is the next chapter." },
+    ], gateway: "Buenos Aires",
     facets: ["mountains", "glaciers", "wildlife", "coast"],
-    moves: { base: "Torres del Paine \u2014 one lodge, the park at your door", two: "El Calafate for the glacier and Torres del Paine for the mountains", journey: "Bariloche in the lakes, El Calafate, El Chalt\u00e9n for the walking, then across to Torres del Paine" },
-    note: "Distances are enormous and the roads are slow; every leg is a flight or a long drive. Pick the Argentine side, the Chilean side, or accept the crossing between them \u2014 the crossing is worth it, but it costs a day." },
+    moves: { base: "Torres del Paine — one lodge, the park at your door", two: "El Calafate for the glacier and Torres del Paine for the mountains", journey: "El Calafate, El Chaltén for the walking, then across to Torres del Paine; Bariloche or Ushuaia if you have the nights" },
+    note: "Distances are enormous and the roads are slow; every leg is a flight or a long drive. Pick the Argentine side, the Chilean side, or accept the crossing between them — the crossing is worth it, but it costs a day." },
   "Morocco": { aliases: ["marrakesh", "marrakech and beyond", "maghreb"],
-    members: ["Marrakech", "Fez", "Essaouira"], gateway: "Marrakech",
+    getting: "MOROCCO IS DRIVEN, WITH A DRIVER. Marrakech to Essaouira is three hours west; Marrakech to Fez is a long day \u2014 six hours by road, or a domestic flight of an hour on Royal Air Maroc, which is the one internal flight worth taking. A driver is the norm here rather than a hire car: the roads are fine, the driving culture is not, and a good driver is a guide as well.",
+    members: [
+      { city: "Fez", pitch: "The oldest, deepest medina in the Arab world — nine thousand alleys, the tanneries, the Kairaouine mosque, and a city that has not much changed in a thousand years. For anyone who cares about history it is the essential two nights." },
+      { city: "Marrakech", pitch: "The anchor, and where the hotels are. The Djemaa el-Fna at dusk, the souks, the Majorelle garden, and the Palmeraie and the Atlas foothills around it — with the best riads and grand hotels in the country." },
+      { city: "Essaouira", pitch: "The coast, and the place to end: a walled Portuguese port three hours west of Marrakech, ramparts over the Atlantic, the wind, the fishing boats, and grilled sardines on the quay. Slower than anywhere else in Morocco." },
+    ], gateway: "Marrakech",
     facets: ["history", "food", "art", "wellness", "desert", "sea"],
-    moves: { base: "Marrakech, with the Atlas foothills and the Palmeraie around you", two: "Marrakech and Essaouira \u2014 the red city and the sea", journey: "Fez for the medina, Marrakech, then down to Essaouira on the coast" },
+    moves: { base: "Marrakech, with the Atlas foothills and the Palmeraie around you", two: "Marrakech and Essaouira — the red city and the sea", journey: "Fez for the medina, Marrakech, then down to Essaouira on the coast" },
     note: "Marrakech is the anchor and has the hotels. Fez is the older, deeper medina and worth two nights for anyone who cares about history; Essaouira is the wind, the ramparts and the fish, and the place to end." },
 };
-// A profile is found by name or by any of its spoken forms; failing that, by a city we carry
-// that the client typed, treated as a region of one.
+// Members may be plain names or { city, pitch, far }. Normalised here so everything else sees one shape.
+function guideMembers(profile) { return (profile.members || []).map((m) => (typeof m === "string" ? { city: m } : m)); }
 function guideProfileFor(text) {
   const q = dnrm(text || "");
   if (!q) return null;
@@ -13411,7 +13452,7 @@ function guideProfileFor(text) {
   if (key) return { name: key, ...REGION_PROFILES[key] };
   const city = resolvePlace(text);
   if (city && lookup(FAVORITES, city) && (lookup(FAVORITES, city) || []).length) {
-    return { name: city, members: [city], gateway: city, facets: ["city", "food", "history"], single: true,
+    return { name: city, members: [{ city, pitch: `We carry ${bareCity(city)} itself — this shapes a stay there.` }], gateway: city, facets: ["city", "food", "history"], single: true,
       moves: { base: `${bareCity(city)}, and day trips from it` },
       note: `We carry ${bareCity(city)} itself; this shapes a stay there.` };
   }
@@ -13419,10 +13460,11 @@ function guideProfileFor(text) {
 }
 // Everything Voyage One holds for a region, in the shape /api/guide expects.
 function guideInventory(profile) {
-  return (profile.members || []).map((city) => {
+  return guideMembers(profile).map((m) => {
+    const city = m.city;
     const favs = lookup(FAVORITES, city) || [];
     const gw = gatewayFor(city);
-    return { city, gateway: gw ? bareCity(gw.air) : (airportFor(city) ? bareCity(city) : null),
+    return { city, pitch: m.pitch || "", far: !!m.far, gateway: gw ? bareCity(gw.air) : (airportFor(city) ? bareCity(city) : null),
       facets: (profile.single ? profile.facets : (profile.facets || [])).map((f) => FACET_LABELS[f] || f),
       hotels: favs.map((h) => ({ name: h.name, tier: tierOf(h.name) || "Luxury", area: String(h.area || "").split("\u00b7")[0].trim(), take: String(h.ourTake || "").split(". ")[0].slice(0, 160) })) };
   }).filter((d) => d.hotels.length);
@@ -13433,27 +13475,67 @@ function guideInventory(profile) {
 function guideRulesPlan(profile, answers) {
   const inv = guideInventory(profile);
   if (!inv.length) return null;
-  const want = answers.move === "base" ? 1 : answers.move === "two" ? Math.min(2, inv.length) : Math.min(4, inv.length);
+  const nightsWanted = Number(answers.nights) || 7;
+  // a far-flung town costs a day to reach; it earns its place only on a long trip
+  const invNear = inv.filter((d) => !d.far || nightsWanted >= 10);
+  const want = answers.move === "base" ? 1 : answers.move === "two" ? Math.min(2, invNear.length) : Math.min(4, invNear.length);
   // prefer members whose facets overlap what draws them
   const score = (d) => (answers.draws || []).reduce((a, f) => a + (d.facets.some((x) => dnrm(x) === dnrm(FACET_LABELS[f] || f)) ? 1 : 0), 0);
-  let chosen = inv.slice();
-  if (want < inv.length) {
-    const ranked = inv.map((d, i) => ({ d, i, s: score(d) + (dnrm(d.city) === dnrm(profile.gateway) ? 0.5 : 0) })).sort((a, b) => b.s - a.s || a.i - b.i).slice(0, want);
+  let chosen = invNear.slice();
+  const km = (x, y) => { const v = distanceKm(x.city, y.city); return v == null ? 999 : v; };
+  const reach = answers.transfers === "short" ? 160 : answers.transfers === "none" ? 120 : Infinity;   // straight-line km
+  if (answers.move === "two" && reach < Infinity && invNear.length >= 2) {
+    // the best-scoring pair that sit within reach of each other, in travelling order
+    let best = null;
+    for (let i = 0; i < invNear.length; i++) for (let j = i + 1; j < invNear.length; j++) {
+      const d = km(invNear[i], invNear[j]); if (d > reach) continue;
+      const sc = score(invNear[i]) + score(invNear[j]) - d / 1000;
+      if (!best || sc > best.sc) best = { sc, pair: [invNear[i], invNear[j]] };
+    }
+    if (best) chosen = best.pair;
+    else { // nothing close enough: take the two nearest to each other and say so
+      let near = null;
+      for (let i = 0; i < invNear.length; i++) for (let j = i + 1; j < invNear.length; j++) { const d = km(invNear[i], invNear[j]); if (!near || d < near.d) near = { d, pair: [invNear[i], invNear[j]] }; }
+      chosen = near.pair;
+    }
+  } else if (want < invNear.length) {
+    const ranked = invNear.map((d, i) => ({ d, i, s: score(d) + (dnrm(d.city) === dnrm(profile.gateway) ? 0.5 : 0) })).sort((a, b) => b.s - a.s || a.i - b.i).slice(0, want);
     chosen = ranked.sort((a, b) => a.i - b.i).map((x) => x.d);         // back into travelling order
+  }
+  if (answers.move === "journey" && reach < Infinity && chosen.length > 2) {
+    // a journey with short transfers drops any leg more than reach from its neighbour
+    const kept = [chosen[0]];
+    for (let i = 1; i < chosen.length; i++) if (km(kept[kept.length - 1], chosen[i]) <= reach) kept.push(chosen[i]);
+    if (kept.length >= 2) chosen = kept;
   }
   const N = Math.max(chosen.length, Number(answers.nights) || 7);
   const base = Math.floor(N / chosen.length); let extra = N - base * chosen.length;
   const legs = chosen.map((d, i) => {
     const nights = base + (extra-- > 0 ? 1 : 0);
-    const pool = d.hotels.filter((h) => answers.tier === "UltraLux" ? h.tier === "UltraLux" : true);
-    const hotel = (pool.length ? pool : d.hotels)[0];
-    return { city: d.city, nights, hotel: hotel ? hotel.name : null, tier: hotel ? hotel.tier : null, why: hotel && hotel.take ? hotel.take : "" };
+    let pool = d.hotels.filter((h) => answers.tier === "UltraLux" ? h.tier === "UltraLux" : true);
+    if (!pool.length) pool = d.hotels;
+    // hotel priorities steer the pick where a hotel's own words support it
+    const wants = (answers.hotel || []).filter((x) => x !== "best");
+    const hint = { walkable: /centre|center|old town|walk|steps from|heart of/i, water: /sea|beach|harbour|harbor|bay|waterfront|marina|lagoon/i, resort: /resort|acres|estate|grounds|pool/i, historic: /palace|century|historic|castle|villa|convent|monastery/i, design: /contemporary|design|modern|minimal/i, privacy: /private|villa|secluded|quiet|hidden/i, spa: /spa|wellness|hammam|thermal/i };
+    const scored = pool.map((h) => ({ h, s: wants.reduce((acc, w) => acc + (hint[w] && hint[w].test((h.take || "") + " " + (h.area || "")) ? 1 : 0), 0) })).sort((x, y) => y.s - x.s);
+    const hotel = scored.length ? scored[0].h : null;
+    const why = [d.pitch, hotel && hotel.take ? `${hotel.name}: ${hotel.take}.` : ""].filter(Boolean).join(" ");
+    return { city: d.city, nights, hotel: hotel ? hotel.name : null, tier: hotel ? hotel.tier : null, why };
   });
-  return { title: `${profile.name}, shaped for you`, intro: profile.note || "", legs, tips: [] };
+  const tips = [];
+  // the logic, in one sentence, so the client knows why the trip is this shape
+  const paceWord = { veryrelaxed: "a very relaxed pace", slow: "a relaxed pace", between: "a balanced pace", busy: "a busy pace", full: "seeing as much as possible" }[answers.pace] || "your pace";
+  const moveWord = { base: "one base", two: "two or three bases", journey: "a journey through the region" }[answers.move] || "";
+  const logic = `Because you asked for ${paceWord} and ${moveWord}${answers.transfers === "short" || answers.transfers === "none" ? ", with the journeys between places kept short" : answers.transfers === "drive" ? ", and you are happy to drive" : ""}, we have shaped this around ${legs.length === 1 ? "one place" : legs.length + " places"} rather than trying to cover everything ${profile.name} has${(answers.draws || []).length ? `, weighted toward ${(answers.draws || []).map((f) => (FACET_LABELS[f] || f).toLowerCase()).join(", ")}` : ""}.`;
+  if (answers.transfers === "drive") tips.push("You said you are happy to drive, so the legs are joined by road where the road is the better way \u2014 the app will show the drive time and the places worth stopping on each one.");
+  if (answers.transfers === "short" || answers.transfers === "none") tips.push("You asked to keep the transfers short, so these are the places that sit close together and still show the best of " + profile.name + ". The further-flung ones are left for another trip.");
+  return { title: `${profile.name}, shaped for you`, intro: profile.note || "", logic, legs, tips };
 }
 // The wizard: eight questions, then the plan, then one tap into the builder.
 function GuideWizard({ onBuild, onBack, onHome }) {
-  const [a, setA] = useState({ where: "", nights: 7, when: "", who: "", move: "", draws: [], pace: "", stay: "", tier: "Luxury" });
+  const [a, setA] = useState({ where: "", nights: 7, when: "", move: "", transfers: "", draws: [], feel: [], pace: "", hotel: [], must: "", avoid: "", tier: "Luxury" });
+  const [extraQs, setExtraQs] = useState(null);     // destination-specific questions, generated
+  const [extraA, setExtraA] = useState({});
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState(null);
@@ -13471,20 +13553,42 @@ function GuideWizard({ onBuild, onBack, onHome }) {
   </div>);
   const nav = (canGo, last) => (<div style={{ display: "flex", gap: 10, marginTop: 26, alignItems: "center" }}>
     {step > 0 ? <button onClick={() => setStep(step - 1)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "11px 20px", fontSize: 14, color: t.ink, cursor: "pointer" }}>Back</button> : null}
-    <button disabled={!canGo} onClick={() => last ? build() : setStep(step + 1)} style={{ background: canGo ? t.pine : t.line, color: t.paper, border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 600, cursor: canGo ? "pointer" : "default" }}>{last ? "Shape my trip" : "Next"}</button>
+    <button disabled={!canGo} onClick={() => last ? askExtras() : setStep(step + 1)} style={{ background: canGo ? t.pine : t.line, color: t.paper, border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 600, cursor: canGo ? "pointer" : "default" }}>{last ? "Shape my trip" : "Next"}</button>
   </div>);
+  // Straight-line distances between every pair of places we carry here, so the advisor can do the
+  // geographic reality check with numbers rather than instinct.
+  const distances = () => {
+    const inv = guideInventory(profile); const out = [];
+    for (let i = 0; i < inv.length; i++) for (let j = i + 1; j < inv.length; j++) { const d = distanceKm(inv[i].city, inv[j].city); if (d != null) out.push({ from: inv[i].city, to: inv[j].city, km: Math.round(d), drive: (driveEstimate(inv[i].city, inv[j].city) || {}).label || null }); }
+    return out;
+  };
+  // STEP ONE OF THE BUILD: ask the advisor whether anything about THIS place still needs asking.
+  // Zero to three questions, each one only if the answer could change the itinerary. Without the
+  // API (or when it says nothing needs asking) we go straight to the plan.
+  const askExtras = async () => {
+    setBusy(true); setErr("");
+    let qs = null;
+    try {
+      const r = await fetch("/api/guide", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "questions", answers: a, region: profile.name, getting: profile.getting || "", inventory: guideInventory(profile), distances: distances() }) });
+      const j = r.ok ? await r.json() : null;
+      if (j && j.ok && Array.isArray(j.questions)) qs = j.questions.filter((x) => x && x.q && Array.isArray(x.options) && x.options.length >= 2).slice(0, 3);
+    } catch (e) { qs = null; }
+    setBusy(false);
+    if (qs && qs.length) { setExtraQs(qs); setExtraA({}); setStep(11); }
+    else build();
+  };
   const build = async () => {
     setBusy(true); setErr(""); setPlan(null);
     const inv = guideInventory(profile);
     let got = null;
     try {
-      const r = await fetch("/api/guide", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: a, region: profile.name, inventory: inv }) });
+      const r = await fetch("/api/guide", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: { ...a, extra: extraA }, extraQuestions: extraQs || [], region: profile.name, getting: profile.getting || "", inventory: inv, distances: distances() }) });
       const j = r.ok ? await r.json() : null;
       if (j && j.ok && j.plan && j.plan.legs && j.plan.legs.length) { got = j.plan; setSource("advisor"); }
     } catch (e) { /* fall through to the rules */ }
     if (!got) { got = guideRulesPlan(profile, a); setSource("rules"); }
     if (!got) setErr("We could not shape a trip from what we carry there.");
-    setPlan(got); setBusy(false); setStep(8);
+    setPlan(got); setBusy(false); setStep(10);
   };
   const total = plan ? plan.legs.reduce((s2, l) => s2 + (l.nights || 0), 0) : 0;
   return (<div className="vo-fade" style={{ minHeight: "100vh" }}>
@@ -13493,7 +13597,7 @@ function GuideWizard({ onBuild, onBack, onHome }) {
       <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, display: "flex", alignItems: "center", gap: 6, fontSize: 13.5, cursor: "pointer" }}><Home size={15} /> Home</button>
     </header>
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "36px clamp(22px,5vw,56px) 100px" }}>
-      <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 22 }}>I know where but not how {step < 8 ? `· ${step + 1} of 8` : ""}</div>
+      <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 22 }}>I know where but not how {step < 10 ? `· ${step + 1} of 10` : (step === 10 ? "" : "· one or two more, for this place")}</div>
 
       {step === 0 && (<div>
         {q("Where", "Where do you want to go?", "A country, a coast, a region or a city. Croatia. The Dalmatian Coast. Patagonia. Morocco.")}
@@ -13515,12 +13619,6 @@ function GuideWizard({ onBuild, onBack, onHome }) {
       </div>)}
 
       {step === 2 && (<div>
-        {q("Who", "Who is travelling?", "This decides the hotels more than anything else we ask.")}
-        <div style={{ display: "grid", gap: 9 }}>{[["A couple", "couple"], ["Family with children", "family"], ["A group of friends", "friends"], ["Solo", "solo"]].map(([lab, v]) => <button key={v} onClick={() => set({ who: v })} style={chip(a.who === v)}>{lab}</button>)}</div>
-        {nav(!!a.who, false)}
-      </div>)}
-
-      {step === 3 && (<div>
         {q("Moving", "How much do you want to move?", "The single most important shaping question. Each option says what it means here.")}
         <div style={{ display: "grid", gap: 9 }}>
           {[["base", "One place, day trips out"], ["two", "Two or three bases"], ["journey", "A real journey through it"]].filter(([v]) => moves && moves[v]).map(([v, lab]) => (<button key={v} onClick={() => set({ move: v })} style={chip(a.move === v)}>
@@ -13531,36 +13629,72 @@ function GuideWizard({ onBuild, onBack, onHome }) {
         {nav(!!a.move, false)}
       </div>)}
 
+      {step === 3 && (<div>
+        {q("Transfers", "How do you feel about the journeys between places?", profile && profile.getting ? profile.getting : "Some people want the drive; some want to arrive.")}
+        <div style={{ display: "grid", gap: 9 }}>{[["drive", "Happy to drive \u2014 I want to see the country"], ["short", "Keep transfers under two hours"], ["none", "Fly or boat, not long drives"]].map(([v, lab]) => <button key={v} onClick={() => set({ transfers: v })} style={chip(a.transfers === v)}>{lab}</button>)}</div>
+        {nav(!!a.transfers, false)}
+      </div>)}
+
       {step === 4 && (<div>
+        {q("Feel", "What do you want this trip to feel like?", "Choose up to three.")}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>{[["relaxed", "Relaxed"], ["romantic", "Romantic"], ["active", "Active"], ["cultural", "Cultural"], ["foodwine", "Food and wine"], ["glamorous", "Glamorous and social"], ["adventure", "Adventure"], ["wellness", "Wellness"], ["family", "Family time"], ["celebration", "A celebration"], ["everything", "A little of everything"]].map(([v, lab]) => { const on = a.feel.includes(v); return <button key={v} onClick={() => set({ feel: on ? a.feel.filter((x) => x !== v) : (a.feel.length < 3 ? [...a.feel, v] : a.feel) })} style={chip(on)}>{lab}</button>; })}</div>
+        {nav(a.feel.length > 0, false)}
+      </div>)}
+
+      {step === 5 && (<div>
         {q("Draws", "What draws you?", `Choose up to three. These are the things ${profile ? profile.name : "this place"} is actually for.`)}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>{facets.map((f) => { const on = a.draws.includes(f); return <button key={f} onClick={() => set({ draws: on ? a.draws.filter((x) => x !== f) : (a.draws.length < 3 ? [...a.draws, f] : a.draws) })} style={chip(on)}>{FACET_LABELS[f] || f}</button>; })}</div>
         {nav(a.draws.length > 0, false)}
       </div>)}
 
-      {step === 5 && (<div>
+      {step === 6 && (<div>
         {q("Pace", "How hard do you want to work?", "This sets how many places make the cut, and how full each day is.")}
-        <div style={{ display: "grid", gap: 9 }}>{[["slow", "Slow and deep \u2014 a few things done properly"], ["between", "Somewhere between"], ["full", "A full day, every day"]].map(([v, lab]) => <button key={v} onClick={() => set({ pace: v })} style={chip(a.pace === v)}>{lab}</button>)}</div>
+        <div style={{ display: "grid", gap: 9 }}>{[["veryrelaxed", "Very relaxed"], ["slow", "Relaxed"], ["between", "Balanced"], ["busy", "Busy"], ["full", "See as much as possible"]].map(([v, lab]) => <button key={v} onClick={() => set({ pace: v })} style={chip(a.pace === v)}>{lab}</button>)}</div>
         {nav(!!a.pace, false)}
       </div>)}
 
-      {step === 6 && (<div>
-        {q("Stay", "How do you like to stay?")}
-        <div style={{ display: "grid", gap: 9 }}>{[["grand", "Grand hotels"], ["small", "Small and characterful"], ["villas", "Villas and lodges"], ["mix", "Surprise me"]].map(([v, lab]) => <button key={v} onClick={() => set({ stay: v })} style={chip(a.stay === v)}>{lab}</button>)}</div>
-        {nav(!!a.stay, false)}
+      {step === 7 && (<div>
+        {q("Hotel", "With regard to the hotel, what matters most?", "Every hotel we show already meets the Voyage One standard. This is about setting.")}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>{[["walkable", "Walkable location"], ["water", "Waterfront"], ["resort", "Resort setting"], ["historic", "Historic character"], ["design", "Contemporary design"], ["privacy", "Privacy"], ["spa", "Spa and wellness"], ["best", "Best overall, whatever the setting"]].filter(([v]) => v === "best" || !profile || !profile.facets || v !== "water" || profile.facets.some((f) => ["sea", "islands", "coast", "sailing"].includes(f))).map(([v, lab]) => { const on = a.hotel.includes(v); return <button key={v} onClick={() => set({ hotel: on ? a.hotel.filter((x) => x !== v) : (v === "best" ? ["best"] : [...a.hotel.filter((x) => x !== "best"), v].slice(-2)) })} style={chip(on)}>{lab}</button>; })}</div>
+        {nav(a.hotel.length > 0, false)}
       </div>)}
 
-      {step === 7 && (<div>
+      {step === 8 && (<div>
+        {q("Must", "Anything you absolutely want to do — or absolutely do not?", "Optional. A place, a thing, a kind of day. “Dubrovnik is a must.” “No boats.”")}
+        <label style={{ fontSize: 12, color: t.inkSoft, display: "block", marginBottom: 12 }}>Must<br /><input value={a.must} onChange={(e) => set({ must: e.target.value })} placeholder="Optional" style={{ fontFamily: font.display, fontSize: 20, width: "100%", border: "none", borderBottom: `2px solid ${t.pine}`, background: "none", padding: "6px 0", color: t.ink }} /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft, display: "block" }}>Must not<br /><input value={a.avoid} onChange={(e) => set({ avoid: e.target.value })} placeholder="Optional" style={{ fontFamily: font.display, fontSize: 20, width: "100%", border: "none", borderBottom: `2px solid ${t.pine}`, background: "none", padding: "6px 0", color: t.ink }} /></label>
+        {nav(true, false)}
+      </div>)}
+
+      {step === 9 && (<div>
         {q("Tier", "Luxury, or Ultra Luxury?", "Ultra Luxury is the top of what we carry \u2014 Aman, Rosewood, the Cheval Blancs, the Belmond palaces. Most people choose Luxury; the ones who want Ultra already know.")}
         <div style={{ display: "grid", gap: 9 }}>{[["Luxury", "Luxury"], ["UltraLux", "Ultra Luxury"]].map(([v, lab]) => <button key={v} onClick={() => set({ tier: v })} style={chip(a.tier === v)}>{lab}</button>)}</div>
         {nav(true, true)}
         {busy ? <div style={{ marginTop: 16, fontSize: 13.5, color: t.inkSoft }}>Shaping your trip from what we carry in {profile ? profile.name : "the region"}…</div> : null}
       </div>)}
 
-      {step === 8 && (<div>
+      {step === 11 && extraQs && (<div>
+        {q("For this place", "One or two things only " + (profile ? profile.name : "this place") + " needs to know.", "Asked because the answer changes the trip. Nothing here is asked everywhere.")}
+        <div style={{ display: "grid", gap: 20 }}>
+          {extraQs.map((x, k) => (<div key={k}>
+            <div style={{ fontSize: 16, color: t.ink, lineHeight: 1.45, marginBottom: 9 }}>{x.q}</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>{x.options.map((opt) => <button key={opt} onClick={() => setExtraA({ ...extraA, [x.q]: opt })} style={chip(extraA[x.q] === opt)}>{opt}</button>)}</div>
+          </div>))}
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 26, alignItems: "center" }}>
+          <button onClick={() => setStep(9)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "11px 20px", fontSize: 14, color: t.ink, cursor: "pointer" }}>Back</button>
+          <button disabled={busy || extraQs.some((x) => !extraA[x.q])} onClick={build} style={{ background: extraQs.some((x) => !extraA[x.q]) ? t.line : t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 600, cursor: "pointer" }}>Shape my trip</button>
+        </div>
+        {busy ? <div style={{ marginTop: 16, fontSize: 13.5, color: t.inkSoft }}>Shaping your trip from what we carry in {profile ? profile.name : "the region"}…</div> : null}
+      </div>)}
+
+      {step === 10 && (<div>
         {err ? <div style={{ fontSize: 14, color: t.brass }}>{err}</div> : plan ? (<div>
           <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>{profile.name} · {total} nights · {a.tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</div>
           <div style={{ fontFamily: font.display, fontSize: 30, lineHeight: 1.12, marginTop: 6, color: t.ink }}>{plan.title}</div>
           {plan.intro ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 12 }}>{plan.intro}</div> : null}
+          {plan.logic ? <div style={{ fontSize: 14, color: t.pine, lineHeight: 1.6, marginTop: 12, fontStyle: "italic" }}>{plan.logic}</div> : null}
+          {profile.getting ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{profile.getting}</div> : null}
           <div style={{ marginTop: 22, display: "grid", gap: 12 }}>
             {plan.legs.map((l, i) => (<div key={i} style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.pine}`, borderRadius: 12, padding: "14px 16px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
@@ -13578,7 +13712,7 @@ function GuideWizard({ onBuild, onBack, onHome }) {
           <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 16 }}>{source === "advisor" ? "Shaped by your Voyage One advisor from what we carry. Every hotel and town is one we have vetted." : "Shaped from what we carry, by our own rules. Every hotel and town is one we have vetted."}</div>
           <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
             <button onClick={() => onBuild(profile, a, plan)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "13px 26px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Build this trip →</button>
-            <button onClick={() => setStep(3)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "13px 22px", fontSize: 14, color: t.ink, cursor: "pointer" }}>Change my answers</button>
+            <button onClick={() => { setExtraQs(null); setExtraA({}); setStep(2); }} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "13px 22px", fontSize: 14, color: t.ink, cursor: "pointer" }}>Change my answers</button>
           </div>
         </div>) : null}
       </div>)}
@@ -13600,8 +13734,7 @@ function StartChooser({ onKnow, onOpen, onInspire, onGuide, onHome }) {
     </div>
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
       <button onClick={onKnow} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span></span><span style={cArw}>→</span></button>
-      <button onClick={onGuide} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Take me there</span><span style={cTtl}>I know where but not how</span><span style={cSub}>Name a country or a coast — Croatia, Patagonia, Morocco. Eight questions, and we shape the trip a good advisor would.</span></span><span style={cArw}>→</span></button>
-      <button onClick={onOpen} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — let's explore the what and where</span><span style={cSub}>Give us the season and a mood — ski, beach, a region — and we'll suggest where.</span></span><span style={cArw}>→</span></button>
+      <button onClick={onGuide} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Take me there</span><span style={cTtl}>I know where but not how</span><span style={cSub}>Name a country or a coast — Croatia, Patagonia, Morocco. A few questions, and we shape the trip a good advisor would.</span></span><span style={cArw}>→</span></button>
       <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me with an experience</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
     </div>
   </div>);
@@ -14176,7 +14309,6 @@ function StepDestinations(p) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>{p.dests.map((d, i) => <DestCard key={d.id || i} d={d} i={i} p={p} />)}</div>
     <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 12 }}>
       <button onClick={p.addDest} style={{ flex: "1 1 240px", display: "flex", alignItems: "center", gap: 9, background: "none", border: `1px dashed ${t.brassLight}`, borderRadius: 14, padding: "18px 20px", color: t.pine, justifyContent: "center", fontSize: 14.5 }}><Plus size={16} /> {p.dests.length ? "Add another destination" : "Choose your first destination"}</button>
-      <button onClick={p.addIdeas} style={{ flex: "1 1 240px", display: "flex", alignItems: "center", gap: 9, background: t.card, border: `1px solid ${t.brass}`, borderRadius: 14, padding: "18px 20px", color: t.pine, justifyContent: "center", fontSize: 14.5 }}><Sparkles size={16} /> Open to suggestions</button>
     </div>
   </div>);
 }
@@ -15380,6 +15512,14 @@ function flightSearchLine(flight, dateISO, returnISO) {
   return bits.join("  \u00b7  ");
 }
 const CONNECT_VIA = {
+  // CROATIA'S DOMESTIC AIR IS TWO CARRIERS AND MOSTLY VIA ZAGREB. Croatia Airlines is the flag
+  // carrier and routes almost everything through its Zagreb hub — which is why Split to Dubrovnik,
+  // 200 km apart, comes back as a connection. Trade Air flies the coast nonstop twice a week on a
+  // public-service contract. Anything else offered on the route (Austrian, KLM) is a connection
+  // through Vienna or Amsterdam and should be ignored. For a coastal leg the honest answer is the
+  // catamaran or the road, and the app offers both.
+  "Dubrovnik": { hub: "Zagreb (ZAG), or a direct European service", note: "Within Croatia only CROATIA AIRLINES and TRADE AIR fly, and Croatia Airlines routes almost everything through Zagreb — so Split to Dubrovnik comes back as a connection for a 200 km hop. Trade Air flies it nonstop twice a week. Anything else on the route, Austrian or KLM, is a connection through Vienna or Amsterdam and is not worth your time. BETWEEN THE COAST'S TOWNS TAKE THE CATAMARAN OR THE ROAD: Split to Dubrovnik is about three hours by car on the new Pelješac bridge, and the seasonal coastal catamaran calls at the islands on the way.\n\nFROM ABROAD, Dubrovnik has direct service from most of Europe in season — British Airways, Lufthansa, Swiss, Air France — and from the US it is one stop, usually Frankfurt, Munich, Zurich, Paris or London." },
+  "Split": { hub: "Zagreb (ZAG), or a direct European service", note: "Within Croatia only CROATIA AIRLINES and TRADE AIR fly, mostly through Zagreb. For Hvar and the islands you do not fly at all — the fast catamaran from Split is about an hour to Hvar. For Dubrovnik, drive the coast in about three hours or take the seasonal catamaran; a domestic flight is a connection through Zagreb for a 200 km hop.\n\nFROM ABROAD, Split has direct European service in season and is one stop from the US, usually through Frankfurt, Munich, Zurich, Paris or London." },
   "Tromsø": { hub: "Oslo (OSL) — usually", note: "Nothing long-haul flies into Tromsø, so every route connects somewhere. WHY OSLO IS WORTH ASKING FOR: it is the fastest way in and normally the only stop you make. Oslo has nonstop service from the US East Coast and then many flights a day up to Tromsø, under two hours. Route through Frankfurt or Zurich instead and you are usually making TWO connections rather than one, which adds hours and another chance to miss a bag.\n\nTHE CATCH, IF YOU FLY FIRST: the Scandinavian carriers sell Business, not First. Filter for First and the search will hand you Lufthansa or SWISS through Frankfurt or Zurich, because that is where First actually exists — and you pay for it in elapsed time. In Business, the Oslo routing reappears. Decide which you care about more; on this trip we would take the shorter day.\n\nOSLO IS A GATEWAY, NOT A BASE. You pass through it. You do not stay there and fly north and back each night. And book the northern leg on the SAME TICKET as the long-haul — the last flight to Tromsø goes early in the evening, and if a delay makes you miss it on a separate ticket, the night is yours to pay for." },
   "Alta": { hub: "Oslo (OSL)", note: "Connects through Oslo, usually via Tromsø. Book it on one ticket." },
   "Abisko": { hub: "Stockholm (ARN)", note: "You fly Stockholm to Kiruna, then an hour and a half on to Abisko by road or rail. Only two or three flights a day serve Kiruna, so the connection has to be planned rather than assumed. The overnight train from Stockholm is the alternative and stops at Abisko itself." },
