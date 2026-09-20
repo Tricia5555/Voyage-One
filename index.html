@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M597";
+const BUILD = "M598";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9199,6 +9199,14 @@ AIRPORT_ASSIST.BOM = { title: "Elite Plus VIP Meet & Assist \u2014 Mumbai", airp
     { name: "International departure", from: "USD 134", includes: ["USD 134 per passenger"] },
   ],
   note: "Preferred at Mumbai. Arriving, you are met at the aerobridge and taken by buggy to the VIP / CIP immigration lane, with a porter and an escort out to your car. Departing, met at the kerb, checked in, through the VIP / CIP lanes at immigration and security, the lounge, and a buggy to the gate where available. Book 48 hours ahead. Book direct." };
+// ══ KUALA LUMPUR — the KLIA VIP Meet & Greet at Terminal 1, sold through Malaysia Airlines'
+// Enrich. Regular price MYR 220; a lower Enrich rate is noted rather than headlined, because
+// promotional rates move and a headline price should not go stale.
+AIRPORT_ASSIST.KUL = { title: "KLIA VIP Meet & Greet \u2014 Kuala Lumpur", airport: "Kuala Lumpur International, Terminal 1", name: "KLIA VIP Meet & Greet", web: "https://enrichexperience.malaysiaairlines.com/products/vip-touch-at-klia-with-our-meet-and-greet-service-283694", email: null, tel: null, button: "Book KLIA Meet & Greet",
+  headline: "Met at the aircraft, Fast Track immigration, and a private VIP shuttle from the satellite building to the main terminal.",
+  includes: ["Met at the aircraft on arrival", "Dedicated VIP airport representative", "Fast Track immigration", "Priority airport processing", "Private VIP bus or shuttle from the satellite building to the main terminal", "Personal escort through airport procedures"],
+  tiers: [{ name: "VIP Meet & Greet", from: "MYR 220", includes: ["MYR 220 regular price", "A lower rate is sometimes shown through Enrich \u2014 check the booking page"] }],
+  note: "Preferred at Kuala Lumpur. The KLIA satellite building is a train ride from the main terminal for everyone else; here a dedicated representative meets you at the aircraft, takes you through Fast Track immigration with priority processing, and moves you by private VIP shuttle instead. Book direct through Enrich." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
