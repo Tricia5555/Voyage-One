@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M578";
+const BUILD = "M579";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8988,6 +8988,16 @@ AIRPORT_ASSIST.FRA = { title: "Frankfurt Airport VIP Services", airport: "Frankf
   includes: ["Personal VIP agent", "Exclusive security checkpoint", "Immigration and border-control assistance", "Check-in assistance", "Baggage drop-off or collection", "VIP lounge", "Luxury limousine directly to and from the aircraft", "Food and beverages", "Private suites available"],
   tiers: [{ name: "Arrival, departure or transfer", from: "\u20ac545 net", includes: ["\u20ac545 first passenger", "\u20ac340 each additional passenger", "Net prices \u2014 VAT is additional"] }],
   note: "Preferred at Frankfurt, operated by Fraport — the airport company. A personal agent, an exclusive security checkpoint, immigration handled, the VIP lounge or a private suite, and a limousine across the apron to or from the aircraft. PRICES ARE NET AND VAT IS ADDED. Request at least 24 hours before the flight. Book direct." };
+// ══ MUNICH — VipWing, the airport's own VIP wing. Own security and passport checkpoints, its own
+// lounge, and a limousine or VIP bus to the aircraft. The airside transfer is a higher tier.
+AIRPORT_ASSIST.MUC = { title: "Munich Airport VipWing", airport: "Munich Franz Josef Strauss", name: "Munich Airport VipWing", web: "https://www.munich-airport.com/vipwing-719148", email: "vipwing@munich-airport.de", tel: "+49 89 975 213 33", button: "Book VipWing",
+  headline: "The airport's own VIP wing: its own security and passport checkpoints, its own lounge, and a limousine to the aircraft.",
+  includes: ["Personal multilingual VIP assistant", "Own security checkpoint", "Exclusive passport checkpoint", "Check-in assistance", "Baggage handling", "Customs clearance and VAT refund assistance", "VipWing lounge", "Direct limousine or VIP bus to and from the aircraft"],
+  tiers: [
+    { name: "Arrival or departure", from: "\u20ac630", includes: ["\u20ac630 first passenger", "\u20ac330 each additional passenger"] },
+    { name: "Airside transfer", from: "\u20ac830", includes: ["\u20ac830 first passenger", "\u20ac430 each additional passenger"] },
+  ],
+  note: "Preferred at Munich, and it is the airport itself. A multilingual assistant takes you through VipWing's own security and passport checkpoints, handles check-in, bags and customs — including the VAT refund — and you wait in the VipWing lounge before a limousine or VIP bus takes you across the apron to the aircraft. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
