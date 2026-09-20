@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M615";
+const BUILD = "M616";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10821,6 +10821,46 @@ function FontStyles() {
     .vo-sidecard{ position:sticky; top:84px; }
     .vo-mobtotal{ position:fixed; left:0; right:0; bottom:0; z-index:40; }
     @media (min-width:900px){ .vo-mobtotal{ display:none; } }
+    /* PRINT MODE ON SCREEN. The same rules as @media print, scoped to body.vo-printmode, so the
+       itinerary can be laid out as paper, measured, and paginated by hand before window.print. */
+    body.vo-printmode .vo-noprint {display:none !important; }
+    body.vo-printmode button {display:none !important; }
+    body.vo-printmode a[style*="border-radius: 999px"], body.vo-printmode a[style*="borderRadius: 999"] {display:none !important; }
+    body.vo-printmode a {color: inherit !important; text-decoration: none !important; }
+    html.vo-printmode, body.vo-printmode {background: #fff !important; }
+    body.vo-printmode * {font-size: 11px !important; line-height: 1.45 !important; letter-spacing: normal !important; }
+    body.vo-printmode h1, body.vo-printmode .vo-hero h1, body.vo-printmode [style*="clamp(44px, body.vo-printmode 8vw, body.vo-printmode 88px)"], body.vo-printmode [style*="clamp(44px, body.vo-printmode 8vw, body.vo-printmode 88px)"], body.vo-printmode [style*="clamp(42px, body.vo-printmode 9vw, body.vo-printmode 64px)"], body.vo-printmode [style*="clamp(42px, body.vo-printmode 9vw, body.vo-printmode 64px)"] {font-size: 19px !important; line-height: 1.15 !important; }
+    body.vo-printmode h2, body.vo-printmode [style*="clamp(34px, body.vo-printmode 7vw, body.vo-printmode 52px)"], body.vo-printmode [style*="clamp(34px, body.vo-printmode 7vw, body.vo-printmode 52px)"], body.vo-printmode [style*="clamp(34px, body.vo-printmode 6vw, body.vo-printmode 58px)"], body.vo-printmode [style*="clamp(34px, body.vo-printmode 6vw, body.vo-printmode 58px)"], body.vo-printmode [style*="clamp(30px, body.vo-printmode 6vw, body.vo-printmode 44px)"], body.vo-printmode [style*="clamp(30px, body.vo-printmode 6vw, body.vo-printmode 44px)"], body.vo-printmode [style*="clamp(30px, body.vo-printmode 5vw, body.vo-printmode 44px)"], body.vo-printmode [style*="clamp(30px, body.vo-printmode 5vw, body.vo-printmode 44px)"] {font-size: 15px !important; line-height: 1.22 !important; }
+    body.vo-printmode h3, body.vo-printmode [style*="clamp(26px, body.vo-printmode 5vw, body.vo-printmode 38px)"], body.vo-printmode [style*="clamp(26px, body.vo-printmode 5vw, body.vo-printmode 38px)"], body.vo-printmode [style*="clamp(24px, body.vo-printmode 5vw, body.vo-printmode 64px)"], body.vo-printmode [style*="clamp(24px, body.vo-printmode 5vw, body.vo-printmode 64px)"], body.vo-printmode [style*="clamp(22px, body.vo-printmode 5vw, body.vo-printmode 56px)"], body.vo-printmode [style*="clamp(22px, body.vo-printmode 5vw, body.vo-printmode 56px)"], body.vo-printmode [style*="clamp(20px, body.vo-printmode 5vw, body.vo-printmode 48px)"], body.vo-printmode [style*="clamp(20px, body.vo-printmode 5vw, body.vo-printmode 48px)"] {font-size: 13px !important; line-height: 1.28 !important; }
+    body.vo-printmode [style*="clamp(19px, body.vo-printmode 3.6vw, body.vo-printmode 23px)"], body.vo-printmode [style*="clamp(19px, body.vo-printmode 3.6vw, body.vo-printmode 23px)"] {font-size: 12px !important; }
+    body.vo-printmode .vo-hero {padding: 20px 18px !important; break-after: avoid; }
+    body.vo-printmode .vo-hero div[style*="27"] {font-size: 20px !important; }
+    body.vo-printmode .vo-leg, body.vo-printmode .vo-note-card, body.vo-printmode .vo-map-card {padding: 9px 11px !important; margin-bottom: 0 !important; break-inside: avoid; page-break-inside: avoid; }
+    body.vo-printmode .vo-block {break-inside: avoid !important; page-break-inside: avoid !important; margin-top: 0 !important; margin-bottom: 4px !important; border-radius: 8px !important; }
+    body.vo-printmode .vo-break {break-after: page !important; page-break-after: always !important; height: 0; }
+    body.vo-printmode .vo-page1 {min-height: 80mm !important; max-height: 84mm !important; display: flex !important; flex-direction: column !important; justify-content: center !important; padding: 22px 24px !important; }
+    body.vo-printmode .vo-page1-map {height: 80mm !important; max-height: 80mm !important; overflow: hidden !important; }
+    body.vo-printmode .vo-page1-book {border: none !important; padding: 10px 6px !important; min-height: 0 !important; }
+    body.vo-printmode .vo-sr-head {break-after: avoid; }
+    body.vo-printmode .vo-sr-body {margin-top: 34mm !important; }
+    body.vo-printmode .vo-ds-head {font-size: 30px !important; letter-spacing: 0.14em !important; margin-bottom: 8px !important; }
+    body.vo-printmode .vo-day {padding: 6px 10px 6px !important; margin-bottom: 0 !important; }
+    body.vo-printmode .vo-days {display: block !important; }
+    body.vo-printmode .vo-day {display: block !important; break-inside: avoid !important; page-break-inside: avoid !important; }
+    body.vo-printmode .vo-day > div {break-inside: avoid !important; page-break-inside: avoid !important; }
+    body.vo-printmode .vo-hero {margin-top: 0 !important; margin-bottom: 4px !important; }
+    body.vo-printmode .vo-hero .vo-h-name {font-size: 34px !important; line-height: 1.1 !important; }
+    body.vo-printmode .vo-hero .vo-h-title {font-size: 16px !important; letter-spacing: 0.1em !important; }
+    body.vo-printmode .vo-hero [style*="0.36em"] {font-size: 13px !important; letter-spacing: 0.36em !important; }
+    body.vo-printmode .vo-hero [style*="0.18em"] {font-size: 13px !important; letter-spacing: 0.18em !important; }
+    body.vo-printmode .vo-hero [style*="0.16em"] {font-size: 11px !important; letter-spacing: 0.16em !important; }
+    body.vo-printmode [style*="marginTop: 30"], body.vo-printmode [style*="marginTop: 22"], body.vo-printmode [style*="marginTop: 20"], body.vo-printmode [style*="marginTop: 14"] {margin-top: 4px !important; }
+    body.vo-printmode img {max-height: 110px !important; object-fit: cover !important; break-inside: avoid; }
+    body.vo-printmode * {-webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body.vo-printmode .vo-fade {animation: none !important; }
+    body.vo-printmode a {text-decoration: none !important; color: inherit !important; }
+    body.vo-printmode .vo-side, body.vo-printmode .vo-mobtotal {display: none !important; }
+
     @media print {
       .vo-noprint{ display:none !important; }
       /* NOTHING TAPPABLE ON PAPER. A printout cannot book, reserve, toggle or navigate, so every
@@ -17087,6 +17127,51 @@ function ReturnSection({ p, rc, blocked }) {
 }
 
 /* ---------- Itinerary ---------- */
+// ══ MEASURED PAGINATION ═══════════════════════════════════════════════════════════════════════
+// Asking Safari not to split a day did not work; it ignores the request inside flex layouts and
+// honours it unevenly elsewhere. So the app decides. Before printing, the page is switched into
+// print layout on screen (body.vo-printmode carries the same rules as @media print), every day
+// card is measured, and any day that would not fit whole in the space left on its page is given
+// a hard break before it. The page height is derived from the measured content WIDTH using the
+// letter page's printable proportions (7.56in × 10.06in inside 12mm margins), which makes the
+// arithmetic independent of whatever scale Safari prints at. After printing, everything is undone.
+function printPaginated() {
+  if (typeof window === "undefined" || typeof document === "undefined") { return; }
+  const body = document.body;
+  body.classList.add("vo-printmode");
+  const cleanup = () => {
+    body.classList.remove("vo-printmode");
+    document.querySelectorAll("[data-vo-break]").forEach((el) => { el.style.breakBefore = ""; el.style.pageBreakBefore = ""; el.removeAttribute("data-vo-break"); });
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+  // two frames so the class has taken effect and layout is settled
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    try {
+      const days = Array.from(document.querySelectorAll(".vo-day"));
+      const container = document.querySelector(".vo-days");
+      if (days.length && container) {
+        const W = container.getBoundingClientRect().width || 700;
+        const pageH = W * (10.06 / 7.56) * 0.96;            // a little under, for safety
+        // the schedule starts on a fresh page: measure from the DAILY SCHEDULE heading
+        const head = document.querySelector(".vo-ds-head");
+        const top0 = (head ? head.getBoundingClientRect().top : days[0].getBoundingClientRect().top) + window.scrollY;
+        let pageStart = top0;
+        days.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          const top = r.top + window.scrollY, h = r.height;
+          if (top + h - pageStart > pageH && top > pageStart) {
+            el.style.breakBefore = "page"; el.style.pageBreakBefore = "always"; el.setAttribute("data-vo-break", "1");
+            pageStart = top;                                   // this day now starts a fresh page
+          }
+        });
+      }
+    } catch (e) { /* if measuring fails, printing still proceeds */ }
+    setTimeout(() => window.print(), 50);
+    // Safari sometimes does not fire afterprint; undo on a timer as a fallback
+    setTimeout(cleanup, 4000);
+  }));
+}
 function ItinLine({ label, sub, price }) {
   return (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "7px 0" }}>
     <span><span style={{ fontSize: 14.5, color: t.ink }}>{label}</span>{sub && <span style={{ fontSize: 12.5, color: t.inkFaint, marginLeft: 8 }}>{sub}</span>}</span>
@@ -18099,7 +18184,7 @@ function ItineraryView(p) {
     <header className="vo-noprint" style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,48px)" }}>
       <button onClick={p.onEdit} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, display: "flex", alignItems: "center", gap: 8, fontSize: 13.5 }}><Pencil size={15} /> Edit</button>
       <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={() => { if (typeof window !== "undefined") window.print(); }} style={{ background: t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "10px 20px", color: t.paper, fontSize: 13.5 }}>Send as PDF</button>
+        <button onClick={() => printPaginated()} style={{ background: t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "10px 20px", color: t.paper, fontSize: 13.5 }}>Send as PDF</button>
         <SignInBadge user={p.user} authReady={p.authReady} onOpen={p.onOpenAuth} onSignOut={p.onSignOut} />
         <button onClick={p.onHome} style={{ background: "none", border: "none", color: t.inkFaint, display: "flex", alignItems: "center", gap: 6, fontSize: 13.5 }}><Home size={15} /> Home</button>
       </div>
