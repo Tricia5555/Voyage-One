@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M611";
+const BUILD = "M613";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13862,17 +13862,14 @@ function StepDestinations(p) {
   // Coming out of the inspiration questions the traveller has just been handed a place, not asked
   // for one — so "Where to next?" reads as though the app has forgotten what it just suggested.
   // Once the nights are all spoken for there is nothing left to decide, and it becomes "Let’s go!"
-  const heading = !p.dests.length ? "Your first destination" : (left === 0 ? "Let’s go!" : "Let’s plan your trip");
+  // NO VERDICT ON THE NIGHTS HERE. Until a flight is chosen the app cannot know whether the
+  // outbound is a redeye that costs a day or a morning flight that costs nothing, so any "days you
+  // have" on this page is a guess — and a guess presented as an error sends people back to fix a
+  // problem that may not exist. The reckoning happens on the Build page, after the flight.
+  const heading = !p.dests.length ? "Your first destination" : "Your destinations";
   return (<div><SectionHead eyebrow="Your itinerary" title={heading} sub="Name each place in order and how you’ll get there — you’ll pick the hotel, tables and tours next. If a leg is a road trip through a region rather than one city, switch it to “Explore.”" />
     {/* Say what is still unspent against the dates already chosen, so nobody has to hold two
         numbers in their head four screens apart. */}
-    {p.dests.length > 0 && total > 0 && (<div style={{ marginBottom: 14, background: t.card, border: `1px solid ${left === 0 ? t.pineSoft : t.brassLight}`, borderRadius: 12, padding: "11px 14px", fontSize: 13, color: t.ink, lineHeight: 1.5 }}>
-      {left === 0
-        ? <>Your {total} {total === 1 ? "night" : "nights"} are all spoken for. Add another place only if you want to shorten a stay.</>
-        : left > 0
-          ? <>You have <strong>{left} of {total} {total === 1 ? "night" : "nights"}</strong> still unspent — shorten a stay above, or add somewhere else below.</>
-          : <>These stays add up to <strong>{spent} nights</strong>, which is {spent - total} more than your dates allow. Shorten a stay or move your return.</>}
-    </div>)}
     {p.dests.length > 1 && <div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 12, display: "flex", alignItems: "center", gap: 7 }}><Route size={14} color={t.brass} /> In order of travel — use the arrows to reorder.</div>}
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>{p.dests.map((d, i) => <DestCard key={d.id || i} d={d} i={i} p={p} />)}</div>
     <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -14193,7 +14190,12 @@ function StepBuild(p) {
       // A running tally of nights, editable in place. This is the "fix it here, don't walk
       // back through every page" tool: each city's nights with +/- right on the summary, and
       // the total measured against what the dates actually allow.
-      const allowed = sch.allowed;
+      // THE VERDICT WAITS FOR THE FLIGHT. sch.allowed already uses the chosen flight's real day
+      // offset; until one is chosen it runs on an assumption, so no red, no "too many", no "short"
+      // — just the tally. Once the flight is in, the reckoning is real and it is shown large.
+      const first = (p.dests || [])[0]; const f0 = first && first.pick && first.pick.flight;
+      const flightKnown = !!(f0 && (f0.chosen || f0.booked));
+      const allowed = flightKnown ? sch.allowed : null;
       const over = allowed != null && sch.nights > allowed;
       const under = allowed != null && sch.nights < allowed;
       const bad = over || under;
@@ -14201,8 +14203,8 @@ function StepBuild(p) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: bad ? 8 : 0 }}>
           <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: bad ? "#B0563A" : t.inkFaint }}>Nights across the trip</div>
           <div style={{ fontSize: 13, color: t.ink }}>
-            <strong>{sch.nights}</strong> planned{allowed != null ? <> · <strong>{allowed}</strong> your dates allow</> : null}
-            {over ? <span style={{ color: "#B0563A" }}>{`  · ${sch.nights - allowed} too many`}</span> : under ? <span style={{ color: "#B0563A" }}>{`  · ${allowed - sch.nights} short`}</span> : allowed != null ? <span style={{ color: t.pine }}>  · matches</span> : null}
+            <strong>{sch.nights}</strong> planned{allowed != null ? <> · <strong>{allowed}</strong> your flights and dates allow</> : <span style={{ color: t.inkFaint }}> · choose your flight and the count becomes exact</span>}
+            {allowed != null && !bad ? <span style={{ color: t.pine }}>  · matches</span> : null}
           </div>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -14222,7 +14224,8 @@ function StepBuild(p) {
             <button onClick={() => { const cur = destNights(d); const nn = cur + 1; p.setDest(i, d.mode === "open" ? { days: nn } : { nights: nn }); }} style={{ width: 24, height: 24, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 15, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
           </div>))}
         </div>
-        {bad && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 9 }}>{over
+        {bad && <div style={{ fontFamily: font.display, fontSize: 20, color: "#B0563A", lineHeight: 1.3, marginTop: 10 }}>{over ? `${sch.nights - allowed} ${sch.nights - allowed === 1 ? "night" : "nights"} too many` : `${allowed - sch.nights} ${allowed - sch.nights === 1 ? "night" : "nights"} short`}</div>}
+        {bad && <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.55, marginTop: 6 }}>{over
           ? "Trim a night above, or push your return date back — otherwise a hotel or a flight lands on the wrong day."
           : "Add a night above, or bring your return forward — otherwise a night of the trip has nowhere to sleep."} You can also <button onClick={() => p.setStep(0)} style={{ background: "none", border: "none", color: t.pine, textDecoration: "underline", padding: 0, fontSize: 12.5, cursor: "pointer" }}>change the dates</button>.</div>}
       </div>);
@@ -17694,8 +17697,9 @@ function buildReview(p, sch) {
   const out = [];
   const add = (level, title, body) => out.push({ level, title, body });
 
-  // 1. Nights against dates. Everything else is moot if this is wrong.
-  if (sch.valid && sch.allowed != null && sch.nights !== sch.allowed) {
+  // 1. (Moved.) The nights-against-days reckoning lives on the Build page, after the flight is
+  //    chosen, where it can be fixed on the spot. Repeating it here only sent people back.
+  if (false) {
     const over = sch.nights > sch.allowed;
     add("stop", over ? "You have booked more nights than you have days" : "You are a night short",
       over ? `${sch.nights} nights against ${sch.allowed} days. Somewhere in here is a hotel you never reach, and a night you pay for twice. Trim a stay or move your return.`
@@ -18097,6 +18101,12 @@ function ItineraryView(p) {
           usually absent from the PDF, leaving a gray rectangle at the top of the document a
           client had been sent. Type and rules always print, at any size, on any device — and
           this is a private travel document, not a brochure. */}
+      {/* A REAL PRINT, NOT A SCREENSHOT. Safari's share-sheet PDF renders the page as it looks on
+          screen and ignores every print rule; only the Print path applies them. This button forces
+          the Print path, so the itinerary always leaves through the stylesheet built for paper. */}
+      <div className="vo-noprint" style={{ display: "flex", justifyContent: "flex-end", marginTop: 18 }}>
+        <button onClick={() => window.print()} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer" }}>Print / save as PDF</button>
+      </div>
       {/* ONE HEADER. The green atelier card and the "Planned Itinerary" block below it said the same
           thing twice, so they are one block now: title, who it is for, the dates, the cities — in
           gold and white on Voyage One green. The booking guidance sits beneath in a white card. */}
