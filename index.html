@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M616";
+const BUILD = "M617";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11531,6 +11531,32 @@ function VoyageOne() {
     setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
+  // THE SHAPED TRIP BECOMES A REAL ONE. Each leg becomes a destination with its nights and its
+  // hotel already chosen, dates are set from the answers, and the client lands in the builder
+  // with everything downstream — flights, maps, dining, the itinerary — already working.
+  const seedFromGuide = (profile, answers, plan) => {
+    const iso = (dt) => dt.toISOString().slice(0, 10);
+    // dates: a real date if they typed one, else the 10th of a named month, else six months out
+    let depart = "";
+    const w = String(answers.when || "").trim();
+    const asDate = w && !isNaN(new Date(w + (w.length === 10 ? "T00:00:00" : ""))) ? new Date(w + (w.length === 10 ? "T00:00:00" : "")) : null;
+    if (asDate && !isNaN(asDate)) depart = iso(asDate);
+    else {
+      const months = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+      const mi = months.findIndex((m) => w.toLowerCase().includes(m));
+      const now = new Date();
+      if (mi >= 0) { let y = now.getFullYear(); if (mi < now.getMonth() || (mi === now.getMonth() && now.getDate() > 10)) y += 1; depart = iso(new Date(Date.UTC(y, mi, w.toLowerCase().includes("late") ? 20 : w.toLowerCase().includes("early") ? 3 : 10))); }
+      else { const d = new Date(); d.setMonth(d.getMonth() + 6); depart = iso(d); }
+    }
+    const total = plan.legs.reduce((a, l) => a + (l.nights || 0), 0) || answers.nights;
+    const ret = iso(addDays(new Date(depart + "T00:00:00"), total + 1));   // +1 for the outbound night
+    setDates({ depart, ret });
+    setTripName(plan.title || `${profile.name}, shaped for you`);
+    setDests(plan.legs.map((l) => ({ id: newId(), city: l.city, air: iataFor(l.city) || "", fromGuide: true, mode: "full", nights: l.nights || 2, days: (l.nights || 2) + 1, arriveBy: "Flight",
+      pick: { flight: null, ff: "", stay: l.hotel ? { level: l.tier === "UltraLux" ? "UltraLux" : "Luxury", name: l.hotel, nightly: null, band: null, estimated: true, id: null } : null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } })));
+    setReturnFrom(plan.legs[plan.legs.length - 1].city);
+    setScreen("plan"); setStep(0);
+  };
   const removeTrip = async (id) => {
     if (typeof window !== "undefined" && !window.confirm("Delete this journey? This cannot be undone.")) return;
     if (user) {
@@ -11716,7 +11742,8 @@ function VoyageOne() {
     {screen === "landing" && <Landing trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
-    {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+    {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+      {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "oneList" && <OneList onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
@@ -13332,7 +13359,233 @@ const ONE_LIST = {
     ],
   },
 };
-function StartChooser({ onKnow, onOpen, onInspire, onHome }) {
+// ══ I KNOW WHERE BUT NOT HOW ═════════════════════════════════════════════════════════════════
+// For the client who knows the country or the coast and nothing else. Eight questions, the
+// first of which decides which of the others even appear — nobody is asked about beaches in
+// Paris or safari in Croatia. Then a trip is shaped from what Voyage One actually carries there,
+// by Claude through /api/guide when the key is present, and by the rules below when it is not.
+// Either way NOTHING is invented: every town and hotel proposed is one already in the file.
+//
+// REGION_PROFILES is the knowledge that makes the questions fit the place: which destinations
+// belong to it, in the order the region is travelled; what it is FOR; and what "one base",
+// "two or three" and "a journey" mean there in plain words.
+const FACET_LABELS = {
+  history: "History and old cities", food: "Food and wine", sea: "Sea and beaches", islands: "Islands",
+  sailing: "Sailing", mountains: "Mountains and walking", wildlife: "Wildlife and safari", glaciers: "Glaciers and ice",
+  desert: "The desert", wellness: "Wellness and spa", art: "Art and design", golf: "Golf", nightlife: "Nightlife",
+  wine: "Wine country", city: "A great city", coast: "A dramatic coast",
+};
+const REGION_PROFILES = {
+  "Croatia": { aliases: ["dalmatian coast", "dalmatia", "croatian coast", "adriatic"],
+    members: ["Rovinj", "Split", "Hvar", "Dubrovnik"], gateway: "Dubrovnik",
+    facets: ["history", "sea", "islands", "sailing", "food", "nightlife"],
+    moves: { base: "Dubrovnik, with the islands and the walls on your doorstep", two: "Dubrovnik and Hvar \u2014 the walled city and the island", journey: "the whole coast: Rovinj in Istria, then Split, Hvar and Dubrovnik" },
+    note: "The coast is the trip. Dubrovnik is the reason everyone comes and Hvar is where they wish they had stayed longer; Split is the working city between them, and Rovinj in the north is a different, Venetian Croatia." },
+  "Portugal": { aliases: ["portuguese coast"],
+    members: ["Lisbon", "Comporta", "Douro Valley", "Madeira"], gateway: "Lisbon",
+    facets: ["city", "food", "wine", "sea", "history", "golf"],
+    moves: { base: "Lisbon, with Sintra and the coast as day trips", two: "Lisbon and the Douro Valley \u2014 the city and the wine", journey: "Lisbon, then Comporta on the coast, then up to the Douro" },
+    note: "Lisbon first, always. Then a choice: the Douro for wine and river, Comporta for the long empty Atlantic beach an hour south, Madeira if you want the island \u2014 which is a flight, not a drive." },
+  "South Africa": { aliases: ["cape", "cape town and safari", "safari and cape town"],
+    members: ["Cape Town", "Franschhoek", "Stellenbosch", "Kruger"], gateway: "Cape Town",
+    facets: ["wildlife", "city", "wine", "coast", "food", "golf"],
+    moves: { base: "Cape Town, with the Winelands as a day out", two: "Cape Town and a safari at Kruger \u2014 the classic pairing", journey: "Cape Town, the Winelands, then the flight north to Kruger" },
+    note: "South Africa is really two trips joined by a flight: the Cape \u2014 the city, the mountain, the wine \u2014 and the bush. Most people want both, and the order that works is the Cape first and the safari last, so you fly home from Johannesburg." },
+  "Patagonia": { aliases: ["patagonian", "argentine patagonia", "chilean patagonia", "tierra del fuego"],
+    members: ["Bariloche", "El Calafate", "El Chalt\u00e9n", "Torres del Paine", "Puerto Natales", "Ushuaia"], gateway: "Buenos Aires",
+    facets: ["mountains", "glaciers", "wildlife", "coast"],
+    moves: { base: "Torres del Paine \u2014 one lodge, the park at your door", two: "El Calafate for the glacier and Torres del Paine for the mountains", journey: "Bariloche in the lakes, El Calafate, El Chalt\u00e9n for the walking, then across to Torres del Paine" },
+    note: "Distances are enormous and the roads are slow; every leg is a flight or a long drive. Pick the Argentine side, the Chilean side, or accept the crossing between them \u2014 the crossing is worth it, but it costs a day." },
+  "Morocco": { aliases: ["marrakesh", "marrakech and beyond", "maghreb"],
+    members: ["Marrakech", "Fez", "Essaouira"], gateway: "Marrakech",
+    facets: ["history", "food", "art", "wellness", "desert", "sea"],
+    moves: { base: "Marrakech, with the Atlas foothills and the Palmeraie around you", two: "Marrakech and Essaouira \u2014 the red city and the sea", journey: "Fez for the medina, Marrakech, then down to Essaouira on the coast" },
+    note: "Marrakech is the anchor and has the hotels. Fez is the older, deeper medina and worth two nights for anyone who cares about history; Essaouira is the wind, the ramparts and the fish, and the place to end." },
+};
+// A profile is found by name or by any of its spoken forms; failing that, by a city we carry
+// that the client typed, treated as a region of one.
+function guideProfileFor(text) {
+  const q = dnrm(text || "");
+  if (!q) return null;
+  const key = Object.keys(REGION_PROFILES).find((k) => dnrm(k) === q || (REGION_PROFILES[k].aliases || []).some((a) => dnrm(a) === q));
+  if (key) return { name: key, ...REGION_PROFILES[key] };
+  const city = resolvePlace(text);
+  if (city && lookup(FAVORITES, city) && (lookup(FAVORITES, city) || []).length) {
+    return { name: city, members: [city], gateway: city, facets: ["city", "food", "history"], single: true,
+      moves: { base: `${bareCity(city)}, and day trips from it` },
+      note: `We carry ${bareCity(city)} itself; this shapes a stay there.` };
+  }
+  return null;
+}
+// Everything Voyage One holds for a region, in the shape /api/guide expects.
+function guideInventory(profile) {
+  return (profile.members || []).map((city) => {
+    const favs = lookup(FAVORITES, city) || [];
+    const gw = gatewayFor(city);
+    return { city, gateway: gw ? bareCity(gw.air) : (airportFor(city) ? bareCity(city) : null),
+      facets: (profile.single ? profile.facets : (profile.facets || [])).map((f) => FACET_LABELS[f] || f),
+      hotels: favs.map((h) => ({ name: h.name, tier: tierOf(h.name) || "Luxury", area: String(h.area || "").split("\u00b7")[0].trim(), take: String(h.ourTake || "").split(". ")[0].slice(0, 160) })) };
+  }).filter((d) => d.hotels.length);
+}
+// THE RULES-BASED BUILD, used when the model is unavailable and to sanity-check what it returns.
+// It only does what a sensible advisor would do with our own inventory: pick the legs the "move"
+// answer implies, in the order the region is travelled, and give each the right hotel for the tier.
+function guideRulesPlan(profile, answers) {
+  const inv = guideInventory(profile);
+  if (!inv.length) return null;
+  const want = answers.move === "base" ? 1 : answers.move === "two" ? Math.min(2, inv.length) : Math.min(4, inv.length);
+  // prefer members whose facets overlap what draws them
+  const score = (d) => (answers.draws || []).reduce((a, f) => a + (d.facets.some((x) => dnrm(x) === dnrm(FACET_LABELS[f] || f)) ? 1 : 0), 0);
+  let chosen = inv.slice();
+  if (want < inv.length) {
+    const ranked = inv.map((d, i) => ({ d, i, s: score(d) + (dnrm(d.city) === dnrm(profile.gateway) ? 0.5 : 0) })).sort((a, b) => b.s - a.s || a.i - b.i).slice(0, want);
+    chosen = ranked.sort((a, b) => a.i - b.i).map((x) => x.d);         // back into travelling order
+  }
+  const N = Math.max(chosen.length, Number(answers.nights) || 7);
+  const base = Math.floor(N / chosen.length); let extra = N - base * chosen.length;
+  const legs = chosen.map((d, i) => {
+    const nights = base + (extra-- > 0 ? 1 : 0);
+    const pool = d.hotels.filter((h) => answers.tier === "UltraLux" ? h.tier === "UltraLux" : true);
+    const hotel = (pool.length ? pool : d.hotels)[0];
+    return { city: d.city, nights, hotel: hotel ? hotel.name : null, tier: hotel ? hotel.tier : null, why: hotel && hotel.take ? hotel.take : "" };
+  });
+  return { title: `${profile.name}, shaped for you`, intro: profile.note || "", legs, tips: [] };
+}
+// The wizard: eight questions, then the plan, then one tap into the builder.
+function GuideWizard({ onBuild, onBack, onHome }) {
+  const [a, setA] = useState({ where: "", nights: 7, when: "", who: "", move: "", draws: [], pace: "", stay: "", tier: "Luxury" });
+  const [step, setStep] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [plan, setPlan] = useState(null);
+  const [source, setSource] = useState("");
+  const [err, setErr] = useState("");
+  const profile = guideProfileFor(a.where);
+  const set = (patch) => setA({ ...a, ...patch });
+  const facets = profile ? (profile.facets || []) : [];
+  const moves = profile ? profile.moves : null;
+  const chip = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "10px 16px", fontSize: 14, cursor: "pointer", textAlign: "left" });
+  const q = (eyebrow, title, sub) => (<div style={{ marginBottom: 14 }}>
+    <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>{eyebrow}</div>
+    <div style={{ fontFamily: font.display, fontSize: 26, lineHeight: 1.15, marginTop: 4, color: t.ink }}>{title}</div>
+    {sub ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6, maxWidth: 520 }}>{sub}</div> : null}
+  </div>);
+  const nav = (canGo, last) => (<div style={{ display: "flex", gap: 10, marginTop: 26, alignItems: "center" }}>
+    {step > 0 ? <button onClick={() => setStep(step - 1)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "11px 20px", fontSize: 14, color: t.ink, cursor: "pointer" }}>Back</button> : null}
+    <button disabled={!canGo} onClick={() => last ? build() : setStep(step + 1)} style={{ background: canGo ? t.pine : t.line, color: t.paper, border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 600, cursor: canGo ? "pointer" : "default" }}>{last ? "Shape my trip" : "Next"}</button>
+  </div>);
+  const build = async () => {
+    setBusy(true); setErr(""); setPlan(null);
+    const inv = guideInventory(profile);
+    let got = null;
+    try {
+      const r = await fetch("/api/guide", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ answers: a, region: profile.name, inventory: inv }) });
+      const j = r.ok ? await r.json() : null;
+      if (j && j.ok && j.plan && j.plan.legs && j.plan.legs.length) { got = j.plan; setSource("advisor"); }
+    } catch (e) { /* fall through to the rules */ }
+    if (!got) { got = guideRulesPlan(profile, a); setSource("rules"); }
+    if (!got) setErr("We could not shape a trip from what we carry there.");
+    setPlan(got); setBusy(false); setStep(8);
+  };
+  const total = plan ? plan.legs.reduce((s2, l) => s2 + (l.nights || 0), 0) : 0;
+  return (<div className="vo-fade" style={{ minHeight: "100vh" }}>
+    <header className="vo-noprint" style={{ position: "sticky", top: 0, zIndex: 20, background: t.paper, borderBottom: `1px solid ${t.line}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px clamp(20px,5vw,56px)" }}>
+      <button onClick={onBack} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, fontSize: 13.5, cursor: "pointer" }}>Start over</button>
+      <button onClick={onHome} style={{ background: "none", border: "none", color: t.inkFaint, display: "flex", alignItems: "center", gap: 6, fontSize: 13.5, cursor: "pointer" }}><Home size={15} /> Home</button>
+    </header>
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: "36px clamp(22px,5vw,56px) 100px" }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 22 }}>I know where but not how {step < 8 ? `· ${step + 1} of 8` : ""}</div>
+
+      {step === 0 && (<div>
+        {q("Where", "Where do you want to go?", "A country, a coast, a region or a city. Croatia. The Dalmatian Coast. Patagonia. Morocco.")}
+        <input value={a.where} onChange={(e) => set({ where: e.target.value })} placeholder="Croatia" autoFocus
+          style={{ fontFamily: font.display, fontSize: 30, width: "100%", border: "none", borderBottom: `2px solid ${t.pine}`, background: "none", padding: "8px 0", color: t.ink, outline: "none" }} />
+        {a.where.trim().length > 2 && !profile ? (<div style={{ marginTop: 14, fontSize: 13.5, color: t.brass, lineHeight: 1.55 }}>
+          We do not yet carry anything we would put our name to in {a.where.trim()}. Voyage One only proposes hotels and places it has vetted, so rather than guess we would rather say so. Try a nearby region, or tell us and we will build it properly.
+        </div>) : profile ? (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{profile.note}</div>) : null}
+        {nav(!!profile, false)}
+      </div>)}
+
+      {step === 1 && (<div>
+        {q("When", "How long, and roughly when?", "The month matters more than people think. Croatia in August and Croatia in October are different trips.")}
+        <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-end" }}>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Nights<br /><input type="number" min={2} max={30} value={a.nights} onChange={(e) => set({ nights: Math.max(2, Math.min(30, Number(e.target.value) || 2)) })} style={{ fontFamily: font.display, fontSize: 28, width: 90, border: "none", borderBottom: `2px solid ${t.pine}`, background: "none", padding: "6px 0", color: t.ink }} /></label>
+          <label style={{ fontSize: 12, color: t.inkSoft, flex: 1, minWidth: 220 }}>When, roughly<br /><input value={a.when} onChange={(e) => set({ when: e.target.value })} placeholder="early October, or a date" style={{ fontFamily: font.display, fontSize: 22, width: "100%", border: "none", borderBottom: `2px solid ${t.pine}`, background: "none", padding: "8px 0", color: t.ink }} /></label>
+        </div>
+        {nav(a.nights >= 2, false)}
+      </div>)}
+
+      {step === 2 && (<div>
+        {q("Who", "Who is travelling?", "This decides the hotels more than anything else we ask.")}
+        <div style={{ display: "grid", gap: 9 }}>{[["A couple", "couple"], ["Family with children", "family"], ["A group of friends", "friends"], ["Solo", "solo"]].map(([lab, v]) => <button key={v} onClick={() => set({ who: v })} style={chip(a.who === v)}>{lab}</button>)}</div>
+        {nav(!!a.who, false)}
+      </div>)}
+
+      {step === 3 && (<div>
+        {q("Moving", "How much do you want to move?", "The single most important shaping question. Each option says what it means here.")}
+        <div style={{ display: "grid", gap: 9 }}>
+          {[["base", "One place, day trips out"], ["two", "Two or three bases"], ["journey", "A real journey through it"]].filter(([v]) => moves && moves[v]).map(([v, lab]) => (<button key={v} onClick={() => set({ move: v })} style={chip(a.move === v)}>
+            <div style={{ fontWeight: 600 }}>{lab}</div>
+            <div style={{ fontSize: 12.5, opacity: .85, marginTop: 3 }}>{moves[v]}</div>
+          </button>))}
+        </div>
+        {nav(!!a.move, false)}
+      </div>)}
+
+      {step === 4 && (<div>
+        {q("Draws", "What draws you?", `Choose up to three. These are the things ${profile ? profile.name : "this place"} is actually for.`)}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>{facets.map((f) => { const on = a.draws.includes(f); return <button key={f} onClick={() => set({ draws: on ? a.draws.filter((x) => x !== f) : (a.draws.length < 3 ? [...a.draws, f] : a.draws) })} style={chip(on)}>{FACET_LABELS[f] || f}</button>; })}</div>
+        {nav(a.draws.length > 0, false)}
+      </div>)}
+
+      {step === 5 && (<div>
+        {q("Pace", "How hard do you want to work?", "This sets how many places make the cut, and how full each day is.")}
+        <div style={{ display: "grid", gap: 9 }}>{[["slow", "Slow and deep \u2014 a few things done properly"], ["between", "Somewhere between"], ["full", "A full day, every day"]].map(([v, lab]) => <button key={v} onClick={() => set({ pace: v })} style={chip(a.pace === v)}>{lab}</button>)}</div>
+        {nav(!!a.pace, false)}
+      </div>)}
+
+      {step === 6 && (<div>
+        {q("Stay", "How do you like to stay?")}
+        <div style={{ display: "grid", gap: 9 }}>{[["grand", "Grand hotels"], ["small", "Small and characterful"], ["villas", "Villas and lodges"], ["mix", "Surprise me"]].map(([v, lab]) => <button key={v} onClick={() => set({ stay: v })} style={chip(a.stay === v)}>{lab}</button>)}</div>
+        {nav(!!a.stay, false)}
+      </div>)}
+
+      {step === 7 && (<div>
+        {q("Tier", "Luxury, or Ultra Luxury?", "Ultra Luxury is the top of what we carry \u2014 Aman, Rosewood, the Cheval Blancs, the Belmond palaces. Most people choose Luxury; the ones who want Ultra already know.")}
+        <div style={{ display: "grid", gap: 9 }}>{[["Luxury", "Luxury"], ["UltraLux", "Ultra Luxury"]].map(([v, lab]) => <button key={v} onClick={() => set({ tier: v })} style={chip(a.tier === v)}>{lab}</button>)}</div>
+        {nav(true, true)}
+        {busy ? <div style={{ marginTop: 16, fontSize: 13.5, color: t.inkSoft }}>Shaping your trip from what we carry in {profile ? profile.name : "the region"}…</div> : null}
+      </div>)}
+
+      {step === 8 && (<div>
+        {err ? <div style={{ fontSize: 14, color: t.brass }}>{err}</div> : plan ? (<div>
+          <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>{profile.name} · {total} nights · {a.tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</div>
+          <div style={{ fontFamily: font.display, fontSize: 30, lineHeight: 1.12, marginTop: 6, color: t.ink }}>{plan.title}</div>
+          {plan.intro ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 12 }}>{plan.intro}</div> : null}
+          <div style={{ marginTop: 22, display: "grid", gap: 12 }}>
+            {plan.legs.map((l, i) => (<div key={i} style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.pine}`, borderRadius: 12, padding: "14px 16px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ fontFamily: font.display, fontSize: 21, color: t.ink }}>{i + 1}. {bareCity(l.city)}</div>
+                <div style={{ fontSize: 12.5, letterSpacing: ".08em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>{l.nights} {l.nights === 1 ? "night" : "nights"}</div>
+              </div>
+              {l.hotel ? <div style={{ fontSize: 14.5, color: t.ink, marginTop: 5 }}>{l.hotel}{l.tier === "UltraLux" ? <span style={{ fontSize: 11, letterSpacing: ".1em", color: t.brass, marginLeft: 8 }}>ULTRA LUXURY</span> : null}</div> : <div style={{ fontSize: 13.5, color: t.inkFaint, marginTop: 5 }}>Hotel to choose in the builder</div>}
+              {l.why ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{l.why}</div> : null}
+            </div>))}
+          </div>
+          {plan.tips && plan.tips.length ? (<div style={{ marginTop: 20 }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Worth knowing</div>
+            {plan.tips.map((x, i) => <div key={i} style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, padding: "5px 0", borderTop: i ? `1px solid ${t.line}` : "none" }}>{x}</div>)}
+          </div>) : null}
+          <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 16 }}>{source === "advisor" ? "Shaped by your Voyage One advisor from what we carry. Every hotel and town is one we have vetted." : "Shaped from what we carry, by our own rules. Every hotel and town is one we have vetted."}</div>
+          <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
+            <button onClick={() => onBuild(profile, a, plan)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "13px 26px", fontSize: 15, fontWeight: 600, cursor: "pointer" }}>Build this trip →</button>
+            <button onClick={() => setStep(3)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "13px 22px", fontSize: 14, color: t.ink, cursor: "pointer" }}>Change my answers</button>
+          </div>
+        </div>) : null}
+      </div>)}
+    </div>
+  </div>);
+}
+function StartChooser({ onKnow, onOpen, onInspire, onGuide, onHome }) {
   const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
   const cEy = { display: "block", fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
   const cTtl = { display: "block", fontFamily: font.display, fontSize: 33, color: t.paper, lineHeight: 1.12, margin: "7px 0" };
@@ -13347,6 +13600,7 @@ function StartChooser({ onKnow, onOpen, onInspire, onHome }) {
     </div>
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
       <button onClick={onKnow} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span></span><span style={cArw}>→</span></button>
+      <button onClick={onGuide} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Take me there</span><span style={cTtl}>I know where but not how</span><span style={cSub}>Name a country or a coast — Croatia, Patagonia, Morocco. Eight questions, and we shape the trip a good advisor would.</span></span><span style={cArw}>→</span></button>
       <button onClick={onOpen} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — let's explore the what and where</span><span style={cSub}>Give us the season and a mood — ski, beach, a region — and we'll suggest where.</span></span><span style={cArw}>→</span></button>
       <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me with an experience</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
     </div>
