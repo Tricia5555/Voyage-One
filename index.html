@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M592";
+const BUILD = "M593";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9134,6 +9134,23 @@ AIRPORT_ASSIST.LAX = { title: "PS LAX \u2014 The Salon", airport: "Los Angeles I
     { name: "Private Suite", from: "$4,950", includes: ["$4,950 per visit for up to 4 travellers", "No membership required"] },
   ],
   note: "Preferred at Los Angeles. PS is a private terminal at 6875 W. Imperial Highway, on the far side of the airfield from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Book direct." };
+// ══ PS AT ATLANTA, DALLAS AND MIAMI — the same private-terminal product as LAX, confirmed on
+// PS's own site (July 2026): DFW opened in June, MIA on 30 June, ATL in 2023. The price shown is
+// the Los Angeles rate, and the card says to confirm it for the location when reserving — PS has
+// not published a per-location price we can see. Paris is announced for 2027 and NOT carried.
+const PS_INCLUDES = ["Private PS terminal", "Private line-free TSA screening", "Dedicated customs and immigration on arrival", "Luggage assistance", "Chef-prepared food and beverages", "Luxury lounge", "Private airfield transfer directly to and from the aircraft"];
+const PS_TIERS = [
+  { name: "The Salon", from: "$1,295", includes: ["$1,295 per person at Los Angeles \u2014 confirm this location's rate when reserving", "No membership required"] },
+  { name: "Private Suite", from: "$4,950", includes: ["$4,950 per visit for up to 4 at Los Angeles \u2014 confirm this location's rate when reserving", "No membership required"] },
+];
+[["ATL", "Atlanta Hartsfield-Jackson", "on the north side of the airport, reached by Toffie Terrace off N Inner Loop Road"],
+ ["DFW", "Dallas Fort Worth", "at 1816 N 24th Ave, reached by the airport service road rather than the terminal lanes"],
+ ["MIA", "Miami International", "at 4900 NW 36th St, in a secured terminal off NW 36th Street"]].forEach(([code, airport, where]) => {
+  AIRPORT_ASSIST[code] = { title: `PS ${code} \u2014 The Salon`, airport, name: `PS ${code}`, web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
+    headline: "A private terminal of its own: line-free TSA screening, dedicated customs and immigration on arrival, and a car across the airfield to the aircraft.",
+    includes: PS_INCLUDES, tiers: PS_TIERS,
+    note: `Preferred at ${airport.split(" ")[0]}. PS is a private terminal ${where}, away from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Give the driver the PS address, not the terminal. Book direct.` };
+});
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
