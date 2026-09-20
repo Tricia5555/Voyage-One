@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M598";
+const BUILD = "M599";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9207,6 +9207,19 @@ AIRPORT_ASSIST.KUL = { title: "KLIA VIP Meet & Greet \u2014 Kuala Lumpur", airpo
   includes: ["Met at the aircraft on arrival", "Dedicated VIP airport representative", "Fast Track immigration", "Priority airport processing", "Private VIP bus or shuttle from the satellite building to the main terminal", "Personal escort through airport procedures"],
   tiers: [{ name: "VIP Meet & Greet", from: "MYR 220", includes: ["MYR 220 regular price", "A lower rate is sometimes shown through Enrich \u2014 check the booking page"] }],
   note: "Preferred at Kuala Lumpur. The KLIA satellite building is a train ride from the main terminal for everyone else; here a dedicated representative meets you at the aircraft, takes you through Fast Track immigration with priority processing, and moves you by private VIP shuttle instead. Book direct through Enrich." };
+// ══ HO CHI MINH CITY — VIP Fast Track at Tan Son Nhat. Two named products, arrival and departure,
+// priced per passenger. Express security and priority passport lanes both ways.
+AIRPORT_ASSIST.SGN = { title: "Tan Son Nhat VIP Fast Track \u2014 Ho Chi Minh City", airport: "Ho Chi Minh City Tan Son Nhat", name: "Tan Son Nhat VIP Fast Track", web: "https://airportsgn.com/fast-track/", email: "info@airportsgn.com", tel: "+84 28 3848 5383", button: "Book Fast Track",
+  headline: "Met on arrival and taken through the priority passport lane, with a porter and an escort through customs to your car.",
+  phases: [
+    { name: "VIP arrival Fast Track", may: ["Personal Meet & Greet", "Priority passport-control lane", "Assistance through the formalities", "Baggage claim assistance", "Personal porter", "Escort through customs to your waiting vehicle"] },
+    { name: "First Class departure Fast Track", may: ["Personal Meet & Greet", "Check-in assistance", "Full porter service", "Express security screening", "Priority passport-control lane"] },
+  ],
+  tiers: [
+    { name: "VIP arrival Fast Track", from: "USD 90", includes: ["USD 90 per passenger"] },
+    { name: "First Class departure Fast Track", from: "USD 110", includes: ["USD 110 per passenger"] },
+  ],
+  note: "Preferred at Ho Chi Minh City. Arriving, a greeter meets you and takes you through the priority passport lane, collects the bags with a porter, and walks you through customs to the car. Departing, check-in is handled, a porter carries everything, and you go through express security and the priority passport lane. The phone is the airport's line. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
