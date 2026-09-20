@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M603";
+const BUILD = "M604";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9262,6 +9262,15 @@ AIRPORT_ASSIST.JED = { title: "Altanfeethi \u2014 Jeddah", airport: "Jeddah King
   includes: ["Private VIP entrance", "Personal assistant", "Private check-in", "Fast-track passport control", "Fast-track customs", "Private security lane", "Baggage transfer and collection", "Luxury lounge", "Luxury vehicle to and from the aircraft", "Travel-arrangement assistance"],
   tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
   note: "Preferred at Jeddah. Altanfeethi is the separate-flow product: its own entrance, private check-in, a private security lane, fast-track passport control and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft — with an assistant who will also help with onward arrangements. Priced on quote; contact by phone or through Altanfeethi's booking channels. Book direct." };
+// ══ RIYADH — Altanfeethi at King Khalid International: a private VIP terminal with its own
+// entrance, private passport procedures and a luxury transfer to the aircraft. Two booking
+// routes, Altanfeethi and the official entrance.sa channel. No published price; the card says so.
+AIRPORT_ASSIST.RUH = { title: "Altanfeethi \u2014 Riyadh", airport: "Riyadh King Khalid International", name: "Altanfeethi", web: "https://altanfeethi.com.sa/en/", button: "Altanfeethi",
+  web2: "https://entrance.sa/en", button2: "Official booking", email: "care@vip.sa", tel: "+966 11 222 3333",
+  headline: "A private VIP terminal of its own: an exclusive entrance, private passport procedures, fast-track immigration and customs, and a luxury transfer to the aircraft.",
+  includes: ["Private VIP terminal", "Exclusive entrance", "Personal assistant", "Private security lane", "Private passport procedures", "Fast-track immigration and customs", "Baggage transfer and collection", "Luxury lounge", "Luxury transfer to and from the aircraft"],
+  tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
+  note: "Preferred at Riyadh. A private terminal with its own entrance: a personal assistant, a private security lane, private passport procedures with fast-track immigration and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft. Priced on quote. Book through Altanfeethi or the official entrance.sa channel. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
