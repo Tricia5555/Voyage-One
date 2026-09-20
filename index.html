@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M584";
+const BUILD = "M585";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9055,6 +9055,19 @@ AIRPORT_ASSIST.FCO = { title: "Highpass \u2014 Rome Fiumicino", airport: "Rome F
     { name: "Transit", from: "\u20ac320", includes: ["\u20ac320 adult", "\u20ac120 child"] },
   ],
   note: "Preferred at Fiumicino. Met with a name board, escorted through passport control with a porter, and moved by personal transfer from the aircraft on arrival or toward it on departure where the airport allows. Priority lanes and Fast Track are used where available; immigration decisions remain with the authorities. Book direct." };
+// ══ ATHENS — Highpass. Arrival is the Silver product, departure the Gold; different inclusions
+// and prices, so both are shown by name. Athens is the gateway for every Cyclades trip.
+AIRPORT_ASSIST.ATH = { title: "Highpass \u2014 Athens", airport: "Athens Eleftherios Venizelos", name: "Highpass", web: "https://highpass.aero/en/airports/services/ath", email: null, tel: null, button: "Book Highpass",
+  headline: "Meet & Assist at Athens: met with a name board, priority passport control, a personal transfer from or to the aircraft.",
+  phases: [
+    { name: "Arrival \u2014 Silver", may: ["Met with a name board", "Personal transfer from the aircraft", "Priority passport control", "Porter to the car park"] },
+    { name: "Departure \u2014 Gold", may: ["Met with a name board", "Priority check-in", "Priority entrance security", "Priority aviation security", "Priority passport control", "Porter", "Business lounge", "Personal transfer to the aircraft"] },
+  ],
+  tiers: [
+    { name: "Arrival \u2014 Silver", from: "\u20ac120", includes: ["\u20ac120 per adult"] },
+    { name: "Departure \u2014 Gold", from: "\u20ac186", includes: ["\u20ac186 per adult"] },
+  ],
+  note: "Preferred at Athens — and Athens is where every island trip connects. On arrival: met with a name board, brought from the aircraft by personal transfer, priority passport control, a porter to the car. On departure the fuller Gold service: priority check-in and both security controls, priority passport control, the business lounge, and a transfer to the aircraft. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
