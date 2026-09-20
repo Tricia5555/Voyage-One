@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M591";
+const BUILD = "M592";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9123,6 +9123,17 @@ AIRPORT_ASSIST.BKK = { title: "VIP Fast Track + Meet & Greet \u2014 Bangkok", ai
     { name: "Departure VIP service", from: "THB 1,250", includes: ["THB 1,250 per passenger"] },
   ],
   note: "Preferred at Bangkok. A greeter meets you and takes you through the Fast Lane at passport control with an escort through the terminal — by golf cart if you take that option — and a porter where you want one; on departure, assistance through check-in and the formalities. The arrival Fast Track is subject to availability on the day: confirm it when you book, not when you land. Book direct." };
+// ══ LOS ANGELES — PS LAX, a private terminal on the far side of the airfield. The Salon is the
+// service carried; the Private Suite is the alternative for a party. No membership needed for
+// either. The first US airport in the table.
+AIRPORT_ASSIST.LAX = { title: "PS LAX \u2014 The Salon", airport: "Los Angeles International", name: "PS LAX", web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
+  headline: "A private terminal of its own: line-free TSA screening, dedicated customs and immigration on arrival, and a car across the airfield to the aircraft.",
+  includes: ["Private PS terminal", "Private line-free TSA screening", "Dedicated customs and immigration on arrival", "Luggage assistance", "Chef-prepared food and beverages", "Luxury lounge", "Private airfield transfer directly to and from the aircraft"],
+  tiers: [
+    { name: "The Salon", from: "$1,295", includes: ["$1,295 per person", "No membership required"] },
+    { name: "Private Suite", from: "$4,950", includes: ["$4,950 per visit for up to 4 travellers", "No membership required"] },
+  ],
+  note: "Preferred at Los Angeles. PS is a private terminal at 6875 W. Imperial Highway, on the far side of the airfield from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
