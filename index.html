@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M574";
+const BUILD = "M576";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8955,6 +8955,21 @@ AIRPORT_ASSIST.ARN = { title: "Stockholm Arlanda VIP Service", airport: "Stockho
     { name: "Transit", from: "SEK 13,995", includes: ["SEK 13,995 for 1\u20133 passengers", "SEK 2,375 each additional passenger"] },
   ],
   note: "Preferred at Stockholm, operated by Swedavia — the airport company itself. You use a dedicated VIP entrance, your own coordinator, a separate private security control and a private room, with check-in, bags and documents handled. Book direct." };
+// ══ OSLO — Avinor's VIP Terminal. A separate building with its own security and passport control
+// and a car to the aircraft; the fullest version of the separate-flow product. One price per
+// passenger for arrival, departure or transit.
+AIRPORT_ASSIST.OSL = { title: "Oslo Airport VIP Terminal", airport: "Oslo Gardermoen", name: "Avinor VIP Terminal", web: "https://www.avinor.no/en/airport/oslo/info/VIP-terminal/", email: "vipservice@avinor.no", tel: "+47 64 81 35 47", button: "Book Oslo VIP Terminal",
+  headline: "A private VIP terminal of its own: private security, private passport control, and a car to and from the aircraft.",
+  includes: ["Private VIP terminal", "Private security control", "Private passport control", "Personal VIP host", "Check-in assistance", "Porter", "Private waiting suite", "Refreshments and snack buffet", "Private vehicle to and from the aircraft", "Met at the aircraft door on arrival", "Private passport control for arrivals from outside Schengen", "Baggage retrieval assistance"],
+  tiers: [{ name: "Arrival, departure or transit", from: "NOK 6,250", includes: ["NOK 6,250 per passenger"] }],
+  note: "Preferred at Oslo, operated by Avinor — the airport company. You never enter the main terminal: a private building with its own security and passport control, a host, a suite with refreshments, and a private vehicle across the apron to or from the aircraft. Arrivals from outside Schengen clear passport control privately too. Book direct." };
+// ══ BRUSSELS — Altitude, the airport's official VIP service. Private facility, private screening,
+// limousine to the aircraft. Priced on quote; the card says so and invents no figure.
+AIRPORT_ASSIST.BRU = { title: "Altitude VIP Service \u2014 Brussels", airport: "Brussels Zaventem", name: "Altitude VIP Service", web: "https://altitude.brusselsairport.be/", email: "altitude@brusselsairport.be", tel: "+32 2 753 69 71", button: "Contact Altitude",
+  headline: "The airport's official VIP service: a private facility, private security screening and a limousine to the aircraft.",
+  includes: ["Private VIP facility", "Personalised airport service", "Check-in handling", "Private security screening", "Food and beverage", "Private lounge", "Boarding assistance", "Limousine directly to the aircraft", "Flight monitoring"],
+  tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
+  note: "Preferred at Brussels, and it is the airport's own service. A private facility with its own screening, a lounge with food and drink, boarding handled, and a limousine across the apron to the aircraft. Priced on quote. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
