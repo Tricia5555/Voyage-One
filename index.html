@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M630";
+const BUILD = "M632";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13895,6 +13895,8 @@ const HELP_GUIDE = [
   { id: "ways-in", title: "The four ways in", text: "From the home screen you can start four ways. I KNOW WHERE AND WHEN: name your cities and dates and build the trip yourself — flights, hotels, tables, tours. I KNOW WHEN — LET'S EXPLORE: give a season and a mood (ski, beach, golf, fly-fishing, a region) and we suggest where. I KNOW WHERE BUT NOT HOW: name a country or a coast and answer a few questions; we shape the trip an advisor would, from what we carry. INSPIRE ME WITH AN EXPERIENCE: The One List — Wimbledon, the Masters, Art Basel — pick the moment and we set the dates and the plan." },
   { id: "basics", title: "Basics, Departure, Destinations, Build", text: "The builder runs left to right across the top: BASICS (who is travelling, home city), DEPARTURE (dates and where you leave from), DESTINATIONS (the cities, in order, with nights), then BUILD, where each destination has its own section: how you arrive, the flight, the hotel, dining, things to do, and a car if one makes sense. Choosing a departure date seeds the return a week later so the picker opens in the right month; the return can never be before the departure." },
   { id: "flights", title: "Flights", text: "In each destination's section the flight panel searches live fares into the airport the site chose — or a hub you pick, if you would rather fly into Milan and drive to Florence. Tap a fare to lock it in. If you booked elsewhere, or by phone, use ALREADY BOOKED THIS FLIGHT YOURSELF? RECORD IT under the panel: the airline is enough, everything else is optional, and it prints on the itinerary. Dates more than about eleven months out show no fares because airlines have not released them yet — the panel tells you when they open." },
+  { id: "delta-emirates", title: "Delta and Emirates", text: "Delta and Emirates do not appear in the live fares — neither sells through the channel the site searches. Each has its own panel under the flights: enter the flight you found on their site (or by phone) and it is recorded and printed like any other. Book them direct with the airline." },
+  { id: "cabins", title: "Finding the right flight", text: "Use the flight panel to explore: play with the dates, the times, the routing and the class until the route looks right — nonstop or one stop, morning or evening, Business or First. The fares are there to show you what exists and roughly what it costs. Then book it yourself, direct with the airline, in whatever cabin you want on each leg; the airline's own site will let you choose Business for the long flight and whatever the short hop sells. Record what you booked here and it prints on the itinerary." },
   { id: "booked", title: "Booked / Not booked", text: "Under every chosen hotel, flight and restaurant there is a BOOKED / NOT BOOKED row with a field for the confirmation number. Nothing detects anything — you tell it, which is right for a hotel you booked by phone or a group booking made months ago. The itinerary prints what you tell it. If you tap a Book direct link, the site asks fifteen seconds later whether you booked." },
   { id: "cars", title: "Rental cars", text: "A car is offered at the airport you LAND at, not the town you are going to — Malpensa for Florence, Palermo for Sciacca. Under the panel, DID YOU BOOK A CAR? records the company, where you collected it and where you are dropping it. Where you drop the car decides where your next flight leaves from." },
   { id: "exit", title: "Flying out from", text: "Each destination shows FLYING OUT FROM — what the site worked out, with a CHANGE link. Tap it to pick a different city (Porto instead of Lisbon, say) or type one. Your choice wins over every guess, including the car drop-off." },
@@ -15316,6 +15318,12 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
                   leg; this shows them, with the airline actually operating each one. */}
               {o.segments && o.segments.length > 1 ? (<span style={{ display: "block", marginTop: 7, paddingTop: 7, borderTop: `1px dashed ${t.line}` }}>
                 <span style={{ display: "block", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>via {o.segments.slice(0, -1).map((s) => s.toCity || s.to).join(" · ")}</span>
+                {/* MIXED CABINS, SAID PLAINLY. A long-haul in business with a one-hour hop in economy is the
+                    normal shape of a flight to a small airport, and it is a fine ticket — but the client
+                    should see it before they buy, not at the gate in Rome. */}
+                {(() => { const cabs = o.segments.map((s) => s.cabin).filter(Boolean); const uniq = Array.from(new Set(cabs.map((c) => dnrm(c)))); if (uniq.length < 2) return null;
+                  const lower = o.segments.filter((s) => s.cabin && dnrm(s.cabin) !== dnrm(cabin)).map((s) => `${s.from}–${s.to} in ${s.cabin}`);
+                  return (<span style={{ display: "block", fontSize: 12, color: "#B0563A", lineHeight: 1.5, marginBottom: 5 }}>Mixed cabins: {lower.join(", ")}. The long flight is {cabin}; the short one is what that route sells.</span>); })()}
                 {o.segments.map((s, si) => (<span key={si} style={{ display: "block" }}>
                   <span style={{ display: "block", fontSize: 12, color: t.inkSoft, lineHeight: 1.5 }}>
                     <strong style={{ color: t.ink, fontWeight: 500 }}>{s.from}</strong> {s.depart} → <strong style={{ color: t.ink, fontWeight: 500 }}>{s.to}</strong> {s.arrive}
@@ -15325,6 +15333,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
                     {s.flightNo || ""}{s.marketingCarrier ? ` · ${s.marketingCarrier}` : ""}
                     {s.operatingCarrier && s.operatingCarrier !== s.marketingCarrier ? ` · operated by ${s.operatingCarrier}` : ""}
                     {s.aircraft ? ` · ${s.aircraft}` : ""}
+                    {s.cabin ? <strong style={{ color: dnrm(s.cabin) === dnrm(cabin) ? t.inkFaint : "#B0563A", fontWeight: 600 }}>{` · ${s.cabin}`}</strong> : ""}
                   </span>
                   {s.layoverAfterMin != null ? <span style={{ display: "block", fontSize: 11.5, color: s.layoverAfterMin >= 240 ? "#B0563A" : t.brass, lineHeight: 1.5, margin: "3px 0 5px" }}>
                     {`↳ ${Math.floor(s.layoverAfterMin / 60)}h ${s.layoverAfterMin % 60}m in ${s.toCity || s.to}`}{s.layoverAfterMin >= 240 ? " — a long sit" : ""}{s.layoverAfterMin < 60 ? " — tight if anything slips" : ""}
