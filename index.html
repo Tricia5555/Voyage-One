@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M614";
+const BUILD = "M615";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10885,7 +10885,6 @@ function FontStyles() {
       .vo-days { display: block !important; }
       .vo-day { display: block !important; break-inside: avoid !important; page-break-inside: avoid !important; }
       .vo-day > div { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .vo-day * { break-inside: avoid !important; }
       .vo-hero { margin-top: 0 !important; margin-bottom: 4px !important; }
       /* The masthead is green type on white, so nothing to recolour; only keep the name largest. */
       .vo-hero .vo-h-name { font-size: 34px !important; line-height: 1.1 !important; }
@@ -18110,12 +18109,6 @@ function ItineraryView(p) {
           usually absent from the PDF, leaving a gray rectangle at the top of the document a
           client had been sent. Type and rules always print, at any size, on any device — and
           this is a private travel document, not a brochure. */}
-      {/* A REAL PRINT, NOT A SCREENSHOT. Safari's share-sheet PDF renders the page as it looks on
-          screen and ignores every print rule; only the Print path applies them. This button forces
-          the Print path, so the itinerary always leaves through the stylesheet built for paper. */}
-      <div className="vo-noprint" style={{ display: "flex", justifyContent: "flex-end", marginTop: 18 }}>
-        <button onClick={() => window.print()} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 20px", fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer" }}>Print / save as PDF</button>
-      </div>
       {/* ONE HEADER. The green atelier card and the "Planned Itinerary" block below it said the same
           thing twice, so they are one block now: title, who it is for, the dates, the cities — in
           gold and white on Voyage One green. The booking guidance sits beneath in a white card. */}
