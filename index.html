@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M573";
+const BUILD = "M574";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8945,6 +8945,16 @@ AIRPORT_ASSIST.AMS = { title: "Schiphol Meet & Assist Executive", airport: "Amst
   phases: [{ name: "Arrival", may: ["Meet at the aircraft door", "Passport-control assistance", "Luggage assistance", "Customs assistance", "Escort to your waiting car or driver"] }],
   tiers: [{ name: "Executive", from: "\u20ac305", includes: ["\u20ac305 including VAT", "Up to 3 passengers", "Maximum 2 hours"] }],
   note: "Preferred at Amsterdam, and it is the airport itself. One price covers up to three passengers for up to two hours — a hostess meets you, security is faster, you cross the terminal by electric caddy and wait in the lounge. Book direct." };
+// ══ STOCKHOLM — Arlanda's VIP Service, operated by Swedavia, the airport company. A dedicated
+// entrance and a private VIP room: the separate-flow class of product.
+AIRPORT_ASSIST.ARN = { title: "Stockholm Arlanda VIP Service", airport: "Stockholm Arlanda", name: "Swedavia VIP Service", web: "https://www.swedavia.com/arlanda/vip-services/", email: "vipservice@swedavia.se", tel: "+46 10 109 12 00", button: "Book Arlanda VIP",
+  headline: "The airport company's own VIP service: a dedicated entrance, private security and a private VIP room.",
+  includes: ["Dedicated VIP entrance", "Personal VIP coordinator", "Separate private security control", "Check-in assistance", "Baggage handling", "Travel-document assistance", "Private VIP room", "Escort through the airport process"],
+  tiers: [
+    { name: "Arrival or departure", from: "SEK 6,995", includes: ["SEK 6,995 first passenger", "SEK 2,375 each additional passenger"] },
+    { name: "Transit", from: "SEK 13,995", includes: ["SEK 13,995 for 1\u20133 passengers", "SEK 2,375 each additional passenger"] },
+  ],
+  note: "Preferred at Stockholm, operated by Swedavia — the airport company itself. You use a dedicated VIP entrance, your own coordinator, a separate private security control and a private room, with check-in, bags and documents handled. Book direct." };
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
