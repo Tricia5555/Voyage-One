@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M641";
+const BUILD = "M642";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8906,12 +8906,22 @@ const VETTED_DRIVERS = {
     note: "Used by Voyage One. Twenty years in South Florida, their own fleet, and based across the road from MIA \u2014 which is why airport pickups actually work. Ask for a sedan or an SUV for Art Week; the schedule moves and they keep up." },
 };
 // ══ AIRPORT ASSISTANCE ═══════════════════════════════════════════════════════════════════════
+// THE VERIFICATION RULE (Tricia, 21 Sept 2026) — applies to every entry, present and future:
+//   1. Prefer the AIRPORT'S OWN VIP / Premium / private-terminal service wherever a good one exists.
+//   2. A third party only with strong independent evidence it operates at THAT airport — listed on
+//      the airport's own site, an official concession, current contacts for that airport.
+//   3. A company's own website, or a "worldwide coverage" claim, is NOT verification.
+//   4. Every airport / provider pair is verified separately. Heathrow does not vouch for Madrid.
+//   5. If verification fails, DO NOT ADD IT. Quality over quantity; verification over coverage.
+//   6. Claude does not add providers on its own. Only providers Tricia has approved are shown.
+// Each entry carries `verified`: "official" (airport-operated), "endorsed" (airport-listed
+// third party) or "independent" (approved, but on the provider's own standing). The card says so.
 // A meet-and-greet through the airport, keyed by the AIRPORT the flight lands at or leaves from
 // — not by the city, because Heathrow serves London and also the Cotswolds and half of England.
 // Tiers are shown as the provider sells them. Tricia's rule for Heathrow: the private-terminal
 // and tarmac service is NOT displayed, whatever the provider offers.
 const AIRPORT_ASSIST = {
-  LHR: { airport: "London Heathrow", name: "VIP Assist", web: "https://www.vipassist.co.uk/book-now/book-now-london-heathrow", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
+  LHR: { verified: "endorsed", airport: "London Heathrow", name: "VIP Assist", web: "https://www.vipassist.co.uk/book-now/book-now-london-heathrow", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
     tiers: [
       { name: "Bronze", from: "£170", includes: ["Personal agent", "Fast Track where available"] },
       { name: "Silver", from: "£250", includes: ["Personal agent", "Fast Track where available", "Luggage porter", "Electric golf buggy"] },
@@ -8937,9 +8947,9 @@ const VIP_FRANCE = { title: "VIP Assist \u2014 France", name: "VIP Assist", web:
 // (Nice is NOT in this list: the airport's own priced Meet & Greet is carried for NCE instead.)
 [["CDG", "Paris Charles de Gaulle"], ["ORY", "Paris Orly"], ["LYS", "Lyon Saint-Exup\u00e9ry"],
  ["MRS", "Marseille Provence"], ["BOD", "Bordeaux-M\u00e9rignac"], ["MPL", "Montpellier"], ["TLS", "Toulouse Blagnac"]].forEach(([code, airport]) => {
-  AIRPORT_ASSIST[code] = { ...VIP_FRANCE, airport };
+  AIRPORT_ASSIST[code] = { ...VIP_FRANCE, airport, verified: "independent" };
 });
-AIRPORT_ASSIST.MXP = { title: "VIP Assist \u2014 Milan Malpensa", airport: "Milan Malpensa", name: "VIP Assist", web: "https://www.vipassist.co.uk/locations/milan-malpensa-airport", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108", button: "Contact VIP Assist",
+AIRPORT_ASSIST.MXP = { verified: "endorsed", title: "VIP Assist \u2014 Milan Malpensa", airport: "Milan Malpensa", name: "VIP Assist", web: "https://www.vipassist.co.uk/locations/milan-malpensa-airport", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108", button: "Contact VIP Assist",
   headline: "VIP Meet & Assist with Fast Track airport procedures where available.",
   phases: [
     { name: "Arrival", may: ["Personal 1-to-1 airport agent", "Meet at aircraft or airbridge", "Immigration Fast Track where available", "Customs assistance", "Baggage collection", "Porter service", "Escort to waiting vehicle"] },
@@ -8959,13 +8969,14 @@ const AENA_TIERS = [
   { name: "Without handling", from: "\u20ac376.65", includes: ["1 passenger \u20ac376.65", "2 passengers \u20ac564.96", "3 passengers \u20ac753.26"] },
 ];
 const AENA_NOTE = "Aena's official Premium Service — the airport itself, not a third party. You are taken out of the public flow entirely: a private security checkpoint, a private passport-control checkpoint, a private escort, a private vehicle across the apron to or from the aircraft, and the premium lounge while you wait. Published price guide; confirm on booking. Book direct.";
-AIRPORT_ASSIST.MAD = { title: "Aena Premium Service \u2014 Madrid", airport: "Madrid Barajas", name: "Aena Premium Service", web: null, email: "mad.premium@aena.es", tel: "+34 917 438 773", mobile: "+34 678 227 405", button: "Contact Aena Premium",
-  headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS, note: AENA_NOTE };
-AIRPORT_ASSIST.BCN = { title: "Aena Premium Service \u2014 Barcelona", airport: "Barcelona El Prat", name: "Aena Premium Service", web: null, email: "bcn.premium@aena.es", tel: "+34 932 971 360", button: "Contact Aena Premium",
+AIRPORT_ASSIST.MAD = { verified: "official", title: "Aena VIP Services \u2014 Madrid", airport: "Madrid Barajas", name: "Aena Premium Service", web: null, email: "mad.premium@aena.es", tel: "+34 917 438 773", mobile: "+34 678 227 405", button: "Contact Aena Premium",
+  headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS,
+  note: AENA_NOTE + " MADRID HAS ITS OWN BOOKING PROCEDURE for Meet & Assist, different from Aena's other airports: book through the official Aena VIP channel for Madrid, not the generic form. Aena also runs Fast Track and VIP lounges at Madrid, and the Premium Service is at Terminal 4 — match the service to your terminal." };
+AIRPORT_ASSIST.BCN = { verified: "official", title: "Aena Premium Service \u2014 Barcelona", airport: "Barcelona El Prat", name: "Aena Premium Service", web: null, email: "bcn.premium@aena.es", tel: "+34 932 971 360", button: "Contact Aena Premium",
   headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS, note: AENA_NOTE };
 // ══ ZURICH — the airport's own VIP Service, again an operator product rather than a third party.
 // Priced per passenger: a first-passenger fee and a lower fee for each additional one.
-AIRPORT_ASSIST.ZRH = { title: "Zurich Airport VIP Service", airport: "Zurich Kloten", name: "Zurich Airport VIP Service", web: "https://www.flughafen-zuerich.ch/en/passengers/fly/assistance/vip-services", email: "vip@zurich-airport.com", tel: "+41 43 816 21 42", button: "Book Zurich VIP",
+AIRPORT_ASSIST.ZRH = { verified: "official", title: "Zurich Airport VIP Service", airport: "Zurich Kloten", name: "Zurich Airport VIP Service", web: "https://www.flughafen-zuerich.ch/en/passengers/fly/assistance/vip-services", email: "vip@zurich-airport.com", tel: "+41 43 816 21 42", button: "Book Zurich VIP",
   headline: "The airport's own VIP service: separate security and passport control, and a car across the apron to the aircraft.",
   includes: ["Personal VIP assistant", "Priority or separate security control", "Priority or separate passport control", "VIP lounge", "Porter", "Luxury car directly to and from the aircraft", "Escort to your chauffeur or pickup point on arrival", "Check-in assistance on departure"],
   tiers: [
@@ -8975,7 +8986,7 @@ AIRPORT_ASSIST.ZRH = { title: "Zurich Airport VIP Service", airport: "Zurich Klo
   note: "Preferred provider at Zurich, and it is the airport operator itself. A personal VIP assistant meets you, takes you through separate security and passport control, and you cross the apron by car to or from the aircraft — with the VIP lounge, a porter, and check-in handled on departure. Book direct." };
 // ══ AMSTERDAM — Schiphol's own Meet & Assist Executive. One flat price, up to three passengers,
 // a two-hour window. Operator product again.
-AIRPORT_ASSIST.AMS = { title: "Schiphol Meet & Assist Executive", airport: "Amsterdam Schiphol", name: "Amsterdam Airport Schiphol", web: "https://www.schiphol.nl/en/at-schiphol/services/meet-and-assist/", email: null, tel: null, button: "Book Schiphol Executive",
+AIRPORT_ASSIST.AMS = { verified: "official", title: "Schiphol Meet & Assist Executive", airport: "Amsterdam Schiphol", name: "Amsterdam Airport Schiphol", web: "https://www.schiphol.nl/en/at-schiphol/services/meet-and-assist/", email: null, tel: null, button: "Book Schiphol Executive",
   headline: "The airport's own executive service: a personal hostess, faster security, an electric caddy and the lounge.",
   includes: ["Personal hostess", "Faster security processing", "Electric caddy", "Lounge access"],
   phases: [{ name: "Arrival", may: ["Meet at the aircraft door", "Passport-control assistance", "Luggage assistance", "Customs assistance", "Escort to your waiting car or driver"] }],
@@ -8983,7 +8994,7 @@ AIRPORT_ASSIST.AMS = { title: "Schiphol Meet & Assist Executive", airport: "Amst
   note: "Preferred at Amsterdam, and it is the airport itself. One price covers up to three passengers for up to two hours — a hostess meets you, security is faster, you cross the terminal by electric caddy and wait in the lounge. Book direct." };
 // ══ STOCKHOLM — Arlanda's VIP Service, operated by Swedavia, the airport company. A dedicated
 // entrance and a private VIP room: the separate-flow class of product.
-AIRPORT_ASSIST.ARN = { title: "Stockholm Arlanda VIP Service", airport: "Stockholm Arlanda", name: "Swedavia VIP Service", web: "https://www.swedavia.com/arlanda/vip-services/", email: "vipservice@swedavia.se", tel: "+46 10 109 12 00", button: "Book Arlanda VIP",
+AIRPORT_ASSIST.ARN = { verified: "official", title: "Stockholm Arlanda VIP Service", airport: "Stockholm Arlanda", name: "Swedavia VIP Service", web: "https://www.swedavia.com/arlanda/vip-services/", email: "vipservice@swedavia.se", tel: "+46 10 109 12 00", button: "Book Arlanda VIP",
   headline: "The airport company's own VIP service: a dedicated entrance, private security and a private VIP room.",
   includes: ["Dedicated VIP entrance", "Personal VIP coordinator", "Separate private security control", "Check-in assistance", "Baggage handling", "Travel-document assistance", "Private VIP room", "Escort through the airport process"],
   tiers: [
@@ -8994,21 +9005,21 @@ AIRPORT_ASSIST.ARN = { title: "Stockholm Arlanda VIP Service", airport: "Stockho
 // ══ OSLO — Avinor's VIP Terminal. A separate building with its own security and passport control
 // and a car to the aircraft; the fullest version of the separate-flow product. One price per
 // passenger for arrival, departure or transit.
-AIRPORT_ASSIST.OSL = { title: "Oslo Airport VIP Terminal", airport: "Oslo Gardermoen", name: "Avinor VIP Terminal", web: "https://www.avinor.no/en/airport/oslo/info/VIP-terminal/", email: "vipservice@avinor.no", tel: "+47 64 81 35 47", button: "Book Oslo VIP Terminal",
+AIRPORT_ASSIST.OSL = { verified: "official", title: "Oslo Airport VIP Terminal", airport: "Oslo Gardermoen", name: "Avinor VIP Terminal", web: "https://www.avinor.no/en/airport/oslo/info/VIP-terminal/", email: "vipservice@avinor.no", tel: "+47 64 81 35 47", button: "Book Oslo VIP Terminal",
   headline: "A private VIP terminal of its own: private security, private passport control, and a car to and from the aircraft.",
   includes: ["Private VIP terminal", "Private security control", "Private passport control", "Personal VIP host", "Check-in assistance", "Porter", "Private waiting suite", "Refreshments and snack buffet", "Private vehicle to and from the aircraft", "Met at the aircraft door on arrival", "Private passport control for arrivals from outside Schengen", "Baggage retrieval assistance"],
   tiers: [{ name: "Arrival, departure or transit", from: "NOK 6,250", includes: ["NOK 6,250 per passenger"] }],
   note: "Preferred at Oslo, operated by Avinor — the airport company. You never enter the main terminal: a private building with its own security and passport control, a host, a suite with refreshments, and a private vehicle across the apron to or from the aircraft. Arrivals from outside Schengen clear passport control privately too. Book direct." };
 // ══ BRUSSELS — Altitude, the airport's official VIP service. Private facility, private screening,
 // limousine to the aircraft. Priced on quote; the card says so and invents no figure.
-AIRPORT_ASSIST.BRU = { title: "Altitude VIP Service \u2014 Brussels", airport: "Brussels Zaventem", name: "Altitude VIP Service", web: "https://altitude.brusselsairport.be/", email: "altitude@brusselsairport.be", tel: "+32 2 753 69 71", button: "Contact Altitude",
+AIRPORT_ASSIST.BRU = { verified: "official", title: "Altitude VIP Service \u2014 Brussels", airport: "Brussels Zaventem", name: "Altitude VIP Service", web: "https://altitude.brusselsairport.be/", email: "altitude@brusselsairport.be", tel: "+32 2 753 69 71", button: "Contact Altitude",
   headline: "The airport's official VIP service: a private facility, private security screening and a limousine to the aircraft.",
   includes: ["Private VIP facility", "Personalised airport service", "Check-in handling", "Private security screening", "Food and beverage", "Private lounge", "Boarding assistance", "Limousine directly to the aircraft", "Flight monitoring"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
   note: "Preferred at Brussels, and it is the airport's own service. A private facility with its own screening, a lounge with food and drink, boarding handled, and a limousine across the apron to the aircraft. Priced on quote. Book direct." };
 // ══ DUBLIN — the airport's Platinum VIP. Private suite, dedicated screening, chauffeur to the
 // aircraft. Priced per passenger. No booking page was supplied, so the button opens an email.
-AIRPORT_ASSIST.DUB = { title: "Dublin Airport Platinum VIP", airport: "Dublin", name: "Dublin Airport Platinum VIP", web: null, email: "platinumvip@dublinairport.com", tel: "+353 1 944 4895", button: "Contact Platinum VIP",
+AIRPORT_ASSIST.DUB = { verified: "official", title: "Dublin Airport Platinum VIP", airport: "Dublin", name: "Dublin Airport Platinum VIP", web: null, email: "platinumvip@dublinairport.com", tel: "+353 1 944 4895", button: "Contact Platinum VIP",
   headline: "The airport's own Platinum service: private check-in, dedicated screening, a private suite and a chauffeur to the aircraft.",
   includes: ["Private check-in", "Dedicated security screening", "Customs and immigration handling", "Luxury private suite", "Refreshments", "Baggage handling", "Chauffeur directly to and from the aircraft"],
   tiers: [
@@ -9019,14 +9030,14 @@ AIRPORT_ASSIST.DUB = { title: "Dublin Airport Platinum VIP", airport: "Dublin", 
 // ══ FRANKFURT — Fraport's VIP Services. Exclusive checkpoint, limousine to the aircraft, private
 // suites. Prices are NET, VAT on top — said on the card, so nobody is surprised by the invoice.
 // Request at least 24 hours before the flight.
-AIRPORT_ASSIST.FRA = { title: "Frankfurt Airport VIP Services", airport: "Frankfurt am Main", name: "Fraport VIP Services", web: "https://vip.frankfurt-airport.com/en.html", email: "vip-services@fraport.de", tel: "+49 69 690-70366", button: "Book Frankfurt VIP",
+AIRPORT_ASSIST.FRA = { verified: "official", title: "Frankfurt Airport VIP Services", airport: "Frankfurt am Main", name: "Fraport VIP Services", web: "https://vip.frankfurt-airport.com/en.html", email: "vip-services@fraport.de", tel: "+49 69 690-70366", button: "Book Frankfurt VIP",
   headline: "The airport operator's own VIP service: an exclusive checkpoint, a limousine to the aircraft, and private suites.",
   includes: ["Personal VIP agent", "Exclusive security checkpoint", "Immigration and border-control assistance", "Check-in assistance", "Baggage drop-off or collection", "VIP lounge", "Luxury limousine directly to and from the aircraft", "Food and beverages", "Private suites available"],
   tiers: [{ name: "Arrival, departure or transfer", from: "\u20ac545 net", includes: ["\u20ac545 first passenger", "\u20ac340 each additional passenger", "Net prices \u2014 VAT is additional"] }],
   note: "Preferred at Frankfurt, operated by Fraport — the airport company. A personal agent, an exclusive security checkpoint, immigration handled, the VIP lounge or a private suite, and a limousine across the apron to or from the aircraft. PRICES ARE NET AND VAT IS ADDED. Request at least 24 hours before the flight. Book direct." };
 // ══ MUNICH — VipWing, the airport's own VIP wing. Own security and passport checkpoints, its own
 // lounge, and a limousine or VIP bus to the aircraft. The airside transfer is a higher tier.
-AIRPORT_ASSIST.MUC = { title: "Munich Airport VipWing", airport: "Munich Franz Josef Strauss", name: "Munich Airport VipWing", web: "https://www.munich-airport.com/vipwing-719148", email: "vipwing@munich-airport.de", tel: "+49 89 975 213 33", button: "Book VipWing",
+AIRPORT_ASSIST.MUC = { verified: "official", title: "Munich Airport VipWing", airport: "Munich Franz Josef Strauss", name: "Munich Airport VipWing", web: "https://www.munich-airport.com/vipwing-719148", email: "vipwing@munich-airport.de", tel: "+49 89 975 213 33", button: "Book VipWing",
   headline: "The airport's own VIP wing: its own security and passport checkpoints, its own lounge, and a limousine to the aircraft.",
   includes: ["Personal multilingual VIP assistant", "Own security checkpoint", "Exclusive passport checkpoint", "Check-in assistance", "Baggage handling", "Customs clearance and VAT refund assistance", "VipWing lounge", "Direct limousine or VIP bus to and from the aircraft"],
   tiers: [
@@ -9036,14 +9047,14 @@ AIRPORT_ASSIST.MUC = { title: "Munich Airport VipWing", airport: "Munich Franz J
   note: "Preferred at Munich, and it is the airport itself. A multilingual assistant takes you through VipWing's own security and passport checkpoints, handles check-in, bags and customs — including the VAT refund — and you wait in the VipWing lounge before a limousine or VIP bus takes you across the apron to the aircraft. Book direct." };
 // ══ PRAGUE — Club Continental, the airport's official VIP service. Priced per party size in
 // crowns. Standard pricing needs 48 hours' notice — on the card.
-AIRPORT_ASSIST.PRG = { title: "VIP Service Club Continental \u2014 Prague", airport: "Prague V\u00e1clav Havel", name: "VIP Service Club Continental", web: "https://www.prg.aero/en/vip-service-club-continental", email: "vip.service@prg.aero", tel: "+420 220 114 490", mobile: "+420 724 888 914", button: "Book Club Continental",
+AIRPORT_ASSIST.PRG = { verified: "official", title: "VIP Service Club Continental \u2014 Prague", airport: "Prague V\u00e1clav Havel", name: "VIP Service Club Continental", web: "https://www.prg.aero/en/vip-service-club-continental", email: "vip.service@prg.aero", tel: "+420 220 114 490", mobile: "+420 724 888 914", button: "Book Club Continental",
   headline: "The airport's official VIP service: your own assistant through check-in, passport control and security, the VIP lounge, and an escort to the aircraft.",
   includes: ["Personal VIP assistance", "Check-in assistance", "Passport-control assistance", "Customs assistance", "Security assistance", "Escort to and from the aircraft", "VIP lounge", "Baggage handling"],
   tiers: [{ name: "Arrival or departure", from: "CZK 5,500", includes: ["CZK 5,500 for 1 passenger", "CZK 8,800 for 2 passengers", "CZK 12,000 for 3 passengers"] }],
   note: "Preferred at Prague, and it is the airport itself. A personal assistant takes you through check-in, passport control, customs and security, you wait in the VIP lounge, and you are escorted to or from the aircraft with the bags handled. Book at least 48 hours ahead for standard pricing. Book direct." };
 // ══ WARSAW — Chopin's VIP Line. Its own passport control and screening, a private transfer to
 // the aircraft. No email or phone supplied; the booking page is the contact.
-AIRPORT_ASSIST.WAW = { title: "Warsaw Chopin Airport VIP Line", airport: "Warsaw Chopin", name: "Warsaw Chopin VIP Line", web: "https://www.highpass.aero/en/airports/services/waw", email: null, tel: null, button: "Book VIP Line",
+AIRPORT_ASSIST.WAW = { verified: "endorsed", title: "Warsaw Chopin Airport VIP Line", airport: "Warsaw Chopin", name: "Warsaw Chopin VIP Line", web: "https://www.highpass.aero/en/airports/services/waw", email: null, tel: null, button: "Book VIP Line",
   headline: "The airport's VIP Line: on-site passport control, separate screening, check-in inside the VIP area, and a private transfer to the aircraft.",
   includes: ["Personal VIP assistance", "On-site passport control", "Separate security screening", "Check-in within the VIP area", "Porter", "Private transfer directly to and from the aircraft", "VIP lounge", "Baggage assistance"],
   tiers: [
@@ -9054,7 +9065,7 @@ AIRPORT_ASSIST.WAW = { title: "Warsaw Chopin Airport VIP Line", airport: "Warsaw
   note: "Preferred at Warsaw. Everything happens inside the VIP area — check-in, its own passport control and separate screening — with a porter, the lounge, and a private transfer across the apron to or from the aircraft. Book direct." };
 // ══ HELSINKI — Finavia's VIP Services, the airport company. Private lounge, VIP security, a
 // vehicle to the aircraft. Priced on quote; the card says so.
-AIRPORT_ASSIST.HEL = { title: "Finavia VIP Services \u2014 Helsinki", airport: "Helsinki-Vantaa", name: "Finavia VIP Services", web: "https://www.finavia.fi/en/airports/helsinki-airport/services/vip", email: "vip@finavia.fi", tel: "+358 20 708 2990", button: "Contact Finavia VIP",
+AIRPORT_ASSIST.HEL = { verified: "official", title: "Finavia VIP Services \u2014 Helsinki", airport: "Helsinki-Vantaa", name: "Finavia VIP Services", web: "https://www.finavia.fi/en/airports/helsinki-airport/services/vip", email: "vip@finavia.fi", tel: "+358 20 708 2990", button: "Contact Finavia VIP",
   headline: "The airport company's own VIP service: check-in by VIP staff, VIP security, a private lounge and a vehicle to the aircraft.",
   includes: ["Personal VIP airport service", "Check-in handled by VIP staff", "Baggage handling", "VIP security control", "Border-control escort when required", "Private VIP lounge", "Private vehicle directly to and from the aircraft", "Light refreshments"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
@@ -9063,7 +9074,7 @@ AIRPORT_ASSIST.HEL = { title: "Finavia VIP Services \u2014 Helsinki", airport: "
 // different products at different prices; both cover up to two passengers and two bags. The
 // arrival escort ends at your driver, the helicopter, or the rental desk — which is exactly the
 // Riviera question.
-AIRPORT_ASSIST.NCE = { title: "Nice C\u00f4te d\u2019Azur Airport Meet & Greet", airport: "Nice C\u00f4te d\u2019Azur", name: "Nice Airport Meet & Greet", web: "https://www.nice.aeroport.fr/en/services/meet-greet", email: "vipservice@cote-azur.aeroport.fr", tel: "+33 820 423 333", button: "Book Nice Meet & Greet",
+AIRPORT_ASSIST.NCE = { verified: "official", title: "Nice C\u00f4te d\u2019Azur Airport Meet & Greet", airport: "Nice C\u00f4te d\u2019Azur", name: "Nice Airport Meet & Greet", web: "https://www.nice.aeroport.fr/en/services/meet-greet", email: "vipservice@cote-azur.aeroport.fr", tel: "+33 820 423 333", button: "Book Nice Meet & Greet",
   headline: "The airport's own service: met at the aircraft, escorted through border control, and handed to your driver, the helicopter or the rental desk.",
   phases: [
     { name: "Arrival", may: ["Personal greeting straight off the aircraft", "Escort through border control", "Baggage collection", "Private lounge while the bags are collected", "Escort to your driver, the helicopter or the rental-car counter"] },
@@ -9077,7 +9088,7 @@ AIRPORT_ASSIST.NCE = { title: "Nice C\u00f4te d\u2019Azur Airport Meet & Greet",
 // ══ ROME FIUMICINO — Highpass, individually verified and approved, the second Italian airport
 // after Malpensa. Priced per adult and per child for each of three services. The Italian wording
 // rule holds: priority and Fast Track procedures where available, never a guarantee of clearance.
-AIRPORT_ASSIST.FCO = { title: "Highpass \u2014 Rome Fiumicino", airport: "Rome Fiumicino", name: "Highpass", web: "https://highpass.aero/airports/services/fco", email: null, tel: null, button: "Book Highpass",
+AIRPORT_ASSIST.FCO = { verified: "independent", title: "Highpass \u2014 Rome Fiumicino", airport: "Rome Fiumicino", name: "Highpass", web: "https://highpass.aero/airports/services/fco", email: null, tel: null, button: "Book Highpass",
   headline: "Fast Track Meet & Assist at Fiumicino: met with a name board, priority and Fast Track procedures where available, and a personal transfer from the aircraft.",
   phases: [
     { name: "Fast Track arrival", may: ["Personal transfer from the aircraft", "Passport-control escort", "Porter", "Met with a name board", "Escort through the arrival process"] },
@@ -9092,7 +9103,7 @@ AIRPORT_ASSIST.FCO = { title: "Highpass \u2014 Rome Fiumicino", airport: "Rome F
   note: "Preferred at Fiumicino. Met with a name board, escorted through passport control with a porter, and moved by personal transfer from the aircraft on arrival or toward it on departure where the airport allows. Priority lanes and Fast Track are used where available; immigration decisions remain with the authorities. Book direct." };
 // ══ ATHENS — Highpass. Arrival is the Silver product, departure the Gold; different inclusions
 // and prices, so both are shown by name. Athens is the gateway for every Cyclades trip.
-AIRPORT_ASSIST.ATH = { title: "Highpass \u2014 Athens", airport: "Athens Eleftherios Venizelos", name: "Highpass", web: "https://highpass.aero/en/airports/services/ath", email: null, tel: null, button: "Book Highpass",
+AIRPORT_ASSIST.ATH = { verified: "independent", title: "Highpass \u2014 Athens", airport: "Athens Eleftherios Venizelos", name: "Highpass", web: "https://highpass.aero/en/airports/services/ath", email: null, tel: null, button: "Book Highpass",
   headline: "Meet & Assist at Athens: met with a name board, priority passport control, a personal transfer from or to the aircraft.",
   phases: [
     { name: "Arrival \u2014 Silver", may: ["Met with a name board", "Personal transfer from the aircraft", "Priority passport control", "Porter to the car park"] },
@@ -9105,7 +9116,7 @@ AIRPORT_ASSIST.ATH = { title: "Highpass \u2014 Athens", airport: "Athens Elefthe
   note: "Preferred at Athens — and Athens is where every island trip connects. On arrival: met with a name board, brought from the aircraft by personal transfer, priority passport control, a porter to the car. On departure the fuller Gold service: priority check-in and both security controls, priority passport control, the business lounge, and a transfer to the aircraft. Book direct." };
 // ══ BUCHAREST — the airport's own VIP Services, through the VIP / diplomatic channels. No price
 // published; the card says so. Two emails and two phones, all shown.
-AIRPORT_ASSIST.OTP = { title: "Bucharest Airport VIP Services", airport: "Bucharest Henri Coand\u0103", name: "Henri Coand\u0103 Airport VIP Services", web: "https://bucharestairports.ro/vip/contact-vip-si-business/", email: "vip1@cnab.ro", email2: "vip2@cnab.ro", tel: "+40 21 204 1212", tel2: "+40 21 204 1066", button: "Contact Bucharest VIP",
+AIRPORT_ASSIST.OTP = { verified: "official", title: "Bucharest Airport VIP Services", airport: "Bucharest Henri Coand\u0103", name: "Henri Coand\u0103 Airport VIP Services", web: "https://bucharestairports.ro/vip/contact-vip-si-business/", email: "vip1@cnab.ro", email2: "vip2@cnab.ro", tel: "+40 21 204 1212", tel2: "+40 21 204 1066", button: "Contact Bucharest VIP",
   headline: "The airport's own VIP service, through the VIP and diplomatic security and passport channels.",
   includes: ["Personal VIP assistance", "VIP / diplomatic security channel", "VIP / diplomatic passport-control channel", "Dedicated border-control flow for international arrivals", "VIP lounge", "Priority boarding assistance", "Limousine or VIP minibus to or from the aircraft where required", "Baggage assistance", "Check-in assistance"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
@@ -9113,7 +9124,7 @@ AIRPORT_ASSIST.OTP = { title: "Bucharest Airport VIP Services", airport: "Buchar
 // ══ HONG KONG — the HKIA VIP Lounge, the airport's own. The Lounge Deluxe package is the one
 // carried: a flat price for a three-hour window, every facilitation, a tarmac transfer, food,
 // a resting area and showers — which after a long haul is most of the point.
-AIRPORT_ASSIST.HKG = { title: "HKIA VIP Lounge \u2014 Hong Kong", airport: "Hong Kong International", name: "HKIA VIP Lounge", web: "https://www.hkiavip.com/", email: null, tel: null, button: "Book HKIA VIP Lounge",
+AIRPORT_ASSIST.HKG = { verified: "official", title: "HKIA VIP Lounge \u2014 Hong Kong", airport: "Hong Kong International", name: "HKIA VIP Lounge", web: "https://www.hkiavip.com/", email: null, tel: null, button: "Book HKIA VIP Lounge",
   headline: "The airport's own VIP lounge: check-in, security, immigration and customs all facilitated, a tarmac transfer, and a place to rest and shower.",
   includes: ["Meet & Greet", "Check-in facilitation", "Security facilitation", "Immigration facilitation", "Customs facilitation", "Tarmac transfer", "Food and beverages", "VIP resting area", "Shower facilities"],
   tiers: [{ name: "Lounge Deluxe", from: "HKD 5,000", includes: ["HKD 5,000", "Standard duration 3 hours"] }],
@@ -9121,14 +9132,14 @@ AIRPORT_ASSIST.HKG = { title: "HKIA VIP Lounge \u2014 Hong Kong", airport: "Hong
 // ══ SINGAPORE — JetQuay, Changi's CIP terminal. The Quayside service is the one carried: private
 // check-in and immigration, the lounge, and a buggy to the gate. Taxes and service charges are
 // on top of the price — said on the card. 72 hours' notice recommended.
-AIRPORT_ASSIST.SIN = { title: "JetQuay \u2014 Changi CIP Terminal", airport: "Singapore Changi", name: "JetQuay", web: "https://www.jetquay.com.sg/", email: "reservations@jetquay.com.sg", tel: "+65 6262 2220", button: "Book JetQuay",
+AIRPORT_ASSIST.SIN = { verified: "official", title: "JetQuay \u2014 Changi CIP Terminal", airport: "Singapore Changi", name: "JetQuay", web: "https://www.jetquay.com.sg/", email: "reservations@jetquay.com.sg", tel: "+65 6262 2220", button: "Book JetQuay",
   headline: "Changi's private CIP terminal: private check-in, private immigration, the lounge, and a buggy to the gate.",
   includes: ["Private check-in", "Private immigration", "VIP lounge", "Buggy transfer to the gate"],
   tiers: [{ name: "Quayside", from: "S$400", includes: ["S$400", "Local taxes and service charges additional"] }],
   note: "Preferred at Singapore. JetQuay is Changi's commercially important persons terminal, a building of its own: you check in and clear immigration privately, wait in the lounge, and are taken to the gate by buggy. TAXES AND SERVICE CHARGES ARE ADDED to the price. Book at least 72 hours ahead. Book direct." };
 // ══ DUBAI — Marhaba, dnata's own service at DXB. The Elite package is the one carried: one-to-one,
 // fast-track immigration, a dedicated VIP space with à la carte dining, and a chauffeur.
-AIRPORT_ASSIST.DXB = { title: "Marhaba Elite \u2014 Dubai", airport: "Dubai International", name: "Marhaba", web: "https://www.marhabaservices.com/ae/english/meet-and-greet/dubai-international-airport.html", email: null, tel: null, button: "Book Marhaba Elite",
+AIRPORT_ASSIST.DXB = { verified: "endorsed", title: "Marhaba Elite \u2014 Dubai", airport: "Dubai International", name: "Marhaba", web: "https://www.marhabaservices.com/ae/english/meet-and-greet/dubai-international-airport.html", email: null, tel: null, button: "Book Marhaba Elite",
   headline: "Marhaba's Elite service: one-to-one from the aircraft, fast-track immigration, a dedicated VIP space with \u00e0 la carte dining, and a chauffeur.",
   includes: ["Dedicated one-to-one service", "Meet & Greet", "Fast-track immigration", "Porter", "Buggy transfer where available", "Lounge", "Dedicated VIP space with \u00e0 la carte dining", "Chauffeur-driven car", "Check-in assistance in Terminal 3", "Escort through airport procedures"],
   tiers: [{ name: "Elite", from: "USD 300.20", includes: ["From USD 300.20 per person"] }],
@@ -9136,7 +9147,7 @@ AIRPORT_ASSIST.DXB = { title: "Marhaba Elite \u2014 Dubai", airport: "Dubai Inte
 // ══ DOHA — Al Maha, Qatar Airways' own service at Hamad. The Platinum package is the one carried,
 // with its own inclusions for arrival, departure and transit. Pricing is given as a range across
 // all Al Maha services rather than a Platinum figure, so the card shows the range and says so.
-AIRPORT_ASSIST.DOH = { title: "Al Maha Platinum \u2014 Doha", airport: "Doha Hamad International", name: "Al Maha Services", web: "https://www.qatarairways.com/en/hia-hamad-international-airport/al-maha-services.html", email: "almahaservices@qatarairways.com.qa", tel: "+974 3329 1629", tel2: "+974 3326 6509", button: "Book Al Maha",
+AIRPORT_ASSIST.DOH = { verified: "official", title: "Al Maha Platinum \u2014 Doha", airport: "Doha Hamad International", name: "Al Maha Services", web: "https://www.qatarairways.com/en/hia-hamad-international-airport/al-maha-services.html", email: "almahaservices@qatarairways.com.qa", tel: "+974 3329 1629", tel2: "+974 3326 6509", button: "Book Al Maha",
   headline: "Qatar Airways' own Meet & Assist at Hamad: met at the aircraft, dedicated immigration facilities, the Al Maha lounges, priority boarding.",
   phases: [
     { name: "Platinum arrival", may: ["Met at the aircraft with a personalised name board", "Dedicated immigration clearance facilities", "Al Maha arrivals lounge", "Porter at baggage claim", "Escort to your receiving party"] },
@@ -9149,7 +9160,7 @@ AIRPORT_ASSIST.DOH = { title: "Al Maha Platinum \u2014 Doha", airport: "Doha Ham
 // passenger, with a golf-cart arrival tier by party size. THE OPERATOR SAYS THE ARRIVAL FAST TRACK
 // MAY BE TEMPORARILY UNAVAILABLE AT TIMES — so the card says availability must be confirmed
 // before booking, in the headline where it cannot be missed.
-AIRPORT_ASSIST.BKK = { title: "VIP Fast Track + Meet & Greet \u2014 Bangkok", airport: "Bangkok Suvarnabhumi", name: "VIP Fast Track Bangkok", web: "https://limousine.in.th/fast-track-immigration.php", email: null, tel: null, button: "Book Bangkok Fast Track",
+AIRPORT_ASSIST.BKK = { verified: "independent", title: "VIP Fast Track + Meet & Greet \u2014 Bangkok", airport: "Bangkok Suvarnabhumi", name: "VIP Fast Track Bangkok", web: "https://limousine.in.th/fast-track-immigration.php", email: null, tel: null, button: "Book Bangkok Fast Track",
   headline: "Fast Lane passport control with a greeter and escort. CONFIRM AVAILABILITY BEFORE BOOKING — the operator says the arrival Fast Track may be temporarily unavailable at certain times.",
   includes: ["Meet & Greet", "Fast Lane passport control", "Airport escort", "Golf cart option on arrival", "Porter assistance available", "Departure assistance"],
   tiers: [
@@ -9161,7 +9172,7 @@ AIRPORT_ASSIST.BKK = { title: "VIP Fast Track + Meet & Greet \u2014 Bangkok", ai
 // ══ LOS ANGELES — PS LAX, a private terminal on the far side of the airfield. The Salon is the
 // service carried; the Private Suite is the alternative for a party. No membership needed for
 // either. The first US airport in the table.
-AIRPORT_ASSIST.LAX = { title: "PS LAX \u2014 The Salon", airport: "Los Angeles International", name: "PS LAX", web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
+AIRPORT_ASSIST.LAX = { verified: "independent", title: "PS LAX \u2014 The Salon", airport: "Los Angeles International", name: "PS LAX", web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
   headline: "A private terminal of its own: line-free TSA screening, dedicated customs and immigration on arrival, and a car across the airfield to the aircraft.",
   includes: ["Private PS terminal", "Private line-free TSA screening", "Dedicated customs and immigration on arrival", "Luggage assistance", "Chef-prepared food and beverages", "Luxury lounge", "Private airfield transfer directly to and from the aircraft"],
   tiers: [
@@ -9181,7 +9192,7 @@ const PS_TIERS = [
 [["ATL", "Atlanta Hartsfield-Jackson", "on the north side of the airport, reached by Toffie Terrace off N Inner Loop Road"],
  ["DFW", "Dallas Fort Worth", "at 1816 N 24th Ave, reached by the airport service road rather than the terminal lanes"],
  ["MIA", "Miami International", "at 4900 NW 36th St, in a secured terminal off NW 36th Street"]].forEach(([code, airport, where]) => {
-  AIRPORT_ASSIST[code] = { title: `PS ${code} \u2014 The Salon`, airport, name: `PS ${code}`, web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
+  AIRPORT_ASSIST[code] = { verified: "independent", title: `PS ${code} \u2014 The Salon`, airport, name: `PS ${code}`, web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
     headline: "A private terminal of its own: line-free TSA screening, dedicated customs and immigration on arrival, and a car across the airfield to the aircraft.",
     includes: PS_INCLUDES, tiers: PS_TIERS,
     note: `Preferred at ${airport.split(" ")[0]}. PS is a private terminal ${where}, away from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Give the driver the PS address, not the terminal. Book direct.` };
@@ -9190,7 +9201,7 @@ const PS_TIERS = [
 // Salon and Private Suite described as PS sells them there. The Suite is the private TSA and
 // private customs product with a BMW chauffeur; the Salon is semi-private screening and the
 // shared lounge. Overrides the generic entry above.
-AIRPORT_ASSIST.MIA = { title: "PS MIA \u2014 The Salon", airport: "Miami International", name: "PS MIA", web: "https://reserveps.com/mia", email: "memberservices@reservePS.com", tel: "+1 855 907 9950", button: "Reserve PS MIA",
+AIRPORT_ASSIST.MIA = { verified: "independent", title: "PS MIA \u2014 The Salon", airport: "Miami International", name: "PS MIA", web: "https://reserveps.com/mia", email: "memberservices@reservePS.com", tel: "+1 855 907 9950", button: "Reserve PS MIA",
   headline: "A private terminal of its own at 4900 NW 36th St: screening, customs and immigration handled, and a car across the airfield to the aircraft.",
   phases: [
     { name: "The Salon", may: ["Private PS terminal", "Semi-private TSA screening", "Customs and immigration handling", "Luggage assistance", "Airfield transfer directly to and from the aircraft", "Complimentary cocktails and bites", "Luxury lounge setting"] },
@@ -9204,7 +9215,7 @@ AIRPORT_ASSIST.MIA = { title: "PS MIA \u2014 The Salon", airport: "Miami Interna
 // ══ BUENOS AIRES — VIPClub, run by Aeropuertos Argentina, the airport operator. The Preferential
 // Pass is the one carried: an exclusive security checkpoint and exclusive passport control, in
 // both directions. 72 hours' notice, especially for bags. The first South American airport.
-AIRPORT_ASSIST.EZE = { title: "VIPClub Preferential Pass \u2014 Buenos Aires", airport: "Buenos Aires Ezeiza", name: "VIPClub", web: "https://www.vipclub.com.ar/en/servicios/pases-individuales", email: "vipclub@aeropuertosargentina.com", tel: "+54 11 4852 6469", button: "Book VIPClub",
+AIRPORT_ASSIST.EZE = { verified: "official", title: "VIPClub Preferential Pass \u2014 Buenos Aires", airport: "Buenos Aires Ezeiza", name: "VIPClub", web: "https://www.vipclub.com.ar/en/servicios/pases-individuales", email: "vipclub@aeropuertosargentina.com", tel: "+54 11 4852 6469", button: "Book VIPClub",
   headline: "The airport operator's own pass: an exclusive security checkpoint and exclusive passport control, and the VIP lounge. Open 24 hours.",
   phases: [
     { name: "International departure", may: ["VIP lounge", "Exclusive security checkpoint", "Exclusive immigration and passport control"] },
@@ -9215,7 +9226,7 @@ AIRPORT_ASSIST.EZE = { title: "VIPClub Preferential Pass \u2014 Buenos Aires", a
 // ══ SHANGHAI — the Shanghai Airport Group's own VIP services, at both Pudong and Hongqiao. Each
 // airport has its own email; the phone lines are shared. Priced on quote; the card says so.
 [["PVG", "Shanghai Pudong", "pvg-service@shairport.com"], ["SHA", "Shanghai Hongqiao", "sha-service@shairport.com"]].forEach(([code, airport, email]) => {
-  AIRPORT_ASSIST[code] = { title: `Shanghai Airport VIP Services \u2014 ${airport.split(" ")[1]}`, airport, name: "Shanghai Airport VIP Services", web: "https://www.shairport.com/ensh/", email, tel: "+86 21 2238 2037", tel2: "+86 21 96990", button: "Contact Shanghai Airport VIP",
+  AIRPORT_ASSIST[code] = { verified: "official", title: `Shanghai Airport VIP Services \u2014 ${airport.split(" ")[1]}`, airport, name: "Shanghai Airport VIP Services", web: "https://www.shairport.com/ensh/", email, tel: "+86 21 2238 2037", tel2: "+86 21 96990", button: "Contact Shanghai Airport VIP",
     headline: "The airport group's own full-process VIP service: a personal escort through dedicated VIP channels, check-in handled, and the VIP lounge.",
     includes: ["Personal VIP escort", "Dedicated VIP airport channels", "Check-in assistance", "VIP lounge", "Arrival and departure assistance", "Customised high-end airport handling"],
     tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
@@ -9223,7 +9234,7 @@ AIRPORT_ASSIST.EZE = { title: "VIPClub Preferential Pass \u2014 Buenos Aires", a
 });
 // ══ MUMBAI — Elite Plus Meet & Assist, through the VIP / CIP lanes at immigration and security,
 // with a dedicated buggy. Priced per passenger, arrival and departure differ. 48 hours' notice.
-AIRPORT_ASSIST.BOM = { title: "Elite Plus VIP Meet & Assist \u2014 Mumbai", airport: "Mumbai Chhatrapati Shivaji Maharaj", name: "Elite Plus Meet & Assist", web: "https://prioritypass.fasttrack.aero/meet-and-assist-elite-plus-international-arrival-at-mumbai", email: null, tel: null, button: "Book Elite Plus",
+AIRPORT_ASSIST.BOM = { verified: "independent", title: "Elite Plus VIP Meet & Assist \u2014 Mumbai", airport: "Mumbai Chhatrapati Shivaji Maharaj", name: "Elite Plus Meet & Assist", web: "https://prioritypass.fasttrack.aero/meet-and-assist-elite-plus-international-arrival-at-mumbai", email: null, tel: null, button: "Book Elite Plus",
   headline: "Met at the aerobridge and taken through the VIP / CIP immigration lane by dedicated buggy, with a porter and an escort to the exit.",
   phases: [
     { name: "International arrival", may: ["Met at the aerobridge", "VIP / CIP immigration lane", "Dedicated buggy", "Porter", "Escort through the arrival process", "Escort to the airport exit"] },
@@ -9237,14 +9248,14 @@ AIRPORT_ASSIST.BOM = { title: "Elite Plus VIP Meet & Assist \u2014 Mumbai", airp
 // ══ KUALA LUMPUR — the KLIA VIP Meet & Greet at Terminal 1, sold through Malaysia Airlines'
 // Enrich. Regular price MYR 220; a lower Enrich rate is noted rather than headlined, because
 // promotional rates move and a headline price should not go stale.
-AIRPORT_ASSIST.KUL = { title: "KLIA VIP Meet & Greet \u2014 Kuala Lumpur", airport: "Kuala Lumpur International, Terminal 1", name: "KLIA VIP Meet & Greet", web: "https://enrichexperience.malaysiaairlines.com/products/vip-touch-at-klia-with-our-meet-and-greet-service-283694", email: null, tel: null, button: "Book KLIA Meet & Greet",
+AIRPORT_ASSIST.KUL = { verified: "endorsed", title: "KLIA VIP Meet & Greet \u2014 Kuala Lumpur", airport: "Kuala Lumpur International, Terminal 1", name: "KLIA VIP Meet & Greet", web: "https://enrichexperience.malaysiaairlines.com/products/vip-touch-at-klia-with-our-meet-and-greet-service-283694", email: null, tel: null, button: "Book KLIA Meet & Greet",
   headline: "Met at the aircraft, Fast Track immigration, and a private VIP shuttle from the satellite building to the main terminal.",
   includes: ["Met at the aircraft on arrival", "Dedicated VIP airport representative", "Fast Track immigration", "Priority airport processing", "Private VIP bus or shuttle from the satellite building to the main terminal", "Personal escort through airport procedures"],
   tiers: [{ name: "VIP Meet & Greet", from: "MYR 220", includes: ["MYR 220 regular price", "A lower rate is sometimes shown through Enrich \u2014 check the booking page"] }],
   note: "Preferred at Kuala Lumpur. The KLIA satellite building is a train ride from the main terminal for everyone else; here a dedicated representative meets you at the aircraft, takes you through Fast Track immigration with priority processing, and moves you by private VIP shuttle instead. Book direct through Enrich." };
 // ══ HO CHI MINH CITY — VIP Fast Track at Tan Son Nhat. Two named products, arrival and departure,
 // priced per passenger. Express security and priority passport lanes both ways.
-AIRPORT_ASSIST.SGN = { title: "Tan Son Nhat VIP Fast Track \u2014 Ho Chi Minh City", airport: "Ho Chi Minh City Tan Son Nhat", name: "Tan Son Nhat VIP Fast Track", web: "https://airportsgn.com/fast-track/", email: "info@airportsgn.com", tel: "+84 28 3848 5383", button: "Book Fast Track",
+AIRPORT_ASSIST.SGN = { verified: "independent", title: "Tan Son Nhat VIP Fast Track \u2014 Ho Chi Minh City", airport: "Ho Chi Minh City Tan Son Nhat", name: "Tan Son Nhat VIP Fast Track", web: "https://airportsgn.com/fast-track/", email: "info@airportsgn.com", tel: "+84 28 3848 5383", button: "Book Fast Track",
   headline: "Met on arrival and taken through the priority passport lane, with a porter and an escort through customs to your car.",
   phases: [
     { name: "VIP arrival Fast Track", may: ["Personal Meet & Greet", "Priority passport-control lane", "Assistance through the formalities", "Baggage claim assistance", "Personal porter", "Escort through customs to your waiting vehicle"] },
@@ -9257,7 +9268,7 @@ AIRPORT_ASSIST.SGN = { title: "Tan Son Nhat VIP Fast Track \u2014 Ho Chi Minh Ci
   note: "Preferred at Ho Chi Minh City. Arriving, a greeter meets you and takes you through the priority passport lane, collects the bags with a porter, and walks you through customs to the car. Departing, check-in is handled, a porter carries everything, and you go through express security and the priority passport lane. The phone is the airport's line. Book direct." };
 // ══ TAIPEI — the Huan Yu VIP Terminal at Taoyuan: a private terminal with its own VIP rooms.
 // Priced per passenger one way or as a 30-day round trip; children half price, infants free.
-AIRPORT_ASSIST.TPE = { title: "Huan Yu VIP Terminal \u2014 Taipei", airport: "Taipei Taoyuan", name: "Huan Yu VIP Terminal", web: "https://www.hyvip.com.tw/en/reservation_1.php", email: null, tel: "+886 3 393 2525", tel2: "0800 268 999 (Taiwan toll-free)", button: "Book Huan Yu VIP",
+AIRPORT_ASSIST.TPE = { verified: "endorsed", title: "Huan Yu VIP Terminal \u2014 Taipei", airport: "Taipei Taoyuan", name: "Huan Yu VIP Terminal", web: "https://www.hyvip.com.tw/en/reservation_1.php", email: null, tel: "+886 3 393 2525", tel2: "0800 268 999 (Taiwan toll-free)", button: "Book Huan Yu VIP",
   headline: "A private VIP terminal of its own: a personal concierge, expedited security, immigration, customs and quarantine handled, and a private room.",
   includes: ["Private VIP terminal", "Personal concierge", "Check-in assistance", "Expedited security clearance", "Immigration assistance", "Customs clearance assistance", "Quarantine formalities assistance", "Private VIP room", "Food and beverages", "Escort to and from the boarding gate", "Baggage assistance"],
   tiers: [
@@ -9268,7 +9279,7 @@ AIRPORT_ASSIST.TPE = { title: "Huan Yu VIP Terminal \u2014 Taipei", airport: "Ta
 // ══ CAIRO — Ahlan, the airport's official service. The full VIP service is the one recommended:
 // met under the aircraft, a vehicle to the lounge, Fast Track at border control. Priced for
 // non-Egyptian passengers, which is every client of ours. Meet & Assist alone is half the price.
-AIRPORT_ASSIST.CAI = { title: "Ahlan VIP Service \u2014 Cairo", airport: "Cairo International", name: "Ahlan VIP Service", web: "https://www.cairo-airport.com/en-us/Services/Ahlan-Service/Service-Information", email: "exclusive@cairo-airport.com", tel: "+20 2 16708", button: "Book Ahlan VIP",
+AIRPORT_ASSIST.CAI = { verified: "official", title: "Ahlan VIP Service \u2014 Cairo", airport: "Cairo International", name: "Ahlan VIP Service", web: "https://www.cairo-airport.com/en-us/Services/Ahlan-Service/Service-Information", email: "exclusive@cairo-airport.com", tel: "+20 2 16708", button: "Book Ahlan VIP",
   headline: "The airport's own VIP service: met under the aircraft with your name on a sign, a vehicle to the VIP lounge, Fast Track at border control.",
   phases: [
     { name: "Arrival", may: ["Met under the aircraft with a personalised sign", "Dedicated vehicle to the VIP lounge", "Fast Track to border control", "Baggage collection", "VIP lounge", "Escort through the arrival process"] },
@@ -9282,7 +9293,7 @@ AIRPORT_ASSIST.CAI = { title: "Ahlan VIP Service \u2014 Cairo", airport: "Cairo 
 // ══ ABU DHABI — Salam Meet & Assist plus Fast Track at Zayed International. Two booking pages,
 // so the card carries two buttons. No published price; the card says so. The important detail:
 // Fast Track here covers BOTH security and immigration lanes.
-AIRPORT_ASSIST.AUH = { title: "Salam Meet & Assist + Fast Track \u2014 Abu Dhabi", airport: "Abu Dhabi Zayed International", name: "Salam", web: "https://www.zayedinternationalairport.ae/en/shop-dine-and-experience/premium-services/book-salam-service", button: "Book Salam",
+AIRPORT_ASSIST.AUH = { verified: "official", title: "Salam Meet & Assist + Fast Track \u2014 Abu Dhabi", airport: "Abu Dhabi Zayed International", name: "Salam", web: "https://www.zayedinternationalairport.ae/en/shop-dine-and-experience/premium-services/book-salam-service", button: "Book Salam",
   web2: "https://www.zayedinternationalairport.ae/en/shop-dine-and-experience/premium-services/book-fast-track", button2: "Book Fast Track", email: null, tel: "+971 54 279 0063",
   headline: "The airport's own Meet & Assist, with Fast Track lanes for both security and immigration.",
   includes: ["Personal Meet & Assist", "Dedicated Fast Track lanes for security AND immigration", "Priority security screening", "Priority immigration", "Luggage assistance", "Buggy where available", "Priority check-in where available", "Lounge", "Boarding assistance"],
@@ -9291,7 +9302,7 @@ AIRPORT_ASSIST.AUH = { title: "Salam Meet & Assist + Fast Track \u2014 Abu Dhabi
 // ══ JEDDAH — Altanfeethi at King Abdulaziz International: a private entrance, private check-in,
 // fast-track passport and customs, and a luxury vehicle to the aircraft. Two information pages,
 // so two buttons. No published price; the card says so.
-AIRPORT_ASSIST.JED = { title: "Altanfeethi \u2014 Jeddah", airport: "Jeddah King Abdulaziz International", name: "Altanfeethi", web: "https://altanfeethi.com.sa/en/", button: "Altanfeethi",
+AIRPORT_ASSIST.JED = { verified: "official", title: "Altanfeethi \u2014 Jeddah", airport: "Jeddah King Abdulaziz International", name: "Altanfeethi", web: "https://altanfeethi.com.sa/en/", button: "Altanfeethi",
   web2: "https://www.kaia.sa/en/Airport-Services/Lounges/Altanfeethi", button2: "Airport page", email: null, tel: "+966 9200 11233",
   headline: "A private VIP entrance, private check-in, fast-track passport control and customs, and a luxury vehicle to the aircraft.",
   includes: ["Private VIP entrance", "Personal assistant", "Private check-in", "Fast-track passport control", "Fast-track customs", "Private security lane", "Baggage transfer and collection", "Luxury lounge", "Luxury vehicle to and from the aircraft", "Travel-arrangement assistance"],
@@ -9300,7 +9311,7 @@ AIRPORT_ASSIST.JED = { title: "Altanfeethi \u2014 Jeddah", airport: "Jeddah King
 // ══ RIYADH — Altanfeethi at King Khalid International: a private VIP terminal with its own
 // entrance, private passport procedures and a luxury transfer to the aircraft. Two booking
 // routes, Altanfeethi and the official entrance.sa channel. No published price; the card says so.
-AIRPORT_ASSIST.RUH = { title: "Altanfeethi \u2014 Riyadh", airport: "Riyadh King Khalid International", name: "Altanfeethi", web: "https://altanfeethi.com.sa/en/", button: "Altanfeethi",
+AIRPORT_ASSIST.RUH = { verified: "official", title: "Altanfeethi \u2014 Riyadh", airport: "Riyadh King Khalid International", name: "Altanfeethi", web: "https://altanfeethi.com.sa/en/", button: "Altanfeethi",
   web2: "https://entrance.sa/en", button2: "Official booking", email: "care@vip.sa", tel: "+966 11 222 3333",
   headline: "A private VIP terminal of its own: an exclusive entrance, private passport procedures, fast-track immigration and customs, and a luxury transfer to the aircraft.",
   includes: ["Private VIP terminal", "Exclusive entrance", "Personal assistant", "Private security lane", "Private passport procedures", "Fast-track immigration and customs", "Baggage transfer and collection", "Luxury lounge", "Luxury transfer to and from the aircraft"],
@@ -9309,7 +9320,7 @@ AIRPORT_ASSIST.RUH = { title: "Altanfeethi \u2014 Riyadh", airport: "Riyadh King
 // ══ MUSCAT — Primeclass Meet & Assist, the airport's official service run by TAV. Priced per
 // passenger plus VAT, arrival and departure differ. Visa assistance on arrival is a real
 // inclusion here — Oman visas are often sorted at the airport. Fast Track alone is sold separately.
-AIRPORT_ASSIST.MCT = { title: "Primeclass Meet & Assist \u2014 Muscat", airport: "Muscat International", name: "Primeclass", web: "https://www.muscatairport.co.om/en/content/primeclass-lounge", email: "primeclass@tav.aero", tel: "+968 9826 4399", button: "Book Primeclass",
+AIRPORT_ASSIST.MCT = { verified: "official", title: "Primeclass Meet & Assist \u2014 Muscat", airport: "Muscat International", name: "Primeclass", web: "https://www.muscatairport.co.om/en/content/primeclass-lounge", email: "primeclass@tav.aero", tel: "+968 9826 4399", button: "Book Primeclass",
   headline: "The airport's own Meet & Assist: met at the gate, a buggy, dedicated Fast Track through immigration, and visa help if you need it.",
   phases: [
     { name: "Arrival", may: ["Personal Meet & Greet at the gate", "Buggy transfer", "Dedicated Fast Track through immigration", "Visa assistance if required", "Arrival lounge refreshments", "Baggage collection", "Porter", "Escort to the terminal exit"] },
@@ -9323,7 +9334,7 @@ AIRPORT_ASSIST.MCT = { title: "Primeclass Meet & Assist \u2014 Muscat", airport:
   note: "Preferred at Muscat, and it is the airport's official service. Arriving, you are met at the gate, taken by buggy to a dedicated Fast Track through immigration — with help on the visa if you need one — then the bags, a porter, and an escort out. Departing: dedicated check-in counters, Fast Track immigration, the Primeclass Lounge, and a buggy to the gate. VAT is added to the prices. Book direct." };
 // ══ KUWAIT — Hala Kuwait Meet & Assist at KWI. Three phases, with the Pearl Lounge on the Plus
 // version. No published price and no contact supplied beyond the airport page; the card says so.
-AIRPORT_ASSIST.KWI = { title: "Hala Kuwait Meet & Assist \u2014 Kuwait City", airport: "Kuwait International", name: "Hala Kuwait", web: "https://www.kuwaitairport.gov.kw/en/traveller-info/arrivals-procedures/hospitality-services/", email: null, tel: null, button: "Contact Hala Kuwait",
+AIRPORT_ASSIST.KWI = { verified: "official", title: "Hala Kuwait Meet & Assist \u2014 Kuwait City", airport: "Kuwait International", name: "Hala Kuwait", web: "https://www.kuwaitairport.gov.kw/en/traveller-info/arrivals-procedures/hospitality-services/", email: null, tel: null, button: "Contact Hala Kuwait",
   headline: "Meet & Assist with Fast Track through immigration on arrival, and visa-on-arrival help where it applies.",
   phases: [
     { name: "Arrival", may: ["Personal Meet & Assist", "Fast Track through immigration", "Assistance through the arrival formalities", "Baggage collection assistance", "Visa-on-arrival assistance where applicable"] },
@@ -9334,7 +9345,7 @@ AIRPORT_ASSIST.KWI = { title: "Hala Kuwait Meet & Assist \u2014 Kuwait City", ai
   note: "Preferred at Kuwait. Arriving, an assistant meets you and takes you through Fast Track immigration, helps with the visa on arrival where it applies, and with the bags. Departing or in transit, the formalities and check-in are handled and you are escorted to the gate; the Plus version adds the Pearl Lounge. Priced on quote through the airport's hospitality page. Book direct." };
 // ══ BAHRAIN — Hala Bahrain: Meet & Assist with Fast Track through both immigration and customs.
 // Price shown at booking, so the card says so. Two pages: Hala's own and the airport's.
-AIRPORT_ASSIST.BAH = { title: "Hala Bahrain \u2014 Meet & Assist + Fast Track", airport: "Bahrain International", name: "Hala Bahrain", web: "https://www.halabahrain.bh/", button: "Book Hala Bahrain",
+AIRPORT_ASSIST.BAH = { verified: "endorsed", title: "Hala Bahrain \u2014 Meet & Assist + Fast Track", airport: "Bahrain International", name: "Hala Bahrain", web: "https://www.halabahrain.bh/", button: "Book Hala Bahrain",
   web2: "https://www.bahrainairport.bh/airport-service/?category=1563&service=2529", button2: "Airport page", email: null, tel: null,
   headline: "Meet & Assist with Fast Track through both immigration and customs, an escort, and the bags handled.",
   includes: ["Personal Meet & Assist", "Fast Track through immigration", "Fast Track through customs formalities", "Airport escort", "Baggage assistance", "Porter available", "Lounge available", "Airport transportation available"],
@@ -9348,6 +9359,7 @@ function AssistCard({ code, when }) {
   return (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
     <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` \u00b7 ${when}` : ""}</div>
     <div style={{ fontSize: 14, color: t.ink, fontWeight: 500, textTransform: a.title ? "uppercase" : "none", letterSpacing: a.title ? ".04em" : 0 }}>{a.title || a.name}</div>
+    {a.verified ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: a.verified === "official" ? t.pine : t.brass, fontWeight: 700, marginTop: 3 }}>{a.verified === "official" ? "Verified — official airport service" : a.verified === "endorsed" ? "Verified — airport-endorsed provider" : "Verified — independent provider"}</div> : null}
     {a.headline ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 4 }}>{a.headline}</div> : null}
     <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{a.note}</div>
     {a.includes ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>Includes:</strong> {list(a.includes)}</div> : null}
