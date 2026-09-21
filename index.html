@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M647";
+const BUILD = "M648";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12818,7 +12818,60 @@ const ONE_LIST = {
         ],
         handoff: "Next, in the trip builder: we'll set your nights around your anchor, put you in the right house — or split you between the Croisette and the Cap — and arrange the gala, the drivers, the tables and the boat. Every price confirmed with you before anything is committed.",
       } },
-      { title: "Paris Fashion Week", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2026-09-28", end: "2026-10-03", dateLabel: "Sep 28–Oct 6, 2026", nights: 5, photo: "Grand Palais Paris", blurb: "Front-row access to the world's most important shows — Paris at its most glamorous." },
+      { title: "Paris Fashion Week", city: "Paris", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-02-28", end: "2027-03-10", dateLabel: "Mar 1\u20139, 2027", nights: 10, photo: "Paris Avenue Montaigne fashion", gallery: ["Grand Palais Paris", "Place Vend\u00f4me Paris", "Palais de Tokyo Paris"],
+        blurb: "Nine days when the fashion world takes over Paris \u2014 stay in the heart of it, follow the official calendar, shop privately, and see the shows that can actually be seen.",
+        guide: {
+          cur: "\u20ac",
+          daysTitle: "What this week actually is",
+          daysIntro: "For nine days in March the women\u2019s ready-to-wear collections bring designers, editors, buyers, models and the people who photograph them to Paris, and the city changes register. The important runway shows \u2014 Chanel, Dior, Louis Vuitton, Herm\u00e8s, Saint Laurent, Miu Miu, Valentino \u2014 are by invitation of the house, and we do not pretend otherwise.\n\nBUT A FRONT-ROW INVITATION IS NOT THE WEEK. The week is the official calendar and the public events around it; the exhibitions the museums time to it; the private shopping appointments the houses give their clients; the street outside the Grand Palais and the Palais de Tokyo before and after a show; the restaurants and hotel bars where the industry actually eats; and whatever the houses announce in the last weeks. All of that can be planned, and it is what we plan.",
+          stayWord: "hotel",
+          stayCollection: "Paris",
+          stayLead: "Where to stay",
+          stayNote: "STAY WHERE THE WEEK HAPPENS, with a concierge who has fashion-house relationships \u2014 which at this level in Paris they all do. Three addresses matter: AVENUE MONTAIGNE and the 8th, for the houses themselves; PLACE VEND\u00d4ME and the rue Saint-Honor\u00e9, for the boutiques and most of the activity; SAINT-GERMAIN, quieter and more residential, still ten minutes from everything. Book as early as you possibly can \u2014 the week fills the best hotels a year ahead \u2014 and use the neighbourhood filter above to narrow to the 8th or the 1st.",
+          ticketsTitle: "Access \u2014 what is and is not possible",
+          tickets: "OFFICIAL RUNWAY SHOWS ARE BY INVITATION AND NOT GUARANTEED. The houses decide, and no hotel, broker or advisor can promise a seat. Two things genuinely help. IF YOU ARE AN ESTABLISHED CLIENT OF A HOUSE \u2014 a real purchase history with Chanel or Dior or Herm\u00e8s \u2014 contact your personal shopper, boutique director or sales associate several months ahead and ask whether an invitation can be requested; that is how most private clients who attend get there. AND ASK YOUR CONCIERGE THE RIGHT QUESTION: not \u201ccan you get Chanel tickets\u201d, but help with presentations, designer cocktail events, boutique events, showroom appointments, emerging-designer shows, the houses\u2019 exhibitions, private shopping and after-show dinners. Those are within reach; the runway seat remains the house\u2019s to give.",
+          ticketBands: [
+            { label: "Official runway shows \u2014 Chanel, Dior, Louis Vuitton, Herm\u00e8s, Saint Laurent, Miu Miu, Valentino", price: "By invitation \u2014 not guaranteed" },
+            { label: "Public and ticketed Fashion Week events \u2014 exhibitions, presentations, boutique events, from the FHCM Events of the Week", price: "Bookable once the 2027 programme is published" },
+            { label: "Designer showrooms and SPHERE presentations \u2014 primarily for buyers and press", price: "Industry access \u2014 request" },
+            { label: "Private fashion-house parties", price: "Invitation only" },
+          ],
+          ticketLink: "https://fhcm.paris/",
+          ticketLinkLabel: "The official calendar \u2014 FHCM",
+          ticketNote: "The F\u00e9d\u00e9ration de la Haute Couture et de la Mode publishes the official schedule and, alongside it, an Events of the Week programme of public and ticketed happenings. The March 2027 schedule is added here the moment it is released; nothing from a prior year is shown as if it were this one.",
+          bookOrder: [
+            { what: "The hotel", when: "As early as possible \u2014 a year ahead is not too soon", why: "The week fills the 8th and the 1st before anything else in Paris does. A concierge with fashion-house relationships is part of what you are booking." },
+            { what: "Invitation requests through your own fashion-house contacts", when: "Several months ahead", why: "If you are a client of a house, your personal shopper or boutique director is the only real route to a runway seat. Ask early; the answer comes late and may be no." },
+            { what: "Private shopping appointments", when: "Several months ahead", why: "The houses give their clients private appointments during the week \u2014 a stylist, a private fitting room, a preview of the new collection, an hosted hour. Request them through your existing relationships or the concierge; nothing is promised, much is possible." },
+            { what: "Restaurants", when: "The day the reservation window opens", why: "Prime tables become extremely difficult during the week. Set reminders for each window rather than hoping." },
+            { what: "Public events and exhibitions", when: "When the FHCM programme is published, a month or two ahead", why: "Register or buy the day they appear; the good ones go." },
+            { what: "Flights", when: "About eleven months out, when schedules open", why: "LAST. Paris from anywhere is not the constraint." },
+          ],
+          stepsTitle: "How the week is spent",
+          steps: [
+            { h: "The calendar, followed", b: "Each day the official FHCM schedule says who shows where. Even without an invitation it sets the rhythm \u2014 which venue the city is watching that afternoon, where the street will be, which house\u2019s exhibition is open." },
+            { h: "Private shopping, arranged", b: "The week is the ideal moment for a private appointment with a house you buy from: Chanel, Dior, Louis Vuitton, Herm\u00e8s, Saint Laurent, Valentino, Ala\u00efa, Celine, Loewe, Balenciaga, Schiaparelli. A stylist, a private room, the new collection early, sometimes an after-hours or early-access hour. Requested through your relationship or your concierge; never promised." },
+            { h: "The street outside the shows", b: "Part of the week happens on the pavement. Before and after the major shows the photographers, editors and models gather outside the venues \u2014 the Grand Palais, the Palais de Tokyo, the Tuileries, Vend\u00f4me, Avenue Montaigne \u2014 and the arrival scene is a show of its own. Which house is where is confirmed only when the 2027 venues are announced." },
+            { h: "The exhibitions", b: "Paris times its fashion exhibitions to the week. The Palais Galliera, the Mus\u00e9e des Arts D\u00e9coratifs, the Fondation Azzedine Ala\u00efa and La Galerie Dior are the four to check; only what is actually running on your dates is listed here." },
+            { h: "The events you can attend", b: "The FHCM Events of the Week: exhibitions, boutique openings, presentations, brand events, public happenings. Only what is public, ticketed, bookable or open with registration is shown as something to attend \u2014 an invitation-only event is never presented as bookable." },
+            { h: "Where the industry eats", b: "Not a list of \u201cfashion restaurants\u201d \u2014 our Paris tables, chosen for being near your week, used by the industry for lunches and dinners, and worthy on their own. Booked the day the window opens." },
+          ],
+          beyondTitle: "Around the week",
+          beyond: [
+            { name: "Palais Galliera", note: "The city\u2019s fashion museum, on the avenue Pierre 1er de Serbie \u2014 whatever it has on during the week is worth the hour." },
+            { name: "La Galerie Dior", note: "30 Avenue Montaigne \u2014 the house\u2019s own museum, in the house\u2019s own building. Book a timed entry." },
+            { name: "The hotel bars", note: "Where the week decompresses. Ask the concierge which ones are the industry\u2019s that year; it moves." },
+            { name: "Nightlife with a ticket", note: "Some Fashion Week nightlife is ticketed and public; the parties everyone talks about are not. We will say which is which." },
+          ],
+          notes: [
+            "NO ONE CAN SELL YOU A RUNWAY SEAT. Anything offered as a \u201cChanel ticket\u201d by a reseller is not what it claims to be. We do not build the week around it and neither should you.",
+            "THE OFFICIAL CALENDAR IS THE SOURCE OF TRUTH \u2014 fhcm.paris. The March 2027 schedule, venues and Events of the Week appear here the moment they are published, and nothing from a previous season is shown as if it were this one.",
+            "SHOWROOMS AND SPHERE ARE FOR THE TRADE. Some Fashion Week showroom activity exists for buyers and press; it is marked INDUSTRY ACCESS \u2014 REQUEST, not offered as an outing.",
+            "PACK FOR THE STREET AS MUCH AS FOR DINNER. March in Paris is cold and often wet; the arrival scenes are outdoors and you will stand.",
+            "THE HOTEL IS THE FIRST BOOKING AND THE HARDEST. Everything else in this guide is easier once the address is settled.",
+          ],
+          handoff: "Plan this trip opens PARIS with the 8th, Vend\u00f4me and Saint-Germain hotels, the Paris tables and flights into Charles de Gaulle. The hotel and the restaurants are booked by you, direct. Invitation requests and private shopping go through your own fashion-house contacts or the concierge, months ahead. The FHCM calendar and public events are added here as soon as they are released.",
+        } },
     ],
     // ═══ FOOD & WINE — a new One List category, Sept 2026 ══════════════════════════════════════
     // Opened for the Hospices de Beaune auction, which fitted none of the eighteen sporting,
