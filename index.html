@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M644";
+const BUILD = "M645";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -14017,19 +14017,23 @@ function HelpPanel({ screen, step }) {
   </>);
 }
 function StartChooser({ onKnow, onOpen, onInspire, onGuide, onHome }) {
-  const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "30px 34px", cursor: "pointer", display: "flex", alignItems: "center", gap: 22, width: "100%" };
-  const cEy = { display: "block", fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
-  const cTtl = { display: "block", fontFamily: font.display, fontSize: 33, color: t.paper, lineHeight: 1.12, margin: "7px 0" };
-  const cSub = { display: "block", fontSize: 16, color: "#D8D2C6", lineHeight: 1.5 };
-  const cArw = { fontSize: 36, color: t.brassLight, fontWeight: 400, flexShrink: 0 };
-  return (<div style={{ maxWidth: 720, margin: "0 auto", padding: "40px clamp(20px,5vw,48px) 72px" }}>
-    <button onClick={onHome} style={{ ...NAV_PILL, marginBottom: 24 }}><Home size={15} /> Home</button>
-    <div style={{ textAlign: "center", marginBottom: 40 }}>
-      <div style={{ fontFamily: font.display, fontSize: "clamp(42px,9vw,64px)", color: t.pine, fontWeight: 600, letterSpacing: "0.01em" }}>Voyage One</div>
-      <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "16px auto" }} />
-      <div style={{ fontSize: 17, color: t.inkSoft, letterSpacing: "0.02em" }}>How would you like to begin?</div>
+  // FOUR WAYS IN, ALL VISIBLE AT ONCE. Stacked one above another, the fourth sat below the fold on an
+  // iPad and nobody knew it was there. Now a grid: two by two wherever the screen is wide enough for
+  // two cards of a comfortable size (iPad, Mac), and a single column on a phone — the cards keep their
+  // size either way; only the arrangement changes. The "How would you like to begin?" line is gone
+  // and the whole set sits higher.
+  const card = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "26px 28px", cursor: "pointer", display: "flex", alignItems: "center", gap: 18, width: "100%", minHeight: 168 };
+  const cEy = { display: "block", fontSize: 12.5, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 };
+  const cTtl = { display: "block", fontFamily: font.display, fontSize: 27, color: t.paper, lineHeight: 1.14, margin: "6px 0" };
+  const cSub = { display: "block", fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.5 };
+  const cArw = { fontSize: 32, color: t.brassLight, fontWeight: 400, flexShrink: 0 };
+  return (<div style={{ maxWidth: 960, margin: "0 auto", padding: "28px clamp(20px,5vw,48px) 60px" }}>
+    <div style={{ display: "flex", justifyContent: "flex-end" }}><button onClick={onHome} style={NAV_PILL}><Home size={15} /> Home</button></div>
+    <div style={{ textAlign: "center", marginBottom: 26 }}>
+      <div style={{ fontFamily: font.display, fontSize: "clamp(40px,8vw,58px)", color: t.pine, fontWeight: 600, letterSpacing: "0.01em" }}>Voyage One</div>
+      <div style={{ width: 54, height: 1, background: t.brass, opacity: 0.7, margin: "12px auto 0" }} />
     </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(330px, 1fr))", gap: 20 }}>
       <button onClick={onKnow} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span></span><span style={cArw}>→</span></button>
       <button onClick={onOpen} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — let's explore the what and where</span><span style={cSub}>Give us the season and a mood — ski, beach, golf, a region — and we'll suggest where.</span></span><span style={cArw}>→</span></button>
       <button onClick={onGuide} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Take me there</span><span style={cTtl}>I know where but not how</span><span style={cSub}>Name a country or a coast — Croatia, Patagonia, Morocco. A few questions, and we shape the trip a good advisor would.</span></span><span style={cArw}>→</span></button>
