@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M646";
+const BUILD = "M647";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8949,14 +8949,7 @@ const VIP_FRANCE = { title: "VIP Assist \u2014 France", name: "VIP Assist", web:
  ["MRS", "Marseille Provence"], ["BOD", "Bordeaux-M\u00e9rignac"], ["MPL", "Montpellier"], ["TLS", "Toulouse Blagnac"]].forEach(([code, airport]) => {
   AIRPORT_ASSIST[code] = { ...VIP_FRANCE, airport, verified: "independent" };
 });
-AIRPORT_ASSIST.MXP = { verified: "endorsed", title: "VIP Assist \u2014 Milan Malpensa", airport: "Milan Malpensa", name: "VIP Assist", web: "https://www.vipassist.co.uk/locations/milan-malpensa-airport", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108", button: "Contact VIP Assist",
-  headline: "VIP Meet & Assist with Fast Track airport procedures where available.",
-  phases: [
-    { name: "Arrival", may: ["Personal 1-to-1 airport agent", "Meet at aircraft or airbridge", "Immigration Fast Track where available", "Customs assistance", "Baggage collection", "Porter service", "Escort to waiting vehicle"] },
-    { name: "Departure", may: ["Meet & Greet kerbside", "Porter", "Check-in assistance", "Fast Track where available", "Security and passport-control assistance", "Lounge escort", "Boarding-gate escort"] },
-    { name: "Connection", may: ["Meet at aircraft or gate", "Immigration Fast Track where available", "Baggage assistance", "Porter service", "Lounge escort", "Escort to onward gate"] },
-  ],
-  note: "Preferred provider at Malpensa. Contact them with your flight and they arrange the service. Fast Track depends on what the airport makes available on the day, and immigration decisions remain with the authorities." };
+// (Malpensa's VIP Assist entry was replaced by Airconsult in M647 — see the Italy block below.)
 // ══ SPAIN — AENA PREMIUM SERVICE, the airport operator's own product ═══════════════════════════
 // This qualifies where an ordinary meet-and-greet does not: a SEPARATE PASSENGER FLOW with its
 // own private security and passport-control checkpoints, a private escort, a private vehicle to
@@ -9085,22 +9078,7 @@ AIRPORT_ASSIST.NCE = { verified: "official", title: "Nice C\u00f4te d\u2019Azur 
     { name: "Departure", from: "\u20ac258", includes: ["\u20ac258 including tax", "Up to 2 passengers", "2 pieces of luggage included"] },
   ],
   note: "Preferred at Nice, and it is the airport itself. On arrival you are greeted at the aircraft, walked through border control, and wait in a private lounge while the bags are collected — then handed to your driver, the Monaco helicopter or the rental desk. On departure: porter, check-in, Fast Track security and the lounge. Book direct." };
-// ══ ROME FIUMICINO — Highpass, individually verified and approved, the second Italian airport
-// after Malpensa. Priced per adult and per child for each of three services. The Italian wording
-// rule holds: priority and Fast Track procedures where available, never a guarantee of clearance.
-AIRPORT_ASSIST.FCO = { verified: "independent", title: "Highpass \u2014 Rome Fiumicino", airport: "Rome Fiumicino", name: "Highpass", web: "https://highpass.aero/airports/services/fco", email: null, tel: null, button: "Book Highpass",
-  headline: "Fast Track Meet & Assist at Fiumicino: met with a name board, priority and Fast Track procedures where available, and a personal transfer from the aircraft.",
-  phases: [
-    { name: "Fast Track arrival", may: ["Personal transfer from the aircraft", "Passport-control escort", "Porter", "Met with a name board", "Escort through the arrival process"] },
-    { name: "Fast Track departure", may: ["Priority check-in", "Priority security", "Passport-control escort", "Porter", "Personal transfer toward the aircraft where applicable"] },
-    { name: "Transit", may: ["Priority security", "Priority passport control", "Transfer-desk assistance", "Met at the arrival gate", "Escort to the onward flight"] },
-  ],
-  tiers: [
-    { name: "Fast Track arrival", from: "\u20ac300", includes: ["\u20ac300 adult", "\u20ac170 child"] },
-    { name: "Fast Track departure", from: "\u20ac340", includes: ["\u20ac340 adult", "\u20ac205 child"] },
-    { name: "Transit", from: "\u20ac320", includes: ["\u20ac320 adult", "\u20ac120 child"] },
-  ],
-  note: "Preferred at Fiumicino. Met with a name board, escorted through passport control with a porter, and moved by personal transfer from the aircraft on arrival or toward it on departure where the airport allows. Priority lanes and Fast Track are used where available; immigration decisions remain with the authorities. Book direct." };
+// (Fiumicino's Highpass entry was replaced by Airconsult in M647 — see the Italy block below.)
 // ══ ATHENS — Highpass. Arrival is the Silver product, departure the Gold; different inclusions
 // and prices, so both are shown by name. Athens is the gateway for every Cyclades trip.
 AIRPORT_ASSIST.ATH = { verified: "independent", title: "Highpass \u2014 Athens", airport: "Athens Eleftherios Venizelos", name: "Highpass", web: "https://highpass.aero/en/airports/services/ath", email: null, tel: null, button: "Book Highpass",
@@ -9351,6 +9329,30 @@ AIRPORT_ASSIST.BAH = { verified: "endorsed", title: "Hala Bahrain \u2014 Meet & 
   includes: ["Personal Meet & Assist", "Fast Track through immigration", "Fast Track through customs formalities", "Airport escort", "Baggage assistance", "Porter available", "Lounge available", "Airport transportation available"],
   tiers: [{ name: "Meet & Assist + Fast Track", from: null, includes: ["Current price shown at booking"] }],
   note: "Preferred at Bahrain. An assistant meets you and takes you through Fast Track at immigration and at customs, with an escort through the terminal and the bags handled; a porter, the lounge and transport can be added. The price is shown when you book. Book direct." };
+// ══ ITALY — AIRCONSULT, the preferred provider throughout the country ══════════════════════════
+// Recommended directly to a Voyage One principal by Four Seasons Hotel Firenze. An Italian
+// aviation company since 1984, certified by the Italian Civil Aviation Authority, a 24/7 support
+// centre, offices at Fiumicino, Malpensa, Venice, Naples and Catania and agents at the rest.
+// PRINCIPLE (Tricia, Sept 2026): a luxury-hotel referral — Four Seasons, Aman, Rosewood, Belmond,
+// Oetker — carries substantial weight, combined with independent verification. HIERARCHY in Italy:
+// 1. an official private-terminal or airport VIP product, if materially better for the client;
+// 2. AIRCONSULT; 3. anything else only if Airconsult cannot deliver. Outside Italy, Airconsult's
+// worldwide claim earns it nothing on its own — each airport is judged separately.
+// No published price: Airconsult confirms the exact services and cost for each booking.
+const AIRCONSULT = { name: "Airconsult", web: "https://airconsult.it/", web2: "https://airconsult.it/concierge/vip-services/", button: "Request Airconsult", button2: "VIP services", email: "hdq@airconsult.it", tel: "+39 06 5424 2550", verified: "referred",
+  headline: "Private airport assistance for arrivals, departures and connections throughout Italy — the provider Four Seasons Firenze recommends.",
+  phases: [
+    { name: "Arrival", may: ["Met at or near the aircraft gate", "Assistance through the terminal", "Fast Track immigration and customs where permitted", "Porter", "Help with lost luggage or any airport problem", "Escort to your chauffeur", "Electric buggy where the airport permits", "Tarmac assistance where permitted"] },
+    { name: "Departure", may: ["Met at the kerb", "Porter", "Check-in and pre-check-in support where the airline permits", "Preferred-seat assistance where possible", "Expedited security where permitted", "VIP lounge escort or access where available", "Escort to the boarding gate"] },
+    { name: "Also", may: ["VIP lounge arrangements", "Chauffeur transportation", "Door-to-door assistance", "Flight disruption, ticketing and flight-change assistance"] },
+  ],
+  tiers: [{ name: "Arrival, departure or connection", from: null, includes: ["Priced per booking — Airconsult confirms the services available at that airport and the cost"] }],
+  note: "Preferred throughout Italy. Recommended to Voyage One by Four Seasons Hotel Firenze; an Italian aviation company since 1984, certified by the Civil Aviation Authority, with a 24/7 support centre on the number below. Tell them the flight and they confirm exactly what that airport permits — the gate meet, the fast lanes, the buggy, the tarmac. Book direct." };
+[["FCO", "Rome Fiumicino"], ["MXP", "Milan Malpensa"], ["LIN", "Milan Linate"], ["FLR", "Florence Peretola"], ["VCE", "Venice Marco Polo"],
+ ["NAP", "Naples Capodichino"], ["BLQ", "Bologna"], ["PSA", "Pisa"], ["TRN", "Turin"], ["VRN", "Verona"], ["GOA", "Genoa"],
+ ["OLB", "Olbia Costa Smeralda"], ["PMO", "Palermo"], ["CTA", "Catania"], ["BRI", "Bari"], ["BDS", "Brindisi"], ["CAG", "Cagliari"]].forEach(([code, airport]) => {
+  AIRPORT_ASSIST[code] = { ...AIRCONSULT, airport, title: `Airconsult — ${airport.split(" ")[0]}` };
+});
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
@@ -9359,7 +9361,7 @@ function AssistCard({ code, when }) {
   return (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
     <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` \u00b7 ${when}` : ""}</div>
     <div style={{ fontSize: 14, color: t.ink, fontWeight: 500, textTransform: a.title ? "uppercase" : "none", letterSpacing: a.title ? ".04em" : 0 }}>{a.title || a.name}</div>
-    {a.verified ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: a.verified === "official" ? t.pine : t.brass, fontWeight: 700, marginTop: 3 }}>{a.verified === "official" ? "Verified — official airport service" : a.verified === "endorsed" ? "Verified — airport-endorsed provider" : "Verified — independent provider"}</div> : null}
+    {a.verified ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: a.verified === "official" ? t.pine : t.brass, fontWeight: 700, marginTop: 3 }}>{a.verified === "official" ? "Verified — official airport service" : a.verified === "endorsed" ? "Verified — airport-endorsed provider" : a.verified === "referred" ? "Verified — recommended by Four Seasons Firenze" : "Verified — independent provider"}</div> : null}
     {a.headline ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 4 }}>{a.headline}</div> : null}
     <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{a.note}</div>
     {a.includes ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>Includes:</strong> {list(a.includes)}</div> : null}
