@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M656";
+const BUILD = "M657";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12806,7 +12806,67 @@ const ONE_LIST = {
           ],
           handoff: "Plan this trip opens Miami \u2014 the hotels, the tables under Local Favorites, and the flights into MIA. Everything is booked by you, direct. Fair access comes from Art Basel and the galleries, and the art advisor is engaged separately and well before you travel.",
         } },
-      { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2026-10-15", end: "2026-10-19", dateLabel: "Through Nov 22, 2026", nights: 4, blurb: "The Giardini and Arsenale pavilions — the art world's grandest exhibition, before it closes." },
+      { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-05-05", end: "2027-05-10", dateLabel: "Opening week \u00b7 May 6\u20138, 2027", nights: 5, photo: "Venice Biennale Giardini pavilion", gallery: ["Venice Arsenale Biennale", "Venice Giardini Biennale pavilions", "Venice palazzo Grand Canal"],
+        blurb: "One city, two extraordinary Biennales \u2014 art or architecture, in alternating years. Go in opening week, when the whole of Venice becomes the exhibition.",
+        guide: {
+          cur: "\u20ac",
+          daysTitle: "Which Biennale is yours?",
+          daysIntro: "Venice holds two great international exhibitions in alternating years, built the same way: countries make their own national pavilions, a major curator makes the central exhibition, and foundations, palazzi, churches and warehouses across the city fill with official Collateral Events. In opening week the whole city is the experience \u2014 one of the moments when the worlds of art, architecture, museums, design, collecting and ideas converge in one place.\n\nTHE ART BIENNALE is for anyone who loves contemporary art, museums, collecting, galleries, design, beautiful and unexpected spaces, and seeing what the international art world is talking about next. You do not need to be an expert; the appeal is extraordinary art in Venice itself \u2014 pavilions, private foundations, palazzi you would never otherwise enter, and an international crowd of collectors, museum people, artists and dealers at receptions, dinners and parties. It has more collectors, more galleries, more art-market crossover, and the more glamorous opening week. The most recent was 2026; THE NEXT IS 2028, DATES TO BE ANNOUNCED by La Biennale \u2014 nothing speculative is shown here.\n\nTHE ARCHITECTURE BIENNALE is a world\u2019s fair for architecture and ideas: how should we build, how should cities evolve, how do we live with the climate, what will homes look like in fifty years. Full-scale structures, experimental houses, models, new materials, landscape and urban proposals, installations that feel like contemporary art. You do not need to be an architect. It draws architects, designers, developers, universities, urbanists, engineers and the design world. THE 20TH ARCHITECTURE BIENNALE OPENS MAY 2027: pre-opening 6\u20137 May, public 8 May to 21 November, curated by WANG SHU and LU WENYU under the title \u201cDo Architecture \u2014 for the possibility of coexistence facing a real reality.\u201d\n\nNeither is better. The right one depends on what fascinates you. Whichever it is: GO IN OPENING WEEK IF YOU CAN, and stay four or five nights.",
+          stayWord: "hotel",
+          stayCollection: "Venice",
+          stayLead: "Where to stay \u2014 secure this first",
+          stayNote: "THE HOTEL MATTERS FAR MORE THAN THE TICKET. The exhibition ticket costs a few euros; opening-week rooms in Venice are the scarce thing, and they go a year ahead. Our Venice hotels, every one at the standard \u2014 and we do not lower it to be nearer the Giardini, because a water taxi makes everywhere near. Arrive at Marco Polo and take a PRIVATE WATER TAXI STRAIGHT TO THE HOTEL DOOR; that is part of the experience, not a transfer.",
+          ticketsTitle: "Access \u2014 the ticket, and the week beyond it",
+          tickets: "THE PUBLIC TICKET IS THE EASY PART, and inexpensive; it is bought from La Biennale directly, and gives you the Giardini and the Arsenale. THE DIFFICULT PART IS OPENING WEEK: the pre-opening days, the pavilion openings, the foundation events, the collector dinners, the palazzo parties, the invitation-only gatherings. Most of these are not tickets anyone can buy \u2014 they are invitation-, membership-, patron-, gallery-, sponsor- or relationship-driven, and Voyage One never implies you can purchase your way into all of them. The legitimate routes: a national pavilion\u2019s invitation; a museum or cultural institution you support; a gallery relationship; a foundation membership or patron program; an architecture or design affiliation; a participating firm or artist; a sponsor; a luxury-brand relationship; the hotel concierge; a private invitation. SO THE QUESTION WE ASK is whether you have a relationship with any of these \u2014 a museum, a gallery, an art foundation, an architecture or design firm, a university, a cultural institution, a luxury brand, an art adviser, a collector, a national cultural organisation \u2014 and we suggest the avenue that fits. Never guaranteed. An ordinary admission ticket or a multi-entry accreditation is not a pre-opening credential, and we do not confuse the two.",
+          ticketBands: [
+            { label: "Public exhibition ticket \u2014 Giardini and Arsenale, from La Biennale", price: "2027 prices to be announced" },
+            { label: "Pre-opening days, 6\u20137 May 2027 \u2014 by accreditation or invitation", price: "Not a purchase" },
+            { label: "Pavilion openings, foundation events, collector dinners, palazzo parties", price: "Invitation, membership or relationship" },
+            { label: "An expert art or architecture guide \u2014 highly recommended", price: "Arranged through the hotel or a vetted specialist" },
+          ],
+          ticketLinks: [
+            { label: "Explore Architecture Biennale 2027", url: "https://www.labiennale.org/en/architecture/2027" },
+            { label: "Explore Biennale Arte", url: "https://www.labiennale.org/en/art" },
+          ],
+          ticketLink: "https://www.labiennale.org",
+          ticketLinkLabel: "La Biennale \u2014 official",
+          ticketNote: "Dates, ticket prices and release, the national participations, the Collateral Events, curators, themes, hours, guided tours, accreditation and the pavilion schedules all change with each edition and are taken from labiennale.org, never assumed from the last one.",
+          bookOrder: [
+            { what: "The hotel", when: "The moment opening-week dates are known", why: "Rooms are the scarce thing, not tickets." },
+            { what: "The opening-week access strategy", when: "Immediately after", why: "Which relationships you have decides which doors can be asked to open. Months of lead time." },
+            { what: "Flights", when: "When schedules open", why: "Into Marco Polo." },
+            { what: "Official Biennale tickets", when: "When La Biennale releases them", why: "Inexpensive and simple; the pre-opening is the separate question." },
+            { what: "An expert guide", when: "Early", why: "This is the event where a great guide changes everything." },
+            { what: "Restaurants", when: "When windows open \u2014 but not every night", why: "Leave room for the invitation that arrives on the day." },
+            { what: "The pavilions and Collateral Events to prioritise", when: "As announced", why: "Reviewed with the guide." },
+            { what: "The private water taxi from the airport", when: "Once flights are fixed", why: "The arrival is part of it." },
+            { what: "Preview credentials and invitations", when: "Confirm before travel", why: "Follow up on anything pending." },
+            { what: "The final opening-week programme", when: "Immediately before travel", why: "Events are added to the last day." },
+          ],
+          stepsTitle: "What a Biennale day actually feels like",
+          steps: [
+            { h: "Morning \u00b7 The Giardini, with a guide", b: "The historic heart: the permanent national pavilions \u2014 the United States, Great Britain, France, Germany, Japan, Australia, Brazil, Canada and more \u2014 and a carefully chosen handful of them with an expert who knows which are strongest, what is new and what is controversial. Half a day. Not everything." },
+            { h: "Lunch \u00b7 Venice", b: "One of our Venice tables." },
+            { h: "Afternoon \u00b7 A foundation, or a palazzo", b: "A private foundation or an important exhibition in a historic palazzo \u2014 one of the Collateral Events that takes you into a Venice you would never otherwise see. Then back to the hotel." },
+            { h: "Another morning \u00b7 The Arsenale", b: "The enormous former shipyards \u2014 the architecture alone is worth it \u2014 holding much of the central exhibition and further national participations. Half a day." },
+            { h: "Evening \u00b7 The week", b: "Dinner, an opening reception, a collector event, a private invitation if one has come. The objective is never to see all hundred countries. It is to see the most interesting things beautifully." },
+          ],
+          beyondTitle: "The three layers",
+          beyond: [
+            { name: "The international exhibition", note: "The curator\u2019s own show, on the theme of the edition, in the Giardini\u2019s central pavilion and the Arsenale." },
+            { name: "The national participations", note: "Each country\u2019s own exhibition \u2014 in the permanent pavilions of the Giardini, in the Arsenale, and in buildings across the city. The 2026 Art Biennale had a hundred of them." },
+            { name: "Venice beyond the official venues", note: "The best part: exhibitions in palazzi, foundations, churches, gardens, museums and warehouses \u2014 thirty-one official Collateral Events in 2026 \u2014 many in parts of Venice a normal trip never reaches." },
+            { name: "An expert guide", tag: "Highly recommended", note: "Not someone who walks you past every exhibit. Someone who knows what matters, what is new, what is controversial, which pavilions are strongest, which installations to prioritise and which off-site exhibitions deserve the afternoon. Arranged through the hotel or a vetted specialist." },
+          ],
+          notes: [
+            "THE HOTEL IS THE FIRST BOOKING AND THE ONLY HARD ONE. The ticket is a few euros; the room is the scarce thing.",
+            "OPENING WEEK IS NOT A TICKET. Most of what makes it extraordinary is invitation- and relationship-driven, and we say which doors can be asked to open, never that they will.",
+            "DO NOT TRY TO SEE EVERYTHING. One great Giardini visit, one great Arsenale visit, one curated afternoon of foundations, wonderful meals, and time for Venice itself.",
+            "LEAVE A NIGHT OR TWO UNBOOKED. The invitation to a palazzo dinner arrives on the day, and you want to be able to say yes.",
+            "The Art Biennale returns in 2028 \u2014 dates to be announced; we do not guess them.",
+          ],
+          handoff: "Plan this trip opens VENICE for five nights around the 2027 Architecture Biennale\u2019s opening \u2014 pre-opening 6\u20137 May, public from the 8th \u2014 with our Venice hotels, our tables, flights into Marco Polo and Airconsult to meet you. Tickets from La Biennale; the week\u2019s access through your own relationships and the concierge. For the Art Biennale in 2028, the dates go in when La Biennale announces them.",
+        } },
     ],
     "Film & Fashion": [
       { title: "Cannes Film Festival", city: "Cannes", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-05-18", end: "2027-05-23", dateLabel: "May 11–22, 2027", nights: 5, photo: "Palais des Festivals Cannes red carpet", gallery: ["Palais des Festivals Cannes red carpet", "Hotel du Cap-Eden-Roc Cap d'Antibes", "La Croisette Cannes waterfront", "Cannes harbour yachts Croisette"], blurb: "The Croisette, the Cap and the amfAR Gala — the 80th edition, and the week the film world moves to the Riviera.", guide: {
