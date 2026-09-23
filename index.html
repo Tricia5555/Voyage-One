@@ -25,12 +25,12 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M659";
+const BUILD = "M660";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Plane, Car, TrainFront, MapPin, Plus, Minus, ArrowRight, ArrowLeft, Lock,
+  Plane, Car, TrainFront, MapPin, Plus, Minus, ArrowRight, ArrowLeft, Lock, Ticket,
   Check, X, Users, Calendar, BedDouble, Utensils, Compass, Flower2, Route, Ship, ChevronUp, ArrowUp, ArrowDown, Pencil, Home, ScrollText, Sparkles, AlertTriangle, Trophy,
 } from "lucide-react";
 
@@ -11580,7 +11580,7 @@ function VoyageOne() {
     const viaStop = ev.via ? [{ id: newId(), city: ev.via.city, air: ev.via.air, fromExperience: true, mode: "full", nights: ev.via.nights || 1, days: 2, arriveBy: "Flight",
       pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }] : [];
     const mainNights = ev.via ? Math.max(1, nights - (ev.via.nights || 1)) : nights;
-    setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
+    setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, event: ev.title, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   // THE SHAPED TRIP BECOMES A REAL ONE. Each leg becomes a destination with its nights and its
@@ -16492,6 +16492,22 @@ function CarBooking({ car: carIn, upd, defFrom, defTo }) {
     </div>) : null}
   </div>);
 }
+// CAR-FREE CITIES. No rental panel, no pickup, no driving advice: there are no cars. Arrival is by
+// water or by rail and the arrival panel says how. One line per city; the rule is universal.
+const CAR_FREE = ["Venice", "Capri", "Hydra", "Zermatt", "Sark"];
+function isCarFree(city) { return !!city && CAR_FREE.some((c) => sameCity(c, city) || dnrm(bareCity(city)) === dnrm(c)); }
+const WATER_ARRIVAL = {
+  "Venice": { title: "Arriving in Venice \u2014 by water, to the hotel door", text: "From Marco Polo the way in is a PRIVATE WATER TRANSFER, booked through your hotel, from the airport\u2019s own dock straight to the hotel\u2019s. It is part of the Venice experience, not a transfer. The same on the way out: hotel to airport, arranged by the concierge. Between places in the city, a water taxi where it helps and the vaporetto where it is quicker; nobody needs a car, because there are none." },
+  "Capri": { title: "Arriving on Capri \u2014 by sea", text: "From Naples, the hydrofoil or a private boat to Marina Grande, where the hotel meets you; from there the funicular, a taxi or the hotel\u2019s car up the hill. No rental car: the island does not allow visitors\u2019 cars." },
+  "Hydra": { title: "Arriving on Hydra \u2014 by sea", text: "The hydrofoil from Piraeus, or a private boat. There are no cars on Hydra at all; bags go by donkey or water taxi." },
+  "Zermatt": { title: "Arriving in Zermatt \u2014 by rail", text: "Cars stop at T\u00e4sch; the shuttle train takes you the last twelve minutes, and the hotel\u2019s electric taxi meets the train. Zermatt is car-free." },
+};
+function WaterArrivalPanel({ city }) {
+  const k = Object.keys(WATER_ARRIVAL).find((c) => sameCity(c, city) || dnrm(bareCity(city)) === dnrm(c));
+  if (!k) return null;
+  const w = WATER_ARRIVAL[k];
+  return (<Panel icon={Ship} title={w.title}><div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{w.text}</div></Panel>);
+}
 function RentalPanel({ city, destination, compact, car, upd }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
   const [want, setWant] = useState(!compact);
@@ -17923,6 +17939,44 @@ function useGateway(city) {
   // Hand list first (curated), then the live-computed one.
   return gatewayFor(bare) || live || null;
 }
+// The experience an event trip was seeded from, by title — so the builder can show its tickets.
+function findExperience(title) {
+  if (!title) return null;
+  let hit = null;
+  Object.values(ONE_LIST).forEach((cat) => Object.values(cat).forEach((arr) => (Array.isArray(arr) ? arr : []).forEach((e) => { if (!hit && e.title === title) hit = e; })));
+  return hit;
+}
+// EVENT TICKETS, INSIDE THE TRIP. The event page explains; this is where the ticket is bought and
+// recorded, in its place between the hotel and the dinners. Which ticket, in one line; the official
+// link; and a record — date, guests, reference — that prints on the itinerary.
+function EventTicketsPanel({ d, upd }) {
+  const ev = findExperience(d.event); if (!ev || !ev.guide) return null;
+  const g = ev.guide; const tk = (d.pick && d.pick.eventTicket) || {};
+  const set = (patch) => upd({ eventTicket: { ...tk, ...patch } });
+  const rec = (g.ticketBands || []).find((b) => /recommended|favourite|favorite|best/i.test(b.label));
+  const primary = g.ticketLink ? { label: g.ticketLinkLabel || "Buy official tickets", url: g.ticketLink } : null;
+  const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
+  const pill = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" });
+  return (<Panel icon={Ticket} title={`${ev.title} \u00b7 tickets`}>
+    {rec ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}><strong>The ticket you need:</strong> {rec.label}{rec.price ? <span style={{ color: t.inkSoft }}> — {rec.price}</span> : null}</div> : (g.ticketBands && g.ticketBands.length ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{g.ticketBands.slice(0, 3).map((b, k) => <div key={k}><strong>{b.label}</strong>{b.price ? <span style={{ color: t.inkSoft }}> — {b.price}</span> : null}</div>)}</div> : null)}
+    {g.ticketNote ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 6 }}>{g.ticketNote}</div> : null}
+    <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+      {primary ? <a href={brandedLink(primary.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "10px 18px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{primary.label}</a> : null}
+      {(g.ticketLinks || []).map((l, k) => <a key={k} href={brandedLink(l.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}
+    </div>
+    <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Record your tickets</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <button onClick={() => set({ booked: true })} style={pill(!!tk.booked)}>Purchased</button>
+        <button onClick={() => set({ booked: false })} style={pill(!tk.booked)}>Not yet</button>
+        <input type="date" value={tk.date || ""} onChange={(e) => set({ date: e.target.value })} style={inp} />
+        <input type="number" min={1} max={20} placeholder="Guests" value={tk.guests || ""} onChange={(e) => set({ guests: e.target.value })} style={{ ...inp, width: 90 }} />
+        <input placeholder="Reference (optional)" value={tk.ref || ""} onChange={(e) => set({ ref: e.target.value })} style={{ ...inp, minWidth: 180 }} />
+      </div>
+      {tk.booked ? <div style={{ fontSize: 13, color: t.pine, marginTop: 8 }}>✓ {ev.title} tickets{tk.date ? ` \u00b7 ${fmtDay(new Date(tk.date + "T00:00:00"))}` : ""}{tk.guests ? ` \u00b7 ${tk.guests} ${Number(tk.guests) === 1 ? "guest" : "guests"}` : ""} \u00b7 purchased externally through official ticketing{tk.ref ? ` \u00b7 ${tk.ref}` : ""}</div> : null}
+    </div>
+  </Panel>);
+}
 function CitySection({ d, i, p, from, legSched }) {
   useGeoTick(); // a coordinate arriving late must repaint this panel
   const pick = d.pick || {};
@@ -18040,13 +18094,15 @@ function CitySection({ d, i, p, from, legSched }) {
       </div>);
     })()}
     {d.city && <GettingAroundPanel city={d.city} />}
-      {d.arriveBy !== "Self-drive" && d.city && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
+      {d.city && isCarFree(d.city) ? <WaterArrivalPanel city={d.city} /> : null}
+      {d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
       {d.city && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
           </Panel>
         : d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} fromExperience={!!d.fromExperience} /></Panel>}
+      {d.event && d.mode !== "flights" ? <EventTicketsPanel d={d} upd={upd} /> : null}
       {/* At a ranch, a safari camp or a river lodge, "restaurants nearby" and "spas nearby" are
           not just unhelpful — they are wrong. There is nothing nearby. The property feeds you,
           guides you and has its own spa, and offering a list of the village's options makes the
@@ -18338,6 +18394,10 @@ function DayByDay({ p, sch }) {
         if (st.stay) add(isoOf(ss.arrive), { icon: "hotel", kind: "hotel", city: st.name, name: st.stay.name, fallback: st.stay.contact || placeContact(st.stay.name), label: `Check in · ${st.stay.name || st.stay.level}`, sub: `${ss.nights} ${ss.nights === 1 ? "night" : "nights"} in ${st.name}` });
         (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
       });
+    }
+    if (pk.eventTicket && pk.eventTicket.booked) {
+      const et2 = pk.eventTicket; const dISO = et2.date || (lg.arrive ? isoOf(addDays(lg.arrive, 1)) : null);
+      if (dISO) add(dISO, { icon: "trophy", kind: "venue", city, name: d.event || "Event", label: `\u2713 ${d.event || "Event"} tickets`, sub: [et2.guests ? `${et2.guests} ${Number(et2.guests) === 1 ? "guest" : "guests"}` : "", "purchased externally through official ticketing", et2.ref ? `ref ${et2.ref}` : ""].filter(Boolean).join(" \u00b7 "), booked: true });
     }
     (pk.sports || []).forEach((x) => { const et = eventTimes(x.name); add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: et ? (x.evening ? et.night : et.day) : (x.evening ? "Evening session" : "Daytime"), evening: !!x.evening }); });
     (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
