@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M661";
+const BUILD = "M663";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12825,8 +12825,20 @@ const ONE_LIST = {
             { label: "Weekly ticket", price: "\u20ac45 in 2025 \u00b7 2027 to be announced" },
             { label: "Full exhibition accreditation", price: "\u20ac75 in 2025 \u00b7 2027 to be announced" },
           ],
-          sale: { status: "unknown", year: "2027", by: "La Biennale", city: "Venice, Italy", slug: "venice-biennale-2027", remindDate: "2027-01-15", infoUrl: "https://www.labiennale.org/en/architecture/2027/information", buyUrl: "", remindNote: "Check whether La Biennale has released Architecture Biennale 2027 tickets (online only). The 3-day ticket suits opening week, 5\u201310 May 2027. A Voyage One reminder." },
+          sale: { status: "unknown", year: "2027", by: "La Biennale", city: "Venice, Italy", slug: "venice-biennale-2027", remindDate: "2027-01-16", remindWhy: "past editions have opened sales in the new year", infoUrl: "https://www.labiennale.org/en/architecture/2027/information", buyUrl: "", remindNote: "Check whether La Biennale has released Architecture Biennale 2027 tickets (online only). The 3-day ticket suits opening week, 5\u201310 May 2027. A Voyage One reminder." },
           ticketNote: "2027 pricing has not yet been announced; previous official pricing is shown only as a guide. An ordinary ticket is not pre-opening access \u2014 that is step 3.",
+          access: [
+            { key: "admission", title: "Official admission", status: "pending", blurb: "General entry to the Giardini and the Arsenale \u2014 the starting point, not the experience.", body: "The 3-day ticket suits opening week. Release date to be announced by La Biennale; the reminder above goes into your calendar for 16 January." },
+            { key: "tour", title: "Private Biennale tour", status: "request", blurb: "The first upgrade: the Biennale privately, with an official guided experience led by trained Biennale personnel.", body: "La Biennale has confirmed guided tours for 2027, for individuals, professionals, companies and groups, conducted by its own trained staff. Request through the Educational & Promotion office; the email is written for you.", contact: { who: "La Biennale \u2014 Educational & Promotion", email: "promozione@labiennale.org", tel: "+39 041 5218 828" }, links: [{ label: "Request a private Biennale tour", url: "mailto:promozione@labiennale.org?subject=Architecture%20Biennale%202027%20%E2%80%94%20private%20guided%20tour%20request&body=Dear%20Educational%20%26%20Promotion%20team%2C%0A%0AI%20will%20be%20in%20Venice%20for%20the%20opening%20of%20the%2020th%20International%20Architecture%20Exhibition%20%28arriving%205%20May%2C%20departing%2010%20May%202027%29%20and%20would%20like%20to%20request%20a%20private%20guided%20tour%20of%20the%20Giardini%20and%20the%20Arsenale%20for%20%5BNUMBER%20OF%20GUESTS%5D%20guests%2C%20ideally%20on%20%5BPREFERRED%20DATE%5D.%0A%0ACould%20you%20let%20me%20know%20the%20options%2C%20availability%20and%20pricing%20for%202027%2C%20and%20how%20to%20book%3F%0A%0AThank%20you%20very%20much.%0A%0A%5BNAME%5D", primary: true }] },
+            { key: "preopening", title: "Pre-opening access \u2014 6\u20137 May", status: "invitation", blurb: "The two days before the public opening, when the architects, curators, commissioners, institutions and pavilion teams are in Venice.", body: "Not a ticket. The legitimate avenues: a Biennale supporter or card program if 2027 offers pre-opening privileges; a national pavilion\u2019s invitation; a participating institution\u2019s invitation; a professional or institutional relationship; a pavilion sponsor. Never promised; each avenue is pursued on its own terms." },
+            { key: "supporter", title: "Biennale supporter access", status: "pending", blurb: "Recent Biennale Card programs have included pre-opening invitations, guest privileges and guided-tour benefits at the higher levels.", body: "The 2027 program is not yet published, and nothing from a previous edition is copied here. When La Biennale releases it, the card names, prices, pre-opening invitations, guest and guided-tour privileges and the purchase link appear in this item \u2014 and if 2027 offers pre-opening access, this becomes one of the most prominent choices.", links: [{ label: "La Biennale", url: "https://www.labiennale.org/en/architecture/2027" }] },
+            { key: "pavilion", title: "Your country at the Biennale", status: "pavilion", blurb: "Your national pavilion \u2014 its commissioner, curator, institution and opening-week programming.", body: "Choose your country. Where the 2027 team has been announced you see who is behind the pavilion and where its official programming will appear; where it has not, it says so. A pavilion\u2019s receptions and previews are reached through its commissioner, curator, organising institution, embassy cultural office or national cultural institute \u2014 never a public ticket unless one exists.", pavilion: true },
+            { key: "openingweek", title: "Opening week \u2014 6\u20138 May", status: "rsvp", blurb: "Pavilion previews and receptions, architect and curator talks, panels, exhibition and collateral-event openings.", body: "Publicly announced events are added here as La Biennale, the pavilions and the institutions publish them \u2014 each with date, time, venue, host, whether it is public, RSVP or invitation only, the contact and the official link. None has been announced for 2027 yet, and none is invented." },
+            { key: "insider", title: "Private architectural insider", status: "request", blurb: "The Biennale with a specialist who understands the architecture, the pavilions and the people behind them.", body: "Different from the official tour. An architect, an architecture historian, a curator, a Biennale specialist, or a licensed Venice cultural guide with genuine architecture expertise \u2014 not a general Venice guide. A day with them: the Giardini and the Arsenale, the strongest national pavilions and Collateral Events, studios and important contemporary architecture, private cultural spaces where legitimately accessible, and the context on the architects and curators behind the exhibitions. Arranged through your hotel concierge, with that brief; we do not assign a generic guide.", prompt: "Do you know an architect, designer, curator or cultural institution with a connection to the Biennale?", promptYes: "A relationship with someone directly involved \u2014 in a national pavilion, an exhibiting practice, a cultural institution, a major architecture school, a pavilion sponsor or a Biennale program \u2014 can be a legitimate route to opening-week events. Current Biennale involvement matters far more than fame: knowing a famous architect who is not exhibiting opens nothing." },
+            { key: "collateral", title: "Collateral events", status: "pending", blurb: "Voyage One\u2019s curated selection of the strongest official exhibitions and events around Venice.", body: "The official 2027 Collateral Events list is not yet released. When it is, we curate the best \u2014 not all \u2014 and each shows its name, venue, dates, why we chose it, whether it is public, reservation or invitation, its official link, and its opening-week event if it has one." },
+          ],
+          // Biennale Sessions is for universities and academies, not a consumer product; kept for a
+          // client with a real institutional relationship: biennale.sessions@labiennale.org / sessions@labiennale.org
 stepsTitle: "What a Biennale day actually feels like",
           steps: [
             { h: "Morning \u00b7 The Giardini, with a guide", b: "The historic heart: the permanent national pavilions \u2014 the United States, Great Britain, France, Germany, Japan, Australia, Brazil, Canada and more \u2014 and a carefully chosen handful of them with an expert who knows which are strongest, what is new and what is controversial. Half a day. Not everything." },
@@ -14624,7 +14636,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {photoBand(1)}
-          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.sale ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.ticketLinks && g.ticketLinks.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale ? (<div style={{ marginTop: 14 }}>
+          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.sale ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale ? (<div style={{ marginTop: 14 }}>
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
           </div>) : null}{g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
@@ -17959,6 +17971,7 @@ function EventTicketsPanel({ d, upd }) {
     {rec ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}><strong>The ticket you need:</strong> {rec.label}{rec.price ? <span style={{ color: t.inkSoft }}> — {rec.price}</span> : null}</div> : (g.ticketBands && g.ticketBands.length ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{g.ticketBands.slice(0, 3).map((b, k) => <div key={k}><strong>{b.label}</strong>{b.price ? <span style={{ color: t.inkSoft }}> — {b.price}</span> : null}</div>)}</div> : null)}
     {g.ticketNote ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 6 }}>{g.ticketNote}</div> : null}
     {g.sale ? <TicketSale sale={g.sale} title={ev.title} compact /> : null}
+    {g.access ? <AccessLayer items={g.access} year={g.sale && g.sale.year} compact /> : null}
     <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
       {primary && !g.sale ? <a href={brandedLink(primary.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "10px 18px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{primary.label}</a> : null}
       {(g.ticketLinks || []).map((l, k) => <a key={k} href={brandedLink(l.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}
@@ -18292,7 +18305,8 @@ function TicketSale({ sale, title, compact }) {
     <div style={lab}>Tickets</div>
     {st === "unknown" ? (<>
       <div style={big}>{yr} ticket release date: to be announced{sale.by ? ` by ${sale.by}` : ""}</div>
-      <div className="vo-noprint" style={{ marginTop: 10 }}><CalendarButton label="Remind me when tickets are released" filename={`${(sale.slug || "tickets")}-reminder.ics`} event={{ title: `${title} \u2014 check whether tickets are released`, date: sale.remindDate || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10), location: sale.city || "", url: sale.infoUrl || "", notes: sale.remindNote || `Check whether ${title} tickets have been released${sale.by ? ` by ${sale.by}` : ""}. A Voyage One reminder.` }} /></div>
+      {sale.remindDate ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 5 }}>We suggest checking on <strong style={{ color: t.ink }}>{fmt(sale.remindDate)}</strong>{sale.remindWhy ? ` \u2014 ${sale.remindWhy}` : ""}. The reminder below goes into your calendar for that day.</div> : null}
+      <div className="vo-noprint" style={{ marginTop: 10 }}><CalendarButton label={sale.remindDate ? `Remind me on ${fmt(sale.remindDate)}` : "Remind me when tickets are released"} filename={`${(sale.slug || "tickets")}-reminder.ics`} event={{ title: `${title} \u2014 check whether tickets are released`, date: sale.remindDate || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10), location: sale.city || "", url: sale.infoUrl || "", notes: sale.remindNote || `Check whether ${title} tickets have been released${sale.by ? ` by ${sale.by}` : ""}. A Voyage One reminder.` }} /></div>
     </>) : st === "announced" ? (<>
       <div style={big}>Tickets go on sale: {fmt(sale.releaseDate)}</div>
       <div className="vo-noprint" style={{ marginTop: 10 }}><CalendarButton label="Add ticket sale to calendar" filename={`${(sale.slug || "tickets")}-sale.ics`} event={{ title: `${title} \u2014 tickets go on sale`, date: sale.releaseDate, location: sale.city || "", url: sale.buyUrl || sale.infoUrl || "", notes: sale.saleNote || `${title} tickets go on sale today. A Voyage One reminder.` }} /></div>
@@ -18303,6 +18317,69 @@ function TicketSale({ sale, title, compact }) {
       <div style={big}>{yr} tickets are sold out{sale.by ? ` \u2014 ${sale.by}` : ""}</div>
       {sale.soldOutNote ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{sale.soldOutNote}</div> : null}
     </>)}
+  </div>);
+}
+// ══ THE PREMIUM ACCESS LAYER ══════════════════════════════════════════════════════════════════
+// An experience's `access` is a list of the ways to experience it beyond the basic ticket, each a
+// structured item with one STATUS LABEL — never "check availability":
+//   AVAILABLE TO BOOK · RELEASE DATE PENDING · REQUEST REQUIRED · RSVP REQUIRED · INVITATION ONLY
+//   · CONTACT PAVILION · CONTACT INSTITUTION · REMINDER SET
+// Shown inside the trip builder (the executing side) and on the event page (the explaining side).
+const ACCESS_STATUS = { book: "Available to book", pending: "Release date pending", request: "Request required", rsvp: "RSVP required", invitation: "Invitation only", pavilion: "Contact pavilion", institution: "Contact institution", reminder: "Reminder set" };
+// 2027 NATIONAL PAVILIONS — only what La Biennale or the commissioning body has actually published.
+// A country not listed shows "2027 team to be announced"; nothing from 2025 is carried over.
+const PAVILIONS_2027 = {
+  "United Kingdom": { commissioner: "Sevra Davis, Director of Architecture Design and Fashion, British Council", note: "The British Council is commissioning a UK\u2013Malaysia collaboration for 2027.", institution: "British Council", link: "https://venicebiennale.britishcouncil.org/", contact: "The British Council\u2019s Venice Biennale team \u2014 through the pavilion site; press contacts are not a concierge route." },
+};
+const PAVILION_COUNTRIES = ["United States", "United Kingdom", "France", "Germany", "Italy", "Japan", "Australia", "Canada", "Brazil", "Spain", "Netherlands", "Switzerland", "Austria", "Belgium", "Denmark", "Finland", "Sweden", "Norway", "Korea", "Mexico", "Argentina", "Israel", "Greece", "Portugal", "Ireland", "Poland", "Czech Republic", "Hungary", "Romania", "Serbia", "Türkiye", "Egypt", "South Africa", "Saudi Arabia", "United Arab Emirates", "Singapore", "China", "India", "Chile", "Peru", "Uruguay", "Malaysia"];
+function PavilionPicker({ year }) {
+  const [c, setC] = useState("");
+  const p = c ? PAVILIONS_2027[c] : null;
+  return (<div style={{ marginTop: 8 }}>
+    <select value={c} onChange={(e) => setC(e.target.value)} style={{ fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink, maxWidth: "100%" }}>
+      <option value="">Choose your country…</option>{PAVILION_COUNTRIES.map((x) => <option key={x} value={x}>{x}</option>)}
+    </select>
+    {c ? (p ? (<div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 8 }}>
+      <div><strong>{c} — {year}</strong></div>
+      {p.note ? <div>{p.note}</div> : null}
+      <div><span style={{ color: t.inkSoft }}>Commissioner:</span> {p.commissioner}</div>
+      {p.institution ? <div><span style={{ color: t.inkSoft }}>Organising institution:</span> {p.institution}</div> : null}
+      {p.contact ? <div><span style={{ color: t.inkSoft }}>Contact route:</span> {p.contact}</div> : null}
+      <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 4 }}>Public talks, opening programs and receptions are added here as the pavilion announces them.</div>
+      {p.link ? <a className="vo-noprint" href={p.link} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 8, border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>Official pavilion site</a> : null}
+    </div>) : (<div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 8 }}><strong style={{ color: t.ink }}>{c} — {year} team to be announced.</strong> La Biennale publishes each country’s commissioner, curator, exhibitors and venue when the national participations are confirmed; they appear here then, and nothing from the previous edition is carried over. Once known, the routes to a pavilion’s receptions are its commissioner, curator, organising institution, embassy cultural office or national cultural institute — never a public ticket unless one actually exists.</div>)) : null}
+  </div>);
+}
+function AccessLayer({ items, title, year, compact }) {
+  const [open, setOpen] = useState(null);
+  const [yes, setYes] = useState(false);
+  if (!items || !items.length) return null;
+  const st = (k) => ACCESS_STATUS[k] || k;
+  const stColor = (k) => k === "book" ? t.pine : k === "invitation" || k === "pending" ? t.inkFaint : t.brass;
+  return (<div style={{ marginTop: compact ? 12 : 16 }}>
+    <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>{title || "How would you like to experience it?"}</div>
+    <div style={{ display: "grid", gap: 8 }}>
+      {items.map((it) => { const on = open === it.key; return (<div key={it.key} style={{ background: t.card, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 12, padding: "11px 13px" }}>
+        <button onClick={() => setOpen(on ? null : it.key)} style={{ width: "100%", textAlign: "left", background: "none", border: "none", padding: 0, cursor: "pointer" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 14.5, fontWeight: 700, color: t.ink, letterSpacing: ".02em", textTransform: "uppercase" }}>{it.title}</span>
+            <span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", fontWeight: 700, color: stColor(it.status) }}>{st(it.status)}</span>
+          </div>
+          <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 3 }}>{it.blurb}</div>
+        </button>
+        {on ? (<div style={{ marginTop: 10, borderTop: `1px solid ${t.line}`, paddingTop: 10 }}>
+          {it.body ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6 }}>{it.body}</div> : null}
+          {it.pavilion ? <PavilionPicker year={year} /> : null}
+          {it.prompt ? (<div style={{ marginTop: 8 }}>
+            <div style={{ fontSize: 13.5, color: t.ink, fontWeight: 600 }}>{it.prompt}</div>
+            <div style={{ display: "flex", gap: 8, marginTop: 6 }}><button onClick={() => setYes(true)} style={{ background: yes ? t.pine : t.white, color: yes ? t.paper : t.ink, border: `1px solid ${yes ? t.pine : t.line}`, borderRadius: 999, padding: "7px 14px", fontSize: 13, cursor: "pointer" }}>Yes</button><button onClick={() => setYes(false)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "7px 14px", fontSize: 13, color: t.ink, cursor: "pointer" }}>No</button></div>
+            {yes && it.promptYes ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 8 }}>{it.promptYes}</div> : null}
+          </div>) : null}
+          {it.contact ? <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 8 }}>{it.contact.who ? <strong style={{ color: t.ink }}>{it.contact.who} — </strong> : null}{it.contact.email ? <span>{it.contact.email}</span> : null}{it.contact.tel ? <span> · {it.contact.tel}</span> : null}</div> : null}
+          {it.links && it.links.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>{it.links.map((l, k) => l.ics ? <CalendarButton key={k} label={l.label} event={l.ics} filename={l.filename} /> : <a key={k} href={/^mailto:/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "tickets", name: it.title, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: l.primary ? t.pine : "none", color: l.primary ? t.paper : t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}</div>) : null}
+        </div>) : null}
+      </div>); })}
+    </div>
   </div>);
 }
 function CalendarButton({ label, event, filename, style }) {
