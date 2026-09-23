@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M658";
+const BUILD = "M659";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12840,7 +12840,7 @@ stepsTitle: "What a Biennale day actually feels like",
           beyond: [
             { name: "1 \u00b7 Hotel", note: "First. Opening-week rooms matter far more than the inexpensive ticket. Our Venice hotels are above \u2014 and in Plan this trip." },
             { name: "2 \u00b7 Biennale tickets", tag: "2027 tickets coming soon", note: "Online only, from La Biennale. Check the official page; and put a reminder in your calendar for 15 January so you do not have to keep looking.",
-              links: [{ label: "Check official tickets", url: "https://www.labiennale.org/en/architecture/2027/information" }, { label: "Add ticket reminder to my calendar", url: calendarLink({ title: "Check Venice Biennale 2027 tickets", date: "2027-01-15", url: "https://www.labiennale.org/en/architecture/2027/information", notes: "Venice Architecture Biennale 2027 \u2014 tickets were expected on sale online only. Check and buy the 3-day ticket for opening week." }) }] },
+              links: [{ label: "Check official tickets", url: "https://www.labiennale.org/en/architecture/2027/information" }, { label: "Add booking reminder", filename: "venice-biennale-2027-reminder.ics", ics: { title: "Venice Architecture Biennale 2027 \u2014 Check Ticket Sales", date: "2027-01-15", location: "Venice, Italy", url: "https://www.labiennale.org/en/architecture/2027/information", notes: "Check official Venice Architecture Biennale ticket availability. Tickets were expected on sale online only; the 3-day ticket suits opening week (5\u201310 May 2027). A Voyage One reminder." } }] },
             { name: "3 \u00b7 Opening-week access", tag: "Pre-opening 6\u20137 May \u00b7 public 8 May", note: "An ordinary ticket is not pre-opening access. The doors that can be asked to open: a national pavilion\u2019s invitation; a museum or gallery you have a relationship with; a foundation membership or patron program; an architecture or design affiliation; a sponsor; your hotel concierge; a private invitation. Tell us which of these you have and we suggest the avenue. Never guaranteed." },
             { name: "4 \u00b7 A private guide", tag: "Highly recommended", note: "The Biennale is enormous. An exceptional architecture expert helps you find the most interesting pavilions, installations and ideas rather than trying to see everything. Ask your hotel concierge to arrange a highly qualified private guide \u2014 that is the route, not the Biennale\u2019s own tour desk." },
             { name: "5 \u00b7 Restaurants", note: "Our Venice tables, in Plan this trip. Book dinners early for opening week \u2014 but leave one or two evenings free for the invitation that arrives on the day." },
@@ -14415,7 +14415,7 @@ function OneList({ onPick, onBack, onHome }) {
   const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
   const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div></div>))}</div>);
   const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong>{b.tag ? <span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 700, marginLeft: 8 }}>{b.tag}</span> : null} — {b.note}{b.link ? <> <a href={b.link} target="_blank" rel="noopener noreferrer" style={{ color: t.brass, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>{b.linkLabel || "Visit the site"} →</a></> : null}
-    {b.links && b.links.length ? <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>{b.links.map((l, i2) => (<a key={i2} href={/^(mailto:|data:)/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "experience", name: b.name, city: "" })} download={/^data:text\/calendar/i.test(l.url) ? "reminder.ics" : undefined} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div> : null}</div>))}</div>);
+    {b.links && b.links.length ? <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>{b.links.map((l, i2) => l.ics ? <CalendarButton key={i2} label={l.label} event={l.ics} filename={l.filename} /> : (<a key={i2} href={/^mailto:/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "experience", name: b.name, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div> : null}</div>))}</div>);
   // daysIntro and the pick notes are WRITTEN IN PARAGRAPHS and were being poured into a single
   // div, so every blank line collapsed and the reader got a wall of text. Split on blank lines,
   // and give "Plan this trip" the house green wherever it falls so the eye finds the way out of
@@ -18182,17 +18182,43 @@ function printPaginated() {
   }));
 }
 // ══ ADD TO MY CALENDAR ═══════════════════════════════════════════════════════════════════════
-// A reminder as a real calendar entry, made in the browser with no server: an .ics file as a
-// data: link. Safari on an iPad opens it in the Calendar add sheet; a Mac opens Calendar. Used
-// wherever a guide has an actionable date — a ticket release, a ballot deadline, a booking window.
-function calendarLink({ title, date, url, notes }) {
-  const d = String(date).replace(/-/g, "");
-  const esc = (x) => String(x || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
-  const body = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Voyage One//EN", "BEGIN:VEVENT", `UID:${d}-${Math.random().toString(36).slice(2)}@voyage-one-world.com`,
-    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${d}`, `SUMMARY:${esc(title)}`,
-    url ? `URL:${url}` : "", `DESCRIPTION:${esc((notes ? notes + " " : "") + (url || ""))}`, "BEGIN:VALARM", "TRIGGER:-PT9H", "ACTION:DISPLAY", `DESCRIPTION:${esc(title)}`, "END:VALARM", "END:VEVENT", "END:VCALENDAR"].filter(Boolean).join("\r\n");
-  return "data:text/calendar;charset=utf-8," + encodeURIComponent(body);
+// A REAL .ICS FILE, OPENED THE WAY EACH DEVICE NEEDS. The event is built in the browser as a
+// text/calendar Blob. On an iPhone or iPad, Safari is sent to the blob itself, which presents the
+// event with Apple's own "Add" sheet; everywhere else the file downloads and opens in the
+// calendar app. Nothing is reported as added unless the device actually opened the file; if it
+// cannot, the button says so and offers to try again. (A data: link was tried first and Safari
+// on iOS does not treat one as a calendar file — hence this.)
+function buildIcs({ title, date, end, url, notes, location }) {
+  const day = (x) => String(x).replace(/-/g, "");
+  const esc = (x) => String(x || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const endDay = end || (() => { const d = new Date(date + "T00:00:00"); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Voyage One//voyage-one-world.com//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
+    `UID:${day(date)}-${Math.random().toString(36).slice(2, 10)}@voyage-one-world.com`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${day(date)}`, `DTEND;VALUE=DATE:${day(endDay)}`,
+    `SUMMARY:${esc(title)}`, `DESCRIPTION:${esc((notes ? notes + "\n\n" : "") + (url || ""))}`, location ? `LOCATION:${esc(location)}` : "", url ? `URL:${url}` : "",
+    "BEGIN:VALARM", "TRIGGER:-PT9H", "ACTION:DISPLAY", `DESCRIPTION:${esc(title)}`, "END:VALARM", "END:VEVENT", "END:VCALENDAR"].filter(Boolean).join("\r\n") + "\r\n";
 }
+function openIcs(ics, filename) {
+  try {
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const ua = navigator.userAgent || "";
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS) { window.location.href = url; }                       // Safari presents the event with Add
+    else { const a = document.createElement("a"); a.href = url; a.download = filename || "voyage-one-reminder.ics"; document.body.appendChild(a); a.click(); a.remove(); }
+    setTimeout(() => URL.revokeObjectURL(url), 120000);
+    return true;
+  } catch (e) { return false; }
+}
+// The button. Shows the plain label; after a failed attempt, the honest message and a retry.
+function CalendarButton({ label, event, filename, style }) {
+  const [failed, setFailed] = useState(false);
+  const go = () => { const ok = openIcs(buildIcs(event), filename); setFailed(!ok); };
+  const base = style || { display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, background: "none", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", cursor: "pointer" };
+  return (<button className="vo-noprint" onClick={go} style={failed ? { ...base, color: "#B0563A", borderColor: "#B0563A", textTransform: "none", letterSpacing: 0 } : base}>{failed ? "Your calendar event could not be opened. Tap here to try again." : label}</button>);
+}
+// kept for any older data-link caller; new code uses CalendarButton
+function calendarLink(ev) { return "data:text/calendar;charset=utf-8," + encodeURIComponent(buildIcs(ev)); }
 function ItinLine({ label, sub, price }) {
   return (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "7px 0" }}>
     <span><span style={{ fontSize: 14.5, color: t.ink }}>{label}</span>{sub && <span style={{ fontSize: 12.5, color: t.inkFaint, marginLeft: 8 }}>{sub}</span>}</span>
