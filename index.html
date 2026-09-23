@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M660";
+const BUILD = "M661";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12818,15 +12818,14 @@ const ONE_LIST = {
           stayLead: "1 \u00b7 Book your hotel \u2014 first",
           stayNote: "THE HOTEL MATTERS FAR MORE THAN THE TICKET. The exhibition ticket costs a few euros; opening-week rooms in Venice are the scarce thing, and they go a year ahead. Our Venice hotels, every one at the standard \u2014 and we do not lower it to be nearer the Giardini, because a water taxi makes everywhere near. Arrive at Marco Polo and take a PRIVATE WATER TAXI STRAIGHT TO THE HOTEL DOOR; that is part of the experience, not a transfer.",
           ticketsTitle: "2 \u00b7 Buy your Biennale tickets",
-          tickets: "2027 TICKETS ARE NOT YET ON SALE. La Biennale says they will be available soon, online only; the button checks. When the direct checkout page exists it replaces the information page here. WHICH TICKET: if you are visiting the Giardini and the Arsenale across two or three days \u2014 which is the plan \u2014 the 3-DAY TICKET, assuming 2027 keeps the 2025 structure. Visiting once, the standard admission. Staying longer and returning, the weekly pass. Accreditation is not the place to start.",
+          tickets: "Tickets are sold by La Biennale, online only. WHICH TICKET: if you are visiting the Giardini and the Arsenale across two or three days \u2014 which is the plan \u2014 the 3-DAY TICKET, assuming 2027 keeps the 2025 structure. Visiting once, the standard admission. Staying longer and returning, the weekly pass. Accreditation is not the place to start.",
           ticketBands: [
             { label: "Single admission", price: "\u20ac25 in 2025 \u00b7 2027 to be announced" },
             { label: "3-day ticket \u2014 recommended", price: "\u20ac35 in 2025 \u00b7 2027 to be announced" },
             { label: "Weekly ticket", price: "\u20ac45 in 2025 \u00b7 2027 to be announced" },
             { label: "Full exhibition accreditation", price: "\u20ac75 in 2025 \u00b7 2027 to be announced" },
           ],
-          ticketLink: "https://www.labiennale.org/en/architecture/2027/information",
-          ticketLinkLabel: "Check 2027 ticket availability",
+          sale: { status: "unknown", year: "2027", by: "La Biennale", city: "Venice, Italy", slug: "venice-biennale-2027", remindDate: "2027-01-15", infoUrl: "https://www.labiennale.org/en/architecture/2027/information", buyUrl: "", remindNote: "Check whether La Biennale has released Architecture Biennale 2027 tickets (online only). The 3-day ticket suits opening week, 5\u201310 May 2027. A Voyage One reminder." },
           ticketNote: "2027 pricing has not yet been announced; previous official pricing is shown only as a guide. An ordinary ticket is not pre-opening access \u2014 that is step 3.",
 stepsTitle: "What a Biennale day actually feels like",
           steps: [
@@ -12839,8 +12838,7 @@ stepsTitle: "What a Biennale day actually feels like",
           beyondTitle: "Book the experience",
           beyond: [
             { name: "1 \u00b7 Hotel", note: "First. Opening-week rooms matter far more than the inexpensive ticket. Our Venice hotels are above \u2014 and in Plan this trip." },
-            { name: "2 \u00b7 Biennale tickets", tag: "2027 tickets coming soon", note: "Online only, from La Biennale. Check the official page; and put a reminder in your calendar for 15 January so you do not have to keep looking.",
-              links: [{ label: "Check official tickets", url: "https://www.labiennale.org/en/architecture/2027/information" }, { label: "Add booking reminder", filename: "venice-biennale-2027-reminder.ics", ics: { title: "Venice Architecture Biennale 2027 \u2014 Check Ticket Sales", date: "2027-01-15", location: "Venice, Italy", url: "https://www.labiennale.org/en/architecture/2027/information", notes: "Check official Venice Architecture Biennale ticket availability. Tickets were expected on sale online only; the 3-day ticket suits opening week (5\u201310 May 2027). A Voyage One reminder." } }] },
+            { name: "2 \u00b7 Biennale tickets", note: "Online only, from La Biennale. The ticket section above shows the current state \u2014 release date to be announced, on sale from a date, or on sale now \u2014 and the one action that fits it. The 3-day ticket suits opening week." },
             { name: "3 \u00b7 Opening-week access", tag: "Pre-opening 6\u20137 May \u00b7 public 8 May", note: "An ordinary ticket is not pre-opening access. The doors that can be asked to open: a national pavilion\u2019s invitation; a museum or gallery you have a relationship with; a foundation membership or patron program; an architecture or design affiliation; a sponsor; your hotel concierge; a private invitation. Tell us which of these you have and we suggest the avenue. Never guaranteed." },
             { name: "4 \u00b7 A private guide", tag: "Highly recommended", note: "The Biennale is enormous. An exceptional architecture expert helps you find the most interesting pavilions, installations and ideas rather than trying to see everything. Ask your hotel concierge to arrange a highly qualified private guide \u2014 that is the route, not the Biennale\u2019s own tour desk." },
             { name: "5 \u00b7 Restaurants", note: "Our Venice tables, in Plan this trip. Book dinners early for opening week \u2014 but leave one or two evenings free for the invitation that arrives on the day." },
@@ -14626,7 +14624,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {photoBand(1)}
-          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.ticketLinks && g.ticketLinks.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink ? (<div style={{ marginTop: 14 }}>
+          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.sale ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.ticketLinks && g.ticketLinks.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale ? (<div style={{ marginTop: 14 }}>
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
           </div>) : null}{g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
@@ -17960,8 +17958,9 @@ function EventTicketsPanel({ d, upd }) {
   return (<Panel icon={Ticket} title={`${ev.title} \u00b7 tickets`}>
     {rec ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}><strong>The ticket you need:</strong> {rec.label}{rec.price ? <span style={{ color: t.inkSoft }}> — {rec.price}</span> : null}</div> : (g.ticketBands && g.ticketBands.length ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{g.ticketBands.slice(0, 3).map((b, k) => <div key={k}><strong>{b.label}</strong>{b.price ? <span style={{ color: t.inkSoft }}> — {b.price}</span> : null}</div>)}</div> : null)}
     {g.ticketNote ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 6 }}>{g.ticketNote}</div> : null}
+    {g.sale ? <TicketSale sale={g.sale} title={ev.title} compact /> : null}
     <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
-      {primary ? <a href={brandedLink(primary.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "10px 18px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{primary.label}</a> : null}
+      {primary && !g.sale ? <a href={brandedLink(primary.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "10px 18px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{primary.label}</a> : null}
       {(g.ticketLinks || []).map((l, k) => <a key={k} href={brandedLink(l.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}
     </div>
     <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
@@ -18267,6 +18266,45 @@ function openIcs(ics, filename) {
   } catch (e) { return false; }
 }
 // The button. Shows the plain label; after a failed attempt, the honest message and a retry.
+// ══ TICKET SALE STATE ═══════════════════════════════════════════════════════════════════════
+// A guide's `sale` is structured, never prose someone must remember to edit:
+//   { status: "unknown" | "announced" | "open" | "soldout", releaseDate?, buyUrl?, remindDate?, name?, city? }
+// STATE 1 unknown   → "release date to be announced" + REMIND ME (a calendar entry on remindDate)
+// STATE 2 announced → "tickets go on sale <date>" + ADD TICKET SALE TO CALENDAR; and the moment
+//                     today reaches releaseDate the state becomes open BY ITSELF
+// STATE 3 open      → "tickets now available" + BUY OFFICIAL TICKETS; no reminder, its reason has passed
+// STATE 4 soldout   → the official status, then legitimate alternate access if the guide names any
+// Nothing here ever says "check availability".
+function saleState(sale) {
+  if (!sale) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  if (sale.status === "announced" && sale.releaseDate && today >= sale.releaseDate && sale.buyUrl) return "open";
+  return sale.status || "unknown";
+}
+function TicketSale({ sale, title, compact }) {
+  if (!sale) return null;
+  const st = saleState(sale); const yr = sale.year || "";
+  const fmt = (iso) => iso ? new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+  const lab = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 };
+  const big = { fontFamily: font.display, fontSize: compact ? 17 : 20, color: t.ink, lineHeight: 1.3, marginTop: 3 };
+  const buy = { display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "10px 18px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" };
+  return (<div style={{ marginTop: compact ? 8 : 14 }}>
+    <div style={lab}>Tickets</div>
+    {st === "unknown" ? (<>
+      <div style={big}>{yr} ticket release date: to be announced{sale.by ? ` by ${sale.by}` : ""}</div>
+      <div className="vo-noprint" style={{ marginTop: 10 }}><CalendarButton label="Remind me when tickets are released" filename={`${(sale.slug || "tickets")}-reminder.ics`} event={{ title: `${title} \u2014 check whether tickets are released`, date: sale.remindDate || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10), location: sale.city || "", url: sale.infoUrl || "", notes: sale.remindNote || `Check whether ${title} tickets have been released${sale.by ? ` by ${sale.by}` : ""}. A Voyage One reminder.` }} /></div>
+    </>) : st === "announced" ? (<>
+      <div style={big}>Tickets go on sale: {fmt(sale.releaseDate)}</div>
+      <div className="vo-noprint" style={{ marginTop: 10 }}><CalendarButton label="Add ticket sale to calendar" filename={`${(sale.slug || "tickets")}-sale.ics`} event={{ title: `${title} \u2014 tickets go on sale`, date: sale.releaseDate, location: sale.city || "", url: sale.buyUrl || sale.infoUrl || "", notes: sale.saleNote || `${title} tickets go on sale today. A Voyage One reminder.` }} /></div>
+    </>) : st === "open" ? (<>
+      <div style={big}>{yr} tickets now available</div>
+      <div className="vo-noprint" style={{ marginTop: 10 }}><a href={brandedLink(sale.buyUrl || sale.infoUrl, { kind: "tickets", name: title, city: sale.city || "" })} target="_blank" rel="noopener noreferrer" style={buy}>{sale.buyLabel || "Buy official tickets"}</a></div>
+    </>) : (<>
+      <div style={big}>{yr} tickets are sold out{sale.by ? ` \u2014 ${sale.by}` : ""}</div>
+      {sale.soldOutNote ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{sale.soldOutNote}</div> : null}
+    </>)}
+  </div>);
+}
 function CalendarButton({ label, event, filename, style }) {
   const [failed, setFailed] = useState(false);
   const go = () => { const ok = openIcs(buildIcs(event), filename); setFailed(!ok); };
