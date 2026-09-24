@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M666";
+const BUILD = "M667";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12709,6 +12709,15 @@ const ONE_LIST = {
             { label: "Standard UEFA ticket \u2014 the general-public allocation, by application", price: "2027 application date to be announced" },
           ],
           ticketNote: "Everything is decided in Build this trip, in order: dates, hotel, flights, the transfer, then how you experience the final, then matchday transport, dining and Madrid. Nothing is bought on this page.",
+          pricing: { year: 2027, basisYear: 2026,
+            rows: [
+              { label: "Standard UEFA tickets", est: "\u20ac200\u2013\u20ac1,000 per person", note: "The principal public ticket categories. The lowest supporter allocation sat below this, but it is extremely limited and not a planning assumption." },
+              { label: "Official UEFA hospitality", est: "\u20ac7,000\u2013\u20ac8,000+ per person", note: "Higher-level hospitality and premium seating may exceed this." },
+              { label: "Official hospitality travel packages", est: "\u20ac10,000\u2013\u20ac15,000+ per person", note: "Official match hospitality with hotel accommodation, matchday transportation, travel assistance, dining or celebration events and further itinerary services, in combination." },
+            ],
+            current: null,
+            positioning: "FOR THE VOYAGE ONE EXPERIENCE: for a client who wants certainty, excellent seating and a more complete matchday, official UEFA hospitality is generally the strongest option. Based on 2026 pricing, plan on about \u20ac7,000\u2013\u20ac8,000+ per person for hospitality alone, and about \u20ac10,000\u2013\u20ac15,000+ per person for a complete hospitality travel package with hotel and services.",
+            disclaimer: "2027 Madrid prices have not yet been announced. These figures are planning estimates based on official 2026 UEFA and authorised hospitality pricing and may change materially for 2027." },
           sale: { status: "unknown", year: "2027", by: "UEFA", city: "Madrid, Spain", slug: "champions-league-final-2027-hospitality", remindDate: "2026-12-01", remindWhy: "UEFA says 2027 hospitality sales are expected to open at the end of 2026", infoUrl: "https://hospitality.uefa.com/", buyUrl: "", remindNote: "UEFA Champions League Final 2027, Madrid \u2014 check whether official hospitality sales have opened. Hospitality is first come, first served; the standard-ticket application comes later. A Voyage One reminder." },
           profile: [
             { key: "route", q: "How would you like to experience the final?", options: [["hospitality", "Official UEFA hospitality \u2014 certainty and a premium night"], ["programme", "The official travel programme \u2014 hospitality with transfers and more"], ["standard", "A standard ticket \u2014 apply, and hope"]] },
@@ -14791,7 +14800,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {photoBand(1)}
-          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.sale && !g.buildOnly ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && !g.buildOnly ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
+          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.pricing ? <PricingGuide pricing={g.pricing} /> : null}{g.sale && !g.buildOnly ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && !g.buildOnly ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
           </div>) : null}{g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
@@ -18509,6 +18518,33 @@ function saleState(sale) {
   const today = new Date().toISOString().slice(0, 10);
   if (sale.status === "announced" && sale.releaseDate && today >= sale.releaseDate && sale.buyUrl) return "open";
   return sale.status || "unknown";
+}
+// ══ PRICING GUIDE ═════════════════════════════════════════════════════════════════════════════
+// Structured, so the copy never goes stale by hand. `pricing` on a guide:
+//   { year: 2027, basisYear: 2026, rows: [{ label, est, note? }], current?: [{ label, price, note? }], disclaimer, positioning }
+// When `current` (this year's official figures) is present it is shown as CURRENT DATA; until then
+// the prior year's `rows` are shown, labelled PLANNING ESTIMATE, with the disclaimer. Purely
+// explanatory: it belongs before "Build this trip" and carries no purchase control.
+function PricingGuide({ pricing }) {
+  if (!pricing) return null;
+  const live = Array.isArray(pricing.current) && pricing.current.length > 0;
+  const rows = live ? pricing.current : (pricing.rows || []);
+  const lab = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 };
+  return (<div style={{ marginTop: 16, padding: "14px 16px", background: t.card, border: `1px solid ${t.line}`, borderRadius: 12 }}>
+    <div style={lab}>{live ? `${pricing.year} official pricing` : `Planning estimate · based on official ${pricing.basisYear} pricing`}</div>
+    {!live ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{pricing.year} pricing has not yet been released. To understand the likely scale:</div> : null}
+    <div style={{ marginTop: 10, display: "grid", gap: 9 }}>
+      {rows.map((r, k) => (<div key={k}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline", flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13.5, fontWeight: 700, color: t.ink, letterSpacing: ".02em", textTransform: "uppercase" }}>{r.label}</span>
+          <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink, whiteSpace: "nowrap" }}>{live ? r.price : r.est}</span>
+        </div>
+        {r.note ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 2 }}>{r.note}</div> : null}
+      </div>))}
+    </div>
+    {pricing.positioning ? <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${t.line}`, fontSize: 13.5, color: t.ink, lineHeight: 1.6 }}>{pricing.positioning}</div> : null}
+    {!live && pricing.disclaimer ? <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 10 }}>{pricing.disclaimer}</div> : null}
+  </div>);
 }
 function TicketSale({ sale, title, compact }) {
   if (!sale) return null;
