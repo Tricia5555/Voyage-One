@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M664";
+const BUILD = "M665";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11707,6 +11707,14 @@ function VoyageOne() {
     return { ...x, ...patch };
   }));
   const addDest = () => setDests((d) => [...d, { id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
+  // A named city added beside an existing destination — Tokyo before or after Niseko — as part of
+  // the SAME trip, never a disconnected second itinerary. Nights come off the trip's dates as normal.
+  const addDestNear = (afterId, city, nights, where) => setDests((d) => {
+    const k = d.findIndex((x) => x.id === afterId); if (k < 0) return d;
+    if (d.some((x) => sameCity(x.city, city))) return d;
+    const nd = { id: newId(), city, air: iataFor(city) || "", mode: "full", nights: nights || 3, days: (nights || 3) + 1, arriveBy: "Flight", addon: true, pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } };
+    const out = d.slice(); out.splice(where === "before" ? k : k + 1, 0, nd); return out;
+  });
   // "OPEN TO IDEAS" LIVES ON THE HOME SCREEN AND ONLY THERE. It is the curated mood-and-activity
   // picker — the fifty best golf, the tennis, the fly fishing — and the right way in for a client
   // who knows the season and a mood. The "Open to suggestions" button INSIDE a trip was removed
@@ -11791,7 +11799,7 @@ function VoyageOne() {
     if (moved === 0) setCloudErr("Those journeys could not be copied just now. They are still saved on this device.");
   };
 
-  const shared = { user, authReady, onOpenAuth: () => setAuthPanel(true), onSignOut: doSignOut, step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
+  const shared = { user, authReady, onOpenAuth: () => setAuthPanel(true), onSignOut: doSignOut, step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addDestNear, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
@@ -13626,6 +13634,7 @@ notes: [
         blurb: "Deep powder. First tracks. Private mountain access. Onsen. Extraordinary Japanese food. The powder is the reason to go; the access is what makes it Voyage One.",
         guide: {
           cur: "\u00a5",
+          buildOnly: true,
           daysTitle: "Why Niseko",
           daysIntro: "Hokkaido gets the lightest, deepest, most reliable snow on earth, and Niseko is where it is skied best: four interconnected areas under Niseko United, the Hanazono side with the best private guiding and first-tracks program in Japan, a former resort on the next mountain run as a private CAT operation, night skiing under the lights, and onsen culture and Hokkaido food that make the evenings the equal of the days.\n\nJANUARY AND FEBRUARY are the core powder months and the reason to come. Christmas and New Year book out a year ahead. This is not a ski-resort booking. It is DEEP POWDER, FIRST TRACKS, PRIVATE MOUNTAIN ACCESS, ONSEN and EXTRAORDINARY JAPANESE FOOD, built into one week \u2014 and Tokyo before or after it.",
           stayWord: "hotel",
@@ -13639,20 +13648,33 @@ notes: [
           ticketsTitle: "The mountain \u2014 the access that makes it Voyage One",
           tickets: "NOT HOTEL PLUS LIFT PASS. The Niseko United pass covers all four areas, and the hotel arranges it; the week is made by what sits on top of it. FIRST TRACKS: ski before the mountain opens to the public, with Hanazono Powder Guides \u2014 the defining Voyage One experience here, not a lesson. A PRIVATE POWDER GUIDE for the full day: early lift access, first tracks, the resort\u2019s powder, off-gate and backcountry terrain when conditions and ability allow, the local stashes, avalanche equipment where required \u2014 one of the most important upgrades in the trip. THE WEISS POWDER CAT: a private mountain, a former resort, twelve skiers a day at most, cat-assisted access to fresh powder for capable intermediates through experts, with a lunch prepared in association with Park Hyatt Niseko Hanazono \u2014 the signature upgrade. NIGHT SKIING under the lights when operating \u2014 powder by day, the lights at night, the onsen after. And SKI EQUIPMENT arranged through the hotel\u2019s ski valet: boots and skis ready, stored overnight, never a trip around town collecting them.",
           ticketBands: [
-            { label: "Niseko United pass \u2014 all four areas", price: "Arranged by the hotel" },
-            { label: "First tracks \u2014 before the mountain opens, Hanazono Powder Guides \u00b7 the defining experience", price: "Official Hanazono booking" },
-            { label: "Private powder guide, full day \u2014 Hanazono Powder Guides", price: "Official Hanazono booking" },
-            { label: "Weiss Powder CAT \u2014 private mountain, twelve a day, Park Hyatt lunch \u00b7 the signature upgrade", price: "Official booking" },
-            { label: "Night skiing \u2014 Niseko after dark, when operating", price: "Add to the itinerary" },
-            { label: "Ski equipment and valet \u2014 through the hotel", price: "Arranged by the hotel" },
+            { label: "First tracks \u2014 ski before the mountain opens, with Hanazono Powder Guides", price: "The defining experience" },
+            { label: "Private powder guide \u2014 the best snow, every day, adapted to conditions", price: "The most important upgrade" },
+            { label: "Weiss Powder CAT \u2014 a private mountain, twelve a day, lunch with the Park Hyatt", price: "The signature day" },
+            { label: "Night skiing \u2014 Niseko after dark", price: "Powder by day, lights by night" },
+            { label: "The onsen at five, every day", price: "The rhythm of the week" },
+            { label: "Tokyo + Niseko", price: "Two or three nights, before or after" },
           ],
-          ticketLinks: [
-            { label: "Book private powder guide \u2014 Hanazono", url: "https://hanazononiseko.com/en/winter/hanazono-powder-guides" },
-            { label: "Book Weiss Powder CAT day", url: "https://www.weisspowdercats.com/" },
+          ticketNote: "Everything here is chosen and booked in Build this trip, in order: dates, hotel, flights, the transfer, your skiing, the passes, equipment, the guide and first tracks, the CAT, night skiing, the onsen, the dinners, Tokyo. Nothing is decided on this page.",
+          profile: [
+            { key: "level", q: "What kind of skier are you?", options: [["intermediate", "Intermediate"], ["advanced", "Advanced"], ["expert", "Expert"]] },
+            { key: "wants", q: "What are you most excited about?", multi: true, options: [["powder", "Powder"], ["firsttracks", "First tracks"], ["explore", "Exploring Niseko"], ["offpiste", "Off-piste"], ["cat", "Cat skiing"], ["night", "Night skiing"], ["relaxed", "Relaxed resort skiing"]] },
           ],
-          ticketLink: "https://hanazononiseko.com/en/winter",
-          ticketLinkLabel: "Hanazono \u2014 official",
-          ticketNote: "Guiding, CAT days and first tracks are booked with the operators directly, and they sell out for January and February months ahead; the hotel concierge can hold them alongside the room. Off-gate terrain depends on conditions and the guide\u2019s judgement on the day.",
+          build: [
+            { key: "pass", title: "Ski passes", cta: "Add ski pass", day: 1, icon: "trophy", why: (pr) => (pr.wants || []).includes("explore") || pr.level === "expert" ? "Full NISEKO UNITED access \u2014 all four areas, Hanazono to Annupuri \u2014 for the way you want to ski. The hotel arranges it; you never research Japanese lift tickets." : "HANAZONO / GRAND HIRAFU access covers the terrain you will actually ski from the Park Hyatt; Niseko United if you want the whole mountain. The hotel arranges it." },
+            { key: "equipment", title: "Ski equipment", cta: "Arrange ski equipment", optional: true, bookable: true, day: 1, icon: "trophy", why: "Fitted at the hotel through the ski valet, stored overnight, boots and skis ready each morning. No running around town." },
+            { key: "guide", title: "Private powder guide \u2014 and first tracks", cta: "Add private powder guide", day: 1, time: "07:30", icon: "trophy", recommendIf: (pr) => pr.level !== "intermediate" || (pr.wants || []).some((w) => ["powder", "firsttracks", "offpiste"].includes(w)),
+              why: (pr) => `A Hanazono Powder Guide finds the best snow, reads the day, and ${pr.level === "expert" ? "takes you through the gates into the off-gate and backcountry terrain" : pr.level === "advanced" ? "opens the off-gate terrain where conditions and your skiing allow" : "keeps you in the best resort powder at your pace"} \u2014 with FIRST TRACKS before the mountain opens to the public when available. Booked with Hanazono direct.`,
+              links: [{ label: "Book with Hanazono", url: "https://hanazononiseko.com/en/winter/hanazono-powder-guides" }] },
+            { key: "cat", title: "Weiss Powder CAT day", cta: "Add powder CAT day", day: 3, icon: "trophy", recommendIf: (pr) => pr.level !== "intermediate" || (pr.wants || []).includes("cat"),
+              why: "A full day on a private mountain: cat-assisted access to fresh powder, twelve skiers at most, for capable intermediates through experts, with the lunch prepared with the Park Hyatt. Weather- and snow-dependent. Placed on day four \u2014 never straight after the travel day.",
+              links: [{ label: "Book Weiss Powder CATS", url: "https://www.weisspowdercats.com/" }] },
+            { key: "night", title: "Night skiing \u2014 Niseko after dark", cta: "Add night skiing", optional: true, day: 2, time: "17:00", icon: "trophy", recommendIf: (pr) => (pr.wants || []).includes("night") || pr.level !== "intermediate",
+              why: "Powder by day, the lights at night, the onsen after. Scheduled on an evening without a distant dinner \u2014 day three, with a casual dinner near the hotel." },
+            { key: "onsen", title: "Onsen and spa", cta: "Add onsen and spa", bookable: false, day: 0, time: "17:00", icon: "spa", why: "Built into every day as an itinerary element, not an amenity: back by half past four, the onsen or a treatment at five, dinner at half past seven." },
+            { key: "restday", title: "A rest day, or a non-skier\u2019s day", cta: "Add a rest day", optional: true, bookable: false, day: 5, icon: "spa", why: "Only what is worth it: the onsen and spa, a private Hokkaido culinary experience, a private winter excursion, a snow activity where genuinely special. Nothing added for quantity." },
+          ],
+          addon: { city: "Tokyo", nights: 3, prompt: "Would you like two or three nights in Tokyo before or after Niseko?", note: "Tokyo becomes part of the same trip \u2014 our Tokyo hotels, tables, shopping and the flight between \u2014 not a separate itinerary. The routing from the US goes through Tokyo anyway." },
           bookOrder: [
             { what: "The hotel", when: "Now \u2014 a year ahead for Christmas and New Year", why: "Park Hyatt Hanazono for the access. The base decides everything else." },
             { what: "The Weiss Powder CAT day", when: "As soon as dates are fixed", why: "Twelve places a day. The first thing after the room." },
@@ -13675,7 +13697,7 @@ notes: [
           beyondTitle: "The rest of the experience",
           beyond: [
             { name: "The onsen, every day", note: "Not a hotel amenity. Four o\u2019clock back from the powder, five o\u2019clock the hot spring, half past seven dinner. It is the rhythm of a Japanese ski week and the itinerary is built around it." },
-            { name: "Dining", note: "Curated, not a list of what is nearby: Japanese fine dining, sushi and omakase, kaiseki, the Hokkaido ingredients \u2014 crab, uni, the dairy, the vegetables \u2014 and one or two international rooms only where they earn it. Coordinated with the ski schedule: a heavy powder day is not followed by a complicated distant dinner unless it is worth it. Our Niseko tables are being curated." },
+            { name: "Dining", note: "Curated, not a list of what is nearby: Japanese fine dining, sushi and omakase, kaiseki, the Hokkaido ingredients \u2014 crab, uni, the dairy, the vegetables \u2014 and one or two international rooms only where they earn it. Coordinated with the ski schedule: a heavy powder day is not followed by a complicated distant dinner unless it is worth it. Our Niseko tables are being curated; once the ski schedule is set, each reservation belongs to a specific night \u2014 a casual dinner after the CAT, omakase on the flexible day." },
             { name: "For a non-skier or a rest day", note: "A snowcat mountain experience, the onsen and spa, a private Hokkaido food experience, snowshoeing only where it is genuinely special, a cultural or culinary day. No filler." },
             { name: "Tokyo + Niseko", tag: "Strongly suggested", note: "Two or three nights in Tokyo before or after \u2014 our Tokyo hotels, the tables, the shopping, the culture \u2014 and five to seven nights of Hokkaido powder. Add Tokyo as a destination in Plan this trip and the flight between them is found for you." },
             { name: "Beyond Niseko", note: "Niseko is the hero. Other Japanese ski areas are offered as alternatives later, not on this page." },
@@ -14702,7 +14724,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {photoBand(1)}
-          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.sale ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale ? (<div style={{ marginTop: 14 }}>
+          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.sale && !g.buildOnly ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && !g.buildOnly ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
           </div>) : null}{g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
@@ -16584,6 +16606,29 @@ function WaterArrivalPanel({ city }) {
   const w = WATER_ARRIVAL[k];
   return (<Panel icon={Ship} title={w.title}><div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{w.text}</div></Panel>);
 }
+// PRIVATE TRANSFERS ARRANGED BY THE HOTEL, offered only once the flight is chosen — before that the
+// arrival time is unknown and a pickup time would be a guess. One line per destination.
+const PRIVATE_TRANSFER = {
+  "Niseko": { from: "New Chitose (CTS)", mins: 120, note: "Two hours of Hokkaido winter road; the hotel drives it every day. Not a rental car." },
+  "Venice": { from: "Marco Polo (VCE)", mins: 35, note: "A private water taxi from the airport dock to the hotel\u2019s. Arranged by the concierge." },
+};
+function TransferPanel({ d, legSched }) {
+  const k = Object.keys(PRIVATE_TRANSFER).find((c) => sameCity(c, d.city) || dnrm(bareCity(d.city)) === dnrm(c)); if (!k) return null;
+  const tr = PRIVATE_TRANSFER[k]; const f = d.pick && d.pick.flight;
+  if (!f || !(f.chosen || f.booked)) return (<Panel icon={Car} title={`Private transfer \u2014 ${tr.from} to your hotel`}><div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6 }}>Offered once your flight is chosen, so the pickup can be timed to the arrival. About {Math.round(tr.mins / 60 * 10) / 10} hours by road.</div></Panel>);
+  const arr = f.arrTime || f.arrive || f.arr || null;
+  const stay = d.pick && d.pick.stay;
+  const pickup = arr ? (() => { const [h, m] = String(arr).split(":").map(Number); if (isNaN(h)) return null; const mm = h * 60 + m + 60; return `${String(Math.floor(mm / 60) % 24).padStart(2, "0")}:${String(mm % 60).padStart(2, "0")}`; })() : null;
+  return (<Panel icon={Car} title={`Private transfer \u2014 ${tr.from} to ${stay && stay.name ? stay.name : "your hotel"}`}>
+    <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.7 }}>
+      {f.flightNo ? <div><span style={{ color: t.inkSoft }}>Flight:</span> {f.airline || ""} {f.flightNo}</div> : null}
+      {arr ? <div><span style={{ color: t.inkSoft }}>Lands:</span> {arr}</div> : null}
+      {pickup ? <div><span style={{ color: t.inkSoft }}>Pickup:</span> about {pickup}, an hour after landing</div> : null}
+      <div><span style={{ color: t.inkSoft }}>Journey:</span> about {Math.round(tr.mins / 60 * 10) / 10} hours</div>
+      <div style={{ fontSize: 13, color: t.inkSoft, marginTop: 4 }}>{tr.note} Ask the hotel to arrange it with your flight number.</div>
+    </div>
+  </Panel>);
+}
 function RentalPanel({ city, destination, compact, car, upd }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
   const [want, setWant] = useState(!compact);
@@ -18025,10 +18070,18 @@ function findExperience(title) {
 // EVENT TICKETS, INSIDE THE TRIP. The event page explains; this is where the ticket is bought and
 // recorded, in its place between the hotel and the dinners. Which ticket, in one line; the official
 // link; and a record — date, guests, reference — that prints on the itinerary.
-function EventTicketsPanel({ d, upd }) {
+function EventTicketsPanel({ d, upd, p }) {
   const ev = findExperience(d.event); if (!ev || !ev.guide) return null;
   const g = ev.guide; const tk = (d.pick && d.pick.eventTicket) || {};
   const set = (patch) => upd({ eventTicket: { ...tk, ...patch } });
+  const prof = (d.pick && d.pick.eventProfile) || {};
+  const setProf = (patch) => upd({ eventProfile: { ...prof, ...patch } });
+  const items = (d.pick && d.pick.eventItems) || {};
+  const setItem = (key, patch) => upd({ eventItems: { ...items, [key]: { ...(items[key] || {}), ...patch } } });
+  const chip = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" });
+  const profileDone = !g.profile || (g.profile || []).every((q) => q.multi ? (prof[q.key] || []).length > 0 : !!prof[q.key]);
+  const recommended = (it) => !it.recommendIf || it.recommendIf(prof);
+  const statusOf = (it) => { const st = items[it.key] || {}; return st.booked ? "✓ Booked" : st.requested ? "Requested" : st.added ? "○ Not yet booked" : it.optional ? "Optional" : null; };
   const rec = (g.ticketBands || []).find((b) => /recommended|favourite|favorite|best/i.test(b.label));
   const primary = g.ticketLink ? { label: g.ticketLinkLabel || "Buy official tickets", url: g.ticketLink } : null;
   const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
@@ -18037,6 +18090,35 @@ function EventTicketsPanel({ d, upd }) {
     {rec ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}><strong>The ticket you need:</strong> {rec.label}{rec.price ? <span style={{ color: t.inkSoft }}> — {rec.price}</span> : null}</div> : (g.ticketBands && g.ticketBands.length ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{g.ticketBands.slice(0, 3).map((b, k) => <div key={k}><strong>{b.label}</strong>{b.price ? <span style={{ color: t.inkSoft }}> — {b.price}</span> : null}</div>)}</div> : null)}
     {g.ticketNote ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 6 }}>{g.ticketNote}</div> : null}
     {g.sale ? <TicketSale sale={g.sale} title={ev.title} compact /> : null}
+    {g.profile ? (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+      {g.profile.map((q) => (<div key={q.key} style={{ marginBottom: 10 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 600, color: t.ink, marginBottom: 6 }}>{q.q}</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{q.options.map(([v, lab]) => { const on = q.multi ? (prof[q.key] || []).includes(v) : prof[q.key] === v; return <button key={v} onClick={() => setProf({ [q.key]: q.multi ? (on ? (prof[q.key] || []).filter((x) => x !== v) : [...(prof[q.key] || []), v]) : v })} style={chip(on)}>{lab}</button>; })}</div>
+      </div>))}
+    </div>) : null}
+    {g.build && profileDone ? (<div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+      {g.build.map((it, n) => { const st = items[it.key] || {}; const rec = recommended(it); return (<div key={it.key} style={{ background: t.card, border: `1px solid ${st.added ? t.pine : t.line}`, borderRadius: 12, padding: "11px 13px", opacity: rec ? 1 : .55 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: t.ink, letterSpacing: ".02em", textTransform: "uppercase" }}>{n + 1} · {it.title}</span>
+          <span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", fontWeight: 700, color: st.booked ? t.pine : t.brass }}>{statusOf(it) || (rec ? "Recommended for you" : "Not suggested for your profile")}</span>
+        </div>
+        <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 3 }}>{typeof it.why === "function" ? it.why(prof) : it.why}</div>
+        <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8, alignItems: "center" }}>
+          {it.cta ? <button onClick={() => setItem(it.key, { added: !st.added, booked: st.added ? false : st.booked })} style={chip(!!st.added)}>{st.added ? "Added ✓" : it.cta}</button> : null}
+          {st.added && it.bookable !== false ? <button onClick={() => setItem(it.key, { booked: !st.booked })} style={chip(!!st.booked)}>{st.booked ? "Booked" : "Mark booked"}</button> : null}
+          {st.added && it.links ? it.links.map((l, k) => <a key={k} href={brandedLink(l.url, { kind: "tickets", name: it.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "8px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>) : null}
+        </div>
+      </div>); })}
+    </div>) : (g.build ? <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 8 }}>Answer the two questions above and the right upgrades are recommended for you, in order.</div> : null)}
+    {g.addon && p && p.addDestNear && !(p.dests || []).some((x) => sameCity(x.city, g.addon.city)) ? (<div style={{ marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: t.ink }}>{g.addon.prompt}</div>
+      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{g.addon.note}</div>
+      <div className="vo-noprint" style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+        <button onClick={() => p.addDestNear(d.id, g.addon.city, g.addon.nights, "before")} style={chip(false)}>Yes — before {bareCity(d.city)}</button>
+        <button onClick={() => p.addDestNear(d.id, g.addon.city, g.addon.nights, "after")} style={chip(false)}>Yes — after {bareCity(d.city)}</button>
+        <span style={{ fontSize: 12.5, color: t.inkFaint }}>or carry on without</span>
+      </div>
+    </div>) : null}
     {g.access ? <AccessLayer items={g.access} year={g.sale && g.sale.year} compact /> : null}
     <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
       {primary && !g.sale ? <a href={brandedLink(primary.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "10px 18px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{primary.label}</a> : null}
@@ -18173,14 +18255,15 @@ function CitySection({ d, i, p, from, legSched }) {
     })()}
     {d.city && <GettingAroundPanel city={d.city} />}
       {d.city && isCarFree(d.city) ? <WaterArrivalPanel city={d.city} /> : null}
-      {d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
+      {d.city && PRIVATE_TRANSFER[Object.keys(PRIVATE_TRANSFER).find((c) => sameCity(c, d.city)) || ""] ? <TransferPanel d={d} legSched={legSched} /> : null}
+      {d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
       {d.city && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
           </Panel>
         : d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker city={d.city} nights={nights} pick={pick} upd={upd} fromExperience={!!d.fromExperience} /></Panel>}
-      {d.event && d.mode !== "flights" ? <EventTicketsPanel d={d} upd={upd} /> : null}
+      {d.event && d.mode !== "flights" ? <EventTicketsPanel d={d} upd={upd} p={p} /> : null}
       {/* At a ranch, a safari camp or a river lodge, "restaurants nearby" and "spas nearby" are
           not just unhelpful — they are wrong. There is nothing nearby. The property feeds you,
           guides you and has its own spa, and offering a list of the village's options makes the
@@ -18574,6 +18657,13 @@ function DayByDay({ p, sch }) {
         if (!ss || !st) return;
         if (st.stay) add(isoOf(ss.arrive), { icon: "hotel", kind: "hotel", city: st.name, name: st.stay.name, fallback: st.stay.contact || placeContact(st.stay.name), label: `Check in · ${st.stay.name || st.stay.level}`, sub: `${ss.nights} ${ss.nights === 1 ? "night" : "nights"} in ${st.name}` });
         (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
+      });
+    }
+    if (pk.eventItems && d.event) {
+      const ex = findExperience(d.event); const bl = (ex && ex.guide && ex.guide.build) || [];
+      bl.forEach((it) => { const st = pk.eventItems[it.key]; if (!st || !st.added) return;
+        const off = typeof it.day === "number" ? it.day : 1; const base = lg.arrive ? isoOf(addDays(lg.arrive, Math.min(off, Math.max(0, (d.nights || 1) - 1)))) : null; if (!base) return;
+        add(base, { icon: it.icon || "trophy", kind: "venue", city, name: it.title, label: `${st.booked ? "\u2713 " : "\u25cb "}${it.title}`, sub: st.booked ? "booked" : "not yet booked", booked: !!st.booked, time: it.time || null });
       });
     }
     if (pk.eventTicket && pk.eventTicket.booked) {
