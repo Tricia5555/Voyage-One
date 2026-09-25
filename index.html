@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M670";
+const BUILD = "M671";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10466,7 +10466,7 @@ function destCost(d, from, pax) {
   if (p.stay) { const sp = stayPrice(p.stay, nights); add(`${p.stay.name || p.stay.level} · ${nights}n`, sp.price, sp.est); }
   (p.dines || []).forEach((x) => add(x.name || `Dining · ${x.level}`, x.price));
   (p.spas || []).forEach((x) => add(x.name, x.price));
-  (p.tours || []).forEach((x) => add(x.name, x.price));
+  // things to do are never counted: their prices were estimates, and most are free or priced on the site
   (p.sports || []).forEach((x) => add(x.name, x.price));
   return { total, items, onRequest, estimated };
 }
@@ -11237,7 +11237,7 @@ function OptionRow({ selected, onClick, title, desc, sub, price, link, linkLabel
     </span>
     <span style={{ fontFamily: font.display, fontSize: 20, whiteSpace: "nowrap" }}>{price}</span>
   </button>
-  {link ? <a href={brandedLink(link, { kind: "transfer", name: title || "", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "1px 0 8px 44px", fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>{linkLabel || "Book direct"} ↗</a> : null}
+  {link ? <a href={brandedLink(link, { kind: "transfer", name: title || "", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", margin: "1px 0 8px 44px", fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>{linkLabel || "Visit the site"} ↗</a> : null}
   </div>);
 }
 const CITY_PHOTO_CACHE = {};
@@ -17632,7 +17632,10 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
   const info = useVenueInfo(city, (opts && opts.find) || name, !!found);
   const bookUrl = (opts && opts.book) || info.site;
   return (<div>
-    <OptionRow selected={!!found} onClick={() => onToggle(name, price, !!found)} title={name} desc={desc} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price={price != null ? fmt(price) : ""} />
+    {/* THINGS TO DO CARRY NO PRICE. The figures in the data were estimates — a free piazza was
+        showing over a hundred dollars — and a guess dressed as a price is worse than none. Where a
+        site exists the client sees the real price there; the trip estimate never counts these. */}
+    <OptionRow selected={!!found} onClick={() => onToggle(name, null, !!found)} title={name} desc={desc} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price="" />
     {found && (info.address || info.phone || bookUrl) ? (
       <div style={{ margin: "2px 0 10px 28px", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>
         {info.address ? <div>{info.address}</div> : null}
@@ -18723,10 +18726,10 @@ function CalendarButton({ label, event, filename, style }) {
 }
 // kept for any older data-link caller; new code uses CalendarButton
 function calendarLink(ev) { return "data:text/calendar;charset=utf-8," + encodeURIComponent(buildIcs(ev)); }
-function ItinLine({ label, sub, price }) {
+function ItinLine({ label, sub, price, noPrice }) {
   return (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "7px 0" }}>
     <span><span style={{ fontSize: 14.5, color: t.ink }}>{label}</span>{sub && <span style={{ fontSize: 12.5, color: t.inkFaint, marginLeft: 8 }}>{sub}</span>}</span>
-    <span style={{ fontFamily: font.display, fontSize: price == null ? 12.5 : 18, whiteSpace: "nowrap", color: price == null ? t.inkFaint : t.inkSoft, fontStyle: price == null ? "italic" : "normal" }}>{price == null ? "on request" : fmt(price)}</span>
+    {noPrice ? null : <span style={{ fontFamily: font.display, fontSize: price == null ? 12.5 : 18, whiteSpace: "nowrap", color: price == null ? t.inkFaint : t.inkSoft, fontStyle: price == null ? "italic" : "normal" }}>{price == null ? "on request" : fmt(price)}</span>}
   </div>);
 }
 function ItinLeg({ n, title, meta, children }) {
@@ -18856,7 +18859,7 @@ function DayByDay({ p, sch }) {
     }
     (pk.sports || []).forEach((x) => { const et = eventTimes(x.name); add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: et ? (x.evening ? et.night : et.day) : (x.evening ? "Evening session" : "Daytime"), evening: !!x.evening }); });
     (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
-    (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Experience" }));
+    (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "On your day" }));
     (pk.spas || []).forEach((x) => add(x.date, { icon: "spa", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Spa" }));
     (pk.days || []).forEach((x) => { add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Day out" }); (x.dines || []).forEach((dn) => add(dn.date, { icon: "dine", kind: "dine", city, name: dn.name, fallback: placeContact(dn.name), label: dn.name || "Dinner", sub: "Dinner" })); });
   });
@@ -19708,7 +19711,7 @@ function ItineraryView(p) {
       if (pk.stay) rows.push(<ItinLine key="s" label={pk.stay.name || pk.stay.level} sub={stayLine(pk.stay, destNights(d))} price={pk.stay.nightly * destNights(d)} />);
       (pk.dines || []).forEach((x, k) => rows.push(<ItinLine key={"d" + k} label={x.name || "Dining"} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "dining · date TBC"} price={x.price} />));
       (pk.spas || []).forEach((x, k) => rows.push(<ItinLine key={"sp" + k} label={x.name} sub="spa" price={x.price} />));
-      (pk.tours || []).forEach((x, k) => rows.push(<ItinLine key={"tr" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "tour · date TBC"} price={x.price} />));
+      (pk.tours || []).forEach((x, k) => rows.push(<ItinLine key={"tr" + k} label={x.name} sub={x.date ? "On " + fmtDay(new Date(x.date + "T00:00:00")) : "on your days · day to choose"} noPrice />));
       (pk.sports || []).forEach((x, k) => rows.push(<ItinLine key={"sp2" + k} label={x.name} sub={x.date ? "Planned for " + fmtDay(new Date(x.date + "T00:00:00")) : "sport · date TBC"} price={x.price} />));
     }
     const ls = sch.legs[i];
