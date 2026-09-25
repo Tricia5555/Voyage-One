@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M667";
+const BUILD = "M668";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12689,7 +12689,86 @@ const ONE_LIST = {
       { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-10", end: "2026-12-14", dateLabel: "December 12, 2026", nights: 4, blurb: "The Cathedral of Polo at Palermo — the Argentine Open final, the sport at its very highest level." },
     ],
     "Fútbol": [
-      { title: "The FIFA World Cup Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "", end: "", dateLabel: "Returns 2030", nights: 5, blurb: "The single most-watched match on earth. The World Cup — and its final — return in 2030." },
+      { title: "FIFA World Cup Final 2030", city: "", airport: "", airportName: "", start: "2030-07-18", end: "2030-07-22", dateLabel: "Sunday July 21, 2030 \u00b7 venue to be announced", nights: 4, photo: "FIFA World Cup trophy final", gallery: ["World Cup final stadium crowd", "Lisbon Madrid Casablanca skyline", "Football final celebration"],
+        blurb: "The biggest match in international football. Two national teams, one World Cup, one final \u2014 on Sunday 21 July 2030, in a city FIFA has yet to name.",
+        guide: {
+          cur: "$",
+          buildOnly: true,
+          venueTBA: true,
+          venueTBAText: "FIFA has confirmed the date \u2014 Sunday 21 July 2030 \u2014 but not the final venue. When it announces the city, this becomes a trip you can build here: hotel, flights, transfer, match access, matchday, dining. Until then, set the reminder above.",
+          daysTitle: "The biggest match in international football",
+          daysIntro: "Two national teams, one World Cup, one final. It is the most-watched sporting event on earth, and the demand for a seat is unlike anything else in sport: a stadium of perhaps eighty thousand against a planet that wants to be there, with FIFA\u2019s member associations, its partners, the two finalists\u2019 supporters and the football family ahead of the public. That is why tickets are difficult, and why the two ways in are fundamentally different \u2014 the standard FIFA ticket, sold in phases by application, draw and first-come sales, and OFFICIAL HOSPITALITY, which for a Voyage One client is usually the strongest route: the ticket with premium seating, a lounge or suite, food and drink, and expedited access, bought from FIFA\u2019s official channel.\n\n2030 IS THE CENTENARY WORLD CUP, hosted by SPAIN, PORTUGAL and MOROCCO, with centenary matches in URUGUAY, ARGENTINA and PARAGUAY. FIFA has confirmed the final is SUNDAY 21 JULY 2030. IT HAS NOT ANNOUNCED THE FINAL VENUE, and nothing here speculates about which city. When FIFA announces it, the city replaces this line and the trip becomes buildable \u2014 and that is the moment hotel inventory in that city becomes difficult, which is why early planning matters.",
+          ticketsTitle: "Two ways into the final",
+          tickets: "OFFICIAL FIFA HOSPITALITY is the preferred premium route. For 2026 FIFA appointed On Location as Official Hospitality Provider, with products combining a premium match ticket, premium seating, shared lounges, the FIFA Pavilion, a pitchside lounge, private suites, food and drink, entertainment, special guests, expedited stadium access and commemorative elements. The 2030 provider and package names may differ, and none is assumed; when 2030 hospitality is released, FIFA\u2019s actual inventory appears here. STANDARD FIFA TICKETS are the secondary route: sold in phases \u2014 application, draw, first-come sales, team supporter allocations and an official resale exchange \u2014 in four categories, Category 1 the best-placed and dearest, Category 4 the most affordable. 2030\u2019s structure is not assumed to match 2026\u2019s. Nothing here is bought from a reseller while FIFA can provide it.",
+          ticketBands: [
+            { label: "Official FIFA hospitality \u2014 premium ticket, seating, lounge or suite, food and drink, expedited access \u00b7 the Voyage One route", price: "2030 hospitality not yet released" },
+            { label: "Standard FIFA tickets \u2014 Categories 1 to 4, sold in phases by application, draw and first-come sales", price: "2030 sales not yet announced" },
+          ],
+          ticketNote: "Everything is decided in Build this trip, in order, once FIFA names the city: dates, hotel, flights, the transfer, then how you experience the final, then matchday transport, dining and the host city. Nothing is bought on this page.",
+          pricing: { year: 2030, basisYear: 2026,
+            rows: [
+              { label: "Standard World Cup Final ticket", est: "$2,000\u2013$7,000+ per person", note: "2026 original face value: Category 1 $6,730 \u00b7 Category 2 about $4,200 \u00b7 Category 3 $2,790 \u00b7 Category 4 $2,030. FIFA used variable pricing in 2026, changing between sales phases with demand \u2014 historical figures, not 2030 prices. A $60 supporter entry tier also existed, even for the final: a very limited allocation through participating national associations, and not a planning assumption." },
+              { label: "Official FIFA hospitality", est: "$3,000\u2013$10,000+ per person", note: "Premium shared hospitality. 2026 listings started in the low thousands and rose as the tournament approached; higher-level products cost materially more." },
+              { label: "Premium and private hospitality", est: "$10,000\u2013$25,000+ per person", note: "Private suites, pitchside experiences and the highest-level hospitality; elite suites and bespoke offerings potentially significantly higher." },
+            ],
+            current: null,
+            positioning: "A client should know before building whether this is a $2,000 ticket or a $10,000-plus premium experience. For the Voyage One client, official FIFA hospitality is usually the strongest route; plan on $3,000\u2013$10,000+ per person for premium shared hospitality, and $10,000\u2013$25,000+ for private or top-tier.",
+            disclaimer: "2030 FIFA World Cup Final pricing has not yet been announced. These figures are planning estimates based on official and published 2026 World Cup Final pricing and are intended only to indicate the likely scale of the experience. Actual 2030 pricing may differ materially." },
+          reminders: [
+            { label: "Remind me when the final city is announced", filename: "world-cup-final-2030-city.ics", ics: { title: "FIFA World Cup Final 2030 \u2014 has FIFA announced the final city?", date: "2027-06-01", url: "https://www.fifa.com/en/tournaments/mens/worldcup/2030", notes: "Check whether FIFA has named the venue for the 21 July 2030 final. Hotel inventory in that city becomes difficult the moment it is known. A Voyage One reminder." } },
+            { label: "Remind me when FIFA hospitality opens", filename: "world-cup-final-2030-hospitality.ics", ics: { title: "FIFA World Cup Final 2030 \u2014 has official hospitality opened?", date: "2029-06-01", url: "https://hospitality.fifa.com/", notes: "Check whether FIFA\u2019s official hospitality for the 2030 final has been released. Official channel first. A Voyage One reminder." } },
+            { label: "Remind me when FIFA ticket sales begin", filename: "world-cup-final-2030-tickets.ics", ics: { title: "FIFA World Cup Final 2030 \u2014 have ticket sales begun?", date: "2029-09-01", url: "https://www.fifa.com/en/tickets", notes: "Check whether FIFA\u2019s standard ticket sales phases for the 2030 final have opened. Official ticketing only. A Voyage One reminder." } },
+          ],
+          profile: [
+            { key: "route", q: "How would you like to experience the World Cup Final?", options: [["hospitality", "Official FIFA hospitality \u2014 the Voyage One route"], ["standard", "A standard FIFA ticket \u2014 apply, and hope"]] },
+          ],
+          build: [
+            { key: "access", title: "Match access", cta: "Add match access", day: 3, time: "17:00", icon: "trophy",
+              why: (pr) => pr.route === "standard" ? "Official FIFA ticketing only. The 2030 process \u2014 application, draw, first-come sales, team supporter allocation, the official resale exchange \u2014 is explained here when FIFA publishes it; the button becomes GET OFFICIAL FIFA TICKETS when sales open. Less certain than hospitality; no secondary seller while the official route exists." : "Official FIFA hospitality, from FIFA\u2019s official channel first, then its appointed provider. When 2030 packages are released you choose from FIFA\u2019s actual inventory here \u2014 ticket category, hospitality location, dining, drinks, opening time, post-match benefits, guest privileges, price, availability. No 2030 package name or price is invented before FIFA publishes.",
+              links: [{ label: "FIFA official hospitality", url: "https://hospitality.fifa.com/" }, { label: "FIFA official tickets", url: "https://www.fifa.com/en/tickets" }] },
+            { key: "matchtransport", title: "Matchday transport \u2014 hotel to the stadium and back", cta: "Add matchday transport", day: 3, time: "15:00", icon: "car",
+              why: "Only after the stadium, the ticket and the hospitality are known. A private chauffeur may be right, but FIFA\u2019s matchday access rules \u2014 road closures, the security perimeter, private-car access, hospitality entrances, drop-off points, public transport, the recommended arrival time \u2014 decide it, and we do not promise a driver reaches the stadium entrance until FIFA publishes them." },
+            { key: "matchday", title: "Matchday \u2014 Sunday 21 July 2030", cta: "Build the matchday", bookable: false, day: 3, time: "11:00", icon: "trophy",
+              why: "A late breakfast or brunch. Back to the hotel to prepare. The transfer, timed to the hospitality opening. Official FIFA hospitality; the World Cup Final; the post-match hospitality or celebration; the return. No elaborate dinner that conflicts with the final." },
+            { key: "dining", title: "Dining around the final", cta: "Plan the dinners", bookable: false, day: 1, time: "21:00", icon: "dine",
+              why: "Built only once the match timing and hospitality are known. Friday, the major destination dinner. Saturday, excellent but convenient. Sunday, nothing that conflicts with the final. Monday, the celebration or farewell lunch or dinner. From our tables in the host city." },
+            { key: "city", title: "The host city \u2014 a small, curated selection", cta: "Add a host-city experience", optional: true, bookable: false, day: 1, icon: "trophy",
+              why: "Once the city is confirmed: the major museum, a private cultural guide, the architecture, the shopping, food and wine, private cultural access, the football history, one exceptional nearby experience. Never enough to crowd the final." },
+            { key: "insider", title: "World Cup insider", cta: "Add insider opportunities", optional: true, bookable: false, day: 2, icon: "trophy",
+              why: "Legitimate official opportunities as they appear in final week: FIFA hospitality events, sponsor events, football-legend appearances, federation and national-team programs, official fan events, special programming. Each labelled PUBLIC, RSVP REQUIRED, OFFICIAL HOSPITALITY, INVITATION ONLY or REQUEST REQUIRED. None invented; none promised." },
+          ],
+          bookOrder: [
+            { what: "The reminder for the final city", when: "Now", why: "The moment FIFA names it, the best hotels there go." },
+            { what: "The hotel", when: "The day the city is announced", why: "True five-star, central, a concierge that handles a major-event weekend, VIP-capable. Not chosen for stadium proximity." },
+            { what: "Official FIFA hospitality", when: "When FIFA releases it", why: "Certainty. Official channel first." },
+            { what: "Flights", when: "When schedules open \u2014 arriving Thursday or Friday", why: "At least one full day before the match." },
+            { what: "The airport transfer", when: "Once the flight is chosen", why: "Private chauffeur, or through the hotel; timed to the arrival." },
+            { what: "Matchday transport", when: "Once access is confirmed and FIFA publishes the matchday rules", why: "The perimeter and the drop-offs decide it." },
+            { what: "Dinners", when: "Once the match timing is known", why: "Friday and Monday matter; Sunday belongs to the final." },
+          ],
+          stepsTitle: "The weekend, once the city is known",
+          steps: [
+            { h: "Thursday 18 July \u00b7 Arrive", b: "Land, the private transfer, check in, dinner." },
+            { h: "Friday 19 July \u00b7 The host city", b: "A host-city experience, lunch, shopping or culture, and the major destination dinner." },
+            { h: "Saturday 20 July \u00b7 A relaxed day", b: "A relaxed morning, a special experience, an excellent but convenient dinner." },
+            { h: "Sunday 21 July \u00b7 THE WORLD CUP FINAL", b: "Breakfast or brunch; prepare for the match; the matchday transfer; official FIFA hospitality; the final; the post-match celebration; the return to the hotel." },
+            { h: "Monday 22 July \u00b7 Depart", b: "The celebration lunch, the private transfer, home." },
+          ],
+          beyondTitle: "The direct-first rule",
+          beyond: [
+            { name: "FIFA direct", tag: "First", note: "Official hospitality and official tickets from FIFA\u2019s own channels." },
+            { name: "FIFA\u2019s official hospitality provider or authorised sales agent", tag: "Second", note: "Appointed for 2030 when FIFA announces it; not assumed to be 2026\u2019s." },
+            { name: "Anything else", tag: "Only if official inventory cannot solve it", note: "No unofficial source while official FIFA access exists." },
+          ],
+          notes: [
+            "THE FINAL VENUE IS NOT ANNOUNCED. Nothing here guesses at Madrid, Casablanca, Lisbon or anywhere else; the city appears when FIFA names it.",
+            "SET THE CITY REMINDER NOW. Hotel inventory in the host city becomes difficult the day it is known.",
+            "ARRIVE AT LEAST ONE FULL DAY BEFORE THE MATCH.",
+            "OFFICIAL HOSPITALITY IS THE VOYAGE ONE ROUTE. Certainty, seating, a complete matchday.",
+            "SUNDAY BELONGS TO THE FINAL. No conflicting reservation.",
+          ],
+          handoff: "When FIFA announces the final city, Plan this trip opens it for four nights, Thursday to Monday, with our hotels there, our tables, flights and the transfer. Hospitality and tickets from FIFA when released; the reminders are on this page.",
+        } },
       { title: "UEFA Champions League Final", city: "Madrid", airport: "MAD", airportName: "Madrid-Barajas", start: "2027-06-03", end: "2027-06-07", dateLabel: "Saturday June 5, 2027", nights: 4, photo: "Estadio Metropolitano Madrid night", gallery: ["Champions League trophy", "Madrid Gran Via evening", "Estadio Metropolitano exterior"],
         blurb: "Europe\u2019s biggest club football night. One match, two of Europe\u2019s greatest clubs, Madrid, and the trophy.",
         guide: {
@@ -14630,7 +14709,8 @@ function OneList({ onPick, onBack, onHome }) {
     // the dates. Where the pick is just the client's own shortlist, gating the button behind it
     // stranded them on the page. picksOptional says so and the button is live on arrival.
     const baseReady = !(g && g.basePicks && g.basePicks.length) || !!basePick;
-    const ready = (!needPick || !!(g && g.picksOptional) || selDays.length > 0) && baseReady;
+    const venueTBA = !!(g && g.venueTBA);   // the host city is not yet announced: inspire, price, remind — but no trip yet
+    const ready = !venueTBA && (!needPick || !!(g && g.picksOptional) || selDays.length > 0) && baseReady;
     const selDayLabels = selDays.map((d) => d.label);
     const sortedDays = selDays.map((d) => d.date).sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
@@ -14665,7 +14745,7 @@ function OneList({ onPick, onBack, onHome }) {
     const photoBand = (i, h = bandH) => (gal[i] ? (<div style={{ alignSelf: "center", width: (galW[i] || bandW), maxWidth: "94vw", margin: "8px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain /></div>) : null);
     // Never fly in on a day you hold tickets. Shown above the day list and again at the flights
     // step, so the client sets an arrival day before their first event day.
-    const arriveMsg = (g && g.arriveNote) || `Plan to arrive in ${ev.city} at least the day before your first day. From the US an overnight flight lands you the next morning, with time to settle — never fly in on a day you hold tickets. We build your arrival day in automatically.`;
+    const arriveMsg = (g && g.arriveNote) || `Plan to arrive in ${ev.city || "the host city"} at least the day before your first day. From the US an overnight flight lands you the next morning, with time to settle — never fly in on a day you hold tickets. We build your arrival day in automatically.`;
     const arriveCallout = picks ? (<div style={{ display: "flex", gap: 11, alignItems: "flex-start", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 15px", marginBottom: 14 }}>
       <span style={{ fontSize: 16, lineHeight: 1.3 }}>✈</span>
       <span style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{arriveMsg}</span>
@@ -14674,7 +14754,7 @@ function OneList({ onPick, onBack, onHome }) {
       {back(() => { setSel(null); setAecPick(null); setAecDays([]); setDayCourt({}); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.ink, lineHeight: 1.05 }}>{ev.title}</div>
-        <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city} · {ev.dateLabel}</div>
+        <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city || "Venue to be announced"} · {ev.dateLabel}</div>
         {ev.airport ? <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</div> : null}
       </div>
       {/* A single big hero here; the remaining gallery shots are woven through the body below. */}
@@ -14800,7 +14880,7 @@ function OneList({ onPick, onBack, onHome }) {
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {photoBand(1)}
-          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.pricing ? <PricingGuide pricing={g.pricing} /> : null}{g.sale && !g.buildOnly ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && !g.buildOnly ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
+          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.reminders && g.reminders.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.reminders.map((r, k) => <CalendarButton key={k} label={r.label} event={r.ics} filename={r.filename} />)}</div>) : null}{g.pricing ? <PricingGuide pricing={g.pricing} /> : null}{g.sale && !g.buildOnly ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && !g.buildOnly ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
           </div>) : null}{g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
@@ -14910,7 +14990,8 @@ function OneList({ onPick, onBack, onHome }) {
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
             {Object.keys(dineSel).length ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Table{Object.keys(dineSel).length > 1 ? "s" : ""} · </span><strong>{Object.keys(dineSel).join(", ")}</strong></div> : null}
           </div>) : null}
-          {!ready ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{multiMode ? "Choose one or more days above — tap a day, then its session & restaurant. Add as many as you like." : (aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin.")}</div> : null}
+          {!ready && venueTBA ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{g.venueTBAText || "The host city has not been announced. When it is, this becomes a trip you can build; until then, set the reminder above."}</div> : null}
+                {!ready && !venueTBA ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{multiMode ? "Choose one or more days above — tap a day, then its session & restaurant. Add as many as you like." : (aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin.")}</div> : null}
           <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
           {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
         </div>
@@ -14929,7 +15010,7 @@ function OneList({ onPick, onBack, onHome }) {
         <span style={{ position: "absolute", left: 20, right: 20, bottom: 12, fontFamily: font.display, fontSize: 25, color: t.paper, lineHeight: 1.14 }}>{ev.title}</span>
       </span>
       <span style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, padding: "16px 24px 22px" }}>
-        <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city}</span>
+        <span style={{ fontSize: 14, color: t.brassLight }}>{ev.city || "Venue to be announced"}</span>
         <span style={{ fontSize: 13.5, letterSpacing: "0.05em", color: t.brassLight, fontWeight: 500 }}>{ev.dateLabel}</span>
         <span style={{ fontSize: 14.5, color: "#D8D2C6", lineHeight: 1.55, flex: 1 }}>{ev.blurb}</span>
         {ev.airport ? <span style={{ fontSize: 12.5, color: "#B6C0B6", marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</span> : null}
