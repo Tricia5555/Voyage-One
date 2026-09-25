@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M668";
+const BUILD = "M670";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12695,7 +12695,7 @@ const ONE_LIST = {
           cur: "$",
           buildOnly: true,
           venueTBA: true,
-          venueTBAText: "FIFA has confirmed the date \u2014 Sunday 21 July 2030 \u2014 but not the final venue. When it announces the city, this becomes a trip you can build here: hotel, flights, transfer, match access, matchday, dining. Until then, set the reminder above.",
+          venueTBAText: "PLAN THIS TRIP GOES LIVE AS WE GET CLOSER. FIFA has confirmed the date \u2014 Sunday 21 July 2030 \u2014 but not the final venue. When it announces the city, this button opens the trip: hotel, flights, transfer, match access, matchday, dining. Until then, set the reminders above.",
           daysTitle: "The biggest match in international football",
           daysIntro: "Two national teams, one World Cup, one final. It is the most-watched sporting event on earth, and the demand for a seat is unlike anything else in sport: a stadium of perhaps eighty thousand against a planet that wants to be there, with FIFA\u2019s member associations, its partners, the two finalists\u2019 supporters and the football family ahead of the public. That is why tickets are difficult, and why the two ways in are fundamentally different \u2014 the standard FIFA ticket, sold in phases by application, draw and first-come sales, and OFFICIAL HOSPITALITY, which for a Voyage One client is usually the strongest route: the ticket with premium seating, a lounge or suite, food and drink, and expedited access, bought from FIFA\u2019s official channel.\n\n2030 IS THE CENTENARY WORLD CUP, hosted by SPAIN, PORTUGAL and MOROCCO, with centenary matches in URUGUAY, ARGENTINA and PARAGUAY. FIFA has confirmed the final is SUNDAY 21 JULY 2030. IT HAS NOT ANNOUNCED THE FINAL VENUE, and nothing here speculates about which city. When FIFA announces it, the city replaces this line and the trip becomes buildable \u2014 and that is the moment hotel inventory in that city becomes difficult, which is why early planning matters.",
           ticketsTitle: "Two ways into the final",
@@ -14990,10 +14990,10 @@ function OneList({ onPick, onBack, onHome }) {
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
             {Object.keys(dineSel).length ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Table{Object.keys(dineSel).length > 1 ? "s" : ""} · </span><strong>{Object.keys(dineSel).join(", ")}</strong></div> : null}
           </div>) : null}
-          {!ready && venueTBA ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{g.venueTBAText || "The host city has not been announced. When it is, this becomes a trip you can build; until then, set the reminder above."}</div> : null}
-                {!ready && !venueTBA ? <div style={{ fontSize: 13.5, color: t.inkFaint, marginBottom: 10 }}>{multiMode ? "Choose one or more days above — tap a day, then its session & restaurant. Add as many as you like." : (aecPick ? "Tick your exact day(s) above to continue." : "Choose your days above to begin.")}</div> : null}
           <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
           {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
+          {!ready && venueTBA ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{g.venueTBAText || "The host city has not been announced. When it is, this becomes a trip you can build; until then, set the reminder above."}</div> : null}
+          {!ready && !venueTBA ? <div style={{ fontSize: 13.5, color: t.ink, fontWeight: 600, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>Plan this trip goes live once you have chosen {multiMode ? "your days above — tap a day, then its session and restaurant" : (aecPick ? "your exact days above" : "a day above")}.</div> : null}
         </div>
       </div>
     </div>);
