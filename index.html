@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M673";
+const BUILD = "M674";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12468,11 +12468,31 @@ const ONE_LIST = {
         pickSettle: "We suggest arriving in Rome a day ahead — and the smartest trips take two tournament days, ideally one afternoon session to roam and one marquee night session. You'll set your nights next.",
         daysIntro: "First, the day — and here's the insider truth: for a tennis lover, the final is not always the best day. The Round of 16 through the quarter-finals is when the Foro Italico is most alive: both draws still strong, matches on every court at once, and Stadio Pietrangeli humming. Finals weekend is for prestige and the trophy. Choose your day, then your seats: the Foro Italico Club Suite (courtside and backstage), the Foro Italico Club, or simply a superb seat on Campo Centrale. Prices are estimates, per person; we confirm with our Rome contacts before anything is committed.",
         dayPicks: [
-          { label: "A grounds day · early rounds", dates: "First week · ~8 May 2027", date: "2027-05-08", note: "The connoisseur's day — every court in play, top players on the practice courts, and Pietrangeli at its best. The most tennis, the most discovery, the lowest prices." },
-          { label: "Round of 16", dates: "~11 May 2027", date: "2027-05-11", note: "The draw narrows but the names don't — the last sixteen of both tours, matches all day across the courts. Star power and freedom to roam, together." },
-          { label: "Quarter-finals", dates: "~13 May 2027", date: "2027-05-13", note: "Our pick for the pure tennis lover — eight left in each draw, the best quality-to-occasion day of the fortnight, and the grounds still full of energy." },
-          { label: "Semi-finals", dates: "~15 May 2027", date: "2027-05-15", note: "The last four, the tension rising, Campo Centrale at full voice — the drama concentrating toward the trophy." },
-          { label: "The Final", dates: "Sun ~16 May 2027", date: "2027-05-16", note: "The championship on Campo Centrale — prestige, the trophy, and the summit of the Rome clay. For those who want the title match above all." },
+          { label: "A grounds day · early rounds", dates: "First week · ~8 May 2027", date: "2027-05-08", band: "Seat ≈ €80 · Club Suite ≈ €450 · 2026 pricing, as a guide", note: "The connoisseur's day — every court in play, top players on the practice courts, and Pietrangeli at its best. The most tennis, the most discovery, the lowest prices.", tiers: [
+            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €450 pp · 2026 as a guide" },
+            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €280 pp · 2026 as a guide" },
+            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €80 pp · 2026 as a guide" },
+          ] },
+          { label: "Round of 16", dates: "~11 May 2027", date: "2027-05-11", band: "Seat ≈ €120 · Club Suite ≈ €600 · 2026 pricing, as a guide", note: "The draw narrows but the names don't — the last sixteen of both tours, matches all day across the courts. Star power and freedom to roam, together.", tiers: [
+            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €600 pp · 2026 as a guide" },
+            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €380 pp · 2026 as a guide" },
+            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €120 pp · 2026 as a guide" },
+          ] },
+          { label: "Quarter-finals", dates: "~13 May 2027", date: "2027-05-13", band: "Seat ≈ €160 · Club Suite ≈ €800 · 2026 pricing, as a guide", note: "Our pick for the pure tennis lover — eight left in each draw, the best quality-to-occasion day of the fortnight, and the grounds still full of energy.", tiers: [
+            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €800 pp · 2026 as a guide" },
+            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €500 pp · 2026 as a guide" },
+            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €160 pp · 2026 as a guide" },
+          ] },
+          { label: "Semi-finals", dates: "~15 May 2027", date: "2027-05-15", band: "Seat ≈ €230 · Club Suite ≈ €1,100 · 2026 pricing, as a guide", note: "The last four, the tension rising, Campo Centrale at full voice — the drama concentrating toward the trophy.", tiers: [
+            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €1,100 pp · 2026 as a guide" },
+            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €700 pp · 2026 as a guide" },
+            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €230 pp · 2026 as a guide" },
+          ] },
+          { label: "The Final", dates: "Sun ~16 May 2027", date: "2027-05-16", band: "Seat ≈ €350 · Club Suite ≈ €1,600 · 2026 pricing, as a guide", note: "The championship on Campo Centrale — prestige, the trophy, and the summit of the Rome clay. For those who want the title match above all.", tiers: [
+            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €1,600 pp · 2026 as a guide" },
+            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €1,000 pp · 2026 as a guide" },
+            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €350 pp · 2026 as a guide" },
+          ] },
         ],
         daysSubTitle: "The fortnight",
         days: "The Internazionali BNL d'Italia runs a fortnight on the red clay of the Foro Italico — Mussolini-era marble, umbrella pines and, on Stadio Pietrangeli, a ring of classical statues watching the tennis. Do both a day session and a night session: the day for wandering the grounds, the practice courts and Pietrangeli; the night for a single marquee match on Campo Centrale under the lights, glamorous and event-like. Two days is the minimum to do it properly.",
@@ -12486,7 +12506,7 @@ const ONE_LIST = {
         ],
         sale: { status: "open", year: "2027", by: "the Internazionali BNL d\u2019Italia", city: "Rome, Italy", slug: "italian-open-2027", buyUrl: "https://www.ticketone.it/en/artist/tennis-internazionali-bnl-d-italia/", buyLabel: "Buy official Italian Open tickets", infoUrl: "https://www.internazionalibnlditalia.com/en/home" },
         ticketLinks: [{ label: "Internazionali BNL d\u2019Italia \u2014 official site", url: "https://www.internazionalibnlditalia.com/en/home" }],
-        ticketNote: "2027 tickets are ON SALE NOW, sold by the tournament through TicketOne, its official ticketing partner; the tournament runs 27 April to 16 May, with Campo Centrale sessions from 5 May. Prices are the tournament\u2019s own and are shown on the site. Hospitality is not automatically better because it costs more \u2014 for a serious fan a great seat and the freedom to roam the grounds can beat hours in a lounge. For hospitality suites, Sophie Walker at Sporting Agenda (sophiewalker@sportingagenda.co.uk) is our partner.",
+        ticketNote: "The day-by-day figures are LAST YEAR\u2019S prices, shown as a guide to the scale; 2027 tickets are ON SALE NOW, sold by the tournament through TicketOne, its official ticketing partner; the tournament runs 27 April to 16 May, with Campo Centrale sessions from 5 May. Prices are the tournament\u2019s own and are shown on the site. Hospitality is not automatically better because it costs more \u2014 for a serious fan a great seat and the freedom to roam the grounds can beat hours in a lounge. For hospitality suites, Sophie Walker at Sporting Agenda (sophiewalker@sportingagenda.co.uk) is our partner.",
         stayNote: "The clever move is not the closest hotel — it's the one that gives you both easy Foro Italico access and a real Rome. That means staying on the northern, central side of the city, a short run from the courts. Our default does exactly that; an ultra-luxury alternative and a tennis-first resort follow.",
         stay: [
           { name: "Hotel de Russie", area: "Piazza del Popolo · best overall", rate: 1300, note: "Rocco Forte's hotel by Piazza del Popolo, with its famous terraced garden — the smartest base for the Italian Open: an easy run to the Foro Italico and a glorious central Rome, with the best garden in the city for post-tennis drinks. (Estimated.)" },
@@ -14708,7 +14728,7 @@ function OneList({ onPick, onBack, onHome }) {
   // Arts & Culture holds five categories, and 2-2-1 left an orphan on the bottom row. Three across
   // the top and two centred beneath is balanced.
   const TYPE_ROWS = { "Sport": [3, 3], "Arts & Culture": [3, 2], "Signature Journeys": [2, 2] };
-  const EVENT_ROWS = { "Golf": [2, 1], "Horse Racing & Polo": [2, 1, 2], "Gardens & The Season": [1], "Fútbol": [3] };
+  const EVENT_ROWS = { "Golf": [1], "Tennis": [2, 1], "Horse Racing & Polo": [2, 1, 2], "Gardens & The Season": [1], "Fútbol": [3] };
   const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
     <button onClick={fn} style={NAV_PILL}><ArrowLeft size={15} /> {label}</button>
