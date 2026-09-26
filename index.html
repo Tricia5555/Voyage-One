@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M677";
+const BUILD = "M678";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13580,12 +13580,24 @@ notes: [
         pickSettle: "Be in Siena for the days around the race — the trials and the contrada dinner are the heart of it, and never arrive on race day itself. You'll set your exact nights next.",
         daysIntro: "First, choose the race and your position on the Campo — that sets your date and your view. Prices are per person and estimated; we confirm exact figures with our Siena contacts when we hold the balcony. How many nights in Siena is a separate question we ask next.",
         dayPicks: [
-          { label: "Palio di Provenzano · July", dates: "July 2, 2027", date: "2027-07-02", note: "Our slightly preferred date — kinder weather, fits a broader European summer, less August congestion." },
-          { label: "Palio dell'Assunta · August", dates: "August 16, 2027", date: "2027-08-16", note: "The Assunta — the mid-August race, at peak summer intensity." },
+          { label: "Palio di Provenzano · July", dates: "July 2, 2027", date: "2027-07-02", note: "Our slightly preferred date — kinder weather, fits a broader European summer, less August congestion.", tiers: [
+              { tier: "Mossa premier balcony \u2014 seated", label: "The start and finish, seated \u00b7 Voyage One favourite \u00b7 estimated from \u20ac690 pp, 2026" },
+              { tier: "Seated balcony \u2014 Casato or Fonte Gaia", label: "Seated balcony \u00b7 estimated from \u20ac575 pp, 2026" },
+              { tier: "Reserved palco seating", label: "Reserved palco \u00b7 estimated from \u20ac520 pp, 2026" },
+              { tier: "Standing balcony", label: "Elevated and assigned, no chair \u00b7 estimated from \u20ac450 pp, 2026" },
+              { tier: "Private balcony or window", label: "Families, groups, privacy \u00b7 price on current availability" },
+            ] },
+          { label: "Palio dell'Assunta · August", dates: "August 16, 2027", date: "2027-08-16", note: "The Assunta — the mid-August race, at peak summer intensity.", tiers: [
+              { tier: "Mossa premier balcony \u2014 seated", label: "The start and finish, seated \u00b7 Voyage One favourite \u00b7 estimated from \u20ac690 pp, 2026" },
+              { tier: "Seated balcony \u2014 Casato or Fonte Gaia", label: "Seated balcony \u00b7 estimated from \u20ac575 pp, 2026" },
+              { tier: "Reserved palco seating", label: "Reserved palco \u00b7 estimated from \u20ac520 pp, 2026" },
+              { tier: "Standing balcony", label: "Elevated and assigned, no chair \u00b7 estimated from \u20ac450 pp, 2026" },
+              { tier: "Private balcony or window", label: "Families, groups, privacy \u00b7 price on current availability" },
+            ] },
         ],
         daysSubTitle: "The rhythm",
         days: "Four nights, five days, lived inside the walls of Siena. The 90-second race is the climax — but the trials, the contrada dinners and the city at fever pitch are the real experience. July is slightly preferred; both the July 2 (Provenzano) and August 16 (Assunta) Palii can be arranged.",
-        ticketsTitle: "Choose your Palio experience",
+        ticketsTitle: "Choose your Palio \u2014 the race, then your seat",
         tickets: "Twice each summer, Siena\u2019s Piazza del Campo becomes the stage for the Palio \u2014 a centuries-old bareback horse race between the city\u2019s contrade. The race lasts minutes; the days around it are the experience. Voyage One recommends a reserved balcony or palco overlooking the square, never standing in the centre of the Campo \u2014 free, but several hours in an extreme crowd with no way out. In order of preference: the MOSSA seated balcony, then Casato or Fonte Gaia seated, then a reserved palco, then a standing balcony.",
         ticketBands: [
           { label: "Mossa premier balcony \u2014 the start and finish, seated \u00b7 Voyage One favourite", price: "Estimated from \u20ac690 pp" },
