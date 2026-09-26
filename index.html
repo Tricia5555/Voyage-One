@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M671";
+const BUILD = "M673";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12177,10 +12177,84 @@ const ONE_LIST = {
       { title: "British Grand Prix", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-01", end: "2027-07-05", dateLabel: "July 2–4, 2027", nights: 4, blurb: "Paddock and VIP access at Silverstone — a roaring home crowd and the fastest corners in Formula 1." },
       { title: "Le Mans 24 Hours", city: "Le Mans, France", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-11", end: "2027-06-14", dateLabel: "June 12–13, 2027", nights: 3, blurb: "Twice around the clock at the greatest endurance race — VIP suites trackside through the night." },
     ],
+    // THE MASTERS was removed 26 Sept 2026: Augusta tickets cannot be relied on and Augusta has no
+    // hotel at the standard. THE RYDER CUP 2027 (Adare Manor) was removed the same day: only the
+    // players and their teams stay at Adare and there is nowhere else near it we would put our
+    // name to. The next Ryder Cup is 2029 at Hazeltine, Minnesota — Minneapolis has hotels; build
+    // it when the time comes. Both entries can be restored from the file history.
     "Golf": [
-      { title: "The Masters", city: "Augusta", airport: "AGS", airportName: "Augusta Regional", start: "2027-04-07", end: "2027-04-12", dateLabel: "Apr 8–11, 2027", nights: 5, blurb: "The most coveted ticket in golf — azaleas, Amen Corner, a green jacket on Sunday." },
-      { title: "The Open Championship · St Andrews", city: "St Andrews, Scotland", airport: "EDI", airportName: "Edinburgh", start: "2027-07-14", end: "2027-07-19", dateLabel: "July 11–18, 2027", nights: 5, blurb: "Golf's oldest major, on the Old Course where the game itself was born." },
-      { title: "The Ryder Cup", city: "Adare, Ireland", airport: "SNN", airportName: "Shannon", start: "2027-09-16", end: "2027-09-20", dateLabel: "Sep 17–19, 2027", nights: 4, blurb: "Europe and America at Adare Manor — a castle estate, roaring galleries and an Irish welcome." },
+      { title: "The Open Championship \u00b7 St Andrews", city: "St Andrews, Scotland", airport: "EDI", airportName: "Edinburgh", start: "2027-07-13", end: "2027-07-19", dateLabel: "July 15\u201318, 2027 \u00b7 practice from the 12th", nights: 6, photo: "Old Course St Andrews Swilcan Bridge", gallery: ["St Andrews Old Course 18th green", "Rusacks St Andrews", "St Andrews West Sands beach"],
+        blurb: "The 155th Open, on the Old Course \u2014 golf\u2019s oldest major, back at the home of the game for the thirty-first time.",
+        guide: {
+          cur: "\u00a3",
+          buildOnly: true,
+          daysTitle: "What this week is",
+          daysIntro: "The Open is the oldest championship in golf, and every fifth year it comes home: the OLD COURSE AT ST ANDREWS, where the game was first played, and where the eighteenth green sits in the middle of a town. In 2027 it is the 155th Open, 15\u201318 July, practice days from the 12th \u2014 a hundred years to the week since Bobby Jones won there in 1927. Nothing in golf looks like a Sunday at St Andrews: the Swilcan Bridge, the Road Hole, the grandstands wrapped around the last green and the town\u2019s windows above them.\n\nTHIS IS THE ONE TO BUILD A WEEK AROUND, because St Andrews itself is the rare championship venue with hotels at the standard on the course: the Old Course Hotel over the seventeenth, Rusacks on the eighteenth, the Fairmont on the cliffs. Tickets come two ways \u2014 general admission through The R&A\u2019s ballot, and official hospitality sold by The Open direct \u2014 and the town fills a year ahead. Everything is chosen in Build this trip.",
+          stayWord: "hotel",
+          stayLead: "Where to stay \u2014 on the course",
+          stayNote: "Three hotels at the standard, and all three are on or beside the Old Course \u2014 which at The Open is everything, because the town is closed to cars and you walk to the gates. RUSACKS first: it stands on the eighteenth, with the green below the windows. The OLD COURSE HOTEL wraps the seventeenth, the Road Hole, with its own spa. The FAIRMONT is on the cliffs two miles out with a shuttle. Book the moment dates are fixed; Open week at St Andrews sells a year ahead.",
+          stay: [
+            { name: "Rusacks St Andrews", area: "On the 18th \u00b7 the town", note: "THE ADDRESS FOR THE OPEN. The hotel stands over the eighteenth fairway; the rooftop and the front rooms look straight down the last hole to the R&A clubhouse. Walk out of the door and you are at the gates." },
+            { name: "Old Course Hotel, Golf Resort & Spa", area: "On the 17th \u00b7 the Road Hole", note: "Wrapped around the seventeenth \u2014 the Road Hole \u2014 with the Jigger Inn at its foot and a proper spa for the evenings. The other great Open address, a few minutes\u2019 walk along the course to the town." },
+            { name: "Fairmont St Andrews", area: "The cliffs \u00b7 two miles out", note: "Above the sea on the Kingsbarns side, with two courses of its own and space; a shuttle into town during the championship. For a client who wants the resort rather than the town." },
+          ],
+          ticketsTitle: "Two ways into The Open",
+          tickets: "GENERAL ADMISSION is sold by The R&A through THE OPEN BALLOT: you register with The One Club, the ballot runs in the late summer of the year before, and tickets are allocated by draw \u2014 one of the fairest systems in sport, and one of the least certain. OFFICIAL HOSPITALITY is sold by The Open direct: a championship ticket with a hospitality facility on the course, dining and a bar, grandstand access and priority entry, by the day. It is the certain route and the Voyage One recommendation for the championship days. Practice days, 12\u201314 July, are easier to come by and are a wonderful way to walk the Old Course with the players on it. Nothing here is bought from a reseller while The R&A can provide it.",
+          ticketBands: [
+            { label: "Official hospitality \u2014 championship days, sold by The Open direct \u00b7 the certain route", price: "Official pricing when released" },
+            { label: "General admission \u2014 The Open Ballot, through The One Club", price: "By draw" },
+            { label: "Practice days \u2014 12 to 14 July", price: "Official pricing when released" },
+          ],
+          ticketNote: "Everything is chosen in Build this trip, in order: dates, hotel, flights, transfer, then how you attend, then the days, dinners and the rest of Fife. Nothing is bought on this page. For premium hospitality and boxes, Sophie Walker at Sporting Agenda (sophiewalker@sportingagenda.co.uk) is our partner.",
+          sale: { status: "unknown", year: "2027", by: "The R&A", city: "St Andrews, Scotland", slug: "the-open-2027", remindDate: "2026-10-15", remindWhy: "the ballot and official hospitality for a July Open typically open in the late summer and autumn of the year before", infoUrl: "https://www.theopen.com/tickets", buyUrl: "", remindNote: "The 155th Open, St Andrews, 15\u201318 July 2027 \u2014 check whether The R&A has opened the ballot and official hospitality. Register with The One Club first. A Voyage One reminder." },
+          profile: [
+            { key: "route", q: "How would you like to attend?", options: [["hospitality", "Official hospitality \u2014 the certain route"], ["ballot", "General admission through the ballot"], ["both", "Hospitality for the weekend, general admission for practice"]] },
+          ],
+          build: [
+            { key: "access", title: "Tickets and hospitality", cta: "Add tickets", day: 2, time: "08:00", icon: "trophy",
+              why: (pr) => pr.route === "ballot" ? "Register with The One Club and enter The Open Ballot when it opens; tickets are allocated by draw for each day. Less certain; if you are not drawn, hospitality is the fallback and it sells out. Official channels only." : pr.route === "both" ? "Official hospitality for the championship days you care about most \u2014 the weekend \u2014 and ballot or practice-day tickets for the rest of the week. The best of both, at less than hospitality all week." : "Official hospitality from The Open direct: a championship ticket with a hospitality facility on the course, dining and a bar, grandstand access and priority entry, by the day. When The R&A publishes the 2027 facilities and prices they appear here; nothing is invented before then.",
+              links: [{ label: "The Open \u2014 official tickets", url: "https://www.theopen.com/tickets" }, { label: "The Open \u2014 official hospitality", url: "https://www.theopen.com/hospitality" }] },
+            { key: "days", title: "Which days", cta: "Choose the days", bookable: false, day: 2, icon: "trophy",
+              why: "Thursday and Friday are the whole field and the calmest crowds; Saturday is moving day; SUNDAY IS THE ONE \u2014 the walk up the eighteenth, the town at the windows, the Claret Jug. A practice day, 12\u201314 July, is the Old Course with the players on it and room to breathe. Most clients take two championship days and one practice day." },
+            { key: "walk", title: "Walk the Old Course", cta: "Add to a practice day", bookable: false, optional: true, day: 0, icon: "trophy",
+              why: "On a practice day you can walk the whole course behind the players \u2014 the Road Hole, the Swilcan Bridge, the shared greens \u2014 which on championship days the grandstands and ropes make impossible. Do it once." },
+            { key: "fife", title: "The rest of Fife", cta: "Add a day out", bookable: false, optional: true, day: 5, icon: "trophy",
+              why: "Kingsbarns and Carnoustie if you play; the East Neuk fishing villages \u2014 Crail, Anstruther, Elie \u2014 and the Fife coastal path; Edinburgh an hour away for a night before or after. Not too much; the championship is the week." },
+            { key: "dining", title: "Dinner in St Andrews", cta: "Plan the dinners", bookable: false, day: 1, time: "20:00", icon: "dine",
+              why: "The town is small and Open week fills every table months out. Book the hotel dining rooms first \u2014 Rusacks\u2019 rooftop, the Old Course\u2019s Road Hole restaurant \u2014 then the town. Sunday night after the presentation is the one that matters." },
+          ],
+          bookOrder: [
+            { what: "The hotel", when: "Now", why: "Open week at St Andrews sells a year ahead; Rusacks and the Old Course go first." },
+            { what: "The One Club registration and the ballot", when: "Now, and when the ballot opens", why: "Free to register; the ballot is the only official route to general admission." },
+            { what: "Official hospitality", when: "When The Open releases it \u2014 the reminder is set", why: "The certain route. Sunday sells first." },
+            { what: "Flights to Edinburgh", when: "When schedules open", why: "Ninety minutes by road; Heathrow\u2019s assistance and a connection, or a direct from the US in season." },
+            { what: "The transfer", when: "Once the flight is chosen", why: "Private car to St Andrews; the town is closed to cars in Open week, so the hotel says where the driver stops." },
+            { what: "Dinners", when: "Months ahead", why: "A small town, full for a week." },
+          ],
+          stepsTitle: "The week",
+          steps: [
+            { h: "Tuesday 13 July \u00b7 Arrive", b: "Land at Edinburgh, the private transfer ninety minutes to St Andrews, and in at Rusacks or the Old Course Hotel. A walk to the eighteenth green before dinner." },
+            { h: "Wednesday 14 July \u00b7 Practice day", b: "Walk the whole Old Course behind the players \u2014 the only day you can. Lunch in the town; the evening in the hotel." },
+            { h: "Thursday 15 and Friday 16 July \u00b7 The championship begins", b: "The full field, the calmest crowds, and \u2014 if you have hospitality \u2014 a base with a view. Dinner in town." },
+            { h: "Saturday 17 July \u00b7 Moving day", b: "The cut is made, the leaders emerge, and the town starts to feel it. A day at the course, or half a day and the East Neuk." },
+            { h: "Sunday 18 July \u00b7 The Claret Jug", b: "The whole day at the course; the walk up the eighteenth; the presentation on the green. Dinner afterwards is the night of the week." },
+            { h: "Monday 19 July \u00b7 Depart", b: "The transfer to Edinburgh \u2014 or a night in Edinburgh first." },
+          ],
+          beyondTitle: "Around the championship",
+          beyond: [
+            { name: "Kingsbarns and Carnoustie", note: "Two of the great links within an hour, if you play. Kingsbarns is fifteen minutes; Carnoustie across the Tay." },
+            { name: "The East Neuk", note: "Crail, Anstruther and Elie \u2014 the fishing villages down the coast, and the best fish supper in Scotland at Anstruther." },
+            { name: "Edinburgh", note: "An hour south. A night before or after, with our Edinburgh hotels." },
+          ],
+          notes: [
+            "BOOK THE HOTEL NOW. Open week at St Andrews is the hardest week of the year to find a room, and only three hotels meet the standard.",
+            "REGISTER WITH THE ONE CLUB. It is free, it is the only door to the ballot, and the reminder tells you when the ballot opens.",
+            "SUNDAY SELLS FIRST. If hospitality is the route, secure Sunday before anything else.",
+            "THE TOWN CLOSES TO CARS. Stay on the course and walk; the hotel tells the driver where to stop.",
+            "IT RAINS AT ST ANDREWS IN JULY. It also shines. Bring both.",
+          ],
+          handoff: "Plan this trip opens ST ANDREWS for six nights with Rusacks, the Old Course Hotel and the Fairmont, flights into Edinburgh and the transfer. Tickets through The R&A\u2019s ballot and official hospitality when released; the reminder is on the card. Sophie Walker at Sporting Agenda for premium hospitality.",
+        } },
     ],
     "Tennis": [
       { title: "Wimbledon", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-10", end: "2027-07-11", dateLabel: "June 28–July 11, 2027", nights: 5, photo: "/images/wimbledon-centre-court.jpg", gallery: ["/images/wimbledon-centre-court.jpg", "/images/wimbledon-draw-board.jpg", "All England Lawn Tennis Club", "Wimbledon grounds"], blurb: "Strawberries and cream, the ivy running up the walls, the sound of the ball on the grass — it is all simply elevated at the All England Club.", guide: {
@@ -12212,6 +12286,7 @@ const ONE_LIST = {
           ] },
         ],
         days: "There is no ordinary day at Wimbledon, but they are far from equal. Contrary to the myth, the first week is not blissfully uncrowded — it is busy and gloriously alive. What it offers instead is breadth: every top seed on court, and the chance to see all your favorite players in a single day. As the fortnight narrows, the tennis sharpens and the prices climb toward the finals.",
+        ticketContact: "Tickets and hospitality are arranged through SOPHIE WALKER at Sporting Agenda, our partner for Wimbledon, Roland-Garros and the Italian Open \u2014 sophiewalker@sportingagenda.co.uk \u00b7 +44 (0) 1488 649 770 \u00b7 toll-free from the US +1 866 508 8467 \u00b7 sportingagenda.co.uk. Tell her the days you want and the level; she confirms what is available and invoices in sterling.",
         stayNote: "We prefer to stay in London so we can take advantage of all the great shopping and dining when not at the AEC. So, here are our picks for a truly great London hotel.",
         stay: [
           { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", rate: 1150, note: "In Chelsea, so a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
@@ -12354,6 +12429,7 @@ const ONE_LIST = {
         ],
         daysSubTitle: "The fortnight",
         days: "A fortnight on the red clay of the Bois de Boulogne — the longest, most physical tennis of the year. The first week is for roaming (every court in play, stars everywhere, the best value); the second week concentrates the drama on Chatrier under the roof and lights. Do both a day session and a night session if you can — they feel completely different.",
+        ticketContact: "Tickets and hospitality are arranged through SOPHIE WALKER at Sporting Agenda, our partner for Wimbledon, Roland-Garros and the Italian Open \u2014 sophiewalker@sportingagenda.co.uk \u00b7 +44 (0) 1488 649 770 \u00b7 toll-free from the US +1 866 508 8467 \u00b7 sportingagenda.co.uk. Tell her the days you want and the level; she confirms what is available and invoices in sterling.",
         stayNote: "Here's the insider move: the players' Paris is the leafy 16th, out by the Bois de Boulogne — not the central palaces. So we base you in fabulous hotels on that side of the city, closer to the courts than most (roughly 10–20 minutes) without sacrificing an ounce of glamour. Prefer the thick of central Paris? Choose any address in the full collection below — the Ritz, Le Bristol, Cheval Blanc and the rest — and we'll arrange the cars.",
         stayCollection: "Paris",
         stay: [
@@ -12392,43 +12468,25 @@ const ONE_LIST = {
         pickSettle: "We suggest arriving in Rome a day ahead — and the smartest trips take two tournament days, ideally one afternoon session to roam and one marquee night session. You'll set your nights next.",
         daysIntro: "First, the day — and here's the insider truth: for a tennis lover, the final is not always the best day. The Round of 16 through the quarter-finals is when the Foro Italico is most alive: both draws still strong, matches on every court at once, and Stadio Pietrangeli humming. Finals weekend is for prestige and the trophy. Choose your day, then your seats: the Foro Italico Club Suite (courtside and backstage), the Foro Italico Club, or simply a superb seat on Campo Centrale. Prices are estimates, per person; we confirm with our Rome contacts before anything is committed.",
         dayPicks: [
-          { label: "A grounds day · early rounds", dates: "First week · ~8 May 2027", date: "2027-05-08", band: "Seat ≈ €80 · Club Suite ≈ €450 · est.", note: "The connoisseur's day — every court in play, top players on the practice courts, and Pietrangeli at its best. The most tennis, the most discovery, the lowest prices.", tiers: [
-            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €450 pp est." },
-            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €280 pp est." },
-            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €80 pp est." },
-          ] },
-          { label: "Round of 16", dates: "~11 May 2027", date: "2027-05-11", band: "Seat ≈ €120 · Club Suite ≈ €600 · est.", note: "The draw narrows but the names don't — the last sixteen of both tours, matches all day across the courts. Star power and freedom to roam, together.", tiers: [
-            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €600 pp est." },
-            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €380 pp est." },
-            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €120 pp est." },
-          ] },
-          { label: "Quarter-finals", dates: "~13 May 2027", date: "2027-05-13", band: "Seat ≈ €160 · Club Suite ≈ €800 · est.", note: "Our pick for the pure tennis lover — eight left in each draw, the best quality-to-occasion day of the fortnight, and the grounds still full of energy.", tiers: [
-            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €800 pp est." },
-            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €500 pp est." },
-            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €160 pp est." },
-          ] },
-          { label: "Semi-finals", dates: "~15 May 2027", date: "2027-05-15", band: "Seat ≈ €230 · Club Suite ≈ €1,100 · est.", note: "The last four, the tension rising, Campo Centrale at full voice — the drama concentrating toward the trophy.", tiers: [
-            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €1,100 pp est." },
-            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €700 pp est." },
-            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €230 pp est." },
-          ] },
-          { label: "The Final", dates: "Sun ~16 May 2027", date: "2027-05-16", band: "Seat ≈ €350 · Club Suite ≈ €1,600 · est.", note: "The championship on Campo Centrale — prestige, the trophy, and the summit of the Rome clay. For those who want the title match above all.", tiers: [
-            { tier: "Foro Italico Club Suite — courtside & backstage", label: "Club Suite · ≈ €1,600 pp est." },
-            { tier: "Foro Italico Club — premium hospitality", label: "Foro Italico Club · ≈ €1,000 pp est." },
-            { tier: "Campo Centrale — superb seat, no lounge", label: "Centrale seat · ≈ €350 pp est." },
-          ] },
+          { label: "A grounds day · early rounds", dates: "First week · ~8 May 2027", date: "2027-05-08", note: "The connoisseur's day — every court in play, top players on the practice courts, and Pietrangeli at its best. The most tennis, the most discovery, the lowest prices." },
+          { label: "Round of 16", dates: "~11 May 2027", date: "2027-05-11", note: "The draw narrows but the names don't — the last sixteen of both tours, matches all day across the courts. Star power and freedom to roam, together." },
+          { label: "Quarter-finals", dates: "~13 May 2027", date: "2027-05-13", note: "Our pick for the pure tennis lover — eight left in each draw, the best quality-to-occasion day of the fortnight, and the grounds still full of energy." },
+          { label: "Semi-finals", dates: "~15 May 2027", date: "2027-05-15", note: "The last four, the tension rising, Campo Centrale at full voice — the drama concentrating toward the trophy." },
+          { label: "The Final", dates: "Sun ~16 May 2027", date: "2027-05-16", note: "The championship on Campo Centrale — prestige, the trophy, and the summit of the Rome clay. For those who want the title match above all." },
         ],
         daysSubTitle: "The fortnight",
         days: "The Internazionali BNL d'Italia runs a fortnight on the red clay of the Foro Italico — Mussolini-era marble, umbrella pines and, on Stadio Pietrangeli, a ring of classical statues watching the tennis. Do both a day session and a night session: the day for wandering the grounds, the practice courts and Pietrangeli; the night for a single marquee match on Campo Centrale under the lights, glamorous and event-like. Two days is the minimum to do it properly.",
         ticketsTitle: "Where to watch",
         tickets: "Campo Centrale is the main stage, and the Voyage One standard there is the Foro Italico Club Suite — courtside seating in the first rows, fast-track entry, reserved parking, dining, and a backstage tour by day — with the Foro Italico Club a step behind it, and a simple superb Centrale seat for the purist who would rather spend the day exploring than sitting in a lounge. But the real secret of Rome is this: do not spend the whole day on Centrale. Stadio Pietrangeli — an intimate clay court ringed by monumental marble statues — is one of the most beautiful places to watch tennis in the world, and in the early rounds superb players appear there before small crowds. Your most expensive seat may be on Centrale; some of your most memorable tennis will be on Pietrangeli.",
         ticketBands: [
-          { label: "Foro Italico Club Suite (courtside + backstage, per person)", price: "≈ €450–€1,600 est." },
-          { label: "Foro Italico Club — premium hospitality (per person)", price: "≈ €280–€1,000 est." },
-          { label: "Campo Centrale superb seat, no lounge (per person)", price: "≈ €80–€350 est." },
-          { label: "A night session on Centrale — one marquee match under lights (pp)", price: "≈ €120–€400 est." },
+          { label: "Foro Italico Club Suite \u2014 courtside, fast-track entry, dining, backstage by day", price: "Official pricing on the site" },
+          { label: "Foro Italico Club \u2014 premium hospitality", price: "Official pricing on the site" },
+          { label: "Campo Centrale seat \u2014 day or night session, no lounge", price: "Official pricing on the site" },
+          { label: "Stadio Pietrangeli \u2014 the marble court, early rounds", price: "Official pricing on the site" },
         ],
-        ticketNote: "All figures are estimates, per person, and confirmed with our Rome contacts before anything is committed. Hospitality is not automatically better because it costs more — for a serious fan, a great seat and the freedom to roam the grounds can beat hours in a lounge. The 2027 order of play is set nearer the time; we hold the right day once the schedule firms up.",
+        sale: { status: "open", year: "2027", by: "the Internazionali BNL d\u2019Italia", city: "Rome, Italy", slug: "italian-open-2027", buyUrl: "https://www.ticketone.it/en/artist/tennis-internazionali-bnl-d-italia/", buyLabel: "Buy official Italian Open tickets", infoUrl: "https://www.internazionalibnlditalia.com/en/home" },
+        ticketLinks: [{ label: "Internazionali BNL d\u2019Italia \u2014 official site", url: "https://www.internazionalibnlditalia.com/en/home" }],
+        ticketNote: "2027 tickets are ON SALE NOW, sold by the tournament through TicketOne, its official ticketing partner; the tournament runs 27 April to 16 May, with Campo Centrale sessions from 5 May. Prices are the tournament\u2019s own and are shown on the site. Hospitality is not automatically better because it costs more \u2014 for a serious fan a great seat and the freedom to roam the grounds can beat hours in a lounge. For hospitality suites, Sophie Walker at Sporting Agenda (sophiewalker@sportingagenda.co.uk) is our partner.",
         stayNote: "The clever move is not the closest hotel — it's the one that gives you both easy Foro Italico access and a real Rome. That means staying on the northern, central side of the city, a short run from the courts. Our default does exactly that; an ultra-luxury alternative and a tennis-first resort follow.",
         stay: [
           { name: "Hotel de Russie", area: "Piazza del Popolo · best overall", rate: 1300, note: "Rocco Forte's hotel by Piazza del Popolo, with its famous terraced garden — the smartest base for the Italian Open: an easy run to the Foro Italico and a glorious central Rome, with the best garden in the city for post-tennis drinks. (Estimated.)" },
