@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M678";
+const BUILD = "M679";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17875,11 +17875,19 @@ function useCityThings(city, topic) {
         // from the destination is discarded — generous enough for a region like Tuscany, and
         // nowhere near enough to reach another country's mountain. Unknown coordinates on either
         // side keep the old behaviour.
+        // THIRTY MILES, SITE-WIDE (Tricia, Sept 2026). The Uffizi and the Tower of Pisa were being
+        // offered as things to do IN SIENA. A thing to do belongs to the town it is in; anything
+        // further than a few miles is NEARBY and is said so, with the distance, and anything past
+        // thirty miles is not offered at all. Useful where a town is small and the important
+        // things are close by; wrong when it puts Florence under Siena's name.
         const here = coordsFor(city);
-        const near = (m) => !here || m.lat == null || m.lng == null || kmBetween(here, [m.lat, m.lng]) <= 120;
+        const NEARBY_MI = 30, IN_TOWN_MI = 6;
+        const miles = (m) => (!here || m.lat == null || m.lng == null) ? null : kmBetween(here, [m.lat, m.lng]) / 1.609;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!near(m)) return; if (!m.desc) return; seen.add(n.toLowerCase()); out.push([n, null, m.desc, { find: n, book: m.site || m.maps || null }]); });
-        const res = out.slice(0, 8);
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!m.desc) return;
+          const mi = miles(m); if (mi != null && mi > NEARBY_MI) return;
+          seen.add(n.toLowerCase()); out.push([n, null, m.desc, { find: n, book: m.site || m.maps || null, mi: mi == null ? null : Math.round(mi), nearby: mi != null && mi > IN_TOWN_MI }]); });
+        const res = out.slice(0, 12);
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
       .catch(() => { CITY_THINGS_CACHE[key] = []; if (!dead) setRows([]); });
@@ -17891,11 +17899,20 @@ function useCityThings(city, topic) {
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
   const live = useCityThings(city, "");
-  const rows = curated.length ? curated.concat(live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0])))) : live;
-  if (!rows.length) return null;
-  return (<Panel icon={Compass} title={curated.length ? `Days out from ${city || "this city"}` : `Things to do in ${city || "this city"}`}>
-    <ListPicker city={city} rows={rows} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
-  </Panel>);
+  const fresh = live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0])));
+  const inTown = fresh.filter((r) => !(r[3] && r[3].nearby));
+  const nearby = fresh.filter((r) => r[3] && r[3].nearby).map((r) => [r[0], r[1], `${r[3].mi} mi away \u00b7 ${r[2]}`, r[3]]);
+  const rows = curated.length ? curated.concat(inTown) : inTown;
+  if (!rows.length && !nearby.length) return null;
+  return (<>
+    {rows.length ? (<Panel icon={Compass} title={curated.length ? `Days out from ${city || "this city"}` : `Things to do in ${city || "this city"}`}>
+      <ListPicker city={city} rows={rows} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+    </Panel>) : null}
+    {nearby.length ? (<Panel icon={Compass} title={`Things to do nearby \u00b7 within 30 miles of ${bareCity(city || "")}`}>
+      <div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 8 }}>Not in {bareCity(city || "")} itself, but close enough for a half-day or a day out.</div>
+      <ListPicker city={city} rows={nearby} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+    </Panel>) : null}
+  </>);
 }
 // Spas were removed in M272. Every hotel at Ultra Luxury or Luxury has its own spa, so a list of
 // local day spas beside it was noise — the same reasoning that already suppresses dining and spa
