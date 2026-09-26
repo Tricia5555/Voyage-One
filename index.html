@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M674";
+const BUILD = "M676";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12764,7 +12764,74 @@ const ONE_LIST = {
       } },
       { title: "Melbourne Cup", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2026-11-01", end: "2026-11-04", dateLabel: "November 3, 2026", nights: 3, blurb: "The race that stops a nation — the Birdcage at Flemington, champagne and fascinators." },
       { title: "The Grand National", city: "Liverpool", airport: "MAN", airportName: "Manchester", start: "2027-04-08", end: "2027-04-11", dateLabel: "April 10, 2027", nights: 3, blurb: "The world's greatest steeplechase — Aintree at its most thrilling, hospitality above the last fence." },
-      { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-10", end: "2026-12-14", dateLabel: "December 12, 2026", nights: 4, blurb: "The Cathedral of Polo at Palermo — the Argentine Open final, the sport at its very highest level." },
+      { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-09", end: "2026-12-14", dateLabel: "Final Saturday December 12, 2026 \u00b7 Nov 10\u2013Dec 12", nights: 5, photo: "Campo Argentino de Polo Palermo final", gallery: ["Palermo polo Cathedral grandstand", "Adolfo Cambiaso La Dolfina polo", "Recoleta Buenos Aires Alvear"],
+        blurb: "The Cathedral of Polo. The Argentine Open at Palermo is the sport at its absolute summit \u2014 the best players and horses on earth, in the middle of Buenos Aires, on a spring Saturday.",
+        guide: {
+          cur: "$",
+          buildOnly: true,
+          daysTitle: "What this is",
+          daysIntro: "Polo has one championship above all others, and it is played in a stadium in the middle of Buenos Aires. THE ARGENTINE OPEN \u2014 the Abierto de Palermo \u2014 is the last and greatest leg of the Triple Crown, after Tortugas in September and Hurlingham in October. Ten teams at the top of the handicap, the finest horses ever bred, Adolfo Cambiaso and the Pieres and the Castagnolas, and the CAMPO ARGENTINO DE POLO on Avenida del Libertador \u2014 the Cathedral \u2014 with the city\u2019s towers behind the grandstands. The 133rd runs 10 NOVEMBER TO 12 DECEMBER 2026; the semifinals are the penultimate weekend and the FINAL IS SATURDAY 12 DECEMBER. It is the one sporting occasion where the sport itself, not the hospitality, is the point: nothing played anywhere else in the world is at this level.\n\nAND IT IS BUENOS AIRES IN DECEMBER \u2014 early summer, the jacarand\u00e1s just over, Recoleta and Palermo at their best, the steak and the Malbec. A long weekend built around the final: the semis if you can, the final, a day on an estancia in the pampas playing the game yourself, and the city\u2019s hotels and tables.",
+          stayWord: "hotel",
+          stayCollection: "Buenos Aires",
+          stayLead: "Where to stay \u2014 Recoleta, ten minutes from the Cathedral",
+          stayNote: "RECOLETA is the neighbourhood: the Palacio Duhau, the Four Seasons and the Alvear Palace are each ten minutes from the Campo Argentino de Polo and in the middle of the Buenos Aires you want to see. Casa Luc\u00eda in Retiro is the newer, quieter choice; the Faena in Puerto Madero is the show. Hotels fill for the final weekend; book early.",
+          ticketsTitle: "Tickets and the palcos",
+          tickets: "Tickets are sold by the ASOCIACI\u00d3N ARGENTINA DE POLO, the governing body that runs the tournament. The grandstands \u2014 the Dorrego and the Libertador \u2014 face each other across Cancha 1; the PALCOS are the boxes along them, seated and shaded, and the way to see the final properly. Semifinal and final tickets are the scarce ones and go first; the earlier fixtures are easy and often the better polo, with the great teams playing loose. Sold online by the AAP each season; the sale for 2026 is announced by the Association and the reminder below is set for when it typically opens. Nothing here is bought from a reseller while the AAP can provide it.",
+          ticketBands: [
+            { label: "Palco \u2014 a box on Cancha 1, seated and shaded \u00b7 the way to see the final", price: "Official AAP pricing on release" },
+            { label: "Grandstand \u2014 Dorrego or Libertador, the final or the semis", price: "Official AAP pricing on release" },
+            { label: "Earlier fixtures \u2014 the group stage, November", price: "Easy to come by; often the better polo" },
+          ],
+          ticketNote: "Everything is chosen in Build this trip: dates, hotel, flights, the transfer, then the tickets, the estancia day, the dinners. Nothing is bought on this page. For a private palco or hospitality, ask us; the AAP sells the boxes and the demand for the final is real.",
+          sale: { status: "unknown", year: "2026", by: "the Asociaci\u00f3n Argentina de Polo", city: "Buenos Aires, Argentina", slug: "argentine-open-polo-2026", remindDate: "2026-10-15", remindWhy: "the AAP opens the Palermo sale in the weeks before the tournament starts on 10 November", infoUrl: "https://www.aapolo.com/", buyUrl: "", remindNote: "Argentine Open Polo 2026, Palermo \u2014 check whether the AAP has opened ticket sales for the semifinals and the final on 12 December. Palcos go first. A Voyage One reminder." },
+          profile: [
+            { key: "days", q: "Which do you want to see?", options: [["final", "The final \u2014 Saturday 12 December"], ["semis", "The semifinals and the final"], ["week", "A week of it \u2014 group matches, semis and the final"]] },
+            { key: "play", q: "Would you like to play?", options: [["yes", "Yes \u2014 a day at an estancia with a lesson and a chukka"], ["watch", "Watch only"]] },
+          ],
+          build: [
+            { key: "tickets", title: "Tickets and the palco", cta: "Add tickets", day: 3, time: "16:00", icon: "trophy",
+              why: (pr) => pr.days === "week" ? "A palco for the final, grandstand for the semifinals, and the group matches in the weeks before \u2014 which are open, easy and often the best polo of the tournament. All from the AAP." : pr.days === "semis" ? "The semifinals on the penultimate weekend and the final on the 12th; a palco for the final, the grandstand for the semis. From the AAP when the sale opens \u2014 the reminder is set." : "The final, Saturday 12 December, from a palco on Cancha 1 \u2014 seated, shaded, the whole ground in front of you. From the AAP when the sale opens; palcos go first.",
+              links: [{ label: "Asociaci\u00f3n Argentina de Polo", url: "https://www.aapolo.com/" }] },
+            { key: "estancia", title: "A day at an estancia \u2014 and a chukka", cta: "Add the estancia day", optional: true, day: 2, time: "10:00", icon: "trophy", recommendIf: (pr) => pr.play === "yes",
+              why: "An hour and a half into the pampas to an estancia that breeds polo ponies: a lesson, a few chukkas at whatever level you play, an asado, and the horses. LA BAMBA DE ARECO, which we carry, does it beautifully and is a night away in its own right; several estancias closer to the city do the day. The thing that turns a spectator into a fan." },
+            { key: "transport", title: "Getting to the Cathedral", cta: "Add matchday transport", day: 3, time: "14:30", icon: "car",
+              why: "A driver from Recoleta \u2014 ten minutes on a normal day, longer on the final. Palermo\u2019s streets close around the ground on the big days; the hotel\u2019s car knows where to stop." },
+            { key: "dining", title: "Dinner in Buenos Aires", cta: "Plan the dinners", bookable: false, day: 1, time: "21:00", icon: "dine",
+              why: "Our Buenos Aires tables. The night before the final, somewhere in Recoleta or Palermo; after the final, the asado of the trip. Argentines eat at ten; book for nine and be early." },
+            { key: "city", title: "Buenos Aires \u2014 a small selection", cta: "Add a city day", optional: true, bookable: false, day: 1, icon: "trophy",
+              why: "Recoleta cemetery and the caf\u00e9s, the Teatro Col\u00f3n, San Telmo on a Sunday, the Palermo galleries, a tango that is not a tourist tango. Not too much; the polo is the week." },
+          ],
+          bookOrder: [
+            { what: "The hotel", when: "Now", why: "The final weekend fills Recoleta." },
+            { what: "Tickets \u2014 palco for the final", when: "When the AAP opens the sale \u2014 the reminder is set", why: "Boxes go first; semis and final tickets are the scarce ones." },
+            { what: "Flights to Ezeiza", when: "When schedules open", why: "Overnight from the US; VIPClub\u2019s Preferential Pass is on the card at Ezeiza." },
+            { what: "The transfer", when: "Once the flight is chosen", why: "Ezeiza to Recoleta is forty-five minutes to an hour." },
+            { what: "The estancia day", when: "A month ahead", why: "The good estancias fill in December." },
+            { what: "Dinners", when: "Weeks ahead", why: "December is the city\u2019s season." },
+          ],
+          stepsTitle: "The long weekend",
+          steps: [
+            { h: "Wednesday 9 December \u00b7 Arrive", b: "Overnight from the US into Ezeiza \u2014 the VIPClub pass takes you through \u2014 and the transfer to Recoleta. A late lunch, a walk, an early night." },
+            { h: "Thursday 10 December \u00b7 The estancia", b: "Into the pampas for the day: the ponies, a lesson, a chukka, the asado. Back for dinner in Palermo." },
+            { h: "Friday 11 December \u00b7 The city", b: "Buenos Aires: Recoleta, the Col\u00f3n, the galleries. Dinner the night before the final." },
+            { h: "Saturday 12 December \u00b7 THE FINAL", b: "The Cathedral from a palco on Cancha 1. The final throws in at four; be there for the pageantry before it and stay for the trophy. The asado of the trip afterwards." },
+            { h: "Sunday 13 December \u00b7 Depart", b: "San Telmo\u2019s Sunday market in the morning; the evening flight home \u2014 or a night more, or on to Mendoza, Iguaz\u00fa or Patagonia." },
+          ],
+          beyondTitle: "Around the Open",
+          beyond: [
+            { name: "The Triple Crown", note: "Tortugas in September and Hurlingham in October come first \u2014 Hurlingham, the old English club, is the quieter and more beautiful ground, and a client in Buenos Aires in October should go." },
+            { name: "La Bamba de Areco", note: "The estancia we carry, an hour and a half into the pampas at San Antonio de Areco \u2014 polo ponies bred on the place, a lesson and a chukka, and a night in the house. The best way to play." },
+            { name: "Onward", note: "Mendoza for the wine, Iguaz\u00fa for the falls, Patagonia for the end of the world \u2014 all a flight from Buenos Aires and all in Plan this trip." },
+          ],
+          notes: [
+            "THE FINAL IS SATURDAY 12 DECEMBER 2026, at four. Everything else moves; that does not.",
+            "PALCOS GO FIRST. When the AAP opens the sale, the boxes for the final are the ones to take.",
+            "THE EARLIER MATCHES ARE OFTEN THE BEST POLO \u2014 the great teams playing loose, with tickets easy. A client with a week gets more polo, not less.",
+            "PLAY. A day at an estancia with a stick in your hand is what makes the final make sense.",
+            "IT RAINS IN THE SPRING. Matches slip a day or two; keep the days around the final free.",
+          ],
+          handoff: "Plan this trip opens BUENOS AIRES for five nights, Wednesday to Sunday, with the Recoleta hotels, our tables, flights into Ezeiza and VIPClub\u2019s pass. Tickets from the AAP when the sale opens \u2014 the reminder is on the card. The estancia day and the city are built in.",
+        } },
     ],
     "Fútbol": [
       { title: "FIFA World Cup Final 2030", city: "", airport: "", airportName: "", start: "2030-07-18", end: "2030-07-22", dateLabel: "Sunday July 21, 2030 \u00b7 venue to be announced", nights: 4, photo: "FIFA World Cup trophy final", gallery: ["World Cup final stadium crowd", "Lisbon Madrid Casablanca skyline", "Football final celebration"],
@@ -12995,7 +13062,9 @@ const ONE_LIST = {
       { title: "The Winter Olympics · French Alps", city: "Courchevel", airport: "GVA", airportName: "Geneva", start: "", end: "", dateLabel: "Feb 1–17, 2030", nights: 6, blurb: "The Winter Games return to the French Alps — the marquee Alpine events above Courchevel and Val d'Isère, snow and glamour at altitude, with the closing ceremony on the Promenade des Anglais in Nice." },
     ],
     "Cycling": [
-      { title: "Tour de France · Alpine Stages", city: "Geneva", airport: "GVA", airportName: "Geneva", start: "2027-07-16", end: "2027-07-21", dateLabel: "Alpine stages · mid-July 2027", nights: 5, blurb: "The Tour's mountain showdown — VIP at the summit finishes as the peloton grinds up legendary climbs." },
+      // THE TOUR DE FRANCE was removed 26 Sept 2026: the mountain stages are the only version worth
+      // offering, and only Courchevel and Megève have hotels at the standard — so it works only when the
+      // route obliges, and the route is announced each October. Revisit when the 2027 route is out.
     ],
     "On the Water": [
       { title: "The America's Cup", city: "Naples", airport: "NAP", airportName: "Naples", start: "2027-07-10", end: "2027-07-15", dateLabel: "From July 10, 2027", nights: 5, blurb: "The oldest trophy in sport, contested off the Bay of Naples — from a chase boat, on the water." },
