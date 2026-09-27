@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M689";
+const BUILD = "M690";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13930,6 +13930,9 @@ notes: [
           ],
           handoff: "Plan this trip opens Rwanda \u2014 the three lodges at the volcanoes, the flights into Kigali, and the transfer up to Volcanoes. Everything is booked by you, direct with the lodge, and the lodge is the one that applies for your gorilla permits.",
         } },
+      // Galápagos government fees, NOT shown to clients as pricing (Tricia, 27 Sept 2026): Transit Control Card US$20 at
+      // the mainland airport; National Park entry US$200 per adult / US$100 under 12, cash on arrival. Silver Origin and
+      // Pikaia include them; Celebrity Flora does not.
       { title: "The Gal\u00e1pagos", city: "Gal\u00e1pagos", airport: "UIO", airportName: "Quito (gateway)", start: "", end: "", dateLabel: "Year-round \u00b7 two seasons, both good", nights: 7, photo: "Galapagos giant tortoise Santa Cruz", gallery: ["Galapagos blue-footed booby", "Silver Origin Galapagos ship", "Pikaia Lodge Galapagos"],
         blurb: "The islands that taught the world about life \u2014 tortoises, boobies, marine iguanas, sea lions at your feet. The first question is not which hotel; it is how you want to explore.",
         guide: {
@@ -13946,11 +13949,9 @@ notes: [
           ticketsTitle: "The two ships",
           tickets: "SILVER ORIGIN, Silversea \u2014 the most luxurious true expedition-cruise option: purpose-built for the Gal\u00e1pagos, about a hundred guests, all suites, butler service, Ecuadorian naturalist guides, eight Zodiacs, an expedition basecamp, a high crew-to-guest ratio and Ecuadorian-inspired cooking; a wildlife and exploration focus first. CELEBRITY FLORA \u2014 a modern, purpose-built all-suite Gal\u00e1pagos yacht: all-inclusive expedition format, naturalist-guided excursions, luxury public spaces, a strong wildlife program, Forbes Four-Star. Both sail set routes \u2014 usually a western or an eastern loop of seven nights \u2014 from Baltra or San Crist\u00f3bal, and the ship decides your island airport. Current sailing dates, routes, suite categories and prices are the lines\u2019 own and are shown when you choose.",
           ticketBands: [
-            { label: "Silver Origin \u2014 Silversea \u00b7 the most luxurious expedition ship", price: "Current suite pricing from Silversea" },
-            { label: "Celebrity Flora \u2014 purpose-built all-suite yacht", price: "Current suite pricing from Celebrity" },
-            { label: "Pikaia Lodge \u2014 luxury land-based with a private yacht", price: "Current package pricing from Pikaia" },
-            { label: "Transit Control Card \u2014 obtained on the mainland before the island flight", price: "US$20 \u00b7 mandatory government fee" },
-            { label: "Gal\u00e1pagos National Park entry \u2014 international visitor", price: "US$200 age 13+ \u00b7 US$100 under 12 \u00b7 mandatory" },
+            { label: "Silver Origin \u2014 Silversea \u00b7 the most luxurious expedition ship \u00b7 all-inclusive, park fees and Quito arrangements in the fare", price: "7 nights from about US$12,200\u2013US$14,000 pp, entry suite \u00b7 2027, confirm with Silversea" },
+            { label: "Celebrity Flora \u2014 purpose-built all-suite yacht \u00b7 excursions and meals included; park fee additional", price: "7 nights from about US$7,200 pp, entry suite \u00b7 2027, confirm with Celebrity" },
+            { label: "Pikaia Lodge \u2014 luxury land-based with the private yacht \u00b7 official 2027 all-inclusive rates", price: "7 nights US$13,860\u2013US$16,920 pp \u00b7 5 nights US$9,880\u2013US$12,095 pp" },
           ],
           ticketLinks: [
             { label: "Explore Silver Origin", url: "https://www.silversea.com/ships/silver-origin.html" },
@@ -13958,15 +13959,15 @@ notes: [
             { label: "Explore Pikaia Lodge", url: "https://www.pikaialodge.com/" },
           ],
           ticketNote: "Everything is chosen in Build this trip, in order: when, cruise or land, the ship or the lodge, the mainland hotel, flights to Ecuador, the island flight the ship or lodge dictates, the formalities, the upgrades. Nothing is bought on this page. Fees are the current official rates and are kept current.",
-          pricing: { year: 2027, basisYear: 2026,
+          pricing: { year: 2027, basisYear: 2027,
             rows: [
-              { label: "Expedition cruise \u2014 Silver Origin or Celebrity Flora", est: "Current suite pricing from the line", note: "Shown live from Silversea or Celebrity when you choose the sailing; suite category and season move it widely." },
-              { label: "Pikaia Lodge package", est: "Current published package pricing", note: "Pikaia publishes its packages by nights and season; the current figure is on its site." },
-              { label: "Mandatory government fees", est: "US$220 per adult", note: "Transit Control Card US$20 plus National Park entry US$200 (US$100 under 12). Official rates, paid in cash on arrival for the park fee." },
+              { label: "Silver Origin \u2014 7 nights", est: "From about US$12,200\u2013US$14,000 per person", note: "Entry Classic Veranda Suite, double occupancy, from a May 2026 survey of Silversea\u2019s 2027 fares. All-inclusive: drinks, gratuities, excursions, Wi-Fi, the park fees and the Quito pre-cruise night. Upper suites materially more. Confirm the sailing with Silversea." },
+              { label: "Celebrity Flora \u2014 7 nights", est: "From about US$7,200 per person", note: "Entry Sky Suite, double occupancy, from the same May 2026 survey. Includes excursions and meals; the park fee is additional, and Celebrity\u2019s 2027 offer has the second guest at half fare. Upper suites materially more. Confirm the sailing with Celebrity." },
+              { label: "Pikaia Lodge \u2014 all-inclusive adventure package, official 2027 rates", est: "7 nights US$13,860\u2013US$16,920 pp \u00b7 6 nights US$11,855\u2013US$14,510 \u00b7 5 nights US$9,880\u2013US$12,095", note: "Per person, double occupancy, best-available season, Terrace Room to Pool Suite. High and festive season (Spring Break 13 Mar\u201311 Apr, Thanksgiving, Christmas and New Year): 7 nights US$15,520\u2013US$18,950; 7-night minimum at Christmas and New Year. Children under 17 from US$8,400 for 7 nights. The lodge closes 1 September to 9 November for maintenance. Includes the private yacht days, the naturalist guide, full board, transfers and the VIP lounge at Baltra." },
             ],
             current: null,
-            positioning: "The wildlife and the expedition route are the heart of the trip; the ship or lodge is the cost. Plan on the line\u2019s or Pikaia\u2019s current pricing plus US$220 a head in fees, a night on the mainland each side, and the flights.",
-            disclaimer: "Cruise and lodge prices are the operators\u2019 own and change by season and category; nothing is estimated here. The fees are current official rates." },
+            positioning: "For a couple, seven nights in the islands: Silver Origin about US$25,000\u2013US$28,000 all in; Celebrity Flora about US$14,500 plus the park fees; Pikaia US$27,700\u2013US$33,800 in the best-available season. Then a night on the mainland each side and the flights.",
+            disclaimer: "Silversea and Celebrity figures are entry-suite starting points from a May 2026 survey and move by sailing, season and suite; Pikaia\u2019s are its official published 2027 rates, excluding taxes and service charge. Confirm every figure with the operator when you book." },
           profile: [
             { key: "how", q: "How would you like to experience the islands?", options: [["cruise", "Luxury expedition cruise \u2014 more islands, remote sites, a different anchorage each morning"], ["land", "Luxury land-based \u2014 more space, more privacy, no sleeping at sea"]] },
             { key: "active", q: "How active would you like to be?", options: [["relaxed", "Relaxed wildlife"], ["active", "Active exploration"], ["snorkel", "Serious snorkelling"], ["dive", "Diving"]] },
@@ -13974,14 +13975,14 @@ notes: [
           ],
           build: [
             { key: "vessel", title: "The ship or the lodge", cta: "Choose it", day: 1, icon: "trophy",
-              why: (pr) => pr.how === "land" ? "PIKAIA LODGE on Santa Cruz: the lodge, the private yacht M/Y Vision Pikaia for the island days, a naturalist guide, full board, the VIP lounge at Baltra. Baltra (GPS) is your island airport. Current package pricing on Pikaia\u2019s site; booked direct." : "SILVER ORIGIN or CELEBRITY FLORA, on a seven-night western or eastern loop. The sailing you choose sets your island airport \u2014 Baltra (GPS) or San Crist\u00f3bal (SCY) \u2014 and the dates of everything else. Departure date, nights, route, suite, price, what is included: shown from the line when you choose. Booked direct.",
+              why: (pr) => pr.how === "land" ? "PIKAIA LODGE on Santa Cruz: the lodge, the private yacht M/Y Vision Pikaia for the island days, a naturalist guide, full board, the VIP lounge at Baltra. Baltra (GPS) is your island airport. OFFICIAL 2027 RATES, per person, double: 7 nights US$13,860\u2013US$16,920, 5 nights US$9,880\u2013US$12,095; high and festive season 7 nights US$15,520\u2013US$18,950. Booked direct." : "SILVER ORIGIN or CELEBRITY FLORA, on a seven-night western or eastern loop. The sailing you choose sets your island airport \u2014 Baltra (GPS) or San Crist\u00f3bal (SCY) \u2014 and the dates of everything else. STARTING POINTS for 7 nights, entry suite, per person: Silver Origin from about US$12,200\u2013US$14,000, all-inclusive; Celebrity Flora from about US$7,200, park fee additional. Departure date, route, suite and the exact price: from the line when you choose. Booked direct.",
               links: [{ label: "Silver Origin", url: "https://www.silversea.com/ships/silver-origin.html" }, { label: "Celebrity Flora", url: "https://www.celebritycruises.com/cruise-ships/celebrity-flora" }, { label: "Pikaia Lodge", url: "https://www.pikaialodge.com/" }] },
             { key: "mainland", title: "A night on the mainland first", cta: "Add the mainland night", day: 0, icon: "trophy",
               why: "ARRIVE ECUADOR AT LEAST ONE NIGHT BEFORE THE ISLAND FLIGHT, so an international delay cannot cost you the ship. Quito \u2014 Casa Gangotena in the Old Town \u2014 or Guayaquil, Hotel del Parque, whichever the island flight leaves from. Add Quito as a destination in Plan this trip and it becomes part of the same trip." },
             { key: "islandflight", title: "The island flight", cta: "Add the island flight", day: 1, time: "09:00", icon: "trophy",
               why: (pr) => `Quito or Guayaquil to ${pr.how === "land" ? "BALTRA (GPS), Pikaia\u2019s airport" : "BALTRA (GPS) or SAN CRIST\u00d3BAL (SCY) \u2014 whichever the sailing dictates"}. The ship or lodge decides it; you never work it out. Avianca and LATAM fly it, mornings; the ship or lodge often books it for you \u2014 ask before booking your own.` },
             { key: "formalities", title: "Before you fly to the Gal\u00e1pagos", cta: "Add the formalities", bookable: false, day: 0, icon: "trophy",
-              why: "MANDATORY. The TRANSIT CONTROL CARD (TCT), US$20, obtained at the mainland airport before the island flight. A BAGGAGE BIOSECURITY INSPECTION at the mainland airport \u2014 no fresh food, seeds or soil. And the GAL\u00c1PAGOS NATIONAL PARK ENTRY FEE on arrival: US$200 age 13 and over, US$100 under 12, international visitors, cash. Current official rates, kept current. Not optional and not to be buried." },
+              why: "MANDATORY. The TRANSIT CONTROL CARD, obtained at the mainland airport before the island flight. A BAGGAGE BIOSECURITY INSPECTION at the mainland airport \u2014 no fresh food, seeds or soil. And the GAL\u00c1PAGOS NATIONAL PARK ENTRY FEE on arrival, paid in cash. Silver Origin and Pikaia include the park fees in their price; Celebrity Flora does not, and the operator tells you the current amounts. Not optional." },
             { key: "islands", title: "The island days", cta: "See the program", bookable: false, day: 2, icon: "trophy",
               why: "Generated from the ship\u2019s route or the lodge\u2019s program, not chosen site by site: Zodiac landings, snorkelling, guided hikes, the beaches and lava fields, the giant tortoise highlands, birding, the marine life, kayaking where offered. Each day is where the ship is." },
             { key: "upgrades", title: "Private upgrades", cta: "Add a private upgrade", optional: true, day: 3, icon: "trophy", recommendIf: (pr) => pr.how === "land" || pr.active !== "relaxed",
@@ -13996,7 +13997,7 @@ notes: [
             { what: "The mainland hotel", when: "With it", why: "One night before the island flight, always." },
             { what: "International flights to Quito or Guayaquil", when: "After the island itinerary is fixed", why: "Never before; the ship sets the dates." },
             { what: "The island flight", when: "Through the ship or lodge, or after them", why: "The operator dictates the airport and often books it." },
-            { what: "The formalities", when: "Before you fly", why: "TCT on the mainland; park fee in cash on arrival." },
+            { what: "The formalities", when: "Before you fly", why: "Transit card on the mainland; park fee in cash on arrival where not included." },
             { what: "Private upgrades", when: "With the operator", why: "The private yacht, the private guide, the diving day." },
           ],
           stepsTitle: "A ten-day shape",
@@ -14018,7 +14019,7 @@ notes: [
             "SIX NIGHTS MINIMUM IN THE ISLANDS, seven better, ten for the deep version. Three is not the Voyage One trip.",
             "A NIGHT ON THE MAINLAND FIRST, every time.",
             "THE OPERATOR DECIDES THE AIRPORT. Baltra or San Crist\u00f3bal is not your decision.",
-            "US$220 A HEAD IN GOVERNMENT FEES, cash for the park. Not buried.",
+            "THE PARK FEES: in the price on Silver Origin and at Pikaia; extra on Celebrity Flora, in cash on arrival.",
           ],
           handoff: "Plan this trip opens the GAL\u00c1PAGOS with Pikaia and the ships, plus Quito or Guayaquil for the night before, flights into Ecuador and the hotel\u2019s transfers. The ship or lodge is booked direct and sets the dates; the island flight and the formalities follow. Add Quito as a second destination for the mainland nights.",
         } },
