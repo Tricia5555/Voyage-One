@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M692";
+const BUILD = "M693";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12180,9 +12180,79 @@ const ONE_LIST = {
           { h: "Race weekend", b: "Saturday's qualifying, Sunday's race, the harbour in full glamour — the best moment in the sport." },
         ],
       } },
-      { title: "Singapore Grand Prix", city: "Singapore", airport: "SIN", airportName: "Singapore Changi", start: "2026-10-08", end: "2026-10-12", dateLabel: "Oct 9–11, 2026", nights: 4, blurb: "The only true night race — the city ablaze, the marina glittering, from a suite above turn one." },
-      { title: "British Grand Prix", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-07-01", end: "2027-07-05", dateLabel: "July 2–4, 2027", nights: 4, blurb: "Paddock and VIP access at Silverstone — a roaring home crowd and the fastest corners in Formula 1." },
-      { title: "Le Mans 24 Hours", city: "Le Mans, France", airport: "CDG", airportName: "Paris Charles de Gaulle", start: "2027-06-11", end: "2027-06-14", dateLabel: "June 12–13, 2027", nights: 3, blurb: "Twice around the clock at the greatest endurance race — VIP suites trackside through the night." },
+      { title: "Singapore Grand Prix", city: "Singapore", airport: "SIN", airportName: "Singapore Changi", start: "2027-10-06", end: "2027-10-11", dateLabel: "Oct 8\u201310, 2027 \u00b7 Round 18", nights: 5, photo: "Marina Bay Sands Singapore night", gallery: ["Raffles Singapore", "Marina Bay Street Circuit Singapore", "Capella Singapore Sentosa"],
+        blurb: "The only true night race: the city lit from below, the cars beneath the skyscrapers, the marina glittering \u2014 and a hotel you can walk to the track from.",
+        guide: {
+          cur: "S$",
+          buildOnly: true,
+          daysTitle: "What this weekend is",
+          daysIntro: "Formula 1\u2019s first night race, and still the one that looks like nothing else: the Marina Bay Street Circuit is five kilometres of the city\u2019s financial district lit by fifteen hundred floodlights, the cars passing under the skyscrapers, over the bridges and along the waterfront, with the Padang and the Singapore Flyer inside the track. It is the only Grand Prix where the circuit is in the middle of the hotels \u2014 you walk to the gates \u2014 and the only one where the weekend runs to a concert stage: three nights of major acts inside the circuit park after the sessions. In 2027 it is ROUND 18, 8 TO 10 OCTOBER \u2014 Friday practice, Saturday qualifying, Sunday\u2019s race at eight in the evening \u2014 under a tropical sky that is thirty degrees at midnight.\n\nWHAT MAKES IT VOYAGE ONE: a suite at Raffles or the Capella, the PADDOCK CLUB above the pit lane sold by Formula 1 itself, and the fact that Singapore is also Singapore \u2014 the food, the bars, a city built for a long weekend. Everything is chosen in Build this trip.",
+          stayWord: "hotel",
+          stayLead: "Where to stay \u2014 two answers",
+          stayNote: "RAFFLES, in the Civic District, is inside the circuit\u2019s footprint \u2014 the Padang zone is at the end of the road \u2014 and it is the address for the weekend: walk to the gates, walk back after the concert, the Long Bar in between. THE CAPELLA on Sentosa is the opposite: a resort in the trees twenty minutes from the track, for a client who wants the race and then silence. Both fill for race week; book early.",
+          stay: [
+            { name: "Raffles Singapore", area: "Civic District \u00b7 inside the circuit footprint", tag: "The race-week address", note: "The Padang zone is at the end of Beach Road; you walk to the circuit and back. The hotel has hosted the weekend since the first night race. Rooms facing the city hear the cars." },
+            { name: "Capella Singapore", area: "Sentosa \u00b7 twenty minutes from the circuit", tag: "The quiet alternative", note: "A resort in the rainforest on Sentosa, with the pools and the spa; the hotel\u2019s car to the track each evening. For a client who wants to leave the noise behind." },
+          ],
+          ticketsTitle: "Tickets and hospitality \u2014 from Formula 1 direct",
+          tickets: "Singapore\u2019s tickets and hospitality are sold by FORMULA 1 ITSELF through its official ticketing, and that is where we send you. THE PADDOCK CLUB is the top of it: the suites above the pit lane with the pit-lane walk, open bars, fine dining and the podium below you, sold by F1 direct as the FORMULA 1 PADDOCK CLUB. Below it, F1\u2019s official hospitality suites at the turns and the Padang, and the grandstands \u2014 the Pit Grandstand for the start and the pit stops, the Bay Grandstand for the waterfront and the concerts. Three-day passes are the norm; single days exist. 2027 SALES: the waitlist is open now on F1\u2019s official site; general sale for a Singapore race typically opens in the spring, and the Paddock Club earlier. Prices are F1\u2019s own and appear here when published. Nothing here is bought from a reseller while F1 sells the same seat.",
+          ticketBands: [
+            { label: "Formula 1 Paddock Club \u2014 above the pit lane, pit-lane walk, open bar, fine dining \u00b7 the Voyage One route", price: "F1 official pricing on release" },
+            { label: "Official F1 hospitality suites \u2014 at the turns and the Padang", price: "F1 official pricing on release" },
+            { label: "Pit Grandstand \u2014 the start, the pit stops; three-day pass", price: "F1 official pricing on release" },
+            { label: "Bay Grandstand \u2014 the waterfront and the concert stage", price: "F1 official pricing on release" },
+          ],
+          ticketNote: "Everything is chosen in Build this trip: dates, hotel, flights, the transfer, then how you watch, the concerts, the dinners and the days. Nothing is bought on this page.",
+          sale: { status: "unknown", year: "2027", by: "Formula 1", city: "Singapore", slug: "singapore-gp-2027", remindDate: "2027-03-15", remindWhy: "F1 usually opens Singapore\u2019s general sale in the spring, with the Paddock Club before it; the 2027 waitlist is open now", infoUrl: "https://ticketing.formula1.com/singapore/", buyUrl: "", remindNote: "Singapore Grand Prix, 8\u201310 October 2027 \u2014 check whether Formula 1 has opened ticket and Paddock Club sales. Join the waitlist first. A Voyage One reminder." },
+          profile: [
+            { key: "watch", q: "How do you want to watch?", options: [["paddock", "The Paddock Club \u2014 above the pit lane, the whole weekend"], ["suite", "An official hospitality suite at a turn"], ["grandstand", "A grandstand three-day pass"]] },
+            { key: "days", q: "Which days?", options: [["three", "All three \u2014 Friday to Sunday"], ["two", "Saturday and Sunday"], ["race", "Sunday only"]] },
+          ],
+          build: [
+            { key: "access", title: "Tickets and hospitality", cta: "Add tickets", day: 2, time: "18:00", icon: "trophy",
+              why: (pr) => `${pr.watch === "paddock" ? "THE PADDOCK CLUB, from Formula 1 direct: the suites above the pit lane, the pit-lane walk, open bar and fine dining, the podium at your feet." : pr.watch === "suite" ? "An OFFICIAL F1 HOSPITALITY SUITE at a turn or on the Padang \u2014 covered, catered, a bar, a view of one corner rather than the pit lane." : "A GRANDSTAND three-day pass \u2014 the Pit Grandstand for the start and the stops, the Bay for the waterfront and the concerts. Covered seats matter in the humidity."} ${pr.days === "race" ? "Sunday only." : pr.days === "two" ? "Saturday and Sunday." : "Friday to Sunday \u2014 the three-day pass, which is how it is sold."} When F1 publishes the 2027 categories and prices they appear here; the reminder is set.`,
+              links: [{ label: "Formula 1 official tickets", url: "https://ticketing.formula1.com/singapore/" }, { label: "Formula 1 Paddock Club", url: "https://www.formula1.com/en/hospitality" }] },
+            { key: "concerts", title: "The concerts", cta: "Add the concerts", optional: true, bookable: false, day: 1, time: "22:30", icon: "trophy",
+              why: "Three nights of major acts on the Padang stage inside the circuit, after the track goes quiet \u2014 included with the ticket for that zone. The 2027 lineup is announced by the promoter in the summer; nothing from 2026 is shown as 2027." },
+            { key: "transport", title: "Getting to the circuit", cta: "Add circuit transport", bookable: false, day: 2, time: "17:00", icon: "car",
+              why: "FROM RAFFLES YOU WALK. From the Capella, the hotel\u2019s car to the nearest gate \u2014 the roads around the circuit close from Friday and the hotel knows the drop-off; or the MRT, which is fast and air-conditioned. No rental car in Singapore, ever." },
+            { key: "days", title: "The days, in the heat", cta: "Plan the days", bookable: false, day: 1, time: "11:00", icon: "trophy",
+              why: "Race days start at dusk, so the days are for the city: the Botanic Gardens early, Chinatown or Little India, lunch in a hawker centre \u2014 the one genuinely great cheap thing in the world \u2014 the pool through the afternoon heat. Nothing scheduled after four on a track day." },
+            { key: "dining", title: "Dinner and the bars", cta: "Plan the dinners", bookable: false, day: 0, time: "20:00", icon: "dine",
+              why: "Our Singapore tables. Thursday night, the big dinner; on track nights, an early supper or the hospitality; after the race, the bars \u2014 the Long Bar at Raffles, or Atlas. Book weeks ahead; race week fills the city." },
+            { key: "onward", title: "Onward", cta: "Add a destination", optional: true, bookable: false, day: 5, icon: "trophy",
+              why: "Bali, Phuket or Koh Samui are two hours away and all carried; Hong Kong or Tokyo on the way home. A race weekend is a natural start to two weeks in Asia." },
+          ],
+          bookOrder: [
+            { what: "The hotel", when: "Now", why: "Raffles and the Capella fill for race week a year out." },
+            { what: "The waitlist, then the tickets", when: "Waitlist now; tickets when F1 opens the sale \u2014 the reminder is set", why: "Paddock Club first; it sells through." },
+            { what: "Flights to Changi", when: "When schedules open", why: "Singapore Airlines nonstop from New York and San Francisco; JetQuay is on the card at Changi." },
+            { what: "The transfer", when: "Through the hotel", why: "Twenty-five minutes from Changi; the hotel\u2019s car." },
+            { what: "Dinners", when: "Weeks ahead", why: "Race week is the city\u2019s busiest." },
+          ],
+          stepsTitle: "The weekend",
+          steps: [
+            { h: "Wednesday 6 October \u00b7 Arrive", b: "Singapore Airlines into Changi; JetQuay through the terminal; the hotel\u2019s car to Raffles or the Capella. A late dinner; the humidity is the first thing you notice." },
+            { h: "Thursday 7 October \u00b7 The city", b: "The Botanic Gardens before the heat, lunch at a hawker centre, the pool. The big dinner of the trip, Thursday night, before the track takes the evenings." },
+            { h: "Friday 8 October \u00b7 Practice, and the first concert", b: "Gates open in the afternoon; two practice sessions under the lights; the Padang stage after." },
+            { h: "Saturday 9 October \u00b7 Qualifying", b: "The city by day; qualifying at nine in the evening; the second concert." },
+            { h: "Sunday 10 October \u00b7 THE RACE", b: "Race at eight in the evening, sixty-one laps under the floodlights \u2014 nearly two hours, and almost always a safety car. The podium; the last concert; the Long Bar." },
+            { h: "Monday 11 October \u00b7 Depart, or onward", b: "Home, or two hours to Bali, Phuket or Samui." },
+          ],
+          beyondTitle: "Around the race",
+          beyond: [
+            { name: "The hawker centres", note: "Maxwell, Lau Pa Sat, Tiong Bahru \u2014 the best cheap food on earth, and a Michelin star or two among the stalls." },
+            { name: "The Long Bar", note: "At Raffles: the Singapore Sling was invented here, and it is the race weekend\u2019s last stop every night." },
+            { name: "Onward", note: "Bali, Phuket, Koh Samui, Hong Kong, Tokyo \u2014 all in Plan this trip." },
+          ],
+          notes: [
+            "F1 DIRECT. Formula 1 sells Singapore\u2019s tickets and the Paddock Club itself; join the waitlist now.",
+            "STAY AT RAFFLES AND WALK. It is inside the circuit\u2019s footprint; nothing else in Singapore is.",
+            "THE RACE IS AT EIGHT IN THE EVENING and it is thirty degrees. Covered seats, water, and nothing planned for the afternoon.",
+            "NO RENTAL CAR IN SINGAPORE. Walk, the hotel\u2019s car, or the MRT.",
+          ],
+          handoff: "Plan this trip opens SINGAPORE for five nights, Wednesday to Monday, with Raffles and the Capella, our tables, flights into Changi and JetQuay. Tickets and the Paddock Club from Formula 1 when the sale opens \u2014 the reminder is on the card.",
+        } },
     ],
     // THE MASTERS was removed 26 Sept 2026: Augusta tickets cannot be relied on and Augusta has no
     // hotel at the standard. THE RYDER CUP 2027 (Adare Manor) was removed the same day: only the
@@ -12770,7 +12840,6 @@ const ONE_LIST = {
         handoff: "Next, in the trip builder: we'll set your dates around your Ascot days, arrange the Royal Enclosure badges and dining, book your hotel, and sort the morning dress — every detail confirmed with you.",
       } },
       { title: "Melbourne Cup", city: "Melbourne", airport: "MEL", airportName: "Melbourne", start: "2026-11-01", end: "2026-11-04", dateLabel: "November 3, 2026", nights: 3, blurb: "The race that stops a nation — the Birdcage at Flemington, champagne and fascinators." },
-      { title: "The Grand National", city: "Liverpool", airport: "MAN", airportName: "Manchester", start: "2027-04-08", end: "2027-04-11", dateLabel: "April 10, 2027", nights: 3, blurb: "The world's greatest steeplechase — Aintree at its most thrilling, hospitality above the last fence." },
       { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-09", end: "2026-12-14", dateLabel: "Final Saturday December 12, 2026 \u00b7 Nov 10\u2013Dec 12", nights: 5, photo: "Campo Argentino de Polo Palermo final", gallery: ["Palermo polo Cathedral grandstand", "Adolfo Cambiaso La Dolfina polo", "Recoleta Buenos Aires Alvear"],
         blurb: "The Cathedral of Polo. The Argentine Open at Palermo is the sport at its absolute summit \u2014 the best players and horses on earth, in the middle of Buenos Aires, on a spring Saturday.",
         guide: {
@@ -13064,18 +13133,82 @@ const ONE_LIST = {
         handoff: "Next, in the trip builder: we'll set your dates around the match, secure the Club Wembley or Bobby Moore seats, book your London hotel, arrange your match-day driver, and build in the London days around it — every detail confirmed with you.",
       } },
     ],
-    "Global Games": [
-      { title: "The Olympics · Los Angeles", city: "Los Angeles", airport: "LAX", airportName: "Los Angeles Intl", start: "2028-07-13", end: "2028-07-18", dateLabel: "Opens July 14, 2028", nights: 5, blurb: "The Opening Ceremony and the marquee finals — the world's greatest gathering returns to LA." },
-      { title: "The Winter Olympics · French Alps", city: "Courchevel", airport: "GVA", airportName: "Geneva", start: "", end: "", dateLabel: "Feb 1–17, 2030", nights: 6, blurb: "The Winter Games return to the French Alps — the marquee Alpine events above Courchevel and Val d'Isère, snow and glamour at altitude, with the closing ceremony on the Promenade des Anglais in Nice." },
-    ],
     "Cycling": [
       // THE TOUR DE FRANCE was removed 26 Sept 2026: the mountain stages are the only version worth
       // offering, and only Courchevel and Megève have hotels at the standard — so it works only when the
       // route obliges, and the route is announced each October. Revisit when the 2027 route is out.
     ],
     "On the Water": [
-      { title: "The America's Cup", city: "Naples", airport: "NAP", airportName: "Naples", start: "2027-07-10", end: "2027-07-15", dateLabel: "From July 10, 2027", nights: 5, blurb: "The oldest trophy in sport, contested off the Bay of Naples — from a chase boat, on the water." },
-      { title: "Henley Royal Regatta", city: "Henley-on-Thames, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-29", end: "2027-07-04", dateLabel: "June 29–July 4, 2027", nights: 4, blurb: "Blazers and Pimm's in the Stewards' Enclosure — the most quintessentially English afternoon there is." },
+      { title: "The America's Cup \u00b7 Naples", city: "Naples", airport: "NAP", airportName: "Naples", start: "2027-07-09", end: "2027-07-14", dateLabel: "The Match \u00b7 July 10\u201318, 2027 \u00b7 Louis Vuitton Cup from May 22", nights: 5, photo: "Grand Hotel Vesuvio Naples", gallery: ["Grand Hotel Vesuvio Naples", "Bay of Naples Castel dell Ovo", "Capri Marina Grande"],
+        blurb: "The oldest trophy in international sport, sailed for the first time in Italy \u2014 AC75s foiling at fifty knots on the Bay of Naples, Vesuvius behind them, and a hotel on the Lungomare to watch it from.",
+        guide: {
+          cur: "\u20ac",
+          buildOnly: true,
+          daysTitle: "What this is, and when",
+          daysIntro: "The America\u2019s Cup is a hundred and seventy-five years old and has never before been sailed in Italy. In 2027 it is NAPLES: the LOUIS VUITTON CUP \u2014 the challenger series that decides who faces the defender \u2014 opens on 22 and 23 May with all seven AC75s racing together for the first time in the Cup\u2019s history, then match racing from 26 May through June; and THE MATCH itself, Emirates Team New Zealand against the challenger, first to seven wins, begins Saturday 10 July and runs to a conclusion by 17\u201318 July, with the 19th held in reserve. Luna Rossa is sailing for Italy at home. The racecourse is the bay between the Lungomare and Posillipo, which means \u2014 uniquely \u2014 you can watch fifty-knot foiling yachts from a hotel window on the Via Partenope, from the Castel dell\u2019Ovo, or from a boat on the water.\n\nMATCH WEEK IS THE ONE TO BUILD AROUND. A hotel on the Lungomare, a day on a spectator boat, the fan zone on the waterfront, and Capri and the Amalfi Coast an hour away for the days there is no racing. Everything is chosen in Build this trip.",
+          stayWord: "hotel",
+          stayLead: "Where to stay \u2014 on the Lungomare, facing the course",
+          stayNote: "THE GRAND HOTEL VESUVIO first: it is on the Via Partenope facing the Castel dell\u2019Ovo and the bay, and the racecourse is in front of it. Parker\u2019s, up in Chiaia, has the view from height; ROMEO is the design hotel by the port. And CAPRI \u2014 J.K. Place, La Palma, the Quisisana \u2014 is forty minutes across the bay by hydrofoil, for a client who would rather sleep on the island and come across for race days.",
+          stay: [
+            { name: "Grand Hotel Vesuvio", area: "Lungomare \u00b7 Via Partenope, facing the course", tag: "The Cup address", note: "On the waterfront opposite the Castel dell\u2019Ovo, with the bay \u2014 and the racecourse \u2014 in front of the windows. Caruso on the roof. The hotel for the Match." },
+            { name: "Grand Hotel Parker\u2019s", area: "Chiaia \u00b7 above the bay", tag: "The view from height", note: "Up the hill in Chiaia, the whole bay and Vesuvius from the terrace; a short car down to the Lungomare and the fan zone." },
+          ],
+          ticketsTitle: "How you watch",
+          tickets: "The waterfront is free: the course sits just off the Lungomare and the crowd lines the Via Partenope and the Castel dell\u2019Ovo. For a Voyage One client there are three better ways. A SPECTATOR BOAT on the water, inside the boundary where the AC75s pass at fifty knots \u2014 the event\u2019s official hospitality boats, or a private charter positioned by the race committee\u2019s rules. OFFICIAL HOSPITALITY on shore \u2014 the Cup\u2019s hospitality facility on the waterfront, with the finish line, the big screens and the sailors coming ashore. And the HOTEL WINDOW: a bay-facing room at the Vesuvio is a grandstand of its own. The 2027 programme \u2014 the hospitality facilities, the official spectator fleet, the prices \u2014 is published by the America\u2019s Cup as the event approaches; nothing is invented here before it is.",
+          ticketBands: [
+            { label: "Spectator boat \u2014 on the water inside the course, official fleet or private charter", price: "Official programme on release" },
+            { label: "Official Cup hospitality \u2014 on the waterfront, the finish and the screens", price: "Official programme on release" },
+            { label: "A bay-facing room at the Vesuvio", price: "The hotel\u2019s rate \u00b7 book now" },
+            { label: "The Lungomare and the fan zone", price: "Free" },
+          ],
+          ticketNote: "Everything is chosen in Build this trip: dates, hotel, flights, the transfer, then how you watch, the boat, the days without racing, Capri and the coast. Nothing is bought on this page.",
+          sale: { status: "unknown", year: "2027", by: "the America\u2019s Cup", city: "Naples, Italy", slug: "americas-cup-2027", remindDate: "2027-02-01", remindWhy: "the hospitality and spectator programme for a summer Match is typically published in the first months of the year", infoUrl: "https://38th.americascup.com/", buyUrl: "", remindNote: "The 38th America\u2019s Cup, Naples \u2014 check whether the official hospitality and spectator-boat programme for the Match (10\u201318 July 2027) has been published. A Voyage One reminder." },
+          profile: [
+            { key: "when", q: "Which part of the Cup?", options: [["match", "The Match \u2014 10 to 18 July, the final"], ["lvc", "The Louis Vuitton Cup \u2014 late May and June, the challengers"], ["both", "Advise me"]] },
+            { key: "watch", q: "How do you want to watch?", options: [["boat", "From a boat, on the water"], ["shore", "Official hospitality on the waterfront"], ["window", "From the hotel, and the Lungomare"]] },
+          ],
+          build: [
+            { key: "access", title: "How you watch", cta: "Add race access", day: 1, time: "13:00", icon: "trophy",
+              why: (pr) => pr.watch === "boat" ? "A SPECTATOR BOAT for race days \u2014 the official hospitality fleet when the Cup publishes it, or a private charter positioned by the race committee\u2019s rules, arranged through the hotel. Inside the boundary the AC75s pass close enough to hear the foils." : pr.watch === "shore" ? "OFFICIAL CUP HOSPITALITY on the waterfront \u2014 the finish line, the screens, the teams coming ashore \u2014 from the America\u2019s Cup when the 2027 programme is published." : "A BAY-FACING ROOM AT THE VESUVIO and the Lungomare below it \u2014 the course is in front of the hotel, and the fan zone is a walk. Free, and the way Neapolitans will watch.",
+              links: [{ label: "The 38th America\u2019s Cup \u2014 official", url: "https://38th.americascup.com/" }] },
+            { key: "days", title: "Race days and the days between", cta: "Plan the days", bookable: false, day: 1, icon: "trophy",
+              why: (pr) => pr.when === "lvc" ? "The Louis Vuitton Cup runs from 22 May through June with racing most days in the round robins; the opening weekend of fleet racing, 22\u201323 May, is the one to see." : "The Match is first to seven: two races a day on race days, from Saturday 10 July, with reserve days built in. Racing is typically early afternoon and a day can be lost to wind. Keep the days between for Capri, Pompeii, the coast." },
+            { key: "capri", title: "Capri and the coast", cta: "Add a day across the bay", optional: true, bookable: false, day: 2, icon: "trophy",
+              why: "Forty minutes by hydrofoil from the Molo Beverello: Capri for the day or a night at J.K. Place; Positano and Ravello a little further. Pompeii is half an hour by car. Naples itself \u2014 the Archaeological Museum, Spaccanapoli, the pizza \u2014 is the other half of the trip." },
+            { key: "transport", title: "Getting around", cta: "Add transport", bookable: false, day: 0, icon: "car",
+              why: "THROUGH THE HOTEL, always, and Airconsult at the airport. Naples is not a city to drive in; the Lungomare is closed to cars for the Cup, and the hydrofoils to Capri leave from the port a walk from the Vesuvio." },
+            { key: "dining", title: "Dinner in Naples", cta: "Plan the dinners", bookable: false, day: 0, time: "20:30", icon: "dine",
+              why: "Our Naples tables, and Caruso on the Vesuvio\u2019s roof for one night with the bay lit below. Race days end early enough for dinner; Cup week fills the waterfront restaurants, so book ahead." },
+          ],
+          bookOrder: [
+            { what: "The hotel \u2014 a bay-facing room", when: "Now", why: "The Vesuvio\u2019s front rooms for Match week will be the scarcest thing in Naples." },
+            { what: "The spectator boat or hospitality", when: "When the Cup publishes the programme \u2014 the reminder is set", why: "The official fleet is small." },
+            { what: "Flights to Naples", when: "When schedules open", why: "Through Rome; Airconsult meets you at Capodichino." },
+            { what: "Capri", when: "Early, if you want a night there", why: "July on Capri is booked months out." },
+            { what: "Dinners", when: "Weeks ahead", why: "Cup week fills the Lungomare." },
+          ],
+          stepsTitle: "Match week",
+          steps: [
+            { h: "Friday 9 July \u00b7 Arrive", b: "Into Capodichino \u2014 Airconsult through the terminal \u2014 and the hotel\u2019s car to the Lungomare. The bay, the boats, dinner on the roof." },
+            { h: "Saturday 10 July \u00b7 THE MATCH BEGINS", b: "Two races in the early afternoon from the boat, the hospitality or the window; the fan zone after; the city at night." },
+            { h: "Sunday 11 July \u00b7 Races three and four", b: "The Match again. Between races, the Castel dell\u2019Ovo and the Lungomare crowd." },
+            { h: "Monday 12 July \u00b7 A day between", b: "Capri by hydrofoil, or Pompeii and the Archaeological Museum. Racing days and reserve days are set by the Cup; the days without are for this." },
+            { h: "Tuesday 13 July \u00b7 Racing, or the coast", b: "The Match continues on its schedule; stay to the 18th if you want to see the trophy lifted, or leave with the Cup still open." },
+          ],
+          beyondTitle: "Around the Cup",
+          beyond: [
+            { name: "The Louis Vuitton Cup", tag: "22 May \u2013 June", note: "The challenger series: the opening fleet-racing weekend of 22\u201323 May is history \u2014 all seven AC75s on one course for the first time \u2014 and the round robins and knockouts through June decide who faces New Zealand." },
+            { name: "Luna Rossa at home", note: "The Italian challenger has never sailed a Cup in Italy. If it reaches the Match, Naples will be something else entirely." },
+            { name: "Capri, the Amalfi Coast, Pompeii", note: "All within an hour, all carried, all in Plan this trip." },
+          ],
+          notes: [
+            "THE MATCH IS 10 TO 18 JULY 2027; THE LOUIS VUITTON CUP FROM 22 MAY. Both in Naples; both watchable from the Lungomare.",
+            "A BAY-FACING ROOM AT THE VESUVIO IS THE FIRST BOOKING. The course is in front of it.",
+            "THE OFFICIAL PROGRAMME \u2014 boats, hospitality, prices \u2014 IS NOT YET PUBLISHED. The reminder is set for February; nothing is invented before then.",
+            "RACING CAN BE LOST TO THE WIND. Keep the days flexible; Capri is forty minutes away.",
+          ],
+          handoff: "Plan this trip opens NAPLES for five nights around the start of the Match, with the Vesuvio and Parker\u2019s, our Naples tables, flights via Rome and Airconsult at the airport. Spectator boats and hospitality from the Cup when the programme is published \u2014 the reminder is on the card. Add Capri or the Amalfi Coast as a second destination.",
+        } }
     ],
   },
   "Arts & Culture": {
@@ -14999,7 +15132,7 @@ function OneList({ onPick, onBack, onHome }) {
   // Arts & Culture holds five categories, and 2-2-1 left an orphan on the bottom row. Three across
   // the top and two centred beneath is balanced.
   const TYPE_ROWS = { "Sport": [3, 3], "Arts & Culture": [3, 2], "Signature Journeys": [2, 2] };
-  const EVENT_ROWS = { "Golf": [1], "Tennis": [2, 1], "Horse Racing & Polo": [2, 1, 2], "Gardens & The Season": [1], "Fútbol": [3], "Spectacle & Pageantry": [2, 1] };
+  const EVENT_ROWS = { "Golf": [1], "Tennis": [2, 1], "Motorsport": [2], "On the Water": [1], "Horse Racing & Polo": [2, 2], "Gardens & The Season": [1], "Fútbol": [3], "Spectacle & Pageantry": [2, 1] };
   const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
     <button onClick={fn} style={NAV_PILL}><ArrowLeft size={15} /> {label}</button>
