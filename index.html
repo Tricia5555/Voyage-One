@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M679";
+const BUILD = "M681";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13722,7 +13722,97 @@ notes: [
           { h: "Arrive and be swept up", b: "the fitting, a day to settle, then Carnival — in costume, on the water, part of the oldest masquerade there is." },
         ],
       } },
-      { title: "Carnival in Rio", city: "Rio de Janeiro", airport: "GIG", airportName: "Rio Galeão Intl", start: "2027-02-06", end: "2027-02-10", dateLabel: "Feb 7–8, 2027", nights: 5, blurb: "The Sambadrome from a VIP box — the Special Group parade, the greatest party on earth." },
+      { title: "Carnival in Rio", city: "Rio de Janeiro", airport: "GIG", airportName: "Rio Gale\u00e3o Intl", start: "2027-02-05", end: "2027-02-10", dateLabel: "Feb 6\u20139, 2027 \u00b7 Special Group Feb 7\u20139", nights: 5, photo: "Rio Carnival Sambadrome float night", gallery: ["Copacabana Palace Baile do Copa", "Sambadrome frisa front box", "Ipanema Rio de Janeiro sunset"],
+        blurb: "The greatest spectacle on earth, taken the first-class way: the Baile do Copa on Saturday, a front box at the Sambadrome on Sunday, and a hotel that has seen a hundred Carnivals.",
+        guide: {
+          cur: "R$",
+          buildOnly: true,
+          daysTitle: "Can Carnival be first class?",
+          daysIntro: "It can, and the way to do it is precise. Carnival is five days, Friday to Fat Tuesday, and most of it is the street \u2014 the blocos, millions of people, glitter and heat and a city that does not sleep. That is glorious and it is not for everyone. THE FIRST-CLASS CARNIVAL IS THREE THINGS. THE BAILE DO COPA: the Copacabana Palace\u2019s black-tie Magic Ball on Carnival Saturday \u2014 the most glamorous night in South America, in the ballroom of the hotel that invented Rio glamour, and the reason a certain kind of guest comes at all. THE SAMBADROME: the Special Group parades on Sunday, Monday and Tuesday nights, twelve of the great samba schools over three nights, four a night, each with seventy minutes, three thousand people and floats the height of a building \u2014 seen from a FRISA, one of the open front boxes on the track itself, or from a covered CAMAROTE with a bar and air. And THE HOTEL: the Copacabana Palace or the Fasano in Ipanema, above the beach, with the city\u2019s madness kept at the door.\n\n2027: S\u00e9rie Ouro Friday and Saturday 5\u20136 February; the SPECIAL GROUP Sunday 7, Monday 8 and Tuesday 9; Ash Wednesday the 10th; and the CHAMPIONS\u2019 PARADE on Saturday 13 February, when the six winners parade again without the judges \u2014 cheaper, calmer, often the better night. Rio in February is thirty-five degrees and humid. Everything below is chosen in Build this trip.",
+          stayWord: "hotel",
+          stayLead: "Where to stay \u2014 two addresses",
+          stayNote: "COPACABANA PALACE first: it is the Carnival hotel, the ball is in its ballroom, and the Belmond concierge has arranged Sambadrome boxes and drivers on Carnival nights for a century. THE FASANO in Ipanema for a client who wants the ball and the parades but a quieter beach and the Fasano\u2019s rooftop pool to recover on. Both book out a year ahead for Carnival week. Nothing else in Rio is offered for this week.",
+          stay: [
+            { name: "Copacabana Palace, A Belmond Hotel", area: "Copacabana \u00b7 on the beach", note: "THE CARNIVAL HOTEL. The Baile do Copa is held in its Golden Room on Carnival Saturday; the hotel has hosted every kind of guest for a hundred years and handles the week like nowhere else. The pool, the Pergula, and the beach across the road." },
+            { name: "Hotel Fasano Rio de Janeiro", area: "Ipanema \u00b7 on the beach", note: "Philippe Starck\u2019s hotel on Ipanema, with the rooftop pool that is the best place in Rio to be at six in the evening. Quieter than Copacabana in Carnival week, ten minutes from the ball, and the Fasano restaurant downstairs." },
+          ],
+          ticketsTitle: "The ball, and the Sambadrome three ways",
+          tickets: "THE COPA BALL is sold by the Copacabana Palace itself \u2014 Saturday 6 February, ten o\u2019clock, black tie, in the hotel\u2019s grand salons, with live music, major Brazilian performers and dancing until late; a guest of the hotel has first call and the concierge is the route. THE SAMBADROME comes three ways. A PREMIUM CAMAROTE \u2014 a covered, elevated box with an open bar, food, live music, lounge space, proper lavatories, controlled access and a return shuttle from a designated meeting point: CAMAROTE MAR in Sector 6, central, a large balcony over the judges\u2019 area, international cuisine and a premium bar; or FOLIA TROPICAL in Sector 8, very close to the runway, high-energy, DJs and live music over several levels. A FRISA \u2014 an open front box at track level, assigned, the closest and most immersive seat there is, and nothing lounge-like about it. Or STANDARD SEATING in the official grandstands. FOR MOST VOYAGE ONE CLIENTS THE CAMAROTE IS THE STRONGEST FIT \u2014 comfort, food and drink, the lavatories, the transport \u2014 but a client who wants the most intense visual experience is right to take a very good frisa. We do not force either.",
+          ticketBands: [
+            { label: "Copacabana Palace Ball \u2014 Saturday 6 February, 10 pm, black tie \u00b7 the night", price: "From the hotel \u00b7 2027 pricing when published" },
+            { label: "Camarote Mar, Sector 6 \u2014 central, over the judges, all-inclusive \u00b7 the Voyage One default", price: "Indicative 2027: about US$848 on Special Group nights" },
+            { label: "Folia Tropical, Sector 8 \u2014 close, high-energy, multi-level", price: "Indicative 2027: US$388\u2013US$858 by night" },
+            { label: "Frisa \u2014 open front box on the track, assigned \u00b7 the most immersive seat", price: "Official pricing on release" },
+            { label: "Standard grandstand seat \u2014 official allocated seating", price: "Announced 2027: about R$250 a night \u00b7 not the Voyage One experience" },
+            { label: "Champions\u2019 Parade \u2014 Saturday 13 February, the six winners", price: "Easier and cheaper; an excellent extension" },
+          ],
+          pricing: { year: 2027, basisYear: 2027,
+            rows: [
+              { label: "Premium Sambadrome experience", est: "US$400\u2013US$900+ per person, per night", note: "A premium camarote on a Special Group night, from the indicative 2027 pricing the camarotes have published; the exact figure depends on the night and the product." },
+              { label: "Standard Sambadrome seat", est: "About R$250 per night", note: "The official allocated-seat price announced for 2027. Not the Voyage One experience." },
+              { label: "The Copa Ball", est: "To be published by the hotel", note: "No figure is shown until the Copacabana Palace confirms 2027 pricing." },
+            ],
+            current: null,
+            positioning: "For the Voyage One client: the Copa Ball, one Special Group night in a premium camarote, and Rio by day. Plan on US$400\u2013US$900-plus per person for the parade night.",
+            disclaimer: "The camarote figures are the indicative 2027 prices currently published by the camarotes and may move with demand; standard seating is the announced official price. Nothing is presented as confirmed until you book it." },
+          ticketNote: "Everything is chosen in Build this trip: dates, hotel, flights, the transfer, the ball, the parade night and how you see it, the samba, the dinners and the days. Nothing is bought on this page.",
+          sale: { status: "unknown", year: "2027", by: "the Copacabana Palace", city: "Rio de Janeiro, Brazil", slug: "copa-ball-2027", remindDate: "2026-11-15", remindWhy: "the hotel sells the ball from the autumn and guests have first call", infoUrl: "https://www.belmond.com/hotels/south-america/brazil/rio-de-janeiro/belmond-copacabana-palace/", buyUrl: "", remindNote: "Copacabana Palace Ball, Saturday 6 February 2027, 10 pm, black tie \u2014 ask the concierge whether tickets and dinner tables have opened. Guests of the hotel first. A Voyage One reminder." },
+          profile: [
+            { key: "ball", q: "Would you like to attend the Copacabana Palace Ball?", options: [["yes", "Yes \u2014 Saturday 6 February, black tie"], ["no", "No"]] },
+            { key: "seat", q: "How do you want to experience the parade?", options: [["camarote", "Premium camarote \u2014 the Voyage One default"], ["frisa", "Front-row frisa \u2014 the most intense"], ["standard", "Standard seating"]] },
+          ],
+          build: [
+            { key: "ball", title: "The Copacabana Palace Ball \u2014 Saturday 6 February, 10 pm", cta: "Add the ball", day: 1, time: "22:00", icon: "trophy", recommendIf: (pr) => pr.ball !== "no",
+              why: "Rio\u2019s most glamorous Carnival night: the grand salons of the Copa, live music and major Brazilian performers, dancing, costume and fashion energy, a late finish. BLACK TIE or formal evening wear \u2014 allow hair and beauty time, and plan a lighter Sunday morning. Tickets and dinner tables from the hotel; guests first. 2027 pricing is shown when the hotel publishes it." },
+            { key: "night", title: "Your Sambadrome night", cta: "Choose the night", bookable: false, day: 2, icon: "trophy",
+              why: "One of the Special Group nights \u2014 Sunday 7, Monday 8 or Tuesday 9 February \u2014 four of the twelve great schools each night, from nine until dawn. If you have no school in mind we place it by the strongest camarote inventory, the logistics, and whether you were at the ball the night before \u2014 Sunday after the ball is a long weekend. No night is called the best until the order of the schools is drawn." },
+            { key: "access", title: "How you see it", cta: "Add Sambadrome access", day: 2, time: "21:00", icon: "trophy",
+              why: (pr) => pr.seat === "frisa" ? "A FRISA: a ground-level open box on the runway, assigned, the drums and the floats a few metres away, and nothing between you and it. Bring water; it is thirty degrees at midnight. Used only when current inventory puts you in an attractive sector. Through the official ticketing route." : pr.seat === "standard" ? "Official allocated grandstand seating, about R$250 a night in 2027 \u2014 the parade in full, without the lounge. Through the official ticketing route, first." : "A PREMIUM CAMAROTE: CAMAROTE MAR in Sector 6 \u2014 central, elevated over the judges\u2019 area, a large balcony, all-inclusive cuisine, a premium open bar, live Brazilian music, a lounge; or FOLIA TROPICAL in Sector 8 \u2014 closer, higher energy, DJs and live music over several levels. Both include lavatories, controlled access and a return shuttle from a designated meeting point. Indicative 2027 pricing US$388\u2013US$858 by night; about US$848 for Camarote Mar on Special Group nights. Booked with the camarote\u2019s own established provider, not a reseller \u2014 Folia Tropical sells from its own site; for Camarote Mar the Copa\u2019s concierge has the current official channel, which we have not yet verified ourselves.",
+              links: [{ label: "Explore Folia Tropical", url: "https://www.foliatropical.com.br/" }, { label: "LIESA \u2014 official seating", url: "https://liesa.globo.com/" }] },
+            { key: "transport", title: "Getting to the Sambadrome", cta: "Add parade-night transport", day: 2, time: "20:00", icon: "car",
+              why: "NO RENTAL CAR, and no promise of a car to the Sambadrome door \u2014 the road closures and controlled access make that unreliable. A premium camarote includes its own return shuttle from a designated meeting point, which is the way; otherwise the hotel arranges the transfer where it is operationally possible. The parades end at four or five in the morning." },
+            { key: "samba", title: "Behind the samba", cta: "Add a samba experience", optional: true, day: 3, time: "11:00", icon: "trophy",
+              why: "Culturally grounded, not a tourist samba lesson: a samba school\u2019s rehearsal in its own quadra, a samba-history guide, a visit connected to the schools\u2019 costume workshops, a samba music experience. Arranged through the hotel with that brief." },
+            { key: "days", title: "Rio by day, kept light", cta: "Plan the days", bookable: false, day: 1, time: "11:00", icon: "trophy",
+              why: "Carnival nights are late and intense. The beach and the pool; Sugarloaf or Christ the Redeemer on a morning you are not parading; a private Rio guide, the art and architecture, shopping, a private boat day, the spa. Do not overschedule." },
+            { key: "dining", title: "Dinner around the nights", cta: "Plan the dinners", bookable: false, day: 0, time: "21:00", icon: "dine",
+              why: "Friday, the major Rio dinner. Saturday, early dinner or the ball. Sunday, a late lunch and the Sambadrome at night \u2014 no formal dinner after a parade. Monday, a relaxed dinner or the second night. Tuesday, flexible. From our Rio tables." },
+            { key: "second", title: "A second Special Group night", cta: "Add a second parade night", optional: true, day: 3, time: "21:00", icon: "trophy",
+              why: "Some clients want two. One strong premium night may be enough; we do not assume." },
+            { key: "champions", title: "The Champions\u2019 Parade \u2014 Saturday 13 February", cta: "Add the Champions\u2019 Parade", optional: true, day: 8, time: "21:00", icon: "trophy",
+              why: "The six highest-ranked schools return, without the judges: easier tickets, a calmer night, and the schools celebrating. An excellent extension for a client who wants more Carnival but not another competition night; the stay runs to the 14th." },
+          ],
+          bookOrder: [
+            { what: "The hotel", when: "Now \u2014 a year ahead", why: "Carnival week at the Copa and the Fasano is the hardest booking in Brazil." },
+            { what: "The Baile do Copa", when: "The day the room is confirmed", why: "Through the concierge; guests first; it sells out." },
+            { what: "Sambadrome frisa or camarote", when: "When LIESA opens the sale \u2014 the reminder is set", why: "Frisas go first." },
+            { what: "Flights to Gale\u00e3o", when: "When schedules open", why: "Overnight from the US; Carnival week fares are high, book early." },
+            { what: "The transfer and the parade-night car", when: "With the hotel", why: "Always." },
+            { what: "Dinners", when: "Weeks ahead", why: "The good rooms fill for the week." },
+          ],
+          stepsTitle: "The week",
+          steps: [
+            { h: "Friday 5 February \u00b7 Arrive", b: "Overnight from the US into Gale\u00e3o; the hotel\u2019s car to Copacabana or Ipanema. The city is already going. Dinner early, a walk on the beach, sleep \u2014 you will need it." },
+            { h: "Saturday 6 February \u00b7 The ball", b: "A bloco in the morning if you want the street; the pool in the afternoon. Then black tie: the Baile do Copa in the Golden Room, dinner in the ballroom, the night in the hotel that made it." },
+            { h: "Sunday 7 February \u00b7 The Sambadrome", b: "The beach until four; dinner at seven; the car at eight. The first night of the Special Group from your frisa or camarote \u2014 four schools, nine in the evening until dawn. The car waits." },
+            { h: "Monday 8 February \u00b7 The second night, or the pool", b: "Monday\u2019s four schools if you took two nights; otherwise the day off, the pool, Ipanema at sunset from the Fasano roof." },
+            { h: "Tuesday 9 February \u00b7 Fat Tuesday", b: "The last four schools if you want them; the city\u2019s last night either way. Ash Wednesday is quiet and the flight home is that evening \u2014 or stay to Saturday for the Champions\u2019 Parade." },
+          ],
+          beyondTitle: "Around Carnival",
+          beyond: [
+            { name: "The Champions\u2019 Parade", tag: "Saturday 13 February", note: "The six winners parade again without the judges: easier tickets, a calmer crowd, and the schools celebrating rather than competing. Many who know Rio prefer it." },
+            { name: "The blocos", note: "The street parties \u2014 hundreds of them, from dawn. One is enough to understand Carnival; the hotel will say which is the civilised one that morning." },
+            { name: "Onward", note: "Trancoso, Fernando de Noronha or Paraty after \u2014 all carried, all a flight or a drive, all quiet by comparison." },
+          ],
+          notes: [
+            "THE BALL IS THE NIGHT. Book the Copa first and ask for the Baile do Copa the same day.",
+            "IT IS THIRTY DEGREES AT MIDNIGHT. A camarote has air; a frisa has the drums. Choose knowingly.",
+            "THE PARADES END AT DAWN. Keep the mornings after empty.",
+            "THROUGH THE HOTEL: the parade-night car, the transfer, the bloco advice. Nothing else in Rio is vetted.",
+            "STAY TO SATURDAY IF YOU CAN \u2014 the Champions\u2019 Parade is the connoisseur\u2019s night.",
+          ],
+          handoff: "Plan this trip opens RIO DE JANEIRO for five nights, Friday to Wednesday, with the Copacabana Palace and the Fasano, our Rio tables, flights into Gale\u00e3o and the hotel\u2019s cars. The ball from the hotel; the Sambadrome from LIESA when the sale opens \u2014 the reminder is on the card.",
+        } },
     ],
     "Gardens & The Season": [
       { title: "RHS Chelsea Flower Show", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-05-16", end: "2027-05-21", dateLabel: "May 18\u201322, 2027", nights: 5, photo: "RHS Chelsea Flower Show garden", gallery: ["Royal Hospital Chelsea London", "Chelsea Flower Show show garden", "Sloane Square Chelsea London"],
