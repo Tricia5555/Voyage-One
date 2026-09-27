@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M687";
+const BUILD = "M688";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13579,7 +13579,7 @@ notes: [
       } },
     ],
     "Spectacle & Pageantry": [
-      { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 4, photo: "Piazza del Campo Siena Palio", gallery: ["https://upload.wikimedia.org/wikipedia/commons/8/83/Siena_Piazza_del_Campo_Palio.jpg", "Piazza del Campo Siena", "Torre del Mangia Siena", "Siena Cathedral Duomo"], blurb: "Inside Siena during the Palio — the contrada dinners, the blessing, and the race from a private balcony over the Campo.", guide: {
+      { title: "Palio di Siena", city: "Siena, Italy", airport: "FLR", airportName: "Florence", start: "2027-07-01", end: "2027-07-03", dateLabel: "July 2 & Aug 16, 2027", nights: 4, photo: "Piazza del Campo Siena Palio", gallery: ["Piazza del Campo Siena", "Torre del Mangia Siena", "Siena Cathedral Duomo di Siena"], blurb: "Inside Siena during the Palio — the contrada dinners, the blessing, and the race from a private balcony over the Campo.", guide: {
         cur: "€",
         daysTitle: "Choose your Palio & your balcony",
         pickStep: "Step one · choose your race & your balcony",
@@ -14907,7 +14907,7 @@ function OneList({ onPick, onBack, onHome }) {
   // Arts & Culture holds five categories, and 2-2-1 left an orphan on the bottom row. Three across
   // the top and two centred beneath is balanced.
   const TYPE_ROWS = { "Sport": [3, 3], "Arts & Culture": [3, 2], "Signature Journeys": [2, 2] };
-  const EVENT_ROWS = { "Golf": [1], "Tennis": [2, 1], "Horse Racing & Polo": [2, 1, 2], "Gardens & The Season": [1], "Fútbol": [3] };
+  const EVENT_ROWS = { "Golf": [1], "Tennis": [2, 1], "Horse Racing & Polo": [2, 1, 2], "Gardens & The Season": [1], "Fútbol": [3], "Spectacle & Pageantry": [2, 1] };
   const chunkRows = (arr, pattern) => { const rows = []; let i = 0; (pattern || []).forEach((n) => { if (i < arr.length) { rows.push(arr.slice(i, i + n)); i += n; } }); while (i < arr.length) { rows.push(arr.slice(i, i + 3)); i += 3; } if (!rows.length && arr.length) rows.push(arr); return rows; };
   const back = (fn, label) => (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
     <button onClick={fn} style={NAV_PILL}><ArrowLeft size={15} /> {label}</button>
