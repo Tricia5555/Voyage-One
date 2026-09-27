@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M683";
+const BUILD = "M685";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7347,21 +7347,21 @@ const TOURS = {
   // was being dropped as unexplained — this is Tricia's line, and it now leads the list while the
   // described live results still follow beneath it.
   // THE ESSENTIAL BURGUNDY VISIT, and the reason Beaune looks the way it does.
-  "Burgundy": [["H\u00f4tel-Dieu \u2014 Hospices de Beaune", null, "Founded in 1443 as a charitable hospital for the poor and still owning some sixty hectares of Burgundy vineyards. The multicoloured glazed-tile roof is the image of the region; inside are the great hall of the paupers' ward, the pharmacy and Rogier van der Weyden's Last Judgement. Absolutely include it.", { find: "Hospices de Beaune H\u00f4tel-Dieu" }]],
-  "St Barth": [["Fort Karl", null, "A historic military fort above Gustavia, built by the Swedes in 1789.", { find: "Fort Karl Gustavia" }]],
-  "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history."]],
+  "Burgundy": [["H\u00f4tel-Dieu \u2014 Hospices de Beaune", null, "Founded in 1443 as a charitable hospital for the poor and still owning some sixty hectares of Burgundy vineyards. The multicoloured glazed-tile roof is the image of the region; inside are the great hall of the paupers' ward, the pharmacy and Rogier van der Weyden's Last Judgement. Absolutely include it.", { inTown: true,  find: "Hospices de Beaune H\u00f4tel-Dieu" }]],
+  "St Barth": [["Fort Karl", null, "A historic military fort above Gustavia, built by the Swedes in 1789.", { inTown: true,  find: "Fort Karl Gustavia" }]],
+  "New York City": [["The Lion King (Minskoff Theatre)", 260, "The long-running Broadway spectacle, premium orchestra seats.", { inTown: true,  find: "Minskoff Theatre" }], ["The Metropolitan Museum of Art", 190, "Two hours of masterpieces with a private art historian.", { inTown: true,  find: "The Metropolitan Museum of Art" }], ["Manhattan by helicopter", 300, "Skyline, harbor and bridges from the air.", { inTown: true,  find: "Manhattan Helicopters" }], ["Greenwich Village food tour", 90, "Tasting the Village's classic bites and history.", { inTown: true }]],
   "Florence": [["Michelangelo\u2019s David \u00b7 Galleria dell\u2019Accademia", null, "The original David, inside the Accademia \u2014 not the copies in Piazza della Signoria or at Piazzale Michelangelo. One of Florence\u2019s essential masterpieces.",
-    { find: "Galleria dell'Accademia di Firenze", address: "Via Ricasoli 58/60, Florence", book: "https://www.galleriaaccademiafirenze.it/en/", bookLabel: "Reserve timed ticket \u2192", tel: "+39 055 294883", telLabel: "Call for timed entry",
+    { inTown: true, find: "Galleria dell'Accademia di Firenze", address: "Via Ricasoli 58/60, Florence", book: "https://www.galleriaaccademiafirenze.it/en/", bookLabel: "Reserve timed ticket \u2192", tel: "+39 055 294883", telLabel: "Call for timed entry",
       guide: [["Why go", "Michelangelo\u2019s original David. The Accademia holds it, and little else you need; go for him."], ["Time needed", "About one to one and a half hours for a focused visit."],
               ["Best strategy", "TIMED ENTRY RECOMMENDED. The Accademia can be very crowded; a timed reservation is the way to avoid an unpredictable wait. Reserve on the official site, or by phone through Firenze Musei."],
               ["Same-day option", "If timed tickets are gone online, you may still go to the museum and buy a same-day ticket at the ticket office. Entry without a reservation may involve a wait \u2014 a walk-up ticket does not mean immediate admission."],
               ["First Sunday of the month", "Admission is free, but timed reservations are not offered. Expect lines and arrive early."],
               ["Hours", "Current hours, prices and rules are on the official Galleria dell\u2019Accademia site; they change, so we do not print them here."]] }],
-  ["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian."], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef."], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter."], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city."]],
-  "Palermo": [["Ballarò & Vucciria street food", 95, "Graze Palermo's raucous markets with a local guide."], ["Monreale golden mosaics", 150, "Private visit to the dazzling Norman cathedral above the city."], ["Baroque Palermo & Cappella Palatina", 140, "Palaces, oratories and the glittering royal chapel."], ["Cefalù seaside day trip", 260, "Medieval lanes and a golden beach an hour east."]],
-  "Lisbon": [["Sintra palaces, private driver", 300, "Pena Palace and Quinta da Regaleira, door to door."], ["Alfama fado & tram evening", 150, "Old-quarter wandering ending with live fado and dinner."], ["Belém: pastéis & Jerónimos", 120, "Manueline monastery, monument and the original custard tarts."], ["Óbidos & wine country day", 280, "A walled medieval town and cellar tastings north of the city."]],
-  "Porto": [["Douro Valley vineyards & cruise", 340, "Terraced vineyards, quinta tastings and a scenic boat leg."], ["Port cellars of Gaia", 130, "Tour and tasting flights across historic port lodges."], ["Ribeira & Livraria Lello walk", 110, "Riverfront lanes, azulejos and the storied bookshop."], ["Francesinha food crawl", 150, "Master Porto's legendary sandwich and taste around town."]],
-  "Madrid": [["Prado & Reina Sofía art walk", 220, "Velázquez, Goya and Picasso's Guernica with an expert."], ["La Latina tapas crawl", 120, "Hop the classic taverns with wine and jamón."], ["Toledo day trip", 280, "Imperial city of three cultures, an hour south."], ["Flamenco in an intimate tablao", 110, "Front-row passion at a storied Madrid stage."]],
+  ["Uffizi & Accademia early access", 320, "Beat the crowds to Botticelli and Michelangelo's David with an art historian.", { inTown: true }], ["Chianti estates by classic car", 540, "A vintage-car day through vineyards with cellar tastings and lunch."], ["Tuscan cooking class & market", 220, "Shop the market, then cook a Florentine feast with a local chef.", { inTown: true }], ["Oltrarno artisan workshops", 160, "Meet goldsmiths and leather masters in the craft quarter.", { inTown: true }], ["Sunset at Piazzale Michelangelo", 120, "Golden-hour panorama with an aperitivo above the city.", { inTown: true }]],
+  "Palermo": [["Ballarò & Vucciria street food", 95, "Graze Palermo's raucous markets with a local guide.", { inTown: true }], ["Monreale golden mosaics", 150, "Private visit to the dazzling Norman cathedral above the city."], ["Baroque Palermo & Cappella Palatina", 140, "Palaces, oratories and the glittering royal chapel.", { inTown: true }], ["Cefalù seaside day trip", 260, "Medieval lanes and a golden beach an hour east."]],
+  "Lisbon": [["Sintra palaces, private driver", 300, "Pena Palace and Quinta da Regaleira, door to door."], ["Alfama fado & tram evening", 150, "Old-quarter wandering ending with live fado and dinner.", { inTown: true }], ["Belém: pastéis & Jerónimos", 120, "Manueline monastery, monument and the original custard tarts.", { inTown: true }], ["Óbidos & wine country day", 280, "A walled medieval town and cellar tastings north of the city."]],
+  "Porto": [["Douro Valley vineyards & cruise", 340, "Terraced vineyards, quinta tastings and a scenic boat leg."], ["Port cellars of Gaia", 130, "Tour and tasting flights across historic port lodges.", { inTown: true }], ["Ribeira & Livraria Lello walk", 110, "Riverfront lanes, azulejos and the storied bookshop.", { inTown: true }], ["Francesinha food crawl", 150, "Master Porto's legendary sandwich and taste around town.", { inTown: true }]],
+  "Madrid": [["Prado & Reina Sofía art walk", 220, "Velázquez, Goya and Picasso's Guernica with an expert.", { inTown: true }], ["La Latina tapas crawl", 120, "Hop the classic taverns with wine and jamón.", { inTown: true }], ["Toledo day trip", 280, "Imperial city of three cultures, an hour south."], ["Flamenco in an intimate tablao", 110, "Front-row passion at a storied Madrid stage.", { inTown: true }]],
 };
 const IDEA_SETTING = ["Beach","Islands","Mountains & alpine","Big city","Countryside","Coastal & seaside","Desert","Wine country","Lakes","Safari & wild","Jungle & rainforest","Arctic & remote","Historic towns & villages","Ranch & wilderness","River & waterfront"];
 const IDEA_DOING = ["Food & wine","Art & history","Shopping","Skiing","Diving & water","Hiking & nature","Wellness & spa","Golf · play or watch","Wildlife","Tennis · play or watch","Sailing & yachting","Sports & sporting events","Culture & festivals","Beach & pool","Deep sea fishing","Fly fishing","Adventure","Architecture & design","Music & performing arts","Cars & motorsports","Equestrian & polo","Ranches & riding","Photography & scenery","Family"];
@@ -18020,11 +18020,18 @@ function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const fresh = live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0])));
   const inTown = fresh.filter((r) => !(r[3] && r[3].nearby));
   const nearby = fresh.filter((r) => r[3] && r[3].nearby).map((r) => [r[0], r[1], `${r[3].mi} mi away \u00b7 ${r[2]}`, r[3]]);
-  const rows = curated.length ? curated.concat(inTown) : inTown;
-  if (!rows.length && !nearby.length) return null;
+  // A CURATED ROW IS IN TOWN OR A DAY OUT. David is in Florence; the Chianti by classic car is a day
+  // out from it. Rows flagged inTown lead "Things to do in"; the rest keep "Days out from".
+  const curatedIn = curated.filter((r) => r[3] && r[3].inTown);
+  const curatedOut = curated.filter((r) => !(r[3] && r[3].inTown));
+  const rows = curatedIn.concat(inTown);
+  if (!rows.length && !curatedOut.length && !nearby.length) return null;
   return (<>
-    {rows.length ? (<Panel icon={Compass} title={curated.length ? `Days out from ${city || "this city"}` : `Things to do in ${city || "this city"}`}>
+    {rows.length ? (<Panel icon={Compass} title={`Things to do in ${bareCity(city || "this city")}`}>
       <ListPicker city={city} rows={rows} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+    </Panel>) : null}
+    {curatedOut.length ? (<Panel icon={Compass} title={`Days out from ${bareCity(city || "this city")}`}>
+      <ListPicker city={city} rows={curatedOut} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
     </Panel>) : null}
     {nearby.length ? (<Panel icon={Compass} title={`Things to do nearby \u00b7 within 30 miles of ${bareCity(city || "")}`}>
       <div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 8 }}>Not in {bareCity(city || "")} itself, but close enough for a half-day or a day out.</div>
