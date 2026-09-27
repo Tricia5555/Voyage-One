@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M685";
+const BUILD = "M686";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17999,7 +17999,10 @@ function useCityThings(city, topic) {
         // thirty miles is not offered at all. Useful where a town is small and the important
         // things are close by; wrong when it puts Florence under Siena's name.
         const here = coordsFor(city);
-        const NEARBY_MI = 30, IN_TOWN_MI = 6;
+        // "IN TOWN" IS SIX MILES for Siena or Porto and nowhere near enough for Los Angeles, where the
+        // Getty is nine miles from Beverly Hills and still the city. Sprawling cities get a wider
+        // in-town radius; nearby is thirty miles everywhere.
+        const NEARBY_MI = 30, IN_TOWN_MI = inTownRadiusMi(city);
         const miles = (m) => (!here || m.lat == null || m.lng == null) ? null : kmBetween(here, [m.lat, m.lng]) / 1.609;
         const seen = new Set(); const out = [];
         flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!m.desc) return;
@@ -18013,6 +18016,10 @@ function useCityThings(city, topic) {
   }, [key]);
   return rows || [];
 }
+// THE IN-TOWN RADIUS. Six miles by default; wider for the cities that sprawl. A rule with a short
+// table of exceptions, not a list of places — add a city here the day its "in town" is bigger.
+const SPRAWL_MI = { "Los Angeles": 15, "Beverly Hills": 15, "Houston": 15, "Dallas": 12, "Atlanta": 12, "Miami": 12, "Phoenix": 15, "Scottsdale": 12, "Tokyo": 12, "Sydney": 12, "Mexico City": 12, "S\u00e3o Paulo": 12, "Rio de Janeiro": 10, "Buenos Aires": 10, "Johannesburg": 12, "Cape Town": 10, "Dubai": 12, "Riyadh": 12, "Shanghai": 12, "Beijing": 12, "Bangkok": 10, "Istanbul": 10, "Moscow": 10, "London": 8, "Paris": 8, "Berlin": 8, "Rome": 8, "Madrid": 8, "Chicago": 10, "New York City": 8, "Toronto": 10, "Montreal": 8, "Las Vegas": 10, "Orlando": 12 };
+function inTownRadiusMi(city) { const k = Object.keys(SPRAWL_MI).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? SPRAWL_MI[k] : 6; }
 // Days out / Things to do: curated list where we have one, otherwise the real live list.
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
@@ -18034,7 +18041,7 @@ function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
       <ListPicker city={city} rows={curatedOut} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
     </Panel>) : null}
     {nearby.length ? (<Panel icon={Compass} title={`Things to do nearby \u00b7 within 30 miles of ${bareCity(city || "")}`}>
-      <div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 8 }}>Not in {bareCity(city || "")} itself, but close enough for a half-day or a day out.</div>
+      <div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 8 }}>Beyond about {inTownRadiusMi(city)} miles from the centre, within thirty — close enough for a half-day or a day out.</div>
       <ListPicker city={city} rows={nearby} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
     </Panel>) : null}
   </>);
