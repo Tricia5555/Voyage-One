@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M700";
+const BUILD = "M701";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12212,20 +12212,31 @@ const ONE_LIST = {
           ticketsTitle: "Tickets and hospitality \u2014 from Formula 1 direct",
           tickets: "Singapore\u2019s tickets and hospitality are sold by FORMULA 1 ITSELF through its official ticketing, and that is where we send you. THE PADDOCK CLUB is the top of it: the suites above the pit lane with the pit-lane walk, open bars, fine dining and the podium below you, sold by F1 direct as the FORMULA 1 PADDOCK CLUB. Below it, F1\u2019s official hospitality suites at the turns and the Padang, and the grandstands \u2014 the Pit Grandstand for the start and the pit stops, the Bay Grandstand for the waterfront and the concerts. Three-day passes are the norm; single days exist. 2027 SALES: the waitlist is open now on F1\u2019s official site; general sale for a Singapore race typically opens in the spring, and the Paddock Club earlier. Prices are F1\u2019s own and appear here when published. Nothing here is bought from a reseller while F1 sells the same seat.",
           ticketBands: [
-            { label: "Formula 1 Paddock Club \u2014 above the pit lane, pit-lane walk, open bar, fine dining \u00b7 the Voyage One route", price: "F1 official pricing on release" },
-            { label: "Official F1 hospitality suites \u2014 at the turns and the Padang", price: "F1 official pricing on release" },
-            { label: "Pit Grandstand \u2014 the start, the pit stops; three-day pass", price: "F1 official pricing on release" },
-            { label: "Bay Grandstand \u2014 the waterfront and the concert stage", price: "F1 official pricing on release" },
+            { label: "Formula 1 Paddock Club \u2014 above the pit lane, pit-lane walk, open bar, fine dining \u00b7 the top official tier", price: "~\u20ac11,000+ pp \u00b7 3-day weekend \u00b7 2026 planning estimate" },
+            { label: "Twenty3 / Sky Suite level \u2014 the strong premium tier below Paddock Club", price: "~\u20ac6,500\u2013\u20ac8,500+ pp \u00b7 3-day weekend \u00b7 2026 planning estimate" },
+            { label: "The Green Room / premium lounge level", price: "~\u20ac4,500\u2013\u20ac5,500+ pp \u00b7 3-day weekend \u00b7 2026 planning estimate" },
+            { label: "Lounge / Torque level", price: "~\u20ac3,500\u2013\u20ac4,500+ pp \u00b7 3-day weekend \u00b7 2026 planning estimate" },
+            { label: "Pit Grandstand and Bay Grandstand \u2014 three-day passes, no hospitality", price: "F1 official pricing on release" },
           ],
+          pricing: { year: 2027, basisYear: 2026,
+            rows: [
+              { label: "Formula 1 Paddock Club", est: "~\u20ac11,000+ per person", note: "The top official hospitality tier. Three-day weekend package." },
+              { label: "Twenty3 / Sky Suite level", est: "~\u20ac6,500\u2013\u20ac8,500+ per person", note: "A strong premium option below Paddock Club. Three-day weekend." },
+              { label: "The Green Room / premium lounge level", est: "~\u20ac4,500\u2013\u20ac5,500+ per person", note: "Three-day weekend." },
+              { label: "Lounge / Torque level", est: "~\u20ac3,500\u2013\u20ac4,500+ per person", note: "Three-day weekend. Current 2026 examples at this level: the Driver\u2019s Right Lounge about S$5,110\u2013S$5,655; the Sky View Pavilion about S$5,437." },
+            ],
+            current: null,
+            positioning: "BEST VIP INVENTORY SELLS EARLY. For 2026 the Paddock Club, Sky Suite, Twenty3, Observ@3 and the Green Room were already sold out online while lower tiers still had availability. If Singapore is a priority, choose your hospitality level the moment the official 2027 packages open \u2014 the reminder is set.",
+            disclaimer: "All figures are 3-DAY WEEKEND packages, never single-day prices, and are 2026 planning benchmarks; future-year pricing may increase. When Formula 1 publishes 2027 prices they replace these." },
           ticketNote: "Everything is chosen in Build this trip: dates, hotel, flights, the transfer, then how you watch, the concerts, the dinners and the days. Nothing is bought on this page.",
           sale: { status: "unknown", year: "2027", by: "Formula 1", city: "Singapore", slug: "singapore-gp-2027", remindDate: "2027-03-15", remindWhy: "F1 usually opens Singapore\u2019s general sale in the spring, with the Paddock Club before it; the 2027 waitlist is open now", infoUrl: "https://ticketing.formula1.com/singapore/", buyUrl: "", remindNote: "Singapore Grand Prix, 8\u201310 October 2027 \u2014 check whether Formula 1 has opened ticket and Paddock Club sales. Join the waitlist first. A Voyage One reminder." },
           profile: [
-            { key: "watch", q: "How do you want to watch?", options: [["paddock", "The Paddock Club \u2014 above the pit lane, the whole weekend"], ["suite", "An official hospitality suite at a turn"], ["grandstand", "A grandstand three-day pass"]] },
+            { key: "watch", q: "How do you want to watch?", options: [["paddock", "The Paddock Club \u2014 ~\u20ac11,000+ pp, the whole weekend"], ["suite", "An official hospitality suite \u2014 ~\u20ac3,500\u2013\u20ac8,500+ pp by level"], ["grandstand", "A grandstand three-day pass"]] },
             { key: "days", q: "Which days?", options: [["three", "All three \u2014 Friday to Sunday"], ["two", "Saturday and Sunday"], ["race", "Sunday only"]] },
           ],
           build: [
             { key: "access", title: "Tickets and hospitality", cta: "Add tickets", day: 2, time: "18:00", icon: "trophy",
-              why: (pr) => `${pr.watch === "paddock" ? "THE PADDOCK CLUB, from Formula 1 direct: the suites above the pit lane, the pit-lane walk, open bar and fine dining, the podium at your feet." : pr.watch === "suite" ? "An OFFICIAL F1 HOSPITALITY SUITE at a turn or on the Padang \u2014 covered, catered, a bar, a view of one corner rather than the pit lane." : "A GRANDSTAND three-day pass \u2014 the Pit Grandstand for the start and the stops, the Bay for the waterfront and the concerts. Covered seats matter in the humidity."} ${pr.days === "race" ? "Sunday only." : pr.days === "two" ? "Saturday and Sunday." : "Friday to Sunday \u2014 the three-day pass, which is how it is sold."} When F1 publishes the 2027 categories and prices they appear here; the reminder is set.`,
+              why: (pr) => `${pr.watch === "paddock" ? "THE PADDOCK CLUB, from Formula 1 direct: the suites above the pit lane, the pit-lane walk, open bar and fine dining, the podium at your feet. PLAN ~\u20ac11,000+ per person for the three-day weekend (2026 benchmark); it sold out online for 2026." : pr.watch === "suite" ? "An OFFICIAL F1 HOSPITALITY SUITE at a turn or on the Padang \u2014 covered, catered, a bar, a view of one corner rather than the pit lane. PLAN ~\u20ac3,500\u2013\u20ac8,500+ per person for the three-day weekend by level (2026 benchmark): Twenty3 / Sky Suite at the top, the Green Room, then the lounges. The best levels sold out early for 2026." : "A GRANDSTAND three-day pass \u2014 the Pit Grandstand for the start and the stops, the Bay for the waterfront and the concerts. Covered seats matter in the humidity."} ${pr.days === "race" ? "Sunday only." : pr.days === "two" ? "Saturday and Sunday." : "Friday to Sunday \u2014 the three-day pass, which is how it is sold."} When F1 publishes the 2027 categories and prices they appear here; the reminder is set.`,
               links: [{ label: "Formula 1 official tickets", url: "https://ticketing.formula1.com/singapore/" }, { label: "Formula 1 Paddock Club", url: "https://www.formula1.com/en/hospitality" }] },
             { key: "concerts", title: "The concerts", cta: "Add the concerts", optional: true, bookable: false, day: 1, time: "22:30", icon: "trophy",
               why: "Three nights of major acts on the Padang stage inside the circuit, after the track goes quiet \u2014 included with the ticket for that zone. The 2027 lineup is announced by the promoter in the summer; nothing from 2026 is shown as 2027." },
@@ -12262,6 +12273,7 @@ const ONE_LIST = {
           ],
           notes: [
             "F1 DIRECT. Formula 1 sells Singapore\u2019s tickets and the Paddock Club itself; join the waitlist now.",
+            "BEST VIP INVENTORY SELLS EARLY. Choose your hospitality level the moment the 2027 packages open.",
             "STAY AT RAFFLES AND WALK. It is inside the circuit\u2019s footprint; nothing else in Singapore is.",
             "THE RACE IS AT EIGHT IN THE EVENING and it is thirty degrees. Covered seats, water, and nothing planned for the afternoon.",
             "NO RENTAL CAR IN SINGAPORE. Walk, the hotel\u2019s car, or the MRT.",
