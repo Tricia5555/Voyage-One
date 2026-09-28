@@ -25,7 +25,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M698";
+const BUILD = "M699";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -13139,11 +13139,6 @@ const ONE_LIST = {
         handoff: "Next, in the trip builder: we'll set your dates around the match, secure the Club Wembley or Bobby Moore seats, book your London hotel, arrange your match-day driver, and build in the London days around it — every detail confirmed with you.",
       } },
     ],
-    "Cycling": [
-      // THE TOUR DE FRANCE was removed 26 Sept 2026: the mountain stages are the only version worth
-      // offering, and only Courchevel and Megève have hotels at the standard — so it works only when the
-      // route obliges, and the route is announced each October. Revisit when the 2027 route is out.
-    ],
     "On the Water": [
       { title: "The America's Cup \u00b7 Naples", city: "Naples", airport: "NAP", airportName: "Naples", start: "2027-07-09", end: "2027-07-14", dateLabel: "The Match \u00b7 July 10\u201318, 2027 \u00b7 Louis Vuitton Cup from May 22", nights: 5, photo: "Grand Hotel Vesuvio Naples", gallery: ["Grand Hotel Vesuvio Naples", "Bay of Naples Castel dell Ovo", "Capri Marina Grande"],
         blurb: "The oldest trophy in international sport, sailed for the first time in Italy \u2014 AC75s foiling at fifty knots on the Bay of Naples, Vesuvius behind them, and a hotel on the Lungomare to watch it from.",
@@ -15542,7 +15537,7 @@ function OneList({ onPick, onBack, onHome }) {
     </div>);
   }
   if (cat) {
-    const types = Object.keys(ONE_LIST[cat] || {}).sort((a, b) => a.localeCompare(b));
+    const types = Object.keys(ONE_LIST[cat] || {}).filter((ty) => (ONE_LIST[cat][ty] || []).length > 0).sort((a, b) => a.localeCompare(b));   // a group with nothing in it is not shown
     const rows = chunkRows(types, TYPE_ROWS[cat]);
     return (<div style={shell}>
       {back(() => setCat(null), "back to categories")}
