@@ -4,7 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Voyage One — Private Travel Atelier</title>
-<style> html, body, #root { height: 100%; margin: 0; background: #FBFAF6; } </style>
+<style> html, body, #root { height: 100%; margin: 0; background: #FBFAF6; } 
+/* DATE FIELDS ON A MAC. Safari and Chrome on macOS draw <input type=date> at a tiny intrinsic size and
+   ignore the font size for the control itself; the iPad does not, which is why the same field looks
+   fine there and barely visible here. Give the control a real size everywhere. */
+input[type="date"] { -webkit-appearance: none; appearance: none; min-height: 46px; min-width: 240px; font-size: 20px; line-height: 1.3; box-sizing: border-box; }
+input[type="date"]::-webkit-datetime-edit { font-size: inherit; padding: 0; }
+input[type="date"]::-webkit-datetime-edit-fields-wrapper { padding: 0; }
+input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24px; cursor: pointer; opacity: .75; }
+</style>
 <script type="importmap">
 {
   "imports": {
@@ -25,7 +33,7 @@
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M701";
+const BUILD = "M704";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -743,6 +751,7 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favorite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  "Belmond Castello di Casole",
   "The Greenwich Hotel", "The Fifth Avenue Hotel", "Casa Cipriani New York",
   "Hotel Bel-Air",
   "Zaborin",
@@ -1682,6 +1691,7 @@ const FAVORITES = {
   "Rome": [
     { name: "Hotel de Russie", area: "Piazza del Popolo", rate: null, ourTake: "A Rocco Forte grande dame with the city's most beautiful secret garden." },
     { name: "Bulgari Hotel Roma", area: "Via Condotti", rate: null, ourTake: "Jewel-box Italian glamour steps from the Spanish Steps, with a rooftop over the rooftops." },
+    { name: "Rome Cavalieri, Waldorf Astoria", area: "Monte Mario \u00b7 above the city", rate: null, ourTake: "The hilltop resort above Rome with the largest pool in the city and La Pergola on the roof; a car, or the shuttle, to the centre." },
     { name: "Hotel Eden", area: "Via Veneto", rate: null, ourTake: "A Dorchester Collection classic with the finest rooftop panorama in Rome." },
     { name: "Six Senses Rome", area: "Historic centre", rate: null, ourTake: "A wellness-led palazzo by the Trevi, with Roman baths reborn." },
     { name: "Portrait Roma", area: "Via Condotti", rate: null, ourTake: "Ferragamo's chic rooftop suites above the fashion streets." },
@@ -4082,6 +4092,35 @@ const FAVORITES = {
   "Fiji": [
     { name: "Kokomo Private Island Fiji", area: "Kadavu", rate: null, ourTake: "A private-island resort with a great reef and a farm-to-table soul." },
     { name: "COMO Laucala Island", area: "Laucala", rate: null, ourTake: "One of the world's most exclusive private islands, twenty-five villas only." },
+  ],
+  // EVENT HOTELS, ADDED TO THEIR DESTINATIONS (29 Sept 2026): an approved hotel for an experience
+  // must also appear when the destination is searched on its own.
+  "Louisville": [
+    { name: "Omni Louisville", area: "Downtown", rate: null, bestAvailable: true, ourTake: "Full-service downtown base: central, a spa, a rooftop pool, and often the hotel inside the official Derby packages." },
+    { name: "21c Museum Hotel Louisville", area: "Downtown \u00b7 Whiskey Row", rate: null, bestAvailable: true, ourTake: "Boutique, contemporary art through the building, the best access to Whiskey Row." },
+    { name: "The Brown Hotel", area: "Downtown \u00b7 historic", rate: null, bestAvailable: true, ourTake: "Classic Louisville, old-school Kentucky character, and the home of the original Hot Brown." },
+    { name: "Hermitage Farm", area: "Goshen \u00b7 Thoroughbred country, 30 minutes out", rate: null, bestAvailable: true, ourTake: "Private accommodation on a working Thoroughbred farm, with bourbon on the property. The distinctive Kentucky stay." },
+  ],
+  "Henley-on-Thames": [
+    { name: "The Relais Henley", area: "On the river, by the bridge", rate: null, ourTake: "The old Red Lion reborn: on the Thames at the foot of the bridge, steps from the Regatta enclosures." },
+  ],
+  "Ascot": [
+    { name: "Coworth Park", area: "Dorchester Collection \u00b7 the estate", rate: null, ourTake: "A Dorchester Collection country house on 240 acres with its own polo lawns, ten minutes from the racecourse; the Royal Ascot address." },
+  ],
+  "Cannes": [
+    { name: "Carlton Cannes, a Regent Hotel", area: "La Croisette", rate: null, ourTake: "The Croisette\u2019s belle-\u00e9poque landmark, reborn as a Regent; the festival\u2019s hotel since 1946." },
+    { name: "H\u00f4tel Martinez", area: "La Croisette", rate: null, ourTake: "Art-deco glamour at the eastern end of the Croisette, with La Palme d\u2019Or upstairs." },
+    { name: "H\u00f4tel Barri\u00e8re Le Majestic", area: "La Croisette \u00b7 opposite the Palais", rate: null, ourTake: "Directly across from the Palais des Festivals; the red carpet is the front door." },
+  ],
+  "Salzburg": [
+    { name: "Schloss M\u00f6nchstein", area: "M\u00f6nchsberg \u00b7 above the Old Town", rate: null, ourTake: "A castle hotel on the M\u00f6nchsberg with the Old Town and the fortress below; the Festival\u2019s most private address." },
+    { name: "Hotel Goldener Hirsch", area: "Getreidegasse \u00b7 Old Town", rate: null, ourTake: "Six hundred years on the Getreidegasse, steps from the Festspielhaus; the Festival lives in its bar." },
+    { name: "Hotel Sacher Salzburg", area: "Salzach \u00b7 river front", rate: null, ourTake: "The Sacher on the river, facing the Old Town, with the Salzburg Sachertorte and the terrace." },
+  ],
+  "Siena": [
+    { name: "Belmond Castello di Casole", area: "Casole d\u2019Elsa \u00b7 about 35 minutes from the Campo", rate: null, ourTake: "A tenth-century castle on a 4,200-acre estate in the hills west of Siena, restored by Belmond: the pool over the valley, the vineyards, the suites in the old stone. Not in Siena, and incredible \u2014 the top choice for the Palio, and for anyone who simply wants Tuscany with Siena an easy drive away." },
+    { name: "Grand Hotel Continental Siena", area: "Banchi di Sopra \u00b7 steps from the Campo", rate: null, ourTake: "A seventeenth-century palazzo on the main street, the only five-star inside the walls, minutes from the Campo." },
+    { name: "Palazzo Ravizza", area: "Pian dei Mantellini \u00b7 inside the walls", rate: null, ourTake: "A family-run Renaissance palazzo with a garden over the hills; the quiet, characterful alternative." },
   ],
 };
 const EATS = {
@@ -7377,6 +7416,12 @@ const TOURS = {
               ["Same-day option", "None that can be relied on. A handful of returns appear on the site from time to time; the ticket office at the church has almost nothing. Official guided tours of Milan that include the Cenacolo sometimes hold places when the site shows none, and are the one legitimate fallback."],
               ["Hours and rules", "CLOSED MONDAYS. Photo ID with the ticket; no bags of any size beyond a small one; the reservation fee is non-refundable."],
               ["Sold out?", "Another date, at the next release. Never a reseller: tickets are named and checked. The church itself, and Bramante\u2019s tribune, can be seen without a ticket."]] }]],
+  "Siena": [["A day in Siena with Sofia Saletti \u00b7 private guide", null, "The city with someone who knows it: the Campo and the contrade, the Duomo and its floor, the Palazzo Pubblico, the streets a map does not explain. Voyage One\u2019s guide in Siena, Palio or not.",
+    { inTown: true, find: "Piazza del Campo Siena", address: "Siena", tel: "+39 339 7842696", telLabel: "Call Sofia", email: "sofiavanni@alice.it",
+      guide: [["Who", "SOFIA SALETTI, a private guide in Siena, recommended by Voyage One from our own visit. She takes the city at your pace, in English, and knows the contrade from the inside."],
+              ["When", "Any time of year \u2014 Siena is a charming town to see without a race \u2014 and essential in Palio week, when the contrada dinners, the trials and the day itself need someone who knows which door to knock on."],
+              ["Time needed", "A half day for the Campo, the Duomo and the Palazzo Pubblico; a full day to add a contrada museum and the hills."],
+              ["How to book", "Call or email Sofia directly with your dates; she confirms availability and her fee. Weeks ahead in season, months ahead for the Palio."]] }]],
 };
 const IDEA_SETTING = ["Beach","Islands","Mountains & alpine","Big city","Countryside","Coastal & seaside","Desert","Wine country","Lakes","Safari & wild","Jungle & rainforest","Arctic & remote","Historic towns & villages","Ranch & wilderness","River & waterfront"];
 const IDEA_DOING = ["Food & wine","Art & history","Shopping","Skiing","Diving & water","Hiking & nature","Wellness & spa","Golf · play or watch","Wildlife","Tennis · play or watch","Sailing & yachting","Sports & sporting events","Culture & festivals","Beach & pool","Deep sea fishing","Fly fishing","Adventure","Architecture & design","Music & performing arts","Cars & motorsports","Equestrian & polo","Ranches & riding","Photography & scenery","Family"];
@@ -8390,6 +8435,11 @@ const GATEWAY = {
   "Jabal Akhdar": { air: "Muscat", note: "Fly to Muscat (MCT), then two hours and a mountain road. Four-wheel drive is required at the checkpoint, not optional." },
   "Wahiba Sands": { air: "Muscat", note: "Fly to Muscat (MCT), then about two and a half hours; the last stretch is soft sand and the camp will meet you." },
   "Serengeti": { air: "Kilimanjaro", note: "Fly to Kilimanjaro (JRO), then a light aircraft into the bush strips." },
+  "Siena": { air: "Florence", note: "FLORENCE (FLR) is ninety minutes by road; PISA (PSA) about the same; from the US, one stop through Rome, Munich, Frankfurt or Paris, or fly into ROME and drive two and a half hours up the A1." },
+  "Henley-on-Thames": { air: "London", note: "HEATHROW (LHR) is forty minutes by road." },
+  "Ascot": { air: "London", note: "HEATHROW (LHR) is twenty-five minutes by road." },
+  "Cannes": { air: "Nice", note: "NICE (NCE) is forty minutes by road, or seven minutes by helicopter to the Cannes heliport in festival season." },
+  "Salzburg": { air: "Munich", note: "SALZBURG (SZG) has European service; from the US, MUNICH (MUC) is ninety minutes by road or train and VipWing meets you there." },
   "Dolomites": { air: "Venice", note: "VENICE (VCE) is the usual gateway and the one with transatlantic service \u2014 about two hours by road to Cortina at the eastern end, nearer three to San Cassiano and the Alta Badia in the centre. For the Alta Badia, INNSBRUCK (INN) is closer at about ninety minutes over the Brenner, but it is a small field with thin long-haul connections, so it suits a client already in Europe more than one arriving from the States. VERONA (VRP) is a third option at two and a half hours, useful if the fares are better. The mountain roads are good but slow: allow the time, and in winter give the driver a car with proper tyres." },
   "Provence": { air: "Marseille", note: "Marseille (MRS) or Nice (NCE) — then a car is essential." },
   "Napa Valley": { air: "San Francisco", note: "San Francisco (SFO) is the gateway — about 1 hr 30 north." },
@@ -8740,7 +8790,7 @@ const AIRPORTS = {
   "Chicago": { code: "ORD", scale: "intercontinental" }, "Boston": { code: "BOS", scale: "intercontinental" },
   "Washington DC": { code: "IAD", scale: "intercontinental" }, "Newark": { code: "EWR", scale: "intercontinental" },
   "London": { code: "LHR", scale: "intercontinental" }, "Paris": { code: "CDG", scale: "intercontinental" },
-  "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" },
+  "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" }, "Louisville": { code: "SDF", scale: "regional" }, "Salzburg": { code: "SZG", scale: "regional" },
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
   "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" },
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
@@ -9681,7 +9731,7 @@ const COORDS = {
   "Cortina d\u2019Ampezzo": [46.54,12.14], "Alta Badia": [46.58,11.90], "Ortisei": [46.57,11.67], "Selva di Val Gardena": [46.56,11.76],
   "Bressanone": [46.72,11.66], "Brunico": [46.80,11.94], "Dobbiaco": [46.73,12.22], "Moena": [46.38,11.66],
   "Cavalese": [46.29,11.46], "Madonna di Campiglio": [46.23,10.83], "Pinzolo": [46.16,10.77],
-  "Azores": [37.74,-25.67], "Cotswolds": [51.83,-1.75], "Greek Islands": [36.9,25.0], "Ionian Islands": [39.0,20.0], "Dodecanese": [36.4,27.5], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
+  "Louisville": [38.25,-85.76], "Henley-on-Thames": [51.54,-0.90], "Ascot": [51.41,-0.68], "Cannes": [43.55,7.02], "Salzburg": [47.81,13.05], "Azores": [37.74,-25.67], "Cotswolds": [51.83,-1.75], "Greek Islands": [36.9,25.0], "Ionian Islands": [39.0,20.0], "Dodecanese": [36.4,27.5], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
   "Aeolian Islands": [38.48,14.95], "Sonoma County": [38.51,-122.80], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
@@ -12614,7 +12664,7 @@ const ONE_LIST = {
         stayNote: "The clever move is not the closest hotel — it's the one that gives you both easy Foro Italico access and a real Rome. That means staying on the northern, central side of the city, a short run from the courts. Our default does exactly that; an ultra-luxury alternative and a tennis-first resort follow.",
         stay: [
           { name: "Hotel de Russie", area: "Piazza del Popolo · best overall", rate: 1300, note: "Rocco Forte's hotel by Piazza del Popolo, with its famous terraced garden — the smartest base for the Italian Open: an easy run to the Foro Italico and a glorious central Rome, with the best garden in the city for post-tennis drinks. (Estimated.)" },
-          { name: "Bvlgari Hotel Roma", area: "Campo Marzio · most luxurious", rate: 2200, note: "The newest and most glamorous address, by Piazza Augusto Imperatore and Via Condotti — spa, pool, and a serious bar and dining scene, on the same convenient northern side. (Estimated.)" },
+          { name: "Bulgari Hotel Roma", area: "Campo Marzio · most luxurious", rate: 2200, note: "The newest and most glamorous address, by Piazza Augusto Imperatore and Via Condotti — spa, pool, and a serious bar and dining scene, on the same convenient northern side. (Estimated.)" },
           { name: "Rome Cavalieri, Waldorf Astoria", area: "Monte Mario · closest, resort", rate: 900, note: "Up on Monte Mario, minutes from the Foro Italico — pools, spa, gardens and views over Rome. For those who want tennis convenience and resort facilities over walking into the historic centre. (Estimated.)" },
         ],
         stayMore: "Hotel Eden and Hassler Roma are superb too; for the Italian Open specifically, de Russie and Bvlgari simply sit on the better side of town for the courts. You can keep any of these in the builder, or search a hotel you love by name.",
@@ -13794,10 +13844,11 @@ notes: [
         ],
         ticketLink: "https://paliodisiena.tickets/",
         ticketLinkLabel: "View current Palio tickets & prices",
-        ticketContact: "Need help with a private balcony or a special arrangement? Contact PAOLO at InTuscany \u2014 info@intuscany.net",
+        ticketContact: "Need help with a private balcony or a special arrangement? Contact PAOLO at InTuscany \u2014 info@intuscany.net ON THE GROUND IN SIENA, our guide is SOFIA SALETTI \u2014 +39 339 7842696 \u00b7 sofiavanni@alice.it \u2014 for the contrade, the trials, the dinners and the day itself; book her months ahead for Palio week.",
         ticketNote: "Prices are estimates based on 2026 rates. Current pricing, availability and booking fees are confirmed by the provider; 2026 terms carried a 5% booking fee. Balconies over the Mossa are the first to go. Some balconies include water, soft drinks and small snacks and have a lavatory in the building; alcohol is generally not served; palco seating includes none of that \u2014 do not assume it does.",
         stayNote: "Stay inside Siena itself for the Palio. The great Tuscan countryside resorts are wonderful another week — but here, the walled city is the experience, and you want to walk everywhere.",
         stay: [
+          { name: "Belmond Castello di Casole", area: "Casole d\u2019Elsa \u00b7 about 35 minutes", tag: "Ultra Luxury \u00b7 the top choice", note: "A Belmond castle on its own estate in the hills, thirty-five minutes from the Campo: the pool, the vineyards, the silence after the race. Not inside the walls \u2014 a driver each way on Palio days \u2014 and the best place to stay for it by a distance." },
           { name: "Grand Hotel Continental Siena", area: "Historic centre", rate: 950, note: "Siena's five-star, inside the walls and a short walk from the Piazza del Campo — the natural base for the Palio. (Palio-week rate; estimated.)" },
           { name: "Palazzo Ravizza", area: "Historic centre", rate: 340, note: "More intimate and historic, less conventionally five-star — for those who prefer character and a real Sienese address over full resort service. (Estimated.)" },
         ],
@@ -17470,7 +17521,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       </a>
     ) : null}
   </Panel>
-  {arriveBy === "Self-drive" && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} />}
+  {arriveBy === "Self-drive" && !isCarFree(from) && !isCarFree(to) && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} />}
   </>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
@@ -17535,7 +17586,7 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
 // A curated hotel's photo comes from the app's own places source (the same one the live browse
 // uses), fetched by name and cached — DirectBooker gives us the rate and contacts, not the image.
 // Every outbound hotel link is tagged as coming from us — so the hotel's own analytics
-// sees "voyage-one-world.com" as the source. Keeps the hotel's own functional params
+// sees "voyageoneworld.com" as the source. Keeps the hotel's own functional params
 // (merchant/room codes), strips their tracking, adds ours. This is the source proof.
 // ═══ OUTBOUND CLICKS AND "DID YOU BOOK?" — 4 SEPT 2026 ═════════════════════════════════════
 // Until this build the app sent a client off to a hotel with UTM tags and learned nothing: the
@@ -17561,7 +17612,7 @@ function brandedLink(url, ctx) {
   var qs = qi >= 0 ? u.slice(qi + 1) : "";
   var parts = qs ? qs.split("&").filter(function (p) { return p && p.slice(0, 4) !== "utm_"; }) : [];
   var ref = voRef();
-  parts.push("utm_source=voyage-one-world.com", "utm_medium=referral", "utm_campaign=voyageone", "utm_content=" + ref);
+  parts.push("utm_source=voyageoneworld.com", "utm_medium=referral", "utm_campaign=voyageone", "utm_content=" + ref);
   OUTBOUND[ref] = { kind: (ctx && ctx.kind) || "link", name: (ctx && ctx.name) || "", city: (ctx && ctx.city) || "", url: base };
   return base + "?" + parts.join("&") + hash;
 }
@@ -17805,6 +17856,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   const showLevel = (l) => { setLevel(l); setOpenList(true); };
   const eventPicks = (eventStay || []).map((e) => { const f = (lookup(FAVORITES, city) || []).find((x) => dnrm(x.name) === dnrm(e.name)); return f ? { ...f, note: e.note, area: e.area || f.area, tag: e.tag } : null; }).filter(Boolean);
   const pickedName = pick.stay ? dnrm(pick.stay.name || "") : "";
+  const allBestAvailable = favs.length > 0 && favs.every((h) => h.bestAvailable);
   const pinned = eventPicks.length ? (<div style={{ marginBottom: 14 }}>
     <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Voyage One picks for {eventTitle || "this event"}</div>
     <div style={{ display: "grid", gap: 8 }}>{eventPicks.map((h) => { const on = pickedName === dnrm(h.name); return (<button key={h.name} onClick={() => upd({ stay: on ? null : { level: tierOf(h.name), name: h.name, nightly: h.estRate || null, band: h.band || null, estimated: true, id: h.id || null, site: h.site || null } })} style={{ textAlign: "left", background: on ? t.pine : t.card, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 12, padding: "12px 14px", cursor: "pointer" }}>
@@ -17818,6 +17870,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   </div>) : null;
   return (<>
     {pinned}
+    {allBestAvailable ? <div style={{ fontSize: 13, color: t.ink, lineHeight: 1.55, marginBottom: 12, padding: "10px 12px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}><strong>Best available.</strong> {bareCity(city)} has no hotel at the Voyage One standard; these are the best there are, chosen for what each does well, and we say so rather than call them luxury.</div> : null}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {tiers.map((l) => <button key={l} onClick={() => showLevel(l)} style={chip(level === l && !collapsed)}>{lbl(l)}</button>)}
       {collapsed && <button onClick={() => setOpenList(true)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 15px", color: t.ink, fontSize: 13 }}>Change hotel</button>}
@@ -18195,6 +18248,7 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
         {info.phone && !(opts && opts.tel) ? <div>{info.phone}</div> : null}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 7 }}>
           {bookUrl ? <a href={brandedLink(bookUrl, { kind: "venue", name: (row && (row.name || row[0])) || "", city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>{(opts && opts.bookLabel) || "Visit site / book →"}</a> : null}
+          {opts && opts.email ? <a href={`mailto:${opts.email}`} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Email · {opts.email}</a> : null}
           {opts && opts.tel ? <a href={`tel:${String(opts.tel).replace(/[^\d+]/g, "")}`} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>{opts.telLabel || "Call"} · {opts.tel}</a> : null}
         </div>
       </div>
@@ -18486,7 +18540,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
           only exists when the traveller picks ONE hotel and takes day trips. Choose "move town to
           town" \u2014 the mode a car is actually for \u2014 and the rental panel and the departure-city
           control both vanished. They belong to the leg, not to the base. */}
-      {region && d.arriveBy !== "Self-drive" && <RentalPanel city={pickupPoint(d)} destination={baseTown || region} compact car={d.pick && d.pick.car} upd={upd} />}
+      {region && d.arriveBy !== "Self-drive" && !isCarFree(baseTown || region) && <RentalPanel city={pickupPoint(d)} destination={baseTown || region} compact car={d.pick && d.pick.car} upd={upd} />}
       {region && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
 
     {mode === "roam" && suggestions.length === 0 && (<div style={{ marginTop: 18, background: t.mist, borderRadius: 14, padding: "18px" }}>
@@ -19081,7 +19135,7 @@ function ReturnSection({ p, rc, blocked }) {
       </Panel>
     </div>)}
     {rc.needLeg && <Panel icon={Car} title={`Getting to ${p.returnFrom} · ${p.returnMode}`}><OptionRow selected onClick={() => upd({ ground: homeGround })} title={`${p.returnMode} → ${p.returnFrom}`} sub="estimated, door to door" price={fmt(homeGround.price)} /></Panel>}
-    {rc.needLeg && p.returnMode === "Self-drive" && <RentalPanel city={lastCity} destination={p.returnFrom} />}
+    {rc.needLeg && p.returnMode === "Self-drive" && !isCarFree(lastCity) && <RentalPanel city={lastCity} destination={p.returnFrom} />}
     {p.returnFrom && p.homeCity && departTime(p.returnFrom, p.homeCity) && <div style={{ fontSize: 12.5, color: t.brass, display: "flex", gap: 7, alignItems: "flex-start", marginTop: 14, lineHeight: 1.5 }}><Plane size={13} style={{ marginTop: 2, flexShrink: 0 }} /> Departs about {departTime(p.returnFrom, p.homeCity).time}. {departTime(p.returnFrom, p.homeCity).note}</div>}
     {(p.returnFrom || departAirport) && p.homeCity && <Panel icon={Plane} title={`Flight home · ${departAirport} → ${p.homeCity}`} right={!rp.flight && !blocked ? <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#B0563A" }}>Not chosen</span> : null}>
       {blocked ? <div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: "#FBEEE9", border: "1px solid #D9A08B", borderRadius: 12, padding: "13px 15px" }}>
@@ -19157,8 +19211,8 @@ function buildIcs({ title, date, end, url, notes, location }) {
   const esc = (x) => String(x || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const endDay = end || (() => { const d = new Date(date + "T00:00:00"); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
-  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Voyage One//voyage-one-world.com//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
-    `UID:${day(date)}-${Math.random().toString(36).slice(2, 10)}@voyage-one-world.com`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${day(date)}`, `DTEND;VALUE=DATE:${day(endDay)}`,
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Voyage One//voyageoneworld.com//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
+    `UID:${day(date)}-${Math.random().toString(36).slice(2, 10)}@voyageoneworld.com`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${day(date)}`, `DTEND;VALUE=DATE:${day(endDay)}`,
     `SUMMARY:${esc(title)}`, `DESCRIPTION:${esc((notes ? notes + "\n\n" : "") + (url || ""))}`, location ? `LOCATION:${esc(location)}` : "", url ? `URL:${url}` : "",
     "BEGIN:VALARM", "TRIGGER:-PT9H", "ACTION:DISPLAY", `DESCRIPTION:${esc(title)}`, "END:VALARM", "END:VEVENT", "END:VCALENDAR"].filter(Boolean).join("\r\n") + "\r\n";
 }
