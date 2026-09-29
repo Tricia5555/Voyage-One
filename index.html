@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M704";
+const BUILD = "M705";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15658,9 +15658,8 @@ function StepBasics(p) {
             it opened at September and made a September return one careless tap away. Now, choosing
             a departure seeds the return one week later if the return is empty or earlier than the
             departure, and the return field will not accept a date before the departure at all. */}
-        <input type="date" value={p.dates[key]} min={key === "ret" && p.dates.depart ? p.dates.depart : undefined}
-          onChange={(e) => {
-            const v = e.target.value;
+        <DatePick value={p.dates[key]} min={key === "ret" && p.dates.depart ? p.dates.depart : undefined} placeholder={key === "depart" ? "Departure" : "Return"}
+          onChange={(v) => {
             if (key === "depart") {
               const r = p.dates.ret;
               const seed = v ? (() => { const d = new Date(v + "T00:00:00"); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); })() : r;
@@ -15669,7 +15668,7 @@ function StepBasics(p) {
               if (v && p.dates.depart && v < p.dates.depart) return;           // a return before you leave is not a date
               p.setDates({ ...p.dates, ret: v });
             }
-          }} style={{ fontFamily: font.display, fontSize: 22, color: t.ink, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", outline: "none" }} />
+          }} />
       </div>))}
     </div>
     <div style={{ marginTop: 40 }}>
@@ -19369,6 +19368,43 @@ function CalendarButton({ label, event, filename, style }) {
 }
 // kept for any older data-link caller; new code uses CalendarButton
 function calendarLink(ev) { return "data:text/calendar;charset=utf-8," + encodeURIComponent(buildIcs(ev)); }
+// ══ DATE PICKER ═══════════════════════════════════════════════════════════════════════════════
+// The native <input type=date> pops open a calendar the browser owns: on a Mac it is tiny and
+// cannot be styled. This is ours — a large month grid, the same on every device — with a min date
+// so a return cannot precede a departure. Value in and out is "YYYY-MM-DD".
+function DatePick({ value, onChange, min, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const sel = value ? new Date(value + "T00:00:00") : null;
+  const [view, setView] = useState(() => { const d = sel || today; return new Date(d.getFullYear(), d.getMonth(), 1); });
+  useEffect(() => { if (open) { const d = sel || (min ? new Date(min + "T00:00:00") : today); setView(new Date(d.getFullYear(), d.getMonth(), 1)); } }, [open]);
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const minD = min ? new Date(min + "T00:00:00") : null;
+  const label = sel ? sel.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) : (placeholder || "Choose a date");
+  const first = new Date(view.getFullYear(), view.getMonth(), 1); const startDow = first.getDay();
+  const daysIn = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+  const cells = []; for (let i = 0; i < startDow; i++) cells.push(null); for (let d = 1; d <= daysIn; d++) cells.push(new Date(view.getFullYear(), view.getMonth(), d));
+  const nav = { background: "none", border: `1px solid ${t.line}`, borderRadius: 999, width: 38, height: 38, fontSize: 20, color: t.ink, cursor: "pointer" };
+  return (<div style={{ position: "relative" }}>
+    <button type="button" onClick={() => setOpen((o) => !o)} style={{ fontFamily: font.display, fontSize: 22, color: sel ? t.ink : t.inkFaint, background: "none", border: "none", borderBottom: `1px solid ${t.line}`, padding: "8px 2px", textAlign: "left", cursor: "pointer", minWidth: 250 }}>{label} <span style={{ fontSize: 14, color: t.brass, marginLeft: 6 }}>▾</span></button>
+    {open ? (<>
+      <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+      <div style={{ position: "absolute", zIndex: 41, top: "100%", left: 0, marginTop: 8, background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, boxShadow: "0 12px 40px rgba(0,0,0,.14)", padding: 16, width: 340, maxWidth: "92vw" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <button type="button" onClick={() => setView(new Date(view.getFullYear(), view.getMonth() - 1, 1))} style={nav}>‹</button>
+          <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink }}>{view.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</div>
+          <button type="button" onClick={() => setView(new Date(view.getFullYear(), view.getMonth() + 1, 1))} style={nav}>›</button>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, textAlign: "center" }}>
+          {["S", "M", "T", "W", "T", "F", "S"].map((w, i) => <div key={i} style={{ fontSize: 11, letterSpacing: ".1em", color: t.inkFaint, padding: "4px 0" }}>{w}</div>)}
+          {cells.map((d, i) => { if (!d) return <div key={"e" + i} />; const off = (minD && d < minD) || d < today; const on = sel && iso(d) === iso(sel); const isToday = iso(d) === iso(today);
+            return (<button key={i} type="button" disabled={off} onClick={() => { onChange(iso(d)); setOpen(false); }} style={{ height: 40, borderRadius: 10, border: on ? `1px solid ${t.pine}` : isToday ? `1px solid ${t.brass}` : "1px solid transparent", background: on ? t.pine : "none", color: on ? t.paper : off ? "#C9CFC9" : t.ink, fontSize: 16, cursor: off ? "default" : "pointer" }}>{d.getDate()}</button>); })}
+        </div>
+        {sel ? <button type="button" onClick={() => { onChange(""); setOpen(false); }} style={{ marginTop: 10, background: "none", border: "none", color: t.inkFaint, fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>Clear</button> : null}
+      </div>
+    </>) : null}
+  </div>);
+}
 function ItinLine({ label, sub, price, noPrice }) {
   return (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 14, padding: "7px 0" }}>
     <span><span style={{ fontSize: 14.5, color: t.ink }}>{label}</span>{sub && <span style={{ fontSize: 12.5, color: t.inkFaint, marginLeft: 8 }}>{sub}</span>}</span>
