@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M710";
+const BUILD = "M711";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17380,7 +17380,7 @@ function LegRecord({ d }) {
     {bits.join("  ·  ")}
   </div>);
 }
-function CarBooking({ car: carIn, upd, defFrom, defTo }) {
+function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices }) {
   const car = carIn || {};
   const set = (patch) => upd({ car: { ...car, ...patch } });
   const from = car.from != null ? car.from : (defFrom || "");
@@ -17395,7 +17395,8 @@ function CarBooking({ car: carIn, upd, defFrom, defTo }) {
     </div>
     {car.booked ? (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Picked up<input style={fld} value={from} onChange={(e) => set({ from: e.target.value })} placeholder={defFrom || "Airport or city"} /></label>
-      <label style={{ fontSize: 12, color: t.inkSoft }}>Dropping off<input style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City"} /></label>
+      <label style={{ fontSize: 12, color: t.inkSoft }}>Dropping off<input style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City"} />
+        {dropChoices && dropChoices.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>{dropChoices.map((ch) => <button key={ch} type="button" onClick={() => set({ to: ch })} style={{ background: sameCity(bareCity(to), bareCity(ch)) && codeOf(to) === codeOf(ch) ? t.pine : t.white, color: sameCity(bareCity(to), bareCity(ch)) && codeOf(to) === codeOf(ch) ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>{ch}</button>)}</div> : null}</label>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Company<input style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
       {rentalScoop(car.company) ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.5, marginTop: 6, paddingLeft: 9, borderLeft: `2px solid ${t.brass}` }}><strong style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: t.brass }}>Inside scoop</strong> {rentalScoop(car.company)}</div> : null}
       <label style={{ fontSize: 12, color: t.inkSoft }}>Reference<input style={fld} value={car.ref || ""} onChange={(e) => set({ ref: e.target.value })} placeholder="Confirmation" /></label>
@@ -17444,7 +17445,47 @@ function TransferPanel({ d, legSched }) {
     </div>
   </Panel>);
 }
-function RentalPanel({ city, destination, compact, car, upd }) {
+// Is a car already in hand at destination i? Scan earlier destinations for a booked car whose
+// drop-off is not the city it was collected in; the car runs from that destination to the first
+// later one that matches the drop-off (by city, or by that city's airport). Between them, no
+// rental is offered and the legs are by road.
+function carInHand(p, i) {
+  const ds = (p && p.dests) || [];
+  for (let j = 0; j < i; j++) {
+    const c = ds[j] && ds[j].pick && ds[j].pick.car; if (!c || !c.booked || !c.to) continue;
+    const dropTxt = String(c.to); const dropCode = codeOf(dropTxt) || null; const dropBare = bareCity(dropTxt);
+    if (sameCity(dropBare, ds[j].city) && !dropCode) continue;         // returned where it was collected
+    let k = -1;
+    for (let m = j + 1; m < ds.length; m++) {
+      const cty = ds[m] && ds[m].city; if (!cty) continue;
+      const apc = airportCityOf(iataFor(cty), bareCity(cty));
+      if (sameCity(dropBare, cty) || (dropCode && dropCode === iataFor(cty)) || (apc && sameCity(dropBare, apc))) { k = m; break; }
+    }
+    if (k < 0) k = ds.length - 1;   // drop-off named somewhere we cannot place: assume the car runs to the end
+    if (i > j && i <= k) return { fromDest: j, dropDest: k, car: c, fromCity: ds[j].city };
+  }
+  return null;
+}
+// Where a car collected at destination i could be dropped: here, each later destination, and the
+// airport of any later destination the trip flies out of. Offered as chips on the booking record.
+function dropChoicesFor(p, i) {
+  const ds = (p && p.dests) || []; const out = [];
+  const here = ds[i] && ds[i].city; if (here) out.push(bareCity(here));
+  for (let m = i + 1; m < ds.length; m++) { const cty = ds[m] && ds[m].city; if (!cty) continue; out.push(bareCity(cty)); const code = iataFor(cty); const apc = airportCityOf(code, bareCity(cty)); if (code) out.push(`${apc || bareCity(cty)} airport (${code})`); }
+  if (p && p.returnFrom) { const code = iataFor(p.returnFrom); const apc = airportCityOf(code, bareCity(p.returnFrom)); const lab = code ? `${apc || bareCity(p.returnFrom)} airport (${code})` : bareCity(p.returnFrom); if (!out.includes(lab)) out.push(lab); }
+  return out.filter((x, k) => out.indexOf(x) === k);
+}
+function CarInHandPanel({ p, i, d }) {
+  const h = carInHand(p, i); if (!h) return null;
+  const c = h.car; const last = h.dropDest === i;
+  return (<Panel icon={Car} title={`Your car \u00b7 ${c.company || "rental"} from ${bareCity(h.fromCity)}`}>
+    <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>
+      You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. No rental is needed here; this leg is by road.
+      {last ? <div style={{ marginTop: 6, color: t.pine, fontWeight: 600 }}>Return the car here{codeOf(String(c.to)) ? ` — at the airport (${codeOf(String(c.to))}) before your flight` : ""}.</div> : null}
+    </div>
+  </Panel>);
+}
+function RentalPanel({ city, destination, compact, car, upd, dropChoices }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
   const [want, setWant] = useState(!compact);
   const [open, setOpen] = useState(false);
@@ -17463,7 +17504,7 @@ function RentalPanel({ city, destination, compact, car, upd }) {
         collapsed behind "Rent a car here", and the booked/not-booked control lived inside the
         expanded half \u2014 so a traveller who had already hired a car had nowhere to say so, and the
         itinerary never learned about it. The control belongs in both states. */}
-    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} /> : null}
+    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} /> : null}
   </Panel>);
   return (<Panel icon={Car} title={`Rental cars in ${bareCity(city)}`}>
     <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginBottom: 12 }}>
@@ -17492,11 +17533,11 @@ function RentalPanel({ city, destination, compact, car, upd }) {
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 10, lineHeight: 1.5 }}>
       Chosen on service, coverage and premium availability — both vary by destination. You book direct with the company; Voyage One never holds the reservation or the payment.
     </div>
-    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} /> : null}
+    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} /> : null}
   </Panel>);
 }
 
-function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate, returnDate, pax }) {
+function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hidePicker, flightDate, returnDate, pax, p, i }) {
   const grounds = ["Train", "Chauffeur", "Self-drive"];
   const ground = useGround(from, to);
   // THE THIRD ROAD TO THE SAME BUG. drivable() and driveEstimate() are both guarded, but the MODE
@@ -17592,7 +17633,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       </a>
     ) : null}
   </Panel>
-  {arriveBy === "Self-drive" && !isCarFree(from) && !isCarFree(to) && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} />}
+  {arriveBy === "Self-drive" && !isCarFree(from) && !isCarFree(to) && !(p && i != null && carInHand(p, i)) && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} dropChoices={p && i != null ? dropChoicesFor(p, i) : null} />}
   </>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
@@ -19082,7 +19123,7 @@ function CitySection({ d, i, p, from, legSched }) {
     </div>)}
     {needsHub && !gw && <HubPanel from={flyFrom} city={surfaceTarget} date={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} pick={pick} upd={upd} />}
     <LegRecord d={d} />
-    <ArrivalPanel pax={partySize(p)} from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} returnDate={i === 0 && p.dates ? p.dates.ret : ""} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
+    <ArrivalPanel p={p} i={i} pax={partySize(p)} from={from} to={flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} returnDate={i === 0 && p.dates ? p.dates.ret : ""} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
         // The title has to agree with the mode actually chosen. It used to say "fly into
         // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
         // by rail — so Florence → Portofino read as a flight, offered no flights (there are
@@ -19128,7 +19169,8 @@ function CitySection({ d, i, p, from, legSched }) {
     {d.city && <GettingAroundPanel city={d.city} />}
       {d.city && isCarFree(d.city) ? <WaterArrivalPanel city={d.city} /> : null}
       {d.city && PRIVATE_TRANSFER[Object.keys(PRIVATE_TRANSFER).find((c) => sameCity(c, d.city)) || ""] ? <TransferPanel d={d} legSched={legSched} /> : null}
-      {d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} />}
+      {carInHand(p, i) ? <CarInHandPanel p={p} i={i} d={d} /> : null}
+      {!carInHand(p, i) && d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} dropChoices={dropChoicesFor(p, i)} />}
       {d.city && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
@@ -19603,6 +19645,7 @@ function DayByDay({ p, sch }) {
       const code = hc || (ha && ha.code); const apCity = (Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && sameCity(k, hb)) ? null : Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && AIRPORTS[k].scale !== "regional")) || null;
       if (code && !ownHere && apCity && !sameCity(apCity, hb)) add(p.dates.depart, { icon: "car", kind: "ground", city: hb, name: `To the airport`, label: `${hb} \u2192 ${apCity} airport (${code})`, sub: p.airportTransfer && p.airportTransfer.booked ? ("Booked" + (p.airportTransfer.ref ? " \u00b7 " + p.airportTransfer.ref : "") + " \u00b7 by road \u00b7 allow time") : "by road \u00b7 arranged through your hotel \u00b7 not booked yet", booked: !!(p.airportTransfer && p.airportTransfer.booked), time: null });
     }
+    { const h = carInHand(p, i); if (h && h.dropDest === i && lg.depart) add(isoOf(lg.depart), { icon: "car", kind: "ground", city, name: "Return the car", label: `Return the ${h.car.company || "rental"} \u2014 ${bareCity(h.car.to)}${codeOf(String(h.car.to)) ? " (" + codeOf(String(h.car.to)) + ")" : ""}`, sub: h.car.ref ? `ref ${h.car.ref} \u00b7 before your flight` : "before your flight", booked: true, time: null }); }
     if (pk.eventItems && d.event) {
       const ex = findExperience(d.event); const bl = (ex && ex.guide && ex.guide.build) || [];
       bl.forEach((it) => { const st = pk.eventItems[it.key]; if (!st || !st.added) return;
