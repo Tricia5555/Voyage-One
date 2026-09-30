@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M707";
+const BUILD = "M708";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9432,34 +9432,15 @@ function airportAssist(code) { const c = String(code || "").trim().toUpperCase()
 function AssistCard({ code, when }) {
   const a = airportAssist(code);
   if (!a) return null;
-  const list = (arr) => arr.join(" \u00b7 ");
-  return (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
-    <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Through {a.airport}{when ? ` \u00b7 ${when}` : ""}</div>
-    <div style={{ fontSize: 14, color: t.ink, fontWeight: 500, textTransform: a.title ? "uppercase" : "none", letterSpacing: a.title ? ".04em" : 0 }}>{a.title || a.name}</div>
-    {a.verified ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: a.verified === "official" ? t.pine : t.brass, fontWeight: 700, marginTop: 3 }}>{a.verified === "official" ? "Verified — official airport service" : a.verified === "endorsed" ? "Verified — airport-endorsed provider" : a.verified === "referred" ? "Verified — recommended by Four Seasons Firenze" : "Verified — independent provider"}</div> : null}
-    {a.headline ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 4 }}>{a.headline}</div> : null}
-    <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 4 }}>{a.note}</div>
-    {a.includes ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>Includes:</strong> {list(a.includes)}</div> : null}
-    {a.mayInclude ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55, marginTop: 8 }}><strong>May include:</strong> {list(a.mayInclude)}</div> : null}
-    {a.phases ? (<div style={{ marginTop: 8, display: "grid", gap: 6 }}>{a.phases.map((ph) => (<div key={ph.name} style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.55 }}><strong>{ph.name} may include:</strong> {list(ph.may)}</div>))}</div>) : null}
-    {a.tiers ? (<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 10 }}>
-      {a.tiers.map((tr) => (<div key={tr.name} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 9, padding: "9px 11px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine }}>{tr.name}</span>
-          <span style={{ fontSize: 12.5, color: t.inkSoft }}>{tr.from ? `from ${tr.from}` : "on quote"}</span>
-        </div>
-        <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{list(tr.includes)}</div>
-      </div>))}
-    </div>) : null}
-    <div style={{ marginTop: 10, display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
-      <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : `mailto:${a.email}`} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button || `Book ${a.name}`}</a>
-      {a.web2 ? <a className="vo-noprint" href={brandedLink(a.web2, { kind: "assist", name: a.name, city: a.airport })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", padding: "8px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none" }}>{a.button2 || "Book"}</a> : null}
-      {a.email ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email}</span> : null}
-      {a.email2 ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.email2}</span> : null}
-      {a.tel ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel}</span> : null}
-      {a.tel2 ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.tel2}</span> : null}
-      {a.mobile ? <span style={{ fontSize: 13, color: t.inkSoft }}>{a.mobile}</span> : null}
+  // SHORT, BY REQUEST (Tricia, 30 Sept 2026): people know what VIP assistance does. Name it, one
+  // line, the button. The provider's own site carries the detail.
+  return (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>VIP assistance · {a.airport}{when ? ` · ${when}` : ""}</div>
+      <div style={{ fontSize: 14.5, color: t.ink, fontWeight: 600, marginTop: 2 }}>{a.title || a.name}</div>
+      {a.headline ? <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{a.headline}</div> : null}
     </div>
+    <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : `mailto:${a.email}`} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "9px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none", whiteSpace: "nowrap" }}>{a.web ? "Visit the site" : "Email"}</a>
   </div>);
 }
 function vettedDriver(city) {
@@ -11499,6 +11480,7 @@ function VoyageOne() {
   const [dates, setDates] = useState({ depart: "", ret: "" });
   const [travelers, setTravelers] = useState([{ first: "", last: "" }]);
   const [fromCity, setFromCity] = useState("");
+  const [airportTransfer, setAirportTransfer] = useState({ booked: false, ref: "" });   // the car from home to the airport
   const [homeCity, setHomeCity] = useState("");
   const [tripName, setTripName] = useState("");
   const [dests, setDests] = useState([]);
@@ -11874,7 +11856,7 @@ function VoyageOne() {
     if (moved === 0) setCloudErr("Those journeys could not be copied just now. They are still saved on this device.");
   };
 
-  const shared = { user, authReady, onOpenAuth: () => setAuthPanel(true), onSignOut: doSignOut, step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addDestNear, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
+  const shared = { user, authReady, onOpenAuth: () => setAuthPanel(true), onSignOut: doSignOut, step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, airportTransfer, setAirportTransfer, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addDestNear, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
@@ -15692,7 +15674,7 @@ function StepBasics(p) {
 // airports with drive times, and a choice between them. Uses the same nearest-airport service
 // as the destination side. Choosing writes the code into the city ("Sciacca (CTA)"), which every
 // flight search already honours; the drive to it becomes the first leg of the trip.
-function HomeAirportPanel({ city, onChoose }) {
+function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
   const bare = bareCity(city || "");
   const chosen = codeOf(city);
   const own = airportFor(bare);
@@ -15733,13 +15715,21 @@ function HomeAirportPanel({ city, onChoose }) {
       {list.map((o) => { const on = o.code === sel; return (<button key={o.code} onClick={() => onChoose(o.code)} style={{ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}>{o.city} ({o.code}){drive(o) ? ` · ${drive(o)}` : ""}{o.hasService === false ? " · limited service" : ""}</button>); })}
     </div>) : null}
     {list.length > 1 ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 8 }}>The nearest with service is chosen; pick another if the flights suit you better.</div> : null}
+    {!isOwn ? (<div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Transport to the airport</div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        <button onClick={() => onTransfer({ ...(transfer || {}), booked: true })} style={{ background: transfer && transfer.booked ? t.pine : t.white, color: transfer && transfer.booked ? t.paper : t.ink, border: `1px solid ${transfer && transfer.booked ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}>Booked</button>
+        <button onClick={() => onTransfer({ ...(transfer || {}), booked: false })} style={{ background: !(transfer && transfer.booked) ? t.pine : t.white, color: !(transfer && transfer.booked) ? t.paper : t.ink, border: `1px solid ${!(transfer && transfer.booked) ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}>Not yet</button>
+        {transfer && transfer.booked ? <input placeholder="Confirmation (optional)" value={transfer.ref || ""} onChange={(e) => onTransfer({ ...transfer, ref: e.target.value })} style={{ fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink, minWidth: 200 }} /> : null}
+      </div>
+    </div>) : null}
     <div style={{ marginTop: 12 }}><AssistCard code={sel} when="on departure" /></div>
   </div>);
 }
 function StepDeparture(p) {
   return (<div><SectionHead eyebrow="Next" title="Where are you departing from?" sub="The city you fly out of. You’ll set your landing-home city near the end — it can be different." />
     <div style={{ maxWidth: 440 }}><LabeledCity label="Departure city" value={p.fromCity} onChange={p.setFromCity} placeholder="Start typing a city" /></div>
-    <HomeAirportPanel city={p.fromCity} onChoose={(code) => p.setFromCity(`${bareCity(p.fromCity)} (${code})`)} />
+    <HomeAirportPanel city={p.fromCity} onChoose={(code) => p.setFromCity(`${bareCity(p.fromCity)} (${code})`)} transfer={p.airportTransfer} onTransfer={p.setAirportTransfer} />
   </div>);
 }
 function StepDestinations(p) {
@@ -16145,6 +16135,21 @@ function StepBuild(p) {
 // Flights are the one thing we will not invent. We do not sell them, we earn nothing on
 // them, and a made-up airline is worse than no airline. So: tell the truth about the
 // route, send her to a real search, and let her record what she actually booked.
+// The city an airport code belongs to, from our own table: PMO -> Palermo. A town that flies
+// through another city's airport is written "Sciacca · flying from Palermo (PMO)".
+function airportCityOf(code, notCity) {
+  if (!code) return null;
+  const keys = Object.keys(AIRPORTS).filter((k) => AIRPORTS[k].code === code && !(notCity && sameCity(k, notCity)));
+  return keys.find((k) => AIRPORTS[k].scale === "intercontinental") || keys.find((k) => AIRPORTS[k].scale !== "regional") || keys[0] || null;
+}
+function flyFromLabel(from) {
+  const bare = bareCity(from || ""); if (!bare) return from || "";
+  const code = iataFor(from); if (!code) return bare;
+  const ap = airportCityOf(code, bare);
+  const own = airportFor(bare);
+  if (!ap || sameCity(ap, bare) || (own && own.scale === "intercontinental" && sameCity(own.city, bare))) return `${bare} (${code})`;
+  return `${bare} · flying from ${ap} (${code})`;
+}
 function iataFor(city) { const c = codeOf(city); if (c) return c; const a = airportFor(city); return a ? a.code : null; }   // "Sciacca (CTA)": the chosen code wins
 function flightSearchUrl(from, to, date, cabin) {
   const f = iataFor(from) || from, t2 = iataFor(to) || to;
@@ -19069,7 +19074,7 @@ function CitySection({ d, i, p, from, legSched }) {
         // by rail — so Florence → Portofino read as a flight, offered no flights (there are
         // none, it is an hour by train), and advised the train. All three were on screen at
         // once. Only claim a flight when we are actually flying.
-        const start = from || "start";
+        const start = d.arriveBy === "Flight" ? (flyFromLabel(from) || "start") : (bareCity(from) || "start");
         if (d.arriveBy !== "Flight") return `Getting here from ${start}`;
         if (needsHub) return pick.hub ? `Flying ${start} → ${pick.hub}` : `Getting here from ${start}`;
         return gw ? `Getting here from ${start} · fly into ${gw.air}` : `Getting here from ${start}`;
@@ -19553,7 +19558,7 @@ function DayByDay({ p, sch }) {
         const landAt = bareCity(pickupPoint(d)) || bareCity(city);
         const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${landAt}`;
         const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked yet";
-        add(isoOf(lg.arrive), { icon: "plane", label: `Fly ${bareCity(legFrom)} to ${landAt} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
+        add(isoOf(lg.arrive), { icon: "plane", label: `Fly ${(i === 0 ? (airportCityOf(iataFor(legFrom), bareCity(legFrom)) || bareCity(legFrom)) : bareCity(legFrom))} to ${landAt} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
           sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded", st].filter(Boolean).join(" \u00b7 ") });
       } else if (pk.ground) {
         add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} \u2014 ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
@@ -19582,7 +19587,7 @@ function DayByDay({ p, sch }) {
       const hb = bareCity(p.fromCity); const hc = codeOf(p.fromCity); const ha = airportFor(hb);
       const ownHere = ha && sameCity(ha.city, hb) && ha.scale === "intercontinental";
       const code = hc || (ha && ha.code); const apCity = (Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && sameCity(k, hb)) ? null : Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && AIRPORTS[k].scale !== "regional")) || null;
-      if (code && !ownHere && apCity && !sameCity(apCity, hb)) add(p.dates.depart, { icon: "car", kind: "ground", city: hb, name: `To the airport`, label: `${hb} \u2192 ${apCity} airport (${code})`, sub: "by road \u00b7 arranged through your hotel \u00b7 allow time", booked: false, time: null });
+      if (code && !ownHere && apCity && !sameCity(apCity, hb)) add(p.dates.depart, { icon: "car", kind: "ground", city: hb, name: `To the airport`, label: `${hb} \u2192 ${apCity} airport (${code})`, sub: p.airportTransfer && p.airportTransfer.booked ? ("Booked" + (p.airportTransfer.ref ? " \u00b7 " + p.airportTransfer.ref : "") + " \u00b7 by road \u00b7 allow time") : "by road \u00b7 arranged through your hotel \u00b7 not booked yet", booked: !!(p.airportTransfer && p.airportTransfer.booked), time: null });
     }
     if (pk.eventItems && d.event) {
       const ex = findExperience(d.event); const bl = (ex && ex.guide && ex.guide.build) || [];
