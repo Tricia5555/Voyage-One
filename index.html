@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M705";
+const BUILD = "M706";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -622,6 +622,9 @@ const EXPERIENCE_LODGING = [
   "The Dock 69°39 by Scandic", "St. Elisabeth Suites & Spa",
 ];
 const BEST_AVAILABLE = [
+  // LOUISVILLE, for the Kentucky Derby (Tricia, 29 Sept 2026): the city has no hotel at the standard.
+  // These four are the BEST AVAILABLE, and are labelled so — never Luxury.
+  "Omni Louisville", "21c Museum Hotel Louisville", "The Brown Hotel", "Hermitage Farm",
   // WITHHELD, not deleted: ICEHOTEL at Jukkasjärvi. It is a real and famous property but the
   // Northern Lights brief does not name it, so it is off the page pending Tricia's decision.
   // "ICEHOTEL",
@@ -15000,7 +15003,7 @@ function GuideWizard({ onBuild, onBack, onHome }) {
 
       {step === 10 && (<div>
         {err ? <div style={{ fontSize: 14, color: t.brass }}>{err}</div> : plan ? (<div>
-          <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>{profile.name} · {total} nights · {a.tier === "UltraLux" ? "Ultra Luxury" : "Luxury"}</div>
+          <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>{profile.name} · {total} nights · {a.tier === "UltraLux" ? "Ultra Luxury" : a.tier === "Best" ? "Best available" : "Luxury"}</div>
           <div style={{ fontFamily: font.display, fontSize: 30, lineHeight: 1.12, marginTop: 6, color: t.ink }}>{plan.title}</div>
           {plan.intro ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 12 }}>{plan.intro}</div> : null}
           {plan.logic ? <div style={{ fontSize: 14, color: t.pine, lineHeight: 1.6, marginTop: 12, fontStyle: "italic" }}>{plan.logic}</div> : null}
@@ -17575,7 +17578,7 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
         const per = r.estRate || null;
         const priceBit = kind === "hotels" ? (SHOW_RATES && per ? "~" + fmt(per) + "/night est." : "Rate on request") : "~" + fmt(per) + "/person est.";
         return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
-          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ${priceBit}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
+          sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : tierOf(r.name) === "Best" ? "Best available" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ${priceBit}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
           price={kind === "hotels" ? (SHOW_RATES && per && nights ? fmt(per * nights) : "") : fmt(per)} />;
       })}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · the level shown is our own reading of price band and reputation.</div>
@@ -17819,7 +17822,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   // The feed is still fetched, because it supplies PHOTOGRAPHS and addresses for hotels we have
   // already chosen. It no longer decides what appears.
   const liveRows = [];
-  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l === "ExpLux" ? "Experience Luxury" : l === "ExpLodge" ? "Experience Lodging" : l);
+  const lbl = (l) => (l === "UltraLux" ? "Ultra Luxury" : l === "ExpLux" ? "Experience Luxury" : l === "ExpLodge" ? "Experience Lodging" : l === "Best" ? "Best available" : l);
   // Once a hotel is chosen the rest are noise: a stay is decided once and rarely revisited, unlike
   // a restaurant. Show the choice and fold the others away. Tapping a tier chip brings the full
   // list straight back, which is how anyone would expect to change their mind.
@@ -17859,7 +17862,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   const pinned = eventPicks.length ? (<div style={{ marginBottom: 14 }}>
     <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Voyage One picks for {eventTitle || "this event"}</div>
     <div style={{ display: "grid", gap: 8 }}>{eventPicks.map((h) => { const on = pickedName === dnrm(h.name); return (<button key={h.name} onClick={() => upd({ stay: on ? null : { level: tierOf(h.name), name: h.name, nightly: h.estRate || null, band: h.band || null, estimated: true, id: h.id || null, site: h.site || null } })} style={{ textAlign: "left", background: on ? t.pine : t.card, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 12, padding: "12px 14px", cursor: "pointer" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}><span style={{ fontSize: 15, fontWeight: 700 }}>{h.name}</span><span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", fontWeight: 700, color: on ? t.brassLight : t.brass }}>{h.tag || (tierOf(h.name) === "UltraLux" ? "Ultra Luxury" : "Luxury")}</span></div>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}><span style={{ fontSize: 15, fontWeight: 700 }}>{h.name}</span><span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", fontWeight: 700, color: on ? t.brassLight : t.brass }}>{h.tag || (tierOf(h.name) === "UltraLux" ? "Ultra Luxury" : tierOf(h.name) === "Best" ? "Best available" : "Luxury")}</span></div>
       {h.area ? <div style={{ fontSize: 12.5, opacity: .8, marginTop: 2 }}>{h.area}</div> : null}
       {h.note ? <div style={{ fontSize: 13, lineHeight: 1.5, marginTop: 5, opacity: on ? .95 : 1 }}>{h.note}</div> : null}
       <div style={{ fontSize: 12, marginTop: 6, opacity: .8 }}>Event-week rate: check live availability — booked direct with the hotel.</div>
