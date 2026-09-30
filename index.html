@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M708";
+const BUILD = "M709";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -16143,12 +16143,13 @@ function airportCityOf(code, notCity) {
   return keys.find((k) => AIRPORTS[k].scale === "intercontinental") || keys.find((k) => AIRPORTS[k].scale !== "regional") || keys[0] || null;
 }
 function flyFromLabel(from) {
+  // THE TOWN STAYS BEHIND. Once the airport is known, every flight heading names the airport
+  // city and its code and nothing else — "Palermo (PMO)", never "Sciacca · flying from…". The
+  // drive from the town is its own line on the itinerary; the flight begins at the airport.
   const bare = bareCity(from || ""); if (!bare) return from || "";
   const code = iataFor(from); if (!code) return bare;
-  const ap = airportCityOf(code, bare);
-  const own = airportFor(bare);
-  if (!ap || sameCity(ap, bare) || (own && own.scale === "intercontinental" && sameCity(own.city, bare))) return `${bare} (${code})`;
-  return `${bare} · flying from ${ap} (${code})`;
+  const ap = airportCityOf(code, bare) || bare;
+  return `${ap} (${code})`;
 }
 function iataFor(city) { const c = codeOf(city); if (c) return c; const a = airportFor(city); return a ? a.code : null; }   // "Sciacca (CTA)": the chosen code wins
 function flightSearchUrl(from, to, date, cabin) {
@@ -16283,7 +16284,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
     </button>
     {ownOpen ? (<div style={{ marginTop: 10 }}>
       <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginBottom: 9 }}>
-        {bareCity(from)} to {bareCity(to)}. The airline is all we need — fill in whatever else you have.
+        {flyFromLabel(from)} to {bareCity(to)}. The airline is all we need — fill in whatever else you have.
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
         <label style={{ fontSize: 12, color: t.inkSoft }}>Airline<input style={ofld} value={oAir} onChange={(e) => setOAir(e.target.value)} placeholder="ITA Airways" /></label>
@@ -16301,7 +16302,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
     <div style={{ background: t.card, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
       {/* Show the bare town plus one code. The city string often already carries its code —
           "Boston (BOS)" — and appending the looked-up code to that produced "Boston (BOS) (BOS)". */}
-      <div style={{ fontFamily: font.display, fontSize: 21 }}>{bareCity(from)} {fc ? `(${fc})` : ""} → {bareCity(to)} {tc ? `(${tc})` : ""}</div>
+      <div style={{ fontFamily: font.display, fontSize: 21 }}>{fc ? (airportCityOf(fc, bareCity(from)) || bareCity(from)) : bareCity(from)} {fc ? `(${fc})` : ""} → {tc ? (airportCityOf(tc, bareCity(to)) || bareCity(to)) : bareCity(to)} {tc ? `(${tc})` : ""}</div>
       {dt && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{dt.note}</div>}
     </div>
     <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Cabin</div>
@@ -16319,15 +16320,15 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
         guess, and the traveller is better placed to judge than we are. */}
     <div style={{ fontSize: 11, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
       Delta is not among the airlines we can currently price — and on many routes they fly the best, or only, nonstop. Check them directly for this exact route:
-      <button onClick={() => setDeltaOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer" }}><Plane size={12} /> Check Delta · {bareCity(from)} → {bareCity(to)}</button>
+      <button onClick={() => setDeltaOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer" }}><Plane size={12} /> Check Delta · {flyFromLabel(from)} → {bareCity(to)}</button>
     </div>
     <div style={{ fontSize: 11, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
       Emirates isn't in our fare feed either — but for First-class suites and routes like JFK↔Milan, they're worth checking directly:
-      <button onClick={() => setEmiratesOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer" }}><Plane size={12} /> Check Emirates · {bareCity(from)} → {bareCity(to)}</button>
+      <button onClick={() => setEmiratesOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer" }}><Plane size={12} /> Check Emirates · {flyFromLabel(from)} → {bareCity(to)}</button>
     </div>
     <div style={{ fontSize: 11, color: t.inkSoft, lineHeight: 1.5, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${t.line}` }}>
       Flying within Europe? Regional and low-cost carriers (ITA, easyJet, Ryanair, Vueling) fly many direct routes we can't price — often a nonstop where we'd otherwise connect. See every direct option:
-      <a href={directFlightsUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer", textDecoration: "none" }}><Plane size={12} /> All direct flights · {bareCity(from)} → {bareCity(to)} ↗</a>
+      <a href={directFlightsUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, padding: "6px 12px", borderRadius: 999, border: `1px solid ${t.pine}`, background: t.mist, color: t.ink, fontSize: 11.5, fontWeight: 500, cursor: "pointer", textDecoration: "none" }}><Plane size={12} /> All direct flights · {flyFromLabel(from)} → {bareCity(to)} ↗</a>
     </div>
     {false && launched && !deltaOpen && !emiratesOpen && (<button
       onClick={() => (launched === "delta" ? setDeltaOpen(true) : setEmiratesOpen(true))}
@@ -16347,7 +16348,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
           <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink }}>Check Delta</span>
           <button onClick={() => setDeltaOpen(false)} style={{ marginLeft: "auto", width: 30, height: 30, borderRadius: 999, border: "none", background: t.mist, color: t.ink, display: "grid", placeItems: "center", cursor: "pointer" }}><X size={16} /></button>
         </div>
-        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{bareCity(from)} → {bareCity(to)}{date ? ` · ${date}` : ""}</div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{flyFromLabel(from)} → {bareCity(to)}{date ? ` · ${date}` : ""}</div>
         <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" onClick={() => setLaunched("delta")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, margin: "14px 0 6px", padding: "13px 16px", borderRadius: 12, border: "none", background: t.pine, color: t.paper, fontSize: 14.5, textDecoration: "none", fontWeight: 500 }}>Open Delta search in a new tab ↗</a>
         <div style={{ background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: t.ink, lineHeight: 1.5 }}>Delta opens in a NEW TAB — at the top of your browser.</div>
@@ -16384,7 +16385,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
           <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink }}>Check Emirates</span>
           <button onClick={() => setEmiratesOpen(false)} style={{ marginLeft: "auto", width: 30, height: 30, borderRadius: 999, border: "none", background: t.mist, color: t.ink, display: "grid", placeItems: "center", cursor: "pointer" }}><X size={16} /></button>
         </div>
-        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{bareCity(from)} → {bareCity(to)}{date ? ` · ${date}` : ""}</div>
+        <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{flyFromLabel(from)} → {bareCity(to)}{date ? ` · ${date}` : ""}</div>
         <a href={emiratesSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" onClick={() => setLaunched("emirates")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, margin: "14px 0 6px", padding: "13px 16px", borderRadius: 12, border: "none", background: t.pine, color: t.paper, fontSize: 14.5, textDecoration: "none", fontWeight: 500 }}>Open Emirates search in a new tab ↗</a>
         <div style={{ background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: t.ink, lineHeight: 1.5 }}>Emirates opens in a NEW TAB — at the top of your browser.</div>
