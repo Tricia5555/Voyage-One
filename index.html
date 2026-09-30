@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M709";
+const BUILD = "M710";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15689,6 +15689,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
       try {
         const j = await fetch(`/api/nearestair?lat=${lat}&lng=${lng}&name=${encodeURIComponent(bare)}`).then((r) => r.json());
         const o = (j && j.ok && j.options) ? j.options.filter((x) => x.driveMin == null || x.driveMin <= GATEWAY_MAX_DRIVE_MIN) : [];
+        o.forEach((x) => { if (x.code && x.city && !AIRPORT_PRIMARY[x.code]) AIRPORT_CITY_LEARNED[x.code] = x.city; });
         GATEWAY_CACHE[ck] = o; if (!dead) setOpts(o);
       } catch (e) { GATEWAY_CACHE[ck] = []; if (!dead) setOpts([]); }
     };
@@ -16137,10 +16138,20 @@ function StepBuild(p) {
 // route, send her to a real search, and let her record what she actually booked.
 // The city an airport code belongs to, from our own table: PMO -> Palermo. A town that flies
 // through another city's airport is written "Sciacca · flying from Palermo (PMO)".
+// THE CITY OF AN AIRPORT is a fact about the airport, not about whichever town in our table
+// happens to share its code — PMO is Palermo whether Sciacca or Agrigento asks. A seed table for
+// the codes we carry, then whatever the live airport service has told us, and only then our own
+// table, preferring the city with the most hotels (a city, not a town).
+// (The airport-city seed lives in AIRPORT_PRIMARY below, which already settled this once.)
+const AIRPORT_CITY_LEARNED = {};   // filled from the live nearest-airport service as it answers
 function airportCityOf(code, notCity) {
   if (!code) return null;
+  const primary = AIRPORT_PRIMARY[String(code).toUpperCase()]; if (primary) return primary;
+  if (AIRPORT_CITY_LEARNED[code]) return AIRPORT_CITY_LEARNED[code];
   const keys = Object.keys(AIRPORTS).filter((k) => AIRPORTS[k].code === code && !(notCity && sameCity(k, notCity)));
-  return keys.find((k) => AIRPORTS[k].scale === "intercontinental") || keys.find((k) => AIRPORTS[k].scale !== "regional") || keys[0] || null;
+  if (!keys.length) return null;
+  const hotels = (k) => ((lookup(FAVORITES, k) || []).length);
+  return keys.slice().sort((a, b) => hotels(b) - hotels(a))[0];
 }
 function flyFromLabel(from) {
   // THE TOWN STAYS BEHIND. Once the airport is known, every flight heading names the airport
@@ -17285,6 +17296,8 @@ const AIRPORT_PRIMARY = {
   SFO: "San Francisco", NCE: "Nice", LYS: "Lyon", ATH: "Athens", IBZ: "Ibiza", CTS: "Sapporo",
   KGL: "Kigali", KRN: "Kiruna", AJA: "Ajaccio", FSC: "Figari", FTE: "El Calafate", RTB: "Roat\u00e1n",
   JFK: "New York City", EWR: "New York City", LGA: "New York City",
+  // added 30 Sept 2026 so every code we carry names its own city
+  TPS: "Trapani", FLR: "Florence", PSA: "Pisa", CIA: "Rome", VCE: "Venice", MXP: "Milan", LIN: "Milan", BGY: "Milan", BLQ: "Bologna", TRN: "Turin", GOA: "Genoa", VRN: "Verona", OLB: "Olbia", CAG: "Cagliari", BRI: "Bari", BDS: "Brindisi", TRS: "Trieste", MRS: "Marseille", TLS: "Toulouse", BOD: "Bordeaux", MPL: "Montpellier", CDG: "Paris", ORY: "Paris", LGW: "London", LCY: "London", STN: "London", EDI: "Edinburgh", GLA: "Glasgow", INV: "Inverness", DUB: "Dublin", MAD: "Madrid", BCN: "Barcelona", AGP: "Malaga", SVQ: "Seville", PMI: "Palma", LIS: "Lisbon", OPO: "Porto", FAO: "Faro", JMK: "Mykonos", JTR: "Santorini", HER: "Heraklion", CFU: "Corfu", ZRH: "Zurich", GVA: "Geneva", MUC: "Munich", FRA: "Frankfurt", BER: "Berlin", VIE: "Vienna", SZG: "Salzburg", INN: "Innsbruck", AMS: "Amsterdam", BRU: "Brussels", CPH: "Copenhagen", ARN: "Stockholm", OSL: "Oslo", HEL: "Helsinki", KEF: "Reykjavik", PRG: "Prague", BUD: "Budapest", WAW: "Warsaw", IST: "Istanbul", DXB: "Dubai", AUH: "Abu Dhabi", DOH: "Doha", BOS: "Boston", MIA: "Miami", FLL: "Fort Lauderdale", ORD: "Chicago", ATL: "Atlanta", DFW: "Dallas", IAH: "Houston", DEN: "Denver", SEA: "Seattle", LAS: "Las Vegas", PHX: "Phoenix", SDF: "Louisville", YYZ: "Toronto", YVR: "Vancouver", YUL: "Montreal", MEX: "Mexico City", GIG: "Rio de Janeiro", GRU: "S\u00e3o Paulo", EZE: "Buenos Aires", SCL: "Santiago", LIM: "Lima", CUZ: "Cusco", UIO: "Quito", GYE: "Guayaquil", GPS: "Baltra", SCY: "San Crist\u00f3bal", BOG: "Bogot\u00e1", CPT: "Cape Town", JNB: "Johannesburg", NBO: "Nairobi", CAI: "Cairo", RAK: "Marrakech", CMN: "Casablanca", HND: "Tokyo", NRT: "Tokyo", KIX: "Osaka", SIN: "Singapore", HKG: "Hong Kong", BKK: "Bangkok", HKT: "Phuket", USM: "Koh Samui", DPS: "Bali", SYD: "Sydney", MEL: "Melbourne", AKL: "Auckland", ZQN: "Queenstown", MLE: "Mal\u00e9", SEZ: "Mah\u00e9", CMB: "Colombo", DEL: "Delhi", BOM: "Mumbai",
 };
 const AIRPORT_CITY = (() => {
   const m = { ...AIRPORT_PRIMARY };
