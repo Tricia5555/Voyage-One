@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M714";
+const BUILD = "M716";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9433,17 +9433,19 @@ AIRPORT_ASSIST.BAH = { verified: "endorsed", title: "Hala Bahrain \u2014 Meet & 
 // worldwide claim earns it nothing on its own — each airport is judged separately.
 // No published price: Airconsult confirms the exact services and cost for each booking.
 const AIRCONSULT = { name: "Airconsult", web: "https://airconsult.it/", web2: "https://airconsult.it/concierge/vip-services/", button: "Request Airconsult", button2: "VIP services", email: "hdq@airconsult.it", tel: "+39 06 5424 2550", verified: "referred",
-  headline: "Private airport assistance for arrivals, departures and connections throughout Italy — the provider Four Seasons Firenze recommends.",
+  headline: "Voyage One\u2019s recommendation throughout Italy \u2014 private assistance for arrivals, departures and connections.",
   phases: [
     { name: "Arrival", may: ["Met at or near the aircraft gate", "Assistance through the terminal", "Fast Track immigration and customs where permitted", "Porter", "Help with lost luggage or any airport problem", "Escort to your chauffeur", "Electric buggy where the airport permits", "Tarmac assistance where permitted"] },
     { name: "Departure", may: ["Met at the kerb", "Porter", "Check-in and pre-check-in support where the airline permits", "Preferred-seat assistance where possible", "Expedited security where permitted", "VIP lounge escort or access where available", "Escort to the boarding gate"] },
     { name: "Also", may: ["VIP lounge arrangements", "Chauffeur transportation", "Door-to-door assistance", "Flight disruption, ticketing and flight-change assistance"] },
   ],
   tiers: [{ name: "Arrival, departure or connection", from: null, includes: ["Priced per booking — Airconsult confirms the services available at that airport and the cost"] }],
-  note: "Preferred throughout Italy. Recommended to Voyage One by Four Seasons Hotel Firenze; an Italian aviation company since 1984, certified by the Civil Aviation Authority, with a 24/7 support centre on the number below. Tell them the flight and they confirm exactly what that airport permits — the gate meet, the fast lanes, the buggy, the tarmac. Book direct." };
-[["FCO", "Rome Fiumicino"], ["MXP", "Milan Malpensa"], ["LIN", "Milan Linate"], ["FLR", "Florence Peretola"], ["VCE", "Venice Marco Polo"],
- ["NAP", "Naples Capodichino"], ["BLQ", "Bologna"], ["PSA", "Pisa"], ["TRN", "Turin"], ["VRN", "Verona"], ["GOA", "Genoa"],
- ["OLB", "Olbia Costa Smeralda"], ["PMO", "Palermo"], ["CTA", "Catania"], ["BRI", "Bari"], ["BDS", "Brindisi"], ["CAG", "Cagliari"]].forEach(([code, airport]) => {
+  note: "Preferred throughout Italy. An Italian aviation company since 1984, certified by the Civil Aviation Authority, with a 24/7 support centre on the number below. Tell them the flight and they confirm exactly what that airport permits — the gate meet, the fast lanes, the buggy, the tarmac. Book direct." };
+// Only the airports where Airconsult has its own staffed office (Tricia, 1 Oct 2026). The others
+// — Florence, Bologna, Pisa, Turin, Verona, Genoa, Olbia, Palermo, Bari, Brindisi, Cagliari —
+// are added one at a time as Tricia confirms them in use.
+[["FCO", "Rome Fiumicino"], ["MXP", "Milan Malpensa"], ["LIN", "Milan Linate"], ["VCE", "Venice Marco Polo"],
+ ["NAP", "Naples Capodichino"], ["CTA", "Catania"]].forEach(([code, airport]) => {
   AIRPORT_ASSIST[code] = { ...AIRCONSULT, airport, title: `Airconsult — ${airport.split(" ")[0]}` };
 });
 function airportAssist(code) { const c = String(code || "").trim().toUpperCase(); return AIRPORT_ASSIST[c] || null; }
