@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M718";
+const BUILD = "M719";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9054,11 +9054,11 @@ const AENA_TIERS = [
   { name: "With handling", from: "\u20ac476.49", includes: ["1 passenger \u20ac476.49", "2 passengers \u20ac714.71", "3 passengers \u20ac952.93"] },
   { name: "Without handling", from: "\u20ac376.65", includes: ["1 passenger \u20ac376.65", "2 passengers \u20ac564.96", "3 passengers \u20ac753.26"] },
 ];
-const AENA_NOTE = "Aena's official Premium Service — the airport itself, not a third party. You are taken out of the public flow entirely: a private security checkpoint, a private passport-control checkpoint, a private escort, a private vehicle across the apron to or from the aircraft, and the premium lounge while you wait. Published price guide; confirm on booking. Book direct.";
-AIRPORT_ASSIST.MAD = { verified: "official", title: "Aena VIP Services \u2014 Madrid", airport: "Madrid Barajas", name: "Aena Premium Service", web: null, email: "mad.premium@aena.es", tel: "+34 917 438 773", mobile: "+34 678 227 405", button: "Contact Aena Premium",
+const AENA_NOTE = "The airport's own VIP Meet and Greet — the operator itself, not a third party. You are taken out of the public flow entirely: a private security checkpoint, a private passport-control checkpoint, a private escort, a private vehicle across the apron to or from the aircraft, and the premium lounge while you wait. Published price guide; confirm on booking. Book direct.";
+AIRPORT_ASSIST.MAD = { verified: "official", title: "VIP Meet and Greet \u2014 Madrid", airport: "Madrid Barajas", name: "VIP Meet and Greet", web: null, email: "mad.premium@aena.es", tel: "+34 917 438 773", mobile: "+34 678 227 405", button: "Contact Aena Premium",
   headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS,
-  note: AENA_NOTE + " MADRID HAS ITS OWN BOOKING PROCEDURE for Meet & Assist, different from Aena's other airports: book through the official Aena VIP channel for Madrid, not the generic form. Aena also runs Fast Track and VIP lounges at Madrid, and the Premium Service is at Terminal 4 — match the service to your terminal." };
-AIRPORT_ASSIST.BCN = { verified: "official", title: "Aena Premium Service \u2014 Barcelona", airport: "Barcelona El Prat", name: "Aena Premium Service", web: null, email: "bcn.premium@aena.es", tel: "+34 932 971 360", button: "Contact Aena Premium",
+  note: AENA_NOTE + " MADRID HAS ITS OWN BOOKING PROCEDURE, different from the other Spanish airports: book through the Madrid channel below, not the generic form. Aena also runs Fast Track and VIP lounges at Madrid, and the Premium Service is at Terminal 4 — match the service to your terminal." };
+AIRPORT_ASSIST.BCN = { verified: "official", title: "VIP Meet and Greet \u2014 Barcelona", airport: "Barcelona El Prat", name: "VIP Meet and Greet", web: null, email: "bcn.premium@aena.es", tel: "+34 932 971 360", button: "Contact Aena Premium",
   headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS, note: AENA_NOTE };
 // ══ ZURICH — the airport's own VIP Service, again an operator product rather than a third party.
 // Priced per passenger: a first-passenger fee and a lower fee for each additional one.
@@ -15753,7 +15753,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
       <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Transport to the airport</div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={() => onTransfer({ ...(transfer || {}), booked: true })} style={{ background: transfer && transfer.booked ? t.pine : t.white, color: transfer && transfer.booked ? t.paper : t.ink, border: `1px solid ${transfer && transfer.booked ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}>Booked</button>
-        <button onClick={() => onTransfer({ ...(transfer || {}), booked: false })} style={{ background: !(transfer && transfer.booked) ? t.pine : t.white, color: !(transfer && transfer.booked) ? t.paper : t.ink, border: `1px solid ${!(transfer && transfer.booked) ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}>Not yet</button>
+        <button onClick={() => onTransfer({ ...(transfer || {}), booked: false })} style={{ background: !(transfer && transfer.booked) ? t.pine : t.white, color: !(transfer && transfer.booked) ? t.paper : t.ink, border: `1px solid ${!(transfer && transfer.booked) ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" }}>No</button>
         {transfer && transfer.booked ? <input placeholder="Confirmation (optional)" value={transfer.ref || ""} onChange={(e) => onTransfer({ ...transfer, ref: e.target.value })} style={{ fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink, minWidth: 200 }} /> : null}
       </div>
     </div>) : null}
@@ -17381,7 +17381,7 @@ function ExitFrom({ d, setDest, suggested }) {
       <span style={{ fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Flying out from</span>
       <button onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3, cursor: "pointer" }}>{open ? "Done" : "Change"}</button>
     </div>
-    <div style={{ fontSize: 15, color: t.ink, marginTop: 4 }}>{bareCity(cur || suggested || d.city)}{!cur ? <span style={{ fontSize: 12.5, color: t.inkFaint }}> · worked out from your trip</span> : null}</div>
+    <div style={{ fontSize: 15, color: t.ink, marginTop: 4 }}>{bareCity(cur || suggested || d.city)}</div>
     {open ? (<div style={{ marginTop: 9 }}>
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 8 }}>
         {opts.map((o) => { const on = cur && sameCity(cur, o); return (
@@ -17422,7 +17422,7 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices }) {
   return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
     <div style={{ fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Did you book a car?</div>
     <div style={{ display: "flex", gap: 8, marginBottom: car.booked ? 11 : 0 }}>
-      {["Booked", "Not yet"].map((lab) => { const on = lab === "Booked" ? !!car.booked : !car.booked;
+      {["Booked", "No"].map((lab) => { const on = lab === "Booked" ? !!car.booked : !car.booked;
         return (<button key={lab} onClick={() => set({ booked: lab === "Booked" })}
           style={{ background: on ? t.pine : "none", color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "6px 14px", fontSize: 12.5, cursor: "pointer" }}>{lab}</button>); })}
     </div>
@@ -17519,7 +17519,7 @@ function CarInHandPanel({ p, i, d }) {
   const c = h.car; const last = h.dropDest === i;
   return (<Panel icon={Car} title={`Your car \u00b7 ${c.company || "rental"} from ${bareCity(h.fromCity)}`}>
     <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>
-      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. You drove here from {bareCity(((p.dests || [])[i - 1] || {}).city || h.fromCity)} in it.</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. No rental is needed here; this leg is by road.</>}
+      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}.</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. No rental is needed here; this leg is by road.</>}
     </div>
   </Panel>);
 }
@@ -17822,7 +17822,7 @@ function BookingPrompt() {
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <input value={conf} onChange={(e) => setConf(e.target.value)} placeholder="Confirmation number (optional)" style={{ flex: 1, minWidth: 180, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, fontSize: 13.5 }} />
         <button onClick={async () => { await logBooking(pend, "yes", conf.trim()); setDone(true); }} style={{ padding: "8px 14px", borderRadius: 999, background: t.pine, color: t.white, border: "none", fontSize: 13.5 }}>Yes, booked</button>
-        <button onClick={async () => { await logBooking(pend, "no", ""); clear(); }} style={{ padding: "8px 14px", borderRadius: 999, background: t.white, color: t.ink, border: `1px solid ${t.line}`, fontSize: 13.5 }}>Not yet</button>
+        <button onClick={async () => { await logBooking(pend, "no", ""); clear(); }} style={{ padding: "8px 14px", borderRadius: 999, background: t.white, color: t.ink, border: `1px solid ${t.line}`, fontSize: 13.5 }}>No</button>
       </div>
     </>)}
   </div>);
@@ -18160,7 +18160,7 @@ function stayLine(stay, nights) {
   const bits = [`${nights} ${nights === 1 ? "night" : "nights"}`];
   if (stay.level) bits.push(stay.level);
   if (stay.area) bits.push(bareCity(String(stay.area).split("\u00b7")[0].trim()));
-  bits.push(stay.booked ? (stay.ref ? `Booked \u00b7 ${stay.ref}` : "Booked") : "Not booked yet");
+  bits.push(stay.booked ? (stay.ref ? `Booked \u00b7 ${stay.ref}` : "Booked") : "Not booked");
   const c = stay.contact || {};
   if (c.tel) bits.push(c.tel);
   if (c.web) bits.push(String(c.web).replace(/^https?:\/\//, ""));
@@ -19035,7 +19035,7 @@ function EventTicketsPanel({ d, upd, p }) {
   const chip = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" });
   const profileDone = !g.profile || (g.profile || []).every((q) => q.multi ? (prof[q.key] || []).length > 0 : !!prof[q.key]);
   const recommended = (it) => !it.recommendIf || it.recommendIf(prof);
-  const statusOf = (it) => { const st = items[it.key] || {}; return st.booked ? "✓ Booked" : st.requested ? "Requested" : st.added ? "○ Not yet booked" : it.optional ? "Optional" : null; };
+  const statusOf = (it) => { const st = items[it.key] || {}; return st.booked ? "✓ Booked" : st.requested ? "Requested" : st.added ? "○ Not booked" : it.optional ? "Optional" : null; };
   const rec = (g.ticketBands || []).find((b) => /recommended|favourite|favorite|best/i.test(b.label));
   const primary = g.ticketLink ? { label: g.ticketLinkLabel || "Buy official tickets", url: g.ticketLink } : null;
   const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
@@ -19082,7 +19082,7 @@ function EventTicketsPanel({ d, upd, p }) {
       <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Record your tickets</div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <button onClick={() => set({ booked: true })} style={pill(!!tk.booked)}>Purchased</button>
-        <button onClick={() => set({ booked: false })} style={pill(!tk.booked)}>Not yet</button>
+        <button onClick={() => set({ booked: false })} style={pill(!tk.booked)}>No</button>
         <input type="date" value={tk.date || ""} onChange={(e) => set({ date: e.target.value })} style={inp} />
         <input type="number" min={1} max={20} placeholder="Guests" value={tk.guests || ""} onChange={(e) => set({ guests: e.target.value })} style={{ ...inp, width: 90 }} />
         <input placeholder="Reference (optional)" value={tk.ref || ""} onChange={(e) => set({ ref: e.target.value })} style={{ ...inp, minWidth: 180 }} />
@@ -19654,7 +19654,7 @@ function DayByDay({ p, sch }) {
       if (pf && (pf.chosen || pf.booked)) {
         const landAt = bareCity(pickupPoint(d)) || bareCity(city);
         const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${landAt}`;
-        const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked yet";
+        const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked";
         add(isoOf(lg.arrive), { icon: "plane", label: `Fly ${(i === 0 ? (airportCityOf(iataFor(legFrom), bareCity(legFrom)) || bareCity(legFrom)) : bareCity(legFrom))} to ${landAt} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
           sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded", st].filter(Boolean).join(" \u00b7 ") });
       } else if (pk.ground) {
@@ -19666,7 +19666,7 @@ function DayByDay({ p, sch }) {
       add(isoOf(lg.arrive), { icon: "car", label: `Rental car \u2014 ${pk.car.company || "company not recorded"}`,
         sub: `${bareCity(cf)} \u2192 ${bareCity(ct)} \u00b7 ${pk.car.ref ? `Booked \u00b7 ${pk.car.ref}` : "Booked \u00b7 no reference given"}` });
     }
-    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked yet"}` });
+    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked"}` });
     // A roaming leg keeps its hotels and tables on its stops, not on the leg itself. This
     // builder only ever looked at pick.stay, so a whole country came out as a run of empty
     // days however carefully it had been planned. The schedule has already dated every stop —
@@ -19677,7 +19677,7 @@ function DayByDay({ p, sch }) {
         const ss = lg.stops && lg.stops[k];
         if (!ss || !st) return;
         if (st.stay) add(isoOf(ss.arrive), { icon: "hotel", kind: "hotel", city: st.name, name: st.stay.name, fallback: st.stay.contact || placeContact(st.stay.name), label: `Check in · ${st.stay.name || st.stay.level}`, sub: `${ss.nights} ${ss.nights === 1 ? "night" : "nights"} in ${st.name}` });
-        (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
+        (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked" }));
       });
     }
     if (i === 0 && p.dates && p.dates.depart && p.fromCity) {   // the outbound day: the drive from home to the airport
@@ -19699,7 +19699,7 @@ function DayByDay({ p, sch }) {
       if (dISO) add(dISO, { icon: "trophy", kind: "venue", city, name: d.event || "Event", label: `\u2713 ${d.event || "Event"} tickets`, sub: [et2.guests ? `${et2.guests} ${Number(et2.guests) === 1 ? "guest" : "guests"}` : "", "purchased externally through official ticketing", et2.ref ? `ref ${et2.ref}` : ""].filter(Boolean).join(" \u00b7 "), booked: true });
     }
     (pk.sports || []).forEach((x) => { const et = eventTimes(x.name); add(x.date, { icon: "trophy", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: et ? (x.evening ? et.night : et.day) : (x.evening ? "Evening session" : "Daytime"), evening: !!x.evening }); });
-    (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked yet" }));
+    (pk.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked" }));
     (pk.tours || []).forEach((x) => add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "On your day" }));
     (pk.spas || []).forEach((x) => add(x.date, { icon: "spa", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Spa" }));
     (pk.days || []).forEach((x) => { add(x.date, { icon: "star", kind: "venue", city, name: x.name, fallback: placeContact(x.name), label: x.name, sub: "Day out" }); (x.dines || []).forEach((dn) => add(dn.date, { icon: "dine", kind: "dine", city, name: dn.name, fallback: placeContact(dn.name), label: dn.name || "Dinner", sub: "Dinner" })); });
@@ -19715,7 +19715,7 @@ function DayByDay({ p, sch }) {
     const depTime = (f && f.depart) || (dtEst ? dtEst.time + " (est.)" : null);
     const airBit = f && f.airline ? `${f.airline}${f.flightNo ? " " + f.flightNo : ""}` : "Airline to be chosen";
     const cabinBit = f && f.cabin ? f.cabin : "cabin TBC";
-    add(isoOf(start), { icon: "plane", label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} · ${f && f.booked ? "Booked" : "Not booked yet"} → ${bareCity(dests[0].city) || "destination"}` });
+    add(isoOf(start), { icon: "plane", label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} · ${f && f.booked ? "Booked" : "Not booked"} → ${bareCity(dests[0].city) || "destination"}` });
     if (lg0) {
       // YOU LAND WHERE THE AEROPLANE LANDS. This said "Arrive Florence — Malpensa at 12:05", which
       // is two different cities in one sentence: Malpensa is Milan, and Florence is three and a
@@ -19742,7 +19742,7 @@ function DayByDay({ p, sch }) {
   const rEst = departTime(rFrom, p.homeCity);
   const rTime = (rf && rf.depart) || (rEst ? rEst.time + " (est.)" : null);
   const rAir = rf && rf.airline ? `${rf.airline}${rf.flightNo ? " " + rf.flightNo : ""}` : "Airline to be chosen";
-  add(isoOf(ret), { icon: "plane", label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} · ${rf && rf.booked ? "Booked" : "Not booked yet"} → ${bareCity(p.homeCity) || "home"}` });
+  add(isoOf(ret), { icon: "plane", label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} · ${rf && rf.booked ? "Booked" : "Not booked"} → ${bareCity(p.homeCity) || "home"}` });
   const days = [];
   for (let dt = new Date(start.getTime()); dt <= ret; dt = addDays(dt, 1)) days.push(new Date(dt.getTime()));
   // Never fly in on a ticketed day. If the first ticketed day is on or before the arrival day, say so.
@@ -20484,7 +20484,7 @@ function ItineraryView(p) {
     // entirely. The flight was recorded; it happened; it prints.
     if (pk.flight && (pk.flight.chosen || pk.flight.booked)) { const F = pk.flight;
       const route = (F.depAirport && F.arrAirport) ? `${F.depAirport} \u2192 ${F.arrAirport}` : "";
-      const status = F.booked ? (F.ref ? `Booked \u00b7 ${F.ref}` : "Booked \u00b7 no reference given") : "Not booked yet";
+      const status = F.booked ? (F.ref ? `Booked \u00b7 ${F.ref}` : "Booked \u00b7 no reference given") : "Not booked";
       rows.push(<ItinLine key="f" label={`Fly \u00b7 ${F.airline || "airline TBC"}${F.flightNo ? " " + F.flightNo : ""}`}
         sub={[route, F.cabin || "cabin TBC",
               (F.depart || F.arrive) ? [F.depart ? `departs ${F.depart}` : "", F.arrive ? `arrives ${F.arrive}${F.dayOffset > 0 ? ` (+${F.dayOffset}d)` : ""}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded",
