@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M717";
+const BUILD = "M718";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11229,7 +11229,8 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
           are deliberately absent for the same reason: both are what the browser keys its
           autofill store on. */}
       <input value={value} placeholder={placeholder} autoComplete="voyage-one-city" autoCorrect="off" autoCapitalize="words" spellCheck={false}
-        onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 160)} style={inputStyle} />
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 160)} style={{ ...inputStyle, paddingRight: value ? 34 : (inputStyle && inputStyle.paddingRight) }} />
+    {value ? <button type="button" aria-label="Clear" onMouseDown={(e) => { e.preventDefault(); onChange(""); setOpen(true); }} style={{ position: "absolute", right: 2, top: "50%", transform: "translateY(-50%)", width: 28, height: 28, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.inkSoft, fontSize: 16, lineHeight: "26px", textAlign: "center", cursor: "pointer", padding: 0 }}>×</button> : null}
     {showAny && (<div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 30, background: t.white, border: `1px solid ${t.line}`, borderRadius: 12, marginTop: 6, overflow: "hidden", boxShadow: "0 10px 28px rgba(0,0,0,.10)", maxHeight: 320, overflowY: "auto" }}>
       {matches.map((c) => (
         <button key={"c" + c} onMouseDown={(e) => { e.preventDefault(); choose(c); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
@@ -17489,12 +17490,16 @@ function carInHand(p, i) {
     const dropTxt = String(c.to); const dropCode = codeOf(dropTxt) || null; const dropBare = bareCity(dropTxt);
     if (sameCity(dropBare, ds[j].city) && !dropCode) continue;         // returned where it was collected
     let k = -1;
+    const matches = (txt, cty) => { if (!txt || !cty) return false; const tb = bareCity(txt), tc = codeOf(txt); const cb = bareCity(cty), cc = iataFor(cty), apc = airportCityOf(cc, cb);
+      return sameCity(tb, cb) || (tc && tc === cc && apc && sameCity(apc, cb)) || (apc && sameCity(tb, apc) && sameCity(apc, cb)); };
     for (let m = j + 1; m < ds.length; m++) {
       const cty = ds[m] && ds[m].city; if (!cty) continue;
-      const apc = airportCityOf(iataFor(cty), bareCity(cty));
-      if (sameCity(dropBare, cty) || (((dropCode && dropCode === iataFor(cty)) || (apc && sameCity(dropBare, apc))) && apc && sameCity(apc, cty))) { k = m; break; }
+      if (m > j + 1 && ds[m].arriveBy === "Flight") { k = m - 1; break; }      // a car never crosses a flight: it was returned before this one
+      if (matches(dropTxt, cty)) { k = m; break; }                            // dropped in this city
+      const ex = ds[m].exitFrom || ""; const fl = ds[m].pick && ds[m].pick.flight; const exAir = (fl && (fl.depAirport || fl.from)) || "";
+      if ((ex && matches(dropTxt, ex)) || (dropCode && exAir && (codeOf(exAir) === dropCode || String(exAir).toUpperCase() === dropCode))) { k = m; break; }   // dropped where you leave this stop from
     }
-    if (k < 0) k = ds.length - 1;   // drop-off named somewhere we cannot place: assume the car runs to the end
+    if (k < 0) k = j + 1 < ds.length ? ds.length - 1 : j;   // nowhere we can place it: the car runs on, by road, until the trip ends
     if (i > j && i <= k) return { fromDest: j, dropDest: k, car: c, fromCity: ds[j].city };
   }
   return null;
@@ -17514,7 +17519,7 @@ function CarInHandPanel({ p, i, d }) {
   const c = h.car; const last = h.dropDest === i;
   return (<Panel icon={Car} title={`Your car \u00b7 ${c.company || "rental"} from ${bareCity(h.fromCity)}`}>
     <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>
-      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. You drove here from {bareCity(h.fromCity === c.from ? c.from : (c.from || h.fromCity))} in it.</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. No rental is needed here; this leg is by road.</>}
+      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. You drove here from {bareCity(((p.dests || [])[i - 1] || {}).city || h.fromCity)} in it.</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. No rental is needed here; this leg is by road.</>}
     </div>
   </Panel>);
 }
@@ -18872,9 +18877,11 @@ function HubPanel({ from, city, date, pick, upd }) {
     </div>)}
   </div>);
 }
-function LiveRoute({ from, to, fallbackKnown }) {
-  const r = useRoute(from, to);
-  if (r.loading) return (<div style={{ fontSize: 12.5, color: t.inkFaint, margin: "14px 0 0" }}>Finding real routes from {from} to {to}…</div>);
+function LiveRoute({ from, to, fallbackKnown, driveOnly, driveTo }) {
+  // DRIVE TO THE DOOR. "Douro Valley" is a pin somewhere in a valley eighty kilometres long; the
+  // hotel is where you are actually going, and Google's time to the hotel is the honest one.
+  const r = useRoute(from, driveTo || to);
+  if (r.loading) return (<div style={{ fontSize: 12.5, color: t.inkFaint, margin: "14px 0 0" }}>Finding real routes from {from} to {bareCity(driveTo || to)}…</div>);
   // Live modes came back with something real to show.
   if (r.modes && r.modes.length) {
     const tRaw = r.modes.find((m) => m.mode === "Transit");
@@ -18882,7 +18889,8 @@ function LiveRoute({ from, to, fallbackKnown }) {
     // ferry, never a bus. A US city-to-city "transit" result is almost always a coach; we drop it.
     const railFerry = /RAIL|TRAIN|SUBWAY|METRO|HIGH_SPEED|HEAVY|TRAM|MONORAIL|FERRY/i;
     const isRailFerry = tRaw && (railFerry.test(tRaw.vehicle || "") || (tRaw.legs || []).some((l) => railFerry.test(l.vehicle || "")));
-    const transit = isRailFerry ? tRaw : null;
+    // With a car already in hand there is no train to catch: the drive is the leg.
+    const transit = isRailFerry && !driveOnly ? tRaw : null;
     let drive = r.modes.find((m) => m.mode === "Drive");
     if (!drive) { const dr = driveEstimate(from, to); if (dr) drive = { mode: "Drive", label: dr.label, km: dr.km }; }
     if (!transit && !drive) return null;
@@ -18902,7 +18910,7 @@ function LiveRoute({ from, to, fallbackKnown }) {
       </div>)}
       {drive && (<div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <Car size={15} color={t.inkSoft} />
-        <span style={{ fontSize: 14, color: t.inkSoft }}>Drive · {drive.label}{drive.km ? ` · ${drive.km} km` : ""}</span>
+        <span style={{ fontSize: 14, color: t.inkSoft }}>Drive · {drive.label}{drive.km ? ` · ${drive.km} km` : ""}{driveTo ? ` · to ${bareCity(driveTo).split(",")[0]}` : ""}</span>
       </div>)}
       <div style={{ fontSize: 10, color: t.inkFaint, letterSpacing: "0.08em", marginTop: 8 }}>Powered by Google · live routing</div>
     </div>);
@@ -19149,7 +19157,7 @@ function CitySection({ d, i, p, from, legSched }) {
   return (<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 18, padding: "14px 14px 22px", overflow: "hidden" }}>
     <CityHero query={d.city} index={String(i + 1).padStart(2, "0")} title={d.city ? placeLine(d.city) : "Untitled leg"} label={label} />
     <div style={{ padding: "0 8px" }}>
-    {from && surfaceTarget && !sameCity(from, surfaceTarget) && drivable(from, surfaceTarget) && <LiveRoute from={from} to={surfaceTarget} fallbackKnown={known(from) && known(surfaceTarget)} />}
+    {from && surfaceTarget && !sameCity(from, surfaceTarget) && drivable(from, surfaceTarget) && <LiveRoute from={from} to={surfaceTarget} driveOnly={!!carInHand(p, i)} driveTo={pick.stay && pick.stay.name ? `${pick.stay.name}, ${bareCity(d.city)}` : null} fallbackKnown={known(from) && known(surfaceTarget)} />}
     {surface && d.arriveBy === "Flight" && drivable(from, surfaceTarget) && (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
       {surface.mode === "Ferry" ? <Ship size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} /> : <Route size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} />}
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
