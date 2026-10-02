@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M720";
+const BUILD = "M722";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10635,7 +10635,6 @@ const MARQUEE_EVENTS = [
   ["US Open Tennis", "New York City", "2026-08-31", "2026-09-13", "The final Grand Slam of the year, in Flushing Meadows — night sessions under lights are the ticket."],
   ["Monaco Grand Prix", "Monte Carlo", "2027-05-20", "2027-05-23", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets. Book a terrace a year out."],
   ["Monaco Grand Prix", "Monaco", "2027-05-20", "2027-05-23", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets."],
-  ["The Masters", "Augusta", "2027-04-08", "2027-04-11", "Augusta National in azalea season — the most coveted badge in golf."],
   ["Super Bowl LX", "San Francisco", "2026-02-08", "2026-02-08", "The NFL championship, at Levi's Stadium in the Bay Area."],
   ["Ryder Cup", "New York City", "2025-09-26", "2025-09-28", "USA v Europe at Bethpage Black."],
   ["Roland-Garros (French Open)", "Paris", "2026-05-24", "2026-06-07", "The clay-court Grand Slam at Roland-Garros — Parisian spring at its most stylish."],
@@ -15053,7 +15052,7 @@ function GuideWizard({ onBuild, onBack, onHome }) {
 // screen the person is on. It cannot invent a feature we do not have, because it only knows the
 // ones written here. DISCIPLINE: a build that changes how something works touches this guide.
 const HELP_GUIDE = [
-  { id: "ways-in", title: "The four ways in", text: "From the home screen you can start four ways. I KNOW WHERE AND WHEN: name your cities and dates and build the trip yourself — flights, hotels, tables, tours. I KNOW WHEN — LET'S EXPLORE: give a season and a mood (ski, beach, golf, fly-fishing, a region) and we suggest where. I KNOW WHERE BUT NOT HOW: name a country or a coast and answer a few questions; we shape the trip an advisor would, from what we carry. INSPIRE ME WITH AN EXPERIENCE: The One List — Wimbledon, the Masters, Art Basel — pick the moment and we set the dates and the plan." },
+  { id: "ways-in", title: "The four ways in", text: "From the home screen you can start four ways. I KNOW WHERE AND WHEN: name your cities and dates and build the trip yourself — flights, hotels, tables, tours. I KNOW WHEN — LET'S EXPLORE: give a season and a mood (ski, beach, golf, fly-fishing, a region) and we suggest where. I KNOW WHERE BUT NOT HOW: name a country or a coast and answer a few questions; we shape the trip an advisor would, from what we carry. INSPIRE ME WITH AN EXPERIENCE: The One List — Wimbledon, the Monaco Grand Prix, Niseko’s powder, Art Basel — pick the moment and we set the dates and the plan." },
   { id: "basics", title: "Basics, Departure, Destinations, Build", text: "The builder runs left to right across the top: BASICS (who is travelling, home city), DEPARTURE (dates and where you leave from), DESTINATIONS (the cities, in order, with nights), then BUILD, where each destination has its own section: how you arrive, the flight, the hotel, dining, things to do, and a car if one makes sense. Choosing a departure date seeds the return a week later so the picker opens in the right month; the return can never be before the departure." },
   { id: "flights", title: "Flights", text: "In each destination's section the flight panel searches live fares into the airport the site chose — or a hub you pick, if you would rather fly into Milan and drive to Florence. Tap a fare to lock it in. If you booked elsewhere, or by phone, use ALREADY BOOKED THIS FLIGHT YOURSELF? RECORD IT under the panel: the airline is enough, everything else is optional, and it prints on the itinerary. Dates more than about eleven months out show no fares because airlines have not released them yet — the panel tells you when they open." },
   { id: "delta-emirates", title: "Delta and Emirates", text: "Delta and Emirates do not appear in the live fares — neither sells through the channel the site searches. Each has its own panel under the flights: enter the flight you found on their site (or by phone) and it is recorded and printed like any other. Book them direct with the airline." },
@@ -15081,7 +15080,7 @@ const HELP_GUIDE = [
 // and a first line already written.
 const VO_TEXT_NUMBER = "+12054133701";
 const VO_TEXT_DISPLAY = "+1 205 413 3701";
-function textUsHref(context) { const body = `Hi Voyage One — ${context || "I have a question about a trip I am planning"}.`; return `sms:${VO_TEXT_NUMBER}${/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent || "") ? "&" : "?"}body=${encodeURIComponent(body)}`; }
+function textUsHref(context) { const body = `Hi, Voyage One. ${context || "I have a question"}…`; return `sms:${VO_TEXT_NUMBER}${/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent || "") ? "&" : "?"}body=${encodeURIComponent(body)}`; }
 // A HINT: a small ⓘ beside a control, one sentence on tap. No hover — iPads have none.
 function Hint({ text }) {
   const [open, setOpen] = useState(false);
@@ -15142,7 +15141,7 @@ function HelpPanel({ screen, step }) {
         <div style={{ marginTop: 26, paddingTop: 16, borderTop: `1px solid ${t.line}` }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Reach a person</div>
           <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>For anything the app cannot do, text us and a person answers.</div>
-          <a href={textUsHref(`I am on ${where} and have a question`)} style={{ display: "inline-block", marginTop: 10, background: t.pine, color: t.paper, borderRadius: 999, padding: "11px 18px", fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>Text us · {VO_TEXT_DISPLAY}</a>
+          <a href={textUsHref("I have a question")} style={{ display: "inline-block", marginTop: 10, background: t.pine, color: t.paper, borderRadius: 999, padding: "11px 18px", fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>Text us · {VO_TEXT_DISPLAY}</a>
         </div>
       </div>
     </div>) : null}
@@ -15171,7 +15170,7 @@ function StartChooser({ onKnow, onOpen, onInspire, onGuide, onHome }) {
       <button onClick={onKnow} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>A plan in mind</span><span style={cTtl}>I know where and when</span><span style={cSub}>Name your cities and dates — we build it all: flights, stays, tables and tours.</span></span><span style={cArw}>→</span></button>
       <button onClick={onOpen} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Open to ideas</span><span style={cTtl}>I know when — let's explore the what and where</span><span style={cSub}>Give us the season and a mood — ski, beach, golf, a region — and we'll suggest where.</span></span><span style={cArw}>→</span></button>
       <button onClick={onGuide} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>Take me there</span><span style={cTtl}>I know where but not how</span><span style={cSub}>Name a country or a coast — Croatia, Patagonia, Morocco. A few questions, and we shape the trip a good advisor would.</span></span><span style={cArw}>→</span></button>
-      <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me with an experience</span><span style={cSub}>The Masters, Art Basel, a Serengeti crossing — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
+      <button onClick={onInspire} style={card}><span style={{ flex: 1, minWidth: 0 }}><span style={cEy}>The One List</span><span style={cTtl}>Inspire me with an experience</span><span style={cSub}>The Monaco Grand Prix, Niseko powder, Art Basel — pick the moment, we set the dates.</span></span><span style={cArw}>→</span></button>
     </div>
   </div>);
 }
