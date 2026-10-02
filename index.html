@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M722";
+const BUILD = "M724";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9002,16 +9002,16 @@ const AIRPORT_ASSIST = {
   // Maria; meet-and-assist for a commercial flight is arranged through the Lisbon office. The four
   // commercial airports are listed. No prices shown.
   LIS: { verified: "independent", airport: "Lisbon Humberto Delgado", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
-    headline: "Voyage One\u2019s recommendation in Portugal. Ask for meet-and-assist on your commercial flight.",
+    headline: "Our choice in Portugal, used by Voyage One. Ask for meet-and-assist on your commercial flight.",
     note: "Email or call the Lisbon office with your flight and they confirm what is available at the terminal. Book direct." },
   OPO: { verified: "independent", airport: "Porto Francisco S\u00e1 Carneiro", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
-    headline: "Voyage One\u2019s recommendation in Portugal; their own station at Porto. Ask for meet-and-assist.",
+    headline: "Our choice in Portugal; their own station at Porto. Ask for meet-and-assist.",
     note: "Email or call with your flight; the Lisbon office coordinates Porto. Book direct." },
   FAO: { verified: "independent", airport: "Faro", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
-    headline: "Voyage One\u2019s recommendation in Portugal; their own FBO at Faro. Ask for meet-and-assist.",
+    headline: "Our choice in Portugal; their own FBO at Faro. Ask for meet-and-assist.",
     note: "Email or call with your flight. Book direct." },
   FNC: { verified: "independent", airport: "Madeira (Funchal)", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
-    headline: "Voyage One\u2019s recommendation in Portugal; their own station at Funchal. Ask for meet-and-assist.",
+    headline: "Our choice in Portugal; their own station at Funchal. Ask for meet-and-assist.",
     note: "Email or call with your flight. Book direct." },
 
   LHR: { verified: "endorsed", airport: "London Heathrow", name: "VIP Assist", web: "https://www.vipassist.co.uk/book-now/book-now-london-heathrow", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
@@ -9433,7 +9433,7 @@ AIRPORT_ASSIST.BAH = { verified: "endorsed", title: "Hala Bahrain \u2014 Meet & 
 // worldwide claim earns it nothing on its own — each airport is judged separately.
 // No published price: Airconsult confirms the exact services and cost for each booking.
 const AIRCONSULT = { name: "Airconsult", web: "https://airconsult.it/", web2: "https://airconsult.it/concierge/vip-services/", button: "Request Airconsult", button2: "VIP services", email: "hdq@airconsult.it", tel: "+39 06 5424 2550", verified: "referred",
-  headline: "Voyage One\u2019s recommendation throughout Italy \u2014 private assistance for arrivals, departures and connections.",
+  headline: "Our choice in Italy, used by Voyage One \u2014 private assistance for arrivals, departures and connections.",
   phases: [
     { name: "Arrival", may: ["Met at or near the aircraft gate", "Assistance through the terminal", "Fast Track immigration and customs where permitted", "Porter", "Help with lost luggage or any airport problem", "Escort to your chauffeur", "Electric buggy where the airport permits", "Tarmac assistance where permitted"] },
     { name: "Departure", may: ["Met at the kerb", "Porter", "Check-in and pre-check-in support where the airline permits", "Preferred-seat assistance where possible", "Expedited security where permitted", "VIP lounge escort or access where available", "Escort to the boarding gate"] },
@@ -15052,6 +15052,7 @@ function GuideWizard({ onBuild, onBack, onHome }) {
 // screen the person is on. It cannot invent a feature we do not have, because it only knows the
 // ones written here. DISCIPLINE: a build that changes how something works touches this guide.
 const HELP_GUIDE = [
+  { id: "what", title: "What Voyage One is", text: "Voyage One is for the person who knows what they like and would value having the world filtered: the choices vetted, the less-than-great weeded out, and the best of what remains offered plainly. We take the whole world of hotels, tables, experiences and airports and do our best to leave you only what is worth your time. Everything is booked by you, direct, with the hotel, the airline, the restaurant or the event." },
   { id: "ways-in", title: "The four ways in", text: "From the home screen you can start four ways. I KNOW WHERE AND WHEN: name your cities and dates and build the trip yourself — flights, hotels, tables, tours. I KNOW WHEN — LET'S EXPLORE: give a season and a mood (ski, beach, golf, fly-fishing, a region) and we suggest where. I KNOW WHERE BUT NOT HOW: name a country or a coast and answer a few questions; we shape the trip an advisor would, from what we carry. INSPIRE ME WITH AN EXPERIENCE: The One List — Wimbledon, the Monaco Grand Prix, Niseko’s powder, Art Basel — pick the moment and we set the dates and the plan." },
   { id: "basics", title: "Basics, Departure, Destinations, Build", text: "The builder runs left to right across the top: BASICS (who is travelling, home city), DEPARTURE (dates and where you leave from), DESTINATIONS (the cities, in order, with nights), then BUILD, where each destination has its own section: how you arrive, the flight, the hotel, dining, things to do, and a car if one makes sense. Choosing a departure date seeds the return a week later so the picker opens in the right month; the return can never be before the departure." },
   { id: "flights", title: "Flights", text: "In each destination's section the flight panel searches live fares into the airport the site chose — or a hub you pick, if you would rather fly into Milan and drive to Florence. Tap a fare to lock it in. If you booked elsewhere, or by phone, use ALREADY BOOKED THIS FLIGHT YOURSELF? RECORD IT under the panel: the airline is enough, everything else is optional, and it prints on the itinerary. Dates more than about eleven months out show no fares because airlines have not released them yet — the panel tells you when they open." },
@@ -15062,7 +15063,7 @@ const HELP_GUIDE = [
   { id: "exit", title: "Flying out from", text: "Each destination shows FLYING OUT FROM — what the site worked out, with a CHANGE link. Tap it to pick a different city (Porto instead of Lisbon, say) or type one. Your choice wins over every guess, including the car drop-off." },
   { id: "hotels", title: "Hotels and neighbourhoods", text: "Hotels come in two tiers, LUXURY and ULTRA LUXURY, and every one has been vetted — there is nothing below five-star caliber on the site. In larger cities a WHERE IN [CITY] row lets you narrow to a neighbourhood: Mayfair, the 8th, Elounda. Tap a hotel to open it; WHERE IS IT? shows that hotel alone on a map. Some places also show a NEARBY group — Monaco's Riviera hotels, for instance — with the travel time on each card." },
   { id: "dining", title: "Dining", text: "Every restaurant shown has won something — Michelin stars, a Bib Gourmand, a place on the 50 Best or La Liste, a Beard award. DESTINATION tables are the ones worth travelling for; RECOMMENDED are excellent and nearer. Small towns borrow tables from neighbours within reach, so a stay in Stellenbosch shows Franschhoek's. WHERE IS IT? maps any table." },
-  { id: "vip", title: "Airport assistance", text: "Once a flight is booked, if it lands at or leaves from an airport where we have a vetted meet-and-assist — Heathrow, Paris, Malpensa, Madrid, Zurich, Dubai, Singapore, Los Angeles and forty others — a card appears under the flight with the service, the price where published, and a button to book or contact them. Book direct; we hold nothing. The card is deliberately short: the provider\u2019s name, one line, and VISIT THE SITE. You book direct. We list only providers we have verified or used ourselves \u2014 Airconsult at the Italian airports where it has an office, Omni Handling in Portugal, the airports\u2019 own services in Madrid, Barcelona, Zurich, Dubai and others." },
+  { id: "vip", title: "Airport assistance", text: "Once a flight is booked, if it lands at or leaves from an airport where we list a meet-and-assist service, a short card appears under the flight: the provider\u2019s name, one line, and VISIT THE SITE. You book direct. These are the services we think are the best at each airport, many of which we have used ourselves and loved \u2014 Airconsult in Italy and Omni Handling in Portugal among them \u2014 and the airports\u2019 own services where those are the best, as in Madrid, Barcelona, Zurich and Dubai." },
   { id: "itinerary", title: "The itinerary", text: "When the plan is built, the itinerary is the one page with everything you know: the masthead with your names and dates, the map, booking guidance, A SECOND READ (what an advisor would flag before you pay), the DAILY SCHEDULE with every flight, car, hotel and table, then MORE THOUGHTS ON YOUR DESTINATIONS and BEFORE YOU LEAVE. Every leg shows Booked or Not booked and the reference. It now opens with the drive from home to the airport when your city has no airport of its own, carries any event tickets you recorded on their day, and ends each road trip with the car return on the day you fly." },
   { id: "print", title: "Printing and PDFs", text: "Press SEND AS PDF at the top of the itinerary. That goes through the print layout — letter pages, no buttons, days never split across a page — and from the preview you can save a PDF or print. Do not use Safari's share-sheet PDF: that copies the screen and ignores the print layout." },
   { id: "saved", title: "Saved journeys", text: "Trips save automatically as you work. On this device they are kept in the browser; signed in, they are kept in your account and follow you. Clearing Safari's website data removes browser-kept trips. Open a saved journey from the home screen; everything you recorded is still there." },
@@ -15073,7 +15074,7 @@ const HELP_GUIDE = [
   { id: "nearby", title: "Things to do, and nearby", text: "THINGS TO DO IN a city are the things in it. THINGS TO DO NEARBY are within thirty miles, each marked with the distance \u2014 useful in a small town where the important things are a drive away. Beyond thirty miles is not offered. The in-town radius is six miles for most places and wider for cities that sprawl (Los Angeles, Tokyo). The icons \u2014 David, the Last Supper, the Colosseum, the Sistine Chapel, the Louvre, Versailles, the Sagrada Fam\u00edlia, Machu Picchu, the Acropolis, the Anne Frank House, the Uffizi \u2014 carry their own guide when tapped: why go, how long, how to get timed entry, what to do if it is sold out, with the official site and a phone line where one exists. Nothing in Things to do shows a price; where there is a site, the real price is there." },
   { id: "reminders", title: "Reminders in your calendar", text: "Where an event\u2019s tickets are not yet on sale, the page says so \u2014 release date to be announced \u2014 and offers REMIND ME on a sensible date. Tapping it puts a real entry in your calendar: on an iPhone or iPad, Apple\u2019s own Add sheet opens; on a Mac the file opens in Calendar. Nothing claims to have been added unless it was; if the device cannot open it, the button says so and offers to try again. When a sale date is announced the page shows it and offers ADD TICKET SALE TO CALENDAR; when sales open, the reminder is replaced by the official buy button." },
   { id: "prices", title: "Prices and estimates", text: "Hotel rates are live where we have them and otherwise labelled as estimates. Event hospitality shows the current year\u2019s official prices when published and, until then, the most recent year\u2019s as a labelled planning guide \u2014 so you know whether something is a \u20ac4,000 or a \u20ac11,000 experience before you build around it. Things to do and small government fees show no price at all. Nothing is ever invented." },
-  { id: "textus", title: "Reach a person", text: "The foot of this panel has TEXT US. It opens Messages on your phone or Mac with our number and the first line written, and a person answers. For anything the app cannot do \u2014 a hotel that is sold out, a question about an event, a trip that does not fit the builder \u2014 that is the way." },
+  { id: "textus", title: "Reach a person", text: "The foot of this panel has TEXT US. It opens Messages on your phone or Mac with our number and the first line written, and a person answers \u2014 for help finding your way around the app: where something is, what a step means, why a button is grey." },
 ];
 // REACH A PERSON. Tricia’s cell for now (2 Oct 2026); a dedicated number replaces it, routed
 // through the server so it never sits in this public file. The link opens Messages with the number
@@ -15140,7 +15141,7 @@ function HelpPanel({ screen, step }) {
         </div>
         <div style={{ marginTop: 26, paddingTop: 16, borderTop: `1px solid ${t.line}` }}>
           <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Reach a person</div>
-          <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>For anything the app cannot do, text us and a person answers.</div>
+          <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>Lost in the app? Text us and a person answers.</div>
           <a href={textUsHref("I have a question")} style={{ display: "inline-block", marginTop: 10, background: t.pine, color: t.paper, borderRadius: 999, padding: "11px 18px", fontSize: 13, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>Text us · {VO_TEXT_DISPLAY}</a>
         </div>
       </div>
