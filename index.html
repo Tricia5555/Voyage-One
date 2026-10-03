@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M731";
+const BUILD = "M732";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15763,7 +15763,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
   const bare = bareCity(city || "");
   const chosen = codeOf(city);
   const own = airportFor(bare);
-  const ownIsHere = own && sameCity(own.city, bare) && own.scale === "intercontinental";
+  const ownIsHere = hasOwnAirport(bare);
   const [opts, setOpts] = useState(null);
   useEffect(() => {
     let dead = false; setOpts(null);
@@ -16237,6 +16237,17 @@ function airportCityOf(code, notCity) {
   if (!keys.length) return null;
   const hotels = (k) => ((lookup(FAVORITES, k) || []).length);
   return keys.slice().sort((a, b) => hotels(b) - hotels(a))[0];
+}
+// DOES THIS TOWN HAVE ITS OWN AIRPORT? Yes when the airport's own city is this town — PMO is
+// Palermo's, so Palermo has one; Sciacca shares PMO and does not. The table's "scale" is the
+// size of the airport, never a test of whose it is: Palermo, Florence, Nice and Naples are all
+// "regional" and all have their own. (Fixed 3 Oct 2026 after Palermo was sent to Palermo.)
+function hasOwnAirport(city) {
+  const bare = bareCity(city || ""); if (!bare) return false;
+  const a = airportFor(bare); if (!a) return false;
+  const apc = airportCityOf(a.code, null);
+  if (apc) return sameCity(apc, bare);
+  return a.scale === "intercontinental" && sameCity(a.city, bare);   // unknown code: the old test, as a fallback
 }
 function flyFromLabel(from) {
   // THE TOWN STAYS BEHIND. Once the airport is known, every flight heading names the airport
@@ -19738,7 +19749,7 @@ function DayByDay({ p, sch }) {
     }
     if (i === 0 && p.dates && p.dates.depart && p.fromCity) {   // the outbound day: the drive from home to the airport
       const hb = bareCity(p.fromCity); const hc = codeOf(p.fromCity); const ha = airportFor(hb);
-      const ownHere = ha && sameCity(ha.city, hb) && ha.scale === "intercontinental";
+      const ownHere = hasOwnAirport(hb);
       const code = hc || (ha && ha.code); const apCity = (Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && sameCity(k, hb)) ? null : Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && AIRPORTS[k].scale !== "regional")) || null;
       if (code && !ownHere && apCity && !sameCity(apCity, hb)) add(p.dates.depart, { icon: "car", kind: "ground", city: hb, name: `To the airport`, label: `${hb} \u2192 ${apCity} airport (${code})`, sub: p.airportTransfer && p.airportTransfer.booked ? ("Booked" + (p.airportTransfer.ref ? " \u00b7 " + p.airportTransfer.ref : "") + " \u00b7 by road \u00b7 allow time") : "by road \u00b7 arranged through your hotel \u00b7 not booked yet", booked: !!(p.airportTransfer && p.airportTransfer.booked), time: null });
     }
