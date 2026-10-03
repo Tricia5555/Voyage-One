@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M734";
+const BUILD = "M735";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11841,6 +11841,8 @@ function VoyageOne() {
     return { ...x, ...patch };
   }));
   const addDest = () => setDests((d) => [...d, { id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
+  // "+ destination" with nothing typed is a change of mind, not a stop. Dropped on the way forward.
+  const pruneEmptyDests = () => setDests((d) => { const kept = d.filter((x, k) => String(x.city || "").trim() || k === 0 && d.length === 1); return kept.length ? kept : d.slice(0, 1); });
   // A named city added beside an existing destination — Tokyo before or after Niseko — as part of
   // the SAME trip, never a disconnected second itinerary. Nights come off the trip's dates as normal.
   const addDestNear = (afterId, city, nights, where) => setDests((d) => {
@@ -11933,7 +11935,7 @@ function VoyageOne() {
     if (moved === 0) setCloudErr("Those journeys could not be copied just now. They are still saved on this device.");
   };
 
-  const shared = { user, authReady, onOpenAuth: () => setAuthPanel(true), onSignOut: doSignOut, step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, airportTransfer, setAirportTransfer, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addDestNear, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
+  const shared = { user, authReady, onOpenAuth: () => setAuthPanel(true), onSignOut: doSignOut, step, setStep, dates, setDates, travelers, setTravelers, fromCity, setFromCity, airportTransfer, setAirportTransfer, homeCity, setHomeCity, tripName, setTripName, dests, setDest, addDest, addDestNear, pruneEmptyDests, addIdeas, removeDest, moveDest, moveDestToEnd, stale, startOver, undo, setUndo, returnFrom, setReturnFrom, returnMode, setReturnMode, returnPick, setReturnPick, saved, onHome: () => { setScreen("landing"); setStep(0); }, onItinerary: () => setScreen("itinerary") };
 
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
@@ -12227,7 +12229,7 @@ function Planner(p) {
       {p.step === 3 && !p.user && <SaveJourneyPrompt onOpen={p.onOpenAuth} />}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 44 }}>
         <button onClick={() => p.setStep(Math.max(0, p.step - 1))} style={{ visibility: p.step === 0 ? "hidden" : "visible", background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "13px 24px", color: t.ink, display: "flex", alignItems: "center", gap: 8 }}><ArrowLeft size={16} /> Back</button>
-        {p.step < 3 && <button onClick={() => p.setStep(p.step + 1)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "13px 30px", display: "flex", alignItems: "center", gap: 8 }}>{p.step === 2 ? "Start building" : "Continue"} <ArrowRight size={16} /></button>}
+        {p.step < 3 && <button onClick={() => { p.pruneEmptyDests(); p.setStep(p.step + 1); }} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "13px 30px", display: "flex", alignItems: "center", gap: 8 }}>{p.step === 2 ? "Start building" : "Continue"} <ArrowRight size={16} /></button>}
       </div>
     </div>
   </div>);
