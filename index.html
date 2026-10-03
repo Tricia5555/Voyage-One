@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M729";
+const BUILD = "M731";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7271,7 +7271,11 @@ function dineSiblings(canon) {
 function dineCityKeys(city){
   const raw = bareCity(city); const low = raw.toLowerCase();
   const al = CITY_ALIASES[low] || CITY_ALIASES[low.split(",")[0].trim()];
-  const canon = dnrm(al || raw);
+  // THE TOWN, NOT "THE TOWN, THE COUNTRY". A city chosen from the live search arrives as
+  // "Cascais, Portugal" (or, until today, "Cascais, Lisbon"), and the dining tables are keyed by
+  // the town alone — so Maré and the local favourites were never found. The key is the first
+  // segment; the country only ever told us which Birmingham, and the lists carry that on us:0/1.
+  const canon = dnrm(al || raw.split(",")[0].trim());
   if (NYC_KEYS.indexOf(canon) !== -1) return NYC_KEYS.slice();   // boroughs are one city (bidirectional)
   // SITE-WIDE: TOWNS THAT SHARE A REGION AND ARE WITHIN DINNER RANGE EAT TOGETHER.
   // Hardcoding pairs does not scale — Stellenbosch and Franschhoek were the symptom, and the
@@ -11129,6 +11133,7 @@ const CITY_SUGGEST_CACHE = {};
 // traveller who picked it landed on an empty page. Offering a destination we cannot serve is a
 // promise the app then breaks. Someone determined to visit somewhere uncurated already knows the
 // name and can type it in full; what they should not get is the app suggesting it.
+const CITY_NAMED_REGIONS = new Set(["lisbon", "lisboa", "porto", "madrid", "vienna", "wien", "berlin", "hamburg", "bremen", "prague", "praha", "zagreb", "bratislava", "budapest", "dublin", "brussels", "bruxelles", "luxembourg", "buenos aires", "mexico city", "ciudad de m\u00e9xico", "santiago", "bogot\u00e1", "bogota", "montevideo", "lima", "istanbul", "ankara", "tokyo", "seoul", "bangkok", "jakarta", "manila", "cairo", "riyadh", "doha", "dubai", "abu dhabi", "moscow", "kyiv", "oslo", "stockholm", "copenhagen", "helsinki", "warsaw", "sofia", "belgrade", "athens", "rome", "roma", "milan", "milano", "naples", "napoli", "paris", "london", "edinburgh", "glasgow", "lyon", "marseille", "nice", "geneva", "gen\u00e8ve", "zurich", "z\u00fcrich", "basel", "bern", "singapore", "hong kong", "shanghai", "beijing", "sydney", "melbourne", "auckland", "wellington", "cape town", "johannesburg", "nairobi", "marrakech", "casablanca", "tunis", "algiers", "beirut", "amman", "jerusalem", "tel aviv", "havana", "panama", "san jos\u00e9", "quito", "guayaquil", "la paz", "asunci\u00f3n", "caracas"]);
 function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState([]);
@@ -11262,14 +11267,17 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
         // — "Birmingham, MI" became just "Birmingham", which then geocoded to England. So keep the
         // state (US) or country in the label: "Birmingham, MI", "Harbour Island, The Bahamas".
         // geoKey keeps them distinct; flights route from the nearest airport automatically.
-        const label = r.code ? `${r.city} (${r.code})` : (r.region ? `${r.city}, ${r.region}` : (r.country ? `${r.city}, ${r.country}` : r.city));
+        // A region that is really a city's name (Lisbon the district, Vienna the state) is not a
+        // label for another town: Cascais is its own place, so it reads "Cascais, Portugal".
+        const regionOk = r.region && r.region.toLowerCase() !== r.city.toLowerCase() && !CITY_NAMED_REGIONS.has(r.region.toLowerCase());
+        const label = r.code ? `${r.city} (${r.code})` : (regionOk ? `${r.city}, ${r.region}` : (r.country ? `${r.city}, ${r.country}` : r.city));
         return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label, r); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
           <span style={{ minWidth: 0 }}>
             <span>{r.city}</span>
             {/* State or region first, because that is what separates two places sharing a name.
                 "Providence · RI · United States" against "Providence · VA · United States" —
                 the country was never the thing in doubt. */}
-            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.region ? `  ${r.region}` : ""}{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
+            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.region && r.region.toLowerCase() !== r.city.toLowerCase() && !CITY_NAMED_REGIONS.has(r.region.toLowerCase()) ? `  ${r.region}` : ""}{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
           </span>
           <span style={{ color: t.brass, fontSize: 12.5, letterSpacing: "0.08em", flexShrink: 0 }}>{r.code || ""}</span>
         </button>);
