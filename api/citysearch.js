@@ -34,6 +34,8 @@
 // has is in the runtime already: Intl.DisplayNames knows them all in English. The hand list is
 // kept only as the fallback for a runtime without it, and for the few names we prefer short
 // ("UAE", "United States").
+// Regions that carry a city's name: shown only as the country instead (see below).
+const CITY_NAMED_REGIONS = new Set(["lisbon", "lisboa", "porto", "madrid", "vienna", "wien", "berlin", "hamburg", "bremen", "prague", "praha", "zagreb", "bratislava", "budapest", "dublin", "brussels", "bruxelles", "luxembourg", "buenos aires", "mexico city", "ciudad de m\u00e9xico", "santiago", "bogot\u00e1", "bogota", "montevideo", "lima", "istanbul", "ankara", "tokyo", "seoul", "bangkok", "jakarta", "manila", "cairo", "riyadh", "doha", "dubai", "abu dhabi", "moscow", "kyiv", "oslo", "stockholm", "copenhagen", "helsinki", "warsaw", "sofia", "belgrade", "athens", "rome", "roma", "milan", "milano", "naples", "napoli", "paris", "london", "edinburgh", "glasgow", "lyon", "marseille", "nice", "geneva", "gen\u00e8ve", "zurich", "z\u00fcrich", "basel", "bern", "singapore", "hong kong", "shanghai", "beijing", "sydney", "melbourne", "auckland", "wellington", "cape town", "johannesburg", "nairobi", "marrakech", "casablanca", "tunis", "algiers", "beirut", "amman", "jerusalem", "tel aviv", "havana", "panama", "san jos\u00e9", "quito", "guayaquil", "la paz", "asunci\u00f3n", "caracas"]);
 const COUNTRY_SHORT = {
   US: "United States", GB: "United Kingdom", AE: "UAE", CZ: "Czechia", TR: "Turkey",
   FR: "France", IT: "Italy", ES: "Spain", DE: "Germany", PT: "Portugal", NL: "Netherlands",
@@ -159,7 +161,14 @@ export default async function handler(req, res) {
           // Short form where there is one (RI, CA, NY), otherwise the full name — which is
           // what serves Campania, Provence and everywhere that does not abbreviate.
           const rc = comp(ac, "administrative_area_level_1");
-          const region = rc ? (rc.shortText || rc.longText || "") : "";
+          let region = rc ? (rc.shortText || rc.longText || "") : "";
+          // A REGION THAT IS REALLY A CITY'S NAME IS NOT A LABEL FOR ANOTHER TOWN. Portugal's
+          // districts are named after their capitals, so Google returned "Cascais, Lisbon" — and
+          // Cascais is its own town, not part of Lisbon. The same happens with Vienna, Berlin,
+          // Prague, Buenos Aires, Tokyo. When the region is itself a city's name and not this
+          // town's, the label falls back to the country: "Cascais, Portugal". A state or a true
+          // region — RI, Campania, Provence — is unaffected. (Tricia, 3 Oct 2026.)
+          if (region && (CITY_NAMED_REGIONS.has(region.toLowerCase()) || region.toLowerCase() === nm.toLowerCase())) region = "";
           add({ code: null, city: nm, airport: null, country, countryCode, region,
                 type: "place", placeId: d.id || null, lat: loc.latitude, lng: loc.longitude });
         });
