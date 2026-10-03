@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M732";
+const BUILD = "M734";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10446,6 +10446,24 @@ function groundOption(mode, from, to) {
   else if (mode === "Self-drive" || mode === "Chauffeur") { const dr = driveEstimate(from, to); if (dr) { mins = dr.mins; km = dr.km; label = dr.label + " drive" + (dr.km ? ` · ${dr.km} km` : ""); } }
   return { mode, price: null, mins, km, label };
 }
+// WHERE A LEG STARTS. If the next stop is reached BY ROAD OR RAIL, you leave the previous stop
+// from the previous stop — full stop. "Flying out of Porto", answered under Lisbon, describes
+// where your next FLIGHT leaves from, and it moves the start of a leg only when that leg is a
+// flight. Without this, driving Lisbon → Cascais was drawn from Porto, four hours away, because
+// Porto was where the trip would eventually fly out. (Tricia, 3 Oct 2026.)
+function legStart(p, i) {
+  const ds = (p && p.dests) || []; if (i <= 0) return (p && p.fromCity) || "";
+  const prev = ds[i - 1], d = ds[i];
+  if (!prev) return "";
+  const byGround = d && (d.arriveBy === "Self-drive" || d.arriveBy === "Train" || d.arriveBy === "Chauffeur" || d.arriveBy === "Ferry");
+  if (byGround) {
+    // a car returned at a drop-off in another city before this stop still starts the leg there
+    const car = prev.pick && prev.pick.car;
+    if (car && car.booked && car.to && d.arriveBy !== "Self-drive") { const ep = exitPoint(prev, d.city); if (ep && !sameCity(bareCity(ep), bareCity(prev.city))) return ep; }
+    return prev.city || "";
+  }
+  return exitPoint(prev, d.city);
+}
 function exitPoint(d, nextCity) {
   if (!d) return "";
   // THE TRAVELLER DECIDES WHERE THEY LEAVE FROM. Everything below is a good guess; none of it is
@@ -11816,7 +11834,7 @@ function VoyageOne() {
       // Palermo: three and a quarter hours in the air to cover four hours of road. The chips
       // were right; the default was not. Where the previous stop is genuinely drivable, open on
       // the ground option. The traveller can still switch to Flight; it is simply not the guess.
-      const prevExit = i > 0 ? exitPoint(d[i - 1], x.city) : "";
+      const prevExit = i > 0 ? legStart({ dests: d.map((y, m) => m === i ? { ...y, ...patch } : y), fromCity }, i) : "";
       const arrive = (prevExit && patch.city && drivable(prevExit, patch.city)) ? "Chauffeur" : (patch.arriveBy || x.arriveBy);
       return { ...x, ...patch, arriveBy: arrive, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
     }
@@ -16141,7 +16159,7 @@ function StepBuild(p) {
   let grand = 0;
   let onRequest = 0;
   let estimated = 0;
-  const lines = p.dests.map((d, i) => { const from = i === 0 ? p.fromCity : exitPoint(p.dests[i - 1], d.city); const { total, items, onRequest: or, estimated: es } = destCost(d, from, partySize(p)); grand += total; onRequest += or || 0; estimated += es || 0; return { city: d.city || `Stop ${i + 1}`, total, items }; });
+  const lines = p.dests.map((d, i) => { const from = legStart(p, i); const { total, items, onRequest: or, estimated: es } = destCost(d, from, partySize(p)); grand += total; onRequest += or || 0; estimated += es || 0; return { city: d.city || `Stop ${i + 1}`, total, items }; });
   const rc = returnCost(p); grand += rc.total;
   return (<div>
     <SectionHead eyebrow="Build your trip" title="Decide as you go" sub="Move down the journey one city at a time. Dates fill in as you set nights, so every table and tour can be booked for a real day." />
@@ -16197,7 +16215,7 @@ function StepBuild(p) {
     <div className="vo-build">
       <div className="vo-main" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         {p.dests.length === 0 && <div style={{ color: t.inkFaint, padding: "30px 0" }}>Go back and add at least one destination to start pricing.</div>}
-        {p.dests.map((d, i) => <CitySection key={d.id || i} d={d} i={i} p={p} from={i === 0 ? p.fromCity : exitPoint(p.dests[i - 1], d.city)} legSched={sch.legs[i]} />)}
+        {p.dests.map((d, i) => <CitySection key={d.id || i} d={d} i={i} p={p} from={legStart(p, i)} legSched={sch.legs[i]} />)}
         {p.dests.length > 0 && <ReturnSection p={p} rc={rc} blocked={datesBroken} />}
         {p.dests.length > 0 && (datesBroken ? (<div style={{ marginTop: 6, background: "#FBEEE9", border: "1px solid #D9A08B", borderRadius: 16, padding: "18px 20px", display: "flex", gap: 11, alignItems: "flex-start" }}>
           <AlertTriangle size={17} color="#B0563A" style={{ marginTop: 2, flexShrink: 0 }} />
@@ -17491,7 +17509,7 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices }) {
     </div>
     {car.booked ? (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Picked up<input style={fld} value={from} onChange={(e) => set({ from: e.target.value })} placeholder={defFrom || "Airport or city"} /></label>
-      <label style={{ fontSize: 12, color: t.inkSoft }}>Dropping off<Hint text="Type where you return the car, or tap a chip. A drop-off in another city means the car travels with you for the stops in between." /><input style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City"} />
+      <label style={{ fontSize: 12, color: t.inkSoft }}><span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: t.ink, marginBottom: 4 }}>Where would you like to drop the car?<Hint text="Tap a city or an airport from your trip, or type one. A drop-off in another city means the car travels with you for the stops in between, and the trip knows where you end up." /></span><input style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City or airport"} />
         {to ? <span style={{ display: "block", fontSize: 12, color: t.inkSoft, marginTop: 8 }}>Drop-off date<input type="date" value={car.dropDate || ""} onChange={(e) => set({ dropDate: e.target.value })} style={{ ...fld, marginTop: 2 }} /></span> : null}
         {dropChoices && dropChoices.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>{dropChoices.map((ch) => <button key={ch} type="button" onClick={() => set({ to: ch })} style={{ background: sameCity(bareCity(to), bareCity(ch)) && codeOf(to) === codeOf(ch) ? t.pine : t.white, color: sameCity(bareCity(to), bareCity(ch)) && codeOf(to) === codeOf(ch) ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>{ch}</button>)}</div> : null}</label>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Company<input style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
@@ -18758,7 +18776,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
           town" \u2014 the mode a car is actually for \u2014 and the rental panel and the departure-city
           control both vanished. They belong to the leg, not to the base. */}
       {region && d.arriveBy !== "Self-drive" && !isCarFree(baseTown || region) && <RentalPanel city={pickupPoint(d)} destination={baseTown || region} compact car={d.pick && d.pick.car} upd={upd} />}
-      {region && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
+      {/* "Flying out from" no longer asked here; see the car drop-off and the end of the trip. */}
 
     {mode === "roam" && suggestions.length === 0 && (<div style={{ marginTop: 18, background: t.mist, borderRadius: 14, padding: "18px" }}>
       <div style={{ fontFamily: font.display, fontSize: 20, marginBottom: 4 }}>Which region are you roaming?</div>
@@ -19279,7 +19297,7 @@ function CitySection({ d, i, p, from, legSched }) {
       {d.city && PRIVATE_TRANSFER[Object.keys(PRIVATE_TRANSFER).find((c) => sameCity(c, d.city)) || ""] ? <TransferPanel d={d} legSched={legSched} /> : null}
       {carInHand(p, i) ? <CarInHandPanel p={p} i={i} d={d} /> : null}
       {!carInHand(p, i) && d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} dropChoices={dropChoicesFor(p, i)} />}
-      {d.city && <ExitFrom d={d} setDest={(patch) => p.setDest(i, patch)} suggested={exitPoint(d)} />}
+      {/* "Flying out from" is no longer asked here (Tricia, 3 Oct 2026): a car asks where it is dropped, and the end of the trip asks where you fly home from. */}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
@@ -19326,7 +19344,7 @@ function ReturnSection({ p, rc, blocked }) {
     <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>Heading home</span><span style={{ fontSize: 13, color: t.inkFaint }}>the last piece</span></div>
     <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 6, maxWidth: 520, lineHeight: 1.5 }}>Flying out of {lastCity || "your last stop"}? Just say where you land. If you travel on to a different airport city first, name it here.</div>
     <div style={{ display: "flex", flexWrap: "wrap", gap: "20px 32px", alignItems: "flex-end", marginTop: 18 }}>
-      <div style={{ minWidth: 190, flex: "1 1 190px" }}><LabeledCity label="Fly home from" value={p.returnFrom} onChange={p.setReturnFrom} placeholder={lastCity || "Airport city"} big={false} /></div>
+      <div style={{ minWidth: 190, flex: "1 1 190px" }}><LabeledCity label="Where do you fly home from?" value={p.returnFrom} onChange={p.setReturnFrom} placeholder={lastCity || "Airport city"} big={false} /></div>
       <div style={{ minWidth: 190, flex: "1 1 190px" }}><LabeledCity label="Land back home in" value={p.homeCity} onChange={p.setHomeCity} placeholder="Can differ from departure" big={false} /></div>
     </div>
     {(() => {
@@ -19717,7 +19735,7 @@ function DayByDay({ p, sch }) {
     // on a leg is written on the day that leg happens, booked or not.
     if (i > 0 && lg) {
       const pf = pk.flight;
-      const legFrom = exitPoint(dests[i - 1], d.city);
+      const legFrom = legStart({ dests, fromCity: p.fromCity }, i);
       if (pf && (pf.chosen || pf.booked)) {
         const landAt = bareCity(pickupPoint(d)) || bareCity(city);
         const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${landAt}`;
@@ -20289,7 +20307,7 @@ function buildReview(p, sch) {
 
   (p.dests || []).forEach((d, i) => {
     if (!d.city) return;
-    const from = i === 0 ? p.fromCity : exitPoint(p.dests[i - 1], d.city);
+    const from = legStart(p, i);
     const gw = gatewayFor(d.city);
     const target = gw && !sameCity(gw.air, d.city) ? gw.air : d.city;
     const ap = airportFor(target);
@@ -20541,7 +20559,7 @@ function ItineraryView(p) {
   let onRequest = 0;
   let estimated = 0;
   const legEls = p.dests.map((d, i) => {
-    const from = i === 0 ? p.fromCity : exitPoint(p.dests[i - 1], d.city);
+    const from = legStart(p, i);
     const { total, onRequest: or, estimated: es } = destCost(d, from, partySize(p)); grand += total; onRequest += or || 0; estimated += es || 0;
     const pk = d.pick || {};
     const rows = [];
