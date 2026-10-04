@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M742";
+const BUILD = "M743";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11956,7 +11956,7 @@ function VoyageOne() {
       <HelpPanel screen={screen} step={step} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "oneList" && <OneList onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
-    {screen === "explore" && <ExploreScreen onBack={() => setScreen("landing")} onHome={() => { setScreen("landing"); setStep(0); }} onPlan={(c) => { setDests((d) => { const base = d && d.length ? d : [{ id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]; const out = base.slice(); const k = out.findIndex((x) => !String(x.city || "").trim()); const nd = { ...(k >= 0 ? out[k] : out[0]), city: c, air: iataFor(c) || "" }; if (k >= 0) out[k] = nd; else out.push({ ...nd, id: newId() }); return out; }); setScreen("plan"); setStep(0); }} />}
+    {screen === "explore" && <ExploreScreen onBack={() => setScreen("landing")} onHome={() => { setScreen("landing"); setStep(0); }} onPlan={(c, pk) => { setDests((d) => { const base = d && d.length ? d : [{ id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]; const out = base.slice(); const k = out.findIndex((x) => !String(x.city || "").trim()); const src = k >= 0 ? out[k] : out[0]; const nd = { ...src, city: c, air: iataFor(c) || "", pick: { ...(src.pick || {}), stay: (pk && pk.stay) || (src.pick && src.pick.stay) || null, dines: (pk && pk.dines && pk.dines.length) ? pk.dines : ((src.pick && src.pick.dines) || []), tours: (pk && pk.tours && pk.tours.length) ? pk.tours : ((src.pick && src.pick.tours) || []) } }; if (k >= 0) out[k] = nd; else out.push({ ...nd, id: newId() }); return out; }); setScreen("plan"); setStep(0); }} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
     {recovery && (<div style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(34,29,25,.42)", display: "grid", placeItems: "center", padding: 20 }}>
@@ -12129,6 +12129,12 @@ function AccountPanel({ onSignIn, onSignUp, onReset, onClose }) {
 function ExploreScreen({ onPlan, onHome, onBack }) {
   const [city, setCity] = useState("");
   const [open, setOpen] = useState("");
+  // The page has its own picks, so tapping a hotel opens it, a table expands, a thing to do shows
+  // its guide and its buttons — exactly as in the builder. The picks travel into the builder if
+  // the client then plans the trip.
+  const [pick, setPick] = useState({ stay: null, dines: [], tours: [] });
+  const upd = (patch) => setPick((p0) => ({ ...p0, ...patch }));
+  useEffect(() => { setPick({ stay: null, dines: [], tours: [] }); }, [open]);
   const chosen = open && (lookup(FAVORITES, open) || []).length ? open : "";
   const seasonTxt = chosen ? seasonFor(chosen) : null;
   const gw = chosen ? gatewayFor(chosen) : null;
@@ -12143,7 +12149,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
     {back()}
     <Eyebrow>Explore a place</Eyebrow>
     <div style={{ fontFamily: font.display, fontSize: 30, color: t.ink, margin: "6px 0 14px" }}>The whole scoop on a city, before you plan anything</div>
-    <div style={{ maxWidth: 480 }}><CityBox value={city} onChange={(v) => { setCity(v); if ((lookup(FAVORITES, v) || []).length) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly /></div>
+    <div style={{ maxWidth: 620 }}><CityBox value={city} onChange={(v) => { setCity(v); if ((lookup(FAVORITES, v) || []).length) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly inputStyle={{ fontFamily: font.display, fontSize: 26, padding: "14px 4px", width: "100%", background: "none", border: "none", borderBottom: `2px solid ${t.line}`, color: t.ink, outline: "none" }} /></div>
     {chosen ? (<div style={{ marginTop: 22 }}>
       <Photo query={chosen} h={260} radius={18} />
       <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{bareCity(chosen)}</div>
@@ -12152,14 +12158,14 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
       {code ? <div style={{ marginTop: 10 }}><AssistCard code={code} when="on arrival" /></div> : null}
       <div style={{ marginTop: 22 }}>
         <Panel icon={BedDouble} title={`Where to stay in ${bareCity(chosen)}`}>
-          <HotelPicker city={chosen} nights={2} pick={{ stay: null }} upd={noop} fromExperience={false} />
+          <HotelPicker city={chosen} nights={2} pick={pick} upd={upd} fromExperience={false} />
         </Panel>
-        <DinePicker city={chosen} pick={{ dines: [] }} upd={noop} nights={[]} />
-        <ThingsPanel city={chosen} chosen={[]} onToggle={noop} nights={[]} onDate={noop} label="Which day?" />
+        <DinePicker city={chosen} pick={pick} upd={upd} nights={[]} />
+        <ThingsPanel city={chosen} chosen={pick.tours} onToggle={(name, price, sel) => upd({ tours: sel ? pick.tours.filter((x) => x.name !== name) : [...pick.tours, { name, price: null, date: "" }] })} nights={[]} onDate={noop} label="Which day?" />
       </div>
       <div style={{ marginTop: 26, textAlign: "center" }}>
-        <button onClick={() => onPlan(chosen)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, fontWeight: 700, letterSpacing: ".04em", cursor: "pointer" }}>Plan a trip here →</button>
-        <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 8 }}>Opens the builder with {bareCity(chosen)} already in. Nothing on this page is a booking.</div>
+        <button onClick={() => onPlan(chosen, pick)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, fontWeight: 700, letterSpacing: ".04em", cursor: "pointer" }}>Plan a trip here →</button>
+        <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 8 }}>Opens the builder with {bareCity(chosen)} already in{pick.stay || pick.dines.length || pick.tours.length ? ", and what you tapped here carried across" : ""}. Nothing on this page is a booking.</div>
       </div>
     </div>) : (<div style={{ fontSize: 14, color: t.inkFaint, marginTop: 16, lineHeight: 1.6 }}>Hotels by tier with our take, the tables and their stars, things to do and nearby, when to go, how you get there, and the airport service — all on one page, nothing to decide.</div>)}
   </div>);
@@ -12175,7 +12181,6 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
           <span style={{ fontSize: 12.5, color: t.inkFaint, maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
           <button onClick={onSignOut} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign out</button>
         </>)}
-        <button onClick={onExplore} style={NAV_STEP}>Explore a place</button>
         {authReady && !user && (<div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
           <button onClick={onOpenAuth} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 18px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign in</button>
           {/* The button alone reads as housekeeping. The line under it is what tells someone
@@ -12206,8 +12211,12 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
           </div>))}
         </div>}
         {stale && <div style={{ fontSize: 12.5, color: t.brass, maxWidth: 460, lineHeight: 1.5 }}>One of these journeys was saved by an earlier version of Voyage One and cannot be opened safely. Begin a new one.</div>}
-        <div style={{ marginTop: 4, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ marginTop: 4, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", position: "relative" }}>
           <button onClick={onBegin} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "16px 38px", fontSize: 15, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{has ? "Begin another journey" : "Begin your journey"} <ArrowRight size={17} /></button>
+        </div>
+        {/* EXPLORE A PLACE: the atlas behind the planner, on the far right across from the way in. */}
+        <div className="vo-explore-link" style={{ position: "fixed", right: 22, top: "50%", transform: "translateY(-50%)", zIndex: 20 }}>
+          <button onClick={onExplore} style={{ background: t.white, color: t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "12px 18px", fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700, fontFamily: font.ui, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.08)" }}>Explore a place</button>
         </div>
         {!canSave && !user && <div style={{ fontSize: 12.5, color: t.brass, maxWidth: 460, lineHeight: 1.5 }}>This browser will not let Voyage One save journeys — private browsing usually causes this. You can still plan a trip, but it will not be here when you come back.</div>}
         {user && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, lineHeight: 1.5 }}>Journeys are saved to your account, on every device you sign in from.</div>}
