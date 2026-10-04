@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M739";
+const BUILD = "M740";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11835,7 +11835,18 @@ function VoyageOne() {
       // were right; the default was not. Where the previous stop is genuinely drivable, open on
       // the ground option. The traveller can still switch to Flight; it is simply not the guess.
       const prevExit = i > 0 ? legStart({ dests: d.map((y, m) => m === i ? { ...y, ...patch } : y), fromCity }, i) : "";
-      const arrive = (prevExit && patch.city && drivable(prevExit, patch.city)) ? "Chauffeur" : (patch.arriveBy || x.arriveBy);
+      const arrive = (() => {
+        if (!prevExit || !patch.city) return patch.arriveBy || x.arriveBy;
+        const ia = islandOf(prevExit), ib = islandOf(patch.city);
+        const fer = ferryBetween(prevExit, patch.city);
+        if ((ia || ib) && ia !== ib) return (fer != null && fer <= FERRY_LIMIT_MIN) ? "Ferry" : "Flight";   // water between them
+        if (!drivable(prevExit, patch.city)) return patch.arriveBy || x.arriveBy;
+        const prevHasCar = i > 0 && d[i - 1] && d[i - 1].pick && d[i - 1].pick.car && d[i - 1].pick.car.booked;
+        if (prevHasCar) return "Self-drive";
+        if (driversHere(patch.city)) return "Chauffeur";
+        if (rentalRegion(patch.city)) return "Self-drive";
+        return railSensible(prevExit, patch.city) ? "Train" : "Self-drive";
+      })();
       return { ...x, ...patch, arriveBy: arrive, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
     }
     return { ...x, ...patch };
@@ -15805,7 +15816,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
   }, [city]);
   if (!bare) return null;
   const drive = (o) => o.driveMin != null ? (o.driveMin < 90 ? `${o.driveMin} min` : `${(o.driveMin / 60).toFixed(1)} hr`) : (o.km ? `${o.km} km` : "");
-  if (ownIsHere) return (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft }}>You fly from <strong style={{ color: t.ink }}>{own.city} ({own.code})</strong>.</div>);
+  if (ownIsHere) return (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft }}>{metroAirports(bare) ? <>You fly from <strong style={{ color: t.ink }}>{bare}</strong> — {metroAirports(bare)}; the flight search checks them all.</> : <>You fly from <strong style={{ color: t.ink }}>{own ? `${own.city} (${own.code})` : bare}</strong>.</>}</div>);
   const list = (opts && opts.length) ? opts : (own ? [{ code: own.code, city: own.city, isOwn: false, hasService: true }] : []);
   if (!opts && !own) return (<div style={{ marginTop: 14, fontSize: 13, color: t.inkFaint }}>Finding the nearest airport to {bare}…</div>);
   if (!list.length) return null;
@@ -16262,11 +16273,14 @@ function airportCityOf(code, notCity) {
 // Palermo's, so Palermo has one; Sciacca shares PMO and does not. The table's "scale" is the
 // size of the airport, never a test of whose it is: Palermo, Florence, Nice and Naples are all
 // "regional" and all have their own. (Fixed 3 Oct 2026 after Palermo was sent to Palermo.)
+const METRO_AIRPORTS = { "new york": "JFK, Newark and LaGuardia", "new york city": "JFK, Newark and LaGuardia", "london": "Heathrow, Gatwick and City", "paris": "Charles de Gaulle and Orly", "milan": "Malpensa and Linate", "rome": "Fiumicino and Ciampino", "tokyo": "Haneda and Narita", "chicago": "O\u2019Hare and Midway", "washington": "Dulles and Reagan", "houston": "Bush and Hobby", "dallas": "DFW and Love Field", "istanbul": "Istanbul and Sabiha G\u00f6k\u00e7en", "buenos aires": "Ezeiza and Aeroparque", "s\u00e3o paulo": "Guarulhos and Congonhas", "sao paulo": "Guarulhos and Congonhas", "bangkok": "Suvarnabhumi and Don Mueang", "seoul": "Incheon and Gimpo", "shanghai": "Pudong and Hongqiao", "osaka": "Kansai and Itami", "san francisco": "SFO, Oakland and San Jos\u00e9", "los angeles": "LAX, Burbank and Long Beach", "moscow": "Sheremetyevo, Domodedovo and Vnukovo", "stockholm": "Arlanda and Bromma", "oslo": "Gardermoen and Torp", "berlin": "Brandenburg", "miami": "Miami and Fort Lauderdale", "toronto": "Pearson and Billy Bishop", "montreal": "Trudeau", "mexico city": "Benito Ju\u00e1rez and Felipe \u00c1ngeles", "rio de janeiro": "Gale\u00e3o and Santos Dumont", "glasgow": "Glasgow", "belfast": "International and City" };
+function metroAirports(city) { const k = dnrm(bareCity(city || "")); return METRO_AIRPORTS[k] || null; }
 function hasOwnAirport(city) {
+  if (metroAirports(city)) return true;   // a metro with several airports is its own origin
   const bare = bareCity(city || ""); if (!bare) return false;
   const a = airportFor(bare); if (!a) return false;
   const apc = airportCityOf(a.code, null);
-  if (apc) return sameCity(apc, bare);
+  if (apc) return sameCity(apc, bare) || dnrm(bare).startsWith(dnrm(apc)) || dnrm(apc).startsWith(dnrm(bare));   // "New York City" is New York
   return a.scale === "intercontinental" && sameCity(a.city, bare);   // unknown code: the old test, as a fallback
 }
 function flyFromLabel(from) {
@@ -19251,7 +19265,7 @@ function CitySection({ d, i, p, from, legSched }) {
     </div>)}
     {needsHub && !gw && <HubPanel from={flyFrom} city={surfaceTarget} date={legSched ? legSched.arrive.toISOString().slice(0, 10) : ""} pick={pick} upd={upd} />}
     <LegRecord d={d} />
-    <ArrivalPanel p={p} i={i} pax={partySize(p)} from={from} to={d.arriveBy === "Self-drive" || d.arriveBy === "Train" ? d.city : flyInto} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} returnDate={i === 0 && p.dates ? p.dates.ret : ""} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
+    <ArrivalPanel p={p} i={i} pax={partySize(p)} from={from} to={d.arriveBy === "Flight" ? flyInto : d.city} arriveBy={d.arriveBy} pick={pick} upd={upd} setMode={(m) => p.setDest(i, { arriveBy: m })} returnDate={i === 0 && p.dates ? p.dates.ret : ""} hidePicker={false} flightDate={i === 0 ? ((p.dates && p.dates.depart) || (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")) : (legSched ? legSched.arrive.toISOString().slice(0, 10) : "")} firstLabel={(() => {
         // The title has to agree with the mode actually chosen. It used to say "fly into
         // Pisa" whenever a gateway existed, even on a leg the app itself was recommending
         // by rail — so Florence → Portofino read as a flight, offered no flights (there are
