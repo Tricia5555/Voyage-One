@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M740";
+const BUILD = "M742";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11843,9 +11843,7 @@ function VoyageOne() {
         if (!drivable(prevExit, patch.city)) return patch.arriveBy || x.arriveBy;
         const prevHasCar = i > 0 && d[i - 1] && d[i - 1].pick && d[i - 1].pick.car && d[i - 1].pick.car.booked;
         if (prevHasCar) return "Self-drive";
-        if (driversHere(patch.city)) return "Chauffeur";
-        if (rentalRegion(patch.city)) return "Self-drive";
-        return railSensible(prevExit, patch.city) ? "Train" : "Self-drive";
+        return "Chauffeur";   // a driver, recommended by the hotel — the client can switch to the train or a car
       })();
       return { ...x, ...patch, arriveBy: arrive, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
     }
@@ -11951,13 +11949,14 @@ function VoyageOne() {
   return (<div style={{ minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui }}>
     <FontStyles />
     <BookingPrompt />
-    {screen === "landing" && <Landing trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
+    {screen === "landing" && <Landing onExplore={() => setScreen("explore")} trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
     {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
       <HelpPanel screen={screen} step={step} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "oneList" && <OneList onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+    {screen === "explore" && <ExploreScreen onBack={() => setScreen("landing")} onHome={() => { setScreen("landing"); setStep(0); }} onPlan={(c) => { setDests((d) => { const base = d && d.length ? d : [{ id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]; const out = base.slice(); const k = out.findIndex((x) => !String(x.city || "").trim()); const nd = { ...(k >= 0 ? out[k] : out[0]), city: c, air: iataFor(c) || "" }; if (k >= 0) out[k] = nd; else out.push({ ...nd, id: newId() }); return out; }); setScreen("plan"); setStep(0); }} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
     {recovery && (<div style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(34,29,25,.42)", display: "grid", placeItems: "center", padding: 20 }}>
@@ -12122,7 +12121,50 @@ function AccountPanel({ onSignIn, onSignUp, onReset, onClose }) {
   </div>);
 }
 
-function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authReady, cloudErr, onSignOut, onOpenAuth, migratable, migrating, onMigrate }) {
+// ══ EXPLORE A PLACE ═══════════════════════════════════════════════════════════════════════════
+// The quick, whole look at a city without building a trip: the photo, when to go, how you get
+// there, the hotels by tier, the tables, things to do and nearby, the airport service. Everything
+// here is the same data the builder draws from, shown read-only. One button at the foot opens the
+// builder with the city already in. (Tricia, 4 Oct 2026.)
+function ExploreScreen({ onPlan, onHome, onBack }) {
+  const [city, setCity] = useState("");
+  const [open, setOpen] = useState("");
+  const chosen = open && (lookup(FAVORITES, open) || []).length ? open : "";
+  const seasonTxt = chosen ? seasonFor(chosen) : null;
+  const gw = chosen ? gatewayFor(chosen) : null;
+  const code = chosen ? iataFor(chosen) : null;
+  const noop = () => {};
+  const back = () => (<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 18 }}>
+    <button onClick={onBack} style={NAV_PILL}><ArrowLeft size={16} /> Back</button>
+    <div style={{ fontFamily: font.display, fontSize: 25, fontWeight: 800, color: t.ink }}>Voyage<span style={{ color: t.brass }}> One</span></div>
+    <button onClick={onHome} style={NAV_PILL}>Home</button>
+  </div>);
+  return (<div style={{ minHeight: "100vh", background: t.paper, padding: "18px 20px 60px", maxWidth: 980, margin: "0 auto" }}>
+    {back()}
+    <Eyebrow>Explore a place</Eyebrow>
+    <div style={{ fontFamily: font.display, fontSize: 30, color: t.ink, margin: "6px 0 14px" }}>The whole scoop on a city, before you plan anything</div>
+    <div style={{ maxWidth: 480 }}><CityBox value={city} onChange={(v) => { setCity(v); if ((lookup(FAVORITES, v) || []).length) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly /></div>
+    {chosen ? (<div style={{ marginTop: 22 }}>
+      <Photo query={chosen} h={260} radius={18} />
+      <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{bareCity(chosen)}</div>
+      {seasonTxt ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>When to go.</strong> {typeof seasonTxt === "string" ? seasonTxt : (seasonTxt.window ? `${seasonTxt.window}. ` : "") + (seasonTxt.note || "")}</div> : null}
+      {gw && gw.note ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>Getting there.</strong> {gw.note}</div> : null}
+      {code ? <div style={{ marginTop: 10 }}><AssistCard code={code} when="on arrival" /></div> : null}
+      <div style={{ marginTop: 22 }}>
+        <Panel icon={BedDouble} title={`Where to stay in ${bareCity(chosen)}`}>
+          <HotelPicker city={chosen} nights={2} pick={{ stay: null }} upd={noop} fromExperience={false} />
+        </Panel>
+        <DinePicker city={chosen} pick={{ dines: [] }} upd={noop} nights={[]} />
+        <ThingsPanel city={chosen} chosen={[]} onToggle={noop} nights={[]} onDate={noop} label="Which day?" />
+      </div>
+      <div style={{ marginTop: 26, textAlign: "center" }}>
+        <button onClick={() => onPlan(chosen)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, fontWeight: 700, letterSpacing: ".04em", cursor: "pointer" }}>Plan a trip here →</button>
+        <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 8 }}>Opens the builder with {bareCity(chosen)} already in. Nothing on this page is a booking.</div>
+      </div>
+    </div>) : (<div style={{ fontSize: 14, color: t.inkFaint, marginTop: 16, lineHeight: 1.6 }}>Hotels by tier with our take, the tables and their stars, things to do and nearby, when to go, how you get there, and the airport service — all on one page, nothing to decide.</div>)}
+  </div>);
+}
+function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authReady, cloudErr, onSignOut, onOpenAuth, migratable, migrating, onMigrate, onExplore }) {
   const has = Array.isArray(trips) && trips.length > 0;
   const canMigrate = user && Array.isArray(migratable) && migratable.length > 0;
   return (<div className="vo-fade" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -12133,6 +12175,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
           <span style={{ fontSize: 12.5, color: t.inkFaint, maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
           <button onClick={onSignOut} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign out</button>
         </>)}
+        <button onClick={onExplore} style={NAV_STEP}>Explore a place</button>
         {authReady && !user && (<div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
           <button onClick={onOpenAuth} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 18px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign in</button>
           {/* The button alone reads as housekeeping. The line under it is what tells someone
@@ -17688,7 +17731,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     const l = acrossWater ? list.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry())) : list;
     // No Chauffeur chip outside the USA and South America, and no Self-drive outside the regions
     // where we actually carry rental companies. Offering a mode we cannot support is the problem.
-    return l.filter((m) => (m.key !== "Chauffeur" || driversHere(to)) && (m.key !== "Self-drive" || !!rentalRegion(to)) && (m.key !== "Train" || railSensible(from, to)));
+    return l.filter((m) => (m.key !== "Self-drive" || !!rentalRegion(to)) && (m.key !== "Train" || railSensible(from, to)));   // a driver is always a choice: the hotel recommends one where we list none
   };
   const realFerry = () => {
     const f = ferryBetween(from, to);
@@ -17755,7 +17798,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
         : "At this distance flying is usually quicker — so take a car when the road is the reason. A driver who knows the country turns the transfer into the day: stops where you want them, no stations, no bags to move, and you arrive rested.";
       return (<div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${t.line}` }}>
         {line}
-        <div style={{ marginTop: 6 }}>Private transportation arranged through your luxury hotel, lodge or trusted destination partner. Confirmed with you before anything is committed — there is nothing to book here.</div>
+        <div style={{ marginTop: 6 }}>Ask your hotel to recommend and arrange the driver — every hotel we carry has one it trusts. Nothing to book here.</div>
       </div>);
     })() : null}
     {arriveBy === "Fast train" || arriveBy === "Train" ? (
