@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M738";
+const BUILD = "M739";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -19714,7 +19714,11 @@ function ItemContact({ kind, city, name, fallback, site: siteIn }) {
   const live = kind === "dine" ? dine : (kind === "hotel" || kind === "venue") ? venue : null;
   const addr = (live && live.address) || (fallback && fallback.addr) || null;
   const phone = (live && live.phone) || (fallback && fallback.tel) || null;
-  const site = siteIn || (live && live.site) || (fallback && fallback.web) || null;
+  const official = siteIn || (live && live.site) || (fallback && fallback.web) || null;
+  // CONSISTENCY: every bookable item carries VISIT SITE. Where no official site was found, the
+  // button opens the place's own Google page — which shows its website, phone and map — so the
+  // client is never left without a way through. (Tricia, 4 Oct 2026.)
+  const site = official || (name ? `https://www.google.com/search?q=${encodeURIComponent(`${name} ${bareCity(city || "")}`.trim())}` : null);
   if (!addr && !phone && !site) return null;
   return (<div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 4 }}>
     {addr ? <div>{addr}</div> : null}
@@ -19828,7 +19832,7 @@ function DayByDay({ p, sch }) {
       const landCity = bareCity(pickupPoint(dests[0])) || bareCity(dests[0].city) || "";
       const arrAir = (f && f.arrAirport) || iataFor(landCity) || iataFor(dests[0].city) || dests[0].airport;
       const arrTime = f && f.arrive ? f.arrive : null;
-      add(isoOf(lg0.arrive), { icon: "plane", site: airlineSiteFor(f && f.airline), name: (f && f.airline) || "", city: landCity, label: `Arrive ${landCity}${arrAir ? ` — ${airportLabel(arrAir)}` : ""}${arrTime ? ` at ${arrTime}` : ""}`, sub: f && f.dayOffset > 0 ? "Overnight flight — you land the next morning" : "" });
+      add(isoOf(lg0.arrive), { icon: "plane", label: `Arrive ${landCity}${arrAir ? ` — ${airportLabel(arrAir)}` : ""}${arrTime ? ` at ${arrTime}` : ""}`, sub: f && f.dayOffset > 0 ? "Overnight flight — you land the next morning" : "" });
       const ch0 = arrivalChain(dests[0], p.fromCity);
       if (ch0 && ch0.driveMins) add(isoOf(lg0.arrive), { icon: "car", label: `Reach ${bareCity(dests[0].city)} about ${hm(ch0.arrive)}${ch0.nextDay ? " the next day" : ""}`,
         sub: `${bareCity(ch0.air)} to ${bareCity(ch0.city)} — airport ${minsLabel(ch0.clear)}${ch0.desk ? `, rental desk ${minsLabel(ch0.desk)}` : ""}, then ${minsLabel(ch0.driveMins)} by road${ch0.km ? ` · ${ch0.km} km` : ""}` });
