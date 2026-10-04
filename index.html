@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M737";
+const BUILD = "M738";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -18448,14 +18448,14 @@ function DateChips({ nights, value, onPick, label }) {
 // SELECTED, so browsing a city costs nothing. A venue Google cannot find simply shows no
 // contact rather than a fake one.
 const VENUE_CACHE = {};
-function useVenueInfo(city, name, enabled) {
-  const key = ((city || "") + "|" + (name || "")).toLowerCase();
+function useVenueInfo(city, name, enabled, kind) {
+  const key = ((kind || "") + "|" + (city || "") + "|" + (name || "")).toLowerCase();
   const [info, setInfo] = useState(VENUE_CACHE[key]);
   useEffect(() => {
     if (!enabled || !city || !name) return;
     if (VENUE_CACHE[key] !== undefined) { setInfo(VENUE_CACHE[key]); return; }
     let dead = false;
-    fetch(`/api/places?kind=place&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
+    fetch(`/api/places?kind=${kind === "hotel" ? "hotels" : "place"}&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { site: (m && m.site) || null, address: (m && m.address) || null, phone: (m && m.phone) || null }; VENUE_CACHE[key] = rec; if (!dead) setInfo(rec); })
       .catch(() => { VENUE_CACHE[key] = { site: null, address: null, phone: null }; if (!dead) setInfo({ site: null, address: null, phone: null }); });
@@ -19703,14 +19703,14 @@ function rentalSiteFor(company) {
   const hit = all.find((b) => dnrm(b.key) === k || dnrm(b.name || "") === k || k.includes(dnrm(b.key)));
   return hit ? hit.site : null;
 }
-const AIRLINE_SITES = { "delta": "https://www.delta.com/", "emirates": "https://www.emirates.com/", "united": "https://www.united.com/", "american": "https://www.aa.com/", "american airlines": "https://www.aa.com/", "british airways": "https://www.britishairways.com/", "air france": "https://www.airfrance.com/", "klm": "https://www.klm.com/", "lufthansa": "https://www.lufthansa.com/", "swiss": "https://www.swiss.com/", "iberia": "https://www.iberia.com/", "tap": "https://www.flytap.com/", "tap air portugal": "https://www.flytap.com/", "ita": "https://www.ita-airways.com/", "ita airways": "https://www.ita-airways.com/", "qatar": "https://www.qatarairways.com/", "qatar airways": "https://www.qatarairways.com/", "etihad": "https://www.etihad.com/", "singapore airlines": "https://www.singaporeair.com/", "cathay pacific": "https://www.cathaypacific.com/", "ana": "https://www.ana.co.jp/", "jal": "https://www.jal.co.jp/", "japan airlines": "https://www.jal.co.jp/", "qantas": "https://www.qantas.com/", "air new zealand": "https://www.airnewzealand.com/", "virgin atlantic": "https://www.virginatlantic.com/", "jetblue": "https://www.jetblue.com/", "alaska": "https://www.alaskaair.com/", "air canada": "https://www.aircanada.com/", "latam": "https://www.latam.com/", "aeromexico": "https://www.aeromexico.com/", "turkish airlines": "https://www.turkishairlines.com/", "austrian": "https://www.austrian.com/", "finnair": "https://www.finnair.com/", "sas": "https://www.flysas.com/", "icelandair": "https://www.icelandair.com/", "aer lingus": "https://www.aerlingus.com/", "ethiopian": "https://www.ethiopianairlines.com/", "kenya airways": "https://www.kenya-airways.com/", "south african": "https://www.flysaa.com/", "copa": "https://www.copaair.com/", "avianca": "https://www.avianca.com/", "vueling": "https://www.vueling.com/", "easyjet": "https://www.easyjet.com/", "ryanair": "https://www.ryanair.com/" };
+const AIRLINE_SITES = { "delta": "https://www.delta.com/", "emirates": "https://www.emirates.com/", "united": "https://www.united.com/", "american": "https://www.aa.com/", "american airlines": "https://www.aa.com/", "british airways": "https://www.britishairways.com/", "air france": "https://www.airfrance.com/", "klm": "https://www.klm.com/", "lufthansa": "https://www.lufthansa.com/", "swiss": "https://www.swiss.com/", "iberia": "https://www.iberia.com/", "tap": "https://www.flytap.com/", "tap air portugal": "https://www.flytap.com/", "ita": "https://www.ita-airways.com/", "ita airways": "https://www.ita-airways.com/", "qatar": "https://www.qatarairways.com/", "qatar airways": "https://www.qatarairways.com/", "etihad": "https://www.etihad.com/", "singapore airlines": "https://www.singaporeair.com/", "cathay pacific": "https://www.cathaypacific.com/", "ana": "https://www.ana.co.jp/", "jal": "https://www.jal.co.jp/", "japan airlines": "https://www.jal.co.jp/", "qantas": "https://www.qantas.com/", "air new zealand": "https://www.airnewzealand.com/", "virgin atlantic": "https://www.virginatlantic.com/", "jetblue": "https://www.jetblue.com/", "alaska": "https://www.alaskaair.com/", "air canada": "https://www.aircanada.com/", "latam": "https://www.latam.com/", "aeromexico": "https://www.aeromexico.com/", "turkish airlines": "https://www.turkishairlines.com/", "austrian": "https://www.austrian.com/", "finnair": "https://www.finnair.com/", "sas": "https://www.flysas.com/", "icelandair": "https://www.icelandair.com/", "aer lingus": "https://www.aerlingus.com/", "ethiopian": "https://www.ethiopianairlines.com/", "kenya airways": "https://www.kenya-airways.com/", "south african": "https://www.flysaa.com/", "copa": "https://www.copaair.com/", "avianca": "https://www.avianca.com/", "vueling": "https://www.vueling.com/", "easyjet": "https://www.easyjet.com/", "azores airlines": "https://www.azoresairlines.pt/", "sata": "https://www.azoresairlines.pt/", "wizz": "https://wizzair.com/", "norwegian": "https://www.norwegian.com/", "eurowings": "https://www.eurowings.com/", "edelweiss": "https://www.flyedelweiss.com/", "air europa": "https://www.aireuropa.com/", "aegean": "https://en.aegeanair.com/", "lot": "https://www.lot.com/", "brussels airlines": "https://www.brusselsairlines.com/", "air dolomiti": "https://www.airdolomiti.eu/", "volotea": "https://www.volotea.com/", "transavia": "https://www.transavia.com/", "km malta": "https://www.kmmaltairlines.com/", "croatia airlines": "https://www.croatiaairlines.com/", "el al": "https://www.elal.com/", "royal jordanian": "https://www.rj.com/", "egyptair": "https://www.egyptair.com/", "royal air maroc": "https://www.royalairmaroc.com/", "air mauritius": "https://www.airmauritius.com/", "air seychelles": "https://www.airseychelles.com/", "fiji airways": "https://www.fijiairways.com/", "hawaiian": "https://www.hawaiianairlines.com/", "southwest": "https://www.southwest.com/", "westjet": "https://www.westjet.com/", "porter": "https://www.flyporter.com/", "gol": "https://www.voegol.com.br/", "azul": "https://www.voeazul.com.br/", "sky airline": "https://www.skyairline.com/", "jetstar": "https://www.jetstar.com/", "virgin australia": "https://www.virginaustralia.com/", "air india": "https://www.airindia.com/", "indigo": "https://www.goindigo.in/", "thai": "https://www.thaiairways.com/", "thai airways": "https://www.thaiairways.com/", "vietnam airlines": "https://www.vietnamairlines.com/", "malaysia airlines": "https://www.malaysiaairlines.com/", "garuda": "https://www.garuda-indonesia.com/", "philippine airlines": "https://www.philippineairlines.com/", "korean air": "https://www.koreanair.com/", "asiana": "https://flyasiana.com/", "eva air": "https://www.evaair.com/", "china airlines": "https://www.china-airlines.com/", "air china": "https://www.airchina.com/", "bangkok airways": "https://www.bangkokair.com/", "air tahiti nui": "https://www.airtahitinui.com/", "air austral": "https://www.air-austral.com/", "air serbia": "https://www.airserbia.com/", "tarom": "https://www.tarom.ro/", "bulgaria air": "https://www.air.bg/", "icelandair": "https://www.icelandair.com/", "play": "https://flyplay.com/", "loganair": "https://www.loganair.co.uk/", "ryanair": "https://www.ryanair.com/" };
 function airlineSiteFor(airline) { if (!airline) return null; const k = dnrm(airline); return AIRLINE_SITES[k] || (Object.keys(AIRLINE_SITES).find((a) => k.includes(a)) ? AIRLINE_SITES[Object.keys(AIRLINE_SITES).find((a) => k.includes(a))] : null); }
 // ONE BUTTON, ONE LABEL: VISIT SITE — on every bookable item of the itinerary, booked or not, so a
 // client reading the whole trip top-down can change a dinner or a car right there. Never printed:
 // you cannot tap a piece of paper. (Tricia, 3 Oct 2026.)
 function ItemContact({ kind, city, name, fallback, site: siteIn }) {
   const dine = useDineContact(city, name, kind === "dine");
-  const venue = useVenueInfo(city, name, kind === "hotel" || kind === "venue");
+  const venue = useVenueInfo(city, name, kind === "hotel" || kind === "venue", kind);
   const live = kind === "dine" ? dine : (kind === "hotel" || kind === "venue") ? venue : null;
   const addr = (live && live.address) || (fallback && fallback.addr) || null;
   const phone = (live && live.phone) || (fallback && fallback.tel) || null;
@@ -19765,7 +19765,7 @@ function DayByDay({ p, sch }) {
       add(isoOf(lg.arrive), { icon: "car", site: rentalSiteFor(pk.car.company), name: pk.car.company || "", city, label: `Rental car \u2014 ${pk.car.company || "company not recorded"}`,
         sub: `${bareCity(cf)} \u2192 ${bareCity(ct)} \u00b7 ${pk.car.ref ? `Booked \u00b7 ${pk.car.ref}` : "Booked \u00b7 no reference given"}` });
     }
-    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked"}` });
+    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, site: pk.stay.site || null, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked"}` });
     // A roaming leg keeps its hotels and tables on its stops, not on the leg itself. This
     // builder only ever looked at pick.stay, so a whole country came out as a run of empty
     // days however carefully it had been planned. The schedule has already dated every stop —
@@ -19775,7 +19775,7 @@ function DayByDay({ p, sch }) {
       (pk.stops || []).forEach((st, k) => {
         const ss = lg.stops && lg.stops[k];
         if (!ss || !st) return;
-        if (st.stay) add(isoOf(ss.arrive), { icon: "hotel", kind: "hotel", city: st.name, name: st.stay.name, fallback: st.stay.contact || placeContact(st.stay.name), label: `Check in · ${st.stay.name || st.stay.level}`, sub: `${ss.nights} ${ss.nights === 1 ? "night" : "nights"} in ${st.name}` });
+        if (st.stay) add(isoOf(ss.arrive), { icon: "hotel", kind: "hotel", city: st.name, name: st.stay.name, site: st.stay.site || null, fallback: st.stay.contact || placeContact(st.stay.name), label: `Check in · ${st.stay.name || st.stay.level}`, sub: `${ss.nights} ${ss.nights === 1 ? "night" : "nights"} in ${st.name}` });
         (st.dines || []).forEach((x) => add(x.date, { icon: "dine", kind: "dine", city: st.name, name: x.name, fallback: placeContact(x.name), label: (x.time ? x.time + " \u00b7 " : "") + (x.name || "Dinner"), sub: x.booked ? ("Booked" + (x.ref ? " \u00b7 " + x.ref : "")) : "Not booked" }));
       });
     }
@@ -19828,7 +19828,7 @@ function DayByDay({ p, sch }) {
       const landCity = bareCity(pickupPoint(dests[0])) || bareCity(dests[0].city) || "";
       const arrAir = (f && f.arrAirport) || iataFor(landCity) || iataFor(dests[0].city) || dests[0].airport;
       const arrTime = f && f.arrive ? f.arrive : null;
-      add(isoOf(lg0.arrive), { icon: "plane", label: `Arrive ${landCity}${arrAir ? ` — ${airportLabel(arrAir)}` : ""}${arrTime ? ` at ${arrTime}` : ""}`, sub: f && f.dayOffset > 0 ? "Overnight flight — you land the next morning" : "" });
+      add(isoOf(lg0.arrive), { icon: "plane", site: airlineSiteFor(f && f.airline), name: (f && f.airline) || "", city: landCity, label: `Arrive ${landCity}${arrAir ? ` — ${airportLabel(arrAir)}` : ""}${arrTime ? ` at ${arrTime}` : ""}`, sub: f && f.dayOffset > 0 ? "Overnight flight — you land the next morning" : "" });
       const ch0 = arrivalChain(dests[0], p.fromCity);
       if (ch0 && ch0.driveMins) add(isoOf(lg0.arrive), { icon: "car", label: `Reach ${bareCity(dests[0].city)} about ${hm(ch0.arrive)}${ch0.nextDay ? " the next day" : ""}`,
         sub: `${bareCity(ch0.air)} to ${bareCity(ch0.city)} — airport ${minsLabel(ch0.clear)}${ch0.desk ? `, rental desk ${minsLabel(ch0.desk)}` : ""}, then ${minsLabel(ch0.driveMins)} by road${ch0.km ? ` · ${ch0.km} km` : ""}` });
