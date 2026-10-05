@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M749";
+const BUILD = "M750";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -764,6 +764,8 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favorite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  // Confirmed 2027 openings (Tricia, 5 Oct 2026)
+  "Bvlgari Resort Ranfushi", "Six Senses Milan", "Six Senses Loire Valley", "Mandarin Oriental Old Cataract, Aswan", "Mandarin Oriental, Bali", "Four Seasons Resort and Residences Caye Chapel, Belize", "The Park Gstaad, A Four Seasons Hotel", "Rosewood Seoul", "Rosewood Calistoga",
   "Belmond Castello di Casole",
   "The Greenwich Hotel", "The Fifth Avenue Hotel", "Casa Cipriani New York",
   "Hotel Bel-Air",
@@ -1189,6 +1191,9 @@ function strictCanon(name, alnums) {
   for (let i = 0; i < alnums.length; i++) { const c = alnums[i]; if (a === c || (c.length >= 9 && a.indexOf(c) >= 0) || (a.length >= 9 && c.indexOf(a) >= 0)) return true; }
   return false;
 }
+// A confirmed future hotel: `opening` is the label ("2027", "Summer 2027"); `opensOn`, when known,
+// is the date reservations open — reached, the hotel becomes an ordinary one. No guessing dates.
+function isUpcoming(h) { if (!h || !h.opening) return false; if (!h.opensOn) return true; return new Date().toISOString().slice(0, 10) < h.opensOn; }
 function tierOf(name) {
   if (strictCanon(name, ULX_ALNUM)) return "UltraLux";
   if (strictCanon(name, EXP_ALNUM)) return "ExpLux";
@@ -1476,6 +1481,7 @@ const FAVORITES = {
     { name: "Saint James Paris", area: "16th · Bois de Boulogne", rate: null, ourTake: "The only château-hotel in Paris — a hidden garden mansion with a library bar.", contact: { addr: "43 Avenue Bugeaud, 75116 Paris", web: "saintjames-paris.com" } },
   ],
   "Milan": [
+    { name: "Six Senses Milan", area: "Brera \u00b7 Via Brera", rate: null, opening: "2027", ourTake: "Sixty-eight rooms in the heart of Brera, a rooftop bar and sky pool, and the full Six Senses spa \u2014 the newest of Milan\u2019s top hotels." },
     { name: "Bulgari Hotel Milano", area: "Brera", rate: null, ourTake: "A hidden garden oasis in Brera with the city's chicest bar.", contact: { addr: "Via Privata Fratelli Gabba 7b, Milan", web: "bulgarihotels.com" } },
     { name: "Mandarin Oriental Milan", area: "Quadrilatero", rate: null, ourTake: "Serene interlinked townhouses steps from the fashion quadrilateral.", contact: { addr: "Via Andegari 9, Milan", web: "mandarinoriental.com" } },
     { name: "Four Seasons Hotel Milano", area: "Quadrilatero", rate: null, ourTake: "A 15th-century convent turned haven off Via Montenapoleone.", contact: { addr: "Via Gesù 6/8, Milan", web: "fourseasons.com/milan" } },
@@ -1778,6 +1784,7 @@ const FAVORITES = {
     { name: "Kulm Hotel St Moritz", area: "St Moritz", rate: null, ourTake: "The original St Moritz grand hotel, with its own Olympic history and skating." },
   ],
   "Gstaad": [
+    { name: "The Park Gstaad, A Four Seasons Hotel", area: "Gstaad \u00b7 by the Promenade", rate: null, opening: "Summer 2027", ourTake: "The historic Park Gstaad reimagined as a Four Seasons: 75 rooms and suites, seven restaurants and lounges, indoor and outdoor pools, and a Four Seasons spa with Clinique La Prairie, a walk from the Promenade." },
     { name: "The Alpina Gstaad", area: "Gstaad", rate: null, ourTake: "A modern chalet masterpiece above the village, with a Six Senses spa." },
     { name: "Gstaad Palace", area: "Gstaad", rate: null, ourTake: "The family-owned fairy-tale castle crowning Gstaad since 1913." },
   ],
@@ -3008,7 +3015,7 @@ const FAVORITES = {
     { name: "Sofitel Winter Palace Luxor", area: "Corniche", rate: null, ourTake: "The Victorian icon above the Nile, with the gardens Agatha Christie wrote in." },
   ],
   "Aswan": [
-    { name: "Old Cataract Aswan", area: "Nile", rate: null, ourTake: "Pink granite terraces over the cataract and Elephantine Island \u2014 the most romantic room in Egypt." },
+    { name: "Mandarin Oriental Old Cataract, Aswan", wasNamed: "Old Cataract Aswan", opening: "2027 \u00b7 transformation", area: "Nile", rate: null, ourTake: "The historic Old Cataract on the Nile \u2014 Agatha Christie\u2019s hotel \u2014 under Mandarin Oriental, with a full renovation completing in 2027. The iconic address of any Nile journey." },
   ],
   "Sharm El Sheikh": [
     { name: "Four Seasons Resort Sharm El Sheikh", area: "Red Sea", rate: null, ourTake: "Terraced gardens down to a private reef \u2014 the best of the Red Sea resorts by some distance." },
@@ -3086,6 +3093,7 @@ const FAVORITES = {
     { name: "Ceylon Tea Trails", area: "Hatton", rate: null, ourTake: "Restored planters' bungalows amid the emerald tea hills." },
   ],
   "Maldives": [
+    { name: "Bvlgari Resort Ranfushi", area: "Raa Atoll \u00b7 private island", rate: null, opening: "2027", ourTake: "A twenty-hectare private island with only 54 villas \u2014 33 on the beach with pools, 20 over the water, and one Bvlgari Villa on an island of its own." },
     { name: "Soneva Fushi", area: "Baa Atoll", rate: null, ourTake: "The barefoot-luxury original — vast sandy villas, an observatory, cinema in the sand." },
     { name: "Soneva Jani", area: "Noonu Atoll", rate: null, ourTake: "Overwater villas with retractable roofs and water slides into the lagoon." },
     { name: "Cheval Blanc Randheli", area: "Noonu Atoll", rate: null, ourTake: "LVMH glamour and a Guerlain spa across a private island archipelago." },
@@ -3141,6 +3149,7 @@ const FAVORITES = {
     { name: "Amandayan", area: "Lion Hill, above the old town", rate: null, ourTake: "Courtyard suites on the hill above Lijiang's old town with the Jade Dragon Snow Mountain across the valley. The Yunnan Aman. Ultra Luxury on the definition." },
   ],
   "Bali": [
+    { name: "Mandarin Oriental, Bali", area: "Bukit Peninsula \u00b7 clifftop", rate: null, opening: "2027", ourTake: "A clifftop over the Indian Ocean with its own secluded white-sand beach, infinity pools, cliff-edge dining, a major wellness program and landscapes by Bill Bensley \u2014 a lead Bali choice once open." },
     { name: "Amankila", area: "Manggis", rate: null, ourTake: "Three tiered pools cascading to the sea on Bali's quiet east coast." },
     { name: "Amandari", area: "Ubud", rate: null, ourTake: "A village-style Aman above the Ayung gorge, the spiritual heart of Ubud." },
     { name: "Capella Ubud", area: "Ubud", rate: null, ourTake: "Bill Bensley's fantastical tented camp in the rainforest." },
@@ -3782,6 +3791,7 @@ const FAVORITES = {
     { name: "Palace Hotel, a Luxury Collection Hotel", area: "2 New Montgomery Street · San Francisco (SFO)", rate: null, ourTake: "The historic grande dame, open since 1875 and rebuilt after 1906 — and the Garden Court beneath its stained-glass dome is one of the great hotel rooms in America. Take it for the building and the history." },
   ],
   "Napa Valley": [
+    { name: "Rosewood Calistoga", area: "Calistoga \u00b7 hillside estate", rate: null, opening: "2027", ourTake: "A 118-acre hillside estate of forest and vineyard country above Calistoga: an Asaya spa, estate gardens and a wellness focus, minutes from the town." },
     { name: "Bardessono Hotel and Spa", area: "Yountville · San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026. A small, serious hotel in the middle of Yountville — walking distance to more Michelin stars per head than anywhere in America. Two Michelin Keys, and every room has its own treatment space." },
     { name: "Four Seasons Resort and Residences Napa Valley", area: "Calistoga · San Francisco (SFO)", rate: null, ourTake: "Restored Sept 2026. Eighty-five rooms inside a WORKING VINEYARD at the top of the valley, with two pools, a spa and its own winery. The newest of the valley's luxury resorts and the most complete." },
     { name: "Auberge du Soleil", area: "Rutherford", rate: null, ourTake: "Fifty rooms on a hillside olive grove above the valley, a Forbes Five-Star and a Michelin table on the terrace \u2014 the address in Napa, and the one people plan the trip around." },
@@ -4137,6 +4147,16 @@ const FAVORITES = {
     { name: "Belmond Castello di Casole", area: "Casole d\u2019Elsa \u00b7 about 35 minutes from the Campo", rate: null, ourTake: "A tenth-century castle on a 4,200-acre estate in the hills west of Siena, restored by Belmond: the pool over the valley, the vineyards, the suites in the old stone. Not in Siena, and incredible \u2014 the top choice for the Palio, and for anyone who simply wants Tuscany with Siena an easy drive away." },
     { name: "Grand Hotel Continental Siena", area: "Banchi di Sopra \u00b7 steps from the Campo", rate: null, ourTake: "A seventeenth-century palazzo on the main street, the only five-star inside the walls, minutes from the Campo." },
     { name: "Palazzo Ravizza", area: "Pian dei Mantellini \u00b7 inside the walls", rate: null, ourTake: "A family-run Renaissance palazzo with a garden over the hills; the quiet, characterful alternative." },
+  ],
+  // NEW DESTINATIONS for confirmed 2027 openings (5 Oct 2026)
+  "Loire Valley": [
+    { name: "Six Senses Loire Valley", area: "A ch\u00e2teau estate \u00b7 about 90 minutes south of Paris", rate: null, opening: "2027", ourTake: "A historic ch\u00e2teau on a great estate with lakes, golf, an equestrian centre, tennis, an organic farm and trails for walking and cycling \u2014 88 suites and villas, and the reason the Loire becomes a destination of its own rather than a day from Paris." },
+  ],
+  "Belize": [
+    { name: "Four Seasons Resort and Residences Caye Chapel, Belize", area: "Caye Chapel \u00b7 private island", rate: null, opening: "2027", ourTake: "A private six-mile Caribbean island beside the Belize Barrier Reef: overwater bungalows, a Greg Norman championship course, a marina, and the Fabien Cousteau Adventure Center." },
+  ],
+  "Seoul": [
+    { name: "Rosewood Seoul", area: "Yongsan \u00b7 beside Yongsan Park", rate: null, opening: "2027", ourTake: "Beside Yongsan Park in The Parkside Seoul: about 250 rooms and suites, seven restaurants and bars, and the Asaya wellness house \u2014 Rosewood\u2019s own description is ultra-luxury." },
   ],
 };
 const EATS = {
@@ -8471,6 +8491,8 @@ const GATEWAY = {
   "Jabal Akhdar": { air: "Muscat", note: "Fly to Muscat (MCT), then two hours and a mountain road. Four-wheel drive is required at the checkpoint, not optional." },
   "Wahiba Sands": { air: "Muscat", note: "Fly to Muscat (MCT), then about two and a half hours; the last stretch is soft sand and the camp will meet you." },
   "Serengeti": { air: "Kilimanjaro", note: "Fly to Kilimanjaro (JRO), then a light aircraft into the bush strips." },
+  "Loire Valley": { air: "Paris", note: "PARIS (CDG) is the airport; the estate is about ninety minutes south by road or an hour by TGV to Tours. From the US, nonstop to Paris and the car or the train." },
+  "Belize": { air: "Belize City", note: "BELIZE CITY (BZE) has nonstops from Miami, Houston, Dallas and Atlanta; Caye Chapel is a short boat or helicopter transfer from there, arranged by the resort." },
   "Siena": { air: "Florence", note: "FLORENCE (FLR) is ninety minutes by road; PISA (PSA) about the same; from the US, one stop through Rome, Munich, Frankfurt or Paris, or fly into ROME and drive two and a half hours up the A1." },
   "Henley-on-Thames": { air: "London", note: "HEATHROW (LHR) is forty minutes by road." },
   "Ascot": { air: "London", note: "HEATHROW (LHR) is twenty-five minutes by road." },
@@ -8826,7 +8848,7 @@ const AIRPORTS = {
   "Chicago": { code: "ORD", scale: "intercontinental" }, "Boston": { code: "BOS", scale: "intercontinental" },
   "Washington DC": { code: "IAD", scale: "intercontinental" }, "Newark": { code: "EWR", scale: "intercontinental" },
   "London": { code: "LHR", scale: "intercontinental" }, "Paris": { code: "CDG", scale: "intercontinental" },
-  "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" }, "Louisville": { code: "SDF", scale: "regional" }, "Salzburg": { code: "SZG", scale: "regional" },
+  "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" }, "Seoul": { code: "ICN", scale: "intercontinental" }, "Belize": { code: "BZE", scale: "regional" }, "Caye Chapel": { code: "BZE", scale: "regional" }, "Louisville": { code: "SDF", scale: "regional" }, "Salzburg": { code: "SZG", scale: "regional" },
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
   "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" },
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
@@ -9768,7 +9790,7 @@ const COORDS = {
   "Cortina d\u2019Ampezzo": [46.54,12.14], "Alta Badia": [46.58,11.90], "Ortisei": [46.57,11.67], "Selva di Val Gardena": [46.56,11.76],
   "Bressanone": [46.72,11.66], "Brunico": [46.80,11.94], "Dobbiaco": [46.73,12.22], "Moena": [46.38,11.66],
   "Cavalese": [46.29,11.46], "Madonna di Campiglio": [46.23,10.83], "Pinzolo": [46.16,10.77],
-  "Louisville": [38.25,-85.76], "Henley-on-Thames": [51.54,-0.90], "Ascot": [51.41,-0.68], "Cannes": [43.55,7.02], "Salzburg": [47.81,13.05], "Azores": [37.74,-25.67], "Cotswolds": [51.83,-1.75], "Greek Islands": [36.9,25.0], "Ionian Islands": [39.0,20.0], "Dodecanese": [36.4,27.5], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
+  "Loire Valley": [47.39,0.69], "Belize": [17.50,-88.20], "Caye Chapel": [17.69,-88.04], "Seoul": [37.57,126.98], "Calistoga": [38.58,-122.58], "Louisville": [38.25,-85.76], "Henley-on-Thames": [51.54,-0.90], "Ascot": [51.41,-0.68], "Cannes": [43.55,7.02], "Salzburg": [47.81,13.05], "Azores": [37.74,-25.67], "Cotswolds": [51.83,-1.75], "Greek Islands": [36.9,25.0], "Ionian Islands": [39.0,20.0], "Dodecanese": [36.4,27.5], "Cyclades": [37.08,25.15], "Balearics": [39.57,2.65], "Corsica": [42.15,9.10],
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
   "Aeolian Islands": [38.48,14.95], "Sonoma County": [38.51,-122.80], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
@@ -10304,6 +10326,7 @@ const CITY_ALIASES = {
   "san pedro, belize": "Ambergris Caye",
   "placencia village": "Placencia", "mountain pine ridge forest reserve": "Mountain Pine Ridge",
   "monte carlo": "Monaco", "monte-carlo": "Monaco", "monte carlo, monaco": "Monaco", "monte-carlo, monaco": "Monaco", "monaco-ville": "Monaco", "principality of monaco": "Monaco", "monaco, france": "Monaco",
+  "calistoga": "Napa Valley", "caye chapel": "Belize", "loire": "Loire Valley", "the loire": "Loire Valley"
 };
 // ═══ resolvePlace — WHICH CURATED PLACE IS THIS LABEL? ═══════════════════════════════════
 // The zone, gateway and region tables used to match on the exact spelling of the label, and the
@@ -18077,11 +18100,13 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
           works, reopening on a date, phased renovation. Hand-written on the FAVORITES entry as
           `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
       {s.status ? <div style={{ fontSize: 12, color: "#B0563A", fontWeight: 500, marginTop: 6, lineHeight: 1.4 }}>{s.status}</div> : null}
-      <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>
+      {isUpcoming(s) ? <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.brass, fontWeight: 600, marginTop: 7, letterSpacing: ".04em", textTransform: "uppercase" }}>Opening {s.opening}</div>
+        : <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>}
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
-        {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
+        {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
+          : site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
