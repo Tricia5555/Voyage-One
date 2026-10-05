@@ -24,6 +24,16 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 }
 </script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+<!-- THE MARK (5 Oct 2026): the icon on a phone's home screen, the tab, and the install manifest.
+     Files live at the top level of the repository, beside index.html, with /manifest.json. -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#052d1a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Voyage One" />
 </head>
 <body>
 <div id="root"></div>
@@ -33,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M747";
+const BUILD = "M749";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
