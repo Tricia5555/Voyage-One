@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M746";
+const BUILD = "M747";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12177,10 +12177,12 @@ function LandingMenu({ user, authReady, onOpenAuth, onSignOut, onExplore }) {
     {open ? <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 58 }} /> : null}
     <div className="vo-noprint" style={{ position: "fixed", left: 18, bottom: 18, zIndex: 60 }}>
       {open ? (<div style={{ position: "absolute", left: 0, bottom: 58, width: 230, background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, boxShadow: "0 12px 40px rgba(0,0,0,.14)", padding: 8 }}>
-        <button onClick={() => { setOpen(false); onExplore(); }} style={item}>Explore a place</button>
-        {authReady && !user ? <button onClick={() => { setOpen(false); onOpenAuth(); }} style={item}>Sign in · save journeys</button> : null}
+        {authReady && !user ? <button onClick={() => { setOpen(false); onOpenAuth(); }} style={item}>Sign in</button> : null}
         {authReady && user ? <button onClick={() => { setOpen(false); onSignOut(); }} style={item}>Sign out</button> : null}
-        <a href={textUsHref("I have a question")} style={{ ...item, textDecoration: "none" }}>Text us · {VO_TEXT_DISPLAY}</a>
+        <a href={textUsHref("I have a question")} style={{ ...item, textDecoration: "none" }}>Text us</a>
+        <a href={`mailto:${VO_SUGGEST_EMAIL}?subject=${encodeURIComponent("A suggestion for Voyage One")}`} style={{ ...item, textDecoration: "none" }}>Suggestions</a>
+        <button onClick={() => { setOpen(false); onExplore(); }} style={item}>Explore a place</button>
+        <button onClick={() => { setOpen(false); window.dispatchEvent(new Event("vo-open-help")); }} style={item}>Help</button>
       </div>) : null}
       <button onClick={() => setOpen((o) => !o)} aria-label="Menu" style={{ width: 48, height: 48, borderRadius: 999, background: t.pine, color: t.paper, border: "none", fontSize: 20, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>☰</button>
     </div>
@@ -12193,7 +12195,11 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "26px clamp(24px,5vw,64px)", gap: 16, flexWrap: "wrap" }}>
       <div style={{ fontFamily: font.display, fontSize: 22 }}>Voyage<span style={{ color: t.brass }}> One</span></div>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        {authReady && user ? <span style={{ fontSize: 12.5, color: t.inkFaint, maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span> : null}
+        {authReady && user && (<>
+          <span style={{ fontSize: 12.5, color: t.inkFaint, maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
+          <button onClick={onSignOut} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign out</button>
+        </>)}
+        {authReady && !user && <button onClick={onOpenAuth} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 18px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign in</button>}
       </div>
     </header>
     <main style={{ flex: 1, display: "grid", placeItems: "center", padding: "0 clamp(24px,5vw,64px)" }}>
@@ -15204,6 +15210,7 @@ const HELP_GUIDE = [
 // and a first line already written.
 const VO_TEXT_NUMBER = "+12054133701";
 const VO_TEXT_DISPLAY = "+1 205 413 3701";
+const VO_SUGGEST_EMAIL = "tholbrook@me.com";   // Tricia’s for now; a Voyage One address replaces it
 function textUsHref(context) { const body = `Hi, Voyage One. ${context || "I have a question"}…`; return `sms:${VO_TEXT_NUMBER}${/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent || "") ? "&" : "?"}body=${encodeURIComponent(body)}`; }
 // A HINT: a small ⓘ beside a control, one sentence on tap. No hover — iPads have none.
 function Hint({ text }) {
@@ -15215,6 +15222,7 @@ function Hint({ text }) {
 }
 function HelpPanel({ screen, step }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => { const h = () => setOpen(true); window.addEventListener("vo-open-help", h); return () => window.removeEventListener("vo-open-help", h); }, []);
   const [q, setQ] = useState("");
   const [ans, setAns] = useState(null);
   const [busy, setBusy] = useState(false);
