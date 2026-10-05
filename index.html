@@ -33,7 +33,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M743";
+const BUILD = "M745";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12170,6 +12170,22 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
     </div>) : (<div style={{ fontSize: 14, color: t.inkFaint, marginTop: 16, lineHeight: 1.6 }}>Hotels by tier with our take, the tables and their stars, things to do and nearby, when to go, how you get there, and the airport service — all on one page, nothing to decide.</div>)}
   </div>);
 }
+function LandingMenu({ user, authReady, onOpenAuth, onSignOut, onExplore }) {
+  const [open, setOpen] = useState(false);
+  const item = { display: "block", width: "100%", textAlign: "left", background: "none", border: "none", padding: "12px 14px", fontSize: 14.5, color: t.ink, fontFamily: font.ui, cursor: "pointer", borderRadius: 10 };
+  return (<>
+    {open ? <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 58 }} /> : null}
+    <div className="vo-noprint" style={{ position: "fixed", left: 18, bottom: 18, zIndex: 60 }}>
+      {open ? (<div style={{ position: "absolute", left: 0, bottom: 58, width: 230, background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, boxShadow: "0 12px 40px rgba(0,0,0,.14)", padding: 8 }}>
+        <button onClick={() => { setOpen(false); onExplore(); }} style={item}>Explore a place</button>
+        {authReady && !user ? <button onClick={() => { setOpen(false); onOpenAuth(); }} style={item}>Sign in · save journeys</button> : null}
+        {authReady && user ? <button onClick={() => { setOpen(false); onSignOut(); }} style={item}>Sign out</button> : null}
+        <a href={textUsHref("I have a question")} style={{ ...item, textDecoration: "none" }}>Text us · {VO_TEXT_DISPLAY}</a>
+      </div>) : null}
+      <button onClick={() => setOpen((o) => !o)} aria-label="Menu" style={{ width: 48, height: 48, borderRadius: 999, background: t.pine, color: t.paper, border: "none", fontSize: 20, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>☰</button>
+    </div>
+  </>);
+}
 function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authReady, cloudErr, onSignOut, onOpenAuth, migratable, migrating, onMigrate, onExplore }) {
   const has = Array.isArray(trips) && trips.length > 0;
   const canMigrate = user && Array.isArray(migratable) && migratable.length > 0;
@@ -12177,17 +12193,7 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
     <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "26px clamp(24px,5vw,64px)", gap: 16, flexWrap: "wrap" }}>
       <div style={{ fontFamily: font.display, fontSize: 22 }}>Voyage<span style={{ color: t.brass }}> One</span></div>
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        {authReady && user && (<>
-          <span style={{ fontSize: 12.5, color: t.inkFaint, maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span>
-          <button onClick={onSignOut} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign out</button>
-        </>)}
-        {authReady && !user && (<div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-          <button onClick={onOpenAuth} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 18px", color: t.ink, fontSize: 13, fontFamily: font.ui, cursor: "pointer" }}>Sign in</button>
-          {/* The button alone reads as housekeeping. The line under it is what tells someone
-              why they would ever touch it — and it is the only place they will see that before
-              they have built anything worth keeping. */}
-          <span style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.3, textAlign: "right" }}>Sign in to save your journey</span>
-        </div>)}
+        {authReady && user ? <span style={{ fontSize: 12.5, color: t.inkFaint, maxWidth: 190, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.email}</span> : null}
       </div>
     </header>
     <main style={{ flex: 1, display: "grid", placeItems: "center", padding: "0 clamp(24px,5vw,64px)" }}>
@@ -12214,16 +12220,19 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         <div style={{ marginTop: 4, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", position: "relative" }}>
           <button onClick={onBegin} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "16px 38px", fontSize: 15, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{has ? "Begin another journey" : "Begin your journey"} <ArrowRight size={17} /></button>
         </div>
-        {/* EXPLORE A PLACE: the atlas behind the planner, on the far right across from the way in. */}
-        <div className="vo-explore-link" style={{ position: "fixed", right: 22, top: "50%", transform: "translateY(-50%)", zIndex: 20 }}>
-          <button onClick={onExplore} style={{ background: t.white, color: t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "12px 18px", fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700, fontFamily: font.ui, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.08)" }}>Explore a place</button>
-        </div>
+
         {!canSave && !user && <div style={{ fontSize: 12.5, color: t.brass, maxWidth: 460, lineHeight: 1.5 }}>This browser will not let Voyage One save journeys — private browsing usually causes this. You can still plan a trip, but it will not be here when you come back.</div>}
         {user && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, lineHeight: 1.5 }}>Journeys are saved to your account, on every device you sign in from.</div>}
-        {!user && canSave && <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: -8, maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Add a password to your email and they will follow you to your phone, tablet and desktop.</div>}
+
       </div>
     </main>
-    <footer style={{ padding: "22px", display: "flex", gap: 26, justifyContent: "center", flexWrap: "wrap", color: t.inkFaint, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>{LEVELS.map((l) => <span key={l}>{l}</span>)}<a className="vo-noprint" href={textUsHref("I have a question")} style={{ color: t.inkSoft, textDecoration: "none" }}>Questions? Text us</a><span style={{ opacity: 0.5 }}>Build&nbsp;2★·{BUILD}</span></footer>
+    <footer style={{ padding: "18px 22px 80px", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, color: t.inkFaint, fontSize: 12, textAlign: "center" }}>
+      {!user && canSave ? <div style={{ maxWidth: 460, lineHeight: 1.5 }}>Journeys are saved on this device. Sign in with your email and a password and they follow you to your phone, tablet and desktop.</div> : null}
+      <span style={{ opacity: 0.5, letterSpacing: "0.14em", textTransform: "uppercase" }}>Build&nbsp;2★·{BUILD}</span>
+    </footer>
+    {/* THE MENU, BOTTOM LEFT (Tricia, 5 Oct 2026): everything that is not the way in — Explore a
+        place, Sign in or out, Text us — behind one button, opposite the ? bottom right. */}
+    <LandingMenu user={user} authReady={authReady} onOpenAuth={onOpenAuth} onSignOut={onSignOut} onExplore={onExplore} />
   </div>);
 }
 
