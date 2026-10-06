@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M782";
+const BUILD = "M783";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8150,10 +8150,15 @@ const PLACE_REGION = {
 // only a season leaves the traveller to work that out for themselves.
 function placeLine(city) {
   const c = bareCity(String(city || ""));
+  if (c.includes(",")) return c;            // "Naples, Florida", "Washington, Virginia": already placed
   const r = regionOf(city);
   return r ? c + ", " + r : c;
 }
+// EVERY AMERICAN PLACE CARRIES ITS STATE (Tricia, 6 Oct 2026): "Napa Valley, CA", "Charleston, SC".
+const US_STATE = {"Chicago": "IL", "Kohler": "WI", "Boston": "MA", "Middleburg": "VA", "Washington, Virginia": "VA", "Laguna Beach": "CA", "Honolulu": "HI", "Savannah": "GA", "Charleston": "SC", "Menlo Park": "CA", "The Hamptons": "NY", "New York City": "NY", "Los Angeles": "CA", "Santa Barbara": "CA", "Beverly Hills": "CA", "Ojai": "CA", "Pebble Beach": "CA", "Healdsburg": "CA", "Palm Springs": "CA", "San Francisco": "CA", "Napa Valley": "CA", "San Diego": "CA", "Miami": "FL", "Florida Keys": "FL", "Palm Beach": "FL", "Boca Raton": "FL", "Naples, Florida": "FL", "Orlando": "FL", "Sarasota": "FL", "Maui": "HI", "Big Island": "HI", "Lanai": "HI", "Aspen": "CO", "Jackson Hole": "WY", "Big Sky": "MT", "Park City": "UT", "New Orleans": "LA", "Austin": "TX", "Dallas": "TX", "Houston": "TX", "San Antonio": "TX", "Santa Fe": "NM", "Scottsdale": "AZ", "Tucson": "AZ", "Las Vegas": "NV", "Philadelphia": "PA", "Nemacolin": "PA", "Blackberry Farm": "TN", "Kiawah Island": "SC", "Palmetto Bluff": "SC", "Raleigh": "NC", "Atlanta": "GA", "Sea Island": "GA", "Newport": "RI", "Watch Hill": "RI", "Adirondacks": "NY", "Louisville": "KY", "Denver": "CO", "San Juan": "PR", "Dorado": "PR", "Río Grande, Puerto Rico": "PR", "St Thomas": "USVI"};
+function usStateOf(city) { const b = bareCity(city || ""); const k = Object.keys(US_STATE).find((c) => c === b || c.toLowerCase() === b.toLowerCase() || dnrm(c) === dnrm(b)); return k ? US_STATE[k] : null; }
 function regionOf(city) {
+  const st = usStateOf(city); if (st) return st;
   const k = resolvePlace(city);
   return k ? PLACE_REGION[k.toLowerCase().replace(/\s+/g, " ").trim()] || null : null;
 }
@@ -12256,7 +12261,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
     <div style={{ maxWidth: 620 }}><CityBox value={city} onChange={(v) => { setCity(v); if ((lookup(FAVORITES, v) || []).length) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly inputStyle={{ fontFamily: font.display, fontSize: 26, padding: "14px 4px", width: "100%", background: "none", border: "none", borderBottom: `2px solid ${t.line}`, color: t.ink, outline: "none" }} /></div>
     {chosen ? (<div style={{ marginTop: 22 }}>
       <Photo query={chosen} h={260} radius={18} />
-      <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{bareCity(chosen)}</div>
+      <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{placeLine(chosen)}</div>
       {seasonTxt ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>When to go.</strong> {typeof seasonTxt === "string" ? seasonTxt : (seasonTxt.window ? `${seasonTxt.window}. ` : "") + (seasonTxt.note || "")}</div> : null}
       {gw && gw.note ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>Getting there.</strong> {gw.note}</div> : null}
       {code ? <div style={{ marginTop: 10 }}><AssistCard code={code} when="on arrival" /></div> : null}
