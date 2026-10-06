@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M770";
+const BUILD = "M771";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -15952,11 +15952,13 @@ function StepBasics(p) {
 // airports with drive times, and a choice between them. Uses the same nearest-airport service
 // as the destination side. Choosing writes the code into the city ("Sciacca (CTA)"), which every
 // flight search already honours; the drive to it becomes the first leg of the trip.
+const GATEWAY_CHOSEN = {};   // cities whose code was assigned by this panel (a gateway), not by the picker
 function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
   const bare = bareCity(city || "");
   const chosen = codeOf(city);
   const own = airportFor(bare);
-  const ownIsHere = hasOwnAirport(bare);
+  const pickedWithCode = !!chosen && !GATEWAY_CHOSEN[geoKey(city)];   // the picker attached the airport: trust it
+  const ownIsHere = pickedWithCode || hasOwnAirport(bare);
   const [opts, setOpts] = useState(null);
   useEffect(() => {
     let dead = false; setOpts(null);
@@ -15978,7 +15980,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
   }, [city]);
   if (!bare) return null;
   const drive = (o) => o.driveMin != null ? (o.driveMin < 90 ? `${o.driveMin} min` : `${(o.driveMin / 60).toFixed(1)} hr`) : (o.km ? `${o.km} km` : "");
-  if (ownIsHere) return (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft }}>{metroAirports(bare) ? <>You fly from <strong style={{ color: t.ink }}>{bare}</strong> — {metroAirports(bare)}; the flight search checks them all.</> : <>You fly from <strong style={{ color: t.ink }}>{own ? `${own.city} (${own.code})` : bare}</strong>.</>}</div>);
+  if (ownIsHere) return (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft }}>{metroAirports(bare) ? <>You fly from <strong style={{ color: t.ink }}>{bare}</strong> — {metroAirports(bare)}; the flight search checks them all.</> : <>You fly from <strong style={{ color: t.ink }}>{chosen ? `${bare.split(",")[0].trim()} (${chosen})` : own ? `${own.city} (${own.code})` : bare}</strong>.</>}</div>);
   const list = (opts && opts.length) ? opts : (own ? [{ code: own.code, city: own.city, isOwn: false, hasService: true }] : []);
   if (!opts && !own) return (<div style={{ marginTop: 14, fontSize: 13, color: t.inkFaint }}>Finding the nearest airport to {bare}…</div>);
   if (!list.length) return null;
@@ -16008,7 +16010,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
 function StepDeparture(p) {
   return (<div><SectionHead eyebrow="Next" title="Where are you departing from?" sub="The city you fly out of. You’ll set your landing-home city near the end — it can be different." />
     <div style={{ maxWidth: 440 }}><LabeledCity label="Departure city" value={p.fromCity} onChange={p.setFromCity} placeholder="Start typing a city" /></div>
-    <HomeAirportPanel city={p.fromCity} onChoose={(code) => p.setFromCity(`${bareCity(p.fromCity)} (${code})`)} transfer={p.airportTransfer} onTransfer={p.setAirportTransfer} />
+    <HomeAirportPanel city={p.fromCity} onChoose={(code) => { const next = `${bareCity(p.fromCity)} (${code})`; GATEWAY_CHOSEN[geoKey(next)] = true; p.setFromCity(next); }} transfer={p.airportTransfer} onTransfer={p.setAirportTransfer} />
   </div>);
 }
 function StepDestinations(p) {
