@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M758";
+const BUILD = "M759";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -18727,8 +18727,8 @@ function useCityThings(city, topic) {
         const seen = new Set(); const out = [];
         flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!m.desc) return;
           const mi = miles(m); if (mi != null && mi > NEARBY_MI) return;
-          seen.add(n.toLowerCase()); out.push([n, null, m.desc, { find: n, book: m.site || m.maps || null, mi: mi == null ? null : Math.round(mi), nearby: mi != null && mi > IN_TOWN_MI }]); });
-        const res = out.slice(0, 12);
+          seen.add(n.toLowerCase()); out.push([n, null, m.desc, { find: n, book: m.site || m.maps || null, mi: mi == null ? null : Math.round(mi), nearby: mi != null && mi > IN_TOWN_MI, rating: m.rating || null, reviews: m.reviews || null }]); });
+        const res = out.slice(0, 40);   // the panel sorts and shows ten; the rest are behind "more"
         CITY_THINGS_CACHE[key] = res; if (!dead) setRows(res);
       })
       .catch(() => { CITY_THINGS_CACHE[key] = []; if (!dead) setRows([]); });
@@ -18741,28 +18741,42 @@ function useCityThings(city, topic) {
 const SPRAWL_MI = { "Los Angeles": 15, "Beverly Hills": 15, "Houston": 15, "Dallas": 12, "Atlanta": 12, "Miami": 12, "Phoenix": 15, "Scottsdale": 12, "Tokyo": 12, "Sydney": 12, "Mexico City": 12, "S\u00e3o Paulo": 12, "Rio de Janeiro": 10, "Buenos Aires": 10, "Johannesburg": 12, "Cape Town": 10, "Dubai": 12, "Riyadh": 12, "Shanghai": 12, "Beijing": 12, "Bangkok": 10, "Istanbul": 10, "Moscow": 10, "London": 8, "Paris": 8, "Berlin": 8, "Rome": 8, "Madrid": 8, "Chicago": 10, "New York City": 8, "Toronto": 10, "Montreal": 8, "Las Vegas": 10, "Orlando": 12 };
 function inTownRadiusMi(city) { const k = Object.keys(SPRAWL_MI).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? SPRAWL_MI[k] : 6; }
 // Days out / Things to do: curated list where we have one, otherwise the real live list.
+// TEN TOP THINGS, THE REST BEHIND A COUNT (Tricia, 6 Oct 2026). Our own entries come first —
+// they are curated — then the live ones by popularity: Google's rating weighted by how many
+// people gave it, so a 4.7 from twelve thousand outranks a 5.0 from nine. Ten show; "N more"
+// opens the rest. The same for Nearby.
+const TOP_THINGS = 10;
+function popularity(r) { const o = r[3] || {}; const rating = Number(o.rating) || 0, n = Number(o.reviews) || 0; return rating * Math.log10(n + 10); }
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
   const live = useCityThings(city, "");
-  const fresh = live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0])));
+  const fresh = live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0]))).slice().sort((a, b) => popularity(b) - popularity(a));
   const inTown = fresh.filter((r) => !(r[3] && r[3].nearby));
   const nearby = fresh.filter((r) => r[3] && r[3].nearby).map((r) => [r[0], r[1], `${r[3].mi} mi away \u00b7 ${r[2]}`, r[3]]);
+  const [allIn, setAllIn] = useState(false); const [allNear, setAllNear] = useState(false);
+  const chosenNames = (chosen || []).map((x) => dnrm(x.name));
+  const keepChosen = (rows, limit, all) => all ? rows : rows.filter((r, k) => k < limit || chosenNames.includes(dnrm(r[0])));
+  const more = (rows, shown, all, set) => (!all && rows.length > shown.length) ? <button onClick={() => set(true)} style={{ marginTop: 10, background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 16px", fontSize: 13, color: t.ink, cursor: "pointer" }}>{rows.length - shown.length} more — show all</button> : null;
   // A CURATED ROW IS IN TOWN OR A DAY OUT. David is in Florence; the Chianti by classic car is a day
   // out from it. Rows flagged inTown lead "Things to do in"; the rest keep "Days out from".
   const curatedIn = curated.filter((r) => r[3] && r[3].inTown);
   const curatedOut = curated.filter((r) => !(r[3] && r[3].inTown));
   const rows = curatedIn.concat(inTown);
+  const rowsShown = keepChosen(rows, TOP_THINGS, allIn);
+  const nearShown = keepChosen(nearby, TOP_THINGS, allNear);
   if (!rows.length && !curatedOut.length && !nearby.length) return null;
   return (<>
     {rows.length ? (<Panel icon={Compass} title={`Things to do in ${bareCity(city || "this city")}`}>
-      <ListPicker city={city} rows={rows} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+      <ListPicker city={city} rows={rowsShown} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+      {more(rows, rowsShown, allIn, setAllIn)}
     </Panel>) : null}
     {curatedOut.length ? (<Panel icon={Compass} title={`Days out from ${bareCity(city || "this city")}`}>
       <ListPicker city={city} rows={curatedOut} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
     </Panel>) : null}
     {nearby.length ? (<Panel icon={Compass} title={`Things to do nearby \u00b7 within 30 miles of ${bareCity(city || "")}`}>
       <div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 8 }}>Beyond about {inTownRadiusMi(city)} miles from the centre, within thirty — close enough for a half-day or a day out.</div>
-      <ListPicker city={city} rows={nearby} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+      <ListPicker city={city} rows={nearShown} chosen={chosen} onToggle={onToggle} nights={nights} onDate={onDate} label={label} />
+      {more(nearby, nearShown, allNear, setAllNear)}
     </Panel>) : null}
   </>);
 }
