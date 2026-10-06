@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M767";
+const BUILD = "M770";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -2578,6 +2578,10 @@ const FAVORITES = {
   // Oscar, Uma Casa, Volga and Campos Polanco. A Michelin Key is not a reason to load a hotel.
   // NOTE ON HYATT: the house rule carries Hyatt at Luxury where a property qualifies. Hyatt
   // Regency Mexico City is excluded on its own merits as a business hotel, not by brand.
+  "Cape Town": [
+    { team: "Springboks \u2014 South Africa Rugby", sport: "Rugby", league: "Internationals", venue: "DHL Stadium", site: "https://www.springboks.rugby/tickets", tsdb: "South Africa" },
+    { team: "South Africa Cricket \u2014 Test matches", sport: "Cricket", league: "Internationals", venue: "Newlands", site: "https://cricket.co.za/tickets", tsdb: "South Africa" },
+  ],
   "Mexico City": [
     { name: "Four Seasons Hotel Mexico City", area: "Paseo de la Reforma \u00b7 Mexico City (MEX)", rate: null, ourTake: "A PRIMARY RECOMMENDATION, and the dependable one. Low-rise around a courtyard garden on Reforma beside Chapultepec \u2014 which in a city this loud is the whole point. Genuine five-star service, and Forbes Verified Luxury." },
     { name: "The Ritz-Carlton, Mexico City", area: "Paseo de la Reforma \u00b7 Mexico City (MEX)", rate: null, ourTake: "The contemporary choice \u2014 153 rooms high above Reforma with the whole of Chapultepec Park below the window, a strong spa and the best views of any hotel in the city. Forbes Verified Luxury." },
@@ -4827,6 +4831,10 @@ const DINING = {
   "Menton": [{ n: "Mirazur", s: 3 }],
   "Merano": [{ n: "In Viaggio - Claudio Melis", s: 1 }, { n: "Prezioso", s: 1 }, { n: "Sissi", s: 1 }],
   "Méribel": [{ n: "L'Ekrin by Laurent Azoulay", s: 1 }],
+  "Cape Town": [
+    { team: "Springboks \u2014 South Africa Rugby", sport: "Rugby", league: "Internationals", venue: "DHL Stadium", site: "https://www.springboks.rugby/tickets", tsdb: "South Africa" },
+    { team: "South Africa Cricket \u2014 Test matches", sport: "Cricket", league: "Internationals", venue: "Newlands", site: "https://cricket.co.za/tickets", tsdb: "South Africa" },
+  ],
   "Mexico City": [{ n: "Pujol", s: 2 }, { n: "Quintonil", s: 2 }, { n: "Em", s: 1 }, { n: "Esquina Común", s: 1 }, { n: "Expendio de Maíz", s: 1 }, { n: "Masala y Maíz", s: 1 }, { n: "Máximo", s: 1 }, { n: "Rosetta", s: 1 }, { n: "Sud 777", s: 1 }, { n: "Taquería El Califa de León", s: 1 }],
   "Mġarr": [{ n: "Level Nine", s: 1 }],
   "Miami": [{ n: "L'Atelier de Joël Robuchon", s: 2 }, { n: "Ariete", s: 1 }, { n: "Boia De", s: 1 }, { n: "Cote Miami", s: 1 }, { n: "Elcielo Miami", s: 1 }, { n: "EntreNos", s: 1 }, { n: "Hiden", s: 1 }, { n: "Itamae Ao", s: 1 }, { n: "Le Jardinier Miami", s: 1 }, { n: "Los Félix", s: 1 }, { n: "Ogawa", s: 1 }],
@@ -12242,6 +12250,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
           <HotelPicker city={chosen} nights={2} pick={pick} upd={upd} fromExperience={false} />
         </Panel>
         <Panel icon={Utensils} title={`Dining in ${bareCity(chosen)}`}><DinePicker city={chosen} pick={pick} upd={upd} nights={[]} /></Panel>
+        <SportsPanel city={chosen} from={null} to={null} />
       </div>
       <div style={{ marginTop: 26, textAlign: "center" }}>
         <button onClick={() => onPlan(chosen, pick)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, fontWeight: 700, letterSpacing: ".04em", cursor: "pointer" }}>Plan a trip here →</button>
@@ -18741,6 +18750,23 @@ function useCityThings(city, topic) {
         // place; the beach, the harbour or the fort it drives to is. Drop anything whose name
         // says it is selling excursions, worldwide, and keep what a client can actually go to.
         const OPERATOR = /\b(tours?|touring|excursions?|rentals?|rent-a|hire|charters?|adventures?|safaris?|jeeps?|atv|buggy|buggies|4x4|segway|zipline|zip line|shuttle|taxi|transfers?|day trips?|sightseeing|experiences? (co|ltd|inc))\b/i;
+// WHAT COUNTS AS A THING TO DO. Google answers "things to do" with anything that sells tickets, and
+// an escape room with four thousand five-star reviews outranks the Capitol on popularity. So a
+// live result is kept only if Google's own type for it is a sight — a landmark, a museum, a park,
+// a theatre, a garden, a zoo — and dropped if it is an amusement: escape rooms, axe throwing,
+// go-karts, trampolines, mini golf, bowling, arcades, casinos, bars, gyms, cinemas. Nobody paid
+// to be first; they were simply well reviewed. (Tricia, 6 Oct 2026.)
+const SIGHT_TYPES = ["tourist_attraction", "museum", "art_gallery", "historical_landmark", "historical_place", "monument", "park", "national_park", "state_park", "garden", "botanical_garden", "zoo", "aquarium", "wildlife_park", "performing_arts_theater", "opera_house", "concert_hall", "cultural_center", "cultural_landmark", "church", "hindu_temple", "mosque", "synagogue", "place_of_worship", "castle", "palace", "plaza", "town_square", "beach", "hiking_area", "scenic_spot", "observation_deck", "planetarium", "library", "university", "stadium", "amphitheatre", "amphitheater", "market", "visitor_center", "natural_feature", "lighthouse", "fort", "ruins", "archaeological_site", "cemetery", "memorial", "sculpture", "public_art", "wine_bar", "winery", "vineyard", "brewery"];
+const AMUSEMENT_TYPES = ["escape_room", "amusement_center", "amusement_park", "bowling_alley", "casino", "movie_theater", "night_club", "bar", "gym", "fitness_center", "spa", "karaoke", "video_arcade", "arcade", "trampoline_park", "go_kart", "laser_tag", "paintball", "axe_throwing", "miniature_golf", "golf_course", "water_park", "cycling_park", "skateboard_park", "shopping_mall", "store", "restaurant", "cafe", "lodging", "hotel", "travel_agency", "tour_agency", "car_rental", "event_venue", "banquet_hall", "dance_hall", "comedy_club"];
+const AMUSEMENT_NAME = /\b(escape (game|room)|axe|go[- ]?kart|trampoline|mini[- ]?golf|putt|paintball|laser tag|arcade|bowling|karaoke|pub crawl|bar crawl|party bike|pedal (pub|bar|tavern)|duck boat|ghost tour|haunted|wax museum|selfie|rage room|topgolf|dave & buster|jump|skyzone|urban air|ninja|virtual reality|vr )\b/i;
+function isSight(m) {
+  const n = (m && m.name) || "";
+  if (AMUSEMENT_NAME.test(n)) return false;
+  const types = (m && m.types) || [];
+  if (types.some((t) => AMUSEMENT_TYPES.includes(t))) return false;
+  if (!types.length) return true;                          // no type known: let the name rule decide
+  return types.some((t) => SIGHT_TYPES.includes(t));
+}
         // …AND NEAR THE DESTINATION. Google matches on the word, not the place: "things to do in
         // Nevis" returned Ben Nevis, 6,800 km away in Scotland, and the app offered a client a
         // climb up it. Every result comes back with coordinates, so anything more than 120 km
@@ -18759,7 +18785,7 @@ function useCityThings(city, topic) {
         const NEARBY_MI = 30, IN_TOWN_MI = inTownRadiusMi(city);
         const miles = (m) => (!here || m.lat == null || m.lng == null) ? null : kmBetween(here, [m.lat, m.lng]) / 1.609;
         const seen = new Set(); const out = [];
-        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (isDestinationItself(n, city)) return; if (!m.desc) return;
+        flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (!isSight(m)) return; if (isDestinationItself(n, city)) return; if (!m.desc) return;
           const mi = miles(m); if (mi != null && mi > NEARBY_MI) return;
           seen.add(n.toLowerCase()); out.push([n, null, m.desc, { find: n, book: m.site || m.maps || null, mi: mi == null ? null : Math.round(mi), nearby: mi != null && mi > IN_TOWN_MI, rating: m.rating || null, reviews: m.reviews || null }]); });
         const res = out.slice(0, 40);   // the panel sorts and shows ten; the rest are behind "more"
@@ -18781,6 +18807,223 @@ function inTownRadiusMi(city) { const k = Object.keys(SPRAWL_MI).find((c) => sam
 // opens the rest. The same for Nearby.
 const TOP_THINGS = 10;
 function popularity(r) { const o = r[3] || {}; const rating = Number(o.rating) || 0, n = Number(o.reviews) || 0; return rating * Math.log10(n + 10); }
+
+// ══ SPORTS YOU WATCH ══════════════════════════════════════════════════════════════════════════
+// Which teams matter in a city — the top league in each sport, the clubs a traveller would cross
+// town for, and college football only where it IS the town. Our judgement decides the list; the
+// schedule is live, from /api/sports, by team and travel dates. Official ticket sites only.
+// (Tricia, 6 Oct 2026.) Fields: team, sport, league, venue, site, tsdb (the schedule service's
+// team name, when it differs from ours).
+// RUGBY AND CRICKET, SELECTIVELY: only in a city we already carry for its hotels, only at the
+// highest relevant level — internationals, Test cricket, the top domestic league — and only where
+// the sport is part of the place: London, Edinburgh, Dublin, Sydney, Cape Town. No regional
+// leagues, no developmental competitions. Cardiff, Melbourne, Johannesburg, Mumbai and Delhi
+// join the day they are destinations.
+const TEAMS = {
+  "New York City": [
+    { team: "New York Yankees", sport: "Baseball", league: "MLB", venue: "Yankee Stadium", site: "https://www.mlb.com/yankees/tickets" },
+    { team: "New York Mets", sport: "Baseball", league: "MLB", venue: "Citi Field", site: "https://www.mlb.com/mets/tickets" },
+    { team: "New York Knicks", sport: "Basketball", league: "NBA", venue: "Madison Square Garden", site: "https://www.nba.com/knicks/tickets" },
+    { team: "Brooklyn Nets", sport: "Basketball", league: "NBA", venue: "Barclays Center", site: "https://www.nba.com/nets/tickets" },
+    { team: "New York Rangers", sport: "Hockey", league: "NHL", venue: "Madison Square Garden", site: "https://www.nhl.com/rangers/tickets" },
+    { team: "New York Giants", sport: "Football", league: "NFL", venue: "MetLife Stadium", site: "https://www.giants.com/tickets" },
+    { team: "New York Jets", sport: "Football", league: "NFL", venue: "MetLife Stadium", site: "https://www.newyorkjets.com/tickets" },
+  ],
+  "Los Angeles": [
+    { team: "Los Angeles Dodgers", sport: "Baseball", league: "MLB", venue: "Dodger Stadium", site: "https://www.mlb.com/dodgers/tickets" },
+    { team: "Los Angeles Lakers", sport: "Basketball", league: "NBA", venue: "Crypto.com Arena", site: "https://www.nba.com/lakers/tickets" },
+    { team: "LA Clippers", sport: "Basketball", league: "NBA", venue: "Intuit Dome", site: "https://www.nba.com/clippers/tickets" },
+    { team: "Los Angeles Kings", sport: "Hockey", league: "NHL", venue: "Crypto.com Arena", site: "https://www.nhl.com/kings/tickets" },
+    { team: "Los Angeles Rams", sport: "Football", league: "NFL", venue: "SoFi Stadium", site: "https://www.therams.com/tickets" },
+    { team: "Los Angeles Chargers", sport: "Football", league: "NFL", venue: "SoFi Stadium", site: "https://www.chargers.com/tickets" },
+    { team: "LA Galaxy", sport: "Soccer", league: "MLS", venue: "Dignity Health Sports Park", site: "https://www.lagalaxy.com/tickets" },
+  ],
+  "Chicago": [
+    { team: "Chicago Cubs", sport: "Baseball", league: "MLB", venue: "Wrigley Field", site: "https://www.mlb.com/cubs/tickets" },
+    { team: "Chicago White Sox", sport: "Baseball", league: "MLB", venue: "Rate Field", site: "https://www.mlb.com/whitesox/tickets" },
+    { team: "Chicago Bulls", sport: "Basketball", league: "NBA", venue: "United Center", site: "https://www.nba.com/bulls/tickets" },
+    { team: "Chicago Blackhawks", sport: "Hockey", league: "NHL", venue: "United Center", site: "https://www.nhl.com/blackhawks/tickets" },
+    { team: "Chicago Bears", sport: "Football", league: "NFL", venue: "Soldier Field", site: "https://www.chicagobears.com/tickets" },
+  ],
+  "Boston": [
+    { team: "Boston Red Sox", sport: "Baseball", league: "MLB", venue: "Fenway Park", site: "https://www.mlb.com/redsox/tickets" },
+    { team: "Boston Celtics", sport: "Basketball", league: "NBA", venue: "TD Garden", site: "https://www.nba.com/celtics/tickets" },
+    { team: "Boston Bruins", sport: "Hockey", league: "NHL", venue: "TD Garden", site: "https://www.nhl.com/bruins/tickets" },
+    { team: "New England Patriots", sport: "Football", league: "NFL", venue: "Gillette Stadium, Foxborough", site: "https://www.patriots.com/tickets" },
+  ],
+  "Miami": [
+    { team: "Miami Dolphins", sport: "Football", league: "NFL", venue: "Hard Rock Stadium", site: "https://www.miamidolphins.com/tickets" },
+    { team: "Miami Heat", sport: "Basketball", league: "NBA", venue: "Kaseya Center", site: "https://www.nba.com/heat/tickets" },
+    { team: "Inter Miami CF", sport: "Soccer", league: "MLS", venue: "Chase Stadium, Fort Lauderdale", site: "https://www.intermiamicf.com/tickets" },
+    { team: "Florida Panthers", sport: "Hockey", league: "NHL", venue: "Amerant Bank Arena, Sunrise", site: "https://www.nhl.com/panthers/tickets" },
+    { team: "Miami Marlins", sport: "Baseball", league: "MLB", venue: "loanDepot park", site: "https://www.mlb.com/marlins/tickets" },
+  ],
+  "San Francisco": [
+    { team: "San Francisco Giants", sport: "Baseball", league: "MLB", venue: "Oracle Park", site: "https://www.mlb.com/giants/tickets" },
+    { team: "Golden State Warriors", sport: "Basketball", league: "NBA", venue: "Chase Center", site: "https://www.nba.com/warriors/tickets" },
+    { team: "San Francisco 49ers", sport: "Football", league: "NFL", venue: "Levi\u2019s Stadium, Santa Clara", site: "https://www.49ers.com/tickets" },
+  ],
+  "Dallas": [
+    { team: "Dallas Cowboys", sport: "Football", league: "NFL", venue: "AT&T Stadium, Arlington", site: "https://www.dallascowboys.com/tickets" },
+    { team: "Dallas Mavericks", sport: "Basketball", league: "NBA", venue: "American Airlines Center", site: "https://www.mavs.com/tickets" },
+    { team: "Dallas Stars", sport: "Hockey", league: "NHL", venue: "American Airlines Center", site: "https://www.nhl.com/stars/tickets" },
+    { team: "Texas Rangers", sport: "Baseball", league: "MLB", venue: "Globe Life Field, Arlington", site: "https://www.mlb.com/rangers/tickets" },
+  ],
+  "Houston": [
+    { team: "Houston Astros", sport: "Baseball", league: "MLB", venue: "Daikin Park", site: "https://www.mlb.com/astros/tickets" },
+    { team: "Houston Rockets", sport: "Basketball", league: "NBA", venue: "Toyota Center", site: "https://www.nba.com/rockets/tickets" },
+    { team: "Houston Texans", sport: "Football", league: "NFL", venue: "NRG Stadium", site: "https://www.houstontexans.com/tickets" },
+  ],
+  "Atlanta": [
+    { team: "Atlanta Braves", sport: "Baseball", league: "MLB", venue: "Truist Park", site: "https://www.mlb.com/braves/tickets" },
+    { team: "Atlanta Falcons", sport: "Football", league: "NFL", venue: "Mercedes-Benz Stadium", site: "https://www.atlantafalcons.com/tickets" },
+    { team: "Atlanta Hawks", sport: "Basketball", league: "NBA", venue: "State Farm Arena", site: "https://www.nba.com/hawks/tickets" },
+    { team: "Atlanta United", sport: "Soccer", league: "MLS", venue: "Mercedes-Benz Stadium", site: "https://www.atlutd.com/tickets" },
+  ],
+  "Philadelphia": [
+    { team: "Philadelphia Eagles", sport: "Football", league: "NFL", venue: "Lincoln Financial Field", site: "https://www.philadelphiaeagles.com/tickets" },
+    { team: "Philadelphia Phillies", sport: "Baseball", league: "MLB", venue: "Citizens Bank Park", site: "https://www.mlb.com/phillies/tickets" },
+    { team: "Philadelphia 76ers", sport: "Basketball", league: "NBA", venue: "Xfinity Mobile Arena", site: "https://www.nba.com/sixers/tickets" },
+    { team: "Philadelphia Flyers", sport: "Hockey", league: "NHL", venue: "Xfinity Mobile Arena", site: "https://www.nhl.com/flyers/tickets" },
+  ],
+  "Washington DC": [
+    { team: "Washington Commanders", sport: "Football", league: "NFL", venue: "Northwest Stadium, Landover", site: "https://www.commanders.com/tickets" },
+    { team: "Washington Nationals", sport: "Baseball", league: "MLB", venue: "Nationals Park", site: "https://www.mlb.com/nationals/tickets" },
+    { team: "Washington Capitals", sport: "Hockey", league: "NHL", venue: "Capital One Arena", site: "https://www.nhl.com/capitals/tickets" },
+    { team: "Washington Wizards", sport: "Basketball", league: "NBA", venue: "Capital One Arena", site: "https://www.nba.com/wizards/tickets" },
+  ],
+  "New Orleans": [
+    { team: "New Orleans Saints", sport: "Football", league: "NFL", venue: "Caesars Superdome", site: "https://www.neworleanssaints.com/tickets" },
+    { team: "New Orleans Pelicans", sport: "Basketball", league: "NBA", venue: "Smoothie King Center", site: "https://www.nba.com/pelicans/tickets" },
+  ],
+  "Las Vegas": [
+    { team: "Las Vegas Raiders", sport: "Football", league: "NFL", venue: "Allegiant Stadium", site: "https://www.raiders.com/tickets" },
+    { team: "Vegas Golden Knights", sport: "Hockey", league: "NHL", venue: "T-Mobile Arena", site: "https://www.nhl.com/goldenknights/tickets" },
+  ],
+  "Toronto": [
+    { team: "Toronto Maple Leafs", sport: "Hockey", league: "NHL", venue: "Scotiabank Arena", site: "https://www.nhl.com/mapleleafs/tickets" },
+    { team: "Toronto Blue Jays", sport: "Baseball", league: "MLB", venue: "Rogers Centre", site: "https://www.mlb.com/bluejays/tickets" },
+    { team: "Toronto Raptors", sport: "Basketball", league: "NBA", venue: "Scotiabank Arena", site: "https://www.nba.com/raptors/tickets" },
+  ],
+  "Madrid": [
+    { team: "Real Madrid", sport: "Football", league: "La Liga", venue: "Estadio Santiago Bernab\u00e9u", site: "https://www.realmadrid.com/en-US/tickets" },
+    { team: "Atl\u00e9tico Madrid", sport: "Football", league: "La Liga", venue: "Riyadh Air Metropolitano", site: "https://en.atleticodemadrid.com/tickets", tsdb: "Atletico Madrid" },
+  ],
+  "Barcelona": [
+    { team: "FC Barcelona", sport: "Football", league: "La Liga", venue: "Spotify Camp Nou", site: "https://www.fcbarcelona.com/en/tickets", tsdb: "Barcelona" },
+  ],
+  "London": [
+    { team: "Arsenal", sport: "Football", league: "Premier League", venue: "Emirates Stadium", site: "https://www.arsenal.com/tickets" },
+    { team: "Chelsea", sport: "Football", league: "Premier League", venue: "Stamford Bridge", site: "https://www.chelseafc.com/en/tickets" },
+    { team: "Tottenham Hotspur", sport: "Football", league: "Premier League", venue: "Tottenham Hotspur Stadium", site: "https://www.tottenhamhotspur.com/tickets/" },
+    { team: "West Ham United", sport: "Football", league: "Premier League", venue: "London Stadium", site: "https://www.whufc.com/tickets" },
+    { team: "England Rugby \u2014 internationals", sport: "Rugby", league: "Internationals", venue: "Twickenham", site: "https://www.englandrugby.com/tickets", tsdb: "England" },
+    { team: "England Cricket \u2014 Test matches", sport: "Cricket", league: "Internationals", venue: "Lord\u2019s and The Oval", site: "https://www.lords.org/tickets", tsdb: "England" },
+  ],
+  "Paris": [
+    { team: "Paris Saint-Germain", sport: "Football", league: "Ligue 1", venue: "Parc des Princes", site: "https://en.psg.fr/tickets" },
+    { team: "France Rugby", sport: "Rugby", league: "Internationals", venue: "Stade de France", site: "https://www.ffr.fr/billetterie", tsdb: "France" },
+  ],
+  "Milan": [
+    { team: "AC Milan", sport: "Football", league: "Serie A", venue: "San Siro", site: "https://www.acmilan.com/en/tickets" },
+    { team: "Inter Milan", sport: "Football", league: "Serie A", venue: "San Siro", site: "https://www.inter.it/en/tickets", tsdb: "Inter" },
+  ],
+  "Munich": [
+    { team: "Bayern Munich", sport: "Football", league: "Bundesliga", venue: "Allianz Arena", site: "https://fcbayern.com/en/tickets" },
+  ],
+  "Rome": [
+    { team: "AS Roma", sport: "Football", league: "Serie A", venue: "Stadio Olimpico", site: "https://www.asroma.com/en/tickets", tsdb: "Roma" },
+    { team: "Lazio", sport: "Football", league: "Serie A", venue: "Stadio Olimpico", site: "https://www.sslazio.it/en/tickets" },
+    { team: "Italy Rugby", sport: "Rugby", league: "Internationals", venue: "Stadio Olimpico", site: "https://www.federugby.it/", tsdb: "Italy" },
+  ],
+  "Naples": [
+    { team: "Napoli", sport: "Football", league: "Serie A", venue: "Stadio Diego Armando Maradona", site: "https://www.sscnapoli.it/en/tickets" },
+  ],
+  "Lisbon": [
+    { team: "Benfica", sport: "Football", league: "Primeira Liga", venue: "Est\u00e1dio da Luz", site: "https://www.slbenfica.pt/en-us/tickets" },
+    { team: "Sporting CP", sport: "Football", league: "Primeira Liga", venue: "Est\u00e1dio Jos\u00e9 Alvalade", site: "https://www.sporting.pt/en/tickets" },
+  ],
+  "Amsterdam": [
+    { team: "Ajax", sport: "Football", league: "Eredivisie", venue: "Johan Cruijff ArenA", site: "https://www.ajax.nl/en/tickets" },
+  ],
+  "Istanbul": [
+    { team: "Galatasaray", sport: "Football", league: "S\u00fcper Lig", venue: "RAMS Park", site: "https://www.galatasaray.org/en" },
+    { team: "Fenerbah\u00e7e", sport: "Football", league: "S\u00fcper Lig", venue: "\u015e\u00fckr\u00fc Saracoglu Stadium", site: "https://www.fenerbahce.org/en" },
+  ],
+  "Edinburgh": [
+    { team: "Scotland Rugby \u2014 internationals", sport: "Rugby", league: "Internationals", venue: "Murrayfield", site: "https://scottishrugby.org/tickets", tsdb: "Scotland" },
+  ],
+  "Dublin": [
+    { team: "Ireland Rugby \u2014 internationals", sport: "Rugby", league: "Internationals", venue: "Aviva Stadium", site: "https://www.irishrugby.ie/tickets", tsdb: "Ireland" },
+  ],
+  "Buenos Aires": [
+    { team: "Boca Juniors", sport: "Football", league: "Primera Divisi\u00f3n", venue: "La Bombonera", site: "https://www.bocajuniors.com.ar/" },
+    { team: "River Plate", sport: "Football", league: "Primera Divisi\u00f3n", venue: "Estadio M\u00e2s Monumental", site: "https://www.cariverplate.com.ar/" },
+  ],
+  "Rio de Janeiro": [
+    { team: "Flamengo", sport: "Football", league: "Brasileir\u00e3o", venue: "Maracan\u00e3", site: "https://www.flamengo.com.br/" },
+    { team: "Fluminense", sport: "Football", league: "Brasileir\u00e3o", venue: "Maracan\u00e3", site: "https://www.fluminense.com.br/" },
+  ],
+  "S\u00e3o Paulo": [
+    { team: "Corinthians", sport: "Football", league: "Brasileir\u00e3o", venue: "Neo Qu\u00edmica Arena", site: "https://www.corinthians.com.br/" },
+    { team: "Palmeiras", sport: "Football", league: "Brasileir\u00e3o", venue: "Allianz Parque", site: "https://www.palmeiras.com.br/" },
+    { team: "S\u00e3o Paulo FC", sport: "Football", league: "Brasileir\u00e3o", venue: "MorumBIS", site: "https://www.saopaulofc.net/", tsdb: "Sao Paulo" },
+  ],
+  "Cape Town": [
+    { team: "Springboks \u2014 South Africa Rugby", sport: "Rugby", league: "Internationals", venue: "DHL Stadium", site: "https://www.springboks.rugby/tickets", tsdb: "South Africa" },
+    { team: "South Africa Cricket \u2014 Test matches", sport: "Cricket", league: "Internationals", venue: "Newlands", site: "https://cricket.co.za/tickets", tsdb: "South Africa" },
+  ],
+  "Mexico City": [
+    { team: "Club Am\u00e9rica", sport: "Football", league: "Liga MX", venue: "Estadio Azteca", site: "https://www.clubamerica.com.mx/", tsdb: "Club America" },
+  ],
+  "Tokyo": [
+    { team: "Yomiuri Giants", sport: "Baseball", league: "NPB", venue: "Tokyo Dome", site: "https://www.giants.jp/en/" },
+  ],
+  "Sydney": [
+    { team: "Australia Cricket \u2014 Test matches", sport: "Cricket", league: "Internationals", venue: "Sydney Cricket Ground", site: "https://www.cricket.com.au/tickets", tsdb: "Australia" },
+    { team: "Wallabies \u2014 Australia Rugby", sport: "Rugby", league: "Internationals", venue: "Allianz Stadium / Accor Stadium", site: "https://wallabies.rugby/tickets", tsdb: "Australia" },
+  ],
+};
+function teamsFor(city) { const k = Object.keys(TEAMS).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? TEAMS[k] : []; }
+const SPORT_ORDER = ["Football", "Soccer", "Baseball", "Basketball", "Hockey", "Rugby", "Cricket"];
+// Live home games for a team within the trip's dates, from /api/sports (see api/sports.js).
+const SPORTS_CACHE = {};
+function useHomeGames(team, from, to, enabled) {
+  const key = `${team}|${from || ""}|${to || ""}`;
+  const [games, setGames] = useState(SPORTS_CACHE[key] || null);
+  useEffect(() => {
+    if (!enabled || !team || !from || !to) return;
+    if (SPORTS_CACHE[key]) { setGames(SPORTS_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/sports?team=${encodeURIComponent(team)}&from=${from}&to=${to}`).then((r) => r.json()).then((j) => { const g = (j && j.ok && j.games) ? j.games : []; SPORTS_CACHE[key] = g; if (!dead) setGames(g); }).catch(() => { if (!dead) setGames([]); });
+    return () => { dead = true; };
+  }, [key, enabled]);
+  return games;
+}
+function TeamRow({ t: tm, from, to }) {
+  const games = useHomeGames(tm.tsdb || tm.team, from, to, true);
+  return (<div style={{ padding: "10px 0", borderTop: `1px solid ${t.line}` }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+      <div><span style={{ fontFamily: font.display, fontSize: 18, color: t.ink }}>{tm.team}</span><span style={{ fontSize: 12, color: t.inkSoft, marginLeft: 10 }}>{tm.league}</span></div>
+      <a className="vo-noprint" href={brandedLink(tm.site, { kind: "sport", name: tm.team, city: "" })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none", whiteSpace: "nowrap" }}>Visit site →</a>
+    </div>
+    <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{tm.venue}</div>
+    {from && to ? (games == null ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 4 }}>Checking the schedule for your dates…</div>
+      : games.length ? games.slice(0, 4).map((g, k) => <div key={k} style={{ fontSize: 13, color: t.pine, fontWeight: 600, marginTop: 4 }}>Home game during your trip — {g.date}{g.opponent ? ` · v ${g.opponent}` : ""}{g.time ? ` · ${g.time}` : ""}</div>)
+      : <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 4 }}>No home game on your dates.</div>) : null}
+  </div>);
+}
+function SportsPanel({ city, from, to }) {
+  const teams = teamsFor(city); if (!teams.length) return null;
+  const groups = SPORT_ORDER.filter((sp) => teams.some((x) => x.sport === sp)).concat(teams.map((x) => x.sport).filter((sp, i, a) => !SPORT_ORDER.includes(sp) && a.indexOf(sp) === i));
+  return (<Panel icon={Trophy} title={`Sports in ${bareCity(city)}`} collapsed>
+    {groups.map((sp) => (<div key={sp} style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: t.brass, fontWeight: 700, marginBottom: 2 }}>{sp}</div>
+      {teams.filter((x) => x.sport === sp).map((tm) => <TeamRow key={tm.team} t={tm} from={from} to={to} />)}
+    </div>))}
+    <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5 }}>Official ticket sites only. Schedules are live and change; confirm on the team’s site before you plan a day around a game.</div>
+  </Panel>);
+}
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
   const live = useCityThings(city, "");
@@ -19517,6 +19760,7 @@ function CitySection({ d, i, p, from, legSched }) {
         : <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>}
       {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       <ThingsPanel city={d.city} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} />
+      {d.city ? <SportsPanel city={d.city} from={legSched && legSched.arrive ? isoOf(legSched.arrive) : null} to={legSched && legSched.depart ? isoOf(legSched.depart) : null} /> : null}
     </>}
     </div>
   </div>);
