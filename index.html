@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M753";
+const BUILD = "M755";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12195,7 +12195,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
         <Panel icon={BedDouble} title={`Where to stay in ${bareCity(chosen)}`}>
           <HotelPicker city={chosen} nights={2} pick={pick} upd={upd} fromExperience={false} />
         </Panel>
-        <DinePicker city={chosen} pick={pick} upd={upd} nights={[]} />
+        <Panel icon={Utensils} title={`Dining in ${bareCity(chosen)}`}><DinePicker city={chosen} pick={pick} upd={upd} nights={[]} /></Panel>
         <ThingsPanel city={chosen} chosen={pick.tours} onToggle={(name, price, sel) => upd({ tours: sel ? pick.tours.filter((x) => x.name !== name) : [...pick.tours, { name, price: null, date: "" }] })} nights={[]} onDate={noop} label="Which day?" />
       </div>
       <div style={{ marginTop: 26, textAlign: "center" }}>
@@ -18544,7 +18544,6 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
     Local: `No Local Favorite in ${bareCity(city)} yet — these are hand-picked.`,
   };
   return (<>
-    {level == null ? <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, lineHeight: 1.3, marginBottom: 10 }}>Choose how you want to eat.</div> : null}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {/* Local Favorite is hidden where there is nothing in it. Destination stays even when
           empty — that tier is the aspiration, and its absence in a city is information. Local
@@ -18554,7 +18553,19 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
         return (<button key={dl.key} onClick={() => setLevel(on ? null : dl.key)} style={{ ...chip(on), padding: level == null ? "12px 18px" : "9px 14px", fontSize: level == null ? 14.5 : 13 }}>{dl.label}{n ? <span style={{ marginLeft: 8, fontSize: 11.5, opacity: .8 }}>{n}</span> : null}</button>); })}
       <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span>
     </div>
-    {level == null ? null : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+    {level == null ? (() => {
+      const counts = { Destination: pool.filter((r) => michTier(r, dense) === "Destination").length, Recommended: pool.filter((r) => michTier(r, dense) === "Recommended").length, Local: localFavRows.length };
+      const total = counts.Destination + counts.Recommended + counts.Local;
+      const teaseLevel = counts.Destination ? "Destination" : counts.Recommended ? "Recommended" : counts.Local ? "Local" : null;
+      const tease = teaseLevel === "Local" ? localFavRows.slice(0, 2) : teaseLevel ? pool.filter((r) => michTier(r, dense) === teaseLevel).slice(0, 2) : [];
+      if (!tease.length) return <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty.Destination}</div>;
+      return (<div>
+        <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+          {tease.map((r, k) => <div key={k} onClick={() => setLevel(teaseLevel)} style={{ cursor: "pointer" }}><DineCard r={r} city={city} level={teaseLevel} found={null} onToggle={() => setLevel(teaseLevel)} onDate={() => {}} onSet={() => {}} nights={nights} /></div>)}
+        </div>
+        {total > tease.length ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}>{total - tease.length} more {total - tease.length === 1 ? "table" : "tables"} — tap a category above.</div> : null}
+      </div>);
+    })() : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
         <DineCard key={k} r={r} city={city} level={level} found={found}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)), { name: r.n, price: null, level, date: "", michelin: true }] })}
