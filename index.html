@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M776";
+const BUILD = "M782";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1071,7 +1071,7 @@ const ULTRA_LUX = [
   // Bel-Air and SingleThread — both withheld because the audit did not name them; see the note
   // in FAVORITES.
   "The Beverly Hills Hotel", "Rosewood Miramar Beach", "San Ysidro Ranch",
-  "Auberge du Soleil", "Meadowood Napa Valley", "Rancho Valencia Resort & Spa",
+  "Auberge du Soleil", "Rancho Valencia Resort & Spa",
   // United States — Florida
   // Florida re-audited 4 Sept 2026 on the strict standard: two Ultra Luxury, both in Miami. The
   // Setai, Four Seasons Palm Beach and Little Palm came down to Luxury; Faena is withheld.
@@ -7507,6 +7507,18 @@ const TOURS = {
               ["When", "Any time of year \u2014 Siena is a charming town to see without a race \u2014 and essential in Palio week, when the contrada dinners, the trials and the day itself need someone who knows which door to knock on."],
               ["Time needed", "A half day for the Campo, the Duomo and the Palazzo Pubblico; a full day to add a contrada museum and the hills."],
               ["How to book", "Call or email Sofia directly with your dates; she confirms availability and her fee. Weeks ahead in season, months ahead for the Palio."]] }]],
+  "Napa Valley": [
+    ["Opus One", null, "The Mondavi\u2013Rothschild estate in Oakville: one wine, one of the great American reds, tasted in the estate\u2019s own rooms. By appointment.", { inTown: true, find: "Opus One Winery", address: "7900 St Helena Hwy, Oakville", book: "https://www.opusonewinery.com/visit", bookLabel: "Request a visit \u2192" }],
+    ["Inglenook", null, "The 1879 Rutherford estate, restored by Francis Ford Coppola to its original name and its original ambition: the ch\u00e2teau, the caves, the Rubicon.", { inTown: true, find: "Inglenook Winery", address: "1991 St Helena Hwy, Rutherford", book: "https://www.inglenook.com/visit", bookLabel: "Reserve a tasting \u2192" }],
+    ["Stag\u2019s Leap Wine Cellars", null, "The Cabernet that beat Bordeaux at the 1976 Judgment of Paris, tasted where it is made, with the Fay and S.L.V. vineyards in view.", { inTown: true, find: "Stag's Leap Wine Cellars", address: "5766 Silverado Trail, Napa", book: "https://www.stagsleapwinecellars.com/visit", bookLabel: "Reserve a tasting \u2192" }],
+    ["Far Niente", null, "Oakville\u2019s 1885 stone winery, its gardens and caves, and a Cabernet and a Chardonnay of real seriousness. By appointment. A long, long-time Voyage One favorite.", { inTown: true, vo: 1, find: "Far Niente Winery", address: "1350 Acacia Dr, Oakville", book: "https://www.farniente.com/visit", bookLabel: "Request a visit \u2192" }],
+    ["Quintessa", null, "A single 280-acre Rutherford estate and a single wine; the tasting walks the land that makes it. By appointment.", { inTown: true, find: "Quintessa Winery", address: "1601 Silverado Trail S, St Helena", book: "https://www.quintessa.com/visit", bookLabel: "Request a visit \u2192" }],
+    ["Promontory", null, "The Harlan family\u2019s mountain estate above Oakville: the most private visit in the valley, by appointment and introduction.", { inTown: true, find: "Promontory Winery", address: "Oakville", book: "https://www.promontory.wine/", bookLabel: "Request a visit \u2192" }],
+    ["Schramsberg", null, "The 1862 sparkling-wine house on Diamond Mountain, with two miles of hand-dug caves lined with riddling racks \u2014 the most atmospheric tour in Napa.", { inTown: true, find: "Schramsberg Vineyards", address: "1400 Schramsberg Rd, Calistoga", book: "https://www.schramsberg.com/visit", bookLabel: "Reserve a tour \u2192" }],
+    ["Castello di Amorosa", null, "A thirteenth-century Tuscan castle built in Calistoga, stone by stone, with its own wines; theatrical, and worth it for the building alone.", { inTown: true, find: "Castello di Amorosa", address: "4045 St Helena Hwy, Calistoga", book: "https://www.castellodiamorosa.com/", bookLabel: "Reserve a visit \u2192" }],
+    ["Domaine Carneros", null, "Taittinger\u2019s ch\u00e2teau in Carneros: sparkling wine on the terrace with the vineyards below. The right first stop coming up from San Francisco.", { inTown: true, find: "Domaine Carneros", address: "1240 Duhig Rd, Napa", book: "https://www.domainecarneros.com/visit", bookLabel: "Reserve a table \u2192" }],
+    ["Oxbow Public Market", null, "Napa town\u2019s market hall: oysters, Hog Island, Model Bakery, the Fatted Calf \u2014 lunch between the vineyards.", { inTown: true, find: "Oxbow Public Market", address: "610 1st St, Napa", book: "https://oxbowpublicmarket.com/", bookLabel: "Visit the site \u2192" }],
+  ],
 };
 const IDEA_SETTING = ["Beach","Islands","Mountains & alpine","Big city","Countryside","Coastal & seaside","Desert","Wine country","Lakes","Safari & wild","Jungle & rainforest","Arctic & remote","Historic towns & villages","Ranch & wilderness","River & waterfront"];
 const IDEA_DOING = ["Food & wine","Art & history","Shopping","Skiing","Diving & water","Hiking & nature","Wellness & spa","Golf · play or watch","Wildlife","Tennis · play or watch","Sailing & yachting","Sports & sporting events","Culture & festivals","Beach & pool","Deep sea fishing","Fly fishing","Adventure","Architecture & design","Music & performing arts","Cars & motorsports","Equestrian & polo","Ranches & riding","Photography & scenery","Family"];
@@ -11421,13 +11433,13 @@ function FlightBookLinks({ flight, dateISO, returnISO, city }) {
     </div>
   </div>);
 }
-function OptionRow({ selected, onClick, title, desc, sub, price, link, linkLabel }) {
+function OptionRow({ selected, onClick, title, desc, sub, price, link, linkLabel, vo }) {
   return (<div>
   <button onClick={onClick} style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, width: "100%", textAlign: "left", padding: "13px 15px", borderRadius: 12, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.mist : t.white, marginBottom: 8 }}>
     <span style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
       <span style={{ width: 18, height: 18, marginTop: 2, borderRadius: 999, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.pine : t.white, display: "grid", placeItems: "center", flexShrink: 0 }}>{selected && <Check size={12} color={t.paper} />}</span>
       <span>
-        <span style={{ fontSize: 15, color: t.ink, fontWeight: 500 }}>{title}</span>
+        <span style={{ fontSize: 15, color: t.ink, fontWeight: 500 }}>{title}{vo ? <span title="Voyage One favorite" style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".08em", color: t.brass, marginLeft: 9, whiteSpace: "nowrap" }}>VO ♥</span> : null}</span>
         {desc && <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 3, lineHeight: 1.45 }}>{desc}</span>}
         {sub && <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 3 }}>{sub}</span>}
       </span>
@@ -18676,7 +18688,7 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
     {/* THINGS TO DO CARRY NO PRICE. The figures in the data were estimates — a free piazza was
         showing over a hundred dollars — and a guess dressed as a price is worse than none. Where a
         site exists the client sees the real price there; the trip estimate never counts these. */}
-    <OptionRow selected={!!found} onClick={() => onToggle(name, null, !!found)} title={name} desc={desc} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price="" />
+    <OptionRow selected={!!found} onClick={() => onToggle(name, null, !!found)} title={name} desc={desc} vo={!!(opts && opts.vo)} sub={found && found.date ? `Planned for ${fmtDay(new Date(found.date + "T00:00:00"))}` : undefined} price="" />
     {found && opts && opts.guide ? (<div style={{ margin: "2px 0 8px 28px", fontSize: 13, color: t.ink, lineHeight: 1.6, background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "10px 12px" }}>
       {opts.guide.map((g, k) => <div key={k} style={{ marginTop: k ? 6 : 0 }}><strong style={{ fontSize: 11, letterSpacing: ".1em", textTransform: "uppercase", color: t.brass }}>{g[0]}</strong> {g[1]}</div>)}
     </div>) : null}
@@ -18758,28 +18770,22 @@ function useCityThings(city, topic) {
         // place; the beach, the harbour or the fort it drives to is. Drop anything whose name
         // says it is selling excursions, worldwide, and keep what a client can actually go to.
         const OPERATOR = /\b(tours?|touring|excursions?|rentals?|rent-a|hire|charters?|adventures?|safaris?|jeeps?|atv|buggy|buggies|4x4|segway|zipline|zip line|shuttle|taxi|transfers?|day trips?|sightseeing|experiences? (co|ltd|inc))\b/i;
-// WHAT COUNTS AS A THING TO DO. Google answers "things to do" with anything that sells tickets, and
-// an escape room with four thousand five-star reviews outranks the Capitol on popularity. So a
-// live result is kept only if Google's own type for it is a sight — a landmark, a museum, a park,
-// a theatre, a garden, a zoo — and dropped if it is an amusement: escape rooms, axe throwing,
-// go-karts, trampolines, mini golf, bowling, arcades, casinos, bars, gyms, cinemas. Nobody paid
-// to be first; they were simply well reviewed. (Tricia, 6 Oct 2026.)
-const SIGHT_TYPES = ["tourist_attraction", "museum", "art_gallery", "historical_landmark", "historical_place", "monument", "park", "national_park", "state_park", "garden", "botanical_garden", "zoo", "aquarium", "wildlife_park", "performing_arts_theater", "opera_house", "concert_hall", "cultural_center", "cultural_landmark", "church", "hindu_temple", "mosque", "synagogue", "place_of_worship", "castle", "palace", "plaza", "town_square", "beach", "hiking_area", "scenic_spot", "observation_deck", "planetarium", "library", "university", "stadium", "amphitheatre", "amphitheater", "market", "visitor_center", "natural_feature", "lighthouse", "fort", "ruins", "archaeological_site", "cemetery", "memorial", "sculpture", "public_art", "wine_bar", "winery", "vineyard", "brewery"];
-const AMUSEMENT_TYPES = ["escape_room", "amusement_center", "amusement_park", "bowling_alley", "casino", "movie_theater", "night_club", "bar", "gym", "fitness_center", "spa", "karaoke", "video_arcade", "arcade", "trampoline_park", "go_kart", "laser_tag", "paintball", "axe_throwing", "miniature_golf", "golf_course", "water_park", "cycling_park", "skateboard_park", "shopping_mall", "store", "restaurant", "cafe", "lodging", "hotel", "travel_agency", "tour_agency", "car_rental", "event_venue", "banquet_hall", "dance_hall", "comedy_club"];
-const AMUSEMENT_NAME = /\b(escape (game|room)|axe|go[- ]?kart|trampoline|mini[- ]?golf|putt|paintball|laser tag|arcade|bowling|karaoke|pub crawl|bar crawl|party bike|pedal (pub|bar|tavern)|duck boat|ghost tour|haunted|wax museum|selfie|rage room|topgolf|dave & buster|jump|skyzone|urban air|ninja|virtual reality|vr )\b/i;
-// Google labels a winery "winery, bar, store, food". A sight that is also a bar is still a sight:
-// only the HARD amusements — escape rooms, bowling, casinos, cinemas, gyms, go-karts — disqualify
-// outright. Soft commercial labels (bar, store, restaurant, cafe) disqualify only when nothing
-// sight-like is present. (Fixed 6 Oct 2026 after every Napa winery was thrown out.)
-const HARD_AMUSEMENT = ["escape_room", "amusement_center", "amusement_park", "bowling_alley", "casino", "movie_theater", "night_club", "gym", "fitness_center", "karaoke", "video_arcade", "arcade", "trampoline_park", "go_kart", "laser_tag", "paintball", "axe_throwing", "miniature_golf", "water_park", "skateboard_park", "car_rental", "lodging", "hotel", "shopping_mall", "dance_hall", "comedy_club"];   // tour companies are caught by name (OPERATOR), not by label — the Wine Train is a tourist_attraction that Google also calls a travel agency
+// WHAT COUNTS AS A THING TO DO (settled 6 Oct 2026): everything Google returns, minus a short list
+// of the plainly silly — escape rooms, axe throwing, go-karts, trampolines, mini golf, Topgolf — and
+// anything Tricia names in BLOCKED_THINGS as she finds it. We tried judging by Google's labels and
+// it threw out every winery in Napa; better to miss nothing and delete the dumb things by hand.
+const AMUSEMENT_NAME = /\b(escape (game|room)|axe throw\w*|go[- ]?kart\w*|trampoline|mini[- ]?golf|putt[- ]?putt|paintball|laser tag|rage room|topgolf|dave & buster\w*|sky ?zone|urban air|selfie museum)\b/i;
+const BLOCKED_THINGS = [
+  // exact names Tricia has asked to remove, one per line
+  "The Escape Game Austin",
+  "Clos Pegase Winery",
+  "Clos Pegase",
+];
 function isSight(m) {
   const n = (m && m.name) || "";
   if (AMUSEMENT_NAME.test(n)) return false;
-  const types = (m && m.types) || [];
-  if (types.some((t) => HARD_AMUSEMENT.includes(t))) return false;
-  if (!types.length) return true;                          // no type known: let the name rule decide
-  if (types.some((t) => SIGHT_TYPES.includes(t))) return true;
-  return !types.some((t) => AMUSEMENT_TYPES.includes(t));   // only soft commercial labels: not a sight
+  if (BLOCKED_THINGS.some((b) => dnrm(b) === dnrm(n))) return false;
+  return true;
 }
         // …AND NEAR THE DESTINATION. Google matches on the word, not the place: "things to do in
         // Nevis" returned Ben Nevis, 6,800 km away in Scotland, and the app offered a client a
@@ -18796,7 +18802,7 @@ function isSight(m) {
         // "IN TOWN" IS SIX MILES for Siena or Porto and nowhere near enough for Los Angeles, where the
         // Getty is nine miles from Beverly Hills and still the city. Sprawling cities get a wider
         // in-town radius; nearby is thirty miles everywhere.
-        const NEARBY_MI = 30, IN_TOWN_MI = inTownRadiusMi(city);
+        const IN_TOWN_MI = inTownRadiusMi(city), NEARBY_MI = Math.max(30, IN_TOWN_MI + 20);
         const miles = (m) => (!here || m.lat == null || m.lng == null) ? null : kmBetween(here, [m.lat, m.lng]) / 1.609;
         const seen = new Set(); const out = [];
         flat.forEach((m) => { const n = m && m.name; if (!n || seen.has(n.toLowerCase())) return; if (OPERATOR.test(n)) return; if (!isSight(m)) return; if (isDestinationItself(n, city)) return; if (!m.desc) return;
@@ -18813,7 +18819,12 @@ function isSight(m) {
 // THE IN-TOWN RADIUS. Six miles by default; wider for the cities that sprawl. A rule with a short
 // table of exceptions, not a list of places — add a city here the day its "in town" is bigger.
 const SPRAWL_MI = { "Los Angeles": 15, "Beverly Hills": 15, "Houston": 15, "Dallas": 12, "Atlanta": 12, "Miami": 12, "Phoenix": 15, "Scottsdale": 12, "Tokyo": 12, "Sydney": 12, "Mexico City": 12, "S\u00e3o Paulo": 12, "Rio de Janeiro": 10, "Buenos Aires": 10, "Johannesburg": 12, "Cape Town": 10, "Dubai": 12, "Riyadh": 12, "Shanghai": 12, "Beijing": 12, "Bangkok": 10, "Istanbul": 10, "Moscow": 10, "London": 8, "Paris": 8, "Berlin": 8, "Rome": 8, "Madrid": 8, "Chicago": 10, "New York City": 8, "Toronto": 10, "Montreal": 8, "Las Vegas": 10, "Orlando": 12 };
-function inTownRadiusMi(city) { const k = Object.keys(SPRAWL_MI).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? SPRAWL_MI[k] : 6; }
+const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
+function inTownRadiusMi(city) {
+  const b = dnrm(bareCity(city || ""));
+  const r = Object.keys(REGION_MI).find((c) => dnrm(c) === b || sameCity(c, city)); if (r) return REGION_MI[r];   // a region's in-town is the region
+  const k = Object.keys(SPRAWL_MI).find((c) => sameCity(c, city) || b === dnrm(c)); return k ? SPRAWL_MI[k] : 6;
+}
 // Days out / Things to do: curated list where we have one, otherwise the real live list.
 // TEN TOP THINGS, THE REST BEHIND A COUNT (Tricia, 6 Oct 2026). Our own entries come first —
 // they are curated — then the live ones by popularity: Google's rating weighted by how many
@@ -19045,9 +19056,11 @@ function SportsPanel({ city, from, to }) {
     <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5 }}>Official ticket sites only. Schedules are live and change; confirm on the team’s site before you plan a day around a game.</div>
   </Panel>);
 }
+const WINE_REGIONS = ["Napa Valley", "Sonoma", "Sonoma County", "Healdsburg", "Paso Robles", "Santa Barbara Wine Country", "Willamette Valley", "Walla Walla", "Finger Lakes", "Bordeaux", "Burgundy", "Beaune", "Champagne", "Reims", "Épernay", "Alsace", "Loire Valley", "Rhône Valley", "Tuscany", "Chianti", "Montalcino", "Montepulciano", "Piedmont", "Barolo", "Alba", "Langhe", "Douro Valley", "Alentejo", "Rioja", "Ribera del Duero", "Priorat", "Jerez", "Mendoza", "Valle de Uco", "Colchagua", "Casablanca Valley", "Stellenbosch", "Franschhoek", "Cape Winelands", "Barossa Valley", "Hunter Valley", "Margaret River", "Yarra Valley", "Marlborough", "Hawke’s Bay", "Central Otago", "Okanagan", "Mosel", "Rheingau", "Wachau", "Santorini", "Tokaj"];
+function isWineRegion(city) { const b = dnrm(bareCity(city || "")); return WINE_REGIONS.some((w) => dnrm(w) === b || b.includes(dnrm(w))); }
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
-  const live = useCityThings(city, "");
+  const live = useCityThings(city, isWineRegion(city) ? "wineries and vineyards to visit" : "");
   const fresh = live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0]))).slice().sort((a, b) => popularity(b) - popularity(a));
   const inTown = fresh.filter((r) => !(r[3] && r[3].nearby));
   const nearby = fresh.filter((r) => r[3] && r[3].nearby).map((r) => [r[0], r[1], `${r[3].mi} mi away \u00b7 ${r[2]}`, r[3]]);
