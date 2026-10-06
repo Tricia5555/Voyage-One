@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M766";
+const BUILD = "M767";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12234,12 +12234,14 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
       {seasonTxt ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>When to go.</strong> {typeof seasonTxt === "string" ? seasonTxt : (seasonTxt.window ? `${seasonTxt.window}. ` : "") + (seasonTxt.note || "")}</div> : null}
       {gw && gw.note ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>Getting there.</strong> {gw.note}</div> : null}
       {code ? <div style={{ marginTop: 10 }}><AssistCard code={code} when="on arrival" /></div> : null}
+      {/* EXPLORE READS THE OTHER WAY ROUND (Tricia, 6 Oct 2026): what there is to do first, then where
+          to stay, then where to eat — the order a person browses in. The builder keeps its own order. */}
       <div style={{ marginTop: 22 }}>
+        <ThingsPanel city={chosen} chosen={pick.tours} onToggle={(name, price, sel) => upd({ tours: sel ? pick.tours.filter((x) => x.name !== name) : [...pick.tours, { name, price: null, date: "" }] })} nights={[]} onDate={noop} label="Which day?" />
         <Panel icon={BedDouble} title={`Where to stay in ${bareCity(chosen)}`}>
           <HotelPicker city={chosen} nights={2} pick={pick} upd={upd} fromExperience={false} />
         </Panel>
         <Panel icon={Utensils} title={`Dining in ${bareCity(chosen)}`}><DinePicker city={chosen} pick={pick} upd={upd} nights={[]} /></Panel>
-        <ThingsPanel city={chosen} chosen={pick.tours} onToggle={(name, price, sel) => upd({ tours: sel ? pick.tours.filter((x) => x.name !== name) : [...pick.tours, { name, price: null, date: "" }] })} nights={[]} onDate={noop} label="Which day?" />
       </div>
       <div style={{ marginTop: 26, textAlign: "center" }}>
         <button onClick={() => onPlan(chosen, pick)} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "14px 28px", fontSize: 15, fontWeight: 700, letterSpacing: ".04em", cursor: "pointer" }}>Plan a trip here →</button>
