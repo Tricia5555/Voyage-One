@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M775";
+const BUILD = "M776";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -18767,13 +18767,19 @@ function useCityThings(city, topic) {
 const SIGHT_TYPES = ["tourist_attraction", "museum", "art_gallery", "historical_landmark", "historical_place", "monument", "park", "national_park", "state_park", "garden", "botanical_garden", "zoo", "aquarium", "wildlife_park", "performing_arts_theater", "opera_house", "concert_hall", "cultural_center", "cultural_landmark", "church", "hindu_temple", "mosque", "synagogue", "place_of_worship", "castle", "palace", "plaza", "town_square", "beach", "hiking_area", "scenic_spot", "observation_deck", "planetarium", "library", "university", "stadium", "amphitheatre", "amphitheater", "market", "visitor_center", "natural_feature", "lighthouse", "fort", "ruins", "archaeological_site", "cemetery", "memorial", "sculpture", "public_art", "wine_bar", "winery", "vineyard", "brewery"];
 const AMUSEMENT_TYPES = ["escape_room", "amusement_center", "amusement_park", "bowling_alley", "casino", "movie_theater", "night_club", "bar", "gym", "fitness_center", "spa", "karaoke", "video_arcade", "arcade", "trampoline_park", "go_kart", "laser_tag", "paintball", "axe_throwing", "miniature_golf", "golf_course", "water_park", "cycling_park", "skateboard_park", "shopping_mall", "store", "restaurant", "cafe", "lodging", "hotel", "travel_agency", "tour_agency", "car_rental", "event_venue", "banquet_hall", "dance_hall", "comedy_club"];
 const AMUSEMENT_NAME = /\b(escape (game|room)|axe|go[- ]?kart|trampoline|mini[- ]?golf|putt|paintball|laser tag|arcade|bowling|karaoke|pub crawl|bar crawl|party bike|pedal (pub|bar|tavern)|duck boat|ghost tour|haunted|wax museum|selfie|rage room|topgolf|dave & buster|jump|skyzone|urban air|ninja|virtual reality|vr )\b/i;
+// Google labels a winery "winery, bar, store, food". A sight that is also a bar is still a sight:
+// only the HARD amusements — escape rooms, bowling, casinos, cinemas, gyms, go-karts — disqualify
+// outright. Soft commercial labels (bar, store, restaurant, cafe) disqualify only when nothing
+// sight-like is present. (Fixed 6 Oct 2026 after every Napa winery was thrown out.)
+const HARD_AMUSEMENT = ["escape_room", "amusement_center", "amusement_park", "bowling_alley", "casino", "movie_theater", "night_club", "gym", "fitness_center", "karaoke", "video_arcade", "arcade", "trampoline_park", "go_kart", "laser_tag", "paintball", "axe_throwing", "miniature_golf", "water_park", "skateboard_park", "car_rental", "lodging", "hotel", "shopping_mall", "dance_hall", "comedy_club"];   // tour companies are caught by name (OPERATOR), not by label — the Wine Train is a tourist_attraction that Google also calls a travel agency
 function isSight(m) {
   const n = (m && m.name) || "";
   if (AMUSEMENT_NAME.test(n)) return false;
   const types = (m && m.types) || [];
-  if (types.some((t) => AMUSEMENT_TYPES.includes(t))) return false;
+  if (types.some((t) => HARD_AMUSEMENT.includes(t))) return false;
   if (!types.length) return true;                          // no type known: let the name rule decide
-  return types.some((t) => SIGHT_TYPES.includes(t));
+  if (types.some((t) => SIGHT_TYPES.includes(t))) return true;
+  return !types.some((t) => AMUSEMENT_TYPES.includes(t));   // only soft commercial labels: not a sight
 }
         // …AND NEAR THE DESTINATION. Google matches on the word, not the place: "things to do in
         // Nevis" returned Ben Nevis, 6,800 km away in Scotland, and the app offered a client a
