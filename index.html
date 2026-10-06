@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M752";
+const BUILD = "M753";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11366,7 +11366,7 @@ function Panel({ icon: Icon, title, right, children, collapsed }) {
   const [shut, setShut] = useState(!!collapsed);
   return (<div style={{ borderTop: `1px solid ${t.line}`, paddingTop: 16, marginTop: 16 }}>
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: shut ? 0 : 12 }}>
-      <span onClick={collapsed ? () => setShut((v) => !v) : undefined} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, cursor: collapsed ? "pointer" : "default" }}>{Icon && <Icon size={14} />}{title}{collapsed ? <span style={{ fontSize: 11, color: t.brass, marginLeft: 4 }}>{shut ? "▸" : "▾"}</span> : null}</span>
+      <span onClick={collapsed ? () => setShut((v) => !v) : undefined} style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 15, letterSpacing: "0.14em", textTransform: "uppercase", color: t.ink, fontWeight: 700, cursor: collapsed ? "pointer" : "default" }}>{Icon && <Icon size={17} />}{title}{collapsed ? <span style={{ fontSize: 11, color: t.brass, marginLeft: 4 }}>{shut ? "▸" : "▾"}</span> : null}</span>
       {right}
     </div>{shut ? null : children}
   </div>);
@@ -18291,6 +18291,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
       selectedName={pick.stay ? pick.stay.name : null}
       onPick={(r, sel) => upd({ stay: sel ? null : { level: tierOf(r.name), name: r.name, nightly: r.estRate || null, band: r.band || null, estimated: true, id: r.id || null, site: r.site || null } })} />}
+    <div style={{ height: 22 }} />
   </>);
 }
 // A restaurant's photo, blurb and site come live from the app's places source, by name — same as
@@ -18543,7 +18544,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
     Local: `No Local Favorite in ${bareCity(city)} yet — these are hand-picked.`,
   };
   return (<>
-    {level == null ? <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, lineHeight: 1.3, marginBottom: 10 }}>Our tables in {bareCity(city)} — choose how you want to eat.</div> : null}
+    {level == null ? <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, lineHeight: 1.3, marginBottom: 10 }}>Choose how you want to eat.</div> : null}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {/* Local Favorite is hidden where there is nothing in it. Destination stays even when
           empty — that tier is the aspiration, and its absence in a city is information. Local
@@ -18553,7 +18554,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
         return (<button key={dl.key} onClick={() => setLevel(on ? null : dl.key)} style={{ ...chip(on), padding: level == null ? "12px 18px" : "9px 14px", fontSize: level == null ? 14.5 : 13 }}>{dl.label}{n ? <span style={{ marginLeft: 8, fontSize: 11.5, opacity: .8 }}>{n}</span> : null}</button>); })}
       <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span>
     </div>
-    {level == null ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6 }}><strong style={{ color: t.ink }}>Destination</strong> — the tables worth travelling for: Michelin stars, James Beard, the World’s 50 Best. <strong style={{ color: t.ink }}>Recommended</strong> — the Michelin Guide, Bib Gourmand, Gault&Millau. <strong style={{ color: t.ink }}>Local Favorite</strong> — our own picks, the ones we have eaten at and loved.</div> : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+    {level == null ? null : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
         <DineCard key={k} r={r} city={city} level={level} found={found}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)), { name: r.n, price: null, level, date: "", michelin: true }] })}
