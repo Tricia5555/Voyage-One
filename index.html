@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M759";
+const BUILD = "M760";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11670,10 +11670,14 @@ function VoyageOne() {
     let alive = true;
     (async () => {
       if (user) {
-        const list = await cloudList();
+        // A NEW ACCOUNT HAS NOTHING TO LOAD, AND A FIRST SIGN-IN CAN STUMBLE. The session is still
+        // settling in the first second after sign-up, so the first read sometimes fails; retry
+        // quietly before saying a word. And an empty shelf is not an error: a person who has never
+        // saved a journey, or deleted them all, sees nothing — there is no "later" to try.
+        let list = await cloudList();
+        for (let tries = 0; !list && alive && tries < 3; tries++) { await new Promise((r) => setTimeout(r, 1500)); list = await cloudList(); }
         if (!alive) return;
-        if (list) { setTrips(list); setCloudErr(""); }
-        else { setTrips([]); setCloudErr("Your journeys could not be loaded just now. Nothing has been lost — try again in a moment."); }
+        setTrips(list || []); setCloudErr("");
       } else {
         setTrips(canSave ? readIndex() : []);
         setCloudErr("");
