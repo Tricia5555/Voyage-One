@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M771";
+const BUILD = "M772";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -18986,6 +18986,7 @@ const TEAMS = {
     { team: "Wallabies \u2014 Australia Rugby", sport: "Rugby", league: "Internationals", venue: "Allianz Stadium / Accor Stadium", site: "https://wallabies.rugby/tickets", tsdb: "Australia" },
   ],
 };
+function ymd(d) { if (!d) return null; if (typeof d === "string") return d.slice(0, 10); try { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; } catch (e) { return null; } }
 function teamsFor(city) { const k = Object.keys(TEAMS).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? TEAMS[k] : []; }
 const SPORT_ORDER = ["Football", "Soccer", "Baseball", "Basketball", "Hockey", "Rugby", "Cricket"];
 // Live home games for a team within the trip's dates, from /api/sports (see api/sports.js).
@@ -19762,7 +19763,7 @@ function CitySection({ d, i, p, from, legSched }) {
         : <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>}
       {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       <ThingsPanel city={d.city} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} />
-      {d.city ? <SportsPanel city={d.city} from={legSched && legSched.arrive ? isoOf(legSched.arrive) : null} to={legSched && legSched.depart ? isoOf(legSched.depart) : null} /> : null}
+      {d.city ? <SportsPanel city={d.city} from={legSched && legSched.arrive ? ymd(legSched.arrive) : null} to={legSched && legSched.depart ? ymd(legSched.depart) : null} /> : null}
     </>}
     </div>
   </div>);
