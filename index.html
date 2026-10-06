@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M751";
+const BUILD = "M752";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -18447,7 +18447,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
     </div>
   </div>);
 }
-const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recommended", label: "Recommended" }, { key: "Local", label: "Local Favorites" }];
+const DINE_TABS = [{ key: "Destination", label: "Destination" }, { key: "Recommended", label: "Recommended" }, { key: "Local", label: "Local Favorite" }];
 // The accolade badge for a card — Michelin stars if starred, else the top non-Michelin credential.
 function accoladeBadge(r) {
   // BEST OF THE BEST is permanent and outranks everything else on the card. A former World
@@ -18495,7 +18495,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // to a client at Awasi or EOLO invites them to drive an hour each way for something worse than
   // what is already included. Say so once, plainly, and give the screen back.
   const lodgeNote = lodgeDining(city);
-  if (lodgeNote) return (<Panel icon={Utensils} title={`Restaurants in ${bareCity(city)}`} collapsed>
+  if (lodgeNote) return (<Panel icon={Utensils} title={`Dining in ${bareCity(city)}`}>
     <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6 }}>{lodgeNote}</div>
   </Panel>);
   // Three categories, everywhere. DESTINATION = Michelin star (1–3) + James Beard + World's 50 Best
@@ -18543,15 +18543,17 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
     Local: `No Local Favorite in ${bareCity(city)} yet — these are hand-picked.`,
   };
   return (<>
+    {level == null ? <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, lineHeight: 1.3, marginBottom: 10 }}>Our tables in {bareCity(city)} — choose how you want to eat.</div> : null}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {/* Local Favorite is hidden where there is nothing in it. Destination stays even when
           empty — that tier is the aspiration, and its absence in a city is information. Local
           Favorite is different: it is a hand-picked list, so an empty tab says only that nobody
           has got to this city yet, which is about us rather than about the place. */}
-      {DINE_TABS.map((dl) => <button key={dl.key} onClick={() => setLevel(level === dl.key ? null : dl.key)} style={chip(level === dl.key)}>{dl.label}</button>)}
+      {DINE_TABS.map((dl) => { const n = dl.key === "Local" ? localFavRows.length : pool.filter((r) => michTier(r, dense) === dl.key).length; const on = level === dl.key;
+        return (<button key={dl.key} onClick={() => setLevel(on ? null : dl.key)} style={{ ...chip(on), padding: level == null ? "12px 18px" : "9px 14px", fontSize: level == null ? 14.5 : 13 }}>{dl.label}{n ? <span style={{ marginLeft: 8, fontSize: 11.5, opacity: .8 }}>{n}</span> : null}</button>); })}
       <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span>
     </div>
-    {level == null ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose a category to see the tables.</div> : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+    {level == null ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6 }}><strong style={{ color: t.ink }}>Destination</strong> — the tables worth travelling for: Michelin stars, James Beard, the World’s 50 Best. <strong style={{ color: t.ink }}>Recommended</strong> — the Michelin Guide, Bib Gourmand, Gault&Millau. <strong style={{ color: t.ink }}>Local Favorite</strong> — our own picks, the ones we have eaten at and loved.</div> : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
         <DineCard key={k} r={r} city={city} level={level} found={found}
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)), { name: r.n, price: null, level, date: "", michelin: true }] })}
@@ -18769,7 +18771,7 @@ function StopCard({ stop, idx, stops, setStops, prevPlace, sched, setUndo }) {
     {stop.why && <div style={{ fontSize: 12.5, color: t.inkSoft, margin: "6px 6px 0", lineHeight: 1.45 }}>{stop.why}</div>}
     <div style={{ marginTop: 14, padding: "0 6px" }}><Stepper value={s.nights || 1} onChange={(v) => set({ nights: v })} unit="night" max={10} onRemove={remove} removeLabel={`one more minus drops ${stop.name}`} /></div>
     <Panel icon={BedDouble} title={`Where to stay in ${stop.name}`}><HotelPicker city={stop.name} nights={s.nights || 1} pick={{ stay: s.stay }} upd={(patch) => set(patch)} /></Panel>
-    <Panel icon={Utensils} title={`Restaurants in ${stop.name}`} collapsed><DinePicker city={stop.name} pick={{ dines: s.dines || [] }} upd={(patch) => set(patch)} nights={sched ? nightsIn(sched) : []} /></Panel>
+    <Panel icon={Utensils} title={`Dining in ${stop.name}`}><DinePicker city={stop.name} pick={{ dines: s.dines || [] }} upd={(patch) => set(patch)} nights={sched ? nightsIn(sched) : []} /></Panel>
   </div>);
 }
 function ExploreSection({ d, i, p, from, legSched }) {
@@ -19441,7 +19443,7 @@ function CitySection({ d, i, p, from, legSched }) {
               <strong>{(pick.stay && pick.stay.name) || "Your camp"}</strong> looks after all of it — meals, drinks, guides and the activities that are the reason you are going. There is nothing to book nearby because there is no nearby, and we will confirm exactly what the rate covers before anything is held.
             </div>
           </Panel>
-        : <Panel icon={Utensils} title={`Restaurants in ${d.city || "this city"}`} collapsed><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>}
+        : <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>}
       {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       <ThingsPanel city={d.city} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} />
     </>}
