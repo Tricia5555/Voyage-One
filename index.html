@@ -43,7 +43,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M756";
+const BUILD = "M758";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7456,7 +7456,18 @@ const TOURS = {
   "Palermo": [["Ballarò & Vucciria street food", 95, "Graze Palermo's raucous markets with a local guide.", { inTown: true }], ["Monreale golden mosaics", 150, "Private visit to the dazzling Norman cathedral above the city."], ["Baroque Palermo & Cappella Palatina", 140, "Palaces, oratories and the glittering royal chapel.", { inTown: true }], ["Cefalù seaside day trip", 260, "Medieval lanes and a golden beach an hour east."]],
   "Lisbon": [["Sintra palaces, private driver", 300, "Pena Palace and Quinta da Regaleira, door to door."], ["Alfama fado & tram evening", 150, "Old-quarter wandering ending with live fado and dinner.", { inTown: true }], ["Belém: pastéis & Jerónimos", 120, "Manueline monastery, monument and the original custard tarts.", { inTown: true }], ["Óbidos & wine country day", 280, "A walled medieval town and cellar tastings north of the city."]],
   "Porto": [["Douro Valley vineyards & cruise", 340, "Terraced vineyards, quinta tastings and a scenic boat leg."], ["Port cellars of Gaia", 130, "Tour and tasting flights across historic port lodges.", { inTown: true }], ["Ribeira & Livraria Lello walk", 110, "Riverfront lanes, azulejos and the storied bookshop.", { inTown: true }], ["Francesinha food crawl", 150, "Master Porto's legendary sandwich and taste around town.", { inTown: true }]],
-  "Madrid": [["Prado & Reina Sofía art walk", 220, "Velázquez, Goya and Picasso's Guernica with an expert.", { inTown: true }], ["La Latina tapas crawl", 120, "Hop the classic taverns with wine and jamón.", { inTown: true }], ["Toledo day trip", 280, "Imperial city of three cultures, an hour south."], ["Flamenco in an intimate tablao", 110, "Front-row passion at a storied Madrid stage.", { inTown: true }]],
+  "Madrid": [["Las Ventas \u2014 a bullfight", null, "Madrid\u2019s historic bullring and one of the most important in Spain. A traveller interested in traditional Spanish culture can attend a scheduled bullfight in season. Bullfighting involves the killing of the bull and will not appeal to everyone; it is presented here plainly, for you to decide.",
+    { inTown: true, find: "Plaza de Toros de Las Ventas", address: "Calle de Alcal\u00e1 237, Madrid", book: "https://www.las-ventas.com/", bookLabel: "Official schedule and tickets \u2192",
+      guide: [["What it is", "The Plaza de Toros de Las Ventas, 1931, Madrid\u2019s bullring and the most important stage in the sport."],
+              ["Season", "The SAN ISIDRO festival, generally May into early June, is the great run of corridas; the FERIA DE OTO\u00d1O in October is the other. Scattered dates in between."],
+              ["How to get tickets", "From the official Las Ventas site, which carries the current schedule and availability. Sol (sun) seats are cheaper and hotter; sombra (shade) is where to sit."],
+              ["A note", "Bullfighting involves the killing of the bull. It may not appeal to all travellers; the choice is yours."]] }],
+   ["Las Ventas \u2014 the guided tour", null, "The bullring without a bullfight: the grandstands, the bull pens, the toreros\u2019 entrance, the chapel, the arena, and the history and architecture of the building.",
+    { inTown: true, find: "Plaza de Toros de Las Ventas", address: "Calle de Alcal\u00e1 237, Madrid", book: "https://www.las-ventas.com/", bookLabel: "Tour information \u2192",
+      guide: [["What it is", "A guided visit of the ring itself \u2014 the stands, the pens where the bulls wait, the toreros\u2019 entrance, the chapel where they pray, the sand of the arena \u2014 and the story of the building."],
+              ["Time needed", "About an hour to ninety minutes."],
+              ["Good for", "Anyone curious about the place and its place in Spanish life who would rather not attend a corrida. Separate from the bullfight above."]] }],
+   ["Prado & Reina Sofía art walk", 220, "Velázquez, Goya and Picasso's Guernica with an expert.", { inTown: true }], ["La Latina tapas crawl", 120, "Hop the classic taverns with wine and jamón.", { inTown: true }], ["Toledo day trip", 280, "Imperial city of three cultures, an hour south."], ["Flamenco in an intimate tablao", 110, "Front-row passion at a storied Madrid stage.", { inTown: true }]],
   "Rome": [["The Colosseum \u00b7 Forum and Palatine", null, "The amphitheatre, the Forum and the Palatine on one timed ticket \u2014 the centre of the ancient city, and the one thing in Rome that needs planning.", { inTown: true, find: "Colosseum", address: "Piazza del Colosseo, Rome", book: "https://ticketing.colosseo.it/", bookLabel: "Reserve timed ticket \u2192", tel: "https://ticketing.colosseo.it/", telLabel: "None", guide: [["Why go", "The largest amphitheatre ever built, and the Forum and Palatine beside it on the same ticket \u2014 the ancient city in one morning."], ["Time needed", "Two to three hours for the Colosseum and the Forum; add an hour for the Palatine."], ["Best strategy", "TIMED ENTRY, ALWAYS. The official ticket office releases general-entrance tickets THIRTY DAYS AHEAD at 9 am Rome time, and the good slots go the same morning; the Arena floor and the Underground are separate tickets released a week ahead. Set a reminder for thirty days before your date and buy at nine."], ["Same-day option", "There is no walk-up sale at the Colosseum; if online is sold out, the official guided tours on the same site sometimes have places, and the Forum and Palatine can be entered on a Forum-only ticket."], ["Hours and rules", "Open daily except 1 January and 25 December; hours follow the season and are on the official site. Photo ID matches the name on the ticket. No large bags."], ["Sold out?", "Do not buy from a reseller: the official ticket is named and checked. Try another day or an early or late slot, or the official tour."]] }], ["The Sistine Chapel \u00b7 Vatican Museums", null, "Michelangelo\u2019s ceiling, at the end of the Vatican Museums \u2014 one timed ticket for both; the chapel cannot be entered on its own.", { inTown: true, find: "Vatican Museums", address: "Viale Vaticano, Vatican City", book: "https://tickets.museivaticani.va/", bookLabel: "Reserve timed ticket \u2192", guide: [["Why go", "The Sistine ceiling and the Last Judgment, and the Raphael Rooms on the way to them."], ["Time needed", "Three hours; the chapel is at the end of a long route. An early slot or the official after-hours opening makes it bearable."], ["Best strategy", "TIMED ENTRY from the Vatican\u2019s own ticket office, released about SIXTY DAYS AHEAD; the first slot of the morning, or the Friday-night openings in season, are the calm ones. Non-refundable."], ["Same-day option", "Walk-up tickets exist at the museum entrance and the line can be two hours in season; a same-day timed slot online is often gone by dawn."], ["Hours and rules", "Closed Sundays except the last Sunday of the month, when entry is free and the crowds are the worst of the year; closed on Vatican holidays. Shoulders and knees covered \u2014 the dress code is enforced at the chapel door. No photographs inside the chapel."], ["Sold out?", "The official guided visits on the same site, or a Friday evening. St Peter\u2019s Basilica needs no ticket."]] }]],
   "Paris": [["The Louvre", null, "The largest museum in the world; the Mona Lisa, the Venus de Milo, the Winged Victory \u2014 and a building that needs a plan.", { inTown: true, find: "Louvre Museum", address: "Rue de Rivoli, Paris", book: "https://www.ticketlouvre.fr/", bookLabel: "Reserve timed ticket \u2192", guide: [["Why go", "The Mona Lisa, the Venus de Milo, the Winged Victory, the Raft of the Medusa \u2014 and the palace itself."], ["Time needed", "Three hours for a focused visit. Choose one wing; nobody sees the Louvre in a day."], ["Best strategy", "TIMED ENTRY IS MANDATORY \u2014 the Louvre no longer admits without a reserved slot, even on free days. Book on the museum\u2019s own ticketing; the first slot at nine, or the Wednesday and Friday evenings until nine, are the quiet ones. Enter by the Carrousel or the Porte des Lions rather than the Pyramid."], ["Same-day option", "Same-day slots are sometimes released online in the morning; there is no reliable walk-up."], ["Hours and rules", "CLOSED TUESDAYS, 1 January, 1 May and 25 December. Free on the first Friday of the month after six, October to March, still with a reserved slot."], ["Sold out?", "A different day, an evening, or the Orsay across the river \u2014 which many prefer."]] }]],
   "Versailles": [["The Palace of Versailles", null, "Louis XIV\u2019s palace, the Hall of Mirrors and the gardens \u2014 the great day out from Paris, forty minutes by train.", { find: "Palace of Versailles", address: "Place d\u2019Armes, Versailles", book: "https://www.chateauversailles.fr/en/plan-your-visit/tickets", bookLabel: "Reserve timed ticket \u2192", guide: [["Why go", "The Hall of Mirrors, the King\u2019s apartments, the gardens and the Trianon \u2014 the model every other palace copied."], ["Time needed", "A full day for the palace, the gardens and the Trianon; a morning for the palace alone."], ["Best strategy", "TIMED ENTRY to the palace from the ch\u00e2teau\u2019s own site \u2014 the Passport ticket covers the estate; the first slot at nine avoids the coaches. Go on a Musical Fountains day, April to October, when the gardens are ticketed and the fountains play."], ["Same-day option", "Walk-up tickets exist and the line is long; the gardens are free on non-fountain days without a ticket."], ["Hours and rules", "CLOSED MONDAYS. Free entry on the first Sunday of the month from November to March \u2014 with the crowds that implies."], ["Sold out?", "The Trianon and the gardens do not sell out; see them first and the palace another day."]] }]],
@@ -9058,16 +9069,16 @@ const AIRPORT_ASSIST = {
   // commercial airports are listed. No prices shown.
   LIS: { verified: "independent", airport: "Lisbon Humberto Delgado", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
     headline: "Our choice in Portugal, used by Voyage One. Ask for meet-and-assist on your commercial flight.",
-    note: "Email or call the Lisbon office with your flight and they confirm what is available at the terminal. Book direct." },
+    note: "Email or call the Lisbon office with your flight and they confirm what is available at the terminal. Book directly." },
   OPO: { verified: "independent", airport: "Porto Francisco S\u00e1 Carneiro", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
     headline: "Our choice in Portugal; their own station at Porto. Ask for meet-and-assist.",
-    note: "Email or call with your flight; the Lisbon office coordinates Porto. Book direct." },
+    note: "Email or call with your flight; the Lisbon office coordinates Porto. Book directly." },
   FAO: { verified: "independent", airport: "Faro", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
     headline: "Our choice in Portugal; their own FBO at Faro. Ask for meet-and-assist.",
-    note: "Email or call with your flight. Book direct." },
+    note: "Email or call with your flight. Book directly." },
   FNC: { verified: "independent", airport: "Madeira (Funchal)", name: "Omni Handling", title: "Omni Handling \u00b7 VIP meet and assist", web: "https://www.omnihandling.com/", email: "lis@omnihandling.com", tel: "+351 91 853 00 33",
     headline: "Our choice in Portugal; their own station at Funchal. Ask for meet-and-assist.",
-    note: "Email or call with your flight. Book direct." },
+    note: "Email or call with your flight. Book directly." },
 
   LHR: { verified: "endorsed", airport: "London Heathrow", name: "VIP Assist", web: "https://www.vipassist.co.uk/book-now/book-now-london-heathrow", email: "meet@vipassist.co.uk", tel: "+44 20 3621 6108",
     tiers: [
@@ -9075,7 +9086,7 @@ const AIRPORT_ASSIST = {
       { name: "Silver", from: "£250", includes: ["Personal agent", "Fast Track where available", "Luggage porter", "Electric golf buggy"] },
       { name: "Gold",   from: "£350", includes: ["Personal agent", "Fast Track where available", "Luggage porter", "Electric golf buggy", "Chauffeur airport transfer"] },
     ],
-    note: "Preferred provider. Met at the aircraft door or the kerb, walked through the terminal by your own agent, Fast Track through immigration and security where the airport allows it. Book direct." },
+    note: "Preferred provider. Met at the aircraft door or the kerb, walked through the terminal by your own agent, Fast Track through immigration and security where the airport allows it. Book directly." },
 };
 // ══ FRANCE AND MILAN — VIP ASSIST, no prices shown ═══════════════════════════════════════════
 // Both are CONTACT listings, not priced menus: the service is described as "may include", the
@@ -9109,7 +9120,7 @@ const AENA_TIERS = [
   { name: "With handling", from: "\u20ac476.49", includes: ["1 passenger \u20ac476.49", "2 passengers \u20ac714.71", "3 passengers \u20ac952.93"] },
   { name: "Without handling", from: "\u20ac376.65", includes: ["1 passenger \u20ac376.65", "2 passengers \u20ac564.96", "3 passengers \u20ac753.26"] },
 ];
-const AENA_NOTE = "The airport's own VIP Meet and Greet — the operator itself, not a third party. You are taken out of the public flow entirely: a private security checkpoint, a private passport-control checkpoint, a private escort, a private vehicle across the apron to or from the aircraft, and the premium lounge while you wait. Published price guide; confirm on booking. Book direct.";
+const AENA_NOTE = "The airport's own VIP Meet and Greet — the operator itself, not a third party. You are taken out of the public flow entirely: a private security checkpoint, a private passport-control checkpoint, a private escort, a private vehicle across the apron to or from the aircraft, and the premium lounge while you wait. Published price guide; confirm on booking. Book directly.";
 AIRPORT_ASSIST.MAD = { verified: "official", title: "VIP Meet and Greet \u2014 Madrid", airport: "Madrid Barajas", name: "VIP Meet and Greet", web: null, email: "mad.premium@aena.es", tel: "+34 917 438 773", mobile: "+34 678 227 405", button: "Contact Aena Premium",
   headline: "A private passenger flow through the airport, with its own security and passport control.", includes: AENA_WHY, tiers: AENA_TIERS,
   note: AENA_NOTE + " MADRID HAS ITS OWN BOOKING PROCEDURE, different from the other Spanish airports: book through the Madrid channel below, not the generic form. Aena also runs Fast Track and VIP lounges at Madrid, and the Premium Service is at Terminal 4 — match the service to your terminal." };
@@ -9124,7 +9135,7 @@ AIRPORT_ASSIST.ZRH = { verified: "official", title: "Zurich Airport VIP Service"
     { name: "Arrival or departure", from: "CHF 1,100", includes: ["CHF 1,100 first passenger", "CHF 700 each additional passenger"] },
     { name: "Transit", from: "CHF 1,300", includes: ["CHF 1,300 first passenger", "CHF 800 each additional passenger"] },
   ],
-  note: "Preferred provider at Zurich, and it is the airport operator itself. A personal VIP assistant meets you, takes you through separate security and passport control, and you cross the apron by car to or from the aircraft — with the VIP lounge, a porter, and check-in handled on departure. Book direct." };
+  note: "Preferred provider at Zurich, and it is the airport operator itself. A personal VIP assistant meets you, takes you through separate security and passport control, and you cross the apron by car to or from the aircraft — with the VIP lounge, a porter, and check-in handled on departure. Book directly." };
 // ══ AMSTERDAM — Schiphol's own Meet & Assist Executive. One flat price, up to three passengers,
 // a two-hour window. Operator product again.
 AIRPORT_ASSIST.AMS = { verified: "official", title: "Schiphol Meet & Assist Executive", airport: "Amsterdam Schiphol", name: "Amsterdam Airport Schiphol", web: "https://www.schiphol.nl/en/at-schiphol/services/meet-and-assist/", email: null, tel: null, button: "Book Schiphol Executive",
@@ -9132,7 +9143,7 @@ AIRPORT_ASSIST.AMS = { verified: "official", title: "Schiphol Meet & Assist Exec
   includes: ["Personal hostess", "Faster security processing", "Electric caddy", "Lounge access"],
   phases: [{ name: "Arrival", may: ["Meet at the aircraft door", "Passport-control assistance", "Luggage assistance", "Customs assistance", "Escort to your waiting car or driver"] }],
   tiers: [{ name: "Executive", from: "\u20ac305", includes: ["\u20ac305 including VAT", "Up to 3 passengers", "Maximum 2 hours"] }],
-  note: "Preferred at Amsterdam, and it is the airport itself. One price covers up to three passengers for up to two hours — a hostess meets you, security is faster, you cross the terminal by electric caddy and wait in the lounge. Book direct." };
+  note: "Preferred at Amsterdam, and it is the airport itself. One price covers up to three passengers for up to two hours — a hostess meets you, security is faster, you cross the terminal by electric caddy and wait in the lounge. Book directly." };
 // ══ STOCKHOLM — Arlanda's VIP Service, operated by Swedavia, the airport company. A dedicated
 // entrance and a private VIP room: the separate-flow class of product.
 AIRPORT_ASSIST.ARN = { verified: "official", title: "Stockholm Arlanda VIP Service", airport: "Stockholm Arlanda", name: "Swedavia VIP Service", web: "https://www.swedavia.com/arlanda/vip-services/", email: "vipservice@swedavia.se", tel: "+46 10 109 12 00", button: "Book Arlanda VIP",
@@ -9142,7 +9153,7 @@ AIRPORT_ASSIST.ARN = { verified: "official", title: "Stockholm Arlanda VIP Servi
     { name: "Arrival or departure", from: "SEK 6,995", includes: ["SEK 6,995 first passenger", "SEK 2,375 each additional passenger"] },
     { name: "Transit", from: "SEK 13,995", includes: ["SEK 13,995 for 1\u20133 passengers", "SEK 2,375 each additional passenger"] },
   ],
-  note: "Preferred at Stockholm, operated by Swedavia — the airport company itself. You use a dedicated VIP entrance, your own coordinator, a separate private security control and a private room, with check-in, bags and documents handled. Book direct." };
+  note: "Preferred at Stockholm, operated by Swedavia — the airport company itself. You use a dedicated VIP entrance, your own coordinator, a separate private security control and a private room, with check-in, bags and documents handled. Book directly." };
 // ══ OSLO — Avinor's VIP Terminal. A separate building with its own security and passport control
 // and a car to the aircraft; the fullest version of the separate-flow product. One price per
 // passenger for arrival, departure or transit.
@@ -9150,14 +9161,14 @@ AIRPORT_ASSIST.OSL = { verified: "official", title: "Oslo Airport VIP Terminal",
   headline: "A private VIP terminal of its own: private security, private passport control, and a car to and from the aircraft.",
   includes: ["Private VIP terminal", "Private security control", "Private passport control", "Personal VIP host", "Check-in assistance", "Porter", "Private waiting suite", "Refreshments and snack buffet", "Private vehicle to and from the aircraft", "Met at the aircraft door on arrival", "Private passport control for arrivals from outside Schengen", "Baggage retrieval assistance"],
   tiers: [{ name: "Arrival, departure or transit", from: "NOK 6,250", includes: ["NOK 6,250 per passenger"] }],
-  note: "Preferred at Oslo, operated by Avinor — the airport company. You never enter the main terminal: a private building with its own security and passport control, a host, a suite with refreshments, and a private vehicle across the apron to or from the aircraft. Arrivals from outside Schengen clear passport control privately too. Book direct." };
+  note: "Preferred at Oslo, operated by Avinor — the airport company. You never enter the main terminal: a private building with its own security and passport control, a host, a suite with refreshments, and a private vehicle across the apron to or from the aircraft. Arrivals from outside Schengen clear passport control privately too. Book directly." };
 // ══ BRUSSELS — Altitude, the airport's official VIP service. Private facility, private screening,
 // limousine to the aircraft. Priced on quote; the card says so and invents no figure.
 AIRPORT_ASSIST.BRU = { verified: "official", title: "Altitude VIP Service \u2014 Brussels", airport: "Brussels Zaventem", name: "Altitude VIP Service", web: "https://altitude.brusselsairport.be/", email: "altitude@brusselsairport.be", tel: "+32 2 753 69 71", button: "Contact Altitude",
   headline: "The airport's official VIP service: a private facility, private security screening and a limousine to the aircraft.",
   includes: ["Private VIP facility", "Personalised airport service", "Check-in handling", "Private security screening", "Food and beverage", "Private lounge", "Boarding assistance", "Limousine directly to the aircraft", "Flight monitoring"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-  note: "Preferred at Brussels, and it is the airport's own service. A private facility with its own screening, a lounge with food and drink, boarding handled, and a limousine across the apron to the aircraft. Priced on quote. Book direct." };
+  note: "Preferred at Brussels, and it is the airport's own service. A private facility with its own screening, a lounge with food and drink, boarding handled, and a limousine across the apron to the aircraft. Priced on quote. Book directly." };
 // ══ DUBLIN — the airport's Platinum VIP. Private suite, dedicated screening, chauffeur to the
 // aircraft. Priced per passenger. No booking page was supplied, so the button opens an email.
 AIRPORT_ASSIST.DUB = { verified: "official", title: "Dublin Airport Platinum VIP", airport: "Dublin", name: "Dublin Airport Platinum VIP", web: null, email: "platinumvip@dublinairport.com", tel: "+353 1 944 4895", button: "Contact Platinum VIP",
@@ -9167,7 +9178,7 @@ AIRPORT_ASSIST.DUB = { verified: "official", title: "Dublin Airport Platinum VIP
     { name: "Arrival or departure", from: "\u20ac475", includes: ["\u20ac475 first passenger", "\u20ac330 each additional passenger"] },
     { name: "Transit", from: "\u20ac625", includes: ["\u20ac625 first passenger", "\u20ac415 each additional passenger"] },
   ],
-  note: "Preferred at Dublin, and it is the airport itself. Private check-in and dedicated screening, customs and immigration handled, a private suite with refreshments while you wait, and a chauffeur across the apron to or from the aircraft. Book direct." };
+  note: "Preferred at Dublin, and it is the airport itself. Private check-in and dedicated screening, customs and immigration handled, a private suite with refreshments while you wait, and a chauffeur across the apron to or from the aircraft. Book directly." };
 // ══ FRANKFURT — Fraport's VIP Services. Exclusive checkpoint, limousine to the aircraft, private
 // suites. Prices are NET, VAT on top — said on the card, so nobody is surprised by the invoice.
 // Request at least 24 hours before the flight.
@@ -9175,7 +9186,7 @@ AIRPORT_ASSIST.FRA = { verified: "official", title: "Frankfurt Airport VIP Servi
   headline: "The airport operator's own VIP service: an exclusive checkpoint, a limousine to the aircraft, and private suites.",
   includes: ["Personal VIP agent", "Exclusive security checkpoint", "Immigration and border-control assistance", "Check-in assistance", "Baggage drop-off or collection", "VIP lounge", "Luxury limousine directly to and from the aircraft", "Food and beverages", "Private suites available"],
   tiers: [{ name: "Arrival, departure or transfer", from: "\u20ac545 net", includes: ["\u20ac545 first passenger", "\u20ac340 each additional passenger", "Net prices \u2014 VAT is additional"] }],
-  note: "Preferred at Frankfurt, operated by Fraport — the airport company. A personal agent, an exclusive security checkpoint, immigration handled, the VIP lounge or a private suite, and a limousine across the apron to or from the aircraft. PRICES ARE NET AND VAT IS ADDED. Request at least 24 hours before the flight. Book direct." };
+  note: "Preferred at Frankfurt, operated by Fraport — the airport company. A personal agent, an exclusive security checkpoint, immigration handled, the VIP lounge or a private suite, and a limousine across the apron to or from the aircraft. PRICES ARE NET AND VAT IS ADDED. Request at least 24 hours before the flight. Book directly." };
 // ══ MUNICH — VipWing, the airport's own VIP wing. Own security and passport checkpoints, its own
 // lounge, and a limousine or VIP bus to the aircraft. The airside transfer is a higher tier.
 AIRPORT_ASSIST.MUC = { verified: "official", title: "Munich Airport VipWing", airport: "Munich Franz Josef Strauss", name: "Munich Airport VipWing", web: "https://www.munich-airport.com/vipwing-719148", email: "vipwing@munich-airport.de", tel: "+49 89 975 213 33", button: "Book VipWing",
@@ -9185,14 +9196,14 @@ AIRPORT_ASSIST.MUC = { verified: "official", title: "Munich Airport VipWing", ai
     { name: "Arrival or departure", from: "\u20ac630", includes: ["\u20ac630 first passenger", "\u20ac330 each additional passenger"] },
     { name: "Airside transfer", from: "\u20ac830", includes: ["\u20ac830 first passenger", "\u20ac430 each additional passenger"] },
   ],
-  note: "Preferred at Munich, and it is the airport itself. A multilingual assistant takes you through VipWing's own security and passport checkpoints, handles check-in, bags and customs — including the VAT refund — and you wait in the VipWing lounge before a limousine or VIP bus takes you across the apron to the aircraft. Book direct." };
+  note: "Preferred at Munich, and it is the airport itself. A multilingual assistant takes you through VipWing's own security and passport checkpoints, handles check-in, bags and customs — including the VAT refund — and you wait in the VipWing lounge before a limousine or VIP bus takes you across the apron to the aircraft. Book directly." };
 // ══ PRAGUE — Club Continental, the airport's official VIP service. Priced per party size in
 // crowns. Standard pricing needs 48 hours' notice — on the card.
 AIRPORT_ASSIST.PRG = { verified: "official", title: "VIP Service Club Continental \u2014 Prague", airport: "Prague V\u00e1clav Havel", name: "VIP Service Club Continental", web: "https://www.prg.aero/en/vip-service-club-continental", email: "vip.service@prg.aero", tel: "+420 220 114 490", mobile: "+420 724 888 914", button: "Book Club Continental",
   headline: "The airport's official VIP service: your own assistant through check-in, passport control and security, the VIP lounge, and an escort to the aircraft.",
   includes: ["Personal VIP assistance", "Check-in assistance", "Passport-control assistance", "Customs assistance", "Security assistance", "Escort to and from the aircraft", "VIP lounge", "Baggage handling"],
   tiers: [{ name: "Arrival or departure", from: "CZK 5,500", includes: ["CZK 5,500 for 1 passenger", "CZK 8,800 for 2 passengers", "CZK 12,000 for 3 passengers"] }],
-  note: "Preferred at Prague, and it is the airport itself. A personal assistant takes you through check-in, passport control, customs and security, you wait in the VIP lounge, and you are escorted to or from the aircraft with the bags handled. Book at least 48 hours ahead for standard pricing. Book direct." };
+  note: "Preferred at Prague, and it is the airport itself. A personal assistant takes you through check-in, passport control, customs and security, you wait in the VIP lounge, and you are escorted to or from the aircraft with the bags handled. Book at least 48 hours ahead for standard pricing. Book directly." };
 // ══ WARSAW — Chopin's VIP Line. Its own passport control and screening, a private transfer to
 // the aircraft. No email or phone supplied; the booking page is the contact.
 AIRPORT_ASSIST.WAW = { verified: "endorsed", title: "Warsaw Chopin Airport VIP Line", airport: "Warsaw Chopin", name: "Warsaw Chopin VIP Line", web: "https://www.highpass.aero/en/airports/services/waw", email: null, tel: null, button: "Book VIP Line",
@@ -9203,14 +9214,14 @@ AIRPORT_ASSIST.WAW = { verified: "endorsed", title: "Warsaw Chopin Airport VIP L
     { name: "Departure", from: "\u20ac588", includes: ["\u20ac588 per passenger", "Child \u20ac115.50"] },
     { name: "Transit", from: "\u20ac680", includes: ["\u20ac680 per passenger", "Child \u20ac115.50"] },
   ],
-  note: "Preferred at Warsaw. Everything happens inside the VIP area — check-in, its own passport control and separate screening — with a porter, the lounge, and a private transfer across the apron to or from the aircraft. Book direct." };
+  note: "Preferred at Warsaw. Everything happens inside the VIP area — check-in, its own passport control and separate screening — with a porter, the lounge, and a private transfer across the apron to or from the aircraft. Book directly." };
 // ══ HELSINKI — Finavia's VIP Services, the airport company. Private lounge, VIP security, a
 // vehicle to the aircraft. Priced on quote; the card says so.
 AIRPORT_ASSIST.HEL = { verified: "official", title: "Finavia VIP Services \u2014 Helsinki", airport: "Helsinki-Vantaa", name: "Finavia VIP Services", web: "https://www.finavia.fi/en/airports/helsinki-airport/services/vip", email: "vip@finavia.fi", tel: "+358 20 708 2990", button: "Contact Finavia VIP",
   headline: "The airport company's own VIP service: check-in by VIP staff, VIP security, a private lounge and a vehicle to the aircraft.",
   includes: ["Personal VIP airport service", "Check-in handled by VIP staff", "Baggage handling", "VIP security control", "Border-control escort when required", "Private VIP lounge", "Private vehicle directly to and from the aircraft", "Light refreshments"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-  note: "Preferred at Helsinki, operated by Finavia — the airport company. VIP staff handle check-in and bags, you clear a VIP security control with a border escort where needed, wait in a private lounge with refreshments, and cross the apron by private vehicle. Priced on quote. Book direct." };
+  note: "Preferred at Helsinki, operated by Finavia — the airport company. VIP staff handle check-in and bags, you clear a VIP security control with a border escort where needed, wait in a private lounge with refreshments, and cross the apron by private vehicle. Priced on quote. Book directly." };
 // ══ NICE — the airport's own Meet & Greet, priced and official. Arrival and departure are
 // different products at different prices; both cover up to two passengers and two bags. The
 // arrival escort ends at your driver, the helicopter, or the rental desk — which is exactly the
@@ -9225,7 +9236,7 @@ AIRPORT_ASSIST.NCE = { verified: "official", title: "Nice C\u00f4te d\u2019Azur 
     { name: "Arrival", from: "\u20ac210", includes: ["\u20ac210 including tax", "Up to 2 passengers", "2 pieces of luggage included"] },
     { name: "Departure", from: "\u20ac258", includes: ["\u20ac258 including tax", "Up to 2 passengers", "2 pieces of luggage included"] },
   ],
-  note: "Preferred at Nice, and it is the airport itself. On arrival you are greeted at the aircraft, walked through border control, and wait in a private lounge while the bags are collected — then handed to your driver, the Monaco helicopter or the rental desk. On departure: porter, check-in, Fast Track security and the lounge. Book direct." };
+  note: "Preferred at Nice, and it is the airport itself. On arrival you are greeted at the aircraft, walked through border control, and wait in a private lounge while the bags are collected — then handed to your driver, the Monaco helicopter or the rental desk. On departure: porter, check-in, Fast Track security and the lounge. Book directly." };
 // (Fiumicino's Highpass entry was replaced by Airconsult in M647 — see the Italy block below.)
 // ══ ATHENS — Highpass. Arrival is the Silver product, departure the Gold; different inclusions
 // and prices, so both are shown by name. Athens is the gateway for every Cyclades trip.
@@ -9239,14 +9250,14 @@ AIRPORT_ASSIST.ATH = { verified: "independent", title: "Highpass \u2014 Athens",
     { name: "Arrival \u2014 Silver", from: "\u20ac120", includes: ["\u20ac120 per adult"] },
     { name: "Departure \u2014 Gold", from: "\u20ac186", includes: ["\u20ac186 per adult"] },
   ],
-  note: "Preferred at Athens — and Athens is where every island trip connects. On arrival: met with a name board, brought from the aircraft by personal transfer, priority passport control, a porter to the car. On departure the fuller Gold service: priority check-in and both security controls, priority passport control, the business lounge, and a transfer to the aircraft. Book direct." };
+  note: "Preferred at Athens — and Athens is where every island trip connects. On arrival: met with a name board, brought from the aircraft by personal transfer, priority passport control, a porter to the car. On departure the fuller Gold service: priority check-in and both security controls, priority passport control, the business lounge, and a transfer to the aircraft. Book directly." };
 // ══ BUCHAREST — the airport's own VIP Services, through the VIP / diplomatic channels. No price
 // published; the card says so. Two emails and two phones, all shown.
 AIRPORT_ASSIST.OTP = { verified: "official", title: "Bucharest Airport VIP Services", airport: "Bucharest Henri Coand\u0103", name: "Henri Coand\u0103 Airport VIP Services", web: "https://bucharestairports.ro/vip/contact-vip-si-business/", email: "vip1@cnab.ro", email2: "vip2@cnab.ro", tel: "+40 21 204 1212", tel2: "+40 21 204 1066", button: "Contact Bucharest VIP",
   headline: "The airport's own VIP service, through the VIP and diplomatic security and passport channels.",
   includes: ["Personal VIP assistance", "VIP / diplomatic security channel", "VIP / diplomatic passport-control channel", "Dedicated border-control flow for international arrivals", "VIP lounge", "Priority boarding assistance", "Limousine or VIP minibus to or from the aircraft where required", "Baggage assistance", "Check-in assistance"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-  note: "Preferred at Bucharest, and it is the airport itself. You go through the VIP and diplomatic channels for security and passport control — with a dedicated border flow for international arrivals — the VIP lounge, priority boarding, and a limousine or VIP minibus to the aircraft where it is needed. Priced on quote. Book direct." };
+  note: "Preferred at Bucharest, and it is the airport itself. You go through the VIP and diplomatic channels for security and passport control — with a dedicated border flow for international arrivals — the VIP lounge, priority boarding, and a limousine or VIP minibus to the aircraft where it is needed. Priced on quote. Book directly." };
 // ══ HONG KONG — the HKIA VIP Lounge, the airport's own. The Lounge Deluxe package is the one
 // carried: a flat price for a three-hour window, every facilitation, a tarmac transfer, food,
 // a resting area and showers — which after a long haul is most of the point.
@@ -9254,7 +9265,7 @@ AIRPORT_ASSIST.HKG = { verified: "official", title: "HKIA VIP Lounge \u2014 Hong
   headline: "The airport's own VIP lounge: check-in, security, immigration and customs all facilitated, a tarmac transfer, and a place to rest and shower.",
   includes: ["Meet & Greet", "Check-in facilitation", "Security facilitation", "Immigration facilitation", "Customs facilitation", "Tarmac transfer", "Food and beverages", "VIP resting area", "Shower facilities"],
   tiers: [{ name: "Lounge Deluxe", from: "HKD 5,000", includes: ["HKD 5,000", "Standard duration 3 hours"] }],
-  note: "Preferred at Hong Kong, and it is the airport itself. The Lounge Deluxe package: met on arrival or departure, every formality facilitated — check-in, security, immigration, customs — a tarmac transfer to or from the aircraft, and three hours in the lounge with food, a resting area and showers. Book direct." };
+  note: "Preferred at Hong Kong, and it is the airport itself. The Lounge Deluxe package: met on arrival or departure, every formality facilitated — check-in, security, immigration, customs — a tarmac transfer to or from the aircraft, and three hours in the lounge with food, a resting area and showers. Book directly." };
 // ══ SINGAPORE — JetQuay, Changi's CIP terminal. The Quayside service is the one carried: private
 // check-in and immigration, the lounge, and a buggy to the gate. Taxes and service charges are
 // on top of the price — said on the card. 72 hours' notice recommended.
@@ -9262,14 +9273,14 @@ AIRPORT_ASSIST.SIN = { verified: "official", title: "JetQuay \u2014 Changi CIP T
   headline: "Changi's private CIP terminal: private check-in, private immigration, the lounge, and a buggy to the gate.",
   includes: ["Private check-in", "Private immigration", "VIP lounge", "Buggy transfer to the gate"],
   tiers: [{ name: "Quayside", from: "S$400", includes: ["S$400", "Local taxes and service charges additional"] }],
-  note: "Preferred at Singapore. JetQuay is Changi's commercially important persons terminal, a building of its own: you check in and clear immigration privately, wait in the lounge, and are taken to the gate by buggy. TAXES AND SERVICE CHARGES ARE ADDED to the price. Book at least 72 hours ahead. Book direct." };
+  note: "Preferred at Singapore. JetQuay is Changi's commercially important persons terminal, a building of its own: you check in and clear immigration privately, wait in the lounge, and are taken to the gate by buggy. TAXES AND SERVICE CHARGES ARE ADDED to the price. Book at least 72 hours ahead. Book directly." };
 // ══ DUBAI — Marhaba, dnata's own service at DXB. The Elite package is the one carried: one-to-one,
 // fast-track immigration, a dedicated VIP space with à la carte dining, and a chauffeur.
 AIRPORT_ASSIST.DXB = { verified: "endorsed", title: "Marhaba Elite \u2014 Dubai", airport: "Dubai International", name: "Marhaba", web: "https://www.marhabaservices.com/ae/english/meet-and-greet/dubai-international-airport.html", email: null, tel: null, button: "Book Marhaba Elite",
   headline: "Marhaba's Elite service: one-to-one from the aircraft, fast-track immigration, a dedicated VIP space with \u00e0 la carte dining, and a chauffeur.",
   includes: ["Dedicated one-to-one service", "Meet & Greet", "Fast-track immigration", "Porter", "Buggy transfer where available", "Lounge", "Dedicated VIP space with \u00e0 la carte dining", "Chauffeur-driven car", "Check-in assistance in Terminal 3", "Escort through airport procedures"],
   tiers: [{ name: "Elite", from: "USD 300.20", includes: ["From USD 300.20 per person"] }],
-  note: "Preferred at Dubai. The Elite package: your own agent from the moment you land, fast-track immigration, a porter and a buggy where available, then a dedicated VIP space with \u00e0 la carte dining rather than the shared lounge, and a chauffeur-driven car. On departure, check-in is handled in Terminal 3. Book direct." };
+  note: "Preferred at Dubai. The Elite package: your own agent from the moment you land, fast-track immigration, a porter and a buggy where available, then a dedicated VIP space with \u00e0 la carte dining rather than the shared lounge, and a chauffeur-driven car. On departure, check-in is handled in Terminal 3. Book directly." };
 // ══ DOHA — Al Maha, Qatar Airways' own service at Hamad. The Platinum package is the one carried,
 // with its own inclusions for arrival, departure and transit. Pricing is given as a range across
 // all Al Maha services rather than a Platinum figure, so the card shows the range and says so.
@@ -9281,7 +9292,7 @@ AIRPORT_ASSIST.DOH = { verified: "official", title: "Al Maha Platinum \u2014 Doh
     { name: "Platinum transit", may: ["Met at the aircraft", "Transit formalities assistance", "Customs clearance assistance", "Lounge", "Priority boarding", "Escort to the onward flight"] },
   ],
   tiers: [{ name: "Platinum", from: "USD 31\u2013178", includes: ["Al Maha services range from about USD 31 to 178 depending on the service \u2014 confirm the Platinum price on booking"] }],
-  note: "Preferred at Doha, and it is the airline's own service. Platinum: met at the aircraft with your name on a board, dedicated immigration facilities, the Al Maha lounge, a porter, priority boarding, and an escort to whoever is meeting you — or to the onward flight in transit. Book direct." };
+  note: "Preferred at Doha, and it is the airline's own service. Platinum: met at the aircraft with your name on a board, dedicated immigration facilities, the Al Maha lounge, a porter, priority boarding, and an escort to whoever is meeting you — or to the onward flight in transit. Book directly." };
 // ══ BANGKOK — VIP Fast Track + Meet & Greet at Suvarnabhumi, through limousine.in.th. Priced per
 // passenger, with a golf-cart arrival tier by party size. THE OPERATOR SAYS THE ARRIVAL FAST TRACK
 // MAY BE TEMPORARILY UNAVAILABLE AT TIMES — so the card says availability must be confirmed
@@ -9294,7 +9305,7 @@ AIRPORT_ASSIST.BKK = { verified: "independent", title: "VIP Fast Track + Meet & 
     { name: "Arrival with golf cart", from: "THB 2,799", includes: ["THB 2,799 for 1 passenger", "THB 4,098 for 2 passengers", "THB 5,397 for 3 passengers"] },
     { name: "Departure VIP service", from: "THB 1,250", includes: ["THB 1,250 per passenger"] },
   ],
-  note: "Preferred at Bangkok. A greeter meets you and takes you through the Fast Lane at passport control with an escort through the terminal — by golf cart if you take that option — and a porter where you want one; on departure, assistance through check-in and the formalities. The arrival Fast Track is subject to availability on the day: confirm it when you book, not when you land. Book direct." };
+  note: "Preferred at Bangkok. A greeter meets you and takes you through the Fast Lane at passport control with an escort through the terminal — by golf cart if you take that option — and a porter where you want one; on departure, assistance through check-in and the formalities. The arrival Fast Track is subject to availability on the day: confirm it when you book, not when you land. Book directly." };
 // ══ LOS ANGELES — PS LAX, a private terminal on the far side of the airfield. The Salon is the
 // service carried; the Private Suite is the alternative for a party. No membership needed for
 // either. The first US airport in the table.
@@ -9305,7 +9316,7 @@ AIRPORT_ASSIST.LAX = { verified: "independent", title: "PS LAX \u2014 The Salon"
     { name: "The Salon", from: "$1,295", includes: ["$1,295 per person", "No membership required"] },
     { name: "Private Suite", from: "$4,950", includes: ["$4,950 per visit for up to 4 travellers", "No membership required"] },
   ],
-  note: "Preferred at Los Angeles. PS is a private terminal at 6875 W. Imperial Highway, on the far side of the airfield from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Book direct." };
+  note: "Preferred at Los Angeles. PS is a private terminal at 6875 W. Imperial Highway, on the far side of the airfield from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Book directly." };
 // ══ PS AT ATLANTA, DALLAS AND MIAMI — the same private-terminal product as LAX, confirmed on
 // PS's own site (July 2026): DFW opened in June, MIA on 30 June, ATL in 2023. The price shown is
 // the Los Angeles rate, and the card says to confirm it for the location when reserving — PS has
@@ -9321,7 +9332,7 @@ const PS_TIERS = [
   AIRPORT_ASSIST[code] = { verified: "independent", title: `PS ${code} \u2014 The Salon`, airport, name: `PS ${code}`, web: "https://reserveps.com/", email: null, tel: null, button: "Reserve PS",
     headline: "A private terminal of its own: line-free TSA screening, dedicated customs and immigration on arrival, and a car across the airfield to the aircraft.",
     includes: PS_INCLUDES, tiers: PS_TIERS,
-    note: `Preferred at ${airport.split(" ")[0]}. PS is a private terminal ${where}, away from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Give the driver the PS address, not the terminal. Book direct.` };
+    note: `Preferred at ${airport.split(" ")[0]}. PS is a private terminal ${where}, away from the main terminals: you never see them. Line-free TSA, your own customs and immigration on arrival, chef-prepared food in the lounge, and a car across the tarmac to the aircraft door. The Salon is the shared lounge; the Private Suite is your own room for up to four. Give the driver the PS address, not the terminal. Book directly.` };
 });
 // ══ MIAMI — PS MIA, confirmed in full: same prices as Los Angeles, its own booking page, and the
 // Salon and Private Suite described as PS sells them there. The Suite is the private TSA and
@@ -9337,7 +9348,7 @@ AIRPORT_ASSIST.MIA = { verified: "independent", title: "PS MIA \u2014 The Salon"
     { name: "The Salon", from: "$1,295", includes: ["$1,295 per person", "No membership required"] },
     { name: "Private Suite", from: "$4,950", includes: ["$4,950 for up to 4 travellers", "No membership required"] },
   ],
-  note: "Preferred at Miami. PS MIA is a private terminal at 4900 NW 36th St, Miami 33166 — give the driver that address, not the terminal. The Salon: semi-private TSA, customs and immigration handled, cocktails and bites in the lounge, and a car across the airfield to the aircraft door. The Private Suite: fully private TSA and customs, your own suite with chef-prepared meals, spa amenities, and a BMW chauffeur to the aircraft. Phone or text the number below. Book direct." };
+  note: "Preferred at Miami. PS MIA is a private terminal at 4900 NW 36th St, Miami 33166 — give the driver that address, not the terminal. The Salon: semi-private TSA, customs and immigration handled, cocktails and bites in the lounge, and a car across the airfield to the aircraft door. The Private Suite: fully private TSA and customs, your own suite with chef-prepared meals, spa amenities, and a BMW chauffeur to the aircraft. Phone or text the number below. Book directly." };
 // ══ BUENOS AIRES — VIPClub, run by Aeropuertos Argentina, the airport operator. The Preferential
 // Pass is the one carried: an exclusive security checkpoint and exclusive passport control, in
 // both directions. 72 hours' notice, especially for bags. The first South American airport.
@@ -9348,7 +9359,7 @@ AIRPORT_ASSIST.EZE = { verified: "official", title: "VIPClub Preferential Pass \
     { name: "International arrival", may: ["VIP lounge", "Exclusive immigration and passport control", "Baggage assistance"] },
   ],
   tiers: [{ name: "Preferential Pass", from: "USD 242", includes: ["USD 242 per person"] }],
-  note: "Preferred at Buenos Aires, and it is the airport operator — Aeropuertos Argentina. On departure you clear an exclusive security checkpoint and exclusive passport control from the VIP lounge; on arrival, exclusive passport control and help with the bags. Operates around the clock. Book at least 72 hours ahead where you can, and certainly if you want baggage assistance. Book direct." };
+  note: "Preferred at Buenos Aires, and it is the airport operator — Aeropuertos Argentina. On departure you clear an exclusive security checkpoint and exclusive passport control from the VIP lounge; on arrival, exclusive passport control and help with the bags. Operates around the clock. Book at least 72 hours ahead where you can, and certainly if you want baggage assistance. Book directly." };
 // ══ SHANGHAI — the Shanghai Airport Group's own VIP services, at both Pudong and Hongqiao. Each
 // airport has its own email; the phone lines are shared. Priced on quote; the card says so.
 [["PVG", "Shanghai Pudong", "pvg-service@shairport.com"], ["SHA", "Shanghai Hongqiao", "sha-service@shairport.com"]].forEach(([code, airport, email]) => {
@@ -9356,7 +9367,7 @@ AIRPORT_ASSIST.EZE = { verified: "official", title: "VIPClub Preferential Pass \
     headline: "The airport group's own full-process VIP service: a personal escort through dedicated VIP channels, check-in handled, and the VIP lounge.",
     includes: ["Personal VIP escort", "Dedicated VIP airport channels", "Check-in assistance", "VIP lounge", "Arrival and departure assistance", "Customised high-end airport handling"],
     tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-    note: `Preferred at Shanghai ${airport.split(" ")[1]}, and it is the Shanghai Airport Group itself. A personal escort takes you through the dedicated VIP channels rather than the public ones, with check-in handled and the VIP lounge — and the service is tailored to the party. Priced on quote. The second number is the airport's general hotline. Book direct.` };
+    note: `Preferred at Shanghai ${airport.split(" ")[1]}, and it is the Shanghai Airport Group itself. A personal escort takes you through the dedicated VIP channels rather than the public ones, with check-in handled and the VIP lounge — and the service is tailored to the party. Priced on quote. The second number is the airport's general hotline. Book directly.` };
 });
 // ══ MUMBAI — Elite Plus Meet & Assist, through the VIP / CIP lanes at immigration and security,
 // with a dedicated buggy. Priced per passenger, arrival and departure differ. 48 hours' notice.
@@ -9370,7 +9381,7 @@ AIRPORT_ASSIST.BOM = { verified: "independent", title: "Elite Plus VIP Meet & As
     { name: "International arrival", from: "USD 160", includes: ["USD 160 per passenger"] },
     { name: "International departure", from: "USD 134", includes: ["USD 134 per passenger"] },
   ],
-  note: "Preferred at Mumbai. Arriving, you are met at the aerobridge and taken by buggy to the VIP / CIP immigration lane, with a porter and an escort out to your car. Departing, met at the kerb, checked in, through the VIP / CIP lanes at immigration and security, the lounge, and a buggy to the gate where available. Book 48 hours ahead. Book direct." };
+  note: "Preferred at Mumbai. Arriving, you are met at the aerobridge and taken by buggy to the VIP / CIP immigration lane, with a porter and an escort out to your car. Departing, met at the kerb, checked in, through the VIP / CIP lanes at immigration and security, the lounge, and a buggy to the gate where available. Book 48 hours ahead. Book directly." };
 // ══ KUALA LUMPUR — the KLIA VIP Meet & Greet at Terminal 1, sold through Malaysia Airlines'
 // Enrich. Regular price MYR 220; a lower Enrich rate is noted rather than headlined, because
 // promotional rates move and a headline price should not go stale.
@@ -9378,7 +9389,7 @@ AIRPORT_ASSIST.KUL = { verified: "endorsed", title: "KLIA VIP Meet & Greet \u201
   headline: "Met at the aircraft, Fast Track immigration, and a private VIP shuttle from the satellite building to the main terminal.",
   includes: ["Met at the aircraft on arrival", "Dedicated VIP airport representative", "Fast Track immigration", "Priority airport processing", "Private VIP bus or shuttle from the satellite building to the main terminal", "Personal escort through airport procedures"],
   tiers: [{ name: "VIP Meet & Greet", from: "MYR 220", includes: ["MYR 220 regular price", "A lower rate is sometimes shown through Enrich \u2014 check the booking page"] }],
-  note: "Preferred at Kuala Lumpur. The KLIA satellite building is a train ride from the main terminal for everyone else; here a dedicated representative meets you at the aircraft, takes you through Fast Track immigration with priority processing, and moves you by private VIP shuttle instead. Book direct through Enrich." };
+  note: "Preferred at Kuala Lumpur. The KLIA satellite building is a train ride from the main terminal for everyone else; here a dedicated representative meets you at the aircraft, takes you through Fast Track immigration with priority processing, and moves you by private VIP shuttle instead. Book directly through Enrich." };
 // ══ HO CHI MINH CITY — VIP Fast Track at Tan Son Nhat. Two named products, arrival and departure,
 // priced per passenger. Express security and priority passport lanes both ways.
 AIRPORT_ASSIST.SGN = { verified: "independent", title: "Tan Son Nhat VIP Fast Track \u2014 Ho Chi Minh City", airport: "Ho Chi Minh City Tan Son Nhat", name: "Tan Son Nhat VIP Fast Track", web: "https://airportsgn.com/fast-track/", email: "info@airportsgn.com", tel: "+84 28 3848 5383", button: "Book Fast Track",
@@ -9391,7 +9402,7 @@ AIRPORT_ASSIST.SGN = { verified: "independent", title: "Tan Son Nhat VIP Fast Tr
     { name: "VIP arrival Fast Track", from: "USD 90", includes: ["USD 90 per passenger"] },
     { name: "First Class departure Fast Track", from: "USD 110", includes: ["USD 110 per passenger"] },
   ],
-  note: "Preferred at Ho Chi Minh City. Arriving, a greeter meets you and takes you through the priority passport lane, collects the bags with a porter, and walks you through customs to the car. Departing, check-in is handled, a porter carries everything, and you go through express security and the priority passport lane. The phone is the airport's line. Book direct." };
+  note: "Preferred at Ho Chi Minh City. Arriving, a greeter meets you and takes you through the priority passport lane, collects the bags with a porter, and walks you through customs to the car. Departing, check-in is handled, a porter carries everything, and you go through express security and the priority passport lane. The phone is the airport's line. Book directly." };
 // ══ TAIPEI — the Huan Yu VIP Terminal at Taoyuan: a private terminal with its own VIP rooms.
 // Priced per passenger one way or as a 30-day round trip; children half price, infants free.
 AIRPORT_ASSIST.TPE = { verified: "endorsed", title: "Huan Yu VIP Terminal \u2014 Taipei", airport: "Taipei Taoyuan", name: "Huan Yu VIP Terminal", web: "https://www.hyvip.com.tw/en/reservation_1.php", email: null, tel: "+886 3 393 2525", tel2: "0800 268 999 (Taiwan toll-free)", button: "Book Huan Yu VIP",
@@ -9401,7 +9412,7 @@ AIRPORT_ASSIST.TPE = { verified: "endorsed", title: "Huan Yu VIP Terminal \u2014
     { name: "One way", from: "NT$12,000", includes: ["NT$12,000 per passenger", "Child 2\u201311 NT$6,000", "Under 2 complimentary"] },
     { name: "Round trip within 30 days", from: "NT$20,700", includes: ["NT$20,700 per passenger", "Child 2\u201311 NT$6,000", "Under 2 complimentary"] },
   ],
-  note: "Preferred at Taipei. Huan Yu is a private terminal at Taoyuan with its own VIP rooms: a personal concierge handles check-in, security, immigration, customs and quarantine, you wait in a private room with food and drink, and you are escorted to or from the gate with the bags carried. Book direct." };
+  note: "Preferred at Taipei. Huan Yu is a private terminal at Taoyuan with its own VIP rooms: a personal concierge handles check-in, security, immigration, customs and quarantine, you wait in a private room with food and drink, and you are escorted to or from the gate with the bags carried. Book directly." };
 // ══ CAIRO — Ahlan, the airport's official service. The full VIP service is the one recommended:
 // met under the aircraft, a vehicle to the lounge, Fast Track at border control. Priced for
 // non-Egyptian passengers, which is every client of ours. Meet & Assist alone is half the price.
@@ -9415,7 +9426,7 @@ AIRPORT_ASSIST.CAI = { verified: "official", title: "Ahlan VIP Service \u2014 Ca
     { name: "VIP Service", from: "USD 200", includes: ["USD 200 per non-Egyptian passenger", "Recommended"] },
     { name: "Meet & Assist only", from: "USD 100", includes: ["USD 100 per non-Egyptian passenger"] },
   ],
-  note: "Preferred at Cairo, and it is the airport itself. Take the full VIP service: you are met under the aircraft with your name on a sign, driven to the VIP lounge, taken through Fast Track at border control with the bags collected, and escorted out — and on departure the formalities are done for you before a vehicle takes you to the aircraft. Meet & Assist alone is the lighter, half-price version. Book direct." };
+  note: "Preferred at Cairo, and it is the airport itself. Take the full VIP service: you are met under the aircraft with your name on a sign, driven to the VIP lounge, taken through Fast Track at border control with the bags collected, and escorted out — and on departure the formalities are done for you before a vehicle takes you to the aircraft. Meet & Assist alone is the lighter, half-price version. Book directly." };
 // ══ ABU DHABI — Salam Meet & Assist plus Fast Track at Zayed International. Two booking pages,
 // so the card carries two buttons. No published price; the card says so. The important detail:
 // Fast Track here covers BOTH security and immigration lanes.
@@ -9424,7 +9435,7 @@ AIRPORT_ASSIST.AUH = { verified: "official", title: "Salam Meet & Assist + Fast 
   headline: "The airport's own Meet & Assist, with Fast Track lanes for both security and immigration.",
   includes: ["Personal Meet & Assist", "Dedicated Fast Track lanes for security AND immigration", "Priority security screening", "Priority immigration", "Luggage assistance", "Buggy where available", "Priority check-in where available", "Lounge", "Boarding assistance"],
   tiers: [{ name: "Arrival, departure or transit", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-  note: "Preferred at Abu Dhabi, and it is the airport itself. Salam meets you and takes you through the dedicated Fast Track lanes — which here cover both security and immigration, not just one — with the bags handled, a buggy where available, the lounge, and boarding assistance. Book Salam and Fast Track on their own pages; email through the airport's reservation form. Priced on quote. Book direct." };
+  note: "Preferred at Abu Dhabi, and it is the airport itself. Salam meets you and takes you through the dedicated Fast Track lanes — which here cover both security and immigration, not just one — with the bags handled, a buggy where available, the lounge, and boarding assistance. Book Salam and Fast Track on their own pages; email through the airport's reservation form. Priced on quote. Book directly." };
 // ══ JEDDAH — Altanfeethi at King Abdulaziz International: a private entrance, private check-in,
 // fast-track passport and customs, and a luxury vehicle to the aircraft. Two information pages,
 // so two buttons. No published price; the card says so.
@@ -9433,7 +9444,7 @@ AIRPORT_ASSIST.JED = { verified: "official", title: "Altanfeethi \u2014 Jeddah",
   headline: "A private VIP entrance, private check-in, fast-track passport control and customs, and a luxury vehicle to the aircraft.",
   includes: ["Private VIP entrance", "Personal assistant", "Private check-in", "Fast-track passport control", "Fast-track customs", "Private security lane", "Baggage transfer and collection", "Luxury lounge", "Luxury vehicle to and from the aircraft", "Travel-arrangement assistance"],
   tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-  note: "Preferred at Jeddah. Altanfeethi is the separate-flow product: its own entrance, private check-in, a private security lane, fast-track passport control and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft — with an assistant who will also help with onward arrangements. Priced on quote; contact by phone or through Altanfeethi's booking channels. Book direct." };
+  note: "Preferred at Jeddah. Altanfeethi is the separate-flow product: its own entrance, private check-in, a private security lane, fast-track passport control and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft — with an assistant who will also help with onward arrangements. Priced on quote; contact by phone or through Altanfeethi's booking channels. Book directly." };
 // ══ RIYADH — Altanfeethi at King Khalid International: a private VIP terminal with its own
 // entrance, private passport procedures and a luxury transfer to the aircraft. Two booking
 // routes, Altanfeethi and the official entrance.sa channel. No published price; the card says so.
@@ -9442,7 +9453,7 @@ AIRPORT_ASSIST.RUH = { verified: "official", title: "Altanfeethi \u2014 Riyadh",
   headline: "A private VIP terminal of its own: an exclusive entrance, private passport procedures, fast-track immigration and customs, and a luxury transfer to the aircraft.",
   includes: ["Private VIP terminal", "Exclusive entrance", "Personal assistant", "Private security lane", "Private passport procedures", "Fast-track immigration and customs", "Baggage transfer and collection", "Luxury lounge", "Luxury transfer to and from the aircraft"],
   tiers: [{ name: "Arrival or departure", from: null, includes: ["Quote required \u2014 ask when you book"] }],
-  note: "Preferred at Riyadh. A private terminal with its own entrance: a personal assistant, a private security lane, private passport procedures with fast-track immigration and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft. Priced on quote. Book through Altanfeethi or the official entrance.sa channel. Book direct." };
+  note: "Preferred at Riyadh. A private terminal with its own entrance: a personal assistant, a private security lane, private passport procedures with fast-track immigration and customs, a luxury lounge, and a luxury vehicle across the apron to or from the aircraft. Priced on quote. Book through Altanfeethi or the official entrance.sa channel. Book directly." };
 // ══ MUSCAT — Primeclass Meet & Assist, the airport's official service run by TAV. Priced per
 // passenger plus VAT, arrival and departure differ. Visa assistance on arrival is a real
 // inclusion here — Oman visas are often sorted at the airport. Fast Track alone is sold separately.
@@ -9457,7 +9468,7 @@ AIRPORT_ASSIST.MCT = { verified: "official", title: "Primeclass Meet & Assist \u
     { name: "Departure", from: "OMR 47.62 + VAT", includes: ["OMR 47.62 + VAT per passenger"] },
     { name: "Fast Track only", from: null, includes: ["Dedicated passport-control lane, sold separately \u2014 ask for the price"] },
   ],
-  note: "Preferred at Muscat, and it is the airport's official service. Arriving, you are met at the gate, taken by buggy to a dedicated Fast Track through immigration — with help on the visa if you need one — then the bags, a porter, and an escort out. Departing: dedicated check-in counters, Fast Track immigration, the Primeclass Lounge, and a buggy to the gate. VAT is added to the prices. Book direct." };
+  note: "Preferred at Muscat, and it is the airport's official service. Arriving, you are met at the gate, taken by buggy to a dedicated Fast Track through immigration — with help on the visa if you need one — then the bags, a porter, and an escort out. Departing: dedicated check-in counters, Fast Track immigration, the Primeclass Lounge, and a buggy to the gate. VAT is added to the prices. Book directly." };
 // ══ KUWAIT — Hala Kuwait Meet & Assist at KWI. Three phases, with the Pearl Lounge on the Plus
 // version. No published price and no contact supplied beyond the airport page; the card says so.
 AIRPORT_ASSIST.KWI = { verified: "official", title: "Hala Kuwait Meet & Assist \u2014 Kuwait City", airport: "Kuwait International", name: "Hala Kuwait", web: "https://www.kuwaitairport.gov.kw/en/traveller-info/arrivals-procedures/hospitality-services/", email: null, tel: null, button: "Contact Hala Kuwait",
@@ -9468,7 +9479,7 @@ AIRPORT_ASSIST.KWI = { verified: "official", title: "Hala Kuwait Meet & Assist \
     { name: "Transit", may: ["Gate greeting", "Transfer-desk assistance", "Escort to the departure gate", "Pearl Lounge with Meet & Assist Plus"] },
   ],
   tiers: [{ name: "Meet & Assist / Meet & Assist Plus", from: null, includes: ["Quote required \u2014 ask when you book", "Plus adds the Pearl Lounge"] }],
-  note: "Preferred at Kuwait. Arriving, an assistant meets you and takes you through Fast Track immigration, helps with the visa on arrival where it applies, and with the bags. Departing or in transit, the formalities and check-in are handled and you are escorted to the gate; the Plus version adds the Pearl Lounge. Priced on quote through the airport's hospitality page. Book direct." };
+  note: "Preferred at Kuwait. Arriving, an assistant meets you and takes you through Fast Track immigration, helps with the visa on arrival where it applies, and with the bags. Departing or in transit, the formalities and check-in are handled and you are escorted to the gate; the Plus version adds the Pearl Lounge. Priced on quote through the airport's hospitality page. Book directly." };
 // ══ BAHRAIN — Hala Bahrain: Meet & Assist with Fast Track through both immigration and customs.
 // Price shown at booking, so the card says so. Two pages: Hala's own and the airport's.
 AIRPORT_ASSIST.BAH = { verified: "endorsed", title: "Hala Bahrain \u2014 Meet & Assist + Fast Track", airport: "Bahrain International", name: "Hala Bahrain", web: "https://www.halabahrain.bh/", button: "Book Hala Bahrain",
@@ -9476,7 +9487,7 @@ AIRPORT_ASSIST.BAH = { verified: "endorsed", title: "Hala Bahrain \u2014 Meet & 
   headline: "Meet & Assist with Fast Track through both immigration and customs, an escort, and the bags handled.",
   includes: ["Personal Meet & Assist", "Fast Track through immigration", "Fast Track through customs formalities", "Airport escort", "Baggage assistance", "Porter available", "Lounge available", "Airport transportation available"],
   tiers: [{ name: "Meet & Assist + Fast Track", from: null, includes: ["Current price shown at booking"] }],
-  note: "Preferred at Bahrain. An assistant meets you and takes you through Fast Track at immigration and at customs, with an escort through the terminal and the bags handled; a porter, the lounge and transport can be added. The price is shown when you book. Book direct." };
+  note: "Preferred at Bahrain. An assistant meets you and takes you through Fast Track at immigration and at customs, with an escort through the terminal and the bags handled; a porter, the lounge and transport can be added. The price is shown when you book. Book directly." };
 // ══ ITALY — AIRCONSULT, the preferred provider throughout the country ══════════════════════════
 // Recommended directly to a Voyage One principal by Four Seasons Hotel Firenze. An Italian
 // aviation company since 1984, certified by the Italian Civil Aviation Authority, a 24/7 support
@@ -9495,7 +9506,7 @@ const AIRCONSULT = { name: "Airconsult", web: "https://airconsult.it/", web2: "h
     { name: "Also", may: ["VIP lounge arrangements", "Chauffeur transportation", "Door-to-door assistance", "Flight disruption, ticketing and flight-change assistance"] },
   ],
   tiers: [{ name: "Arrival, departure or connection", from: null, includes: ["Priced per booking — Airconsult confirms the services available at that airport and the cost"] }],
-  note: "Preferred throughout Italy. An Italian aviation company since 1984, certified by the Civil Aviation Authority, with a 24/7 support centre on the number below. Tell them the flight and they confirm exactly what that airport permits — the gate meet, the fast lanes, the buggy, the tarmac. Book direct." };
+  note: "Preferred throughout Italy. An Italian aviation company since 1984, certified by the Civil Aviation Authority, with a 24/7 support centre on the number below. Tell them the flight and they confirm exactly what that airport permits — the gate meet, the fast lanes, the buggy, the tarmac. Book directly." };
 // Only the airports where Airconsult has its own staffed office (Tricia, 1 Oct 2026). The others
 // — Florence, Bologna, Pisa, Turin, Verona, Genoa, Olbia, Palermo, Bari, Brindisi, Cagliari —
 // are added one at a time as Tricia confirms them in use.
@@ -12440,7 +12451,7 @@ const ONE_LIST = {
             { name: "Raffles Singapore", area: "Civic District \u00b7 inside the circuit footprint", tag: "The race-week address", note: "The Padang zone is at the end of Beach Road; you walk to the circuit and back. The hotel has hosted the weekend since the first night race. Rooms facing the city hear the cars." },
             { name: "Capella Singapore", area: "Sentosa \u00b7 twenty minutes from the circuit", tag: "The quiet alternative", note: "A resort in the rainforest on Sentosa, with the pools and the spa; the hotel\u2019s car to the track each evening. For a client who wants to leave the noise behind." },
           ],
-          ticketsTitle: "Tickets and hospitality \u2014 from Formula 1 direct",
+          ticketsTitle: "Tickets and hospitality \u2014 from Formula 1 directly",
           tickets: "Singapore\u2019s tickets and hospitality are sold by FORMULA 1 ITSELF through its official ticketing, and that is where we send you. THE PADDOCK CLUB is the top of it: the suites above the pit lane with the pit-lane walk, open bars, fine dining and the podium below you, sold by F1 direct as the FORMULA 1 PADDOCK CLUB. Below it, F1\u2019s official hospitality suites at the turns and the Padang, and the grandstands \u2014 the Pit Grandstand for the start and the pit stops, the Bay Grandstand for the waterfront and the concerts. Three-day passes are the norm; single days exist. 2027 SALES: the waitlist is open now on F1\u2019s official site; general sale for a Singapore race typically opens in the spring, and the Paddock Club earlier. Prices are F1\u2019s own and appear here when published. Nothing here is bought from a reseller while F1 sells the same seat.",
           ticketBands: [
             { label: "Formula 1 Paddock Club \u2014 above the pit lane, pit-lane walk, open bar, fine dining \u00b7 the top official tier", price: "~\u20ac11,000+ pp \u00b7 3-day weekend \u00b7 2026 planning estimate" },
@@ -12467,7 +12478,7 @@ const ONE_LIST = {
           ],
           build: [
             { key: "access", title: "Tickets and hospitality", cta: "Add tickets", day: 2, time: "18:00", icon: "trophy",
-              why: (pr) => `${pr.watch === "paddock" ? "THE PADDOCK CLUB, from Formula 1 direct: the suites above the pit lane, the pit-lane walk, open bar and fine dining, the podium at your feet. PLAN ~\u20ac11,000+ per person for the three-day weekend (2026 benchmark); it sold out online for 2026." : pr.watch === "suite" ? "An OFFICIAL F1 HOSPITALITY SUITE at a turn or on the Padang \u2014 covered, catered, a bar, a view of one corner rather than the pit lane. PLAN ~\u20ac3,500\u2013\u20ac8,500+ per person for the three-day weekend by level (2026 benchmark): Twenty3 / Sky Suite at the top, the Green Room, then the lounges. The best levels sold out early for 2026." : "A GRANDSTAND three-day pass \u2014 the Pit Grandstand for the start and the stops, the Bay for the waterfront and the concerts. Covered seats matter in the humidity."} ${pr.days === "race" ? "Sunday only." : pr.days === "two" ? "Saturday and Sunday." : "Friday to Sunday \u2014 the three-day pass, which is how it is sold."} When F1 publishes the 2027 categories and prices they appear here; the reminder is set.`,
+              why: (pr) => `${pr.watch === "paddock" ? "THE PADDOCK CLUB, from Formula 1 directly: the suites above the pit lane, the pit-lane walk, open bar and fine dining, the podium at your feet. PLAN ~\u20ac11,000+ per person for the three-day weekend (2026 benchmark); it sold out online for 2026." : pr.watch === "suite" ? "An OFFICIAL F1 HOSPITALITY SUITE at a turn or on the Padang \u2014 covered, catered, a bar, a view of one corner rather than the pit lane. PLAN ~\u20ac3,500\u2013\u20ac8,500+ per person for the three-day weekend by level (2026 benchmark): Twenty3 / Sky Suite at the top, the Green Room, then the lounges. The best levels sold out early for 2026." : "A GRANDSTAND three-day pass \u2014 the Pit Grandstand for the start and the stops, the Bay for the waterfront and the concerts. Covered seats matter in the humidity."} ${pr.days === "race" ? "Sunday only." : pr.days === "two" ? "Saturday and Sunday." : "Friday to Sunday \u2014 the three-day pass, which is how it is sold."} When F1 publishes the 2027 categories and prices they appear here; the reminder is set.`,
               links: [{ label: "Formula 1 official tickets", url: "https://ticketing.formula1.com/singapore/" }, { label: "Formula 1 Paddock Club", url: "https://www.formula1.com/en/hospitality" }] },
             { key: "concerts", title: "The concerts", cta: "Add the concerts", optional: true, bookable: false, day: 1, time: "22:30", icon: "trophy",
               why: "Three nights of major acts on the Padang stage inside the circuit, after the track goes quiet \u2014 included with the ticket for that zone. The 2027 lineup is announced by the promoter in the summer; nothing from 2026 is shown as 2027." },
@@ -12503,7 +12514,7 @@ const ONE_LIST = {
             { name: "Onward", note: "Bali, Phuket, Koh Samui, Hong Kong, Tokyo \u2014 all in Plan this trip." },
           ],
           notes: [
-            "F1 DIRECT. Formula 1 sells Singapore\u2019s tickets and the Paddock Club itself; join the waitlist now.",
+            "F1 DIRECTLY. Formula 1 sells Singapore\u2019s tickets and the Paddock Club itself; join the waitlist now.",
             "BEST VIP INVENTORY SELLS EARLY. Choose your hospitality level the moment the 2027 packages open.",
             "STAY AT RAFFLES AND WALK. It is inside the circuit\u2019s footprint; nothing else in Singapore is.",
             "THE RACE IS AT EIGHT IN THE EVENING and it is thirty degrees. Covered seats, water, and nothing planned for the afternoon.",
@@ -12547,7 +12558,7 @@ const ONE_LIST = {
           ],
           build: [
             { key: "access", title: "Tickets and hospitality", cta: "Add tickets", day: 2, time: "08:00", icon: "trophy",
-              why: (pr) => pr.route === "ballot" ? "Register with The One Club and enter The Open Ballot when it opens; tickets are allocated by draw for each day. Less certain; if you are not drawn, hospitality is the fallback and it sells out. Official channels only." : pr.route === "both" ? "Official hospitality for the championship days you care about most \u2014 the weekend \u2014 and ballot or practice-day tickets for the rest of the week. The best of both, at less than hospitality all week." : "Official hospitality from The Open direct: a championship ticket with a hospitality facility on the course, dining and a bar, grandstand access and priority entry, by the day. When The R&A publishes the 2027 facilities and prices they appear here; nothing is invented before then.",
+              why: (pr) => pr.route === "ballot" ? "Register with The One Club and enter The Open Ballot when it opens; tickets are allocated by draw for each day. Less certain; if you are not drawn, hospitality is the fallback and it sells out. Official channels only." : pr.route === "both" ? "Official hospitality for the championship days you care about most \u2014 the weekend \u2014 and ballot or practice-day tickets for the rest of the week. The best of both, at less than hospitality all week." : "Official hospitality from The Open directly: a championship ticket with a hospitality facility on the course, dining and a bar, grandstand access and priority entry, by the day. When The R&A publishes the 2027 facilities and prices they appear here; nothing is invented before then.",
               links: [{ label: "The Open \u2014 official tickets", url: "https://www.theopen.com/tickets" }, { label: "The Open \u2014 official hospitality", url: "https://www.theopen.com/hospitality" }] },
             { key: "days", title: "Which days", cta: "Choose the days", bookable: false, day: 2, icon: "trophy",
               why: "Thursday and Friday are the whole field and the calmest crowds; Saturday is moving day; SUNDAY IS THE ONE \u2014 the walk up the eighteenth, the town at the windows, the Claret Jug. A practice day, 12\u201314 July, is the Old Course with the players on it and room to breathe. Most clients take two championship days and one practice day." },
@@ -12643,7 +12654,7 @@ const ONE_LIST = {
         beyond: [
           { name: "A table worth the trip", note: "The tables we point you at are award-winning without exception — stars, a Bib, or a place on one of the serious lists. Open the map on any of them and you see exactly where it sits in relation to the courts and to your hotel, which in London in July is the whole question." },
           { name: "The season in full swing", note: "London in July: a night at the Opera or the Proms, the great galleries, Chelsea and Mayfair at their best." },
-          { name: "The Crown Jewels, before the crowds", note: "They sit under armed guard in the JEWEL HOUSE at the Tower of London — 23,578 stones, kept there since 1661 and still worn at a coronation and the State Opening of Parliament. In July the queue is the enemy, and there is a way round it: Historic Royal Palaces sells a SPECIAL OPENING CEREMONY ticket that takes you in before the gates open, to watch the seven-hundred-year-old ceremony and stand first in line as the Jewel House opens. Advance booking only, and worth a reminder in the diary. Book it direct.", link: "https://www.hrp.org.uk/tower-of-london/visit/tickets-and-prices/", linkLabel: "Historic Royal Palaces" },
+          { name: "The Crown Jewels, before the crowds", note: "They sit under armed guard in the JEWEL HOUSE at the Tower of London — 23,578 stones, kept there since 1661 and still worn at a coronation and the State Opening of Parliament. In July the queue is the enemy, and there is a way round it: Historic Royal Palaces sells a SPECIAL OPENING CEREMONY ticket that takes you in before the gates open, to watch the seven-hundred-year-old ceremony and stand first in line as the Jewel House opens. Advance booking only, and worth a reminder in the diary. Book it directly.", link: "https://www.hrp.org.uk/tower-of-london/visit/tickets-and-prices/", linkLabel: "Historic Royal Palaces" },
           { name: "Out of town, if you wish", note: "An easy day to Oxford, Blenheim or Windsor by car — and back to London for dinner." },
         ],
         notes: [
@@ -13054,9 +13065,9 @@ const ONE_LIST = {
         daysSubTitle: "The week",
         days: "Five days, Tuesday to Saturday, each opened at two o'clock by the Royal Procession — the King and the royal party in horse-drawn landaus up the straight mile. Thursday is Ladies' Day and the Gold Cup, the grandest; Saturday the most festive, ending with the singing round the bandstand. The racing is Flat racing at its highest level, but Ascot is as much occasion as sport.",
         ticketsTitle: "Tickets and hospitality \u2014 choose your Ascot",
-        tickets: "ASCOT DIRECT, FIRST. Royal Ascot\u2019s tickets and hospitality are sold by the racecourse itself, and that is where we send you; no reseller is offered anything Ascot sells. Three ways in. THE QUEEN ANNE ENCLOSURE is the premier public enclosure and the best standard ticket for a Voyage One client: the Grandstand, the Parade Ring, excellent race viewing, the Bandstand and the traditional singing after racing, and restaurants, bars and upgraded experiences within it. THE ROYAL ENCLOSURE is Royal Ascot\u2019s most exclusive, and it is not a ticket you buy: access is reserved for Royal Enclosure Members and their invited guests, and if you have access through a Member the badges are booked directly with Ascot from January. HOSPITALITY \u2014 fine dining, restaurants, private boxes, reserved seating, premium viewing and the clubs \u2014 is sold by Ascot with the current year\u2019s exact packages, prices and availability on its own site, which is why we link to it rather than keep a list that goes stale.",
+        tickets: "ASCOT DIRECTLY, FIRST. Royal Ascot\u2019s tickets and hospitality are sold by the racecourse itself, and that is where we send you; no reseller is offered anything Ascot sells. Three ways in. THE QUEEN ANNE ENCLOSURE is the premier public enclosure and the best standard ticket for a Voyage One client: the Grandstand, the Parade Ring, excellent race viewing, the Bandstand and the traditional singing after racing, and restaurants, bars and upgraded experiences within it. THE ROYAL ENCLOSURE is Royal Ascot\u2019s most exclusive, and it is not a ticket you buy: access is reserved for Royal Enclosure Members and their invited guests, and if you have access through a Member the badges are booked directly with Ascot from January. HOSPITALITY \u2014 fine dining, restaurants, private boxes, reserved seating, premium viewing and the clubs \u2014 is sold by Ascot with the current year\u2019s exact packages, prices and availability on its own site, which is why we link to it rather than keep a list that goes stale.",
         ticketBands: [
-          { label: "Queen Anne Enclosure \u2014 premier public enclosure, the Grandstand and the Parade Ring", price: "Book direct with Ascot" },
+          { label: "Queen Anne Enclosure \u2014 premier public enclosure, the Grandstand and the Parade Ring", price: "Book directly with Ascot" },
           { label: "Royal Enclosure \u2014 Members and invited guests only; badges booked through Ascot from January", price: "Learn about access" },
           { label: "Hospitality \u2014 fine dining, premium viewing and private boxes", price: "Explore with Ascot" },
         ],
@@ -13253,7 +13264,7 @@ const ONE_LIST = {
           cur: "\u20ac",
           buildOnly: true,
           daysTitle: "What this night is",
-          daysIntro: "The Champions League Final is the match Europe\u2019s season is played for \u2014 the two clubs left standing from the continent\u2019s competition, one night, one trophy, and a city that fills with both sets of supporters for the weekend. In 2027 it is MADRID, at the ESTADIO METROPOLITANO, on Saturday 5 June. It is one of the world\u2019s major sporting events, and it is one of the hardest tickets in sport: the stadium holds seventy thousand and the two clubs, UEFA\u2019s partners and the wider football family take most of it before the public sees any.\n\nWHICH IS WHY THERE ARE TWO FUNDAMENTALLY DIFFERENT WAYS IN. STANDARD TICKETS \u2014 the general-public allocation, released close to the match through UEFA\u2019s own ticketing, and in recent years allocated by application and lottery rather than sale; you apply, and you may or may not be drawn. OFFICIAL UEFA HOSPITALITY \u2014 a match ticket with premium seating, food and drink, and a lounge or premium space depending on the package, sold by UEFA to individuals and companies first come, first served, with sales for 2027 expected to open at the end of 2026. For a client who wants certainty and a premium night, hospitality is the Voyage One recommendation, and it is bought from UEFA direct.\n\nAnd the weekend is Madrid: an exceptional hotel, the right dinners, the Prado, and a Saturday built around one kick-off.",
+          daysIntro: "The Champions League Final is the match Europe\u2019s season is played for \u2014 the two clubs left standing from the continent\u2019s competition, one night, one trophy, and a city that fills with both sets of supporters for the weekend. In 2027 it is MADRID, at the ESTADIO METROPOLITANO, on Saturday 5 June. It is one of the world\u2019s major sporting events, and it is one of the hardest tickets in sport: the stadium holds seventy thousand and the two clubs, UEFA\u2019s partners and the wider football family take most of it before the public sees any.\n\nWHICH IS WHY THERE ARE TWO FUNDAMENTALLY DIFFERENT WAYS IN. STANDARD TICKETS \u2014 the general-public allocation, released close to the match through UEFA\u2019s own ticketing, and in recent years allocated by application and lottery rather than sale; you apply, and you may or may not be drawn. OFFICIAL UEFA HOSPITALITY \u2014 a match ticket with premium seating, food and drink, and a lounge or premium space depending on the package, sold by UEFA to individuals and companies first come, first served, with sales for 2027 expected to open at the end of 2026. For a client who wants certainty and a premium night, hospitality is the Voyage One recommendation, and it is bought from UEFA directly.\n\nAnd the weekend is Madrid: an exceptional hotel, the right dinners, the Prado, and a Saturday built around one kick-off.",
           stayWord: "hotel",
           stayCollection: "Madrid",
           stayLead: "Where to stay \u2014 a Madrid weekend, not a stadium overnight",
@@ -13281,7 +13292,7 @@ const ONE_LIST = {
           ],
           build: [
             { key: "access", title: "Match access", cta: "Add match access", day: 2, time: "17:00", icon: "trophy",
-              why: (pr) => pr.route === "programme" ? "UEFA has appointed BEYOND HOSPITALITY as authorised sales agent for the official Champions League Final hospitality travel programme through 2027: official hospitality with accommodation, matchday transfers, pre-travel assistance, a personalised itinerary and a celebration dinner. Worth it where its package adds inventory or value \u2014 but if your hotel, flights, transfer and dinners are already built here, hospitality bought from UEFA direct is cleaner." : pr.route === "standard" ? "The general-public allocation, through UEFA\u2019s official ticketing only. In recent years allocated by application and lottery, close to the match; you may not be drawn. Less certain than hospitality. When the 2027 application opens the button below becomes APPLY FOR OFFICIAL TICKETS; nothing is bought from a reseller while the official route exists." : "Official UEFA hospitality, bought from UEFA direct: a match ticket, premium seating, food and drink, and a lounge or premium space. When Madrid 2027 packages are published you choose from UEFA\u2019s actual categories here \u2014 seat location, hospitality space, dining, drinks, pre-match, half-time and post-match access, price and availability. Past finals have offered lounge experiences, served dinners, a Sky Club and skyboxes; the 2027 names and prices are UEFA\u2019s to publish.",
+              why: (pr) => pr.route === "programme" ? "UEFA has appointed BEYOND HOSPITALITY as authorised sales agent for the official Champions League Final hospitality travel programme through 2027: official hospitality with accommodation, matchday transfers, pre-travel assistance, a personalised itinerary and a celebration dinner. Worth it where its package adds inventory or value \u2014 but if your hotel, flights, transfer and dinners are already built here, hospitality bought from UEFA directly is cleaner." : pr.route === "standard" ? "The general-public allocation, through UEFA\u2019s official ticketing only. In recent years allocated by application and lottery, close to the match; you may not be drawn. Less certain than hospitality. When the 2027 application opens the button below becomes APPLY FOR OFFICIAL TICKETS; nothing is bought from a reseller while the official route exists." : "Official UEFA hospitality, bought from UEFA directly: a match ticket, premium seating, food and drink, and a lounge or premium space. When Madrid 2027 packages are published you choose from UEFA\u2019s actual categories here \u2014 seat location, hospitality space, dining, drinks, pre-match, half-time and post-match access, price and availability. Past finals have offered lounge experiences, served dinners, a Sky Club and skyboxes; the 2027 names and prices are UEFA\u2019s to publish.",
               links: [{ label: "UEFA official hospitality", url: "https://hospitality.uefa.com/" }, { label: "UEFA official travel programme", url: "https://www.beyondhospitality.com/" }] },
             { key: "matchtransport", title: "Matchday transport \u2014 hotel to the Metropolitano and back", cta: "Add matchday transport", day: 2, time: "15:30", icon: "car", bookable: true,
               why: "Arranged only once match access is confirmed, and THROUGH YOUR HOTEL \u2014 no rental car, and no car service we have not vetted \u2014 but on final night UEFA closes roads around the Metropolitano and sets drop-off zones and hospitality entrances, so the driver\u2019s route, the arrival time and whether the metro is materially faster are taken from UEFA\u2019s official event guide as the final approaches. We do not promise a driver can deliver you to the stadium entrance until the access rules are published." },
@@ -13322,7 +13333,7 @@ const ONE_LIST = {
             "HOSPITALITY IS FIRST COME, FIRST SERVED. The end-of-2026 opening is the moment; the reminder is set.",
             "MATCHDAY TRANSPORT WAITS FOR UEFA\u2019S EVENT GUIDE. Road closures and drop-off zones are published as the final approaches; the driver\u2019s plan follows them.",
             "SATURDAY BELONGS TO THE MATCH. No formal dinner, no elaborate lunch, nothing that fights the hospitality timing.",
-            "UEFA DIRECT, THEN UEFA\u2019S AUTHORISED PARTNER, THEN NOTHING ELSE while official inventory can solve it.",
+            "UEFA DIRECTLY, THEN UEFA\u2019S AUTHORISED PARTNER, THEN NOTHING ELSE while official inventory can solve it.",
           ],
           handoff: "Plan this trip opens MADRID for four nights, Thursday to Monday, with our Madrid hotels, our tables, flights into Barajas and Aena\u2019s VIP service. Hospitality is bought from UEFA when sales open; the reminder is on the card. Matchday transport is arranged once access is confirmed.",
         } },
@@ -13404,7 +13415,7 @@ const ONE_LIST = {
           stayLead: "Where to stay \u2014 Parker\u2019s has rooms; the Vesuvio does not",
           stayNote: "A LESSON, STATED PLAINLY: the GRAND HOTEL VESUVIO \u2014 on the Via Partenope facing the course, the one hotel that is a grandstand \u2014 was FULLY BOOKED FOR MATCH WEEK by September 2026, ten months out and before the ticket programme was even published. An event like this is booked the day it is announced, not the season before. What remains: PARKER\u2019S in Chiaia, with the whole bay from height; ROMEO by the port; and CAPRI \u2014 J.K. Place, La Palma, the Quisisana \u2014 forty minutes across the bay by hydrofoil, coming over for race days. The Vesuvio may still have nights in the LOUIS VUITTON CUP window in late May and June; ask.",
           stay: [
-            { name: "Grand Hotel Parker\u2019s", area: "Chiaia \u00b7 Corso Vittorio Emanuele, above the bay", tag: "Relais & Ch\u00e2teaux \u00b7 rooms available for the Match", note: "Naples\u2019 grand old hotel, Relais & Ch\u00e2teaux, up the hill in Chiaia: the whole bay and Vesuvius from the George restaurant and the terrace \u2014 the course is below you \u2014 and a short car or a fifteen-minute walk down to the Lungomare and the Race Village. It had availability for Match week when the Vesuvio was already gone. MATCH-WEEK RATE: the hotel\u2019s own, quoted on its site or by phone for your exact nights; expect the premium of the week. Book direct, now." },
+            { name: "Grand Hotel Parker\u2019s", area: "Chiaia \u00b7 Corso Vittorio Emanuele, above the bay", tag: "Relais & Ch\u00e2teaux \u00b7 rooms available for the Match", note: "Naples\u2019 grand old hotel, Relais & Ch\u00e2teaux, up the hill in Chiaia: the whole bay and Vesuvius from the George restaurant and the terrace \u2014 the course is below you \u2014 and a short car or a fifteen-minute walk down to the Lungomare and the Race Village. It had availability for Match week when the Vesuvio was already gone. MATCH-WEEK RATE: the hotel\u2019s own, quoted on its site or by phone for your exact nights; expect the premium of the week. Book directly, now." },
             { name: "Grand Hotel Vesuvio", area: "Lungomare \u00b7 Via Partenope, facing the course", tag: "Fully booked for the Match \u00b7 ask for the Louis Vuitton Cup", note: "On the waterfront opposite the Castel dell\u2019Ovo, with the racecourse in front of the windows \u2014 and sold out for 10\u201318 July by September 2026. Worth asking for a cancellation, and for the late-May and June window." },
           ],
           ticketsTitle: "How you watch \u2014 what is published, and what is not",
@@ -14254,7 +14265,7 @@ notes: [
           ],
           ticketLink: "https://www.rhs.org.uk/shows-events/rhs-chelsea-flower-show",
           ticketLinkLabel: "RHS \u2014 tickets and membership",
-          ticketNote: "Prices are the RHS\u2019s own; 2027 tickets go on sale in October 2026 and the figures above are from 2026. Resale agents ask two to three times the official price for the same ticket \u2014 join the RHS and buy direct instead. No re-entry once you leave; no children under five.",
+          ticketNote: "Prices are the RHS\u2019s own; 2027 tickets go on sale in October 2026 and the figures above are from 2026. Resale agents ask two to three times the official price for the same ticket \u2014 join the RHS and buy directly instead. No re-entry once you leave; no children under five.",
           bookOrder: [
             { what: "RHS membership", when: "Now, if you have not", why: "It is the key to the members\u2019 days and to priority booking. A year\u2019s membership costs less than the markup on one resold ticket." },
             { what: "The Gala Preview ballot, if you want the Monday", when: "The September before \u2014 applications for 2027 closed 12 September 2026", why: "It is the most beautiful evening of the week and it is decided nine months out. Register interest with RHS Special Events for the next one." },
@@ -14302,7 +14313,7 @@ notes: [
           stayEg: "e.g. Sabyinyo Silverback Lodge",
           stayArea: "Volcanoes",
           stayLead: "The lodges at Volcanoes National Park",
-          stayNote: "THREE LODGES, ALL ON THE PARK BOUNDARY.\n\nWHY THE VOLCANOES ARE THE DIVIDER: mountain gorillas live on one range and nowhere else \u2014 the Virunga volcanoes, shared by Rwanda, Uganda and the DRC. Volcanoes National Park is the Rwandan side of that range, so being at the volcanoes IS being at the gorillas. Every lodge below is on its edge, within forty minutes of the park gate where treks begin. Anything further out means a longer drive before a seven a.m. briefing.\n\nThis is also the booking that matters most \u2014 it drives your permit, your transfer and your trekking mornings. Choose one and it moves to the top; then book it direct.",
+          stayNote: "THREE LODGES, ALL ON THE PARK BOUNDARY.\n\nWHY THE VOLCANOES ARE THE DIVIDER: mountain gorillas live on one range and nowhere else \u2014 the Virunga volcanoes, shared by Rwanda, Uganda and the DRC. Volcanoes National Park is the Rwandan side of that range, so being at the volcanoes IS being at the gorillas. Every lodge below is on its edge, within forty minutes of the park gate where treks begin. Anything further out means a longer drive before a seven a.m. briefing.\n\nThis is also the booking that matters most \u2014 it drives your permit, your transfer and your trekking mornings. Choose one and it moves to the top; then book it directly.",
           stayCollection: "Rwanda",
           stay: [
             { name: "Singita Kwitonda Lodge", area: "Volcanoes", rate: null, note: "The one to want, and the reason most people come to Rwanda rather than Uganda. Suites and a private four-bedroom house, Kataza, on the park boundary itself \u2014 each with a heated plunge pool and indoor and outdoor fireplaces, looking straight up at Sabyinyo, Gahinga and Muhabura. Singita bought a hundred and seventy-eight acres of exhausted farmland and has been putting the forest back \u2014 a quarter of a million indigenous trees so far, and a nursery on site that grows them. Everything is handled: permits, the transfer, the porters, the boots you forgot. If you are doing this once, do it here." },
@@ -14385,7 +14396,7 @@ notes: [
           ],
           build: [
             { key: "vessel", title: "The ship or the lodge", cta: "Choose it", day: 1, icon: "trophy",
-              why: (pr) => pr.how === "land" ? "PIKAIA LODGE on Santa Cruz: the lodge, the private yacht M/Y Vision Pikaia for the island days, a naturalist guide, full board, the VIP lounge at Baltra. Baltra (GPS) is your island airport. OFFICIAL 2027 RATES, per person, double: 7 nights US$13,860\u2013US$16,920, 5 nights US$9,880\u2013US$12,095; high and festive season 7 nights US$15,520\u2013US$18,950. Booked direct." : "SILVER ORIGIN or CELEBRITY FLORA, on a seven-night western or eastern loop. The sailing you choose sets your island airport \u2014 Baltra (GPS) or San Crist\u00f3bal (SCY) \u2014 and the dates of everything else. STARTING POINTS for 7 nights, entry suite, per person: Silver Origin from about US$12,200\u2013US$14,000, all-inclusive; Celebrity Flora from about US$7,200, park fee additional. Departure date, route, suite and the exact price: from the line when you choose. Booked direct.",
+              why: (pr) => pr.how === "land" ? "PIKAIA LODGE on Santa Cruz: the lodge, the private yacht M/Y Vision Pikaia for the island days, a naturalist guide, full board, the VIP lounge at Baltra. Baltra (GPS) is your island airport. OFFICIAL 2027 RATES, per person, double: 7 nights US$13,860\u2013US$16,920, 5 nights US$9,880\u2013US$12,095; high and festive season 7 nights US$15,520\u2013US$18,950. Booked directly." : "SILVER ORIGIN or CELEBRITY FLORA, on a seven-night western or eastern loop. The sailing you choose sets your island airport \u2014 Baltra (GPS) or San Crist\u00f3bal (SCY) \u2014 and the dates of everything else. STARTING POINTS for 7 nights, entry suite, per person: Silver Origin from about US$12,200\u2013US$14,000, all-inclusive; Celebrity Flora from about US$7,200, park fee additional. Departure date, route, suite and the exact price: from the line when you choose. Booked directly.",
               links: [{ label: "Silver Origin", url: "https://www.silversea.com/ships/silver-origin.html" }, { label: "Celebrity Flora", url: "https://www.celebritycruises.com/cruise-ships/celebrity-flora" }, { label: "Pikaia Lodge", url: "https://www.pikaialodge.com/" }] },
             { key: "mainland", title: "A night on the mainland first", cta: "Add the mainland night", day: 0, icon: "trophy",
               why: "ARRIVE ECUADOR AT LEAST ONE NIGHT BEFORE THE ISLAND FLIGHT, so an international delay cannot cost you the ship. Quito \u2014 Casa Gangotena in the Old Town \u2014 or Guayaquil, Hotel del Parque, whichever the island flight leaves from. Add Quito as a destination in Plan this trip and it becomes part of the same trip." },
@@ -14431,7 +14442,7 @@ notes: [
             "THE OPERATOR DECIDES THE AIRPORT. Baltra or San Crist\u00f3bal is not your decision.",
             "THE PARK FEES: in the price on Silver Origin and at Pikaia; extra on Celebrity Flora, in cash on arrival.",
           ],
-          handoff: "Plan this trip opens the GAL\u00c1PAGOS with Pikaia and the ships, plus Quito or Guayaquil for the night before, flights into Ecuador and the hotel\u2019s transfers. The ship or lodge is booked direct and sets the dates; the island flight and the formalities follow. Add Quito as a second destination for the mainland nights.",
+          handoff: "Plan this trip opens the GAL\u00c1PAGOS with Pikaia and the ships, plus Quito or Guayaquil for the night before, flights into Ecuador and the hotel\u2019s transfers. The ship or lodge is booked directly and sets the dates; the island flight and the formalities follow. Add Quito as a second destination for the mainland nights.",
         } },
     ],
     "Wild & Remote": [
@@ -14648,7 +14659,7 @@ notes: [
         beyondTitle: "Beyond the night",
         cur: "$",
         stayLead: "The three to want first",
-        stayNote: "Three to want first, then the rest of the island beneath them. Choose one and it moves to the top so you remember which it was \u2014 then book it direct, either here or on the island page after Plan this trip.",
+        stayNote: "Three to want first, then the rest of the island beneath them. Choose one and it moves to the top so you remember which it was \u2014 then book it directly, either here or on the island page after Plan this trip.",
         stayCollection: "St Barth",
         stay: [
           { name: "Cheval Blanc St-Barth", area: "Flamands Beach", rate: null, note: "The grown-up choice and the island's only Palace. Sixty-one rooms on the best beach, majordomes at the top end, and the quietest version of a very loud week. If you want New Year to feel like a great holiday rather than a great party, this is it." },
@@ -15220,14 +15231,14 @@ const HELP_GUIDE = [
   { id: "ways-in", title: "The four ways in", text: "From the home screen you can start four ways. I KNOW WHERE AND WHEN: name your cities and dates and build the trip yourself — flights, hotels, tables, tours. I KNOW WHEN — LET'S EXPLORE: give a season and a mood (ski, beach, golf, fly-fishing, a region) and we suggest where. I KNOW WHERE BUT NOT HOW: name a country or a coast and answer a few questions; we shape the trip an advisor would, from what we carry. INSPIRE ME WITH AN EXPERIENCE: The One List — Wimbledon, the Monaco Grand Prix, Niseko’s powder, Art Basel — pick the moment and we set the dates and the plan." },
   { id: "basics", title: "Basics, Departure, Destinations, Build", text: "The builder runs left to right across the top: BASICS (who is travelling, home city), DEPARTURE (dates and where you leave from), DESTINATIONS (the cities, in order, with nights), then BUILD, where each destination has its own section: how you arrive, the flight, the hotel, dining, things to do, and a car if one makes sense. Choosing a departure date seeds the return a week later so the picker opens in the right month; the return can never be before the departure." },
   { id: "flights", title: "Flights", text: "In each destination's section the flight panel searches live fares into the airport the site chose — or a hub you pick, if you would rather fly into Milan and drive to Florence. Tap a fare to lock it in. If you booked elsewhere, or by phone, use ALREADY BOOKED THIS FLIGHT YOURSELF? RECORD IT under the panel: the airline is enough, everything else is optional, and it prints on the itinerary. Dates more than about eleven months out show no fares because airlines have not released them yet — the panel tells you when they open." },
-  { id: "delta-emirates", title: "Delta and Emirates", text: "Delta and Emirates do not appear in the live fares — neither sells through the channel the site searches. Each has its own panel under the flights: enter the flight you found on their site (or by phone) and it is recorded and printed like any other. Book them direct with the airline." },
+  { id: "delta-emirates", title: "Delta and Emirates", text: "Delta and Emirates do not appear in the live fares — neither sells through the channel the site searches. Each has its own panel under the flights: enter the flight you found on their site (or by phone) and it is recorded and printed like any other. Book them directly with the airline." },
   { id: "cabins", title: "Finding the right flight", text: "Use the flight panel to explore: play with the dates, the times, the routing and the class until the route looks right — nonstop or one stop, morning or evening, Business or First. The fares are there to show you what exists and roughly what it costs. Then book it yourself, direct with the airline, in whatever cabin you want on each leg; the airline's own site will let you choose Business for the long flight and whatever the short hop sells. Record what you booked here and it prints on the itinerary." },
-  { id: "booked", title: "Booked / Not booked", text: "Under every chosen hotel, flight and restaurant there is a BOOKED / NOT BOOKED row with a field for the confirmation number. Nothing detects anything — you tell it, which is right for a hotel you booked by phone or a group booking made months ago. The itinerary prints what you tell it. If you tap a Book direct link, the site asks fifteen seconds later whether you booked. Every booking question has two answers, YES and NO. Yes opens the details \u2014 a confirmation, a date, the company \u2014 and the itinerary shows Booked; No leaves the item on your list as Not booked. Nothing is ever marked booked by the app on its own." },
+  { id: "booked", title: "Booked / Not booked", text: "Under every chosen hotel, flight and restaurant there is a BOOKED / NOT BOOKED row with a field for the confirmation number. Nothing detects anything — you tell it, which is right for a hotel you booked by phone or a group booking made months ago. The itinerary prints what you tell it. If you tap a Book directly link, the site asks fifteen seconds later whether you booked. Every booking question has two answers, YES and NO. Yes opens the details \u2014 a confirmation, a date, the company \u2014 and the itinerary shows Booked; No leaves the item on your list as Not booked. Nothing is ever marked booked by the app on its own." },
   { id: "cars", title: "Rental cars", text: "A car is offered at the airport you land at \u2014 Malpensa for Florence, Palermo for Sciacca. Under the panel, DID YOU BOOK A CAR? records the company, where you collected it and where you are dropping it. ONE CAR, MANY STOPS: record a drop-off in another city or at an airport and the car travels with you \u2014 the stops between are by road, and the return goes on the itinerary on the day you fly. Venice, Capri, Hydra and Zermatt show the water or rail arrival instead. Any SIXT booking carries an inside scoop: they will often collect the car from your hotel and take it to the airport." },
   { id: "exit", title: "Flying out from", text: "Each destination shows FLYING OUT FROM — what the site worked out, with a CHANGE link. Tap it to pick a different city (Porto instead of Lisbon, say) or type one. Your choice wins over every guess, including the car drop-off." },
   { id: "hotels", title: "Hotels and neighbourhoods", text: "Hotels come in two tiers, LUXURY and ULTRA LUXURY, and every one has been vetted — there is nothing below five-star caliber on the site. In larger cities a WHERE IN [CITY] row lets you narrow to a neighbourhood: Mayfair, the 8th, Elounda. Tap a hotel to open it; WHERE IS IT? shows that hotel alone on a map. Some places also show a NEARBY group — Monaco's Riviera hotels, for instance — with the travel time on each card." },
   { id: "dining", title: "Dining", text: "Every restaurant shown has won something — Michelin stars, a Bib Gourmand, a place on the 50 Best or La Liste, a Beard award. DESTINATION tables are the ones worth travelling for; RECOMMENDED are excellent and nearer. Small towns borrow tables from neighbours within reach, so a stay in Stellenbosch shows Franschhoek's. WHERE IS IT? maps any table." },
-  { id: "vip", title: "Airport assistance", text: "Once a flight is booked, if it lands at or leaves from an airport where we list a meet-and-assist service, a short card appears under the flight: the provider\u2019s name, one line, and VISIT THE SITE. You book direct. These are the services we think are the best at each airport, many of which we have used ourselves and loved \u2014 Airconsult in Italy and Omni Handling in Portugal among them \u2014 and the airports\u2019 own services where those are the best, as in Madrid, Barcelona, Zurich and Dubai." },
+  { id: "vip", title: "Airport assistance", text: "Once a flight is booked, if it lands at or leaves from an airport where we list a meet-and-assist service, a short card appears under the flight: the provider\u2019s name, one line, and VISIT THE SITE. You book directly. These are the services we think are the best at each airport, many of which we have used ourselves and loved \u2014 Airconsult in Italy and Omni Handling in Portugal among them \u2014 and the airports\u2019 own services where those are the best, as in Madrid, Barcelona, Zurich and Dubai." },
   { id: "itinerary", title: "The itinerary", text: "When the plan is built, the itinerary is the one page with everything you know: the masthead with your names and dates, the map, booking guidance, A SECOND READ (what an advisor would flag before you pay), the DAILY SCHEDULE with every flight, car, hotel and table, then MORE THOUGHTS ON YOUR DESTINATIONS and BEFORE YOU LEAVE. Every leg shows Booked or Not booked and the reference. It now opens with the drive from home to the airport when your city has no airport of its own, carries any event tickets you recorded on their day, and ends each road trip with the car return on the day you fly." },
   { id: "print", title: "Printing and PDFs", text: "Press SEND AS PDF at the top of the itinerary. That goes through the print layout — letter pages, no buttons, days never split across a page — and from the preview you can save a PDF or print. Do not use Safari's share-sheet PDF: that copies the screen and ignores the print layout." },
   { id: "saved", title: "Saved journeys", text: "Trips save automatically as you work. On this device they are kept in the browser; signed in, they are kept in your account and follow you. Clearing Safari's website data removes browser-kept trips. Open a saved journey from the home screen; everything you recorded is still there." },
@@ -15699,7 +15710,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : `Select ${s.name} →`}</span>
                   </div>
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
-                  {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book direct — tap any hotel below to change.</div> : null}
+                  {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book directly — tap any hotel below to change.</div> : null}
                 </button>); };
             const feat = g.stay || [];
             const collKey = g.stayCollection || (g.stayFromBase && basePick ? basePick.city : null);
@@ -15720,7 +15731,7 @@ function OneList({ onPick, onBack, onHome }) {
             </div>
             {collection.length ? (<div style={{ marginTop: 18 }}>
               <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>The full {g.stayCollection || bareCity(ev.city)} collection</div>
-              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10 }}>{`Every ${L.stayWord} on our list for ${g.stayCollection || bareCity(ev.city)}. Choose any of them and book direct.`}</div>
+              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 10 }}>{`Every ${L.stayWord} on our list for ${g.stayCollection || bareCity(ev.city)}. Choose any of them and book directly.`}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {collOrdered.map((s, k) => stayCard(s, k + 100))}
               </div>
@@ -16864,7 +16875,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
               // here", NOT "no first class on this route" — and we must not imply the second.
               if (cabin === "First") {
                 const gl = flightSearchLink({ depAirport: from, arrAirport: to, cabin: "first" }, date);
-                return (<>No FIRST fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""} — and that is about distribution, not availability. Airlines sell very little first class through third parties, and a journey is only returned as First if EVERY leg is First, so a long-haul in First with a short connection in business will not appear here.{gl ? <> Open <a href={gl} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600 }}>the full first-class search</a> to see what the airlines are actually selling, and book direct.</> : null} Switching to Business will usually fill this list.</>);
+                return (<>No FIRST fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""} — and that is about distribution, not availability. Airlines sell very little first class through third parties, and a journey is only returned as First if EVERY leg is First, so a long-haul in First with a short connection in business will not appear here.{gl ? <> Open <a href={gl} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600 }}>the full first-class search</a> to see what the airlines are actually selling, and book directly.</> : null} Switching to Business will usually fill this list.</>);
               }
               const iF = islandOf(from), iT = islandOf(to);
               if ((iF || iT) && iF !== iT) {
@@ -17134,7 +17145,7 @@ function GettingAroundPanel({ city }) {
         {x.web ? <a href={brandedLink(x.web, { kind: "driver", name: x.n, city: bareCity(city) })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 6, fontSize: 13, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Contact {x.n} ↗</a> : null}
       </div>))}
       <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 10 }}>
-        These are the operators we would use. You book direct with them, and they confirm the vehicle and the price with you.
+        These are the operators we would use. You book directly with them, and they confirm the vehicle and the price with you.
       </div>
     </div>
     {cars.length > 0 && (<div>
@@ -17145,7 +17156,7 @@ function GettingAroundPanel({ city }) {
       {(open || rule.r === "rec" ? cars : cars.slice(0, 1)).map((b) => <RentalRow key={b.key} b={b} />)}
       {!open && rule.r !== "rec" && cars.length > 1 && <button onClick={() => setOpen(true)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13 }}>View more options</button>}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>
-        You book direct with the company — Voyage One never holds the reservation or the payment.
+        You book directly with the company — Voyage One never holds the reservation or the payment.
       </div>
     </div>)}
   </Panel>);
@@ -17471,7 +17482,7 @@ function RentalRow({ b, faded }) {
       <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 3 }}>{b.note}</span>
       {scoop ? <span style={{ display: "block", fontSize: 12.5, color: t.ink, lineHeight: 1.5, marginTop: 6, paddingLeft: 9, borderLeft: `2px solid ${t.brass}` }}><strong style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: t.brass }}>Inside scoop</strong> {scoop}</span> : null}
     </span>
-    <span style={{ fontSize: 13.5, fontWeight: 600, color: t.pine, whiteSpace: "nowrap" }}>Book direct →</span>
+    <span style={{ fontSize: 13.5, fontWeight: 600, color: t.pine, whiteSpace: "nowrap" }}>Book directly →</span>
   </a>);
 }
 
@@ -17774,7 +17785,7 @@ function RentalPanel({ city, destination, compact, car, upd, dropChoices }) {
       <strong style={{ color: t.ink }}>Two things to settle when you book.</strong> An automatic is not the default in Europe and has to be asked for — assume a manual unless the booking says otherwise. And if your route crosses a border, confirm that the company and the vehicle class are permitted in every country on it; premium and performance cars are often restricted, particularly heading east.
     </div>}
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 10, lineHeight: 1.5 }}>
-      Chosen on service, coverage and premium availability — both vary by destination. You book direct with the company; Voyage One never holds the reservation or the payment.
+      Chosen on service, coverage and premium availability — both vary by destination. You book directly with the company; Voyage One never holds the reservation or the payment.
     </div>
     {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} companies={(region ? rentalPrimary(region) : []).map((b) => b.key)} /> : null}
   </Panel>);
@@ -18108,7 +18119,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
-          : site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book direct at {s.name} →</a> : null}
+          : site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book directly at {s.name} →</a> : null}
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
@@ -18220,7 +18231,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}><span style={{ fontSize: 15, fontWeight: 700 }}>{h.name}</span><span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", fontWeight: 700, color: on ? t.brassLight : t.brass }}>{h.tag || (tierOf(h.name) === "UltraLux" ? "Ultra Luxury" : tierOf(h.name) === "Best" ? "Best available" : "Luxury")}</span></div>
       {h.area ? <div style={{ fontSize: 12.5, opacity: .8, marginTop: 2 }}>{h.area}</div> : null}
       {h.note ? <div style={{ fontSize: 13, lineHeight: 1.5, marginTop: 5, opacity: on ? .95 : 1 }}>{h.note}</div> : null}
-      <div style={{ fontSize: 12, marginTop: 6, opacity: .8 }}>Event-week rate: check live availability — booked direct with the hotel.</div>
+      <div style={{ fontSize: 12, marginTop: 6, opacity: .8 }}>Event-week rate: check live availability — booked directly with the hotel.</div>
       <div style={{ fontSize: 12.5, fontWeight: 700, marginTop: 6 }}>{on ? "Selected ✓" : `Select ${h.name.split(",")[0]}`}</div>
     </button>); })}</div>
     <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 6 }}>The full {bareCity(city)} list, by tier, is below.</div>
@@ -18261,7 +18272,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
         <button onClick={() => setShowOthers(!showOthers)} style={{ marginTop: 12, background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
           {showOthers ? "Hide the other options" : `See the other ${favRest.length} ${favRest.length === 1 ? "option" : "options"} in ${bareCity(city)}`}
         </button>) : null}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>{collapse ? "This is your choice — book it direct with the property, or see the other options above to change it." : "Tap one to open it up and choose — then book it direct with the property."}</div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>{collapse ? "This is your choice — book it directly with the property, or see the other options above to change it." : "Tap one to open it up and choose — then book it directly with the property."}</div>
     </>)}
       {/* A HOTEL YOU BOOKED ELSEWHERE STILL NEEDS A PLACE TO SAY SO. This sat inside the expanded
           picker, so a collapsed card, a hotel from the live feed, or one seeded by an experience
@@ -18285,7 +18296,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
             hotels appear here — every one is curated — so crediting it for the selection would
             be untrue. Google still supplies photographs and addresses for hotels already chosen,
             which the photo endpoint attributes where it is used. */}
-        <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Every property here is chosen by us. You book direct with the hotel — we never hold the reservation.</div>
+        <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Every property here is chosen by us. You book directly with the hotel — we never hold the reservation.</div>
       </>)}
     </>)}
     {city && level && <FindPlace city={city} kind="hotels" nights={nights} label="Prefer another? Search for a hotel by name."
