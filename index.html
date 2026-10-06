@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M763";
+const BUILD = "M764";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12229,7 +12229,7 @@ function LandingMenu({ user, authReady, onOpenAuth, onSignOut, onExplore }) {
   const item = { display: "block", width: "100%", textAlign: "left", background: "none", border: "none", padding: "12px 14px", fontSize: 14.5, color: t.ink, fontFamily: font.ui, cursor: "pointer", borderRadius: 10 };
   return (<>
     {open ? <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 58 }} /> : null}
-    <div className="vo-noprint" style={{ position: "fixed", left: 18, bottom: "max(34px, calc(22px + env(safe-area-inset-bottom, 0px)))", zIndex: 60 }}>
+    <div className="vo-noprint" style={{ position: "fixed", left: 18, bottom: "max(34px, calc(22px + env(safe-area-inset-bottom, 0px)))", zIndex: 60, display: "flex", alignItems: "flex-end", height: 48, lineHeight: 0 }}>
       {open ? (<div style={{ position: "absolute", left: 0, bottom: 58, width: 230, background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, boxShadow: "0 12px 40px rgba(0,0,0,.14)", padding: 8 }}>
         {authReady && !user ? <button onClick={() => { setOpen(false); onOpenAuth(); }} style={item}>Sign in</button> : null}
         {authReady && user ? <button onClick={() => { setOpen(false); onSignOut(); }} style={item}>Sign out</button> : null}
@@ -12238,7 +12238,7 @@ function LandingMenu({ user, authReady, onOpenAuth, onSignOut, onExplore }) {
         <button onClick={() => { setOpen(false); onExplore(); }} style={item}>Explore a place</button>
         <button onClick={() => { setOpen(false); window.dispatchEvent(new Event("vo-open-help")); }} style={item}>Help</button>
       </div>) : null}
-      <button onClick={() => setOpen((o) => !o)} aria-label="Menu" style={{ width: 48, height: 48, borderRadius: 999, background: t.pine, color: t.paper, border: "none", fontSize: 20, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>☰</button>
+      <button onClick={() => setOpen((o) => !o)} aria-label="Menu" style={{ width: 48, height: 48, borderRadius: 999, background: t.pine, color: t.paper, border: "none", fontSize: 20, lineHeight: "48px", padding: 0, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>☰</button>
     </div>
   </>);
 }
@@ -12278,11 +12278,11 @@ function Landing({ trips, onOpen, onBegin, onDelete, canSave, stale, user, authR
         </div>}
         {stale && <div style={{ fontSize: 12.5, color: t.brass, maxWidth: 460, lineHeight: 1.5 }}>One of these journeys was saved by an earlier version of Voyage One and cannot be opened safely. Begin a new one.</div>}
         <div style={{ marginTop: 4, display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center", position: "relative" }}>
-          <button onClick={onBegin} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "16px 38px", fontSize: 15, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{has ? "Begin another journey" : "Begin your journey"} <ArrowRight size={17} /></button>
+          <button onClick={onBegin} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "19px 46px", fontSize: 17.5, letterSpacing: "0.04em", display: "flex", alignItems: "center", gap: 10 }}>{has ? "Begin another journey" : "Begin your journey"} <ArrowRight size={17} /></button>
         </div>
         {/* EXPLORE A PLACE: smaller, below the way in and to its right, between the button and the ?. */}
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 14 }}>
-          <button onClick={onExplore} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 999, padding: "12px 26px", fontSize: 15, letterSpacing: "0.04em", color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>Explore a place</button>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 22 }}>
+          <button onClick={onExplore} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 999, padding: "15px 34px", fontSize: 17, letterSpacing: "0.04em", color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>Explore a place</button>
         </div>
 
         {!canSave && !user && <div style={{ fontSize: 12.5, color: t.brass, maxWidth: 460, lineHeight: 1.5 }}>This browser will not let Voyage One save journeys — private browsing usually causes this. You can still plan a trip, but it will not be here when you come back.</div>}
