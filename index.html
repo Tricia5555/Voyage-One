@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M783";
+const BUILD = "M784";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -11230,6 +11230,7 @@ const CITY_SUGGEST_CACHE = {};
 // traveller who picked it landed on an empty page. Offering a destination we cannot serve is a
 // promise the app then breaks. Someone determined to visit somewhere uncurated already knows the
 // name and can type it in full; what they should not get is the app suggesting it.
+const US_AIRPORT_STATE = { BHM: "AL", HSV: "AL", MGM: "AL", MOB: "AL", ANC: "AK", PHX: "AZ", TUS: "AZ", LIT: "AR", LAX: "CA", SFO: "CA", SAN: "CA", SJC: "CA", OAK: "CA", SMF: "CA", SNA: "CA", BUR: "CA", LGB: "CA", ONT: "CA", PSP: "CA", SBA: "CA", MRY: "CA", STS: "CA", DEN: "CO", ASE: "CO", EGE: "CO", COS: "CO", HDN: "CO", MTJ: "CO", BDL: "CT", DCA: "DC", IAD: "DC", MIA: "FL", FLL: "FL", PBI: "FL", MCO: "FL", TPA: "FL", RSW: "FL", JAX: "FL", EYW: "FL", SRQ: "FL", PNS: "FL", ATL: "GA", SAV: "GA", HNL: "HI", OGG: "HI", KOA: "HI", LIH: "HI", ITO: "HI", BOI: "ID", SUN: "ID", ORD: "IL", MDW: "IL", IND: "IN", CID: "IA", DSM: "IA", MCI: "MO", STL: "MO", SDF: "KY", LEX: "KY", MSY: "LA", BTR: "LA", PWM: "ME", BWI: "MD", BOS: "MA", ACK: "MA", MVY: "MA", DTW: "MI", GRR: "MI", TVC: "MI", MSP: "MN", JAN: "MS", GPT: "MS", BZN: "MT", MSO: "MT", OMA: "NE", LAS: "NV", RNO: "NV", MHT: "NH", EWR: "NJ", ACY: "NJ", ABQ: "NM", SAF: "NM", JFK: "NY", LGA: "NY", HPN: "NY", ALB: "NY", BUF: "NY", ROC: "NY", SYR: "NY", ISP: "NY", CLT: "NC", RDU: "NC", AVL: "NC", ILM: "NC", CLE: "OH", CMH: "OH", CVG: "OH", OKC: "OK", TUL: "OK", PDX: "OR", PHL: "PA", PIT: "PA", PVD: "RI", CHS: "SC", HHH: "SC", GSP: "SC", MYR: "SC", RSD: "SD", FSD: "SD", BNA: "TN", MEM: "TN", TYS: "TN", CHA: "TN", DFW: "TX", DAL: "TX", IAH: "TX", HOU: "TX", AUS: "TX", SAT: "TX", ELP: "TX", SLC: "UT", BTV: "VT", RIC: "VA", ORF: "VA", SEA: "WA", GEG: "WA", MKE: "WI", JAC: "WY", SJU: "PR", STT: "USVI", STX: "USVI" };
 const CITY_NAMED_REGIONS = new Set(["lisbon", "lisboa", "porto", "madrid", "vienna", "wien", "berlin", "hamburg", "bremen", "prague", "praha", "zagreb", "bratislava", "budapest", "dublin", "brussels", "bruxelles", "luxembourg", "buenos aires", "mexico city", "ciudad de m\u00e9xico", "santiago", "bogot\u00e1", "bogota", "montevideo", "lima", "istanbul", "ankara", "tokyo", "seoul", "bangkok", "jakarta", "manila", "cairo", "riyadh", "doha", "dubai", "abu dhabi", "moscow", "kyiv", "oslo", "stockholm", "copenhagen", "helsinki", "warsaw", "sofia", "belgrade", "athens", "rome", "roma", "milan", "milano", "naples", "napoli", "paris", "london", "edinburgh", "glasgow", "lyon", "marseille", "nice", "geneva", "gen\u00e8ve", "zurich", "z\u00fcrich", "basel", "bern", "singapore", "hong kong", "shanghai", "beijing", "sydney", "melbourne", "auckland", "wellington", "cape town", "johannesburg", "nairobi", "marrakech", "casablanca", "tunis", "algiers", "beirut", "amman", "jerusalem", "tel aviv", "havana", "panama", "san jos\u00e9", "quito", "guayaquil", "la paz", "asunci\u00f3n", "caracas"]);
 function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const [open, setOpen] = useState(false);
@@ -11367,14 +11368,15 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
         // A region that is really a city's name (Lisbon the district, Vienna the state) is not a
         // label for another town: Cascais is its own place, so it reads "Cascais, Portugal".
         const regionOk = r.region && r.region.toLowerCase() !== r.city.toLowerCase() && !CITY_NAMED_REGIONS.has(r.region.toLowerCase());
-        const label = r.code ? `${r.city} (${r.code})` : (regionOk ? `${r.city}, ${r.region}` : (r.country ? `${r.city}, ${r.country}` : r.city));
+        const usSt = r.code && (r.countryCode === "US" || US_AIRPORT_STATE[r.code]) ? US_AIRPORT_STATE[r.code] : null;   // an American airport carries its state
+        const label = r.code ? (usSt ? `${r.city}, ${usSt} (${r.code})` : `${r.city} (${r.code})`) : (regionOk ? `${r.city}, ${r.region}` : (r.country ? `${r.city}, ${r.country}` : r.city));
         return (<button key={"l" + (r.code || r.city) + i} onMouseDown={(e) => { e.preventDefault(); choose(label, r); }} style={{ display: "flex", width: "100%", textAlign: "left", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "11px 14px", background: "none", border: "none", fontFamily: font.ui, fontSize: 14.5, color: t.ink }}>
           <span style={{ minWidth: 0 }}>
             <span>{r.city}</span>
             {/* State or region first, because that is what separates two places sharing a name.
                 "Providence · RI · United States" against "Providence · VA · United States" —
                 the country was never the thing in doubt. */}
-            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.region && r.region.toLowerCase() !== r.city.toLowerCase() && !CITY_NAMED_REGIONS.has(r.region.toLowerCase()) ? `  ${r.region}` : ""}{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
+            <span style={{ color: t.inkFaint, fontSize: 12.5 }}>{r.code && US_AIRPORT_STATE[r.code] ? `  ${US_AIRPORT_STATE[r.code]}` : r.region && r.region.toLowerCase() !== r.city.toLowerCase() && !CITY_NAMED_REGIONS.has(r.region.toLowerCase()) ? `  ${r.region}` : ""}{r.country ? `  ${r.country}` : ""}{r.airport ? `  ${r.airport}` : ""}</span>
           </span>
           <span style={{ color: t.brass, fontSize: 12.5, letterSpacing: "0.08em", flexShrink: 0 }}>{r.code || ""}</span>
         </button>);
@@ -16008,6 +16010,7 @@ function HomeAirportPanel({ city, onChoose, transfer, onTransfer }) {
   if (!opts && !own) return (<div style={{ marginTop: 14, fontSize: 13, color: t.inkFaint }}>Finding the nearest airport to {bare}…</div>);
   if (!list.length) return null;
   const isOwn = list.find((o) => o.isOwn);
+  if (isOwn) return (<div style={{ marginTop: 14, fontSize: 13.5, color: t.inkSoft }}>You fly from <strong style={{ color: t.ink }}>{isOwn.city} ({isOwn.code})</strong>.</div>);
   const sel = chosen || (list.find((o) => o.hasService) || list[0]).code;
   const best = list.find((o) => o.code === sel) || list[0];
   return (<div style={{ marginTop: 16, padding: "14px 16px", background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, maxWidth: 560 }}>
