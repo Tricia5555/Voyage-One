@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M787";
+const BUILD = "M789";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7375,9 +7375,9 @@ function credOf(name,city){
 // with dnrm() before the lookup. A capitalised key silently never matches — the entry simply
 // never appears, with nothing to show it was ignored.
 const LOCALFAV = {
-  // LISBON (8 Oct 2026, Tricia, firsthand): the rooftop at the Four Seasons.
-  "lisbon": [
-    { n: "Dani Brasserie", us:0, vo:1, voNote: "the rooftop terrace is the real standout \u2014 panoramic views across Lisbon with the landmarks in several directions; excellent food, particularly strong service, and an exceptional sommelier", note: "On the roof of the Four Seasons Hotel Ritz Lisbon: excellent food, particularly strong service, and the real standout \u2014 an outdoor terrace with panoramic views across Lisbon, the landmarks visible in several directions. The sommelier experience was exceptional. For rooftop dining, sunset and evening drinks, the views, the service and the wine." },
+  // MADRID (8 Oct 2026, Tricia, firsthand): Dani Garc\u00eda\u2019s rooftop at the Four Seasons.
+  "madrid": [
+    { n: "Dani Brasserie", us:0, vo:1, voNote: "the rooftop terrace is the real standout \u2014 panoramic views across Madrid with the landmarks in several directions; excellent food, particularly strong service, and an exceptional sommelier", note: "Dani Garc\u00eda\u2019s brasserie on the roof of the Four Seasons Hotel Madrid: excellent food, particularly strong service, and the real standout \u2014 an outdoor terrace with panoramic views across Madrid, the landmarks visible in several directions. The sommelier experience was exceptional. For rooftop dining, sunset and evening drinks, the views, the service and the wine." },
   ],
   // CASCAIS (3 Oct 2026, Tricia): two long-established seafood houses on the Atlantic.
   "cascais": [
@@ -18623,7 +18623,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   const localFavRows = localFavFor(city);
   const cardRows = level === "Local" ? localFavRows : pool.filter((r) => michTier(r, dense) === level);
   // If the tab we are standing on has just disappeared, move somewhere that exists.
-  useEffect(() => { if (level == null) return; if (level === "Local" && localFavRows.length === 0) setLevel("Destination"); }, [localFavRows.length, level]);
+  useEffect(() => { if (level == null) return; const n = level === "Local" ? localFavRows.length : pool.filter((r) => michTier(r, dense) === level).length; if (n === 0) setLevel(null); }, [localFavRows.length, pool.length, level]);   // a category with nothing in it is not shown, so it cannot stay chosen
   useEffect(() => {
     if (tabSettled.current || level == null || !dines.length || !localFavRows.length) return;
     const chosenIsLocal = dines.some((d) => localFavRows.some((r) => keyOf(r.n) === keyOf(d.name)));
@@ -18642,6 +18642,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
           Favorite is different: it is a hand-picked list, so an empty tab says only that nobody
           has got to this city yet, which is about us rather than about the place. */}
       {DINE_TABS.map((dl) => { const n = dl.key === "Local" ? localFavRows.length : pool.filter((r) => michTier(r, dense) === dl.key).length; const on = level === dl.key;
+        if (!n) return null;   // no chip for an empty category: a tap that does nothing is worse than no tap
         return (<button key={dl.key} onClick={() => setLevel(on ? null : dl.key)} style={{ ...chip(on), padding: level == null ? "12px 18px" : "9px 14px", fontSize: level == null ? 14.5 : 13 }}>{dl.label}{n ? <span style={{ marginLeft: 8, fontSize: 11.5, opacity: .8 }}>{n}</span> : null}</button>); })}
       <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span>
     </div>
