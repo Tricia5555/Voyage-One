@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M790";
+const BUILD = "M791";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -19029,6 +19029,21 @@ function inTownRadiusMi(city) {
 // people gave it, so a 4.7 from twelve thousand outranks a 5.0 from nine. Ten show; "N more"
 // opens the rest. The same for Nearby.
 const TOP_THINGS = 10;
+// Are two names the same place? Case, accents and punctuation set aside, then the words that
+// describe a kind of place rather than name it. "The Louvre" and "Louvre Museum" both come to
+// "louvre"; "Uffizi" and "Uffizi Gallery" to "uffizi"; "Duomo" and "Duomo di Milano" to "duomo"
+// and "duomo milano", matched because the longer name BEGINS with the shorter. "Museo dell'Opera
+// del Duomo" does not begin with it and stays a separate place, which it is. Nothing under five
+// letters is ever matched by prefix ("Tate" is not "Tate Modern").
+const THING_NOISE = /\b(the|le|la|les|el|los|las|il|lo|gli|die|der|das|of|d|l|de|del|della|di|du|des|museum|museo|musée|musee|gallery|galleria|galerie|national|nazionale|cathedral|basilica|palace|palazzo|palais|house|park|parc|garden|gardens|tickets?|tour|tours|visit)\b/g;
+function thingKey(n) { return dnrm(String(n || "")).replace(/[’'"().,:;!?\-–—\/&]+/g, " ").replace(THING_NOISE, " ").replace(/\s+/g, " ").trim(); }
+function sameThing(a, b) {
+  const x = thingKey(a), y = thingKey(b); if (!x || !y) return false;
+  if (x === y) return true;
+  const short = x.length <= y.length ? x : y, long = x.length <= y.length ? y : x;
+  if (short.length < 5) return false;
+  return long.startsWith(short + " ");
+}
 function popularity(r) { const o = r[3] || {}; const rating = Number(o.rating) || 0, n = Number(o.reviews) || 0; return rating * Math.log10(n + 10); }
 
 // ══ SPORTS YOU WATCH ══════════════════════════════════════════════════════════════════════════
@@ -19259,7 +19274,11 @@ function isWineRegion(city) { const b = dnrm(bareCity(city || "")); return WINE_
 function ThingsPanel({ city, chosen, onToggle, nights, onDate, label }) {
   const curated = toursData(city);
   const live = useCityThings(city, isWineRegion(city) ? "wineries and vineyards to visit" : "");
-  const fresh = live.filter((r) => !curated.some((c) => dnrm(c[0]) === dnrm(r[0]))).slice().sort((a, b) => popularity(b) - popularity(a));
+  // ONE LOUVRE. The curated row is "The Louvre"; Google calls it "Louvre Museum", so an exact
+  // name match let both through. A live result is the same place as a curated row when the
+  // names agree once "the", "museum", "gallery", "cathedral" and the like are set aside, or when
+  // it matches the name the row is looked up by (opts.find). Universal: every curated icon.
+  const fresh = live.filter((r) => !curated.some((c) => sameThing(c[0], r[0]) || (c[3] && c[3].find && sameThing(c[3].find, r[0])))).slice().sort((a, b) => popularity(b) - popularity(a));
   const inTown = fresh.filter((r) => !(r[3] && r[3].nearby));
   const nearby = fresh.filter((r) => r[3] && r[3].nearby).map((r) => [r[0], r[1], `${r[3].mi} mi away \u00b7 ${r[2]}`, r[3]]);
   const [allIn, setAllIn] = useState(false); const [allNear, setAllNear] = useState(false);
