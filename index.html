@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M789";
+const BUILD = "M790";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10081,6 +10081,37 @@ const FERRIES = [
   ["Nevis", "St Kitts", 45],
 ];
 const FERRY_LIMIT_MIN = 180;
+// CAR FERRIES. A rental car dropped on an island means the car crosses with you, and the app has
+// to say what that crossing is — the port you drive to, the operator, how long you are on the
+// boat. These are long crossings a traveller would never take without the car, so they are NOT in
+// FERRIES (which is for hops you take with your bags) and are only ever shown when a car is in
+// hand. Each entry: mainland port and island port with their coordinates, the island, hours on
+// the boat as a range, operators with their sites, and a plain note. Durations and operators were
+// checked on 10 Oct 2026; sailings change by season, so the panel always sends the traveller to
+// the operator for dates. A crossing not in this table is not invented: the panel says the car
+// crosses by ferry and that we do not hold the sailing.
+const CAR_FERRIES = [
+  { from: { name: "Barcelona", at: [41.37, 2.18] }, to: { name: "Palma", at: [39.56, 2.63] }, island: "Mallorca", hours: [7, 8], ops: [["Baleària", "https://www.balearia.com"], ["Trasmed", "https://www.trasmed.com"], ["GNV", "https://www.gnv.it"]], note: "Daily, mostly overnight, into Palma itself." },
+  { from: { name: "Valencia", at: [39.45, -0.32] }, to: { name: "Palma", at: [39.56, 2.63] }, island: "Mallorca", hours: [7, 9], ops: [["Baleària", "https://www.balearia.com"], ["Trasmed", "https://www.trasmed.com"]], note: "Daily, mostly overnight." },
+  { from: { name: "Toulon", at: [43.12, 5.93] }, to: { name: "Alcúdia", at: [39.84, 3.13] }, island: "Mallorca", hours: [14, 20], ops: [["Corsica Ferries", "https://www.corsica-ferries.fr"]], note: "A few sailings a week, seasonal, into Alcúdia in the north of the island — the only crossing from France, and a long one." },
+  { from: { name: "Villa San Giovanni", at: [38.22, 15.64] }, to: { name: "Messina", at: [38.19, 15.56] }, island: "Sicily", hours: [0.33, 0.5], ops: [["Caronte & Tourist", "https://www.carontetourist.it"]], note: "Twenty minutes across the Strait, sailing around the clock; no booking needed." },
+];
+// Both directions: onto the island (drive to the mainland port, cross, drive on) and off it again
+// (the same crossing reversed). Two islands with no direct crossing in the table give nothing.
+function carFerriesTo(fromPlace, toPlace) {
+  const ib = islandOf(toPlace), ia = islandOf(fromPlace);
+  if (ia === ib) return [];
+  const A = coordsFor(fromPlace), B = coordsFor(toPlace);
+  const hav = (p, q) => { if (!p || !q) return null; const R = 6371, rad = (x) => (x * Math.PI) / 180; const dLat = rad(q[0] - p[0]), dLon = rad(q[1] - p[1]); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(p[0])) * Math.cos(rad(q[0])) * Math.sin(dLon / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(h))); };
+  const roadMins = (km) => { if (km == null) return null; const road = Math.round(km * 1.25); const speed = road < 40 ? 62 : road < 120 ? 80 : road < 300 ? 88 : 92; return { km: road, mins: Math.round(road / speed * 60) }; };
+  const list = [];
+  CAR_FERRIES.forEach((f) => {
+    if (ib && !ia && dnrm(f.island) === dnrm(ib)) list.push(f);                                   // onto the island
+    else if (ia && !ib && dnrm(f.island) === dnrm(ia)) list.push({ ...f, from: f.to, to: f.from });   // off the island, the crossing reversed
+  });
+  return list.map((f) => { const d = roadMins(hav(A, f.from.at)); const on = roadMins(hav(f.to.at, B)); return { ...f, drive: d, onward: on, total: d && on ? d.mins + on.mins + f.hours[1] * 60 : null }; })
+    .sort((x, y) => (x.total == null ? 1e9 : x.total) - (y.total == null ? 1e9 : y.total));
+}
 function ferryBetween(a, b) {
   if (!a || !b) return null;
   const A = placeName(a), B = placeName(b);
@@ -10166,6 +10197,11 @@ const ISLAND_OF = {
   "Catania": "Sicily", "Trapani": "Sicily", "Comiso": "Sicily", "Pantelleria": "Pantelleria", "Lampedusa": "Lampedusa",
   "Noto": "Sicily", "Mount Etna": "Sicily", "Syracuse": "Sicily", "Vulcano": "Vulcano", "Salina": "Salina", "Palermo": "Sicily", "Sicily": "Sicily", "Sardinia": "Sardinia",
   "Mallorca": "Mallorca", "Ibiza": "Ibiza", "Menorca": "Menorca", "Formentera": "Formentera", "Madeira": "Madeira",
+  // The towns of Mallorca are on Mallorca. Without these, "Palma" was mainland to the app and a car
+  // could be "driven" to it from Barcelona. Palma is the island's capital and its port and airport.
+  "Palma": "Mallorca", "Palma de Mallorca": "Mallorca", "Alcúdia": "Mallorca", "Alcudia": "Mallorca", "Deià": "Mallorca", "Deia": "Mallorca",
+  "Sóller": "Mallorca", "Soller": "Mallorca", "Pollença": "Mallorca", "Pollenca": "Mallorca", "Formentor": "Mallorca", "Andratx": "Mallorca", "Port d'Andratx": "Mallorca",
+  "Messina": "Sicily",
   // Caribbean, confirmed Sept 2026.
   "Tobago": "Tobago", "Port of Spain": "Trinidad", "Dominica": "Dominica", "Curacao": "Cura\u00e7ao",
   "Bonaire": "Bonaire", "Martinique": "Martinique", "Guadeloupe": "Guadeloupe",
@@ -10563,11 +10599,9 @@ function exitPoint(d, nextCity) {
     // car. The drop-off moves the exit point only for the stop where the car is actually returned.
     const drop = String(car.to).trim();
     if (!nextCity) return drop;
-    const dropBare = bareCity(drop), dropCode = codeOf(drop);
-    const nb = bareCity(nextCity), nc = iataFor(nextCity), napc = airportCityOf(nc, nb);
-    // an airport drop-off matches the airport's OWN city (Porto), never a town that merely flies through it (the Douro)
-    const dropIsNext = sameCity(dropBare, nb) || ((dropCode && dropCode === nc || (napc && sameCity(dropBare, napc))) && napc && sameCity(napc, nb));
-    if (dropIsNext) return drop;
+    // an airport drop-off matches the airport's OWN city (Porto) or the island it stands on (Palma
+    // airport for Mallorca), never a town that merely flies through it (the Douro) — see airportServes()
+    if (dropMatchesDest(drop, nextCity)) return drop;
     return d.city || drop;   // the car continues: you drive on from this city
   }
   if (d.mode === "open") {
@@ -11948,20 +11982,21 @@ function VoyageOne() {
       // were right; the default was not. Where the previous stop is genuinely drivable, open on
       // the ground option. The traveller can still switch to Flight; it is simply not the guess.
       const prevExit = i > 0 ? legStart({ dests: d.map((y, m) => m === i ? { ...y, ...patch } : y), fromCity }, i) : "";
-      const arrive = (() => {
-        if (!prevExit || !patch.city) return patch.arriveBy || x.arriveBy;
-        const ia = islandOf(prevExit), ib = islandOf(patch.city);
-        const fer = ferryBetween(prevExit, patch.city);
-        if ((ia || ib) && ia !== ib) return (fer != null && fer <= FERRY_LIMIT_MIN) ? "Ferry" : "Flight";   // water between them
-        if (!drivable(prevExit, patch.city)) return patch.arriveBy || x.arriveBy;
-        const prevHasCar = i > 0 && d[i - 1] && d[i - 1].pick && d[i - 1].pick.car && d[i - 1].pick.car.booked;
-        if (prevHasCar) return "Self-drive";
-        return "Chauffeur";   // a driver, recommended by the hotel — the client can switch to the train or a car
-      })();
-      return { ...x, ...patch, arriveBy: arrive, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
+      const prevHasCar = !!(i > 0 && d[i - 1] && d[i - 1].pick && d[i - 1].pick.car && d[i - 1].pick.car.booked);
+      const arrive = defaultArrival(prevExit, patch.city, prevHasCar, patch.arriveBy || x.arriveBy);
+      const { carLeg, ...fresh } = x;
+      return { ...fresh, ...patch, arriveBy: arrive, pick: { flight: null, ff: "", stay: carried, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] }, ideaSel: x.ideaSel ? { set: [], act: [], w: [] } : x.ideaSel };
     }
     return { ...x, ...patch };
   }));
+  // EVERY CHANGE HAS ITS IMPLICATIONS, and they are drawn at once — not when the traveller happens
+  // to scroll to the leg they changed. A car dropped at a later stop turns the legs up to it into
+  // road legs (and takes the flight search off them); returning the car where it was collected
+  // puts the defaults back. The same rule after adding, removing or reordering stops.
+  useEffect(() => {
+    if (!hydrated) return;
+    setDests((d) => settleCarLegs(d, fromCity));
+  }, [hydrated, dests, fromCity]);
   const addDest = () => setDests((d) => [...d, { id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
   // "+ destination" with nothing typed is a change of mind, not a stop. Dropped on the way forward.
   const pruneEmptyDests = () => setDests((d) => { const kept = d.filter((x, k) => String(x.city || "").trim() || k === 0 && d.length === 1); return kept.length ? kept : d.slice(0, 1); });
@@ -17726,7 +17761,16 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies })
       <label style={{ fontSize: 12, color: t.inkSoft }}>Picked up<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={from} onChange={(e) => set({ from: e.target.value })} placeholder={defFrom || "Airport or city"} /></label>
       <label style={{ fontSize: 12, color: t.inkSoft }}><span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: t.ink, marginBottom: 4 }}>Where would you like to drop the car?<Hint text="Tap a city or an airport from your trip, or type one. A drop-off in another city means the car travels with you for the stops in between, and the trip knows where you end up." /></span><input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City or airport"} />
         {to ? <span style={{ display: "block", fontSize: 12, color: t.inkSoft, marginTop: 8 }}>Drop-off date<input type="date" value={car.dropDate || ""} onChange={(e) => set({ dropDate: e.target.value })} style={{ ...fld, marginTop: 2 }} /></span> : null}
-        {dropChoices && dropChoices.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>{dropChoices.map((ch) => <button key={ch} type="button" onClick={() => set({ to: ch })} style={{ background: sameCity(bareCity(to), bareCity(ch)) && codeOf(to) === codeOf(ch) ? t.pine : t.white, color: sameCity(bareCity(to), bareCity(ch)) && codeOf(to) === codeOf(ch) ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>{ch}</button>)}</div> : null}</label>
+        {dropChoices && dropChoices.length ? (() => {
+          const sel = dropChoiceOf(to, dropChoices);
+          const chip = (on, lab, onClick) => <button key={lab} type="button" onClick={onClick} style={{ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>{lab}</button>;
+          const atAir = !!(sel && sel.air && codeOf(to) && codeOf(to) === codeOf(sel.air));
+          return (<>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>{dropChoices.map((ch) => chip(!!sel && sameCity(sel.town, ch.town), ch.label, () => set({ to: ch.town })))}</div>
+            {sel && sel.air ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6, alignItems: "center" }}><span style={{ fontSize: 11.5, color: t.inkFaint }}>Return it</span>{chip(!atAir, `in ${sel.town}`, () => set({ to: sel.town }))}{chip(atAir, `at ${sel.air}`, () => set({ to: sel.air }))}</div> : null}
+            {sel && !atAir ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4, lineHeight: 1.45 }}>Confirm the company has a branch in {sel.town} when you book.</div> : null}
+          </>);
+        })() : null}</label>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Company{companies && companies.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "6px 0 4px" }}>{companies.map((c) => <button key={c} type="button" onClick={() => set({ company: c })} style={{ background: (car.company || "").toLowerCase() === c.toLowerCase() ? t.pine : t.white, color: (car.company || "").toLowerCase() === c.toLowerCase() ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 12px", fontSize: 12.5, cursor: "pointer" }}>{c}</button>)}</div> : null}<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
       {rentalScoop(car.company) ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.5, marginTop: 6, paddingLeft: 9, borderLeft: `2px solid ${t.brass}` }}><strong style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: t.brass }}>Inside scoop</strong> {rentalScoop(car.company)}</div> : null}
       <label style={{ fontSize: 12, color: t.inkSoft }}>Reference<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={car.ref || ""} onChange={(e) => set({ ref: e.target.value })} placeholder="Confirmation" /></label>
@@ -17779,36 +17823,129 @@ function TransferPanel({ d, legSched }) {
 // drop-off is not the city it was collected in; the car runs from that destination to the first
 // later one that matches the drop-off (by city, or by that city's airport). Between them, no
 // rental is offered and the legs are by road.
+// DOES THIS AIRPORT BELONG TO THIS DESTINATION? Yes when the airport's own city is the destination
+// (OPO is Porto's). Yes when the destination is the island the airport stands on — Palma airport is
+// on Mallorca, and "Mallorca" is where you land. No when the destination merely flies through it:
+// the Douro Valley uses Porto's airport and is not Porto, so a car dropped at OPO is carried
+// through the Douro to Porto, which is the rule Tricia drove in October 2026.
+function airportServes(code, dest) {
+  if (!code || !dest) return false;
+  const b = bareCity(dest); const apc = airportCityOf(String(code).toUpperCase(), null);
+  if (apc && (sameCity(apc, b) || dnrm(b).startsWith(dnrm(apc)) || dnrm(apc).startsWith(dnrm(b)))) return true;
+  const ia = apc ? islandOf(apc) : null, ib = islandOf(b);
+  return !!(ia && ib && ia === ib && iataFor(b) === String(code).toUpperCase());
+}
+// Does the drop-off text name this destination, or its own airport?
+function dropMatchesDest(dropTxt, cty) {
+  if (!dropTxt || !cty) return false;
+  const tb = bareCity(dropTxt), tc = codeOf(dropTxt); const cb = bareCity(cty);
+  if (sameCity(tb, cb)) return true;
+  if (tc) return airportServes(tc, cb);
+  const cc = iataFor(cb), apc = cc ? airportCityOf(cc, cb) : null;
+  return !!(apc && sameCity(tb, apc) && airportServes(cc, cb));   // "Palma", typed without a code, for Mallorca
+}
+// WHERE IS THE CAR COLLECTED AT STOP j RETURNED? One answer for the whole app — the car panel, the
+// leg modes, the exit point and the itinerary all ask this and must agree. The drop-off names a
+// place; the first later stop that IS that place (or whose own airport it is) is where the car
+// goes back. Preference, in order: a later stop that is the airport's own city (drop at OPO with
+// Porto on the trip: Porto, not the Douro); then the first later stop the airport serves; then a
+// stop that is left from that airport; and if the drop-off matches nothing, the car runs on by
+// road until the first flight, or to the end of the trip. Returns -1 when the car is returned
+// where it was collected.
+function carDropIndex(ds, j) {
+  const c = ds[j] && ds[j].pick && ds[j].pick.car; if (!c || !c.booked || !c.to) return -1;
+  const dropTxt = String(c.to); const dropCode = codeOf(dropTxt) || null; const dropBare = bareCity(dropTxt);
+  if (sameCity(dropBare, ds[j].city) && !dropCode) return -1;         // returned where it was collected
+  if (dropCode && airportServes(dropCode, ds[j].city) && !ds.slice(j + 1).some((x) => x && x.city && dropMatchesDest(dropTxt, x.city))) return -1;   // its own airport, before flying on
+  const later = []; for (let m = j + 1; m < ds.length; m++) if (ds[m] && ds[m].city) later.push(m);
+  const own = dropCode ? airportCityOf(dropCode, null) : null;
+  let k = own ? later.find((m) => sameCity(own, ds[m].city)) : undefined;
+  if (k == null) k = later.find((m) => dropMatchesDest(dropTxt, ds[m].city));
+  if (k == null) k = later.find((m) => { const ex = ds[m].exitFrom || ""; const fl = ds[m].pick && ds[m].pick.flight; const exAir = (fl && (fl.depAirport || fl.from)) || "";
+    return (ex && dropMatchesDest(dropTxt, ex)) || (dropCode && exAir && (codeOf(exAir) === dropCode || String(exAir).toUpperCase() === dropCode)); });
+  // the airport a stop is LEFT from: Antibes is left through Nice, so a car dropped at NCE is returned on leaving Antibes
+  if (k == null && dropCode) k = later.find((m) => { const ex = exitPoint({ ...ds[m], pick: { ...(ds[m].pick || {}), car: null } }, ds[m + 1] && ds[m + 1].city); return !!ex && iataFor(ex) === dropCode; });
+  if (k == null) {   // nowhere we can place it: the car runs on, by road, until the first flight or the end
+    const fl = later.find((m) => m > j + 1 && ds[m].arriveBy === "Flight" && !ds[m].carLeg);
+    k = fl != null ? fl - 1 : (later.length ? later[later.length - 1] : j);
+  }
+  // a car never reaches a car-free place (Venice, Capri): it is returned at the stop before the boat
+  const cf = later.find((m) => m <= k && isCarFree(ds[m].city)); if (cf != null) k = cf - 1;
+  return k > j ? k : -1;
+}
+// Is a car already in hand at destination i? Scan earlier destinations for a booked car whose
+// drop-off is a later stop; the car runs from where it was collected to that stop. Between them,
+// no rental is offered and the legs are by road — settleCarLegs() sets them so.
 function carInHand(p, i) {
   const ds = (p && p.dests) || [];
   for (let j = 0; j < i; j++) {
     const c = ds[j] && ds[j].pick && ds[j].pick.car; if (!c || !c.booked || !c.to) continue;
-    const dropTxt = String(c.to); const dropCode = codeOf(dropTxt) || null; const dropBare = bareCity(dropTxt);
-    if (sameCity(dropBare, ds[j].city) && !dropCode) continue;         // returned where it was collected
-    let k = -1;
-    const matches = (txt, cty) => { if (!txt || !cty) return false; const tb = bareCity(txt), tc = codeOf(txt); const cb = bareCity(cty), cc = iataFor(cty), apc = airportCityOf(cc, cb);
-      return sameCity(tb, cb) || (tc && tc === cc && apc && sameCity(apc, cb)) || (apc && sameCity(tb, apc) && sameCity(apc, cb)); };
-    for (let m = j + 1; m < ds.length; m++) {
-      const cty = ds[m] && ds[m].city; if (!cty) continue;
-      if (m > j + 1 && ds[m].arriveBy === "Flight") { k = m - 1; break; }      // a car never crosses a flight: it was returned before this one
-      if (matches(dropTxt, cty)) { k = m; break; }                            // dropped in this city
-      const ex = ds[m].exitFrom || ""; const fl = ds[m].pick && ds[m].pick.flight; const exAir = (fl && (fl.depAirport || fl.from)) || "";
-      if ((ex && matches(dropTxt, ex)) || (dropCode && exAir && (codeOf(exAir) === dropCode || String(exAir).toUpperCase() === dropCode))) { k = m; break; }   // dropped where you leave this stop from
-    }
-    if (k < 0) k = j + 1 < ds.length ? ds.length - 1 : j;   // nowhere we can place it: the car runs on, by road, until the trip ends
+    const k = carDropIndex(ds, j); if (k < 0) continue;
     if (i > j && i <= k) return { fromDest: j, dropDest: k, car: c, fromCity: ds[j].city };
   }
   return null;
 }
+// THE CAR DECIDES THE LEGS IT COVERS. Choose to drop the car at a later stop and every leg up to
+// that stop is by road — the flight search goes, the ferry with the car appears. Change your mind
+// and return the car where you got it, and those legs go back to the sensible default. Runs after
+// every change to the trip, so an implication never waits for the traveller to notice it. Only
+// legs this function set (marked carLeg) are ever reset by it; a mode the traveller chose stays.
+// Returns the same array when nothing changes, so it can run from an effect without looping.
+function defaultArrival(prevExit, city, prevHasCar, current) {
+  if (!prevExit || !city) return current || "Flight";
+  const ia = islandOf(prevExit), ib = islandOf(city);
+  const fer = ferryBetween(prevExit, city);
+  if ((ia || ib) && ia !== ib) return (fer != null && fer <= FERRY_LIMIT_MIN) ? "Ferry" : "Flight";   // water between them
+  if (!drivable(prevExit, city)) return current || "Flight";
+  if (prevHasCar) return "Self-drive";
+  return "Chauffeur";   // a driver, recommended by the hotel — the client can switch to the train or a car
+}
+function settleCarLegs(ds, fromCity) {
+  if (!ds || !ds.length) return ds;
+  const covered = {};   // index -> id of the stop whose car reaches it
+  ds.forEach((x, j) => { const k = carDropIndex(ds, j); if (k < 0) return; for (let m = j + 1; m <= k; m++) if (covered[m] == null) covered[m] = x.id; });
+  let changed = false;
+  const out = ds.map((x, m) => {
+    if (covered[m] != null) {
+      if (x.arriveBy === "Self-drive" && x.carLeg === covered[m]) return x;
+      changed = true; return { ...x, arriveBy: "Self-drive", carLeg: covered[m], pick: { ...(x.pick || {}), flight: null, ground: null } };
+    }
+    if (x.carLeg) {   // the car no longer reaches here: back to the default for this leg
+      changed = true; const { carLeg, ...rest } = x;
+      const prevExit = m > 0 ? legStart({ dests: ds, fromCity }, m) : "";
+      return { ...rest, arriveBy: defaultArrival(prevExit, x.city, false, "Flight"), pick: { ...(x.pick || {}), ground: null } };
+    }
+    return x;
+  });
+  return changed ? out : ds;
+}
 // Where a car collected at destination i could be dropped: here, each later destination, and the
 // airport of any later destination the trip flies out of. Offered as chips on the booking record.
+// ONE CHIP PER PLACE, then the choice of in town or at the airport once a place is picked
+// (Tricia, 10 Oct 2026: "Madrid is good, then choices if it is picked"). An island is not a place
+// to return a car, so Mallorca is offered as Palma, its airport city. A town without its own
+// airport (Antibes) offers the town and the airport it is left through (Nice). Whether the
+// company has a branch in the town is confirmed when booking — we do not claim it.
 function dropChoicesFor(p, i) {
   const ds = (p && p.dests) || []; const out = [];
-  const hasDesk = (cty) => { const b = bareCity(cty); const a = airportFor(b); const apc = airportCityOf(iataFor(b), b); return !!(a && (sameCity(a.city, b) || (apc && sameCity(apc, b)))); };   // its own airport = a rental desk
-  const here = ds[i] && ds[i].city; if (here && hasDesk(here)) out.push(bareCity(here));
-  for (let m = i + 1; m < ds.length; m++) { const cty = ds[m] && ds[m].city; if (!cty) continue; if (hasDesk(cty)) out.push(bareCity(cty)); const code = iataFor(cty); const apc = airportCityOf(code, bareCity(cty)); if (code) out.push(`${apc || bareCity(cty)} airport (${code})`); }
-  if (p && p.returnFrom) { const code = iataFor(p.returnFrom); const apc = airportCityOf(code, bareCity(p.returnFrom)); const lab = code ? `${apc || bareCity(p.returnFrom)} airport (${code})` : bareCity(p.returnFrom); if (!out.includes(lab)) out.push(lab); }
-  return out.filter((x, k) => out.indexOf(x) === k);
+  const choice = (cty, here, d, next) => {
+    const b = bareCity(cty); if (!b) return null;
+    // its own airport, or the one it is left through (Antibes through Nice — resolved live and kept on the stop)
+    const viaAir = d ? exitPoint({ ...d, pick: { ...(d.pick || {}), car: null }, exitFrom: "" }, next) : "";
+    const code = iataFor(b) || (viaAir && !sameCity(viaAir, b) ? iataFor(viaAir) : null); const apc = code ? airportCityOf(code, null) : null;
+    const isle = islandOf(b) && dnrm(islandOf(b)) === dnrm(b);   // the destination IS an island
+    const town = isle && apc ? apc : b;
+    return { label: isle && apc ? `${apc} (${b})` : b, town, air: code ? `${apc || b} airport (${code})` : null, here: !!here };
+  };
+  const here = ds[i] && ds[i].city; const c0 = here ? choice(here, true, ds[i], ds[i + 1] && ds[i + 1].city) : null; if (c0) out.push(c0);
+  for (let m = i + 1; m < ds.length; m++) { const c = ds[m] && ds[m].city ? choice(ds[m].city, false, ds[m], ds[m + 1] && ds[m + 1].city) : null; if (c) out.push(c); }
+  if (p && p.returnFrom) { const c = choice(p.returnFrom, false, null, null); if (c) out.push(c); }
+  return out.filter((x, k) => out.findIndex((y) => sameCity(y.town, x.town)) === k);
+}
+// Which chip does the typed drop-off belong to?
+function dropChoiceOf(to, choices) {
+  if (!to) return null; const tb = bareCity(to), tc = codeOf(to);
+  return (choices || []).find((c) => sameCity(c.town, tb) || (c.air && (sameCity(bareCity(c.air), tb) || (tc && codeOf(c.air) === tc)))) || null;
 }
 function CarInHandPanel({ p, i, d }) {
   const h = carInHand(p, i); if (!h) return null;
@@ -17818,6 +17955,31 @@ function CarInHandPanel({ p, i, d }) {
       {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}.</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. This leg is by road.</>}
     </div>
   </Panel>);
+}
+// THE CAR CROSSES BY FERRY. Shown only when a car is in hand and the next stop is on another
+// island: the port to drive to, the hours on the boat, the operator to book with, and the road on
+// the far side. Every crossing is a long day, so the total is said plainly — that is the point of
+// showing it, so the traveller can decide to fly instead before anything is booked. Crossings we
+// do not hold are not invented.
+function CarFerryPanel({ from, to, car }) {
+  const list = carFerriesTo(from, to);
+  const hrs = (h) => h < 1 ? `${Math.round(h * 60)} min` : `${Math.round(h * 2) / 2} hr`;
+  const mins = (m) => m == null ? "" : minsLabel(m);
+  return (<div style={{ background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+    <div style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+      <Ship size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} />
+      <div style={{ fontSize: 13, color: t.ink, lineHeight: 1.55, flex: 1 }}>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>Your car crosses by ferry</div>
+        {list.length ? list.map((f, k) => (<div key={k} style={{ paddingTop: k ? 10 : 0, marginTop: k ? 10 : 0, borderTop: k ? `1px dashed ${t.line}` : "none" }}>
+          <div><strong>{bareCity(from)} → {f.from.name}</strong>{f.drive ? <> · about {mins(f.drive.mins)} by road</> : null}</div>
+          <div><strong>{f.from.name} → {f.to.name}</strong> · {hrs(f.hours[0])}{f.hours[1] !== f.hours[0] ? ` to ${hrs(f.hours[1])}` : ""} on the boat · {f.ops.map((o, n) => <span key={o[0]}>{n ? ", " : ""}<a className="vo-noprint" href={brandedLink(o[1], { kind: "ferry", name: o[0], city: bareCity(to) })} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600, textDecoration: "underline", textUnderlineOffset: 3 }}>{o[0]} ↗</a></span>)}</div>
+          {f.onward && f.onward.km > 8 && dnrm(islandOf(to) || "") !== dnrm(bareCity(to)) ? <div><strong>{f.to.name} → {bareCity(to)}</strong> · about {mins(f.onward.mins)} by road</div> : null}
+          {f.total ? <div style={{ color: t.inkSoft, marginTop: 2 }}>About {mins(f.total)} door to door, before the wait at the port. {f.note}</div> : <div style={{ color: t.inkSoft, marginTop: 2 }}>{f.note}</div>}
+        </div>)) : <div>There is water between {bareCity(from)} and {bareCity(to)}, and the car goes over on a car ferry. We do not hold that crossing yet — check sailings from the nearest port with the ferry company before you book the car.</div>}
+        <div style={{ color: t.inkSoft, marginTop: 8, fontSize: 12.5 }}>Two things to settle with {car && car.company ? car.company : "the rental company"} when you book: that the car may go on a ferry, and that it may be returned in another country. Expect a one-way fee set by the route.</div>
+      </div>
+    </div>
+  </div>);
 }
 function RentalPanel({ city, destination, compact, car, upd, dropChoices }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
@@ -17900,18 +18062,35 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   let allowed = allowedRaw ? stripRoad(allowedRaw) : (acrossWater ? stripRoad(ARRIVE) : null);
   if (allowed && allowed.length === 0) allowed = acrossWater ? waterModes() : null;
   if (allowed && allowed.length === 0) allowed = null;
-  const options = (allowed && allowed.length) ? allowed : ARRIVE;
+  // A CAR IN HAND SETTLES THE MODE. The car collected at an earlier stop and dropped at this one or
+  // later is how you get here — there is no choice to make on this panel, so no chips. Across
+  // water, the car crosses by ferry and the crossing is laid out below. The way to fly this leg
+  // instead is to return the car earlier, and that button is here too.
+  const inHand = p && i != null ? carInHand(p, i) : null;
+  const options = inHand ? ARRIVE.filter((m) => m.key === "Self-drive") : ((allowed && allowed.length) ? allowed : ARRIVE);
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
   // If the current choice turns out to be impossible for this leg, move to a sensible one.
   useEffect(() => {
+    if (inHand) return;
     if (allowed && allowed.length && arriveBy && !allowed.some((m) => m.key === arriveBy)) chooseMode(allowed[0].key);
-  }, [allowed && allowed.map((m) => m.key).join(","), arriveBy]);
+  }, [allowed && allowed.map((m) => m.key).join(","), arriveBy, !!inHand]);
   // Always recompute the time/label from the current cities, then overlay whatever was saved on
   // the trip (mode, any price). A leg chosen before this feature existed has a stored ground with
   // no label — recomputing here means it still shows the drive/rail time instead of a blank.
   const o = arriveBy !== "Flight" ? { ...groundOption(arriveBy, from, to), ...((pick.ground && pick.ground.mode === arriveBy) ? pick.ground : {}) } : null;
+  // Returning the car at the previous stop: at its own airport, or the airport it is left through
+  // (Antibes through Nice, resolved live and kept on the stop), or simply in the town.
+  const prevStop = inHand && p.dests ? p.dests[i - 1] : null;
+  const backAir = inHand ? (iataFor(from) ? from : (prevStop && prevStop.gatewayAir ? prevStop.gatewayAir : "")) : "";
+  const backCode = backAir ? iataFor(backAir) : null;
+  const backAt = backCode ? `${airportCityOf(backCode, null) || bareCity(backAir)} airport (${backCode})` : bareCity(from);
+  const flyInstead = () => { if (inHand) p.setDest(inHand.fromDest, { pickPatch: { car: { ...inHand.car, to: backAt } } }); };
   return (<><Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
-    <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>
+    {inHand ? (<div style={{ marginBottom: 12, fontSize: 13.5, color: t.ink, lineHeight: 1.6 }}>
+      By road, with your {inHand.car.company || "rental"} from <strong>{bareCity(inHand.car.from || inHand.fromCity)}</strong>{acrossWater ? <> — and across the water by car ferry, laid out below</> : null}. {inHand.dropDest === i ? <>You return it here, at <strong>{bareCity(inHand.car.to)}{codeOf(String(inHand.car.to)) ? ` (${codeOf(String(inHand.car.to))})` : ""}</strong>.</> : <>You keep it past this stop.</>}
+      <div style={{ marginTop: 8 }}><button type="button" onClick={flyInstead} style={{ background: "none", border: `1px solid ${t.pineSoft}`, borderRadius: 999, padding: "7px 14px", color: t.pine, fontSize: 12.5, cursor: "pointer" }}>Fly this leg instead — return the car {backCode ? "at" : "in"} {backAt}</button></div>
+    </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>}
+    {inHand && acrossWater ? <CarFerryPanel from={from} to={to} car={inHand.car} /> : null}
     {ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" && connectVia(to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Connect through {connectVia(to).hub}</div>
@@ -17920,7 +18099,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
-      : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />}
+      : (inHand && acrossWater ? null : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />)}
     {vettedDriver(to) ? (() => { const vd = vettedDriver(to); return (
       <div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
         <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Your driver in {bareCity(to)}</div>
