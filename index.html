@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M799";
+const BUILD = "M800";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17805,9 +17805,13 @@ function LegRecord({ d }) {
     {bits.join("  ·  ")}
   </div>);
 }
-function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies }) {
+function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies, defDropDate }) {
   const car = carIn || {};
   const set = (patch) => upd({ car: { ...car, ...patch } });
+  useEffect(() => {
+    if (!car.booked || !defDropDate) return;
+    if (!car.dropDate || (car.dropDateAuto && car.dropDate !== defDropDate)) set({ dropDate: defDropDate, dropDateAuto: true });
+  }, [car.booked, car.to, defDropDate]);
   const from = car.from != null ? car.from : (defFrom || "");
   const to = car.to != null ? car.to : (defTo || "");
   const fld = { fontSize: 13.5, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 9, background: t.white, color: t.ink, width: "100%", boxSizing: "border-box" };
@@ -17821,7 +17825,7 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies })
     {car.booked ? (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Picked up<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={from} onChange={(e) => set({ from: e.target.value })} placeholder={defFrom || "Airport or city"} /></label>
       <label style={{ fontSize: 12, color: t.inkSoft }}><span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: t.ink, marginBottom: 4 }}>Where would you like to drop the car?<Hint text="Tap a city or an airport from your trip, or type one. A drop-off in another city means the car travels with you for the stops in between, and the trip knows where you end up." /></span><input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={to} onChange={(e) => set({ to: e.target.value })} placeholder={defTo || "City or airport"} />
-        {to ? <span style={{ display: "block", fontSize: 12, color: t.inkSoft, marginTop: 8 }}>Drop-off date<input type="date" value={car.dropDate || ""} onChange={(e) => set({ dropDate: e.target.value })} style={{ ...fld, marginTop: 2 }} /></span> : null}
+        {to ? <span style={{ display: "block", fontSize: 12, color: t.inkSoft, marginTop: 8 }}>Drop-off date{car.dropDateAuto ? <span style={{ color: t.inkFaint }}> · suggested, the day you leave</span> : null}<input type="date" value={car.dropDate || ""} onChange={(e) => set({ dropDate: e.target.value, dropDateAuto: false })} style={{ ...fld, marginTop: 2 }} /></span> : null}
         {dropChoices && dropChoices.length ? (() => {
           const sel = dropChoiceOf(to, dropChoices);
           const chip = (on, lab, onClick) => <button key={lab} type="button" onClick={onClick} style={{ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>{lab}</button>;
@@ -18035,6 +18039,16 @@ function settleCarLegs(ds, fromCity, dates) {
 // ferry included, so the length of the drive is in front of the traveller when the decision is made. A town without its own
 // airport (Antibes) offers the town and the airport it is left through (Nice); whether the
 // company has a branch in the town is confirmed when booking — we do not claim it.
+// THE SUGGESTED DROP-OFF DATE is the last day of the leg where the car is returned — the day you
+// leave that stop. The whole calendar stays open for anything else (Tricia, 10 Oct 2026). Only a
+// date the app suggested is ever replaced by a new suggestion; one the traveller typed is kept.
+function suggestedDropDate(p, i) {
+  if (!p || !p.dates || !p.dates.depart || !p.dests || !p.dests[i]) return "";
+  const sch = schedule(p); if (!sch.valid || !sch.legs.length) return "";
+  const k = carDropIndex(p.dests, i, sch);
+  const lg = sch.legs[k >= 0 ? k : i];
+  return lg && lg.depart ? ymd(lg.depart) : "";
+}
 function dropChoicesFor(p, i) {
   const ds = (p && p.dests) || []; const out = [];
   const choice = (cty, here, d, next, legs) => {
@@ -18094,7 +18108,7 @@ function CarFerryPanel({ c, from, to }) {
     </div>
   </div>);
 }
-function RentalPanel({ city, destination, compact, car, upd, dropChoices }) {
+function RentalPanel({ city, destination, compact, car, upd, dropChoices, defDropDate }) {
   const region = lodgeDrivesYou(city) ? null : rentalRegion(city);
   const [want, setWant] = useState(!compact);
   const [open, setOpen] = useState(false);
@@ -18113,7 +18127,7 @@ function RentalPanel({ city, destination, compact, car, upd, dropChoices }) {
         collapsed behind "Rent a car here", and the booked/not-booked control lived inside the
         expanded half \u2014 so a traveller who had already hired a car had nowhere to say so, and the
         itinerary never learned about it. The control belongs in both states. */}
-    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} companies={(region ? rentalPrimary(region) : []).map((b) => b.key)} /> : null}
+    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} companies={(region ? rentalPrimary(region) : []).map((b) => b.key)} defDropDate={defDropDate} /> : null}
   </Panel>);
   return (<Panel icon={Car} title={`Rental cars in ${bareCity(city)}`}>
     <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginBottom: 12 }}>
@@ -18142,7 +18156,7 @@ function RentalPanel({ city, destination, compact, car, upd, dropChoices }) {
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 10, lineHeight: 1.5 }}>
       Chosen on service, coverage and premium availability — both vary by destination. You book directly with the company; Voyage One never holds the reservation or the payment.
     </div>
-    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} companies={(region ? rentalPrimary(region) : []).map((b) => b.key)} /> : null}
+    {upd ? <CarBooking car={car} upd={upd} defFrom={bareCity(city)} defTo={bareCity(destination || city)} dropChoices={dropChoices} companies={(region ? rentalPrimary(region) : []).map((b) => b.key)} defDropDate={defDropDate} /> : null}
   </Panel>);
 }
 
@@ -18260,7 +18274,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       </a>
     ) : null}
   </Panel>
-  {arriveBy === "Self-drive" && !isCarFree(from) && !isCarFree(to) && !(p && i != null && carInHand(p, i)) && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} dropChoices={p && i != null ? dropChoicesFor(p, i) : null} />}
+  {arriveBy === "Self-drive" && !isCarFree(from) && !isCarFree(to) && !(p && i != null && carInHand(p, i)) && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} dropChoices={p && i != null ? dropChoicesFor(p, i) : null} defDropDate={p && i != null ? suggestedDropDate(p, i) : ""} />}
   </>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
@@ -19587,7 +19601,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
           only exists when the traveller picks ONE hotel and takes day trips. Choose "move town to
           town" \u2014 the mode a car is actually for \u2014 and the rental panel and the departure-city
           control both vanished. They belong to the leg, not to the base. */}
-      {region && d.arriveBy !== "Self-drive" && !isCarFree(baseTown || region) && <RentalPanel city={pickupPoint(d)} destination={baseTown || region} compact car={d.pick && d.pick.car} upd={upd} />}
+      {region && d.arriveBy !== "Self-drive" && !isCarFree(baseTown || region) && <RentalPanel city={pickupPoint(d)} destination={baseTown || region} compact car={d.pick && d.pick.car} upd={upd} defDropDate={suggestedDropDate(p, i)} />}
       {/* "Flying out from" no longer asked here; see the car drop-off and the end of the trip. */}
 
     {mode === "roam" && suggestions.length === 0 && (<div style={{ marginTop: 18, background: t.mist, borderRadius: 14, padding: "18px" }}>
@@ -20114,7 +20128,7 @@ function CitySection({ d, i, p, from, legSched }) {
       {d.city && isCarFree(d.city) ? <WaterArrivalPanel city={d.city} /> : null}
       {d.city && PRIVATE_TRANSFER[Object.keys(PRIVATE_TRANSFER).find((c) => sameCity(c, d.city)) || ""] ? <TransferPanel d={d} legSched={legSched} /> : null}
       {carInHand(p, i) ? <CarInHandPanel p={p} i={i} d={d} /> : null}
-      {!carInHand(p, i) && d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} dropChoices={dropChoicesFor(p, i)} />}
+      {!carInHand(p, i) && d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} dropChoices={dropChoicesFor(p, i)} defDropDate={suggestedDropDate(p, i)} />}
       {/* "Flying out from" is no longer asked here (Tricia, 3 Oct 2026): a car asks where it is dropped, and the end of the trip asks where you fly home from. */}
       {d.mode !== "flights" && pick.stay && pick.stay.fromLayer
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
