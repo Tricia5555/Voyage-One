@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M797";
+const BUILD = "M798";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -19870,7 +19870,13 @@ function useGateway(city) {
           if (!homeIsland && oi) return false;          // mainland city, island airport
           return true;
         });
-        const ownHere = reachable.find((o) => o.isOwn);
+        // "OWN" MEANS THE AIRPORT'S CITY IS THIS TOWN — not merely that it is close. The endpoint
+        // flags Nice as Antibes' own airport because it is nineteen minutes away, and the app then
+        // recorded no gateway at all: the flight search was handed "Antibes", which no airline
+        // sells, and no Nice drop-off could be offered. Nice is the airport Antibes flies from;
+        // it is still a gateway, with a very short drive. Antibes, Cascais, Cannes, Sintra — every
+        // town in the shadow of a real airport — behaves the same way. (Tricia, 10 Oct 2026.)
+        const ownHere = reachable.find((o) => o.isOwn && (sameCity(o.city, bare) || airportServes(o.code, bare)));
         if (!ownHere && reachable.length) {
           const opts2 = reachable;
           // Prefer nearest option that actually has service; else nearest.
