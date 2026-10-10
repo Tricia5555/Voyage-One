@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M796";
+const BUILD = "M797";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17044,10 +17044,14 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
                 const gl = flightSearchLink({ depAirport: from, arrAirport: to, cabin: "first" }, date);
                 return (<>No FIRST fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""} — and that is about distribution, not availability. Airlines sell very little first class through third parties, and a journey is only returned as First if EVERY leg is First, so a long-haul in First with a short connection in business will not appear here.{gl ? <> Open <a href={gl} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600 }}>the full first-class search</a> to see what the airlines are actually selling, and book directly.</> : null} Switching to Business will usually fill this list.</>);
               }
+              // No "over water" and no "short flight" (Tricia, 10 Oct 2026): everyone knows Mallorca
+              // is an island, and water says nothing about distance — Madrid to Miami is nine hours
+              // of it. When no fares come back, say that, name the ferry only where a real short one
+              // exists, and hand over the Google comparison. Nothing else.
               const iF = islandOf(from), iT = islandOf(to);
               if ((iF || iT) && iF !== iT) {
                 const fmins = ferryBetween(from, to);
-                return (<>No live {cabin} fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""}. THIS LEG IS OVER WATER — there is no road{fmins ? <> and the alternative is the ferry, about {minsLabel(fmins)}</> : ", so it is a short flight or a boat"}. Try another date, or a different cabin.</>);
+                return (<>No live {cabin} fares came back for {bareCity(from)} to {bareCity(to)}{date ? " on this date" : ""}.{fmins && fmins <= FERRY_OFFER_MAX_MIN ? <> The ferry, about {minsLabel(fmins)}, is the other way across.</> : null} Try another date or cabin, or <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine }}>compare on Google ↗</a>.</>);
               }
               const conn = connection(from, to);
               if (conn && conn.label) {
