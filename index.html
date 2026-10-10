@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M792";
+const BUILD = "M795";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9764,6 +9764,8 @@ Object.entries(ZONE).forEach(([z, list]) => list.forEach((pl) => { ZONE_OF[pl.to
 function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toLowerCase()] || null : null; }
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
+  "Hyannis": [41.65,-70.28], "Woods Hole": [41.52,-70.67], "Vineyard Haven": [41.45,-70.60], "Villa San Giovanni": [38.22,15.64], "Messina": [38.19,15.56], "Piombino": [42.93,10.53], "Pozzuoli": [40.82,14.12],
+  "Nantucket": [41.28,-70.10], "Martha's Vineyard": [41.39,-70.64], "Edgartown": [41.39,-70.51], "Victoria, BC": [48.43,-123.37], "Tofino": [49.15,-125.91], "Elba": [42.78,10.25], "Ischia": [40.73,13.90],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
   // ══ GEOGRAPHY FOR THE NINETY — 4 SEPT 2026 ═══════════════════════════════════════════
   // Ninety curated destinations had hotels and no coordinates, so nothing could place them: no
@@ -10081,36 +10083,74 @@ const FERRIES = [
   ["Nevis", "St Kitts", 45],
 ];
 const FERRY_LIMIT_MIN = 180;
-// CAR FERRIES. A rental car dropped on an island means the car crosses with you, and the app has
-// to say what that crossing is — the port you drive to, the operator, how long you are on the
-// boat. These are long crossings a traveller would never take without the car, so they are NOT in
-// FERRIES (which is for hops you take with your bags) and are only ever shown when a car is in
-// hand. Each entry: mainland port and island port with their coordinates, the island, hours on
-// the boat as a range, operators with their sites, and a plain note. Durations and operators were
-// checked on 10 Oct 2026; sailings change by season, so the panel always sends the traveller to
-// the operator for dates. A crossing not in this table is not invented: the panel says the car
-// crosses by ferry and that we do not hold the sailing.
+// CAR FERRIES — THE SHORT ONES. A rental car goes on a ferry when the crossing is short: you drive
+// on, sit in the car or go up on deck, they call you back, you drive off and carry on. Woods Hole
+// to the Vineyard, Hyannis to Nantucket, Villa San Giovanni to Messina. Tricia has done it and
+// the rule is hers (10 Oct 2026): the crossing time decides, not the water. Up to about two and a
+// quarter hours — Hyannis to Nantucket is the longest crossing anyone sensible makes with a car —
+// the car goes over and the trip is built that way. Longer than that (Barcelona to Palma, seven
+// hours; Toulon to Alcúdia, fourteen) is never offered: everyone vacationing flies, and the car is
+// returned before the water. Each crossing: the two ports with coordinates and the landmass each is
+// on ("mainland" where it is not an island), minutes on the boat, operators with their sites, and a
+// note. Times are typical sailings; the panel sends the traveller to the operator for the day's
+// timetable. A crossing not in this table is not invented: without one, the car ends at the water.
+const CAR_FERRY_MAX_MIN = 140;
 const CAR_FERRIES = [
-  { from: { name: "Barcelona", at: [41.37, 2.18] }, to: { name: "Palma", at: [39.56, 2.63] }, island: "Mallorca", hours: [7, 8], ops: [["Baleària", "https://www.balearia.com"], ["Trasmed", "https://www.trasmed.com"], ["GNV", "https://www.gnv.it"]], note: "Daily, mostly overnight, into Palma itself." },
-  { from: { name: "Valencia", at: [39.45, -0.32] }, to: { name: "Palma", at: [39.56, 2.63] }, island: "Mallorca", hours: [7, 9], ops: [["Baleària", "https://www.balearia.com"], ["Trasmed", "https://www.trasmed.com"]], note: "Daily, mostly overnight." },
-  { from: { name: "Toulon", at: [43.12, 5.93] }, to: { name: "Alcúdia", at: [39.84, 3.13] }, island: "Mallorca", hours: [14, 20], ops: [["Corsica Ferries", "https://www.corsica-ferries.fr"]], note: "A few sailings a week, seasonal, into Alcúdia in the north of the island — the only crossing from France, and a long one." },
-  { from: { name: "Villa San Giovanni", at: [38.22, 15.64] }, to: { name: "Messina", at: [38.19, 15.56] }, island: "Sicily", hours: [0.33, 0.5], ops: [["Caronte & Tourist", "https://www.carontetourist.it"]], note: "Twenty minutes across the Strait, sailing around the clock; no booking needed." },
+  { a: { name: "Woods Hole", at: [41.52, -70.67], land: "mainland" }, b: { name: "Vineyard Haven", at: [41.45, -70.60], land: "Martha's Vineyard" }, mins: 45, ops: [["Steamship Authority", "https://www.steamshipauthority.com"]], note: "Forty-five minutes; cars need a reservation, made well ahead in summer." },
+  { a: { name: "Hyannis", at: [41.65, -70.28], land: "mainland" }, b: { name: "Nantucket", at: [41.28, -70.10], land: "Nantucket" }, mins: 135, ops: [["Steamship Authority", "https://www.steamshipauthority.com"]], note: "About two and a quarter hours on the car ferry; reserve the car space months ahead for summer. Downtown Nantucket is no place to drive — the car is for the rest of the island." },
+  { a: { name: "Tsawwassen", at: [49.01, -123.13], land: "mainland" }, b: { name: "Swartz Bay", at: [48.69, -123.41], land: "Vancouver Island" }, mins: 95, ops: [["BC Ferries", "https://www.bcferries.com"]], note: "About an hour and thirty-five minutes, sailing through the Gulf Islands; reserve the car." },
+  { a: { name: "Villa San Giovanni", at: [38.22, 15.64], land: "mainland" }, b: { name: "Messina", at: [38.19, 15.56], land: "Sicily" }, mins: 20, ops: [["Caronte & Tourist", "https://www.carontetourist.it"]], note: "Twenty minutes across the Strait, sailing around the clock; no booking needed." },
+  { a: { name: "Piombino", at: [42.93, 10.53], land: "mainland" }, b: { name: "Portoferraio", at: [42.81, 10.32], land: "Elba" }, mins: 60, ops: [["Moby", "https://www.moby.it"], ["Toremar", "https://www.toremar.it"]], note: "An hour across; frequent in season." },
+  { a: { name: "Pozzuoli", at: [40.82, 14.12], land: "mainland" }, b: { name: "Ischia", at: [40.74, 13.94], land: "Ischia" }, mins: 60, ops: [["Medmar", "https://www.medmargroup.it"], ["Caremar", "https://www.caremar.it"]], note: "About an hour; in high summer the island limits visitors’ cars — check before you book." },
+  { a: { name: "Santa Teresa Gallura", at: [41.24, 9.19], land: "Sardinia" }, b: { name: "Bonifacio", at: [41.39, 9.16], land: "Corsica" }, mins: 50, ops: [["Moby", "https://www.moby.it"], ["Ichnusa Lines", "https://www.ichnusalines.it"]], note: "Fifty minutes across the strait between the two islands." },
 ];
-// Both directions: onto the island (drive to the mainland port, cross, drive on) and off it again
-// (the same crossing reversed). Two islands with no direct crossing in the table give nothing.
-function carFerriesTo(fromPlace, toPlace) {
-  const ib = islandOf(toPlace), ia = islandOf(fromPlace);
-  if (ia === ib) return [];
-  const A = coordsFor(fromPlace), B = coordsFor(toPlace);
-  const hav = (p, q) => { if (!p || !q) return null; const R = 6371, rad = (x) => (x * Math.PI) / 180; const dLat = rad(q[0] - p[0]), dLon = rad(q[1] - p[1]); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(p[0])) * Math.cos(rad(q[0])) * Math.sin(dLon / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(h))); };
-  const roadMins = (km) => { if (km == null) return null; const road = Math.round(km * 1.25); const speed = road < 40 ? 62 : road < 120 ? 80 : road < 300 ? 88 : 92; return { km: road, mins: Math.round(road / speed * 60) }; };
-  const list = [];
+function landOf(place) { return islandOf(place) || "mainland"; }
+const havKm = (p, q) => { if (!p || !q) return null; const R = 6371, rad = (x) => (x * Math.PI) / 180; const dLat = rad(q[0] - p[0]), dLon = rad(q[1] - p[1]); const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(p[0])) * Math.cos(rad(q[0])) * Math.sin(dLon / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(h))); };
+function roadFromKm(km) { if (km == null) return null; const road = Math.round(km * 1.25); const speed = road < 40 ? 62 : road < 120 ? 80 : road < 300 ? 88 : 92; return { km: road, mins: Math.round(road / speed * 60) }; }
+// The short car ferry that carries a car from a to b, with the drives to and from the ports, or
+// null when there is none under the limit. "Mainland" matches mainland anywhere, so the drive to
+// the port has to be a real one: the same landmass, and not an ocean away.
+function carCrossing(a, b) {
+  if (!a || !b) return null;
+  const la = landOf(a), lb = landOf(b); if (la === lb) return null;
+  const A = coordsFor(a), B = coordsFor(b);
+  const near = (P, side) => { if (!P) return false; const km = havKm(P, side.at); return km != null && km <= 3000; };
+  let best = null;
   CAR_FERRIES.forEach((f) => {
-    if (ib && !ia && dnrm(f.island) === dnrm(ib)) list.push(f);                                   // onto the island
-    else if (ia && !ib && dnrm(f.island) === dnrm(ia)) list.push({ ...f, from: f.to, to: f.from });   // off the island, the crossing reversed
+    if (f.mins > CAR_FERRY_MAX_MIN) return;
+    const dir = f.a.land === la && f.b.land === lb ? [f.a, f.b] : (f.b.land === la && f.a.land === lb ? [f.b, f.a] : null);
+    if (!dir || !near(A, dir[0]) || !near(B, dir[1])) return;
+    const d1 = roadFromKm(havKm(A, dir[0].at)), d2 = roadFromKm(havKm(dir[1].at, B));
+    const total = d1 && d2 ? d1.mins + f.mins + d2.mins : null;
+    const c = { ...f, from: dir[0], to: dir[1], drive: d1, onward: d2, total };
+    if (!best || (c.total != null && (best.total == null || c.total < best.total))) best = c;
   });
-  return list.map((f) => { const d = roadMins(hav(A, f.from.at)); const on = roadMins(hav(f.to.at, B)); return { ...f, drive: d, onward: on, total: d && on ? d.mins + on.mins + f.hours[1] * 60 : null }; })
-    .sort((x, y) => (x.total == null ? 1e9 : x.total) - (y.total == null ? 1e9 : y.total));
+  return best;
+}
+// ONE ROAD LEG, with or without a crossing: how long from a to b when the car is in hand. The
+// label says each part when there is a ferry in the middle, so nobody reads "2 hr" and finds a boat.
+// Island to island with no direct boat goes through the mainland: Nantucket back to Hyannis, the
+// road to Woods Hole, the boat to the Vineyard. Two crossings, both short, both shown.
+function roadLeg(a, b) {
+  if (!a || !b) return null;
+  if (landOf(a) === landOf(b)) { const d = driveEstimate(a, b); return d ? { mins: d.mins, label: d.label, crossing: null, crossings: [] } : null; }
+  const part = (c, last) => { const parts = []; if (c.drive && c.drive.km > 8) parts.push(`${minsLabel(c.drive.mins)} to ${c.from.name}`); parts.push(`${minsLabel(c.mins)} car ferry`); if (last && c.onward && c.onward.km > 8 && dnrm(landOf(b)) !== dnrm(bareCity(b))) parts.push(`${minsLabel(c.onward.mins)} on`); return parts; };
+  const c = carCrossing(a, b);
+  if (c) return { mins: c.total, label: part(c, true).join(", "), crossing: c, crossings: [c] };
+  if (landOf(a) === "mainland" || landOf(b) === "mainland") return null;
+  // via the mainland: off the first island at its port, along the coast, onto the second
+  const c1 = CAR_FERRIES.map((f) => f.a.land === "mainland" && f.b.land === landOf(a) ? { ...f, from: f.b, to: f.a } : (f.b.land === "mainland" && f.a.land === landOf(a) ? { ...f, from: f.a, to: f.b } : null)).filter((f) => f && f.mins <= CAR_FERRY_MAX_MIN && havKm(coordsFor(a), f.from.at) != null && havKm(coordsFor(a), f.from.at) <= 3000);
+  const c2 = CAR_FERRIES.map((f) => f.a.land === "mainland" && f.b.land === landOf(b) ? { ...f, from: f.a, to: f.b } : (f.b.land === "mainland" && f.a.land === landOf(b) ? { ...f, from: f.b, to: f.a } : null)).filter((f) => f && f.mins <= CAR_FERRY_MAX_MIN && havKm(coordsFor(b), f.to.at) != null && havKm(coordsFor(b), f.to.at) <= 3000);
+  let best = null;
+  c1.forEach((x) => c2.forEach((y) => {
+    const d1 = roadFromKm(havKm(coordsFor(a), x.from.at)), mid = roadFromKm(havKm(x.to.at, y.from.at)), d3 = roadFromKm(havKm(y.to.at, coordsFor(b)));
+    if (!d1 || !mid || !d3 || mid.km > 600) return;
+    const total = d1.mins + x.mins + mid.mins + y.mins + d3.mins;
+    if (!best || total < best.total) best = { total, x: { ...x, drive: d1, onward: mid, total: d1.mins + x.mins + mid.mins }, y: { ...y, drive: null, onward: d3, total: y.mins + d3.mins } };
+  }));
+  if (!best) return null;
+  const label = part(best.x, false).concat([`${minsLabel(best.x.onward.mins)} to ${best.y.from.name}`], part({ ...best.y, drive: null }, true)).join(", ");
+  return { mins: best.total, label, crossing: best.x, crossings: [best.x, best.y] };
 }
 function ferryBetween(a, b) {
   if (!a || !b) return null;
@@ -10202,6 +10242,10 @@ const ISLAND_OF = {
   "Palma": "Mallorca", "Palma de Mallorca": "Mallorca", "Alcúdia": "Mallorca", "Alcudia": "Mallorca", "Deià": "Mallorca", "Deia": "Mallorca",
   "Sóller": "Mallorca", "Soller": "Mallorca", "Pollença": "Mallorca", "Pollenca": "Mallorca", "Formentor": "Mallorca", "Andratx": "Mallorca", "Port d'Andratx": "Mallorca",
   "Messina": "Sicily",
+  // New England, Vancouver Island and the Bay of Naples: islands reached with the car on a short ferry.
+  "Nantucket": "Nantucket", "Martha's Vineyard": "Martha's Vineyard", "Edgartown": "Martha's Vineyard", "Oak Bluffs": "Martha's Vineyard", "Vineyard Haven": "Martha's Vineyard",
+  "Victoria, BC": "Vancouver Island", "Victoria, British Columbia": "Vancouver Island", "Vancouver Island": "Vancouver Island", "Tofino": "Vancouver Island",
+  "Elba": "Elba", "Portoferraio": "Elba",
   // Caribbean, confirmed Sept 2026.
   "Tobago": "Tobago", "Port of Spain": "Trinidad", "Dominica": "Dominica", "Curacao": "Cura\u00e7ao",
   "Bonaire": "Bonaire", "Martinique": "Martinique", "Guadeloupe": "Guadeloupe",
@@ -10570,6 +10614,15 @@ function groundOption(mode, from, to) {
 // where your next FLIGHT leaves from, and it moves the start of a leg only when that leg is a
 // flight. Without this, driving Lisbon → Cascais was drawn from Porto, four hours away, because
 // Porto was where the trip would eventually fly out. (Tricia, 3 Oct 2026.)
+// WHERE A STOP IS LEFT FROM, car included. A car in hand that goes back somewhere else — to
+// Boston from the Vineyard — means the flight after that stop leaves from where the car is
+// returned, not from the island. Everything else is exitPoint().
+function exitOf(p, i) {
+  const ds = (p && p.dests) || []; const d = ds[i]; if (!d) return "";
+  const h = carInHand(p, i);
+  if (h && h.dropDest === i && h.car.to && !dropMatchesDest(String(h.car.to), d.city)) return String(h.car.to).trim();
+  return exitPoint(d, ds[i + 1] && ds[i + 1].city);
+}
 function legStart(p, i) {
   const ds = (p && p.dests) || []; if (i <= 0) return (p && p.fromCity) || "";
   const prev = ds[i - 1], d = ds[i];
@@ -10581,7 +10634,7 @@ function legStart(p, i) {
     if (car && car.booked && car.to && d.arriveBy !== "Self-drive") { const ep = exitPoint(prev, d.city); if (ep && !sameCity(bareCity(ep), bareCity(prev.city))) return ep; }
     return prev.city || "";
   }
-  return exitPoint(prev, d.city);
+  return exitOf(p, i - 1);
 }
 function exitPoint(d, nextCity) {
   if (!d) return "";
@@ -11937,7 +11990,7 @@ function VoyageOne() {
   const autoHome = useRef(null);
   useEffect(() => {
     if (!hydrated || !dests.length) return;
-    const last = exitPoint(dests[dests.length - 1]);
+    const last = exitOf({ dests, fromCity, dates }, dests.length - 1);
     if (!last) return;
     const untouched = returnFrom === "" ? autoReturn.current === null : returnFrom === autoReturn.current;
     if (untouched && returnFrom !== last) { autoReturn.current = last; setReturnFrom(last); }
@@ -11995,8 +12048,8 @@ function VoyageOne() {
   // puts the defaults back. The same rule after adding, removing or reordering stops.
   useEffect(() => {
     if (!hydrated) return;
-    setDests((d) => settleCarLegs(d, fromCity));
-  }, [hydrated, dests, fromCity]);
+    setDests((d) => settleCarLegs(d, fromCity, dates));
+  }, [hydrated, dests, fromCity, dates]);
   const addDest = () => setDests((d) => [...d, { id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]);
   // "+ destination" with nothing typed is a change of mind, not a stop. Dropped on the way forward.
   const pruneEmptyDests = () => setDests((d) => { const kept = d.filter((x, k) => String(x.city || "").trim() || k === 0 && d.length === 1); return kept.length ? kept : d.slice(0, 1); });
@@ -17765,10 +17818,18 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies })
           const sel = dropChoiceOf(to, dropChoices);
           const chip = (on, lab, onClick) => <button key={lab} type="button" onClick={onClick} style={{ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>{lab}</button>;
           const atAir = !!(sel && sel.air && codeOf(to) && codeOf(to) === codeOf(sel.air));
+          const lastLeg = (ch) => ch.legs && ch.legs.length ? ch.legs[ch.legs.length - 1] : null;
+          const lab = (ch) => { const l = lastLeg(ch); return l && l.mins != null ? `${ch.label} · ${minsLabel(l.mins)}${ch.legs.length > 1 ? " from " + l.from : ""}` : ch.label; };
+          const offTrip = to && !sel;   // typed, not one of the places the car can be driven to
           return (<>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>{dropChoices.map((ch) => chip(!!sel && sameCity(sel.town, ch.town), ch.label, () => set({ to: ch.town })))}</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>{dropChoices.map((ch) => chip(!!sel && sameCity(sel.town, ch.town), lab(ch), () => set({ to: ch.town })))}</div>
+            {sel && sel.here && dropChoices.length > 1 ? <div style={{ fontSize: 12, color: t.inkSoft, marginTop: 6, lineHeight: 1.5 }}>The drop-off date decides how far the car goes. Dated the day you leave {sel.town}, it is returned before you travel on. Dated the end of your drive, you bring it back{(() => { const lastCh = dropChoices[dropChoices.length - 1]; const rl = lastCh && !lastCh.here ? roadLeg(lastCh.town, sel.town) : null; return rl && rl.label ? <> — {lastCh.town} → {sel.town} <strong style={{ color: t.ink }}>{rl.label}</strong></> : null; })()}.</div> : null}
+            {sel && sel.legs && sel.legs.length ? <div style={{ fontSize: 12, color: t.inkSoft, marginTop: 6, lineHeight: 1.5 }}>
+              Driving: {sel.legs.map((l, n) => <span key={n}>{n ? " · " : ""}{l.from} → {l.to} <strong style={{ color: t.ink }}>{l.label || "time to be confirmed"}</strong></span>)}{sel.legs.length > 1 && sel.total != null ? <> · <strong style={{ color: t.ink }}>{minsLabel(sel.total)}</strong> at the wheel in all</> : null}
+            </div> : null}
             {sel && sel.air ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6, alignItems: "center" }}><span style={{ fontSize: 11.5, color: t.inkFaint }}>Return it</span>{chip(!atAir, `in ${sel.town}`, () => set({ to: sel.town }))}{chip(atAir, `at ${sel.air}`, () => set({ to: sel.air }))}</div> : null}
             {sel && !atAir ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4, lineHeight: 1.45 }}>Confirm the company has a branch in {sel.town} when you book.</div> : null}
+            {offTrip ? <div style={{ fontSize: 12, color: t.inkSoft, marginTop: 6, lineHeight: 1.5 }}>{bareCity(to)} is not a place this car can be driven to on this trip — no road, and no short car ferry — so it is treated as returned at the last stop on the road before you fly.</div> : null}
           </>);
         })() : null}</label>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Company{companies && companies.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "6px 0 4px" }}>{companies.map((c) => <button key={c} type="button" onClick={() => set({ company: c })} style={{ background: (car.company || "").toLowerCase() === c.toLowerCase() ? t.pine : t.white, color: (car.company || "").toLowerCase() === c.toLowerCase() ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 12px", fontSize: 12.5, cursor: "pointer" }}>{c}</button>)}</div> : null}<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
@@ -17852,12 +17913,29 @@ function dropMatchesDest(dropTxt, cty) {
 // stop that is left from that airport; and if the drop-off matches nothing, the car runs on by
 // road until the first flight, or to the end of the trip. Returns -1 when the car is returned
 // where it was collected.
-function carDropIndex(ds, j) {
+// THE DROP-OFF DATE DECIDES A ROUND TRIP. Collected in Boston, returned in Boston — on the day you
+// leave Boston it was a car for the city; dated the end of the trip, after Nantucket and the
+// Vineyard, it is the car you drove the whole way and brought back. The same for a drop-off that
+// is not a stop at all (Hyannis): the date says how far the car went, and the road back from the
+// last stop it reached has to exist — by land or a short car ferry.
+function carDropIndex(ds, j, sched) {
   const c = ds[j] && ds[j].pick && ds[j].pick.car; if (!c || !c.booked || !c.to) return -1;
   const dropTxt = String(c.to); const dropCode = codeOf(dropTxt) || null; const dropBare = bareCity(dropTxt);
-  if (sameCity(dropBare, ds[j].city) && !dropCode) return -1;         // returned where it was collected
-  if (dropCode && airportServes(dropCode, ds[j].city) && !ds.slice(j + 1).some((x) => x && x.city && dropMatchesDest(dropTxt, x.city))) return -1;   // its own airport, before flying on
   const later = []; for (let m = j + 1; m < ds.length; m++) if (ds[m] && ds[m].city) later.push(m);
+  const backHere = (sameCity(dropBare, ds[j].city) && !dropCode) || (dropCode && airportServes(dropCode, ds[j].city) && !later.some((m) => dropMatchesDest(dropTxt, ds[m].city)));
+  const dropPlace = dropCode ? (airportCityOf(dropCode, null) || dropBare) : dropBare;
+  const legs = sched && sched.legs ? sched.legs : null;
+  const byDate = () => {   // the last later stop you ARRIVE at before the car goes back
+    if (!c.dropDate || !legs) return null;
+    const dd = new Date(c.dropDate + "T00:00:00"); let k = null;
+    later.forEach((m) => { const lg = legs[m]; if (lg && lg.arrive && lg.arrive < dd) k = m; });
+    if (k == null) return null;
+    const stop = later.find((m) => m <= k && (isCarFree(ds[m].city) || (islandOf(ds[m].city) !== islandOf(ds[m - 1].city) && !roadLeg(ds[m - 1].city, ds[m].city))));
+    if (stop != null) k = stop - 1;
+    while (k > j && !roadLeg(ds[k].city, dropPlace)) k--;   // the road back has to exist
+    return k > j ? k : -1;
+  };
+  if (backHere) { const k = byDate(); return k == null ? -1 : k; }
   const own = dropCode ? airportCityOf(dropCode, null) : null;
   let k = own ? later.find((m) => sameCity(own, ds[m].city)) : undefined;
   if (k == null) k = later.find((m) => dropMatchesDest(dropTxt, ds[m].city));
@@ -17865,12 +17943,18 @@ function carDropIndex(ds, j) {
     return (ex && dropMatchesDest(dropTxt, ex)) || (dropCode && exAir && (codeOf(exAir) === dropCode || String(exAir).toUpperCase() === dropCode)); });
   // the airport a stop is LEFT from: Antibes is left through Nice, so a car dropped at NCE is returned on leaving Antibes
   if (k == null && dropCode) k = later.find((m) => { const ex = exitPoint({ ...ds[m], pick: { ...(ds[m].pick || {}), car: null } }, ds[m + 1] && ds[m + 1].city); return !!ex && iataFor(ex) === dropCode; });
+  if (k == null) { const kd = byDate(); if (kd != null) return kd; }   // a place off the trip, dated: that far, then the road to it
   if (k == null) {   // nowhere we can place it: the car runs on, by road, until the first flight or the end
     const fl = later.find((m) => m > j + 1 && ds[m].arriveBy === "Flight" && !ds[m].carLeg);
     k = fl != null ? fl - 1 : (later.length ? later[later.length - 1] : j);
+    while (k > j && !roadLeg(ds[k].city, dropPlace)) k--;   // and the road from there to the drop-off has to exist
   }
-  // a car never reaches a car-free place (Venice, Capri): it is returned at the stop before the boat
-  const cf = later.find((m) => m <= k && isCarFree(ds[m].city)); if (cf != null) k = cf - 1;
+  // WATER ENDS THE CAR — UNLESS A SHORT CAR FERRY CROSSES IT. Woods Hole to the Vineyard is part of
+  // the road; Barcelona to Palma is not (Tricia, 10 Oct 2026). Without a crossing in CAR_FERRIES
+  // under the limit, the car is returned at the last stop before the water and the trip flies on.
+  // The same for a car-free place (Venice, Capri): returned at the stop before the boat.
+  const stop = later.find((m) => m <= k && (isCarFree(ds[m].city) || (islandOf(ds[m].city) !== islandOf(ds[m - 1].city) && !roadLeg(ds[m - 1].city, ds[m].city))));
+  if (stop != null) k = stop - 1;
   return k > j ? k : -1;
 }
 // Is a car already in hand at destination i? Scan earlier destinations for a booked car whose
@@ -17878,9 +17962,10 @@ function carDropIndex(ds, j) {
 // no rental is offered and the legs are by road — settleCarLegs() sets them so.
 function carInHand(p, i) {
   const ds = (p && p.dests) || [];
+  const sched = p && p.dates ? schedule(p) : null;
   for (let j = 0; j < i; j++) {
     const c = ds[j] && ds[j].pick && ds[j].pick.car; if (!c || !c.booked || !c.to) continue;
-    const k = carDropIndex(ds, j); if (k < 0) continue;
+    const k = carDropIndex(ds, j, sched); if (k < 0) continue;
     if (i > j && i <= k) return { fromDest: j, dropDest: k, car: c, fromCity: ds[j].city };
   }
   return null;
@@ -17900,10 +17985,11 @@ function defaultArrival(prevExit, city, prevHasCar, current) {
   if (prevHasCar) return "Self-drive";
   return "Chauffeur";   // a driver, recommended by the hotel — the client can switch to the train or a car
 }
-function settleCarLegs(ds, fromCity) {
+function settleCarLegs(ds, fromCity, dates) {
   if (!ds || !ds.length) return ds;
+  const sched = dates ? schedule({ dests: ds, dates, fromCity }) : null;
   const covered = {};   // index -> id of the stop whose car reaches it
-  ds.forEach((x, j) => { const k = carDropIndex(ds, j); if (k < 0) return; for (let m = j + 1; m <= k; m++) if (covered[m] == null) covered[m] = x.id; });
+  ds.forEach((x, j) => { const k = carDropIndex(ds, j, sched); if (k < 0) return; for (let m = j + 1; m <= k; m++) if (covered[m] == null) covered[m] = x.id; });
   let changed = false;
   const out = ds.map((x, m) => {
     if (covered[m] != null) {
@@ -17922,24 +18008,33 @@ function settleCarLegs(ds, fromCity) {
 // Where a car collected at destination i could be dropped: here, each later destination, and the
 // airport of any later destination the trip flies out of. Offered as chips on the booking record.
 // ONE CHIP PER PLACE, then the choice of in town or at the airport once a place is picked
-// (Tricia, 10 Oct 2026: "Madrid is good, then choices if it is picked"). An island is not a place
-// to return a car, so Mallorca is offered as Palma, its airport city. A town without its own
-// airport (Antibes) offers the town and the airport it is left through (Nice). Whether the
+// (Tricia, 10 Oct 2026: "Madrid is good, then choices if it is picked"). ONLY PLACES YOU CAN DRIVE
+// TO: the run of later stops reachable by road — across a SHORT car ferry where one exists
+// (Nantucket, the Vineyard, Messina), never across a long one (Mallorca) — ending at the first
+// water with no such crossing, or at a car-free place. Each choice carries the hours leg by leg,
+// ferry included, so the length of the drive is in front of the traveller when the decision is made. A town without its own
+// airport (Antibes) offers the town and the airport it is left through (Nice); whether the
 // company has a branch in the town is confirmed when booking — we do not claim it.
 function dropChoicesFor(p, i) {
   const ds = (p && p.dests) || []; const out = [];
-  const choice = (cty, here, d, next) => {
+  const choice = (cty, here, d, next, legs) => {
     const b = bareCity(cty); if (!b) return null;
     // its own airport, or the one it is left through (Antibes through Nice — resolved live and kept on the stop)
     const viaAir = d ? exitPoint({ ...d, pick: { ...(d.pick || {}), car: null }, exitFrom: "" }, next) : "";
     const code = iataFor(b) || (viaAir && !sameCity(viaAir, b) ? iataFor(viaAir) : null); const apc = code ? airportCityOf(code, null) : null;
-    const isle = islandOf(b) && dnrm(islandOf(b)) === dnrm(b);   // the destination IS an island
-    const town = isle && apc ? apc : b;
-    return { label: isle && apc ? `${apc} (${b})` : b, town, air: code ? `${apc || b} airport (${code})` : null, here: !!here };
+    const total = legs.length && legs.every((l) => l.mins != null) ? legs.reduce((a, l) => a + l.mins, 0) : null;
+    return { label: b, town: b, air: code ? `${apc || b} airport (${code})` : null, here: !!here, legs, total };
   };
-  const here = ds[i] && ds[i].city; const c0 = here ? choice(here, true, ds[i], ds[i + 1] && ds[i + 1].city) : null; if (c0) out.push(c0);
-  for (let m = i + 1; m < ds.length; m++) { const c = ds[m] && ds[m].city ? choice(ds[m].city, false, ds[m], ds[m + 1] && ds[m + 1].city) : null; if (c) out.push(c); }
-  if (p && p.returnFrom) { const c = choice(p.returnFrom, false, null, null); if (c) out.push(c); }
+  const here = ds[i] && ds[i].city; const c0 = here ? choice(here, true, ds[i], ds[i + 1] && ds[i + 1].city, []) : null; if (c0) out.push(c0);
+  const legs = [];
+  for (let m = i + 1; m < ds.length; m++) {
+    const cty = ds[m] && ds[m].city; if (!cty) continue;
+    const prev = ds[m - 1] && ds[m - 1].city;
+    if (isCarFree(cty) || (islandOf(cty) !== islandOf(prev) && !roadLeg(prev, cty))) break;   // no cars, or water with no short car ferry: the car goes no further
+    const dr = prev ? roadLeg(prev, cty) : null;
+    legs.push({ from: bareCity(prev), to: bareCity(cty), mins: dr ? dr.mins : null, label: dr ? dr.label : null });
+    const c = choice(cty, false, ds[m], ds[m + 1] && ds[m + 1].city, legs.slice()); if (c) out.push(c);
+  }
   return out.filter((x, k) => out.findIndex((y) => sameCity(y.town, x.town)) === k);
 }
 // Which chip does the typed drop-off belong to?
@@ -17950,33 +18045,30 @@ function dropChoiceOf(to, choices) {
 function CarInHandPanel({ p, i, d }) {
   const h = carInHand(p, i); if (!h) return null;
   const c = h.car; const last = h.dropDest === i;
-  return (<Panel icon={Car} title={`Your car \u00b7 ${c.company || "rental"} from ${bareCity(h.fromCity)}`}>
+  const dropPlace = codeOf(String(c.to)) ? (airportCityOf(codeOf(String(c.to)), null) || bareCity(c.to)) : bareCity(c.to);
+  const back = last && !sameCity(dropPlace, d.city) ? roadLeg(d.city, dropPlace) : null;
+  return (<Panel icon={Car} title={`Your car · ${c.company || "rental"} from ${bareCity(h.fromCity)}`}>
+    {back && back.crossings && back.crossings.length ? back.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : d.city} to={k === all.length - 1 ? dropPlace : all[k + 1].from.name} />) : null}
     <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>
-      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}.</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. This leg is by road.</>}
+      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}.{back && back.label ? <> The road there from {bareCity(d.city)}: <strong>{back.label}</strong>.</> : null}</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. This leg is by road.</>}
     </div>
   </Panel>);
 }
-// THE CAR CROSSES BY FERRY. Shown only when a car is in hand and the next stop is on another
-// island: the port to drive to, the hours on the boat, the operator to book with, and the road on
-// the far side. Every crossing is a long day, so the total is said plainly — that is the point of
-// showing it, so the traveller can decide to fly instead before anything is booked. Crossings we
-// do not hold are not invented.
-function CarFerryPanel({ from, to, car }) {
-  const list = carFerriesTo(from, to);
-  const hrs = (h) => h < 1 ? `${Math.round(h * 60)} min` : `${Math.round(h * 2) / 2} hr`;
-  const mins = (m) => m == null ? "" : minsLabel(m);
+// THE CAR GOES OVER ON THE FERRY. Shown only when a car is in hand and the leg crosses one of the
+// short car ferries in CAR_FERRIES: drive to the port, the crossing, the operator to reserve with,
+// the road on the far side. Plain about what it is like, because Tricia has done it.
+function CarFerryPanel({ c, from, to }) {
+  // from/to are the labels for the road either side of THIS crossing: the stop or the previous
+  // port before it, the next port or the stop after it.
   return (<div style={{ background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
     <div style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
       <Ship size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} />
       <div style={{ fontSize: 13, color: t.ink, lineHeight: 1.55, flex: 1 }}>
-        <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>Your car crosses by ferry</div>
-        {list.length ? list.map((f, k) => (<div key={k} style={{ paddingTop: k ? 10 : 0, marginTop: k ? 10 : 0, borderTop: k ? `1px dashed ${t.line}` : "none" }}>
-          <div><strong>{bareCity(from)} → {f.from.name}</strong>{f.drive ? <> · about {mins(f.drive.mins)} by road</> : null}</div>
-          <div><strong>{f.from.name} → {f.to.name}</strong> · {hrs(f.hours[0])}{f.hours[1] !== f.hours[0] ? ` to ${hrs(f.hours[1])}` : ""} on the boat · {f.ops.map((o, n) => <span key={o[0]}>{n ? ", " : ""}<a className="vo-noprint" href={brandedLink(o[1], { kind: "ferry", name: o[0], city: bareCity(to) })} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600, textDecoration: "underline", textUnderlineOffset: 3 }}>{o[0]} ↗</a></span>)}</div>
-          {f.onward && f.onward.km > 8 && dnrm(islandOf(to) || "") !== dnrm(bareCity(to)) ? <div><strong>{f.to.name} → {bareCity(to)}</strong> · about {mins(f.onward.mins)} by road</div> : null}
-          {f.total ? <div style={{ color: t.inkSoft, marginTop: 2 }}>About {mins(f.total)} door to door, before the wait at the port. {f.note}</div> : <div style={{ color: t.inkSoft, marginTop: 2 }}>{f.note}</div>}
-        </div>)) : <div>There is water between {bareCity(from)} and {bareCity(to)}, and the car goes over on a car ferry. We do not hold that crossing yet — check sailings from the nearest port with the ferry company before you book the car.</div>}
-        <div style={{ color: t.inkSoft, marginTop: 8, fontSize: 12.5 }}>Two things to settle with {car && car.company ? car.company : "the rental company"} when you book: that the car may go on a ferry, and that it may be returned in another country. Expect a one-way fee set by the route.</div>
+        <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 4 }}>Your car goes over on the ferry</div>
+        {c.drive && c.drive.km > 8 ? <div><strong>{bareCity(from)} → {c.from.name}</strong> · about {minsLabel(c.drive.mins)} by road</div> : null}
+        <div><strong>{c.from.name} → {c.to.name}</strong> · {minsLabel(c.mins)} on the car ferry · {c.ops.map((o, n) => <span key={o[0]}>{n ? ", " : ""}<a className="vo-noprint" href={brandedLink(o[1], { kind: "ferry", name: o[0], city: bareCity(to) })} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600, textDecoration: "underline", textUnderlineOffset: 3 }}>{o[0]} ↗</a></span>)}</div>
+        {c.onward && c.onward.km > 8 && dnrm(landOf(to)) !== dnrm(bareCity(to)) ? <div><strong>{c.to.name} → {bareCity(to)}</strong> · about {minsLabel(c.onward.mins)} by road</div> : null}
+        <div style={{ color: t.inkSoft, marginTop: 4 }}>{c.note} You drive on, leave the car for the crossing or stay in it, and drive off at the other end. Reserve the car’s place on the sailing, and tell the rental company the car is going on a ferry.</div>
       </div>
     </div>
   </div>);
@@ -18063,9 +18155,9 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   if (allowed && allowed.length === 0) allowed = acrossWater ? waterModes() : null;
   if (allowed && allowed.length === 0) allowed = null;
   // A CAR IN HAND SETTLES THE MODE. The car collected at an earlier stop and dropped at this one or
-  // later is how you get here — there is no choice to make on this panel, so no chips. Across
-  // water, the car crosses by ferry and the crossing is laid out below. The way to fly this leg
-  // instead is to return the car earlier, and that button is here too.
+  // later is how you get here — there is no choice to make on this panel, so no chips; the hours
+  // at the wheel are said instead. The way to fly this leg is to return the car earlier, and
+  // that button is here too. (A car never reaches a stop across water: carDropIndex ends it first.)
   const inHand = p && i != null ? carInHand(p, i) : null;
   const options = inHand ? ARRIVE.filter((m) => m.key === "Self-drive") : ((allowed && allowed.length) ? allowed : ARRIVE);
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
@@ -18085,12 +18177,13 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   const backCode = backAir ? iataFor(backAir) : null;
   const backAt = backCode ? `${airportCityOf(backCode, null) || bareCity(backAir)} airport (${backCode})` : bareCity(from);
   const flyInstead = () => { if (inHand) p.setDest(inHand.fromDest, { pickPatch: { car: { ...inHand.car, to: backAt } } }); };
+  const legHere = inHand ? roadLeg(from, to) : null;
   return (<><Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
     {inHand ? (<div style={{ marginBottom: 12, fontSize: 13.5, color: t.ink, lineHeight: 1.6 }}>
-      By road, with your {inHand.car.company || "rental"} from <strong>{bareCity(inHand.car.from || inHand.fromCity)}</strong>{acrossWater ? <> — and across the water by car ferry, laid out below</> : null}. {inHand.dropDest === i ? <>You return it here, at <strong>{bareCity(inHand.car.to)}{codeOf(String(inHand.car.to)) ? ` (${codeOf(String(inHand.car.to))})` : ""}</strong>.</> : <>You keep it past this stop.</>}
+      By road, with your {inHand.car.company || "rental"} from <strong>{bareCity(inHand.car.from || inHand.fromCity)}</strong>{legHere && legHere.label ? <> — <strong>{legHere.label}</strong></> : null}. {inHand.dropDest === i ? <>You return it here, at <strong>{bareCity(inHand.car.to)}{codeOf(String(inHand.car.to)) ? ` (${codeOf(String(inHand.car.to))})` : ""}</strong>.</> : <>You keep it past this stop.</>}
       <div style={{ marginTop: 8 }}><button type="button" onClick={flyInstead} style={{ background: "none", border: `1px solid ${t.pineSoft}`, borderRadius: 999, padding: "7px 14px", color: t.pine, fontSize: 12.5, cursor: "pointer" }}>Fly this leg instead — return the car {backCode ? "at" : "in"} {backAt}</button></div>
     </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>}
-    {inHand && acrossWater ? <CarFerryPanel from={from} to={to} car={inHand.car} /> : null}
+    {inHand && legHere && legHere.crossings && legHere.crossings.length ? legHere.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : from} to={k === all.length - 1 ? to : all[k + 1].from.name} />) : null}
     {ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" && connectVia(to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Connect through {connectVia(to).hub}</div>
@@ -18099,7 +18192,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
       : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
-      : (inHand && acrossWater ? null : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />)}
+      : (inHand && legHere && legHere.crossing ? null : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />)}
     {vettedDriver(to) ? (() => { const vd = vettedDriver(to); return (
       <div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
         <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Your driver in {bareCity(to)}</div>
@@ -20457,8 +20550,13 @@ function DayByDay({ p, sch }) {
         const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked";
         add(isoOf(lg.arrive), { icon: "plane", site: airlineSiteFor(pf.airline), name: pf.airline || "", city, label: `Fly ${(i === 0 ? (airportCityOf(iataFor(legFrom), bareCity(legFrom)) || bareCity(legFrom)) : bareCity(legFrom))} to ${landAt} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
           sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded", st].filter(Boolean).join(" \u00b7 ") });
+      } else if (carInHand(p, i)) {
+        // THE CAR'S OWN LEG: the road, and every car ferry on it as its own line with the operator's site.
+        const h = carInHand(p, i); const rl = roadLeg(legFrom, city);
+        add(isoOf(lg.arrive), { icon: "car", kind: "ground", city, name: "By road", label: `By road with your ${h.car.company || "car"} — ${bareCity(legFrom)} to ${bareCity(city)}`, sub: rl && rl.label ? rl.label : "" });
+        (rl && rl.crossings ? rl.crossings : []).forEach((x) => add(isoOf(lg.arrive), { icon: "ship", kind: "ground", city, name: x.ops[0][0], site: x.ops[0][1], label: `Car ferry — ${x.from.name} to ${x.to.name} · ${minsLabel(x.mins)}`, sub: `${x.ops.map((o) => o[0]).join(" / ")} · reserve the car’s place` }));
       } else if (pk.ground) {
-        add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} \u2014 ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
+        add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} — ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
       }
     }
     if (lg && pk.car && pk.car.booked) {
@@ -20486,7 +20584,11 @@ function DayByDay({ p, sch }) {
       const code = hc || (ha && ha.code); const apCity = (Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && sameCity(k, hb)) ? null : Object.keys(AIRPORTS).find((k) => AIRPORTS[k].code === code && AIRPORTS[k].scale !== "regional")) || null;
       if (code && !ownHere && apCity && !sameCity(apCity, hb)) add(p.dates.depart, { icon: "car", kind: "ground", city: hb, name: `To the airport`, label: `${hb} \u2192 ${apCity} airport (${code})`, sub: p.airportTransfer && p.airportTransfer.booked ? ("Booked" + (p.airportTransfer.ref ? " \u00b7 " + p.airportTransfer.ref : "") + " \u00b7 by road \u00b7 allow time") : "by road \u00b7 arranged through your hotel \u00b7 not booked yet", booked: !!(p.airportTransfer && p.airportTransfer.booked), time: null });
     }
-    { const h = carInHand(p, i); if (h && h.dropDest === i && lg.depart) add(isoOf(lg.depart), { icon: "car", kind: "ground", city, name: "Return the car", label: `Return the ${h.car.company || "rental"} \u2014 ${bareCity(h.car.to)}${codeOf(String(h.car.to)) ? " (" + codeOf(String(h.car.to)) + ")" : ""}`, sub: h.car.ref ? `ref ${h.car.ref} \u00b7 before your flight` : "before your flight", booked: true, time: null }); }
+    { const h = carInHand(p, i); if (h && h.dropDest === i && lg.depart) {
+        const dp = codeOf(String(h.car.to)) ? (airportCityOf(codeOf(String(h.car.to)), null) || bareCity(h.car.to)) : bareCity(h.car.to);
+        const back = !sameCity(dp, city) ? roadLeg(city, dp) : null;
+        (back && back.crossings ? back.crossings : []).forEach((x) => add(isoOf(lg.depart), { icon: "ship", kind: "ground", city, name: x.ops[0][0], site: x.ops[0][1], label: `Car ferry — ${x.from.name} to ${x.to.name} · ${minsLabel(x.mins)}`, sub: `${x.ops.map((o) => o[0]).join(" / ")} · reserve the car’s place` }));
+        add(isoOf(lg.depart), { icon: "car", kind: "ground", city, name: "Return the car", label: `Return the ${h.car.company || "rental"} — ${bareCity(h.car.to)}${codeOf(String(h.car.to)) ? " (" + codeOf(String(h.car.to)) + ")" : ""}`, sub: [back && back.label ? `${bareCity(city)} → ${dp} ${back.label}` : "", h.car.ref ? `ref ${h.car.ref}` : "", "before your flight"].filter(Boolean).join(" · "), booked: true, time: null }); } }
     if (pk.eventItems && d.event) {
       const ex = findExperience(d.event); const bl = (ex && ex.guide && ex.guide.build) || [];
       bl.forEach((it) => { const st = pk.eventItems[it.key]; if (!st || !st.added) return;
@@ -20557,7 +20659,7 @@ function DayByDay({ p, sch }) {
   // behind the icon and a matching rail down the left of the day.
   const ACC = { plane: "#20463F", hotel: "#8C6E37", trophy: "#B0563A", dine: "#8A3A54", spa: "#5C7A5C", star: "#7A5CA0" };
   const accOf = (ic) => ACC[ic] || t.brass;
-  const iconEl = (ic) => { const c = accOf(ic); const I = ic === "plane" ? Plane : ic === "hotel" ? BedDouble : ic === "trophy" ? Trophy : ic === "dine" ? Utensils : ic === "spa" ? Flower2 : Sparkles; return (<span style={{ display: "grid", placeItems: "center", width: 30, height: 30, borderRadius: 9, background: c + "1A", flexShrink: 0 }}><I size={15} color={c} /></span>); };
+  const iconEl = (ic) => { const c = accOf(ic); const I = ic === "plane" ? Plane : ic === "hotel" ? BedDouble : ic === "trophy" ? Trophy : ic === "dine" ? Utensils : ic === "spa" ? Flower2 : ic === "ship" ? Ship : ic === "car" ? Car : Sparkles; return (<span style={{ display: "grid", placeItems: "center", width: 30, height: 30, borderRadius: 9, background: c + "1A", flexShrink: 0 }}><I size={15} color={c} /></span>); };
   return (<div className="vo-days" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
     {sameDayWarn ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: "#B0563A14", border: `1px solid #B0563A`, borderRadius: 12, padding: "13px 15px" }}>
       <AlertTriangle size={16} color="#B0563A" style={{ marginTop: 1, flexShrink: 0 }} />
