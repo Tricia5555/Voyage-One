@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M798";
+const BUILD = "M799";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10620,7 +10620,7 @@ function groundOption(mode, from, to) {
 function exitOf(p, i) {
   const ds = (p && p.dests) || []; const d = ds[i]; if (!d) return "";
   const h = carInHand(p, i);
-  if (h && h.dropDest === i && h.car.to && !dropMatchesDest(String(h.car.to), d.city)) return String(h.car.to).trim();
+  if (h && h.dropDest === i && h.returnAt && !dropMatchesDest(h.returnAt, d.city)) return h.returnAt;
   return exitPoint(d, ds[i + 1] && ds[i + 1].city);
 }
 function legStart(p, i) {
@@ -17837,7 +17837,7 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies })
             </div> : null}
             {sel && sel.air ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6, alignItems: "center" }}><span style={{ fontSize: 11.5, color: t.inkFaint }}>Return it</span>{chip(!atAir, `in ${sel.town}`, () => set({ to: sel.town }))}{chip(atAir, `at ${sel.air}`, () => set({ to: sel.air }))}</div> : null}
             {sel && !atAir ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4, lineHeight: 1.45 }}>Confirm the company has a branch in {sel.town} when you book.</div> : null}
-            {offTrip ? <div style={{ fontSize: 12, color: t.inkSoft, marginTop: 6, lineHeight: 1.5 }}>{bareCity(to)} is not a place this car can be driven to on this trip — no road, and no short car ferry — so it is treated as returned at the last stop on the road before you fly.</div> : null}
+            {offTrip ? <div style={{ fontSize: 12, color: t.inkSoft, marginTop: 6, lineHeight: 1.5 }}>{bareCity(to)} is not a stop on this trip. The car is returned there if the road from the last stop you drive to goes there; otherwise at the airport you fly on from, and the trip says which.</div> : null}
           </>);
         })() : null}</label>
       <label style={{ fontSize: 12, color: t.inkSoft }}>Company{companies && companies.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "6px 0 4px" }}>{companies.map((c) => <button key={c} type="button" onClick={() => set({ company: c })} style={{ background: (car.company || "").toLowerCase() === c.toLowerCase() ? t.pine : t.white, color: (car.company || "").toLowerCase() === c.toLowerCase() ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 12px", fontSize: 12.5, cursor: "pointer" }}>{c}</button>)}</div> : null}<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
@@ -17974,7 +17974,19 @@ function carInHand(p, i) {
   for (let j = 0; j < i; j++) {
     const c = ds[j] && ds[j].pick && ds[j].pick.car; if (!c || !c.booked || !c.to) continue;
     const k = carDropIndex(ds, j, sched); if (k < 0) continue;
-    if (i > j && i <= k) return { fromDest: j, dropDest: k, car: c, fromCity: ds[j].city };
+    if (i > j && i <= k) {
+      // WHERE THE CAR IS ACTUALLY RETURNED. The typed drop-off, when the road from the last stop
+      // the car reaches goes there. When it does not — "Palma airport" typed for a car that water
+      // stops at Antibes — the car is returned at that last stop, at the airport it is left through,
+      // and every panel, the itinerary and the next flight say THAT, never the unreachable place.
+      // ("No flight from Palma to Mallorca" came from trusting the typed text here.)
+      const to = String(c.to).trim(); const code = codeOf(to); const place = code ? (airportCityOf(code, null) || bareCity(to)) : bareCity(to);
+      const last = ds[k].city;
+      const reachable = sameCity(place, last) || dropMatchesDest(to, last) || !!roadLeg(last, place);
+      let returnAt = to;
+      if (!reachable) { const ex = exitPoint({ ...ds[k], pick: { ...(ds[k].pick || {}), car: null }, exitFrom: "" }, ds[k + 1] && ds[k + 1].city); const xc = ex ? iataFor(ex) : null; returnAt = xc ? `${airportCityOf(xc, null) || bareCity(ex)} airport (${xc})` : bareCity(last); }
+      return { fromDest: j, dropDest: k, car: c, fromCity: ds[j].city, returnAt, offTrip: !reachable };
+    }
   }
   return null;
 }
@@ -18053,12 +18065,13 @@ function dropChoiceOf(to, choices) {
 function CarInHandPanel({ p, i, d }) {
   const h = carInHand(p, i); if (!h) return null;
   const c = h.car; const last = h.dropDest === i;
-  const dropPlace = codeOf(String(c.to)) ? (airportCityOf(codeOf(String(c.to)), null) || bareCity(c.to)) : bareCity(c.to);
+  const at = h.returnAt || String(c.to);
+  const dropPlace = codeOf(at) ? (airportCityOf(codeOf(at), null) || bareCity(at)) : bareCity(at);
   const back = last && !sameCity(dropPlace, d.city) ? roadLeg(d.city, dropPlace) : null;
   return (<Panel icon={Car} title={`Your car · ${c.company || "rental"} from ${bareCity(h.fromCity)}`}>
     {back && back.crossings && back.crossings.length ? back.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : d.city} to={k === all.length - 1 ? dropPlace : all[k + 1].from.name} />) : null}
     <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>
-      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(c.to)}{codeOf(String(c.to)) ? ` (${codeOf(String(c.to))})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}.{back && back.label ? <> The road there from {bareCity(d.city)}: <strong>{back.label}</strong>.</> : null}</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(c.to)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. This leg is by road.</>}
+      {last ? <>Return the <strong>{c.company || "car"}</strong> at <strong>{bareCity(at)}{codeOf(at) ? ` (${codeOf(at)})` : ""}</strong>{c.dropDate ? <> on <strong>{fmtDay(new Date(c.dropDate + "T00:00:00"))}</strong></> : null} before your flight{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}.{back && back.label ? <> The road there from {bareCity(d.city)}: <strong>{back.label}</strong>.</> : null}</> : <>You already have the car — collected in <strong>{bareCity(c.from || h.fromCity)}</strong>, dropping off at <strong>{bareCity(at)}</strong>{c.dropDate ? <> on {fmtDay(new Date(c.dropDate + "T00:00:00"))}</> : null}{c.ref ? <span style={{ color: t.inkSoft }}> · {c.ref}</span> : null}. This leg is by road.</>}
     </div>
   </Panel>);
 }
@@ -18188,7 +18201,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   const legHere = inHand ? roadLeg(from, to) : null;
   return (<><Panel icon={arriveBy === "Flight" ? Plane : Car} title={firstLabel}>
     {inHand ? (<div style={{ marginBottom: 12, fontSize: 13.5, color: t.ink, lineHeight: 1.6 }}>
-      By road, with your {inHand.car.company || "rental"} from <strong>{bareCity(inHand.car.from || inHand.fromCity)}</strong>{legHere && legHere.label ? <> — <strong>{legHere.label}</strong></> : null}. {inHand.dropDest === i ? <>You return it here, at <strong>{bareCity(inHand.car.to)}{codeOf(String(inHand.car.to)) ? ` (${codeOf(String(inHand.car.to))})` : ""}</strong>.</> : <>You keep it past this stop.</>}
+      By road, with your {inHand.car.company || "rental"} from <strong>{bareCity(inHand.car.from || inHand.fromCity)}</strong>{legHere && legHere.label ? <> — <strong>{legHere.label}</strong></> : null}. {inHand.dropDest === i ? <>You return it here, at <strong>{bareCity(inHand.returnAt)}{codeOf(inHand.returnAt) ? ` (${codeOf(inHand.returnAt)})` : ""}</strong>.</> : <>You keep it past this stop.</>}
       <div style={{ marginTop: 8 }}><button type="button" onClick={flyInstead} style={{ background: "none", border: `1px solid ${t.pineSoft}`, borderRadius: 999, padding: "7px 14px", color: t.pine, fontSize: 12.5, cursor: "pointer" }}>Fly this leg instead — return the car {backCode ? "at" : "in"} {backAt}</button></div>
     </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>}
     {inHand && legHere && legHere.crossings && legHere.crossings.length ? legHere.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : from} to={k === all.length - 1 ? to : all[k + 1].from.name} />) : null}
@@ -20599,10 +20612,11 @@ function DayByDay({ p, sch }) {
       if (code && !ownHere && apCity && !sameCity(apCity, hb)) add(p.dates.depart, { icon: "car", kind: "ground", city: hb, name: `To the airport`, label: `${hb} \u2192 ${apCity} airport (${code})`, sub: p.airportTransfer && p.airportTransfer.booked ? ("Booked" + (p.airportTransfer.ref ? " \u00b7 " + p.airportTransfer.ref : "") + " \u00b7 by road \u00b7 allow time") : "by road \u00b7 arranged through your hotel \u00b7 not booked yet", booked: !!(p.airportTransfer && p.airportTransfer.booked), time: null });
     }
     { const h = carInHand(p, i); if (h && h.dropDest === i && lg.depart) {
-        const dp = codeOf(String(h.car.to)) ? (airportCityOf(codeOf(String(h.car.to)), null) || bareCity(h.car.to)) : bareCity(h.car.to);
+        const at = h.returnAt || String(h.car.to);
+        const dp = codeOf(at) ? (airportCityOf(codeOf(at), null) || bareCity(at)) : bareCity(at);
         const back = !sameCity(dp, city) ? roadLeg(city, dp) : null;
         (back && back.crossings ? back.crossings : []).forEach((x) => add(isoOf(lg.depart), { icon: "ship", kind: "ground", city, name: x.ops[0][0], site: x.ops[0][1], label: `Car ferry — ${x.from.name} to ${x.to.name} · ${minsLabel(x.mins)}`, sub: `${x.ops.map((o) => o[0]).join(" / ")} · reserve the car’s place` }));
-        add(isoOf(lg.depart), { icon: "car", kind: "ground", city, name: "Return the car", label: `Return the ${h.car.company || "rental"} — ${bareCity(h.car.to)}${codeOf(String(h.car.to)) ? " (" + codeOf(String(h.car.to)) + ")" : ""}`, sub: [back && back.label ? `${bareCity(city)} → ${dp} ${back.label}` : "", h.car.ref ? `ref ${h.car.ref}` : "", "before your flight"].filter(Boolean).join(" · "), booked: true, time: null }); } }
+        add(isoOf(lg.depart), { icon: "car", kind: "ground", city, name: "Return the car", label: `Return the ${h.car.company || "rental"} — ${bareCity(at)}${codeOf(at) ? " (" + codeOf(at) + ")" : ""}`, sub: [back && back.label ? `${bareCity(city)} → ${dp} ${back.label}` : "", h.car.ref ? `ref ${h.car.ref}` : "", "before your flight"].filter(Boolean).join(" · "), booked: true, time: null }); } }
     if (pk.eventItems && d.event) {
       const ex = findExperience(d.event); const bl = (ex && ex.guide && ex.guide.build) || [];
       bl.forEach((it) => { const st = pk.eventItems[it.key]; if (!st || !st.added) return;
