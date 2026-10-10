@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M791";
+const BUILD = "M792";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1429,7 +1429,7 @@ const HOTELS = {
 const FAVORITES = {
   "London": [
     { name: "Claridge's", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The definitive London address — Art Deco glamour and the lobby everyone wants to be seen in.", contact: { addr: "Brook Street, Mayfair, London W1K 4HR", web: "claridges.com" } },
-    { name: "The Connaught", area: "Mayfair", tier: "UltraLux", rate: 1590, ourTake: "Discreet, clubby, the best bars in London — old-money Mayfair at its most assured.", contact: { addr: "Carlos Place, Mayfair, London W1K 2AL", web: "the-connaught.co.uk" } },
+    { name: "The Connaught", area: "Mayfair", tier: "UltraLux", rate: 1590, ourTake: "Discreet, clubby, the best bars in London — old-money Mayfair at its most assured.", contact: { addr: "Carlos Place, Mayfair, London W1K 2AL", web: "the-connaught.co.uk" }, photo: "https://library.maybourne.com/transform/317361f9-0a57-442a-9496-a17b8c74527d/CON-EXTERIOR-07?format=jpg&quality=80&io=transform%3Afill%2Cwidth%3A880%2Cheight%3A654&resolution=high" },
     { name: "The Savoy", area: "Strand", tier: "UltraLux", rate: 842, ourTake: "The theatrical grande dame on the Thames — the Grill, the river, a century of legend.", contact: { addr: "Strand, London WC2R 0EZ", web: "thesavoylondon.com" } },
     { name: "The Berkeley", area: "Knightsbridge", tier: "UltraLux", rate: 990, ourTake: "Quintessential Knightsbridge — a rooftop pool, Marcus at the door, and a short run to the West End.", contact: { addr: "Wilton Place, Knightsbridge, London SW1X 7RL", web: "the-berkeley.co.uk" } },
     { name: "The Peninsula London", area: "Belgravia", tier: "UltraLux", rate: null, ourTake: "The city's newest grande dame at Hyde Park Corner — flawless service and the finest house cars in town.", contact: { addr: "1 Grosvenor Place, London SW1X 7HJ", web: "peninsula.com" } },
@@ -18350,17 +18350,21 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
   // way the presentation is identical — one card for every hotel.
   const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
-  const photo = s.photo || info.photo;
+  // A PINNED PHOTO WINS. Google's cover photo for a place is whatever its ranking picks — for the
+  // Connaught it was a back patio — and nothing on our side steers it. A row may carry its own
+  // photo, and that is shown first; if it ever fails to load, the looked-up one takes over rather
+  // than leaving the card blank. Universal: any hotel row, one field.
+  const [bad, setBad] = useState(null);
+  const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
   const rating = null;   // Google crowd rating — deliberately not shown. See note above.
   const tier = tierProp || tierOf(s.name);
-  const [broken, setBroken] = useState(false);
-  const showImg = photo && !broken;
+  const showImg = photo && bad !== photo;
   const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 44%" : "none", height: sel ? "auto" : 152, minHeight: sel ? 210 : 152, overflow: "hidden" };
   return (<div role="button" tabIndex={0} onClick={onClick} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
     <div style={photoBox}>
       {showImg
-        ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ? <img src={photo} alt="" loading="lazy" onError={() => setBad(photo)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
       <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : tier}</span>
       {rating ? <span style={{ position: "absolute", top: 10, right: 10, background: "rgba(34,29,25,.6)", color: t.brassLight, fontSize: 11, fontWeight: 500, padding: "4px 9px", borderRadius: 999 }}>★ {rating}</span> : null}
