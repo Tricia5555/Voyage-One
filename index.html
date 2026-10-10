@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M800";
+const BUILD = "M801";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17863,6 +17863,37 @@ const WATER_ARRIVAL = {
   "Hydra": { title: "Arriving on Hydra \u2014 by sea", text: "The hydrofoil from Piraeus, or a private boat. There are no cars on Hydra at all; bags go by donkey or water taxi." },
   "Zermatt": { title: "Arriving in Zermatt \u2014 by rail", text: "Cars stop at T\u00e4sch; the shuttle train takes you the last twelve minutes, and the hotel\u2019s electric taxi meets the train. Zermatt is car-free." },
 };
+// FROM THE AIRPORT TO YOUR HOTEL. "Mallorca" is an island and "Sicily" a region; the traveller
+// knows the hotel, not the town, and once the flight lands at Palma the question is how far
+// La Residencia is. Every curated hotel carries its town (the area), so the answer is worked out
+// for any stay anywhere: the town, the miles from the airport you land at, the time by road, and
+// the advice — ask the hotel to send a car. Shown only for a flight arrival, only once a hotel is
+// chosen, and only when the hotel is a real distance from the airport's own town; a hotel in
+// Palma needs no panel. Distances are from coordinates, so nothing is invented: no coordinates,
+// no panel. (Tricia, 10 Oct 2026.)
+function StayFromAirportPanel({ d, pick, flyInto }) {
+  useGeoTick();
+  const stay = pick && pick.stay; if (!stay || !stay.name || d.arriveBy !== "Flight") return null;
+  const code = iataFor(flyInto) || iataFor(d.city) || (d.gatewayAir ? iataFor(d.gatewayAir) : null); if (!code) return null;
+  const apc = airportCityOf(code, null) || bareCity(flyInto || ""); if (!apc) return null;
+  const town = String(stay.band || stay.area || "").split("·")[0].replace(/\([A-Z]{3}\)/g, "").trim();
+  if (!town || sameCity(town, apc)) return null;
+  const q = sameCity(town, d.city) ? d.city : `${town}, ${bareCity(d.city)}`;
+  const A = coordsFor(apc), B = (stay.lat != null && stay.lng != null) ? [stay.lat, stay.lng] : coordsFor(q);
+  // The real road, from Google, airport to hotel; the straight-line estimate only until it arrives.
+  const live = useGround(`${apc} airport (${code})`, `${stay.name}, ${q}`);
+  const real = live && live.drive && live.drive.minutes ? { mins: Math.round(live.drive.minutes), km: live.drive.km || null } : null;
+  if (!real && (!A || !B)) return null;
+  const est = !real ? roadFromKm(havKm(A, B)) : null;
+  const road = real || est; if (!road || (road.km != null && road.km < 15)) return null;
+  const mi = road.km != null ? Math.round(road.km * 0.6214) : null;
+  return (<Panel icon={Car} title={`From ${apc} airport to ${stay.name}`}>
+    <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.65 }}>
+      <strong>{stay.name}</strong> is in <strong>{town}</strong>{mi != null ? <>, about <strong>{mi} miles</strong> from {apc} airport ({code})</> : null} — about <strong>{minsLabel(road.mins)}</strong> by road{real ? "" : ", estimated"}.
+      <div style={{ marginTop: 6, color: t.inkSoft, fontSize: 13.5 }}>Ask the hotel to arrange your pickup and give them your flight number; they do it every day and the driver knows the road. If you want a car for the days there, the rental panel below collects it at the airport.</div>
+    </div>
+  </Panel>);
+}
 function WaterArrivalPanel({ city }) {
   const k = Object.keys(WATER_ARRIVAL).find((c) => sameCity(c, city) || dnrm(bareCity(city)) === dnrm(c));
   if (!k) return null;
@@ -20126,6 +20157,7 @@ function CitySection({ d, i, p, from, legSched }) {
     })()}
     {d.city && <GettingAroundPanel city={d.city} />}
       {d.city && isCarFree(d.city) ? <WaterArrivalPanel city={d.city} /> : null}
+      {d.city && !gw && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) ? <StayFromAirportPanel d={d} pick={pick} flyInto={flyInto} /> : null}
       {d.city && PRIVATE_TRANSFER[Object.keys(PRIVATE_TRANSFER).find((c) => sameCity(c, d.city)) || ""] ? <TransferPanel d={d} legSched={legSched} /> : null}
       {carInHand(p, i) ? <CarInHandPanel p={p} i={i} d={d} /> : null}
       {!carInHand(p, i) && d.arriveBy !== "Self-drive" && d.city && !isCarFree(d.city) && !Object.keys(PRIVATE_TRANSFER).some((c) => sameCity(c, d.city)) && <RentalPanel city={pickupPoint(d)} destination={d.city} compact car={d.pick && d.pick.car} upd={upd} dropChoices={dropChoicesFor(p, i)} defDropDate={suggestedDropDate(p, i)} />}
