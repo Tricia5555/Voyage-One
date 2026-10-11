@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M801";
+const BUILD = "M803";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10278,7 +10278,11 @@ const ISLAND_OF = {
 const ISLAND_LOOKUP = (() => { const m = {}; Object.keys(ISLAND_OF).forEach((k) => { m[dnrm(k)] = ISLAND_OF[k]; }); return m; })();
 function islandOf(place) {
   const key = resolvePlace(place) || bareCity(place);
-  return ISLAND_LOOKUP[dnrm(key)] || null;
+  const hit = ISLAND_LOOKUP[dnrm(key)]; if (hit) return hit;
+  // "Deià, Mallorca", "La Residencia, Deià, Mallorca": any part of a comma-joined name that is an island names the island
+  const parts = String(key || "").split(",").map((x) => x.trim()).filter(Boolean);
+  if (parts.length > 1) for (const pt of parts) { const h = ISLAND_LOOKUP[dnrm(pt)]; if (h) return h; }
+  return null;
 }
 function drivable(a, b) {
   const ia = islandOf(a), ib = islandOf(b);
@@ -10620,7 +10624,11 @@ function groundOption(mode, from, to) {
 function exitOf(p, i) {
   const ds = (p && p.dests) || []; const d = ds[i]; if (!d) return "";
   const h = carInHand(p, i);
-  if (h && h.dropDest === i && h.returnAt && !dropMatchesDest(h.returnAt, d.city)) return h.returnAt;
+  if (h && h.dropDest === i && h.returnAt && !dropMatchesDest(h.returnAt, d.city)) {
+    // as a place a leg starts from, an airport is written "Nice (NCE)", the form every table and lookup knows
+    const code = codeOf(h.returnAt); const apc = code ? airportCityOf(code, null) : null;
+    return code && apc ? `${apc} (${code})` : h.returnAt;
+  }
   return exitPoint(d, ds[i + 1] && ds[i + 1].city);
 }
 function legStart(p, i) {
@@ -17871,28 +17879,37 @@ const WATER_ARRIVAL = {
 // chosen, and only when the hotel is a real distance from the airport's own town; a hotel in
 // Palma needs no panel. Distances are from coordinates, so nothing is invented: no coordinates,
 // no panel. (Tricia, 10 Oct 2026.)
+function StayFromAirportLine({ d, pick, flyInto }) {
+  const r = useStayFromAirport(d, pick, flyInto); if (!r) return null;
+  return (<div style={{ fontSize: 14, color: t.ink, lineHeight: 1.65, marginBottom: 10 }}>
+    <strong>{r.name}</strong> is in <strong>{r.town}</strong>{r.mi != null ? <>, about <strong>{r.mi} miles</strong> from {r.apc} airport ({r.code})</> : null} — about <strong>{minsLabel(r.mins)}</strong> by road{r.real ? "" : ", estimated"}.
+    <div style={{ marginTop: 6, color: t.inkSoft, fontSize: 13.5 }}>Ask the hotel to arrange your pickup. For a car of your own for the days there, the rental panel below collects it at the airport.</div>
+  </div>);
+}
 function StayFromAirportPanel({ d, pick, flyInto }) {
+  const r = useStayFromAirport(d, pick, flyInto); if (!r) return null;
+  return (<Panel icon={Car} title={`From ${r.apc} airport to ${r.name}`}><StayFromAirportLine d={d} pick={pick} flyInto={flyInto} /></Panel>);
+}
+function useStayFromAirport(d, pick, flyInto) {
   useGeoTick();
-  const stay = pick && pick.stay; if (!stay || !stay.name || d.arriveBy !== "Flight") return null;
-  const code = iataFor(flyInto) || iataFor(d.city) || (d.gatewayAir ? iataFor(d.gatewayAir) : null); if (!code) return null;
-  const apc = airportCityOf(code, null) || bareCity(flyInto || ""); if (!apc) return null;
-  const town = String(stay.band || stay.area || "").split("·")[0].replace(/\([A-Z]{3}\)/g, "").trim();
-  if (!town || sameCity(town, apc)) return null;
-  const q = sameCity(town, d.city) ? d.city : `${town}, ${bareCity(d.city)}`;
-  const A = coordsFor(apc), B = (stay.lat != null && stay.lng != null) ? [stay.lat, stay.lng] : coordsFor(q);
+  // Hooks first, every render, whatever the answer turns out to be.
+  const stay = pick && pick.stay;
+  const ok = !!(stay && stay.name && d.arriveBy === "Flight");
+  const code = ok ? (iataFor(flyInto) || iataFor(d.city) || (d.gatewayAir ? iataFor(d.gatewayAir) : null)) : null;
+  const apc = code ? (airportCityOf(code, null) || bareCity(flyInto || "")) : "";
+  const town = ok ? String(stay.town || stay.band || stay.area || "").split("·")[0].replace(/\([A-Z]{3}\)/g, "").trim() : "";
+  const usable = !!(ok && code && apc && town && !sameCity(town, apc));
+  const q = usable ? (sameCity(town, d.city) ? d.city : `${town}, ${bareCity(d.city)}`) : "";
   // The real road, from Google, airport to hotel; the straight-line estimate only until it arrives.
-  const live = useGround(`${apc} airport (${code})`, `${stay.name}, ${q}`);
+  const live = useGround(usable ? `${apc} airport (${code})` : "", usable ? `${stay.name}, ${q}` : "");
+  if (!usable) return null;
+  const A = coordsFor(apc), B = (stay.lat != null && stay.lng != null) ? [stay.lat, stay.lng] : coordsFor(q);
   const real = live && live.drive && live.drive.minutes ? { mins: Math.round(live.drive.minutes), km: live.drive.km || null } : null;
   if (!real && (!A || !B)) return null;
   const est = !real ? roadFromKm(havKm(A, B)) : null;
   const road = real || est; if (!road || (road.km != null && road.km < 15)) return null;
   const mi = road.km != null ? Math.round(road.km * 0.6214) : null;
-  return (<Panel icon={Car} title={`From ${apc} airport to ${stay.name}`}>
-    <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.65 }}>
-      <strong>{stay.name}</strong> is in <strong>{town}</strong>{mi != null ? <>, about <strong>{mi} miles</strong> from {apc} airport ({code})</> : null} — about <strong>{minsLabel(road.mins)}</strong> by road{real ? "" : ", estimated"}.
-      <div style={{ marginTop: 6, color: t.inkSoft, fontSize: 13.5 }}>Ask the hotel to arrange your pickup and give them your flight number; they do it every day and the driver knows the road. If you want a car for the days there, the rental panel below collects it at the airport.</div>
-    </div>
-  </Panel>);
+  return { name: stay.name, town, apc, code, mi, mins: road.mins, real: !!real };
 }
 function WaterArrivalPanel({ city }) {
   const k = Object.keys(WATER_ARRIVAL).find((c) => sameCity(c, city) || dnrm(bareCity(city)) === dnrm(c));
@@ -18181,9 +18198,6 @@ function RentalPanel({ city, destination, compact, car, upd, dropChoices, defDro
           {more.map((b) => <RentalRow key={b.key} b={b} faded />)}
         </div>
       : <button onClick={() => setOpen(true)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13 }}>View more options</button>)}
-    {region === "EU" && <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${t.line}` }}>
-      <strong style={{ color: t.ink }}>Two things to settle when you book.</strong> An automatic is not the default in Europe and has to be asked for — assume a manual unless the booking says otherwise. And if your route crosses a border, confirm that the company and the vehicle class are permitted in every country on it; premium and performance cars are often restricted, particularly heading east.
-    </div>}
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 10, lineHeight: 1.5 }}>
       Chosen on service, coverage and premium availability — both vary by destination. You book directly with the company; Voyage One never holds the reservation or the payment.
     </div>
@@ -18201,7 +18215,13 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   // and rail chips when the two ends are on different islands with no short ferry we know about.
   // Flight remains, which is the only true answer.
   const allowedRaw = feasibleModes(ground, distanceKm(from, to));
-  const iaX = islandOf(from), ibX = islandOf(to);
+  // THE ISLAND IS DECIDED BY THE DESTINATION, not only by the label this panel was handed. The
+  // label can be a hub, an airport, or a hotel line, none of which the island table knows, and
+  // then Mallorca was treated as mainland: rail, a ferry and an eighteen-hour drive were offered
+  // for a flight to an island. The stop itself always knows where it is. (Tricia, 11 Oct 2026.)
+  const dHere = p && i != null && p.dests ? p.dests[i] : null, dPrev = p && i != null && p.dests ? p.dests[i - 1] : null;
+  const iaX = islandOf(from) || (i === 0 && p ? islandOf(p.fromCity) : (dPrev ? islandOf(dPrev.city) : null));
+  const ibX = islandOf(to) || (dHere ? islandOf(dHere.city) : null);
   const acrossWater = !!((iaX || ibX) && iaX !== ibX);
   const stripRoad = (list) => {
     const l = acrossWater ? list.filter((m) => m.key === "Flight" || (m.key === "Ferry" && realFerry())) : list;
@@ -18250,7 +18270,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
       <div style={{ marginTop: 8 }}><button type="button" onClick={flyInstead} style={{ background: "none", border: `1px solid ${t.pineSoft}`, borderRadius: 999, padding: "7px 14px", color: t.pine, fontSize: 12.5, cursor: "pointer" }}>Fly this leg instead — return the car {backCode ? "at" : "in"} {backAt}</button></div>
     </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>}
     {inHand && legHere && legHere.crossings && legHere.crossings.length ? legHere.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : from} to={k === all.length - 1 ? to : all[k + 1].from.name} />) : null}
-    {ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
+    {!acrossWater && ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" && connectVia(to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Connect through {connectVia(to).hub}</div>
       <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{connectVia(to).note}</div>
@@ -18992,13 +19012,25 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
       const counts = { Destination: pool.filter((r) => michTier(r, dense) === "Destination").length, Recommended: pool.filter((r) => michTier(r, dense) === "Recommended").length, Local: localFavRows.length };
       const total = counts.Destination + counts.Recommended + counts.Local;
       const teaseLevel = counts.Destination ? "Destination" : counts.Recommended ? "Recommended" : counts.Local ? "Local" : null;
-      const tease = teaseLevel === "Local" ? localFavRows.slice(0, 2) : teaseLevel ? pool.filter((r) => michTier(r, dense) === teaseLevel).slice(0, 2) : [];
-      if (!tease.length) return <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty.Destination}</div>;
+      // A TABLE ALREADY CHOSEN STAYS IN THE PICTURE. Come back to a trip and the restaurant you
+      // picked is here, full size, with its date and booking — whichever category it came from and
+      // whether or not it is one of the two shown for colour. The two teasers follow it, and the
+      // count says what else there is. (Tricia, 11 Oct 2026.)
+      const rowOf = (x) => { const lf = localFavRows.find((r) => keyOf(r.n) === keyOf(x.name)); if (lf) return { r: lf, lvl: "Local" }; const pr = pool.find((r) => keyOf(r.n) === keyOf(x.name)); return pr ? { r: pr, lvl: michTier(pr, dense) } : null; };
+      const chosenRows = dines.map(rowOf).filter(Boolean);
+      const isChosen = (r) => chosenRows.some((c) => keyOf(c.r.n) === keyOf(r.n));
+      const tease = (teaseLevel === "Local" ? localFavRows : teaseLevel ? pool.filter((r) => michTier(r, dense) === teaseLevel) : []).filter((r) => !isChosen(r)).slice(0, 2);
+      if (!tease.length && !chosenRows.length) return <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty.Destination}</div>;
+      const shownN = chosenRows.length + tease.length;
       return (<div>
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+          {chosenRows.map(({ r, lvl }, k) => { const found = dines.find((x) => keyOf(x.name) === keyOf(r.n)); return (
+            <DineCard key={"c" + k} r={r} city={city} level={lvl} found={found}
+              onToggle={() => upd({ dines: dines.filter((x) => keyOf(x.name) !== keyOf(r.n)) })}
+              onDate={(dt) => setDate(found.name, found.level, dt)} onSet={(patch) => setField(found.name, found.level, patch)} nights={nights} />); })}
           {tease.map((r, k) => <div key={k} onClick={() => setLevel(teaseLevel)} style={{ cursor: "pointer" }}><DineCard r={r} city={city} level={teaseLevel} found={null} onToggle={() => setLevel(teaseLevel)} onDate={() => {}} onSet={() => {}} nights={nights} /></div>)}
         </div>
-        {total > tease.length ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}>{total - tease.length} more {total - tease.length === 1 ? "table" : "tables"} — tap a category above.</div> : null}
+        {total > shownN ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}>{total - shownN} more {total - shownN === 1 ? "table" : "tables"} — tap a category above.</div> : null}
       </div>);
     })() : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
@@ -20045,7 +20077,20 @@ function CitySection({ d, i, p, from, legSched }) {
   const upd = (patch) => p.setDest(i, { pickPatch: patch });
   const nights = destNights(d);
   const tours = pick.tours || []; const spas = pick.spas || []; const sports = pick.sports || [];
-  const gwRaw = useGateway(d.city);
+  const gwCity = useGateway(d.city);
+  // THE HOTEL'S TOWN DECIDES THE AIRPORT when the destination is an island or a region rather
+  // than a city with an airport of its own. "Sicily", "Mallorca", "Hawaii": the traveller knows
+  // the island and the hotel, not the town, and there is no one airport for the island — Verdura
+  // in Sciacca is Palermo, Taormina is Catania, La Residencia in Deià is Palma with the mountain
+  // road after it. So once a hotel is chosen, its town is looked up like any town and the airport
+  // it is served by becomes the one this leg flies into; before that, the island's listed
+  // airport, or the nearest to the island, as before. A destination with its own airport
+  // (Bermuda, Palermo) or a curated gateway (Capri via Naples, St Barth via St Maarten) keeps
+  // it — the hotel does not move those. (Tricia, 10 Oct 2026.)
+  const stayTown = (() => { const st = pick.stay; if (!st || !st.name) return ""; const tn = String(st.town || st.band || st.area || "").split("·")[0].replace(/\([A-Z]{3}\)/g, "").trim(); return tn && !sameCity(tn, d.city) ? `${tn}, ${bareCity(d.city)}` : ""; })();
+  const townDecides = !!stayTown && !!d.city && !hasOwnAirport(d.city) && !gatewayFor(d.city) && !isCarFree(d.city);
+  const gwTown = useGateway(townDecides ? stayTown : "");
+  const gwRaw = townDecides && gwTown && gwTown.air ? gwTown : gwCity;
   // Remember the resolved gateway on the destination, so the NEXT leg knows this city is
   // reached and left through its airport (e.g. Positano's flights leave from Naples). This is
   // what lets the app compose "ground to the airport, then fly" for any ground-access place.
@@ -20090,7 +20135,13 @@ function CitySection({ d, i, p, from, legSched }) {
   // ignorance must not be read as "near". Universal: any origin, any regional airport.
   const legKm = distanceKm(from, surfaceTarget);
   const knownShortHaul = legKm != null && legKm <= LONGHAUL_MIN_KM;
-  const needsHub = d.arriveBy === "Flight" && farAway && !knownShortHaul && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
+  // THE HUB PANEL SAYS "NOTHING FLIES X TO Y", SO IT MUST KNOW. It is shown when the distance is
+  // known and long-haul, or when both zones are known and differ (Birmingham, Alabama to Mallorca).
+  // With neither known — a label the tables have never seen, a coordinate still on its way — it
+  // waits rather than asserting: "Nothing flies Nice to Mallorca" was shown for a one-hour hop
+  // because the car's return label was unknown to the zone table. (Tricia, 11 Oct 2026.)
+  const knownFar = legKm != null ? legKm > LONGHAUL_MIN_KM : !!(zFrom && zTo && zFrom !== zTo);
+  const needsHub = d.arriveBy === "Flight" && knownFar && !knownShortHaul && apHere && apHere.scale === "regional" && hubOptions(surfaceTarget).length > 0;
   const flyFrom = from;
   // Duffel already returns complete connecting itineraries INTO a regional airport, so we never
   // hide flights waiting for a manual hub pick — that stranded every long-haul leg into a gateway
@@ -20124,8 +20175,10 @@ function CitySection({ d, i, p, from, legSched }) {
         return gw ? `Getting here from ${start} · fly into ${gw.air}` : `Getting here from ${start}`;
       })()} />
     {d.mode === "open" ? <ExploreSection d={d} i={i} p={p} from={from} legSched={legSched} /> : <>
-      {gw && d.arriveBy === "Flight" && <Panel icon={Car} title={`Getting from ${gw.air} to ${d.city}`}>
-        <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{gw.note}</div>
+      {gw && d.arriveBy === "Flight" && <Panel icon={Car} title={`Getting from ${gw.air} to ${townDecides && gwRaw === gwTown && pick.stay ? pick.stay.name : d.city}`}>
+        {townDecides && gwRaw === gwTown && pick.stay
+          ? <StayFromAirportLine d={d} pick={pick} flyInto={gw.air} />
+          : <div style={{ fontSize: 12.5, color: t.brass, marginBottom: 10, lineHeight: 1.45 }}>{gw.note}</div>}
         {gw.computed && gw.options && gw.options.length > 1 && (<div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 6 }}>Fly into — your choice</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
