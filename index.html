@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M806";
+const BUILD = "M807";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -20795,8 +20795,10 @@ function DayByDay({ p, sch }) {
         const landAt = bareCity(pickupPoint(d)) || bareCity(city);
         const route = (pf.depAirport && pf.arrAirport) ? `${pf.depAirport} \u2192 ${pf.arrAirport}` : `${bareCity(legFrom)} \u2192 ${landAt}`;
         const st = pf.booked ? (pf.ref ? `Booked \u00b7 ${pf.ref}` : "Booked \u00b7 no reference given") : "Not booked";
-        add(isoOf(lg.arrive), { icon: "plane", site: airlineSiteFor(pf.airline), name: pf.airline || "", city, label: `Fly ${(i === 0 ? (airportCityOf(iataFor(legFrom), bareCity(legFrom)) || bareCity(legFrom)) : bareCity(legFrom))} to ${landAt} \u2014 ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
-          sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" \u00b7 ") : "times not recorded", st].filter(Boolean).join(" \u00b7 ") });
+        const seats = partySize(p);
+        add(isoOf(lg.arrive), { icon: "plane", site: airlineSiteFor(pf.airline), name: pf.airline || "", city, label: `Fly ${(i === 0 ? (airportCityOf(iataFor(legFrom), bareCity(legFrom)) || bareCity(legFrom)) : bareCity(legFrom))} to ${landAt} — ${pf.airline || "airline TBC"}${pf.flightNo ? " " + pf.flightNo : ""}`,
+          sub: [route, pf.cabin || "cabin TBC", (pf.depart || pf.arrive) ? [pf.depart ? `departs ${pf.depart}` : "", pf.arrive ? `arrives ${pf.arrive}` : ""].filter(Boolean).join(" · ") : "times not recorded", st].filter(Boolean).join(" · "),
+          cost: pf.price ? pf.price * seats : null, costNote: pf.price ? (seats > 1 ? `${fmt(pf.price)} × ${seats} travellers` : "per person") : null });
       } else if (carInHand(p, i)) {
         // THE CAR'S OWN LEG: the road, and every car ferry on it as its own line with the operator's site.
         const h = carInHand(p, i); const rl = roadLeg(legFrom, city);
@@ -20807,17 +20809,19 @@ function DayByDay({ p, sch }) {
         const rb = pk.rail || {};
         add(rb.booked && rb.date ? rb.date : isoOf(lg.arrive), { icon: "car", kind: "ground", city, name: rr.op, site: rr.site, booked: !!rb.booked, time: rb.dep || null,
           label: `${rb.dep ? rb.dep + " · " : ""}${rr.op} — ${a ? a.name : bareCity(legFrom)} to ${b ? b.name : bareCity(city)}${rb.arr ? " · arrives " + rb.arr : ""}`,
-          sub: [rb.booked ? "Booked" + (rb.ref ? " · " + rb.ref : "") : "Not booked", rb.seat || rr.seat, minsLabel(rr.mins)].filter(Boolean).join(" · ") });
+          sub: [rb.booked ? "Booked" + (rb.ref ? " · " + rb.ref : "") : "Not booked", rb.seat || rr.seat, minsLabel(rr.mins)].filter(Boolean).join(" · "), cost: rb.price != null ? rb.price : null, costNote: rb.price != null ? "all travellers" : null });
       } else if (pk.ground) {
         add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} — ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
       }
     }
     if (lg && pk.car && pk.car.booked) {
       const cf = pk.car.from || pickupPoint(d), ct = pk.car.to || city;
-      add(isoOf(lg.arrive), { icon: "car", site: rentalSiteFor(pk.car.company), name: pk.car.company || "", city, label: `Rental car \u2014 ${pk.car.company || "company not recorded"}`,
-        sub: `${bareCity(cf)} \u2192 ${bareCity(ct)} \u00b7 ${pk.car.ref ? `Booked \u00b7 ${pk.car.ref}` : "Booked \u00b7 no reference given"}` });
+      add(isoOf(lg.arrive), { icon: "car", site: rentalSiteFor(pk.car.company), name: pk.car.company || "", city, label: `Rental car — ${pk.car.company || "company not recorded"}`,
+        sub: `${bareCity(cf)} → ${bareCity(ct)} · ${pk.car.ref ? `Booked · ${pk.car.ref}` : "Booked · no reference given"}`, cost: pk.car.price != null ? pk.car.price : null, costNote: pk.car.price != null ? "the rental" : null });
     }
-    if (lg && pk.stay) add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, site: pk.stay.site || null, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked"}` });
+    if (lg && pk.stay) { const sp = stayPrice(pk.stay, lg.nights); const perNight = sp.price != null && lg.nights ? sp.price / lg.nights : null;
+      add(isoOf(lg.arrive), { icon: "hotel", kind: "hotel", city, name: pk.stay.name, site: pk.stay.site || null, fallback: pk.stay.contact || placeContact(pk.stay.name), label: `Check in · ${pk.stay.name || pk.stay.level}`, sub: `${lg.nights} ${lg.nights === 1 ? "night" : "nights"} · ${pk.stay.booked ? ("Booked" + (pk.stay.ref ? " · " + pk.stay.ref : "")) : "Not booked"}`,
+        cost: sp.price, costNote: sp.price != null ? `${fmt(perNight)} × ${lg.nights} ${lg.nights === 1 ? "night" : "nights"}${sp.est ? " · estimated" : ""}` : null }); }
     // A roaming leg keeps its hotels and tables on its stops, not on the leg itself. This
     // builder only ever looked at pick.stay, so a whole country came out as a run of empty
     // days however carefully it had been planned. The schedule has already dated every stop —
@@ -20871,7 +20875,9 @@ function DayByDay({ p, sch }) {
     const depTime = (f && f.depart) || (dtEst ? dtEst.time + " (est.)" : null);
     const airBit = f && f.airline ? `${f.airline}${f.flightNo ? " " + f.flightNo : ""}` : "Airline to be chosen";
     const cabinBit = f && f.cabin ? f.cabin : "cabin TBC";
-    add(isoOf(start), { icon: "plane", site: airlineSiteFor(f && f.airline), name: (f && f.airline) || "", city: bareCity(p.fromCity), label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} · ${f && f.booked ? "Booked" : "Not booked"} → ${bareCity(dests[0].city) || "destination"}` });
+    { const seats = partySize(p);
+    add(isoOf(start), { icon: "plane", site: airlineSiteFor(f && f.airline), name: (f && f.airline) || "", city: bareCity(p.fromCity), label: `Depart ${bareCity(p.fromCity) || "home"}${depAir ? ` — ${airportLabel(depAir)}` : ""}${depTime ? ` at ${depTime}` : ""}`, sub: `${airBit} · ${cabinBit} · ${f && f.booked ? "Booked" : "Not booked"} → ${bareCity(dests[0].city) || "destination"}`,
+      cost: f && f.price ? f.price * seats : null, costNote: f && f.price ? (seats > 1 ? `${fmt(f.price)} × ${seats} travellers` : "per person") : null }); }
     if (lg0) {
       // YOU LAND WHERE THE AEROPLANE LANDS. This said "Arrive Florence — Malpensa at 12:05", which
       // is two different cities in one sentence: Malpensa is Milan, and Florence is three and a
@@ -20898,7 +20904,9 @@ function DayByDay({ p, sch }) {
   const rEst = departTime(rFrom, p.homeCity);
   const rTime = (rf && rf.depart) || (rEst ? rEst.time + " (est.)" : null);
   const rAir = rf && rf.airline ? `${rf.airline}${rf.flightNo ? " " + rf.flightNo : ""}` : "Airline to be chosen";
-  add(isoOf(ret), { icon: "plane", site: airlineSiteFor(rf && rf.airline), name: (rf && rf.airline) || "", city: bareCity(rFrom), label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} · ${rf && rf.booked ? "Booked" : "Not booked"} → ${bareCity(p.homeCity) || "home"}` });
+  { const seats = partySize(p);
+  add(isoOf(ret), { icon: "plane", site: airlineSiteFor(rf && rf.airline), name: (rf && rf.airline) || "", city: bareCity(rFrom), label: `Fly home — depart ${bareCity(rFrom) || ""}${rDepAir ? ` (${rDepAir})` : ""}${rTime ? ` at ${rTime}` : ""}`, sub: `${rAir} · ${rf && rf.cabin ? rf.cabin : "cabin TBC"} · ${rf && rf.booked ? "Booked" : "Not booked"} → ${bareCity(p.homeCity) || "home"}`,
+    cost: rf && rf.price ? rf.price * seats : null, costNote: rf && rf.price ? (seats > 1 ? `${fmt(rf.price)} × ${seats} travellers` : "per person") : null }); }
   const days = [];
   for (let dt = new Date(start.getTime()); dt <= ret; dt = addDays(dt, 1)) days.push(new Date(dt.getTime()));
   // Never fly in on a ticketed day. If the first ticketed day is on or before the arrival day, say so.
@@ -20942,6 +20950,9 @@ function DayByDay({ p, sch }) {
           {items.map((it, j) => (<div key={j} style={{ display: "flex", gap: 11, alignItems: "flex-start", justifyContent: "center", textAlign: "left", maxWidth: 560, margin: "0 auto" }}>
             {iconEl(it.icon)}
             <div style={{ flex: 1 }}><div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.4 }}>{it.label}</div>{it.sub ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 1 }}>{it.sub}</div> : null}{it.kind || it.site ? <ItemContact kind={it.kind || "link"} city={it.city} name={it.name} fallback={it.fallback} site={it.site} /> : null}</div>
+            {/* THE MONEY, ON THE LINE IT BELONGS TO (Tricia, 11 Oct 2026): the same figures the total is
+                made of — the fare, the room rate times the nights, the train, the car — beside each item. */}
+            {it.cost != null ? <div style={{ textAlign: "right", flexShrink: 0, paddingLeft: 10 }}><div style={{ fontFamily: font.display, fontSize: 18, color: t.pine, lineHeight: 1.1 }}>{fmt(it.cost)}</div>{it.costNote ? <div style={{ fontSize: 11, color: t.inkFaint, marginTop: 2 }}>{it.costNote}</div> : null}</div> : null}
           </div>))}
         </div>) : <div style={{ fontSize: 13.5, color: t.inkFaint, fontStyle: "italic" }}>Nothing planned yet{city ? ` — a free day in ${city}` : ""}.</div>}
       </div>);
