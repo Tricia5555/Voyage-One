@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M804";
+const BUILD = "M806";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10803,23 +10803,22 @@ function destCost(d, from, pax) {
   // A live hotel/table has no price yet (real rates arrive with a booking API). Those are
   // "on request" — counted separately, never added to the total as a fabricated number.
   const add = (label, price, est) => { if (price == null || isNaN(price)) { onRequest += 1; items.push([label, null, false]); } else { total += price; if (est) estimated += 1; items.push([label, price, !!est]); } };
+  // WHAT THE TOTAL IS MADE OF (Tricia, 11 Oct 2026): the flights, the hotel rooms, and the other
+  // transport — the train fare and the car rental as the client records them. Never restaurants.
   if (d.arriveBy === "Flight") { if (p.flight && p.flight.price) add(`${p.flight.airline || "Flight"} · ${p.flight.cabin || ""}`.trim() + (seats > 1 ? ` · ${seats} × ${fmt(p.flight.price)}` : ""), p.flight.price * seats); }
-  else if (p.ground) add(`${d.arriveBy} → ${d.city || "next"}`, p.ground.price);
+  else if ((d.arriveBy === "Train" || d.arriveBy === "Fast train") && p.rail && p.rail.price != null) add(`Train → ${d.city || "next"}` + (p.rail.seat ? ` · ${p.rail.seat}` : ""), p.rail.price);
+  else if (p.ground && p.ground.price != null) add(`${d.arriveBy} → ${d.city || "next"}`, p.ground.price);
+  if (p.car && p.car.booked && p.car.price != null) add(`Rental car · ${p.car.company || "rental"}`, p.car.price);
   if (d.mode === "open") {
     const days = d.days;
     if (p.exploreMode === "base") {
       if (p.transfer) add(`${p.transfer.mode}, both ways`, p.transfer.price * 2);
       if (p.stay) { const sp = stayPrice(p.stay, days); add(`${p.stay.name || p.stay.level} · ${days}n`, sp.price, sp.est); }
-      (p.dines || []).forEach((x) => add(x.name || "Dining", x.price));
-      (p.days || []).forEach((x) => {
-        add(x.name, x.price);
-        (x.dines || []).forEach((dn) => add(`${x.town || ""}: ${dn.name || "dining"}`, dn.price));
-      });
+      (p.days || []).forEach((x) => { add(x.name, x.price); });
     } else if (p.exploreMode === "roam") {
       (p.stops || []).forEach((st) => {
         const n = st.nights || 1;
         if (st.stay) { const sp = stayPrice(st.stay, n); add(`${st.name}: ${st.stay.name || st.stay.level} · ${n}n`, sp.price, sp.est); }
-        (st.dines || []).forEach((x) => add(`${st.name}: ${x.name || "dining"}`, x.price));
       });
     }
     return { total, items, onRequest, estimated };
@@ -10828,7 +10827,6 @@ function destCost(d, from, pax) {
   if (p.onward) add(`${p.onward.mode} from ${p.hub || "the hub"}`, p.onward.price);
   if (p.transfer) add(`${p.transfer.mode}, both ways`, p.transfer.price * 2);
   if (p.stay) { const sp = stayPrice(p.stay, nights); add(`${p.stay.name || p.stay.level} · ${nights}n`, sp.price, sp.est); }
-  (p.dines || []).forEach((x) => add(x.name || `Dining · ${x.level}`, x.price));
   (p.spas || []).forEach((x) => add(x.name, x.price));
   // things to do are never counted: their prices were estimates, and most are free or priced on the site
   (p.sports || []).forEach((x) => add(x.name, x.price));
@@ -16749,9 +16747,10 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   const [ownOpen, setOwnOpen] = useState(false);
   const [oAir, setOAir] = useState(""); const [oNo, setONo] = useState("");
   const [oDep, setODep] = useState(""); const [oArr, setOArr] = useState("");
-  const [oRef, setORef] = useState(""); const [oCabin, setOCabin] = useState("Business");
+  const [oRef, setORef] = useState(""); const [oCabin, setOCabin] = useState("Business"); const [oFare, setOFare] = useState("");
   const saveOwn = () => {
-    upd({ flight: { cabin: oCabin, price: null, airline: (oAir || "").trim() || "Airline", flightNo: (oNo || "").trim(),
+    const fare = parseFloat(String(oFare).replace(/[^0-9.]/g, ""));
+    upd({ flight: { cabin: oCabin, price: isNaN(fare) || fare <= 0 ? null : fare, airline: (oAir || "").trim() || "Airline", flightNo: (oNo || "").trim(),
       depart: (oDep || "").trim(), arrive: (oArr || "").trim(),
       depAirport: iataFor(from) || bareCity(from), arrAirport: iataFor(to) || bareCity(to),
       stops: null, chosen: true, real: false, source: "own", booked: true, ref: (oRef || "").trim() } });
@@ -16780,6 +16779,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
         <label style={{ fontSize: 12, color: t.inkSoft }}>Departs<input style={ofld} value={oDep} onChange={(e) => setODep(e.target.value)} placeholder="Optional" /></label>
         <label style={{ fontSize: 12, color: t.inkSoft }}>Arrives<input style={ofld} value={oArr} onChange={(e) => setOArr(e.target.value)} placeholder="Optional" /></label>
         <label style={{ fontSize: 12, color: t.inkSoft }}>Reference<input style={ofld} value={oRef} onChange={(e) => setORef(e.target.value)} placeholder="Optional" /></label>
+        <label style={{ fontSize: 12, color: t.inkSoft }}>Fare per person<input inputMode="decimal" style={ofld} value={oFare} onChange={(e) => setOFare(e.target.value)} placeholder="Goes into the trip total" /></label>
         <label style={{ fontSize: 12, color: t.inkSoft }}>Cabin<select style={ofld} value={oCabin} onChange={(e) => setOCabin(e.target.value)}>{["Economy", "Premium", "Business", "First"].map((c) => <option key={c}>{c}</option>)}</select></label>
       </div>
       <button onClick={saveOwn} style={{ marginTop: 11, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "9px 20px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>Mark it booked</button>
@@ -17908,6 +17908,7 @@ function CarBooking({ car: carIn, upd, defFrom, defTo, dropChoices, companies, d
       <label style={{ fontSize: 12, color: t.inkSoft }}>Company{companies && companies.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6, margin: "6px 0 4px" }}>{companies.map((c) => <button key={c} type="button" onClick={() => set({ company: c })} style={{ background: (car.company || "").toLowerCase() === c.toLowerCase() ? t.pine : t.white, color: (car.company || "").toLowerCase() === c.toLowerCase() ? t.paper : t.ink, border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 12px", fontSize: 12.5, cursor: "pointer" }}>{c}</button>)}</div> : null}<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={car.company || ""} onChange={(e) => set({ company: e.target.value })} placeholder="Sixt, Hertz\u2026" /></label>
       {rentalScoop(car.company) ? <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.5, marginTop: 6, paddingLeft: 9, borderLeft: `2px solid ${t.brass}` }}><strong style={{ fontSize: 10.5, letterSpacing: ".1em", textTransform: "uppercase", color: t.brass }}>Inside scoop</strong> {rentalScoop(car.company)}</div> : null}
       <label style={{ fontSize: 12, color: t.inkSoft }}>Reference<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={car.ref || ""} onChange={(e) => set({ ref: e.target.value })} placeholder="Confirmation" /></label>
+      <label style={{ fontSize: 12, color: t.inkSoft }}>Total for the rental<input inputMode="decimal" style={fld} value={car.price != null ? car.price : ""} onChange={(e) => { const v = parseFloat(String(e.target.value).replace(/[^0-9.]/g, "")); set({ price: isNaN(v) ? null : v }); }} placeholder="Goes into the trip total" /></label>
       {to && !sameCity(to, defTo || "") ? <div style={{ gridColumn: "1 / -1", fontSize: 12.5, color: t.pine, lineHeight: 1.5 }}>
         Noted — you are leaving the car in <strong>{bareCity(to)}</strong>, so the next leg is built from there.
       </div> : null}
@@ -18368,7 +18369,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
         <div style={{ marginTop: 6 }}>Ask your hotel to recommend and arrange the driver — every hotel we carry has one it trusts. Nothing to book here.</div>
       </div>);
     })() : null}
-    {(arriveBy === "Fast train" || arriveBy === "Train") && railRouteFor(from, to) ? <RailPanel from={from} to={to} p={p} i={i} /> : null}
+    {(arriveBy === "Fast train" || arriveBy === "Train") && railRouteFor(from, to) ? <RailPanel from={from} to={to} p={p} i={i} pick={pick} upd={upd} legDate={flightDate} /> : null}
     {(arriveBy === "Fast train" || arriveBy === "Train") && !railRouteFor(from, to) ? (
       // The same rail link the hub panel carries. Journey times here come from the curated RAIL
       // table — typical durations, no fares, no timetable — so the traveller needs a way through
@@ -18386,8 +18387,13 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
 // and how far each station is from the hotel at that end — the previous stop's hotel to the
 // departure station, the arrival station to this stop's hotel. Hotels are placed by name; no
 // hotel, no line. Road times from Google once they arrive, the straight-line estimate until then.
-function RailPanel({ from, to, p, i }) {
+function RailPanel({ from, to, p, i, pick, upd, legDate }) {
   useGeoTick();
+  // THE BOOKING, like a flight's: booked or not, the confirmation, the date, departure and arrival
+  // times, the class. Kept on pick.rail; the itinerary reads it. The date is suggested as the day
+  // this leg starts and can be changed. (Tricia, 11 Oct 2026.)
+  const rail = (pick && pick.rail) || {};
+  const setRail = (patch) => upd && upd({ rail: { ...rail, ...patch } });
   const r = railRouteFor(from, to);
   const sFrom = r ? railStation(r, from) : null, sTo = r ? railStation(r, to) : null;
   const prev = p && i != null && i > 0 ? p.dests[i - 1] : null, here = p && i != null ? p.dests[i] : null;
@@ -18413,6 +18419,25 @@ function RailPanel({ from, to, p, i }) {
     <a className="vo-noprint" href={brandedLink(r.site, { kind: "rail", name: r.op, city: to })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, fontSize: 15, fontWeight: 600, color: t.ink, textDecoration: "underline", textUnderlineOffset: 3 }}>
       <Route size={15} /> Times and seats · {r.op} ↗
     </a>
+    {upd ? (() => {
+      const fld = { fontSize: 13.5, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 9, background: t.white, color: t.ink, width: "100%", boxSizing: "border-box" };
+      const pill = (on) => ({ border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : "transparent", color: on ? t.paper : t.inkSoft, borderRadius: 999, padding: "7px 15px", fontSize: 13, fontWeight: on ? 600 : 400, cursor: "pointer" });
+      return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
+        <div style={{ fontSize: 11.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Did you book the train?</div>
+        <div style={{ display: "flex", gap: 8, marginBottom: rail.booked ? 11 : 0 }}>
+          <button type="button" onClick={() => setRail({ booked: true, date: rail.date || legDate || "" })} style={pill(!!rail.booked)}>Booked</button>
+          <button type="button" onClick={() => setRail({ booked: false })} style={pill(!rail.booked)}>No</button>
+        </div>
+        {rail.booked ? (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Confirmation<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={rail.ref || ""} onChange={(e) => setRail({ ref: e.target.value })} placeholder="Booking reference" /></label>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Date<input type="date" style={fld} value={rail.date || ""} onChange={(e) => setRail({ date: e.target.value })} /></label>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Departs<input type="time" style={fld} value={rail.dep || ""} onChange={(e) => setRail({ dep: e.target.value })} /></label>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Arrives<input type="time" style={fld} value={rail.arr || ""} onChange={(e) => setRail({ arr: e.target.value })} /></label>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Class<input autoCorrect="off" autoComplete="off" spellCheck={false} style={fld} value={rail.seat || ""} onChange={(e) => setRail({ seat: e.target.value })} placeholder={r.seat} /></label>
+          <label style={{ fontSize: 12, color: t.inkSoft }}>Total fare, everyone<input inputMode="decimal" style={fld} value={rail.price != null ? rail.price : ""} onChange={(e) => { const v = parseFloat(String(e.target.value).replace(/[^0-9.]/g, "")); setRail({ price: isNaN(v) ? null : v }); }} placeholder="Goes into the trip total" /></label>
+        </div>) : null}
+      </div>);
+    })() : null}
   </div>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
@@ -18811,6 +18836,15 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       {pick.stay && pick.stay.name ? (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px" }}>
         <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 9 }}>{pick.stay.name} — have you booked it yet?</div>
         <BookingRow item={pick.stay} onSet={(patch) => upd({ stay: { ...pick.stay, ...patch } })} />
+        {/* THE RATE, so the trip adds up: what the client was quoted or paid per night, times the
+            nights. Until it is typed, a curated rate is shown as an estimate; a live hotel shows
+            nothing rather than a made-up number. (Tricia, 11 Oct 2026.) */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginTop: 10 }}>
+          <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>Rate per night</span>
+          <input inputMode="decimal" value={pick.stay.nightly != null && !pick.stay.estimated ? pick.stay.nightly : ""} onChange={(e) => { const v = parseFloat(String(e.target.value).replace(/[^0-9.]/g, "")); upd({ stay: { ...pick.stay, nightly: isNaN(v) ? null : v, estimated: isNaN(v) } }); }} placeholder={pick.stay.nightly != null ? `est. ${fmt(pick.stay.nightly)}` : "As quoted"}
+            style={{ border: `1px solid ${t.line}`, borderRadius: 10, padding: "7px 10px", fontSize: 13.5, color: t.ink, background: "#fff", width: 130, fontFamily: "inherit" }} />
+          <span style={{ fontSize: 12.5, color: t.inkSoft }}>× {nights} {nights === 1 ? "night" : "nights"}{(() => { const sp = stayPrice(pick.stay, nights); return sp.price != null ? <> = <strong style={{ color: t.ink }}>{fmt(sp.price)}</strong>{sp.est ? " (estimated)" : ""}</> : null; })()}</span>
+        </div>
       </div>) : null}
     {!collapsed && level && (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
@@ -20770,7 +20804,10 @@ function DayByDay({ p, sch }) {
         (rl && rl.crossings ? rl.crossings : []).forEach((x) => add(isoOf(lg.arrive), { icon: "ship", kind: "ground", city, name: x.ops[0][0], site: x.ops[0][1], label: `Car ferry — ${x.from.name} to ${x.to.name} · ${minsLabel(x.mins)}`, sub: `${x.ops.map((o) => o[0]).join(" / ")} · reserve the car’s place` }));
       } else if ((d.arriveBy === "Train" || d.arriveBy === "Fast train") && railRouteFor(legFrom, city)) {
         const rr = railRouteFor(legFrom, city); const a = railStation(rr, legFrom), b = railStation(rr, city);
-        add(isoOf(lg.arrive), { icon: "car", kind: "ground", city, name: rr.op, site: rr.site, label: `${rr.op} — ${a ? a.name : bareCity(legFrom)} to ${b ? b.name : bareCity(city)}`, sub: `${minsLabel(rr.mins)} · ${rr.seat}` });
+        const rb = pk.rail || {};
+        add(rb.booked && rb.date ? rb.date : isoOf(lg.arrive), { icon: "car", kind: "ground", city, name: rr.op, site: rr.site, booked: !!rb.booked, time: rb.dep || null,
+          label: `${rb.dep ? rb.dep + " · " : ""}${rr.op} — ${a ? a.name : bareCity(legFrom)} to ${b ? b.name : bareCity(city)}${rb.arr ? " · arrives " + rb.arr : ""}`,
+          sub: [rb.booked ? "Booked" + (rb.ref ? " · " + rb.ref : "") : "Not booked", rb.seat || rr.seat, minsLabel(rr.mins)].filter(Boolean).join(" · ") });
       } else if (pk.ground) {
         add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} — ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
       }
