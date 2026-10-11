@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M803";
+const BUILD = "M804";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -8961,6 +8961,58 @@ const RAIL = [
   ["Madrid", "Seville", 150], ["Lisbon", "Porto", 170], ["Paris", "London", 140], ["Paris", "Marseille", 190],
   ["Zurich", "Milan", 200], ["Naples", "Florence", 165],
 ];
+// RAIL, DONE THE WAY OUR CLIENTS RIDE IT. A route is a pair of STATIONS, an operator, the time, and
+// THE SEAT: the top class on that train, named as the operator names it, with what it buys. The
+// booking link is the operator's own site, never a reseller. Each station carries coordinates so
+// the panel can say how far it is from the hotel at each end. Times are typical fastest services;
+// the operator's page carries the day's timetable. Facts checked 11 Oct 2026; routes not here fall
+// back to a plain times-and-fares link and say nothing about seats or stations — nothing invented.
+// [from, to] match either way round; `stations` is keyed by city so the reverse direction reads right.
+const RAIL_ROUTES = [
+  { cities: ["London", "Paris"], op: "Eurostar", site: "https://www.eurostar.com", mins: 136, seat: "Eurostar Premier", seatNote: "the lounge at St Pancras, a meal served at the seat, fully flexible. Eurostar Plus is the quieter middle class with a light meal; Standard is a seat.", note: "Passport control and security are at the station: be there forty-five minutes before departure, an hour in holiday weeks. The Premier lounge is upstairs at St Pancras.", stations: { "London": { name: "London St Pancras International", at: [51.5312, -0.1262] }, "Paris": { name: "Paris Gare du Nord", at: [48.8809, 2.3553] } } },
+  { cities: ["London", "Brussels"], op: "Eurostar", site: "https://www.eurostar.com", mins: 120, seat: "Eurostar Premier", seatNote: "lounge, meal at the seat, flexible.", note: "Passport control is at the station; be there forty-five minutes before.", stations: { "London": { name: "London St Pancras International", at: [51.5312, -0.1262] }, "Brussels": { name: "Bruxelles-Midi", at: [50.8357, 4.3362] } } },
+  { cities: ["London", "Amsterdam"], op: "Eurostar", site: "https://www.eurostar.com", mins: 240, seat: "Eurostar Premier", seatNote: "lounge, meal at the seat, flexible.", note: "Passport control is at the station; be there forty-five minutes before.", stations: { "London": { name: "London St Pancras International", at: [51.5312, -0.1262] }, "Amsterdam": { name: "Amsterdam Centraal", at: [52.3791, 4.9003] } } },
+  { cities: ["Paris", "Amsterdam"], op: "Eurostar", site: "https://www.eurostar.com", mins: 200, seat: "Eurostar Premier", seatNote: "meal at the seat, flexible; Plus for the seat and a light meal.", note: "", stations: { "Paris": { name: "Paris Gare du Nord", at: [48.8809, 2.3553] }, "Amsterdam": { name: "Amsterdam Centraal", at: [52.3791, 4.9003] } } },
+  { cities: ["Paris", "Brussels"], op: "Eurostar", site: "https://www.eurostar.com", mins: 82, seat: "Eurostar Premier", seatNote: "meal at the seat, flexible.", note: "", stations: { "Paris": { name: "Paris Gare du Nord", at: [48.8809, 2.3553] }, "Brussels": { name: "Bruxelles-Midi", at: [50.8357, 4.3362] } } },
+  { cities: ["Paris", "Lyon"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 120, seat: "Première", seatNote: "the wide seats in first; on many trains a Business Première fare adds the lounge and flexibility.", note: "", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Lyon": { name: "Lyon Part-Dieu", at: [45.7605, 4.8596] } } },
+  { cities: ["Paris", "Marseille"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 190, seat: "Première", seatNote: "the wide seats in first; Business Première where offered adds the lounge and flexibility.", note: "", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Marseille": { name: "Marseille Saint-Charles", at: [43.3028, 5.3806] } } },
+  { cities: ["Paris", "Avignon"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 160, seat: "Première", seatNote: "the wide seats in first.", note: "Avignon TGV is outside the walls; the hotel sends a car, ten minutes.", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Avignon": { name: "Avignon TGV", at: [43.9216, 4.7861] } } },
+  { cities: ["Paris", "Nice"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 340, seat: "Première", seatNote: "the wide seats in first — and the coast from Marseille on is the reason to take the train.", note: "", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Nice": { name: "Nice-Ville", at: [43.7046, 7.2617] } } },
+  { cities: ["Paris", "Bordeaux"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 125, seat: "Première", seatNote: "the wide seats in first.", note: "", stations: { "Paris": { name: "Paris Montparnasse", at: [48.8409, 2.3203] }, "Bordeaux": { name: "Bordeaux Saint-Jean", at: [44.8256, -0.5564] } } },
+  { cities: ["Paris", "Strasbourg"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 106, seat: "Première", seatNote: "the wide seats in first.", note: "", stations: { "Paris": { name: "Paris Gare de l’Est", at: [48.8768, 2.3590] }, "Strasbourg": { name: "Strasbourg", at: [48.5851, 7.7348] } } },
+  { cities: ["Paris", "Geneva"], op: "TGV Lyria", site: "https://www.tgv-lyria.com", mins: 190, seat: "Première", seatNote: "first class with a meal served at the seat on most departures.", note: "", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Geneva": { name: "Genève Cornavin", at: [46.2103, 6.1424] } } },
+  { cities: ["Paris", "Zurich"], op: "TGV Lyria", site: "https://www.tgv-lyria.com", mins: 245, seat: "Première", seatNote: "first class with a meal served at the seat on most departures.", note: "", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Zurich": { name: "Zürich HB", at: [47.3779, 8.5403] } } },
+  { cities: ["Paris", "Barcelona"], op: "TGV INOUI", site: "https://www.sncf-connect.com", mins: 400, seat: "Première", seatNote: "the wide seats in first.", note: "A long day; most clients fly this one.", stations: { "Paris": { name: "Paris Gare de Lyon", at: [48.8443, 2.3744] }, "Barcelona": { name: "Barcelona Sants", at: [41.3792, 2.1400] } } },
+  { cities: ["Rome", "Florence"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 92, seat: "Executive", seatNote: "a cabin of ten leather armchairs at the front of the train, a meal served, the lounge at Termini. Business is the usual first; Premium is a quieter Standard.", note: "Italo runs the same line with Club Executive; both are good.", stations: { "Rome": { name: "Roma Termini", at: [41.9010, 12.5011] }, "Florence": { name: "Firenze Santa Maria Novella", at: [43.7766, 11.2480] } } },
+  { cities: ["Rome", "Milan"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 190, seat: "Executive", seatNote: "ten leather armchairs at the front of the train, a meal served, the lounge at each end. Business is the usual first.", note: "Italo runs the same line with Club Executive.", stations: { "Rome": { name: "Roma Termini", at: [41.9010, 12.5011] }, "Milan": { name: "Milano Centrale", at: [45.4862, 9.2041] } } },
+  { cities: ["Rome", "Naples"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 70, seat: "Executive", seatNote: "ten leather armchairs at the front of the train. Business is the usual first.", note: "", stations: { "Rome": { name: "Roma Termini", at: [41.9010, 12.5011] }, "Naples": { name: "Napoli Centrale", at: [40.8530, 14.2727] } } },
+  { cities: ["Rome", "Venice"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 225, seat: "Executive", seatNote: "ten leather armchairs at the front of the train, a meal served. Business is the usual first.", note: "Santa Lucia is on the Grand Canal: the hotel’s boat meets the train.", stations: { "Rome": { name: "Roma Termini", at: [41.9010, 12.5011] }, "Venice": { name: "Venezia Santa Lucia", at: [45.4410, 12.3210] } } },
+  { cities: ["Florence", "Milan"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 110, seat: "Executive", seatNote: "ten leather armchairs at the front of the train. Business is the usual first.", note: "", stations: { "Florence": { name: "Firenze Santa Maria Novella", at: [43.7766, 11.2480] }, "Milan": { name: "Milano Centrale", at: [45.4862, 9.2041] } } },
+  { cities: ["Florence", "Venice"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 135, seat: "Executive", seatNote: "ten leather armchairs at the front of the train. Business is the usual first.", note: "Santa Lucia is on the Grand Canal: the hotel’s boat meets the train.", stations: { "Florence": { name: "Firenze Santa Maria Novella", at: [43.7766, 11.2480] }, "Venice": { name: "Venezia Santa Lucia", at: [45.4410, 12.3210] } } },
+  { cities: ["Milan", "Venice"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 145, seat: "Executive", seatNote: "ten leather armchairs at the front of the train. Business is the usual first.", note: "Santa Lucia is on the Grand Canal: the hotel’s boat meets the train.", stations: { "Milan": { name: "Milano Centrale", at: [45.4862, 9.2041] }, "Venice": { name: "Venezia Santa Lucia", at: [45.4410, 12.3210] } } },
+  { cities: ["Naples", "Florence"], op: "Frecciarossa", site: "https://www.trenitalia.com", mins: 165, seat: "Executive", seatNote: "ten leather armchairs at the front of the train. Business is the usual first.", note: "", stations: { "Naples": { name: "Napoli Centrale", at: [40.8530, 14.2727] }, "Florence": { name: "Firenze Santa Maria Novella", at: [43.7766, 11.2480] } } },
+  { cities: ["Madrid", "Barcelona"], op: "AVE", site: "https://www.renfe.com", mins: 150, seat: "Prémium", seatNote: "the first-class car with a meal served and the Sala Club lounge at each end. Iryo runs the same line with its Infinita class, also good.", note: "", stations: { "Madrid": { name: "Madrid Puerta de Atocha", at: [40.4066, -3.6893] }, "Barcelona": { name: "Barcelona Sants", at: [41.3792, 2.1400] } } },
+  { cities: ["Madrid", "Seville"], op: "AVE", site: "https://www.renfe.com", mins: 150, seat: "Prémium", seatNote: "the first-class car with a meal served and the Sala Club lounge.", note: "", stations: { "Madrid": { name: "Madrid Puerta de Atocha", at: [40.4066, -3.6893] }, "Seville": { name: "Sevilla Santa Justa", at: [37.3921, -5.9755] } } },
+  { cities: ["Madrid", "Malaga"], op: "AVE", site: "https://www.renfe.com", mins: 160, seat: "Prémium", seatNote: "the first-class car with a meal served and the Sala Club lounge.", note: "", stations: { "Madrid": { name: "Madrid Puerta de Atocha", at: [40.4066, -3.6893] }, "Malaga": { name: "Málaga María Zambrano", at: [36.7119, -4.4320] } } },
+  { cities: ["Madrid", "Valencia"], op: "AVE", site: "https://www.renfe.com", mins: 110, seat: "Prémium", seatNote: "the first-class car with a meal served and the Sala Club lounge.", note: "", stations: { "Madrid": { name: "Madrid Puerta de Atocha", at: [40.4066, -3.6893] }, "Valencia": { name: "Valencia Joaquín Sorolla", at: [39.4596, -0.3833] } } },
+  { cities: ["Lisbon", "Porto"], op: "Alfa Pendular", site: "https://www.cp.pt", mins: 170, seat: "Conforto", seatNote: "the first-class car; book the seat, it is a small train.", note: "", stations: { "Lisbon": { name: "Lisboa Santa Apolónia", at: [38.7140, -9.1225] }, "Porto": { name: "Porto Campanhã", at: [41.1491, -8.5855] } } },
+  { cities: ["London", "Edinburgh"], op: "LNER", site: "https://www.lner.co.uk", mins: 260, seat: "First Class", seatNote: "the wide seats with a meal served at the seat, and the lounge at King’s Cross.", note: "", stations: { "London": { name: "London King’s Cross", at: [51.5308, -0.1238] }, "Edinburgh": { name: "Edinburgh Waverley", at: [55.9521, -3.1896] } } },
+  { cities: ["London", "Manchester"], op: "Avanti West Coast", site: "https://www.avantiwestcoast.co.uk", mins: 127, seat: "First Class", seatNote: "the wide seats with food served at the seat.", note: "", stations: { "London": { name: "London Euston", at: [51.5282, -0.1337] }, "Manchester": { name: "Manchester Piccadilly", at: [53.4774, -2.2309] } } },
+  { cities: ["Berlin", "Munich"], op: "ICE", site: "https://www.bahn.com", mins: 240, seat: "1. Klasse", seatNote: "first class, with the DB Lounge at each end for first-class ticket holders.", note: "", stations: { "Berlin": { name: "Berlin Hauptbahnhof", at: [52.5251, 13.3694] }, "Munich": { name: "München Hauptbahnhof", at: [48.1402, 11.5600] } } },
+  { cities: ["Frankfurt", "Munich"], op: "ICE", site: "https://www.bahn.com", mins: 195, seat: "1. Klasse", seatNote: "first class, with the DB Lounge at each end.", note: "", stations: { "Frankfurt": { name: "Frankfurt (Main) Hauptbahnhof", at: [50.1070, 8.6632] }, "Munich": { name: "München Hauptbahnhof", at: [48.1402, 11.5600] } } },
+  { cities: ["Zurich", "Milan"], op: "EuroCity", site: "https://www.sbb.ch", mins: 200, seat: "1st class", seatNote: "first class, through the Gotthard and along Lake Como.", note: "", stations: { "Zurich": { name: "Zürich HB", at: [47.3779, 8.5403] }, "Milan": { name: "Milano Centrale", at: [45.4862, 9.2041] } } },
+  { cities: ["Tokyo", "Kyoto"], op: "Nozomi Shinkansen", site: "https://smart-ex.jp/en/", mins: 135, seat: "Green Car", seatNote: "the first-class car — wide reclining seats, two-and-two. Reserve a seat on the right side heading west for Mount Fuji.", note: "Book on the JR Central Smart EX site or app; the hotel concierge will also do it.", stations: { "Tokyo": { name: "Tokyo Station", at: [35.6812, 139.7671] }, "Kyoto": { name: "Kyoto Station", at: [34.9858, 135.7588] } } },
+  { cities: ["Tokyo", "Osaka"], op: "Nozomi Shinkansen", site: "https://smart-ex.jp/en/", mins: 150, seat: "Green Car", seatNote: "the first-class car — wide reclining seats, two-and-two.", note: "Trains run to Shin-Osaka, a short taxi from the centre.", stations: { "Tokyo": { name: "Tokyo Station", at: [35.6812, 139.7671] }, "Osaka": { name: "Shin-Osaka", at: [34.7334, 135.5003] } } },
+  { cities: ["New York City", "Washington DC"], op: "Amtrak Acela", site: "https://www.amtrak.com", mins: 170, seat: "First Class", seatNote: "the one first-class car: wide seats, a meal served, the Metropolitan Lounge at each end.", note: "Acela leaves from Moynihan Train Hall, the new concourse across Eighth Avenue from Penn Station.", stations: { "New York City": { name: "Moynihan Train Hall", at: [40.7519, -73.9963] }, "Washington DC": { name: "Washington Union Station", at: [38.8973, -77.0063] } } },
+  { cities: ["New York City", "Boston"], op: "Amtrak Acela", site: "https://www.amtrak.com", mins: 220, seat: "First Class", seatNote: "the one first-class car: wide seats, a meal served, the Metropolitan Lounge at each end.", note: "Acela leaves from Moynihan Train Hall, across Eighth Avenue from Penn Station.", stations: { "New York City": { name: "Moynihan Train Hall", at: [40.7519, -73.9963] }, "Boston": { name: "Boston South Station", at: [42.3519, -71.0552] } } },
+];
+function railRouteFor(a, b) {
+  if (!a || !b) return null;
+  const A = placeName(a), B = placeName(b);
+  const alias = (n) => { const x = n.toLowerCase(); return x === "new york" ? "new york city" : x === "washington" ? "washington dc" : x; };
+  return RAIL_ROUTES.find((r) => { const [x, y] = r.cities.map((c) => c.toLowerCase()); const aa = alias(A), bb = alias(B); return (x === aa && y === bb) || (x === bb && y === aa); }) || null;
+}
+function railStation(route, city) { if (!route || !city) return null; const k = Object.keys(route.stations).find((c) => sameCity(c, placeName(city)) || c.toLowerCase() === placeName(city) || (c === "New York City" && /new york/i.test(city)) || (c === "Washington DC" && /washington/i.test(city))); return k ? route.stations[k] : null; }
 // City name to the slug Trainline uses in its route URLs: lowercase, spaces to hyphens, accents
 // stripped. "Zurich" and "Munich" work because the app already stores English names — the same
 // reason places.js asks Google for languageCode "en".
@@ -8969,6 +9021,7 @@ function railSlug(c) {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 function railBetween(a, b) {
+  const rr = railRouteFor(a, b); if (rr) return rr.mins;
   if (!a || !b) return null;
   const A = placeName(a), B = placeName(b);
   const hit = RAIL.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
@@ -18315,18 +18368,52 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
         <div style={{ marginTop: 6 }}>Ask your hotel to recommend and arrange the driver — every hotel we carry has one it trusts. Nothing to book here.</div>
       </div>);
     })() : null}
-    {arriveBy === "Fast train" || arriveBy === "Train" ? (
+    {(arriveBy === "Fast train" || arriveBy === "Train") && railRouteFor(from, to) ? <RailPanel from={from} to={to} p={p} i={i} /> : null}
+    {(arriveBy === "Fast train" || arriveBy === "Train") && !railRouteFor(from, to) ? (
       // The same rail link the hub panel carries. Journey times here come from the curated RAIL
       // table — typical durations, no fares, no timetable — so the traveller needs a way through
       // to real departures. Rome to Naples, Paris to Marseille and Madrid to Barcelona all had
       // this gap: the leg between two destinations renders here, not in HubPanel.
       <a href={brandedLink(`https://www.thetrainline.com/en-us/train-times/${railSlug(from)}-to-${railSlug(to)}`, { kind: "rail", name: `${bareCity(from)} to ${bareCity(to)}`, city: to })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 15, fontWeight: 600, color: t.ink, textDecoration: "underline", textUnderlineOffset: 3 }}>
-        <Route size={15} /> Real train times and fares · {bareCity(from)} → {bareCity(to)}
+        <Route size={15} /> Train times and fares · {bareCity(from)} → {bareCity(to)}
       </a>
     ) : null}
   </Panel>
   {arriveBy === "Self-drive" && !isCarFree(from) && !isCarFree(to) && !(p && i != null && carInHand(p, i)) && <RentalPanel city={from} destination={to} car={pick && pick.car} upd={upd} dropChoices={p && i != null ? dropChoicesFor(p, i) : null} defDropDate={p && i != null ? suggestedDropDate(p, i) : ""} />}
   </>);
+}
+// THE TRAIN, PROPERLY: the two stations, the time, the seat to book and the operator's own site,
+// and how far each station is from the hotel at that end — the previous stop's hotel to the
+// departure station, the arrival station to this stop's hotel. Hotels are placed by name; no
+// hotel, no line. Road times from Google once they arrive, the straight-line estimate until then.
+function RailPanel({ from, to, p, i }) {
+  useGeoTick();
+  const r = railRouteFor(from, to);
+  const sFrom = r ? railStation(r, from) : null, sTo = r ? railStation(r, to) : null;
+  const prev = p && i != null && i > 0 ? p.dests[i - 1] : null, here = p && i != null ? p.dests[i] : null;
+  const stayFrom = prev && prev.pick && prev.pick.stay && prev.pick.stay.name ? prev.pick.stay : null;
+  const stayTo = here && here.pick && here.pick.stay && here.pick.stay.name ? here.pick.stay : null;
+  const qFrom = stayFrom ? `${stayFrom.name}, ${bareCity(prev.city)}` : "", qTo = stayTo ? `${stayTo.name}, ${bareCity(here.city)}` : "";
+  const gFrom = useGround(sFrom && qFrom ? qFrom : "", sFrom && qFrom ? `${sFrom.name}, ${bareCity(from)}` : "");
+  const gTo = useGround(sTo && qTo ? `${sTo.name}, ${bareCity(to)}` : "", sTo && qTo ? qTo : "");
+  if (!r || !sFrom || !sTo) return null;
+  const leg = (st, q, g) => { if (!q) return null; const real = g && g.drive && g.drive.minutes ? { mins: Math.round(g.drive.minutes), km: g.drive.km || null } : null; const C = coordsFor(q); const est = !real && C ? (() => { const km = havKm(C, st.at); if (km == null) return null; const road = Math.round(km * 1.3 * 10) / 10; return { km: road, mins: Math.max(10, Math.round(road / 22 * 60)) }; })() : null; const x = real || est; if (!x) return null; return { mins: x.mins, mi: x.km != null ? Math.round(x.km * 0.6214 * 10) / 10 : null, real: !!real }; };
+  const lf = leg(sFrom, qFrom, gFrom), lt = leg(sTo, qTo, gTo);
+  const dist = (x) => x ? <>{x.mi != null ? `${x.mi} miles, ` : ""}about {minsLabel(x.mins)}{x.real ? "" : " (estimated)"}</> : null;
+  return (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${t.line}` }}>
+    <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>{r.op} · {minsLabel(r.mins)}</div>
+    <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.65 }}>
+      <div><strong>{sFrom.name}</strong> → <strong>{sTo.name}</strong></div>
+      <div style={{ marginTop: 4 }}><span style={{ color: t.inkSoft }}>The seat:</span> <strong>{r.seat}</strong> — {r.seatNote}</div>
+      {r.note ? <div style={{ marginTop: 4, color: t.inkSoft, fontSize: 13.5 }}>{r.note}</div> : null}
+      {stayFrom && lf ? <div style={{ marginTop: 6, fontSize: 13.5 }}><span style={{ color: t.inkSoft }}>{stayFrom.name} → {sFrom.name}:</span> {dist(lf)}</div> : null}
+      {stayTo && lt ? <div style={{ marginTop: 2, fontSize: 13.5 }}><span style={{ color: t.inkSoft }}>{sTo.name} → {stayTo.name}:</span> {dist(lt)}</div> : null}
+      {!stayTo ? <div style={{ marginTop: 6, color: t.inkFaint, fontSize: 12.5 }}>Choose a hotel below and the distance from {sTo.name} appears here.</div> : null}
+    </div>
+    <a className="vo-noprint" href={brandedLink(r.site, { kind: "rail", name: r.op, city: to })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 10, fontSize: 15, fontWeight: 600, color: t.ink, textDecoration: "underline", textUnderlineOffset: 3 }}>
+      <Route size={15} /> Times and seats · {r.op} ↗
+    </a>
+  </div>);
 }
 function PlaceRow({ item, selected, onClick, sub, price }) {
   return (<button onClick={onClick} style={{ width: "100%", textAlign: "left", display: "flex", gap: 12, alignItems: "stretch", padding: "10px", borderRadius: 14, marginBottom: 8, border: `1px solid ${selected ? t.pine : t.line}`, background: selected ? t.mist : t.white }}>
@@ -20681,6 +20768,9 @@ function DayByDay({ p, sch }) {
         const h = carInHand(p, i); const rl = roadLeg(legFrom, city);
         add(isoOf(lg.arrive), { icon: "car", kind: "ground", city, name: "By road", label: `By road with your ${h.car.company || "car"} — ${bareCity(legFrom)} to ${bareCity(city)}`, sub: rl && rl.label ? rl.label : "" });
         (rl && rl.crossings ? rl.crossings : []).forEach((x) => add(isoOf(lg.arrive), { icon: "ship", kind: "ground", city, name: x.ops[0][0], site: x.ops[0][1], label: `Car ferry — ${x.from.name} to ${x.to.name} · ${minsLabel(x.mins)}`, sub: `${x.ops.map((o) => o[0]).join(" / ")} · reserve the car’s place` }));
+      } else if ((d.arriveBy === "Train" || d.arriveBy === "Fast train") && railRouteFor(legFrom, city)) {
+        const rr = railRouteFor(legFrom, city); const a = railStation(rr, legFrom), b = railStation(rr, city);
+        add(isoOf(lg.arrive), { icon: "car", kind: "ground", city, name: rr.op, site: rr.site, label: `${rr.op} — ${a ? a.name : bareCity(legFrom)} to ${b ? b.name : bareCity(city)}`, sub: `${minsLabel(rr.mins)} · ${rr.seat}` });
       } else if (pk.ground) {
         add(isoOf(lg.arrive), { icon: "car", label: `${d.arriveBy} — ${bareCity(legFrom)} to ${bareCity(city)}`, sub: pk.ground.label || "" });
       }
