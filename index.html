@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M809";
+const BUILD = "M810";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -16661,6 +16661,18 @@ function flyFromLabel(from) {
   const ap = airportCityOf(code, bare) || bare;
   return `${ap} (${code})`;
 }
+// NO FLIGHT WHEN BOTH ENDS USE THE SAME AIRPORT. The Cotswolds has no airport of its own; its
+// gateway is Heathrow, which is London's. So London to the Cotswolds cannot be flown by anyone
+// without their own aircraft, and the leg must not offer a flight, search for one, or weigh
+// flying against the road. The same for every town whose gateway is the city you are leaving
+// from: Oxford from London, Cascais from Lisbon, Antibes from Nice. (Tricia, 12 Oct 2026.)
+function sameAirport(from, to) {
+  if (!from || !to) return false;
+  const a = iataFor(from), b = iataFor(to); if (!a || !b) return false;
+  if (a === b) return true;
+  const ca = airportCityOf(a, null), cb = airportCityOf(b, null);
+  return !!(ca && cb && sameCity(ca, cb));
+}
 function iataFor(city) { const c = codeOf(city); if (c) return c; const a = airportFor(city); return a ? a.code : null; }   // "Sciacca (CTA)": the chosen code wins
 function flightSearchUrl(from, to, date, cabin) {
   const f = iataFor(from) || from, t2 = iataFor(to) || to;
@@ -18323,13 +18335,15 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   // at the wheel are said instead. The way to fly this leg is to return the car earlier, and
   // that button is here too. (A car never reaches a stop across water: carDropIndex ends it first.)
   const inHand = p && i != null ? carInHand(p, i) : null;
-  const options = inHand ? ARRIVE.filter((m) => m.key === "Self-drive") : ((allowed && allowed.length) ? allowed : ARRIVE);
+  const noFlight = !inHand && (sameAirport(from, to) || (dHere && sameAirport(from, dHere.city)));
+  const options = inHand ? ARRIVE.filter((m) => m.key === "Self-drive") : (((allowed && allowed.length) ? allowed : ARRIVE).filter((m) => !(noFlight && m.key === "Flight")));
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
   // If the current choice turns out to be impossible for this leg, move to a sensible one.
   useEffect(() => {
     if (inHand) return;
+    if (noFlight && arriveBy === "Flight") { const first = options.find((m) => m.key !== "Flight"); if (first) chooseMode(first.key); return; }
     if (allowed && allowed.length && arriveBy && !allowed.some((m) => m.key === arriveBy)) chooseMode(allowed[0].key);
-  }, [allowed && allowed.map((m) => m.key).join(","), arriveBy, !!inHand]);
+  }, [allowed && allowed.map((m) => m.key).join(","), arriveBy, !!inHand, noFlight]);
   // Always recompute the time/label from the current cities, then overlay whatever was saved on
   // the trip (mode, any price). A leg chosen before this feature existed has a stored ground with
   // no label — recomputing here means it still shows the drive/rail time instead of a blank.
@@ -18346,7 +18360,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     {inHand ? (<div style={{ marginBottom: 12, fontSize: 13.5, color: t.ink, lineHeight: 1.6 }}>
       By road, with your {inHand.car.company || "rental"} from <strong>{bareCity(inHand.car.from || inHand.fromCity)}</strong>{legHere && legHere.label ? <> — <strong>{legHere.label}</strong></> : null}. {inHand.dropDest === i ? <>You return it here, at <strong>{bareCity(inHand.returnAt)}{codeOf(inHand.returnAt) ? ` (${codeOf(inHand.returnAt)})` : ""}</strong>.</> : <>You keep it past this stop.</>}
       <div style={{ marginTop: 8 }}><button type="button" onClick={flyInstead} style={{ background: "none", border: `1px solid ${t.pineSoft}`, borderRadius: 999, padding: "7px 14px", color: t.pine, fontSize: 12.5, cursor: "pointer" }}>Fly this leg instead — return the car {backCode ? "at" : "in"} {backAt}</button></div>
-    </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} /></div>}
+    </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} />{noFlight ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 8 }}>There is no flight: {dHere ? bareCity(dHere.city) : bareCity(to)} is reached through {airportCityOf(iataFor(from), null) || bareCity(from)}’s airport, and you are already there. Rail or the road.</div> : null}</div>}
     {inHand && legHere && legHere.crossings && legHere.crossings.length ? legHere.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : from} to={k === all.length - 1 ? to : all[k + 1].from.name} />) : null}
     {!acrossWater && ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
     {arriveBy === "Flight" && connectVia(to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
@@ -20305,7 +20319,7 @@ function CitySection({ d, i, p, from, legSched }) {
     <CityHero query={d.city} index={String(i + 1).padStart(2, "0")} title={d.city ? placeLine(d.city) : "Untitled leg"} label={label} />
     <div style={{ padding: "0 8px" }}>
     {from && surfaceTarget && !sameCity(from, surfaceTarget) && drivable(from, surfaceTarget) && <LiveRoute from={from} to={surfaceTarget} driveOnly={!!carInHand(p, i)} driveTo={pick.stay && pick.stay.name ? `${pick.stay.name}, ${bareCity(d.city)}` : null} fallbackKnown={known(from) && known(surfaceTarget)} />}
-    {surface && d.arriveBy === "Flight" && drivable(from, surfaceTarget) && (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
+    {surface && d.arriveBy === "Flight" && !sameAirport(from, surfaceTarget) && drivable(from, surfaceTarget) && (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.card, border: `1px solid ${t.brassLight}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
       {surface.mode === "Ferry" ? <Ship size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} /> : <Route size={15} color={t.brass} style={{ marginTop: 2, flexShrink: 0 }} />}
       <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{surfaceTarget} is only <strong style={{ color: t.ink }}>{surface.label}</strong> from {from}. Flying that is rarely worth the airports — rail or a car is usually faster door to door.</div>
     </div>)}
