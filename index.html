@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M807";
+const BUILD = "M808";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -368,6 +368,9 @@ const AREA_MIN_HOTELS = 6;
 // and the travel time on every card. NICE MEANS NICE still holds: nothing is folded silently
 // into the main list, it sits in its own clearly named group one tap away.
 const NEARBY_CITIES = {
+  // Oxford shows the Cotswolds' hotels as NEARBY (Estelle Manor is twenty minutes west of the
+  // city) without a second record. One property, one entry.
+  "Oxford": ["Cotswolds"],
   "Nice": ["Monaco"],
   "Monaco": [],
   "French Riviera": ["Nice", "Monaco"],
@@ -768,6 +771,7 @@ const SHOW_RATES = false;
 // spellings Google returns. A miss defaults to Luxury — the safe direction; a curated favorite
 // can always pin the tier by hand.
 const ULTRA_LUX = [
+  "Estelle Manor",   // Cotswolds — editorial tier set 12 Oct 2026
   // Confirmed 2027 openings (Tricia, 5 Oct 2026)
   "Bvlgari Resort Ranfushi", "Six Senses Milan", "Six Senses Loire Valley", "Mandarin Oriental Old Cataract, Aswan", "Mandarin Oriental, Bali", "Four Seasons Resort and Residences Caye Chapel, Belize", "The Park Gstaad, A Four Seasons Hotel", "Rosewood Seoul", "Rosewood Calistoga",
   "Belmond Castello di Casole",
@@ -1427,6 +1431,14 @@ const HOTELS = {
 // COMMENTED IN PLACE, with its full text, so one word restores it. A name in a comment is not
 // a record — it cannot be restored, and that is how these eleven were lost.
 const FAVORITES = {
+  // THE COTSWOLDS, opened 12 Oct 2026 with its first approved property. The region existed as a
+  // gateway (Heathrow) and in Explore but held no hotel; the instruction is to publish it with
+  // this one and add nothing unapproved to fill it out. Figures checked on estellemanor.com the
+  // same day: 108 rooms, an 85-acre estate, Grade II-listed house, Eynsham Baths at 3,000 square
+  // metres with five pools, four restaurants for members and hotel guests only.
+  "Cotswolds": [
+    { name: "Estelle Manor", area: "North Leigh · Oxfordshire", tier: "UltraLux", rate: null, ourTake: "ULTRA LUXURY. A glamorous English country-house escape with richly layered interiors, exceptional dining, and the remarkable Roman-inspired Eynsham Baths spa. Set within an 85-acre Oxfordshire estate at the gateway to the Cotswolds, Estelle Manor combines the atmosphere of an exclusive private club with an indulgent countryside stay. A Grade II-listed manor house with 108 rooms and suites, plus woodland cabins and private houses; Eynsham Baths is 3,000 square metres of Roman-inspired bathhouse with five pools; a heated outdoor pool on the South Terrace; padel, a gym and a kids’ club; four restaurants, for members and hotel guests only. The mood is lively, stylish and sociable rather than the hushed seclusion of a traditional country-house retreat. Hotel guests need not be members. Eynsham Baths access varies by room and rate — confirm it when you choose the room; the Manor House rooms are for ages 13 and up, and dogs are welcome in the other rooms for a nightly fee.", contact: { addr: "Eynsham Park, North Leigh, Witney, Oxfordshire OX29 6PN", tel: "+44 1993 685800", web: "estellemanor.com" } },
+  ],
   "London": [
     { name: "Claridge's", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The definitive London address — Art Deco glamour and the lobby everyone wants to be seen in.", contact: { addr: "Brook Street, Mayfair, London W1K 4HR", web: "claridges.com" } },
     { name: "The Connaught", area: "Mayfair", tier: "UltraLux", rate: 1590, ourTake: "Discreet, clubby, the best bars in London — old-money Mayfair at its most assured.", contact: { addr: "Carlos Place, Mayfair, London W1K 2AL", web: "the-connaught.co.uk" }, photo: "https://library.maybourne.com/transform/317361f9-0a57-442a-9496-a17b8c74527d/CON-EXTERIOR-07?format=jpg&quality=80&io=transform%3Afill%2Cwidth%3A880%2Cheight%3A654&resolution=high" },
@@ -7460,6 +7472,11 @@ function localFavFor(city){
   return out.filter((x) => x.us === undefined ? true : dineGeoOk(city, !!x.us)).map((x) => ({ ...x, lf: 1 }));
 }
 const TOURS = {
+  // The estate pursuits at Estelle Manor, with the property's own pages. Nothing priced.
+  "Cotswolds": [
+    ["Eynsham Baths at Estelle Manor", null, "The Roman-inspired bathhouse on the estate — 3,000 square metres, five thermal pools, treatments. For hotel guests and members; access depends on the room and rate, so confirm it when booking.", { inTown: true, find: "Estelle Manor", book: "https://estellemanor.com/wellness/", bookLabel: "Wellness at Estelle Manor →" }],
+    ["Padel and the estate at Estelle Manor", null, "Padel courts, the gym and classes, the heated South Terrace pool and the parkland walks — all for hotel guests and members.", { inTown: true, find: "Estelle Manor", book: "https://estellemanor.com/about-us/", bookLabel: "The estate →" }],
+  ],
   // St Barth's first curated Days Out. Google returns Fort Karl with no description at all, so it
   // was being dropped as unexplained — this is Tricia's line, and it now leads the list while the
   // described live results still follow beneath it.
@@ -10384,6 +10401,8 @@ const CITY_ALIASES = {
   "dolomiti": "Dolomites", "south tyrol": "Dolomites", "alto adige": "Dolomites", "cortina": "Dolomites",
   "the azores": "Azores", "sao miguel": "Azores", "s\u00e3o miguel": "Azores", "ponta delgada": "Azores", "a\u00e7ores": "Azores", "acores": "Azores",
   "the cotswolds": "Cotswolds", "the highlands": "Scottish Highlands",
+  // What people type for the Cotswolds and the estate around Estelle Manor (12 Oct 2026)
+  "oxfordshire": "Cotswolds", "witney": "Cotswolds", "north leigh": "Cotswolds", "eynsham": "Cotswolds", "cotswold": "Cotswolds",
   "highlands": "Scottish Highlands", "the scottish highlands": "Scottish Highlands",
   "bourgogne": "Burgundy", "cote d or": "Burgundy",
   "napa": "Napa Valley", "wine country": "Napa Valley", "sonoma": "Sonoma County",
@@ -18662,7 +18681,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
     </div>
     <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}{s.vo ? <span title="Voyage One favorite" style={{ fontFamily: font.ui, fontSize: 11, fontWeight: 800, letterSpacing: ".08em", color: t.brass, marginLeft: 9, verticalAlign: "middle", whiteSpace: "nowrap" }}>VO ♥</span> : null}</div>
-      {s.area ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.area}</div> : null}
+      {s.area || s.nearbyFrom ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.nearbyFrom ? `${NEARBY_LABEL} · ${s.nearbyFrom}${s.area ? " · " + s.area : ""}` : s.area}</div> : null}
       {/* A temporary state the client must see before they fall for the photograph — closed for
           works, reopening on a date, phased renovation. Hand-written on the FAVORITES entry as
           `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
@@ -18816,7 +18835,10 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
             </div>;
       })()}
     </div>)}
-    {!collapsed && level && levelFavs.length > 0 && (<>
+    {/* A city with no curated hotel of its own still shows the ones it BORROWS (Oxford shows the
+        Cotswolds'); the gate used to look only at the city's own rows, so a borrowed hotel with no
+        local company never appeared. (12 Oct 2026) */}
+    {!collapsed && level && allRows.length > 0 && (<>
       <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {favOrdered.map((s, k) => { const sel = chosenName && dnrm(s.name) === chosenName; return (
