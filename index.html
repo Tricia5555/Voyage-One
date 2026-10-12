@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M808";
+const BUILD = "M809";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9013,6 +9013,11 @@ const RAIL_ROUTES = [
   { cities: ["Madrid", "Malaga"], op: "AVE", site: "https://www.renfe.com", mins: 160, seat: "Prémium", seatNote: "the first-class car with a meal served and the Sala Club lounge.", note: "", stations: { "Madrid": { name: "Madrid Puerta de Atocha", at: [40.4066, -3.6893] }, "Malaga": { name: "Málaga María Zambrano", at: [36.7119, -4.4320] } } },
   { cities: ["Madrid", "Valencia"], op: "AVE", site: "https://www.renfe.com", mins: 110, seat: "Prémium", seatNote: "the first-class car with a meal served and the Sala Club lounge.", note: "", stations: { "Madrid": { name: "Madrid Puerta de Atocha", at: [40.4066, -3.6893] }, "Valencia": { name: "Valencia Joaquín Sorolla", at: [39.4596, -0.3833] } } },
   { cities: ["Lisbon", "Porto"], op: "Alfa Pendular", site: "https://www.cp.pt", mins: 170, seat: "Conforto", seatNote: "the first-class car; book the seat, it is a small train.", note: "", stations: { "Lisbon": { name: "Lisboa Santa Apolónia", at: [38.7140, -9.1225] }, "Porto": { name: "Porto Campanhã", at: [41.1491, -8.5855] } } },
+  // The Cotswold Line out of Paddington. Hanborough is the station for Estelle Manor (the estate
+  // says so, and it is a few minutes away by car); Kingham and Moreton-in-Marsh are further up the
+  // same line for the north Cotswolds. Times checked 12 Oct 2026: about an hour, direct.
+  { cities: ["London", "Cotswolds"], op: "Great Western Railway", site: "https://www.gwr.com", mins: 63, seat: "First Class", seatNote: "the quiet first-class coach with the wider seats; an hour, so a seat is all it needs to be.", note: "Hanborough is the station for Estelle Manor and the Oxford side of the Cotswolds; for the north Cotswolds stay on to Kingham or Moreton-in-Marsh on the same line. Ask the hotel to meet the train.", stations: { "London": { name: "London Paddington", at: [51.5167, -0.1769] }, "Cotswolds": { name: "Hanborough", at: [51.8260, -1.4250] } } },
+  { cities: ["London", "Oxford"], op: "Great Western Railway", site: "https://www.gwr.com", mins: 55, seat: "First Class", seatNote: "the quiet first-class coach with the wider seats.", note: "", stations: { "London": { name: "London Paddington", at: [51.5167, -0.1769] }, "Oxford": { name: "Oxford", at: [51.7534, -1.2700] } } },
   { cities: ["London", "Edinburgh"], op: "LNER", site: "https://www.lner.co.uk", mins: 260, seat: "First Class", seatNote: "the wide seats with a meal served at the seat, and the lounge at King’s Cross.", note: "", stations: { "London": { name: "London King’s Cross", at: [51.5308, -0.1238] }, "Edinburgh": { name: "Edinburgh Waverley", at: [55.9521, -3.1896] } } },
   { cities: ["London", "Manchester"], op: "Avanti West Coast", site: "https://www.avantiwestcoast.co.uk", mins: 127, seat: "First Class", seatNote: "the wide seats with food served at the seat.", note: "", stations: { "London": { name: "London Euston", at: [51.5282, -0.1337] }, "Manchester": { name: "Manchester Piccadilly", at: [53.4774, -2.2309] } } },
   { cities: ["Berlin", "Munich"], op: "ICE", site: "https://www.bahn.com", mins: 240, seat: "1. Klasse", seatNote: "first class, with the DB Lounge at each end for first-class ticket holders.", note: "", stations: { "Berlin": { name: "Berlin Hauptbahnhof", at: [52.5251, 13.3694] }, "Munich": { name: "München Hauptbahnhof", at: [48.1402, 11.5600] } } },
