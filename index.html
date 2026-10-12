@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M810";
+const BUILD = "M811";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -16500,7 +16500,10 @@ function DestCard({ d, i, p }) {
     {d.mode === "full" && <div style={{ marginTop: 18 }}><Stepper value={d.nights} onChange={(v) => p.setDest(i, { nights: v })} unit="night" onRemove={() => p.removeDest(i)} removeLabel={`one more minus drops ${d.city || "this stop"}`} /></div>}
     {d.mode === "open" && <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}><Stepper value={d.days} onChange={(v) => p.setDest(i, { days: v })} unit="day" max={21} /><span style={{ fontSize: 13.5, color: t.inkSoft, maxWidth: 340 }}>When you build this leg, I’ll ask whether to stay put or roam — then suggest real stops.</span></div>}
     {d.mode === "flights" && <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: "16px 32px", alignItems: "center" }}><Stepper value={d.nights} onChange={(v) => p.setDest(i, { nights: v })} unit="night" /><span style={{ fontSize: 13, color: t.inkSoft, display: "flex", alignItems: "center", gap: 7 }}><Users size={15} color={t.pine} /> Flights in & out only</span></div>}
-    {d.mode !== "ideas" && <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>}
+    {/* NO FLIGHT WHERE THERE IS NO AIRPORT TO FLY TO: the chip is not offered when the stop is
+        reached through the airport you are already at (London to the Cotswolds). Same rule as the
+        leg panel, so the two rows never disagree. */}
+    {d.mode !== "ideas" && <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE.filter((m) => !(m.key === "Flight" && d.city && sameAirport(legStart(p, i), d.city)))} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>}
   </div>);
 }
 
@@ -18401,6 +18404,8 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
         // The real decision band, and almost always against the train.
         ? "Door to door with your luggage, against the train's centre-to-centre speed. Worth a car when you are carrying bags, arriving tired, or heading somewhere the station does not reach."
         // Long: the flight is on this page too, so a driver only wins when the journey is the point.
+        : noFlight
+        ? "A long road, and the only one: a driver who knows the country turns it into the day — stops where you want them, no stations, no bags to move, and you arrive rested."
         : "At this distance flying is usually quicker — so take a car when the road is the reason. A driver who knows the country turns the transfer into the day: stops where you want them, no stations, no bags to move, and you arrive rested.";
       return (<div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${t.line}` }}>
         {line}
@@ -20063,7 +20068,7 @@ function LiveRoute({ from, to, fallbackKnown, driveOnly, driveTo }) {
     </div>);
     return (<div style={{ display: "flex", gap: 9, alignItems: "flex-start", background: t.mist, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px", margin: "14px 0 0" }}>
       <Compass size={15} color={t.inkFaint} style={{ marginTop: 2, flexShrink: 0 }} />
-      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>This leg is best flown — see the flight options above.</div>
+      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{sameAirport(from, to) ? "We could not work out the road for this leg; your hotel will know it." : "This leg is best flown — see the flight options above."}</div>
     </div>);
   }
   // No backend at all (GitHub Pages) and no curated data: quiet honest note.
