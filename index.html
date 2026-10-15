@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M813";
+const BUILD = "M814";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -7475,7 +7475,13 @@ const LOCALFAV = {
   // "birmingham": [{ n: "Highlands Bar & Grill", us:1 }],   // ← example of the format
   // Palm Beach, 4 Sept 2026, on Tricia's instruction. A Local Favorite on its own account; the
   // New York sister's standing does not travel with the name.
-  "palm beach": [{ n: "Le Bilboquet", us:1 }],
+  // PALM BEACH (15 Oct 2026, by instruction): three Local Favorites with their own contact and
+  // reservation details, each tied to the hotel it sits in. Kept out of Destination.
+  "palm beach": [
+    { n: "Le Bilboquet", us:1, find: "Le Bilboquet Palm Beach", addr: "245A Worth Avenue, Palm Beach, FL 33480", tel: "+1 561-812-2363", web: "https://lebilboquetpb.com/", note: "An elegant and fashionable French bistro tucked into a beautiful courtyard just off Worth Avenue — the Palm Beach social scene, classic French cooking, the signature Cajun chicken, and lovely outdoor tables. A leisurely lunch or a stylish dinner. Reserve on the website or Resy." },
+    { n: "LoLa 41", us:1, find: "LoLa 41 Palm Beach", addr: "290 Sunset Avenue, Palm Beach, FL 33480", tel: "+1 561-599-5652", web: "https://www.lola41.com/location/lola-41-palm-beach/", hotel: "White Elephant Palm Beach", note: "At the White Elephant Palm Beach: a chic, lively global bistro and sushi bar with a stylish Palm Beach air — sushi, creative cocktails, a fun lunch or an energetic dinner, indoors or out. Reserve on the website or Resy." },
+    { n: "Coco at The Vineta Hotel", us:1, find: "Coco Vineta Hotel Palm Beach", addr: "363 Cocoanut Row, Palm Beach, FL 33480", tel: "+1 561-813-8028", web: "https://www.oetkerhotels.com/hotels/the-vineta-hotel/restaurants-bars/coco/", hotel: "The Vineta Hotel", note: "An elegant Mediterranean restaurant in the beautifully restored Vineta Hotel, Oetker’s first American house — glamorous Riviera interiors, a lush courtyard, and signature dishes from the Hôtel du Cap-Eden-Roc in Antibes: the South of France in Palm Beach, for a sophisticated lunch or dinner. Reserve on the hotel’s site." },
+  ],
   // Naples, Florida, 4 Sept 2026. A Beard semifinalist is not an award; Tricia keeps it as a
   // Local Favorite on its own merits. Key is dnrm("Naples, Florida").
   "naples florida": [{ n: "Bicyclette Cookshop", us:1 }],
@@ -19044,7 +19050,11 @@ function BookingRow({ item, onSet, timeLabel }) {
 function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
   const info = useDineInfo(city, r.find || r.n);
   const photo = info.photo;
-  const site = info.site;
+  // A CURATED ROW'S OWN DETAILS WIN: the reservation link, telephone and address we were given
+  // stand ahead of what Google finds, and fill in when Google finds nothing. (15 Oct 2026)
+  const site = r.web || info.site;
+  const address = r.addr || info.address;
+  const phone = r.tel || info.phone;
   const [broken, setBroken] = useState(false);
   const sel = !!found;
   const showImg = photo && !broken;
@@ -19089,8 +19099,8 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
           {r.vo ? <div style={{ color: t.ink }}>VO ♥ Voyage One favorite{r.voNote ? ` — ${r.voNote}` : ""}</div> : null}
         </div> : null}
         {info.desc ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.4, marginTop: 8 }}>{info.desc}</div> : null}
-        {info.address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{info.address}</div> : null}
-        {info.phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{info.phone}</div> : null}
+        {address ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 8 }}>{address}</div> : null}
+        {phone ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{phone}</div> : null}
       <div onClick={(e) => e.stopPropagation()}><PlaceMap name={r.n} city={city} area={info.area} /></div>
         {site ? <a href={brandedLink(site, { kind: "restaurant", name: r.n, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 9, padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site / reserve →</a> : null}
         <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 8 }}><DateChips nights={nights} value={found.date} onPick={onDate} label="Which day?" /></div>
@@ -20781,6 +20791,9 @@ function ItinLeg({ n, title, meta, children }) {
 // Real, verified contact details for the places we put on an itinerary — matched to an item by a
 // distinctive lowercase fragment of its name. Addresses and direct lines only; never invented.
 const PLACE_CONTACTS = {
+  "lola 41": { addr: "290 Sunset Avenue, Palm Beach, FL 33480", tel: "+1 561-599-5652", web: "https://www.lola41.com/location/lola-41-palm-beach/" },
+  "le bilboquet": { addr: "245A Worth Avenue, Palm Beach, FL 33480", tel: "+1 561-812-2363", web: "https://lebilboquetpb.com/" },
+  "coco at the vineta": { addr: "363 Cocoanut Row, Palm Beach, FL 33480", tel: "+1 561-813-8028", web: "https://www.oetkerhotels.com/hotels/the-vineta-hotel/restaurants-bars/coco/" },
   "le cinq": { addr: "31 Avenue George V, 75008 Paris", tel: "+33 1 49 52 71 54", web: "fourseasons.com/paris" },
   "pré catelan": { addr: "Route de Suresnes, Bois de Boulogne, 75016 Paris", tel: "+33 1 44 14 41 14", web: "leprecatelan.paris" },
   "épicure": { addr: "112 Rue du Faubourg Saint-Honoré, 75008 Paris", tel: "+33 1 53 43 43 40", web: "oetkercollection.com" },
