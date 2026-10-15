@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M811";
+const BUILD = "M812";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -371,6 +371,9 @@ const NEARBY_CITIES = {
   // Oxford shows the Cotswolds' hotels as NEARBY (Estelle Manor is twenty minutes west of the
   // city) without a second record. One property, one entry.
   "Oxford": ["Cotswolds"],
+  "Tuscany": ["Umbria"],
+  "Orvieto": ["Civita di Bagnoregio"],
+  "Bologna": ["Modena"],
   "Nice": ["Monaco"],
   "Monaco": [],
   "French Riviera": ["Nice", "Monaco"],
@@ -772,6 +775,7 @@ const SHOW_RATES = false;
 // can always pin the tier by hand.
 const ULTRA_LUX = [
   "Estelle Manor",   // Cotswolds — editorial tier set 12 Oct 2026
+  "Airelles Palladio, Venezia", "Castello di Reschio",   // Italy additions, 15 Oct 2026
   // Confirmed 2027 openings (Tricia, 5 Oct 2026)
   "Bvlgari Resort Ranfushi", "Six Senses Milan", "Six Senses Loire Valley", "Mandarin Oriental Old Cataract, Aswan", "Mandarin Oriental, Bali", "Four Seasons Resort and Residences Caye Chapel, Belize", "The Park Gstaad, A Four Seasons Hotel", "Rosewood Seoul", "Rosewood Calistoga",
   "Belmond Castello di Casole",
@@ -859,7 +863,7 @@ const ULTRA_LUX = [
   // Italy — Rome
   "Hotel de Russie", "Bulgari Hotel Roma", "Hotel Eden", "Six Senses Rome", "Portrait Roma", "Hassler Roma",
   // Italy — Amalfi
-  "Il San Pietro di Positano", "Le Sirenuse", "Caruso, a Belmond Hotel", "Borgo Santandrea",
+  "Il San Pietro di Positano", "Le Sirenuse", "Caruso, a Belmond Hotel",   // Borgo Santandrea moved to Luxury by instruction, 15 Oct 2026
   // Italy — Venice
   "Aman Venice", "Belmond Hotel Cipriani", "The Gritti Palace",
   // Italy — Sicily
@@ -1470,6 +1474,9 @@ const FAVORITES = {
     { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
     { name: "The St. Regis Venice", area: "Grand Canal", rate: 1900, desc: "Sleek and contemporary on the Grand Canal, close to San Marco, with the best terrace bar in the city." },
     { name: "Danieli, a Four Seasons Hotel", area: "San Marco", rate: 2400, desc: "The 200-year-old icon by the Doge's Palace, reborn as a Four Seasons in 2026 — the most central of the grand hotels." },
+    // Airelles' first house outside France, opened April 2026 in Palladio's late-16th-century convent on the
+    // Giudecca: 45 rooms and suites, a 1,700 m² spa with three pools, three restaurants. Checked 15 Oct 2026.
+    { name: "Airelles Palladio, Venezia", area: "Giudecca", rate: null, ourTake: "ULTRA LUXURY. Airelles’ first house outside France, opened in 2026 inside the convent Andrea Palladio built on the Giudecca — 45 rooms and suites around the church of the Zitelle, a 1,700-square-metre spa with three pools and a wellness garden, three restaurants and a cicchetti bar, and the lagoon in front of every window. Across the water from San Marco by the hotel’s boat; the quiet side of Venice, done to the Airelles standard.", contact: { addr: "Fondamenta delle Zitelle, Giudecca, Venice", web: "airelles.com" } },
     { name: "Aman Venice", area: "Grand Canal", rate: 3200, desc: "A hushed frescoed palazzo with a private garden — the discreet, ultra-exclusive choice." },
     { name: "Belmond Hotel Cipriani", area: "Giudecca", rate: 2600, desc: "Garden, pool and seclusion on Giudecca island, reached by private launch." },
     { name: "Ca' Sagredo", area: "Cannaregio", rate: 1400, desc: "A genuine 15th-century palazzo-museum with a monumental frescoed staircase." },
@@ -1720,11 +1727,26 @@ const FAVORITES = {
     { name: "Villa Cora", area: "Oltrarno / Boboli", rate: null, ourTake: "A romantic 19th-century villa in a private park with a garden pool near the Boboli — elegance and privacy without leaving the city." },
     { name: "Helvetia & Bristol Firenze", area: "Centro storico", rate: null, ourTake: "Classic central Florentine luxury — belle-époque rooms and an underground spa, a short walk from everything." },
   ],
+  // UMBRIA. Castello di Reschio is in Umbria (Lisciano Niccone, Perugia), on the Tuscan border — it
+  // sat in the Tuscany list as "Reschio, Umbria border". One record, in the region it is in; Tuscany
+  // borrows it as NEARBY. (15 Oct 2026)
+  // CIVITA DI BAGNOREGIO, Lazio — the hill town on its pinnacle, reached only by the footbridge. One
+  // house, five rooms, in the bishop's old quarters. Checked against the Michelin Guide, 15 Oct 2026.
+  "Civita di Bagnoregio": [
+    { name: "Corte della Maestà", area: "Civita di Bagnoregio · Lazio", rate: null, ourTake: "LUXURY. Five rooms in what was the bishop’s residence, inside the medieval town that stands on its own pinnacle of rock and is reached only on foot across the bridge — frescoed ceilings, the owners’ art and antiques, a fire in the hearth, breakfast under the fig tree. No cars, no crowds after the day visitors leave; the house will have your bags carried over. Orvieto, the nearest station, is half an hour away; Rome about two hours.", contact: { addr: "Vicolo della Maestà, Civita di Bagnoregio, Viterbo", web: "cortedellamaesta.com" } },
+  ],
+  // MODENA. Massimo Bottura and Lara Gilmore's country house at San Damaso, a few minutes outside the
+  // city: 25 rooms, Francescana at Maria Luigia and Al Gatto Verde on the estate. Checked 15 Oct 2026.
+  "Modena": [
+    { name: "Casa Maria Luigia", area: "San Damaso · Modena", rate: null, ourTake: "LUXURY. Massimo Bottura and Lara Gilmore’s 18th-century villa in the countryside outside Modena, run as their own house: 25 rooms, the contemporary art and the vinyl room, a pool, tennis, bicycles, the balsamic cellar, and dinner on the estate at Francescana at Maria Luigia (the Osteria Francescana classics, booked separately) or Al Gatto Verde, cooked over fire. Guests must be fifteen or over. The reason to come to Modena.", contact: { addr: "Stradello Bonaghino 56, San Damaso, Modena", web: "casamarialuigia.com" } },
+  ],
+  "Umbria": [
+    { name: "Castello di Reschio", area: "Lisciano Niccone · Umbria", rate: null, ourTake: "A 1,000-year-old castle estate, exquisitely restored — a world unto itself." },
+  ],
   "Tuscany": [
     { name: "Rosewood Castiglion del Bosco", area: "Montalcino", rate: null, ourTake: "A 5,000-acre estate in Val d'Orcia with its own Brunello vineyards and golf." },
     { name: "Borgo Santo Pietro", area: "Chiusdino", rate: null, ourTake: "A romantic farm-to-table hideaway with a celebrated kitchen garden." },
     { name: "Hotel Il Pellicano", area: "Porto Ercole", rate: null, ourTake: "The chic seaside icon of the Argentario, dolce-vita glamour by the rocks." },
-    { name: "Reschio", area: "Umbria border", rate: null, ourTake: "A 1,000-year-old castle estate, exquisitely restored — a world unto itself." },
   ],
   "Rome": [
     { name: "Hotel de Russie", area: "Piazza del Popolo", rate: null, ourTake: "A Rocco Forte grande dame with the city's most beautiful secret garden." },
@@ -8415,6 +8437,8 @@ const GATEWAY = {
   "Burgundy": { air: "Lyon", note: "Fly into LYON (LYS), then about two hours north to Beaune. Dijon and Dole have small fields much closer, and almost no useful service \u2014 do not be tempted. From Paris the TGV to Dijon takes under two hours and Beaune is twenty minutes beyond it, which for many clients beats flying." },
   "Umbria": { air: "Rome", note: "Fly into ROME (FCO) and drive up \u2014 about two hours to Perugia. Perugia's own field (PEG) is tiny and seasonal. Florence is a similar distance from northern Umbria." },
   "Scottish Highlands": { air: "Inverness", note: "INVERNESS (INV) is the Highland airport and connects through London, Edinburgh or Amsterdam. Edinburgh is three hours south by road if the fares are better." },
+  "Civita di Bagnoregio": { air: "Rome", note: "ROME (FCO) is about two hours by road. Orvieto is the nearest station, half an hour away on the Rome–Florence line, and the house collects bags from it. The town itself is reached only on foot across the bridge." },
+  "Modena": { air: "Bologna", note: "BOLOGNA (BLQ) is about forty minutes by road. From Milan or Florence the train is simpler: Frecciarossa to Bologna or Modena." },
   "Cotswolds": { air: "London Heathrow", note: "HEATHROW (LHR) is the practical gateway, about ninety minutes by road. Birmingham is closer to the northern Cotswolds if the routing suits." },
   "Greek Islands": { air: "Athens", note: "Everything routes through ATHENS (ATH). Santorini, Mykonos, Crete, Corfu, Rhodes and Kos have their own airports with seasonal European service; the smaller Cyclades are ferries from Athens or from Santorini and Mykonos. Book the Athens leg on the same ticket." },
   "Ionian Islands": { air: "Corfu", note: "CORFU (CFU) has direct European service in season; Zakynthos (ZTH) too. From the US, connect through Athens." },
@@ -9839,6 +9863,7 @@ Object.entries(ZONE).forEach(([z, list]) => list.forEach((pl) => { ZONE_OF[pl.to
 function zoneOf(place) { const k = resolvePlace(place); return k ? ZONE_OF[k.toLowerCase()] || null : null; }
 const COORDS = {
   "Miami": [25.77,-80.19], "New York City": [40.71,-74.01], "Los Angeles": [34.05,-118.24], "San Francisco": [37.77,-122.42],
+  "Civita di Bagnoregio": [42.6277,12.1130], "Orvieto": [42.7186,12.1108],
   "Hyannis": [41.65,-70.28], "Woods Hole": [41.52,-70.67], "Vineyard Haven": [41.45,-70.60], "Villa San Giovanni": [38.22,15.64], "Messina": [38.19,15.56], "Piombino": [42.93,10.53], "Pozzuoli": [40.82,14.12],
   "Nantucket": [41.28,-70.10], "Martha's Vineyard": [41.39,-70.64], "Edgartown": [41.39,-70.51], "Victoria, BC": [48.43,-123.37], "Tofino": [49.15,-125.91], "Elba": [42.78,10.25], "Ischia": [40.73,13.90],
   "Chicago": [41.88,-87.63], "Boston": [42.36,-71.06], "Washington DC": [38.91,-77.04], "Seattle": [47.61,-122.33], "Newark": [40.74,-74.17],
@@ -10407,6 +10432,7 @@ const CITY_ALIASES = {
   "the azores": "Azores", "sao miguel": "Azores", "s\u00e3o miguel": "Azores", "ponta delgada": "Azores", "a\u00e7ores": "Azores", "acores": "Azores",
   "the cotswolds": "Cotswolds", "the highlands": "Scottish Highlands",
   // What people type for the Cotswolds and the estate around Estelle Manor (12 Oct 2026)
+  "civita": "Civita di Bagnoregio", "bagnoregio": "Civita di Bagnoregio", "civita bagnoregio": "Civita di Bagnoregio",
   "oxfordshire": "Cotswolds", "witney": "Cotswolds", "north leigh": "Cotswolds", "eynsham": "Cotswolds", "cotswold": "Cotswolds",
   "highlands": "Scottish Highlands", "the scottish highlands": "Scottish Highlands",
   "bourgogne": "Burgundy", "cote d or": "Burgundy",
