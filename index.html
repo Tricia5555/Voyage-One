@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M820";
+const BUILD = "M821";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -20348,14 +20348,16 @@ function CitySection({ d, i, p, from, legSched }) {
   // reached and left through its airport (e.g. Positano's flights leave from Naples). This is
   // what lets the app compose "ground to the airport, then fly" for any ground-access place.
   useEffect(() => {
-    const own = !!(gwRaw && d.city && (sameCity(gwRaw.air, d.city) || airportServes(gwRaw.code || iataFor(gwRaw.air), d.city) || (islandOf(gwRaw.air) && islandOf(gwRaw.air) === islandOf(d.city) && dnrm(islandOf(d.city)) === dnrm(bareCity(d.city)))));
+    const dn = d.city ? (resolvePlace(d.city) || bareCity(d.city)) : "";
+    const own = !!(gwRaw && d.city && (sameCity(gwRaw.air, dn) || airportServes(gwRaw.code || iataFor(gwRaw.air), d.city) || (islandOf(gwRaw.air) && islandOf(gwRaw.air) === islandOf(d.city) && dnrm(islandOf(d.city)) === dnrm(dn))));
     const code = pick.gatewayPick || (gwRaw && !own ? gwRaw.air : null);
     if ((d.gatewayAir || null) !== (code || null)) p.setDest(i, { gatewayAir: code });
   }, [gwRaw && gwRaw.air, pick.gatewayPick, d.city]);
   // NEVER "FROM MALLORCA TO MALLORCA". Whatever the lookup returned, an airport that belongs to the
   // destination — its own city, or the island the destination IS — is not a gateway, and no
   // "getting from X to Y" panel is drawn for it. (Tricia, 16 Oct 2026.)
-  const gwOwn = !!(gwRaw && d.city && (sameCity(gwRaw.air, d.city) || airportServes(gwRaw.code || iataFor(gwRaw.air), d.city) || (islandOf(gwRaw.air) && islandOf(gwRaw.air) === islandOf(d.city) && dnrm(islandOf(d.city)) === dnrm(bareCity(d.city)))));
+  const dName = d.city ? (resolvePlace(d.city) || bareCity(d.city)) : "";
+  const gwOwn = !!(gwRaw && d.city && (sameCity(gwRaw.air, dName) || airportServes(gwRaw.code || iataFor(gwRaw.air), d.city) || (islandOf(gwRaw.air) && islandOf(gwRaw.air) === islandOf(d.city) && dnrm(islandOf(d.city)) === dnrm(dName))));
   const gw = gwRaw && !gwOwn ? gwRaw : null;
   // Curated-airport safety net: if the destination genuinely can't be placed on the map (a venue
   // the geocoder has never heard of), fall back to the airport we pinned on the One List card.
