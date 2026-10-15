@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M819";
+const BUILD = "M820";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9027,7 +9027,13 @@ const AIRPORTS = {
   "Salt Lake City": { code: "SLC", scale: "intercontinental" }, "Las Vegas": { code: "LAS", scale: "intercontinental" }, "Toronto": { code: "YYZ", scale: "intercontinental" },
   "Vancouver": { code: "YVR", scale: "intercontinental" }, "Seattle": { code: "SEA", scale: "intercontinental" },
 };
-function airportFor(city) { if (!city) return null; const k = Object.keys(AIRPORTS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? { city: k, ...AIRPORTS[k] } : null; }
+function airportFor(city) {
+  if (!city) return null;
+  const want = bareCity(city).toLowerCase();
+  let k = Object.keys(AIRPORTS).find((x) => x.toLowerCase() === want);
+  if (!k) { const r = resolvePlace(city); if (r && r.toLowerCase() !== want) k = Object.keys(AIRPORTS).find((x) => x.toLowerCase() === r.toLowerCase()); }   // "Mallorca, Spain" is Mallorca
+  return k ? { city: k, ...AIRPORTS[k] } : null;
+}
 // Fast rail, minutes, city centre to city centre. Where this exists it usually beats flying.
 const RAIL = [
   ["Milan", "Florence", 110], ["Milan", "Venice", 135], ["Milan", "Rome", 180], ["Florence", "Rome", 95],
@@ -10636,6 +10642,7 @@ function kmBetween(A, B) {
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(A[0])) * Math.cos(rad(B[0])) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
+const COUNTRY_SUFFIX = new Set(["spain","italy","france","portugal","england","united kingdom","uk","great britain","scotland","wales","ireland","germany","austria","switzerland","netherlands","the netherlands","belgium","luxembourg","denmark","sweden","norway","finland","iceland","greece","croatia","slovenia","montenegro","turkey","türkiye","morocco","egypt","jordan","israel","japan","south korea","thailand","vietnam","cambodia","indonesia","malaysia","singapore","hong kong","india","sri lanka","maldives","mauritius","seychelles","australia","new zealand","fiji","french polynesia","mexico","costa rica","panama","belize","guatemala","nicaragua","honduras","colombia","peru","chile","argentina","uruguay","brazil","ecuador","south africa","kenya","tanzania","rwanda","botswana","namibia","zambia","zimbabwe","united arab emirates","uae","qatar","oman","czech republic","czechia","hungary","poland","canada","bahamas","the bahamas","jamaica","barbados","saint lucia","st lucia","antigua and barbuda","anguilla","bermuda","turks and caicos islands","cayman islands","dominican republic","puerto rico","us virgin islands","british virgin islands","monaco","malta","cyprus","georgia"]);
 function resolvePlace(label) {
   if (!label) return null;
   const ck = geoKey(label);
@@ -10648,6 +10655,12 @@ function resolvePlace(label) {
     const al = CITY_ALIASES[lc] || CITY_ALIASES[lc.split(",")[0].trim()];
     if (al && PLACE_KEYS[al.toLowerCase()]) key = PLACE_KEYS[al.toLowerCase()];
   }
+  // "MALLORCA, SPAIN" IS MALLORCA. The city picker stores a destination with its country, and the
+  // place tables are keyed without it, so nothing about Mallorca ever matched "Mallorca, Spain":
+  // no airport, no island, no gateway — the root of "Palma de Mallorca to Mallorca". A trailing
+  // COUNTRY is set aside for the lookup; a trailing state or region is not (Naples, Florida is
+  // not Naples), and the coordinate check below still has the last word. (Tricia, 16 Oct 2026.)
+  if (!key) { const parts = lc.split(",").map((x) => x.trim()); if (parts.length > 1 && COUNTRY_SUFFIX.has(parts[parts.length - 1])) { const first = parts.slice(0, -1).join(", "); if (PLACE_KEYS[first]) key = PLACE_KEYS[first]; else { const al2 = CITY_ALIASES[first]; if (al2 && PLACE_KEYS[al2.toLowerCase()]) key = PLACE_KEYS[al2.toLowerCase()]; } } }
   if (key && !agrees(key)) key = null;
   if (!key && here) {
     let best = null, bestKm = RESOLVE_NEAR_KM;
@@ -16708,7 +16721,7 @@ const METRO_AIRPORTS = { "new york": "JFK, Newark and LaGuardia", "new york city
 function metroAirports(city) { const k = dnrm(bareCity(city || "")); return METRO_AIRPORTS[k] || null; }
 function hasOwnAirport(city) {
   if (metroAirports(city)) return true;   // a metro with several airports is its own origin
-  const bare = bareCity(city || ""); if (!bare) return false;
+  const bare = resolvePlace(city) || bareCity(city || ""); if (!bare) return false;
   const a = airportFor(bare); if (!a) return false;
   const apc = airportCityOf(a.code, null);
   if (apc) return sameCity(apc, bare) || dnrm(bare).startsWith(dnrm(apc)) || dnrm(apc).startsWith(dnrm(bare));   // "New York City" is New York
@@ -18103,7 +18116,7 @@ function TransferPanel({ d, legSched }) {
 // through the Douro to Porto, which is the rule Tricia drove in October 2026.
 function airportServes(code, dest) {
   if (!code || !dest) return false;
-  const b = bareCity(dest); const apc = airportCityOf(String(code).toUpperCase(), null);
+  const b = resolvePlace(dest) || bareCity(dest); const apc = airportCityOf(String(code).toUpperCase(), null);
   if (apc && (sameCity(apc, b) || dnrm(b).startsWith(dnrm(apc)) || dnrm(apc).startsWith(dnrm(b)))) return true;
   // the island rule is for the island ITSELF as a destination (Mallorca, Bermuda, Santorini) — a town
   // on a large island (Sciacca, Taormina) is still reached through an airport that is not its own
