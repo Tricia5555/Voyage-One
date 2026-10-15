@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M816";
+const BUILD = "M818";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -367,6 +367,26 @@ const AREA_MIN_HOTELS = 6;
 // the file twice — the picker borrows, and the borrowed rows are labelled NEARBY with the town
 // and the travel time on every card. NICE MEANS NICE still holds: nothing is folded silently
 // into the main list, it sits in its own clearly named group one tap away.
+// ══ VIRTUOSO EVIDENCE — DATA ONLY, NOTHING SHOWN ═══════════════════════════════════════════════
+// Recorded per hotel as it is verified, keyed by the exact FAVORITES name. "listed" means a live
+// Virtuoso property page was seen on the date given; "editorial" means the hotel appears in a
+// Virtuoso article, which is coverage, not confirmation of current participation. No badge, no
+// amenity line and no booking claim is made from this table until current participation and the
+// eligible booking method are confirmed through the host agency (Tricia, 15 Oct 2026). Only
+// hotels already approved in Voyage One appear here; nothing was added to match it.
+const VIRTUOSO_EVIDENCE = {
+  "Castello di Reschio": { status: "listed", source: "https://www.virtuoso.com/travel/luxury-hotels/16319123/reschio", checked: "2026-10-15", note: "Live Virtuoso property page seen; no amenities or advisor booking path shown on the page." },
+  "Bulgari Hotel Roma": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/my-week-at-a-roman-cooking-school", checked: "2026-10-15" },
+  "Six Senses Rome": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/my-week-at-a-roman-cooking-school", checked: "2026-10-15" },
+  "Hassler Roma": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/my-week-at-a-roman-cooking-school", checked: "2026-10-15" },
+  "Hotel de Russie": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/find-la-dolce-vita-at-these-italian-hotels", checked: "2026-10-15" },
+  "Hotel Savoy, Rocco Forte": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/find-la-dolce-vita-at-these-italian-hotels", checked: "2026-10-15" },
+  "Portrait Firenze": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/city-guide-do-florence-like-a-local", checked: "2026-10-15" },
+  "Villa Igiea, a Rocco Forte Hotel": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/sicily-our-honeymoon-and-one-literal-leap-of-faith", checked: "2026-10-15" },
+  "Grand Hotel Timeo, a Belmond Hotel": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/sicily-our-honeymoon-and-one-literal-leap-of-faith", checked: "2026-10-15" },
+  "Villa Sant'Andrea, a Belmond Hotel": { status: "editorial", source: "https://www.virtuoso.com/travel/articles/sicily-our-honeymoon-and-one-literal-leap-of-faith", checked: "2026-10-15" },
+};
+function virtuosoEvidence(name) { const k = Object.keys(VIRTUOSO_EVIDENCE).find((x) => dnrm(x) === dnrm(name || "")); return k ? VIRTUOSO_EVIDENCE[k] : null; }
 const NEARBY_CITIES = {
   // Oxford shows the Cotswolds' hotels as NEARBY (Estelle Manor is twenty minutes west of the
   // city) without a second record. One property, one entry.
@@ -18085,8 +18105,10 @@ function airportServes(code, dest) {
   if (!code || !dest) return false;
   const b = bareCity(dest); const apc = airportCityOf(String(code).toUpperCase(), null);
   if (apc && (sameCity(apc, b) || dnrm(b).startsWith(dnrm(apc)) || dnrm(apc).startsWith(dnrm(b)))) return true;
+  // the island rule is for the island ITSELF as a destination (Mallorca, Bermuda, Santorini) — a town
+  // on a large island (Sciacca, Taormina) is still reached through an airport that is not its own
   const ia = apc ? islandOf(apc) : null, ib = islandOf(b);
-  return !!(ia && ib && ia === ib && iataFor(b) === String(code).toUpperCase());
+  return !!(ia && ib && ia === ib && dnrm(ib) === dnrm(b) && iataFor(b) === String(code).toUpperCase());
 }
 // Does the drop-off text name this destination, or its own airport?
 function dropMatchesDest(dropTxt, cty) {
@@ -20176,14 +20198,22 @@ function useGateway(city) {
         // sells, and no Nice drop-off could be offered. Nice is the airport Antibes flies from;
         // it is still a gateway, with a very short drive. Antibes, Cascais, Cannes, Sintra — every
         // town in the shadow of a real airport — behaves the same way. (Tricia, 10 Oct 2026.)
-        const ownHere = reachable.find((o) => o.isOwn && (sameCity(o.city, bare) || airportServes(o.code, bare)));
+        // AN AIRPORT ON THE ISLAND IS THE ISLAND'S AIRPORT. Palma's field is Mallorca's, Hamilton's is
+        // Bermuda's, whatever the distance from the island's centre point — so "own" is decided by
+        // airportServes (the airport's city is the place, or stands on the same island the place IS),
+        // not by the endpoint's proximity flag alone. (Tricia, 16 Oct 2026.)
+        const ownHere = reachable.find((o) => airportServes(o.code, bare) || (o.isOwn && sameCity(o.city, bare)));
         if (!ownHere && reachable.length) {
           const opts2 = reachable;
           // Prefer nearest option that actually has service; else nearest.
           const best = opts2.find((o) => o.hasService) || opts2[0];
           const driveTxt = best.driveMin != null ? `about ${best.driveMin < 90 ? best.driveMin + " min" : (best.driveMin / 60).toFixed(1) + " hr"}` : (best.km ? `about ${best.km} km` : "a short drive");
           const g = { air: best.city, code: best.code, km: best.km, driveMin: best.driveMin, options: opts2,
-            note: `${bare} has no airport of its own. The nearest is ${best.city} (${best.code}), ${driveTxt} by road — you fly there and go overland. Pick a different airport below if you prefer.`, computed: true };
+            // A town on an island is served by the island's airport, and the note says so; "has no
+            // airport of its own" is for a town whose airport is somewhere else altogether.
+            note: (homeIsland && islandOf(best.city) === homeIsland)
+              ? `${bare} is on ${homeIsland}; the island’s airport is ${best.city} (${best.code}), ${driveTxt} by road.`
+              : `${bare} has no airport of its own. The nearest is ${best.city} (${best.code}), ${driveTxt} by road — you fly there and go overland. Pick a different airport below if you prefer.`, computed: true };
           GATEWAY_CACHE[ck] = g;
         } else {
           GATEWAY_CACHE[ck] = null; // flies straight in
