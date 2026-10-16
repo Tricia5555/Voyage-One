@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M827";
+const BUILD = "M830";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -1052,7 +1052,7 @@ const ULTRA_LUX = [
   "Hôtel de Paris Monte-Carlo", "Hôtel Hermitage Monte-Carlo",
   // France — Paris (added after the master list; ChatGPT's list omitted Paris)
   "Four Seasons George V", "Hôtel Plaza Athénée", "Le Bristol Paris", "Le Meurice", "Ritz Paris",
-  "Cheval Blanc Paris", "Hôtel de Crillon", "Mandarin Oriental Paris", "The Peninsula Paris",
+  "Cheval Blanc Paris", "Hôtel de Crillon", "The Peninsula Paris",
   "La Réserve Paris", "Bulgari Hotel Paris",
   // Cities the master list skipped — filled in batches (Tricia-approved)
   "Bulgari Hotel Milano", "Mandarin Oriental Milan", "Four Seasons Hotel Milano", "Portrait Milano",
@@ -1063,11 +1063,15 @@ const ULTRA_LUX = [
   "Four Seasons Hotel Prague", "Augustine, a Luxury Collection Hotel",
   "Four Seasons Hotel Ritz Lisbon",
   "The Merrion",
-  "Villa La Coste", "Airelles Gordes", "Baumanière Les Baux-de-Provence",
+  "Villa La Coste", "Airelles Gordes",
   "Cheval Blanc St-Tropez", "La Réserve Ramatuelle",
   "Hôtel du Cap-Eden-Roc",
   "La Residence Franschhoek", "Leeu Estates", "Delaire Graff Estate",
-  "Les Sources de Caudalie", "Royal Champagne Hotel & Spa", "Le K2 Palace", "Airelles Château de Versailles, Le Grand Contrôle", "Saint James Paris",
+  "Le K2 Palace", "Airelles Château de Versailles, Le Grand Contrôle",
+  // FRANCE REVIEW, 16 Oct 2026 (Tricia): Mandarin Oriental Paris, Saint James Paris, Baumanière, Les Sources de
+  // Caudalie and Royal Champagne moved to Luxury; the houses below came up to Ultra Luxury.
+  "Grand-Hôtel du Cap-Ferrat, a Four Seasons", "Château de la Messardière", "The Maybourne Riviera",
+  "Cheval Blanc Courchevel", "Les Airelles Courchevel", "L'Apogée Courchevel", "Four Seasons Hotel Megève",
   "Beau-Rivage Genève", "Bürgenstock Resort", "Les Trois Rois",
   "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
   "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
@@ -1548,7 +1552,7 @@ const CITIES = [
   "New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Miami","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Buenos Aires","Mendoza","Costa Rica","Galápagos",
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Douro Valley","Portugal",
-  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
+  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
 
@@ -1647,6 +1651,7 @@ const FAVORITES = {
     { name: "Cap Estel", area: "Èze-sur-Mer, France · 20 min from Monaco", rate: 1900, desc: "A private two-hectare peninsula, 20 rooms, gardens over the water — utter seclusion." },
     { name: "Grand-Hôtel du Cap-Ferrat, a Four Seasons", area: "Cap-Ferrat, France · 30 min from Monaco", rate: 2400, desc: "A 1908 palace on 17 acres, the Club Dauphin sea-pool — grand, green and serene." },
     { name: "La Réserve de Beaulieu", area: "Beaulieu, France · 15 min by train", rate: 1500, desc: "Belle Époque seafront icon with its own station a few minutes into Monaco." },
+    { name: "The Maybourne Riviera", area: "Roquebrune-Cap-Martin, France · 10 min from Monaco", rate: null, ourTake: "The Claridge's family's clifftop house above Monaco — every room looks at the sea, the infinity pool hangs over it, and Mauro Colagreco cooks at Ceto.", contact: { addr: "1551 Route de la Turbie, 06190 Roquebrune-Cap-Martin", web: "maybourne.com" } },
   ],
   "Paris": [
     { name: "Four Seasons George V", area: "8th · off the Champs-Élysées", rate: null, ourTake: "The palace of palaces — three Michelin stars and the city's most famous florals.", contact: { addr: "31 Avenue George V, 75008 Paris", web: "fourseasons.com/paris" } },
@@ -1661,6 +1666,11 @@ const FAVORITES = {
     { name: "La Réserve Paris", area: "8th · Avenue Gabriel", rate: null, ourTake: "An intimate town-house palace near the Champs — grand, discreet, residential.", contact: { addr: "42 Avenue Gabriel, 75008 Paris", web: "lareserve-paris.com" } },
     { name: "Bulgari Hotel Paris", area: "8th · Avenue George V", rate: null, ourTake: "Italian glamour off Avenue Montaigne, with a spectacular spa and pool.", contact: { addr: "30 Avenue George V, 75008 Paris", web: "bulgarihotels.com" } },
     { name: "Saint James Paris", area: "16th · Bois de Boulogne", rate: null, ourTake: "The only château-hotel in Paris — a hidden garden mansion with a library bar.", contact: { addr: "43 Avenue Bugeaud, 75116 Paris", web: "saintjames-paris.com" } },
+    { name: "Park Hyatt Paris-Vendôme", area: "2nd · Rue de la Paix", rate: null, ourTake: "Ed Tuttle's calm, modern palace a few doors from Place Vendôme — the suites are among the largest in Paris and the courtyard restaurant is a secret in summer.", contact: { addr: "5 Rue de la Paix, 75002 Paris", web: "hyatt.com" } },
+    { name: "Shangri-La Paris", area: "16th · Avenue d'Iéna", rate: null, ourTake: "Prince Roland Bonaparte's mansion with the Eiffel Tower filling the windows of half the rooms; La Bauhinia under the glass dome is the breakfast.", contact: { addr: "10 Avenue d'Iéna, 75116 Paris", web: "shangri-la.com" } },
+    { name: "Le Royal Monceau – Raffles Paris", area: "8th · Avenue Hoche", rate: null, ourTake: "Philippe Starck's art-house palace off the Étoile — a cinema, a gallery, a pool under a glass roof and the city's most playful bar.", contact: { addr: "37 Avenue Hoche, 75008 Paris", web: "leroyalmonceau.com" } },
+    { name: "Hôtel Lutetia", area: "6th · Saint-Germain, Boulevard Raspail", rate: null, ourTake: "The Left Bank's only palace, Art Deco and Art Nouveau in one building, now run by Mandarin Oriental; the Bar Joséphine and the Akasha spa pool are the reasons to stay.", contact: { addr: "45 Boulevard Raspail, 75006 Paris", web: "mandarinoriental.com" } },
+    { name: "Fouquet's Paris", area: "8th · Avenue George V", rate: null, ourTake: "The Barrière house above the brasserie on the corner of the Champs-Élysées — big rooms, a real spa with a pool, and the Marta terrace at the back.", contact: { web: "hotelsbarriere.com" } },
   ],
   "Milan": [
     { name: "Six Senses Milan", area: "Brera \u00b7 Via Brera", rate: null, opening: "2027", ourTake: "Sixty-eight rooms in the heart of Brera, a rooftop bar and sky pool, and the full Six Senses spa \u2014 the newest of Milan\u2019s top hotels." },
@@ -1730,6 +1740,9 @@ const FAVORITES = {
     { name: "Villa La Coste", area: "Le Puy-Sainte-Réparade", rate: null, ourTake: "Art, architecture and wine on a sculpture-dotted vineyard estate.", contact: { addr: "2750 Route de la Cride, Le Puy-Sainte-Réparade", web: "villalacoste.com" } },
     { name: "Airelles Gordes", area: "Gordes", rate: null, ourTake: "A grand village château hotel with sweeping Luberon views.", contact: { addr: "Le Village, Gordes", web: "airelles.com" } },
     { name: "Baumanière Les Baux-de-Provence", area: "Les Baux-de-Provence", rate: null, ourTake: "A Relais & Châteaux legend below the citadel, with Michelin dining.", contact: { addr: "Mas de Baumanière, Les Baux-de-Provence", web: "baumaniere.com" } },
+    { name: "La Coquillade Provence", area: "Gargas · the Luberon", rate: null, ourTake: "A hilltop hamlet above its own vineyard outside Garges, with a bicycle house, three restaurants and the Luberon villages twenty minutes in every direction.", contact: { addr: "Hameau Le Perrotet, 84400 Gargas", web: "coquillade.fr" } },
+    { name: "Château de la Gaude", area: "Aix-en-Provence", rate: null, ourTake: "An eighteenth-century bastide and vineyard on the edge of Aix — a restaurant with a Michelin star, a contemporary art collection and the town ten minutes away.", contact: { addr: "3959 Route des Pinchinats, 13100 Aix-en-Provence", web: "chateaudelagaude.com" } },
+    { name: "Terre Blanche Hotel Spa Golf Resort", area: "Tourrettes, Var · 45 min from Cannes", rate: null, ourTake: "Two championship courses, a very large spa and villa-suites across a Provençal estate in the hills behind the coast — the golf address of the Riviera.", contact: { addr: "3100 Route de Bagnols-en-Forêt, 83440 Tourrettes", web: "terre-blanche.com" } },
   ],
   "Franschhoek": [
     { name: "La Residence Franschhoek", area: "Franschhoek \u00b7 Cape Town (CPT)", rate: null, ourTake: "ULTRA LUXURY. Sixteen suites and villas on an estate in the Franschhoek valley \u2014 The Royal Portfolio at its most theatrical, with extraordinary interiors, gardens, vineyards and peacocks on the lawn. Leading Hotels of the World, and one of the most distinctive hotels in South Africa.", contact: { addr: "Elandskloof Farm, Franschhoek", web: "theroyalportfolio.com" } },
@@ -1768,13 +1781,28 @@ const FAVORITES = {
   ],
   "Bordeaux": [
     { name: "Les Sources de Caudalie", area: "Martillac", rate: null, ourTake: "A vineyard retreat at Château Smith Haut Lafitte — the birthplace of vinothérapie.", contact: { web: "sources-caudalie.com" } },
+    { name: "InterContinental Bordeaux – Le Grand Hôtel", area: "Bordeaux · Place de la Comédie", rate: null, ourTake: "The city's grand hotel opposite the opera house, Gordon Ramsay's Pressoir d'Argent, a rooftop bar and the Guerlain spa — the address in town before the vineyards.", contact: { addr: "2 Place de la Comédie, 33000 Bordeaux", web: "bordeaux.intercontinental.com" } },
   ],
   "Champagne": [
     { name: "Royal Champagne Hotel & Spa", area: "Champillon", rate: null, ourTake: "A hillside hotel above the vineyards near Épernay — all bubbles and valley views.", contact: { web: "royalchampagne.com" } },
+    { name: "Domaine Les Crayères", area: "Reims", rate: null, ourTake: "The Pommery family's mansion in its park in Reims — Le Parc's two stars, the longest champagne list in the region and the houses a walk away.", contact: { addr: "64 Boulevard Henry Vasnier, 51100 Reims", web: "lescrayeres.com" } },
   ],
   "Courchevel": [
     { name: "Aman Le M\u00e9l\u00e9zin", area: "Courchevel 1850, on the Bellec\u00f4te piste", rate: null, ourTake: "Aman's only ski house: thirty-one rooms on the piste in 1850, a proper spa, and the Aman way of doing things in a resort that mostly does not. Ultra Luxury on the definition." },
     { name: "Le K2 Palace", area: "Courchevel 1850", rate: null, ourTake: "A chalet-palace on the slopes of 1850 — ski-in, ski-out grandeur.", contact: { web: "lek2palace.com" } },
+    { name: "Cheval Blanc Courchevel", area: "Courchevel 1850 · Le Jardin Alpin", rate: null, ourTake: "LVMH's first Cheval Blanc, ski-in, ski-out in the Jardin Alpin, with Le 1947 — three Michelin stars for twenty-five seats — and the Guerlain spa.", contact: { addr: "Le Jardin Alpin, 73120 Courchevel 1850", web: "chevalblanc.com" } },
+    { name: "Les Airelles Courchevel", area: "Courchevel 1850 · Le Jardin Alpin", rate: null, ourTake: "The Austro-Hungarian fantasy on the piste that started it all: the children's kingdom, the Guerlain spa and service that remembers everything.", contact: { addr: "Le Jardin Alpin, 73120 Courchevel 1850", web: "airelles.com" } },
+    { name: "L'Apogée Courchevel", area: "Courchevel 1850 · Le Jardin Alpin", rate: null, ourTake: "Oetker's chalet-hotel at the top of the Jardin Alpin, Joseph Dirand's rooms and the quieter, more private side of 1850.", contact: { addr: "5 Rue Emile Allais, Jardin Alpin, 73120 Courchevel", web: "oetkercollection.com" } },
+  ],
+  "Megève": [
+    { name: "Four Seasons Hotel Megève", area: "Megève · Mont d'Arbois", rate: null, ourTake: "Edmond de Rothschild's estate above the village, ski-in, ski-out on Mont d'Arbois with its own golf course for summer and Julien Gatillon's two stars at Le 1920.", contact: { addr: "373 Chemin des Follières, 74120 Megève", web: "fourseasons.com" } },
+    { name: "Les Fermes de Marie", area: "Megève · the hamlet", rate: null, ourTake: "Jocelyne Sibuet's hamlet of rebuilt Savoyard farmhouses — the original alpine-chic, a serious spa and the gentlest way to do Megève.", contact: { addr: "163 Chemin des Épis, 74120 Megève", web: "fermesdemarie.com" } },
+  ],
+  "Chamonix": [
+    { name: "Hôtel Mont-Blanc Chamonix", area: "Chamonix · town centre", rate: null, ourTake: "The 1849 grande dame of the valley, restored by Sibuet — a garden pool facing the mountain and the town on the doorstep.", contact: { addr: "62 Allée du Majestic, 74400 Chamonix", web: "hotelmontblancchamonix.com" } },
+  ],
+  "Chantilly": [
+    { name: "Auberge du Jeu de Paume", area: "Chantilly · beside the château", rate: null, ourTake: "Relais & Châteaux in the château grounds, forty minutes north of Paris — the stables, the racecourse and the Condé collection on foot, and a quiet night before or after the city.", contact: { addr: "4 Rue du Connétable, 60500 Chantilly", web: "aubergedujeudepaumechantilly.fr" } },
   ],
   "Versailles": [
     { name: "Airelles Château de Versailles, Le Grand Contrôle", area: "Palace grounds", rate: null, ourTake: "Sleeping inside the palace grounds — Marie-Antoinette's world, after the crowds leave.", contact: { web: "airelles.com" } },
@@ -1861,6 +1889,9 @@ const FAVORITES = {
   "St-Tropez": [
     { name: "Cheval Blanc St-Tropez", area: "St-Tropez", rate: null, ourTake: "LVMH glamour on the old port, with a three-Michelin-star table.", contact: { addr: "Place des Lices area, St-Tropez", web: "chevalblanc.com" } },
     { name: "La Réserve Ramatuelle", area: "Ramatuelle", rate: null, ourTake: "A clifftop wellness hideaway above the sea near St-Tropez.", contact: { addr: "Chemin de la Quessine, Ramatuelle", web: "lareserve-ramatuelle.com" } },
+    { name: "Château de la Messardière", area: "St-Tropez · above Pampelonne", rate: null, ourTake: "Airelles' château on the hill between the village and Pampelonne — the largest grounds in St-Tropez, a Guerlain spa and the beach club at Tahiti a shuttle away.", contact: { addr: "2 Route de Tahiti, 83990 Saint-Tropez", web: "airelles.com" } },
+    { name: "Hôtel Byblos", area: "St-Tropez · Place des Lices", rate: null, ourTake: "The village hotel since 1967, a Provençal hamlet around a pool with Les Caves du Roy underneath; nothing else in St-Tropez is this close to everything.", contact: { addr: "20 Avenue Paul Signac, 83990 Saint-Tropez", web: "byblos.com" } },
+    { name: "Lily of the Valley", area: "La Croix-Valmer · 20 min from St-Tropez", rate: null, ourTake: "Philippe Starck's wellness village on the Gigaro hills above a quiet bay — the serious spa and the beach club, with St-Tropez left for the evening.", contact: { addr: "Colline Saint-Michel, Boulevard Abel Faivre, 83420 La Croix-Valmer", web: "lilyofthevalley.com" } },
   ],
   "Antibes": [
     { name: "Hôtel du Cap-Eden-Roc", area: "Cap d'Antibes", rate: null, ourTake: "The legendary Riviera palace on a pine-clad cape, the seawater pool cut into the rock.", contact: { addr: "Boulevard J.F. Kennedy, Cap d'Antibes", web: "hotel-du-cap-eden-roc.com" } },
@@ -4356,6 +4387,7 @@ const FAVORITES = {
   // NEW DESTINATIONS for confirmed 2027 openings (5 Oct 2026)
   "Loire Valley": [
     { name: "Six Senses Loire Valley", area: "A ch\u00e2teau estate \u00b7 about 90 minutes south of Paris", rate: null, opening: "2027", ourTake: "A historic ch\u00e2teau on a great estate with lakes, golf, an equestrian centre, tennis, an organic farm and trails for walking and cycling \u2014 88 suites and villas, and the reason the Loire becomes a destination of its own rather than a day from Paris." },
+    { name: "Les Sources de Cheverny", area: "Cheverny · the Loire châteaux", rate: null, ourTake: "The Caudalie family's second Sources, a château and farm estate beside Cheverny with the vinotherapy spa and the châteaux of the Loire a short drive apart.", contact: { addr: "23 Route de Fougère, 41700 Cheverny", web: "sources-hotels.com" } },
   ],
   "Belize": [
     { name: "Four Seasons Resort and Residences Caye Chapel, Belize", area: "Caye Chapel \u00b7 private island", rate: null, opening: "2027", ourTake: "A private six-mile Caribbean island beside the Belize Barrier Reef: overwater bungalows, a Greg Norman championship course, a marina, and the Fabien Cousteau Adventure Center." },
@@ -8758,6 +8790,8 @@ const GATEWAY = {
   "Jabal Akhdar": { air: "Muscat", note: "Fly to Muscat (MCT), then two hours and a mountain road. Four-wheel drive is required at the checkpoint, not optional." },
   "Wahiba Sands": { air: "Muscat", note: "Fly to Muscat (MCT), then about two and a half hours; the last stretch is soft sand and the camp will meet you." },
   "Serengeti": { air: "Kilimanjaro", note: "Fly to Kilimanjaro (JRO), then a light aircraft into the bush strips." },
+  "Megève": { air: "Geneva", note: "Fly to Geneva (GVA), then about an hour and a quarter by road." },
+  "Chantilly": { air: "Paris", note: "PARIS (CDG) is the airport, about twenty-five minutes away by road; Chantilly is forty minutes north of the city, and twenty-five by train from the Gare du Nord." },
   "Loire Valley": { air: "Paris", note: "PARIS (CDG) is the airport; the estate is about ninety minutes south by road or an hour by TGV to Tours. From the US, nonstop to Paris and the car or the train." },
   "Belize": { air: "Belize City", note: "BELIZE CITY (BZE) has nonstops from Miami, Houston, Dallas and Atlanta; Caye Chapel is a short boat or helicopter transfer from there, arranged by the resort." },
   "Siena": { air: "Florence", note: "FLORENCE (FLR) is ninety minutes by road; PISA (PSA) about the same; from the US, one stop through Rome, Munich, Frankfurt or Paris, or fly into ROME and drive two and a half hours up the A1." },
@@ -9878,7 +9912,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -10060,7 +10094,7 @@ const COORDS = {
   "Bodrum": [37.03,27.43], "Palawan": [11.34,120.05], "Moyo Island": [-8.25,117.55], "Siem Reap": [13.36,103.86], "Luang Prabang": [19.89,102.14],
   "Nha Trang": [11.85,109.20], "Hangzhou": [30.23,120.10], "Lijiang": [26.87,100.23], "Manila": [14.60,120.98],
   "Monaco": [43.74,7.42], "Franschhoek": [-33.91,19.12], "Stellenbosch": [-33.93,18.86], "Champagne": [49.08,3.95],
-  "Versailles": [48.80,2.12], "Bürgenstock": [46.99,8.38], "Basel": [47.56,7.59], "Ise-Shima": [34.30,136.82],
+  "Versailles": [48.80,2.12], "Megève": [45.86,6.62], "Chantilly": [49.19,2.47], "Bürgenstock": [46.99,8.38], "Basel": [47.56,7.59], "Ise-Shima": [34.30,136.82],
   "Izu": [34.97,138.93], "Chiang Mai": [18.79,98.98], "Krabi": [8.06,98.91], "Washington, Virginia": [38.71,-78.16],
   "Montana": [45.44,-110.71], "St-Tropez": [43.27,6.64], "Antibes": [43.55,7.12], "Taormina": [37.85,15.29],
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
