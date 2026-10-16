@@ -21,6 +21,7 @@ const TRANSIT_FIELD_MASK = [
   "routes.distanceMeters",
   "routes.legs.steps.transitDetails",
   "routes.legs.steps.travelMode",
+  "routes.legs.steps.staticDuration",
 ].join(",");
 
 function minsFrom(d) {
@@ -64,10 +65,28 @@ function transitVehicles(data) {
       if (!td) return;
       const line = td.transitLine || {};
       const veh = (line.vehicle && (line.vehicle.type || (line.vehicle.name && line.vehicle.name.text))) || "";
-      if (veh) out.push(String(veh));
+      if (veh) out.push({ veh: String(veh), mins: minsFrom(step.staticDuration) || 0 });
     });
   });
   return out;
+}
+// THE VEHICLE THAT CARRIES THE JOURNEY DECIDES. Rome to Lake Como came back "ferry: true" because
+// Google's plan ended with the forty-minute boat from Como to Bellagio after six hours on
+// trains — one boat anywhere on the itinerary was enough. A transit leg is rail when rail is the
+// biggest share of the time in vehicles, a ferry when the boat is, and a bus otherwise. A
+// connecting hop never names the leg. (Tricia, 16 Oct 2026.)
+function dominantVehicle(vehicles) {
+  const t = { rail: 0, ferry: 0, other: 0 };
+  vehicles.forEach((v) => { if (RAIL_RE.test(v.veh)) t.rail += v.mins; else if (FERRY_RE.test(v.veh)) t.ferry += v.mins; else t.other += v.mins; });
+  const total = t.rail + t.ferry + t.other;
+  if (!total) {
+    // No durations came back: fall back to counting vehicles, the old behaviour.
+    const n = { rail: vehicles.filter((v) => RAIL_RE.test(v.veh)).length, ferry: vehicles.filter((v) => FERRY_RE.test(v.veh)).length };
+    return n.ferry > n.rail ? "ferry" : n.rail ? "rail" : "other";
+  }
+  if (t.ferry >= t.rail && t.ferry >= t.other) return "ferry";
+  if (t.rail >= t.other) return "rail";
+  return "other";
 }
 
 const RAIL_RE = /RAIL|TRAIN|SUBWAY|METRO|TRAM|MONORAIL|HEAVY_RAIL|HIGH_SPEED|COMMUTER/i;
@@ -106,8 +125,9 @@ export default async function handler(req, res) {
   // What kind of transit is it? Only a real train or ferry earns a chip; a bus (Greyhound and
   // the like) never does — it is not the market this app serves.
   const vehicles = transit ? transitVehicles(transit.data) : [];
-  const transitIsRail = vehicles.some((v) => RAIL_RE.test(v));
-  const transitIsFerry = vehicles.some((v) => FERRY_RE.test(v));
+  const dominant = dominantVehicle(vehicles);
+  const transitIsRail = dominant === "rail";
+  const transitIsFerry = dominant === "ferry";
 
   let verdict = "water";
   if (drive) verdict = drive.minutes != null && drive.minutes > PUNISHING_DRIVE_MIN ? "far" : "land";
@@ -135,8 +155,10 @@ export default async function handler(req, res) {
     // Rail only when it is genuinely rail — never a Greyhound/coach masquerading as "transit".
     rail: transitIsRail && verdict !== "water",
     // A ferry belongs on the list for a short crossing, when the only road route puts your car on
-    // a boat anyway (mainland Spain to Mallorca), or when Google's transit is itself a ferry.
-    ferry: shortWater || driveNeedsFerry || transitIsFerry,
+    // a boat anyway (mainland Spain to Mallorca), or when the transit journey IS a boat — and
+    // never where a road joins the two places: 653 km of autostrada is not a crossing, whatever
+    // boat Google tacks onto the end of a train ride. (Tricia, 16 Oct 2026.)
+    ferry: shortWater || driveNeedsFerry || (transitIsFerry && !drive),
   };
 
   // Plain-language reason, so the app can explain itself rather than just hiding buttons.
