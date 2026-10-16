@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M826";
+const BUILD = "M827";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -10441,6 +10441,24 @@ function ferryBetween(a, b) {
   const hit = FERRIES.find(([x, y]) => (x.toLowerCase() === A && y.toLowerCase() === B) || (x.toLowerCase() === B && y.toLowerCase() === A));
   return hit ? hit[2] : null;
 }
+// A FERRY NEEDS WATER WITH NO ROAD ACROSS IT. Rome to Lake Como was offered a ferry because
+// Google's transit plan ended with the forty-minute boat from Como to Bellagio after six hours
+// on trains, and one boat on the itinerary was enough to raise the chip. The rule, everywhere:
+// two places on the same landmass joined by a road are never a ferry (653 km of road is not a
+// crossing); two places on different landmasses are a ferry only when we carry that crossing;
+// and a boat the live service reports counts only where it also reports NO road at all. A
+// crossing listed by hand in FERRIES (the Naples boats) is a deliberate exception and stays.
+// (Tricia, 16 Oct 2026.)
+function ferryPossible(from, to, ground) {
+  if (!from || !to || sameCity(from, to)) return false;
+  const f = ferryBetween(from, to);
+  const ia = islandOf(from), ib = islandOf(to);
+  const road = !!(ground && ground.drive && ground.drive.minutes != null);
+  const boatNoRoad = !!(ground && ground.verdict === "water" && ground.modes && ground.modes.ferry && !road);
+  if ((ia || ib) && ia !== ib) return (f != null && f <= FERRY_OFFER_MAX_MIN) || boatNoRoad;
+  if (f != null) return true;
+  return boatNoRoad;
+}
 function minsLabel(m) { const h = Math.floor(m / 60), r = m % 60; return h > 0 ? `${h} hr${r ? " " + r + " min" : ""}` : `${r} min`; }
 // How you'd actually get from a to b on the ground. Null means you need to fly.
 // A place is "known" only if we have real geographic data for it — coordinates AND a zone.
@@ -16719,7 +16737,7 @@ function DestCard({ d, i, p }) {
     {/* NO FLIGHT WHERE THERE IS NO AIRPORT TO FLY TO: the chip is not offered when the stop is
         reached through the airport you are already at (London to the Cotswolds). Same rule as the
         leg panel, so the two rows never disagree. */}
-    {d.mode !== "ideas" && <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE.filter((m) => !(m.key === "Flight" && d.city && sameAirport(legStart(p, i), d.city)))} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>}
+    {d.mode !== "ideas" && <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE.filter((m) => !(m.key === "Flight" && d.city && sameAirport(legStart(p, i), d.city)) && !(m.key === "Ferry" && !ferryPossible(legStart(p, i), d.city, null)))} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>}
   </div>);
 }
 
@@ -18557,7 +18575,8 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
   // that button is here too. (A car never reaches a stop across water: carDropIndex ends it first.)
   const inHand = p && i != null ? carInHand(p, i) : null;
   const noFlight = !inHand && (sameAirport(from, to) || (dHere && sameAirport(from, dHere.city)));
-  const options = inHand ? ARRIVE.filter((m) => m.key === "Self-drive") : (((allowed && allowed.length) ? allowed : ARRIVE).filter((m) => !(noFlight && m.key === "Flight")));
+  const ferryOk = ferryPossible(from, to, ground) || (dHere && ferryPossible(from, dHere.city, ground));
+  const options = inHand ? ARRIVE.filter((m) => m.key === "Self-drive") : (((allowed && allowed.length) ? allowed : ARRIVE).filter((m) => !(noFlight && m.key === "Flight") && !(m.key === "Ferry" && !ferryOk)));
   const chooseMode = (m) => { if (m === "Flight") { setMode("Flight"); upd({ ground: null }); } else { setMode(m); upd({ ground: groundOption(m, from, to) }); } };
   // If the current choice turns out to be impossible for this leg, move to a sensible one.
   useEffect(() => {
