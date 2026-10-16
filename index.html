@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M823";
+const BUILD = "M824";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -471,7 +471,7 @@ const NEARBY_CITIES = {
   "Orvieto": ["Civita di Bagnoregio"],
   "Bologna": ["Modena"],
   "Nice": ["Monaco"],
-  "Monaco": [],
+  "Monaco": ["Nice"],   // a country on paper, so it borrows by hand, not by distance
   "French Riviera": ["Nice", "Monaco"],
   // ══ REGIONS PEOPLE TYPE ════════════════════════════════════════════════════════════════════
   // A traveller says "the Cyclades", "the Balearics", "Corsica", "the Cape Winelands" \u2014 names of
@@ -496,16 +496,79 @@ const NEARBY_CITIES = {
   "Los Angeles": ["Beverly Hills"],
   "Beverly Hills": ["Los Angeles"],
 };
-function nearbyFavs(city) {
-  const key = Object.keys(NEARBY_CITIES).find((x) => dnrm(x) === dnrm(bareCity(city || "")));
-  if (!key) return [];
-  const out = [];
-  (NEARBY_CITIES[key] || []).forEach((src) => {
-    (lookup(FAVORITES, src) || []).forEach((h) => {
-      if (out.some((x) => dnrm(x.name) === dnrm(h.name))) return;
-      out.push({ ...h, nearbyFrom: src });
+// WITHIN TEN MILES IS NEARBY, EVERYWHERE. The hand list above cannot name every pair of
+// neighbours, and it did not: "Amalfi" showed one hotel while Le Sirenuse and the Caruso sat
+// unreachable under Positano and Ravello, ten minutes along the same road. So the Nearby group
+// is also built by distance: any curated destination whose coordinates lie within NEARBY_KM of
+// the one asked for — on the same island, or neither on one — lends its hotels, nearest town
+// first, each row labelled with its own town. A region record that merely collects the towns'
+// hotels (the "Amalfi Coast" list is Positano + Ravello + Amalfi again) lends nothing, so the
+// label is always the town. Nothing moves, nothing is duplicated, and NICE MEANS NICE still
+// holds: borrowed rows sit in the Nearby group, never in the main list. (Tricia, 16 Oct 2026.)
+const NEARBY_KM = 16;
+let NEARBY_REGION_MIRRORS = null;   // computed on first use: FAVORITES is declared further down the file
+function nearbyRegionMirrors() {
+  if (NEARBY_REGION_MIRRORS) return NEARBY_REGION_MIRRORS;
+  const where = {}; Object.keys(FAVORITES).forEach((c) => (FAVORITES[c] || []).forEach((h) => { (where[dnrm(h.name)] = where[dnrm(h.name)] || new Set()).add(c); }));
+  const out = new Set();
+  Object.keys(FAVORITES).forEach((c) => { const rows = FAVORITES[c] || []; if (rows.length < 2) return; const others = new Set(); for (const h of rows) { const o = [...(where[dnrm(h.name)] || [])].filter((x) => x !== c); if (!o.length) return; o.forEach((x) => others.add(x)); } if (others.size >= 2) out.add(c); });
+  NEARBY_REGION_MIRRORS = out; return out;
+}
+// A REGION HAS NO POINT. "Tuscany", "England", "Sicily" are kept at one coordinate for the map,
+// but their hotels lie an hour apart; lending them to a town because the region's pin happens to
+// sit nearby would put Il Pellicano (Porto Ercole) under Siena. So a key that is a region, a
+// country or an island (REGION_MI, REGION_STOPS, COUNTRY_SUFFIX, ISLAND_OF) lends a hotel only
+// when that hotel's own town — the first part of its area line — has coordinates of its own.
+function spreadKey(c) {
+  const b = bareCity(c || ""); if (!b) return false;
+  if (REGION_MI[b] != null || regionStops(b).length) return true;
+  if (COUNTRY_SUFFIX.has(b.toLowerCase())) return true;
+  return !!(islandOf(b) && dnrm(islandOf(b)) === dnrm(b));
+}
+function knownPoint(name) {
+  const k = Object.keys(COORDS).find((x) => x.toLowerCase() === String(name || "").toLowerCase());
+  if (k && COORDS[k] && COORDS[k].length) return COORDS[k];
+  const g = GEO_CACHE[geoKey(name)]; return g && g.length ? g : null;
+}
+function nearbyByDistance(bare) {
+  const here = knownPoint(bare);
+  if (!here) return [];
+  const ih = islandOf(bare);
+  const rows = [];
+  Object.keys(FAVORITES).forEach((c) => {
+    if (!(FAVORITES[c] || []).length || sameCity(c, bare) || nearbyRegionMirrors().has(c) || islandOf(c) !== ih) return;
+    const keyPt = knownPoint(c);
+    const keyAt = spreadKey(c) ? null : keyPt;
+    (FAVORITES[c] || []).forEach((h) => {
+      const town = String(h.area || "").split("·")[0].split(",")[0].replace(/\([A-Z]{3}\)/g, "").trim();
+      // A hotel's town counts only if it is plausibly in its own key's country: Rio's Santa Teresa
+      // district must not be placed in Costa Rica because a town there shares the name.
+      let townAt = town && !sameCity(town, c) ? knownPoint(town) : null;
+      if (townAt && keyPt && kmBetween(keyPt, townAt) > 200) townAt = null;
+      const at = townAt || keyAt;
+      if (!at) return;
+      const km = kmBetween(here, at);
+      if (km != null && km <= NEARBY_KM) rows.push({ h, src: c, km });
     });
   });
+  return rows.sort((x, y) => x.km - y.km);
+}
+function nearbyFavs(city) {
+  const bare = bareCity(city || "");
+  if (!bare) return [];
+  const key = Object.keys(NEARBY_CITIES).find((x) => dnrm(x) === dnrm(bare));
+  const hand = key ? (NEARBY_CITIES[key] || []) : [];
+  const own = lookup(FAVORITES, bare) || [];
+  const out = [];
+  const add = (h, src) => {
+    if (out.some((x) => dnrm(x.name) === dnrm(h.name))) return;
+    if (own.some((x) => dnrm(x.name) === dnrm(h.name))) return;   // already in the main list
+    out.push({ ...h, nearbyFrom: src });
+  };
+  hand.forEach((src) => (lookup(FAVORITES, src) || []).forEach((h) => add(h, src)));
+  // A region asked for by name ("Tuscany", "Sicily") has no single point to measure from; it
+  // borrows through the hand list only. Towns borrow by distance.
+  if (!spreadKey(bare)) nearbyByDistance(bare).forEach((r) => add(r.h, r.src));
   return out;
 }
 // TURKISH ı IS NOT AN ACCENTED i. It is its own letter with no decomposition, so the usual
@@ -18859,7 +18922,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
     </div>
     <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
       <div style={{ fontFamily: font.display, fontSize: sel ? 26 : 19, color: t.ink, lineHeight: 1.08 }}>{s.name}{s.vo ? <span title="Voyage One favorite" style={{ fontFamily: font.ui, fontSize: 11, fontWeight: 800, letterSpacing: ".08em", color: t.brass, marginLeft: 9, verticalAlign: "middle", whiteSpace: "nowrap" }}>VO ♥</span> : null}</div>
-      {s.area || s.nearbyFrom ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.nearbyFrom ? `${NEARBY_LABEL} · ${s.nearbyFrom}${s.area ? " · " + s.area : ""}` : s.area}</div> : null}
+      {s.area || s.nearbyFrom ? <div style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginTop: 4 }}>{s.nearbyFrom ? `${NEARBY_LABEL} · ${s.nearbyFrom}${s.area && !sameCity(String(s.area).split("·")[0].split(",")[0], s.nearbyFrom) ? " · " + s.area : ""}` : s.area}</div> : null}
       {/* A temporary state the client must see before they fall for the photograph — closed for
           works, reopening on a date, phased renovation. Hand-written on the FAVORITES entry as
           `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
@@ -18888,7 +18951,10 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   // behind a chip the client had no reason to press. Tier order is unchanged: Ultra first when
   // it exists, then Luxury, then Experience, then Best. A chosen hotel still wins, so reopening
   // a leg lands on the tier the client picked from.
-  const firstTier = LEVELS.find((l) => favs.some((s) => tierOf(s.name) === l)) || "UltraLux";
+  // The opening tier counts the Nearby group too: Amalfi's own list is one Luxury hotel, but the
+  // three Ultra Luxury houses ten minutes away are what a client typing "Amalfi" is looking for.
+  const favsPlusNear = favs.concat(nearbyFavs(city));
+  const firstTier = LEVELS.find((l) => favsPlusNear.some((s) => tierOf(s.name) === l)) || "UltraLux";
   const [level, setLevel] = useState(pick.stay ? pick.stay.level : firstTier);
   // When the destination changes under a mounted picker, start again from the first tier with
   // content rather than carrying the previous city's tab across. Keyed on city only, and
@@ -18951,8 +19017,8 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   // city HAS something better, offering Best alongside it is noise. So it is only on the
   // page when the two tiers above it are empty. Hidden while the feed is still loading, so
   // it never flashes up and then vanishes.
-  const ultraHas = favs.some((s2) => tierOf(s2.name) === "UltraLux");
-  const luxHas = favs.some((s2) => tierOf(s2.name) === "Luxury");
+  const ultraHas = favsPlusNear.some((s2) => tierOf(s2.name) === "UltraLux");
+  const luxHas = favsPlusNear.some((s2) => tierOf(s2.name) === "Luxury");
   // Experience Luxury is curated-only, so unlike Luxury it cannot be filled by the feed. The chip
   // appears only where a person has put something in it — Wadi Rum, Musandam, the Serengeti camps
   // — and is simply absent everywhere else rather than showing an empty tab.
@@ -19048,7 +19114,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       </div>) : null}
     {!collapsed && level && (<>
       {remote.loading && <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 10 }}>Looking up {bareCity(city)}…</div>}
-      {!remote.loading && levelFavs.length === 0 && liveRows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No Ultra Luxury hotel on our list for ${bareCity(city) || "this city"} yet.` : `More ${lbl(level)} options for ${bareCity(city) || "this city"} are on the way.`}</div>}
+      {!remote.loading && levelFavs.length === 0 && nearRows.length === 0 && liveRows.length === 0 && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>{level === "UltraLux" ? `No Ultra Luxury hotel on our list for ${bareCity(city) || "this city"} yet.` : `More ${lbl(level)} options for ${bareCity(city) || "this city"} are on the way.`}</div>}
       {liveRows.length > 0 && (<>
         {levelFavs.length > 0 && <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, margin: "16px 0 10px" }}>More {lbl(level)} in {bareCity(city)}</div>}
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
