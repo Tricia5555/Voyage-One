@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M854";
+const BUILD = "M855";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,7 +390,9 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
-  // ── CZECH REPUBLIC ── (audit 17 Oct 2026, notation only; each hotel's own virtuoso.com page read that day)
+  // ── CZECH REPUBLIC ── (audit 17 Oct 2026; Mandarin Oriental and Fairmont added the same day on Tricia's review, both Luxury)
+  "Mandarin Oriental, Prague": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6163798/mandarin-oriental-prague", vname: "Mandarin Oriental, Prague", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Hotel Credit, applicable at our Restaurant or for Spa treatments (not combinable, no cash value if not redeemed in full)", "VIP Amenity", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Nebovidská 1, Prague. Property page read 17 Oct 2026." },
+  "Fairmont Golden Prague": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Pařížská 30, Prague. No listing page on virtuoso.com on 17 Oct 2026 — no notation. Added on quality (Luxury; two Michelin Keys 2025 and 2026)." },
   "Four Seasons Hotel Prague": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6163785/four-seasons-hotel-prague", vname: "Four Seasons Hotel Prague", year: null, amenities: [], amenitiesUnverified: true, note: "Veleslavínova 2a, Prague. Live listing page read 17 Oct 2026; amenities render client-side and could not be read." },
   "Augustine Hotel, Prague": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6164421/augustine-a-luxury-collection-hotel-prague", vname: "Augustine, a Luxury Collection Hotel, Prague", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Letenská 12, Prague. Virtuoso's listing still carries the Luxury Collection name; Kempinski acquired the hotel 2 Apr 2026 (white-label from 1 Apr, reflag late 2026). Row renamed in place 17 Oct 2026 — one record. Re-check the listing name after the Kempinski reflag." },
   // ── GERMANY ── (audit 17 Oct 2026, notation only; each hotel's own virtuoso.com page read that day)
@@ -2182,6 +2184,8 @@ const FAVORITES = {
   "Prague": [
     { name: "Four Seasons Hotel Prague", area: "Old Town", rate: null, ourTake: "Riverside buildings by the Charles Bridge with castle views.", contact: { addr: "Veleslavínova 2a/1098, Prague", web: "fourseasons.com/prague" } },
     { name: "Augustine Hotel, Prague", area: "Lesser Town", rate: null, ourTake: "A 13th-century monastery hotel below the castle. Left Marriott's Luxury Collection in April 2026 when Kempinski bought it; reflags as Kempinski in late 2026.", contact: { addr: "Letenská 12/33, Prague", web: "augustinehotel.com" } },
+    { name: "Mandarin Oriental, Prague", area: "Lesser Town", rate: null, ourTake: "A fourteenth-century Dominican monastery in Malá Strana, with the spa set inside the old chapel and the castle a few minutes' walk uphill — the quietest luxury address in the city.", contact: { addr: "Nebovidská 459/1, 118 00 Prague 1", web: "mandarinoriental.com" } },
+    { name: "Fairmont Golden Prague", area: "Pařížská · Old Town riverfront", rate: null, ourTake: "The 1974 InterContinental, rebuilt from the frame over five years and reopened in 2025 at the river end of Pařížská — exposed concrete and post-war Czech art, a big spa and pool, and the only two Michelin Keys in the country. Large, at 320 keys, and still new.", contact: { addr: "Pařížská 30, 110 00 Prague 1", web: "fairmont.com/prague" } },
   ],
   "Lisbon": [
     { name: "Four Seasons Hotel Ritz Lisbon", area: "Avenida da Liberdade", rate: null, vo: 1, voNote: "a particularly strong Lisbon hotel: service exceptional throughout, and the location is excellent for shopping \u2014 Avenida da Liberdade, Lisbon\u2019s grand luxury boulevard and its closest thing to the Champs-\u00c9lys\u00e9es, is just around the corner", ourTake: "A mid-century icon with a rooftop track and museum-grade art. Service is exceptional throughout, and the location is excellent for shopping \u2014 Avenida da Liberdade, Lisbon\u2019s grand luxury boulevard and its closest thing to the Champs-\u00c9lys\u00e9es, is just around the corner. The choice for a true luxury hotel with the best shopping at the door.", contact: { addr: "Rua Rodrigo da Fonseca 88, Lisbon", web: "fourseasons.com/lisbon" } },
