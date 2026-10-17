@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M849";
+const BUILD = "M850";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,6 +390,10 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── NORWAY ── (hotels added 17 Oct 2026 on Tricia's quality review, all Luxury; Virtuoso verified separately)
+  "Hotel Continental": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/14368272/hotel-continental-oslo", vname: "Hotel Continental Oslo", year: null, amenities: [], amenitiesUnverified: true, note: "Stortingsgata 24-26, Oslo. Live listing page read 17 Oct 2026 (title 'Hotel Continental Oslo | Virtuoso'); amenities section renders client-side and could not be read. One Michelin Key 2026 per Tricia." },
+  "Sommerro": { status: "unverified", member: false, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/16784803/sommerro", vname: "Sommerro", year: null, amenities: [], amenitiesUnverified: true, note: "Sommerrogata 1, Oslo. Virtuoso's search index carries 'Sommerro - Virtuoso' at this /hotels/ URL and classictravel.com's Virtuoso Norway page lists it with rate benefits, but the page itself refuses automated reading, so it has not been read — same standard as Fairmont Windsor Park. Flip to listed/member when the page is confirmed to show Virtuoso Amenities. One Michelin Key 2026 per Tricia." },
+  "Britannia Hotel": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Dronningens gate 5, Trondheim. No listing page on virtuoso.com on 17 Oct 2026; classictravel.com's Virtuoso Norway page names only the two Oslo hotels. Added on quality (Luxury, one Michelin Key; Speilsalen one star) — no Virtuoso notation." },
   // ── IRELAND ── (audit 17 Oct 2026, notation only; each hotel's own virtuoso.com page read that day)
   "The Merrion": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6163924/the-merrion-hotel", vname: "The Merrion Hotel", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "Complimentary lunch or dinner from a set menu served in The Garden Room for up to two guests per bedroom, once during stay, excluding alcohol, taxes and gratuities", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Upper Merrion Street, Dublin 2. Property page read 17 Oct 2026." },
   "The Shelbourne": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/15587157/the-shelbourne", vname: "The Shelbourne", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In/ Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "27 St Stephen's Green, Dublin 2. Property page read 17 Oct 2026." },
@@ -1912,7 +1916,7 @@ const CITIES = [
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
   "Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Wales","Belfast","Scotland","Northern Ireland",
-  "Amsterdam","Brussels","Antwerp","Copenhagen","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
+  "Amsterdam","Brussels","Antwerp","Copenhagen","Oslo","Trondheim","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
 
@@ -2120,6 +2124,13 @@ const FAVORITES = {
     { name: "Mandarin Oriental Conservatorium, Amsterdam", area: "Museum Quarter", rate: null, ourTake: "A striking glass-roofed atrium in the old conservatory by the museums.", contact: { addr: "Van Baerlestraat 27, Amsterdam", web: "conservatoriumhotel.com" } },
     { name: "De L'Europe Amsterdam", area: "Old Centre", rate: null, ourTake: "A riverfront grande dame at the Amstel, family-owned and classic.", contact: { addr: "Nieuwe Doelenstraat 2-14, Amsterdam", web: "deleurope.com" } },
     { name: "Rosewood Amsterdam", area: "Canal Belt", rate: null, ourTake: "The former Palace of Justice on the Prinsengracht, newly reborn.", contact: { addr: "Prinsengracht 436, Amsterdam", web: "rosewoodhotels.com" } },
+  ],
+  "Oslo": [
+    { name: "Hotel Continental", area: "Stortingsgata · by the National Theatre", rate: null, ourTake: "The Brockmann family's grand hotel since 1909, across from the National Theatre — Theatercaféen downstairs, Munch on the walls, and the city's most polished rooms.", contact: { addr: "Stortingsgata 24-26, 0117 Oslo", web: "hotelcontinental.no" } },
+    { name: "Sommerro", area: "Frogner", rate: null, ourTake: "The 1930s Art Deco power-company headquarters in Frogner, restored with a rooftop pool and sauna, the Vestkantbadet baths and a theatre — Oslo's most talked-about hotel.", contact: { addr: "Sommerrogata 1, 0255 Oslo", web: "sommerrohouse.com" } },
+  ],
+  "Trondheim": [
+    { name: "Britannia Hotel", area: "Dronningens gate · city centre", rate: null, ourTake: "The 1870 grand hotel of Trondheim, rebuilt top to bottom in 2019 — the Palmehaven winter garden, a serious spa and Speilsalen, the Michelin-starred dining room.", contact: { addr: "Dronningens gate 5, 7011 Trondheim", web: "britannia.no" } },
   ],
   "Copenhagen": [
     { name: "Hotel d'Angleterre", area: "Kongens Nytorv", rate: null, ourTake: "The white palace on Kongens Nytorv since 1755 — Copenhagen's grand hotel, with Marchal's Michelin star and the Nyhavn canal at the corner.", contact: { addr: "Kongens Nytorv 34, 1050 Copenhagen", web: "dangleterre.com" } },
@@ -9545,7 +9556,7 @@ const AIRPORTS = {
   "Milos": { code: "MLO", scale: "regional" }, "Syros": { code: "JSY", scale: "regional" },
   // Kea and Sifnos have no airfield at all \u2014 both are reached by ferry from the Athens coast.
   "Kea": { code: "ATH", scale: "regional" }, "Sifnos": { code: "ATH", scale: "regional" },
-  "Oslo": { code: "OSL", scale: "intercontinental" }, "Stockholm": { code: "ARN", scale: "intercontinental" }, "Helsinki": { code: "HEL", scale: "intercontinental" },
+  "Oslo": { code: "OSL", scale: "intercontinental" }, "Trondheim": { code: "TRD", scale: "regional" }, "Stockholm": { code: "ARN", scale: "intercontinental" }, "Helsinki": { code: "HEL", scale: "intercontinental" },
   "Tromsø": { code: "TOS", scale: "regional" }, "Alta": { code: "ALF", scale: "regional" },
   "Abisko": { code: "KRN", scale: "regional" }, "Kiruna": { code: "KRN", scale: "regional" },
   "Rovaniemi": { code: "RVN", scale: "regional" }, "Levi": { code: "KTT", scale: "regional" },
@@ -10527,7 +10538,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Brussels","Antwerp","Copenhagen","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Brussels","Antwerp","Copenhagen","Trondheim","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews","Cotswolds","Oxford","Henley-on-Thames","Ascot","Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Scottish Highlands","Wales","Scotland","England","Manchester","Inverness","Aberdeen"],
   "ireland": ["Dublin","Ireland","Belfast","Northern Ireland"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -10792,7 +10803,7 @@ const COORDS = {
   "Crete": [35.24,24.81], "Paros": [37.08,25.15], "Kea": [37.63,24.34], "Corfu": [39.62,19.92],
   "Zakynthos": [37.79,20.90], "Rhodes": [36.43,28.22], "Kos": [36.89,27.29], "Milos": [36.69,24.44],
   "Syros": [37.44,24.94], "Sifnos": [36.98,24.71],
-  "Oslo": [59.91,10.75], "Stockholm": [59.33,18.07], "Helsinki": [60.17,24.94],
+  "Oslo": [59.91,10.75], "Trondheim": [63.43,10.40], "Stockholm": [59.33,18.07], "Helsinki": [60.17,24.94],
   "Tromsø": [69.65,18.96], "Alta": [69.97,23.27], "Abisko": [68.35,18.83], "Kiruna": [67.86,20.23],
   "Rovaniemi": [66.50,25.73], "Levi": [67.80,24.80], "Saariselkä": [68.42,27.42], "Svalbard": [78.22,15.63],
   "Dubai": [25.20,55.27], "Marrakech": [31.63,-8.01],
@@ -15953,7 +15964,7 @@ const CITY_COUNTRY = {
   "Mali Lo\u0161inj": "Croatia", "Manuel Antonio": "Costa Rica", "Marrakech": "Morocco", "Masai Mara": "Kenya", "Mashpi": "Ecuador", "Medell\u00edn": "Colombia",
   "Mendoza": "Argentina", "Milan": "Italy", "Monaco": "Monaco", "Mont-Tremblant": "Canada", "Montana": "Montana", "Montevideo": "Uruguay", "Montreal": "Canada",
   "Munich": "Germany", "Musandam": "Oman", "Muscat": "Oman", "Nairobi": "Kenya", "Namibia": "Namibia", "Napa Valley": "California", "New York City": "New York",
-  "Ngorongoro": "Tanzania", "Nice": "France", "North Hatley": "Canada", "Nosara": "Costa Rica", "Okavango": "Botswana", "Osa Peninsula": "Costa Rica", "Pacuare": "Costa Rica",
+  "Ngorongoro": "Tanzania", "Nice": "France", "North Hatley": "Canada", "Oslo": "Norway", "Trondheim": "Norway", "Nosara": "Costa Rica", "Okavango": "Botswana", "Osa Peninsula": "Costa Rica", "Pacuare": "Costa Rica",
   "Pampas": "Argentina", "Panama City": "Panama", "Pantanal": "Brazil", "Paraty": "Brazil", "Paris": "France", "Peninsula Papagayo": "Costa Rica", "Peruvian Amazon": "Peru",
   "Petra": "Jordan", "Phuket": "Thailand", "Prague": "Czechia", "Provence": "France", "Puerto Natales": "Chile", "Puerto Varas": "Chile", "Puglia": "Italy",
   "Punta del Este": "Uruguay", "Quebec City": "Canada", "Quito": "Ecuador", "Ranthambore": "India", "Red Sea": "Saudi Arabia", "Rio de Janeiro": "Brazil",
