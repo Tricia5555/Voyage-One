@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M838";
+const BUILD = "M839";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -687,6 +687,13 @@ const NEARBY_CITIES = {
   "Monaco": ["Nice"],   // a country on paper, so it borrows by hand, not by distance
   "Alentejo": ["Comporta"],
   "Lake Lucerne": ["Lucerne", "Bürgenstock"],
+  // THE SWISS REGIONS PEOPLE TYPE (Tricia, 17 Oct 2026): a lake, a valley or a canton, each
+  // borrowing its towns' hotels, grouped by town — the Riviera pattern again.
+  "Lake Geneva": ["Geneva", "Lausanne"],
+  "Engadine": ["St Moritz"],
+  "Bernese Oberland": ["Gstaad", "Interlaken"],
+  "Ticino": ["Lugano", "Ascona"],
+  "Valais": ["Zermatt", "Verbier", "Crans-Montana"],
   "French Riviera": ["Nice", "Monaco"],
   // ══ REGIONS PEOPLE TYPE ════════════════════════════════════════════════════════════════════
   // A traveller says "the Cyclades", "the Balearics", "Corsica", "the Cape Winelands" \u2014 names of
@@ -1773,7 +1780,7 @@ const CITIES = [
   "New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Miami","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Buenos Aires","Mendoza","Costa Rica","Galápagos",
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
-  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
+  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
 
@@ -9004,6 +9011,11 @@ const GATEWAY = {
   "St Andrews": { air: "Edinburgh", note: "St Andrews has no airport. Fly to EDINBURGH (EDI) and drive about an hour and a half up the Fife coast, or take the train to Leuchars and a ten-minute taxi. Glasgow is a similar distance from the west." },
   "Zermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then rail — Zermatt is car-free, so the train is the only way in." },
   "Bürgenstock": { air: "Zurich", note: "Fly to Zurich (ZRH); the resort is about an hour by road, or by train to Lucerne and the resort's own boat and funicular from the quay." },
+  "Lake Geneva": { air: "Geneva", note: "Fly to Geneva (GVA); the lake begins at the city and the north shore to Lausanne and Montreux is an hour by road or train." },
+  "Engadine": { air: "Zurich", note: "Fly to Zurich (ZRH), then about three hours by road or the Albula line by train to St. Moritz; Samedan is the valley's small private field." },
+  "Bernese Oberland": { air: "Zurich", note: "Fly to Zurich (ZRH), then two hours by train to Interlaken or about two and a half by road to Gstaad; Geneva is the same for Gstaad." },
+  "Ticino": { air: "Milan", note: "Fly to Milan Malpensa (MXP), about an hour to Lugano and under two to Ascona by road; from Zurich (ZRH) the train runs through the Gotthard in two hours." },
+  "Valais": { air: "Geneva", note: "Fly to Geneva (GVA), then the Rhône valley by train or road — Verbier and Crans-Montana about two hours, Zermatt three by train with the change at Visp." },
   "Andermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then about an hour and three quarters by road or train through the Reuss valley." },
   "Lucerne": { air: "Zurich", note: "Fly to Zurich (ZRH); Lucerne is under an hour by road, or an hour by direct train from the airport station." },
   "Lake Lucerne": { air: "Zurich", note: "Fly to Zurich (ZRH); the lake is an hour by road, and the hotels on its shores are reached by car or by the lake boats from Lucerne." },
@@ -10273,7 +10285,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -10501,7 +10513,7 @@ const COORDS = {
   "Lisbon": [38.72,-9.14], "Porto": [41.15,-8.61], "Sintra": [38.80,-9.39], "Cascais": [38.70,-9.42], "Óbidos": [39.36,-9.16],
   "Comporta": [38.38,-8.78], "Évora": [38.57,-7.91], "Alentejo": [38.57,-7.91], "Algarve": [37.09,-8.25], "Faro": [37.02,-7.93], "Douro Valley": [41.16,-7.79], "Portugal": [39.40,-8.22],
   "Amsterdam": [52.37,4.90], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
-  "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Andermatt": [46.63,8.59], "Lucerne": [47.05,8.31], "Lake Lucerne": [47.01,8.48], "Lausanne": [46.52,6.63], "Verbier": [46.10,7.23], "Crans-Montana": [46.31,7.48], "Bad Ragaz": [47.00,9.50], "Interlaken": [46.69,7.86], "Bern": [46.95,7.45], "Lugano": [46.00,8.95], "Ascona": [46.16,8.77], "Engelberg": [46.82,8.40], "Vals": [46.62,9.18], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
+  "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Andermatt": [46.63,8.59], "Lake Geneva": [46.45,6.55], "Engadine": [46.50,9.84], "Bernese Oberland": [46.60,7.70], "Ticino": [46.10,8.90], "Valais": [46.20,7.50], "Lucerne": [47.05,8.31], "Lake Lucerne": [47.01,8.48], "Lausanne": [46.52,6.63], "Verbier": [46.10,7.23], "Crans-Montana": [46.31,7.48], "Bad Ragaz": [47.00,9.50], "Interlaken": [46.69,7.86], "Bern": [46.95,7.45], "Lugano": [46.00,8.95], "Ascona": [46.16,8.77], "Engelberg": [46.82,8.40], "Vals": [46.62,9.18], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26],
   "Burgundy": [47.02,4.84], "Umbria": [43.11,12.39], "Scottish Highlands": [57.48,-4.22],
   // ROUTE TOWNS. Not destinations we sell — places with award-winning tables that sit on the roads
@@ -20022,7 +20034,7 @@ function isSight(m) {
 // THE IN-TOWN RADIUS. Six miles by default; wider for the cities that sprawl. A rule with a short
 // table of exceptions, not a list of places — add a city here the day its "in town" is bigger.
 const SPRAWL_MI = { "Los Angeles": 15, "Beverly Hills": 15, "Houston": 15, "Dallas": 12, "Atlanta": 12, "Miami": 12, "Phoenix": 15, "Scottsdale": 12, "Tokyo": 12, "Sydney": 12, "Mexico City": 12, "S\u00e3o Paulo": 12, "Rio de Janeiro": 10, "Buenos Aires": 10, "Johannesburg": 12, "Cape Town": 10, "Dubai": 12, "Riyadh": 12, "Shanghai": 12, "Beijing": 12, "Bangkok": 10, "Istanbul": 10, "Moscow": 10, "London": 8, "Paris": 8, "Berlin": 8, "Rome": 8, "Madrid": 8, "Chicago": 10, "New York City": 8, "Toronto": 10, "Montreal": 8, "Las Vegas": 10, "Orlando": 12 };
-const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
+const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Lake Lucerne": 20, "Lake Geneva": 40, "Engadine": 30, "Bernese Oberland": 50, "Ticino": 40, "Valais": 70, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
 function inTownRadiusMi(city) {
   const b = dnrm(bareCity(city || ""));
   const r = Object.keys(REGION_MI).find((c) => dnrm(c) === b || sameCity(c, city)); if (r) return REGION_MI[r];   // a region's in-town is the region
