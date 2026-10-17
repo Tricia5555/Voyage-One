@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M839";
+const BUILD = "M840";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -690,6 +690,11 @@ const NEARBY_CITIES = {
   // THE SWISS REGIONS PEOPLE TYPE (Tricia, 17 Oct 2026): a lake, a valley or a canton, each
   // borrowing its towns' hotels, grouped by town — the Riviera pattern again.
   "Lake Geneva": ["Geneva", "Lausanne"],
+  // THE UNITED KINGDOM BY COUNTRY (Tricia, 17 Oct 2026): "England", "Scotland" and "Northern Ireland" collect their
+  // places; "Wales" and "Belfast" hold their own hotels.
+  "England": ["London", "Cotswolds", "Henley-on-Thames", "Ascot", "Windsor", "Berkshire", "Somerset", "Bath", "Hampshire", "New Forest", "Sussex", "Surrey", "Cornwall", "Devon", "Lake District", "Yorkshire"],
+  "Scotland": ["Edinburgh", "St Andrews", "Gleneagles", "Braemar", "Loch Lomond", "Glasgow", "Scottish Highlands"],
+  "Northern Ireland": ["Belfast"],
   "Engadine": ["St Moritz"],
   "Bernese Oberland": ["Gstaad", "Interlaken"],
   "Ticino": ["Lugano", "Ascona"],
@@ -1229,9 +1234,12 @@ const ULTRA_LUX = [
   "Six Senses Zighy Bay", "Anantara Al Jabal Al Akhdar Resort",
   // United Kingdom — London
   "Claridge's", "The Connaught", "The Berkeley", "The Emory", "The Dorchester", "45 Park Lane",
-  "The Peninsula London", "Raffles London at The OWO", "Bulgari Hotel London",
-  "Mandarin Oriental Hyde Park", "Mandarin Oriental Mayfair", "The Lanesborough", "The Savoy",
-  "Four Seasons Hotel London at Park Lane", "Four Seasons Tower Bridge", "The Ritz London",
+  "The Peninsula London", "Raffles London at The OWO",
+  "The Lanesborough", "The Savoy",
+  "Four Seasons Hotel London at Park Lane",
+  // UK REVIEW, 17 Oct 2026 (Tricia): The Ritz, Bulgari, both Mandarin Orientals, Four Seasons Tower Bridge and Gleneagles
+  // Townhouse to Luxury; Rosewood London, The Balmoral and Coworth Park up; the houses below came in at Ultra Luxury.
+  "Rosewood London", "The Chancery Rosewood", "The Balmoral, a Rocco Forte Hotel", "Coworth Park", "Chewton Glen", "The Fife Arms", "The Torridon",
   // England / countryside
   "Cliveden House", "Heckfield Place", "Gleneagles", "The Newt in Somerset",
   // Italy — Lake Como
@@ -1597,7 +1605,13 @@ function strictCanon(name, alnums) {
 // A confirmed future hotel: `opening` is the label ("2027", "Summer 2027"); `opensOn`, when known,
 // is the date reservations open — reached, the hotel becomes an ordinary one. No guessing dates.
 function isUpcoming(h) { if (!h || !h.opening) return false; if (!h.opensOn) return true; return new Date().toISOString().slice(0, 10) < h.opensOn; }
+// EXACT NAME BEATS CONTAINMENT. tierOf matches a name sitting whole inside a canon entry, so "Caldera
+// House" finds "Caldera House Jackson Hole" — and Gleneagles Townhouse became Ultra Luxury because
+// "Gleneagles" is. A hotel named here is pinned to the tier given, whatever the lists say.
+// (Tricia, 17 Oct 2026.)
+const TIER_PIN = { "Gleneagles Townhouse": "Luxury" };
 function tierOf(name) {
+  const pin = Object.keys(TIER_PIN).find((k) => dnrm(k) === dnrm(name || "")); if (pin) return TIER_PIN[pin];
   if (strictCanon(name, ULX_ALNUM)) return "UltraLux";
   if (strictCanon(name, EXP_ALNUM)) return "ExpLux";
   if (strictCanon(name, LODGE_ALNUM)) return "ExpLodge";
@@ -1780,6 +1794,7 @@ const CITIES = [
   "New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Miami","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Buenos Aires","Mendoza","Costa Rica","Galápagos",
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
+  "Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Wales","Belfast","Scotland","Northern Ireland",
   "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
@@ -1833,6 +1848,55 @@ const FAVORITES = {
   // metres with five pools, four restaurants for members and hotel guests only.
   "Cotswolds": [
     { name: "Estelle Manor", area: "North Leigh · Oxfordshire", tier: "UltraLux", rate: null, ourTake: "ULTRA LUXURY. A glamorous English country-house escape with richly layered interiors, exceptional dining, and the remarkable Roman-inspired Eynsham Baths spa. Set within an 85-acre Oxfordshire estate at the gateway to the Cotswolds, Estelle Manor combines the atmosphere of an exclusive private club with an indulgent countryside stay. A Grade II-listed manor house with 108 rooms and suites, plus woodland cabins and private houses; Eynsham Baths is 3,000 square metres of Roman-inspired bathhouse with five pools; a heated outdoor pool on the South Terrace; padel, a gym and a kids’ club; four restaurants, for members and hotel guests only. The mood is lively, stylish and sociable rather than the hushed seclusion of a traditional country-house retreat. Hotel guests need not be members. Eynsham Baths access varies by room and rate — confirm it when you choose the room; the Manor House rooms are for ages 13 and up, and dogs are welcome in the other rooms for a nightly fee.", contact: { addr: "Eynsham Park, North Leigh, Witney, Oxfordshire OX29 6PN", tel: "+44 1993 685800", web: "estellemanor.com" } },
+    { name: "Soho Farmhouse", area: "Great Tew · Oxfordshire", rate: null, ourTake: "The Soho House farm on a hundred acres outside Chipping Norton — cabins, the Cowshed spa, the pool and the bicycles — taken by the night when the members leave room.", contact: { addr: "Great Tew, Chipping Norton OX7 4JS", web: "sohohouse.com" } },
+    { name: "Thyme", area: "Southrop · Gloucestershire", rate: null, ourTake: "A village of a hotel on the Southrop Manor estate — the Ox Barn, the Meadow Spa, the cookery school and the gardens — the Cotswolds at their gentlest.", contact: { addr: "Southrop Manor, Southrop GL7 3NX", web: "thyme.co.uk" } },
+    { name: "Cowley Manor Experimental", area: "Cowley · near Cheltenham", rate: null, ourTake: "The Experimental Group's take on an Italianate manor in fifty-five acres — Dorothée Meilichzon's rooms, the lake walk and the C-Side spa.", contact: { addr: "Cowley, Cheltenham GL53 9NL", web: "experimentalgroup.com" } },
+    { name: "The Lygon Arms", area: "Broadway · Worcestershire", rate: null, ourTake: "The coaching inn on Broadway's high street since the sixteenth century, with the great hall, a spa and the honey-stone village at the door.", contact: { addr: "High Street, Broadway WR12 7DU", web: "lygonarmshotel.co.uk" } },
+  ],
+  "Somerset": [
+    { name: "The Newt in Somerset", area: "Bruton · Hadspen", rate: null, ourTake: "A cider-and-gardens estate hotel, one of Britain's most talked-about country stays — the gardens, the cyder press and the farm, with Bruton's galleries ten minutes away.", contact: { addr: "Hadspen, Bruton BA7 7NG", web: "thenewtinsomerset.com" } },
+  ],
+  "Bath": [
+    { name: "The Royal Crescent Hotel & Spa", area: "The Royal Crescent", rate: null, ourTake: "Two houses at the centre of the Royal Crescent, with an acre of garden behind and the spa in the old coach house — Bath from the inside.", contact: { addr: "16 Royal Crescent, Bath BA1 2LS", web: "royalcrescent.co.uk" } },
+    { name: "Lucknam Park Hotel & Spa", area: "Colerne · 15 min from Bath", rate: null, ourTake: "A Palladian mansion at the end of a mile of beeches, with an equestrian centre, a serious spa and Hywel Jones's Michelin-starred dining room.", contact: { addr: "Lucknam Park, Colerne SN14 8AZ", web: "lucknampark.co.uk" } },
+  ],
+  "Windsor": [
+    { name: "Cliveden House", area: "Taplow · 15 min from Windsor", rate: null, ourTake: "A stately National Trust mansion above the Thames, all history and grand terraces — the Astors' house, the boats on the river and the gardens open to the walk.", contact: { addr: "Cliveden Road, Taplow SL6 0JF", web: "clivedenhouse.co.uk" } },
+    { name: "Fairmont Windsor Park", area: "Englefield Green · Windsor Great Park", rate: null, ourTake: "The big new country resort on the edge of Windsor Great Park, twenty minutes from Heathrow, with a very large spa and the park to ride in.", contact: { addr: "Bishopsgate Road, Englefield Green, Windsor TW20 0YL", web: "fairmont.com" } },
+  ],
+  "Berkshire": [
+    { name: "The Vineyard", area: "Stockcross · near Newbury", rate: null, opening: "November 2026", ourTake: "The wine hotel of Berkshire, with a cellar of thirty thousand bottles and the Michelin table; closed for a top-to-bottom refurbishment under new owners, reopening in two phases from November 2026.", contact: { addr: "Stockcross, Newbury RG20 8JU", web: "the-vineyard.co.uk" } },
+  ],
+  "New Forest": [
+    { name: "Chewton Glen", area: "New Milton · the Forest and the sea", rate: null, ourTake: "The country-house hotel that set the standard — treehouse suites in the woods, the spa, the golf and the sea a walk away — on the southern edge of the Forest.", contact: { addr: "Christchurch Road, New Milton BH25 6QS", web: "chewtonglen.com" } },
+    { name: "Lime Wood", area: "Lyndhurst · in the Forest", rate: null, ourTake: "A Regency house in the middle of the Forest, Hartnett Holder & Co's kitchen and the Herb House spa — relaxed, grown-up and very English.", contact: { addr: "Beaulieu Road, Lyndhurst SO43 7FZ", web: "limewoodhotel.co.uk" } },
+  ],
+  "Hampshire": [
+    { name: "Heckfield Place", area: "Hook · north Hampshire", rate: null, ourTake: "A Georgian family home on a working farm estate — quietly, impeccably done, with Skye Gyngell's kitchens and the Bothy spa.", contact: { addr: "Heckfield, Hook RG27 0LD", web: "heckfieldplace.com" } },
+    { name: "Four Seasons Hotel Hampshire", area: "Dogmersfield · near Hook", rate: null, ourTake: "A Georgian manor on five hundred acres with stables, a spa and the kind of English country weekend Four Seasons does without fuss — fifty minutes from Heathrow.", contact: { addr: "Dogmersfield Park, Chalky Lane, Hook RG27 8TD", web: "fourseasons.com" } },
+  ],
+  "Sussex": [
+    { name: "Gravetye Manor", area: "West Hoathly · the Weald", rate: null, ourTake: "An Elizabethan manor in William Robinson's famous gardens, with a Michelin-starred dining room looking over them — an hour from London and another world.", contact: { addr: "Vowels Lane, West Hoathly RH19 4LJ", web: "gravetyemanor.co.uk" } },
+    { name: "South Lodge", area: "Lower Beeding · near Horsham", rate: null, ourTake: "A Victorian country house on ninety acres of the Sussex Weald with one of the best spas in the south and Gatwick half an hour away.", contact: { addr: "Brighton Road, Lower Beeding, Horsham RH13 6PS", web: "exclusive.co.uk" } },
+  ],
+  "Surrey": [
+    { name: "Beaverbrook", area: "Leatherhead · the Surrey Hills", rate: null, ourTake: "Lord Beaverbrook's house on the Surrey Hills, half an hour from London, with the Japanese restaurant, the Coach House spa and the Garden House across the lawns.", contact: { addr: "Reigate Road, Leatherhead KT22 8QX", web: "beaverbrook.co.uk" } },
+  ],
+  "Cornwall": [
+    { name: "The Nare", area: "Veryan-in-Roseland · Carne Beach", rate: null, ourTake: "The country-house hotel by the sea on the Roseland, family-run, with its own beach below the lawn, a boat for guests and the Cornwall of the fifties kept alive on purpose.", contact: { addr: "Carne Beach, Veryan-in-Roseland, Truro TR2 5PF", web: "narehotel.co.uk" } },
+  ],
+  "Devon": [
+    { name: "Bovey Castle", area: "North Bovey · Dartmoor", rate: null, ourTake: "A 1920s manor on Dartmoor with its own golf course, falconry and the moor at the gate — the grand way to do Devon.", contact: { addr: "North Bovey, Dartmoor TQ13 8RE", web: "boveycastle.com" } },
+    { name: "Harbour Hotel Salcombe", area: "Salcombe · on the estuary", rate: null, ourTake: "On the water in Salcombe with the estuary from the rooms, a spa and the sailing town's best address.", contact: { addr: "Cliff Road, Salcombe TQ8 8JH", web: "harbourhotels.co.uk" } },
+  ],
+  "Lake District": [
+    { name: "Gilpin Hotel & Lake House", area: "Windermere · Crook Road", rate: null, ourTake: "The Cunliffe family's hotel on the fells above Windermere, with the spa lodges, the Lake House a mile away on its own lake, and the Michelin-starred Source.", contact: { addr: "Crook Road, Windermere LA23 3NE", web: "thegilpin.co.uk" } },
+    { name: "The Samling", area: "Windermere · above the lake", rate: null, ourTake: "Twelve rooms on a hillside above Windermere with the lake below and a Michelin table — the small, quiet choice.", contact: { addr: "Ambleside Road, Windermere LA23 1LR", web: "thesamlinghotel.co.uk" } },
+    { name: "Linthwaite House", area: "Bowness-on-Windermere", rate: null, ourTake: "The Leeu Collection's house above Bowness, art-filled rooms and the lake from the terrace, with its own tarn in the grounds.", contact: { addr: "Crook Road, Bowness-on-Windermere LA23 3JA", web: "leeucollection.com" } },
+  ],
+  "Yorkshire": [
+    { name: "Grantley Hall", area: "Ripon · the Dales edge", rate: null, ourTake: "A Palladian mansion reborn with a Michelin-starred Shaun Rankin dining room, a three-storey spa and the Dales beyond — Yorkshire's grand hotel.", contact: { addr: "Grantley, Ripon HG4 3ET", web: "grantleyhall.co.uk" } },
+    { name: "Rudding Park", area: "Follifoot · near Harrogate", rate: null, ourTake: "A Regency house on three hundred acres outside Harrogate with golf, a cinema and a rooftop spa garden.", contact: { addr: "Follifoot, Harrogate HG3 1JH", web: "ruddingpark.co.uk" } },
   ],
   "London": [
     { name: "Claridge's", area: "Mayfair", tier: "UltraLux", rate: null, ourTake: "The definitive London address — Art Deco glamour and the lobby everyone wants to be seen in.", contact: { addr: "Brook Street, Mayfair, London W1K 4HR", web: "claridges.com" } },
@@ -1860,6 +1924,14 @@ const FAVORITES = {
     { name: "The Beaumont", area: "Mayfair", tier: "Luxury", rate: null, ourTake: "An Art Deco jewel off Grosvenor Square, with a members'-bar hush.", contact: { addr: "Brown Hart Gardens, Mayfair, London W1K 6TF", web: "thebeaumont.com" } },
     { name: "Corinthia London", area: "Whitehall", tier: "Luxury", rate: null, ourTake: "A modern palace by the river with one of the city's great spas.", contact: { addr: "10 Whitehall Place, London SW1A 2BD", web: "corinthia.com" } },
     { name: "Hotel Café Royal", area: "Regent Street", tier: "Luxury", rate: null, ourTake: "A Regent Street landmark with the Akasha spa and a glittering past.", contact: { addr: "68 Regent Street, London W1B 4DY", web: "hotelcaferoyal.com" } },
+    { name: "The Chancery Rosewood", area: "Mayfair · Grosvenor Square", rate: null, ourTake: "Rosewood's second London house in the old American embassy on Grosvenor Square, opened in 2025 — all suites, a sunken garden and the square's whole west side.", contact: { addr: "30 Grosvenor Square, London W1K 6AN", web: "rosewoodhotels.com" } },
+    { name: "The Ned", area: "The City · Bank", rate: null, ourTake: "The old Midland Bank on Poultry turned into a hotel, nine restaurants and a members' club, with the rooftop pool looking at St Paul's — the City's liveliest address.", contact: { addr: "27 Poultry, London EC2R 8AJ", web: "thened.com" } },
+    { name: "The May Fair, A Radisson Collection Hotel", area: "Mayfair · Stratton Street", rate: null, ourTake: "Big, glossy Mayfair rooms a minute from Green Park and the Piccadilly shops, with a spa and the May Fair Bar — the practical choice at the centre of things.", contact: { addr: "Stratton Street, London W1J 8LT", web: "themayfairhotel.co.uk" } },
+    { name: "Shangri-La The Shard, London", area: "Southwark · London Bridge", rate: null, ourTake: "Floors 34 to 52 of the Shard, the highest rooms in the city with the river and St Paul's laid out below, and the infinity pool on 52.", contact: { addr: "31 St Thomas Street, London SE1 9QU", web: "shangri-la.com" } },
+    { name: "The London EDITION", area: "Fitzrovia · Berners Street", rate: null, ourTake: "Ian Schrager's Fitzrovia house — the stucco lobby, the Punch Room and the Berners Tavern — a few minutes from Oxford Circus and Soho.", contact: { addr: "10 Berners Street, London W1T 3NP", web: "editionhotels.com" } },
+    { name: "The Twenty Two", area: "Mayfair · Grosvenor Square", rate: null, ourTake: "An Edwardian townhouse on Grosvenor Square with thirty-one rooms, a members' club behind it and the most talked-about dining room in Mayfair.", contact: { addr: "22 Grosvenor Square, London W1K 6LF", web: "the22.london" } },
+    { name: "The Hari", area: "Belgravia · Chesham Place", rate: null, ourTake: "A calm, modern Belgravia hotel with the Italian terrace at Il Pampero — quieter and better value than its Knightsbridge neighbours.", contact: { addr: "20 Chesham Place, London SW1X 8HQ", web: "thehari.com" } },
+    { name: "The Milestone Hotel & Residences", area: "Kensington · opposite Kensington Palace", rate: null, ourTake: "The Red Carnation townhouse facing Kensington Gardens, every room different, with the butler's trolley and the Stables Bar — Kensington's grand little hotel.", contact: { addr: "1 Kensington Court, London W8 5DL", web: "milestonehotel.com" } },
   ],
   "Venice": [
     { name: "The Gritti Palace", area: "Grand Canal", rate: 2200, desc: "The grande-dame palazzo on the Grand Canal, a short walk to San Marco — best-placed of the grand hotels for Carnival on foot." },
@@ -2480,12 +2552,6 @@ const FAVORITES = {
     { name: "Adare Manor", area: "Adare", rate: null, ourTake: "A neo-Gothic manor on 840 acres, host to the Ryder Cup — Ireland's grandest stay." },
     { name: "Ballyfin", area: "Laois", rate: null, ourTake: "A Regency demesne of just twenty rooms, the finest country-house hotel in Ireland." },
     { name: "Ashford Castle", area: "Cong", rate: null, ourTake: "An 800-year-old castle on Lough Corrib — falconry, boats and true grandeur." },
-  ],
-  "England": [
-    { name: "Cliveden House", area: "Berkshire", rate: null, ourTake: "A stately National Trust mansion above the Thames, all history and grand terraces." },
-    { name: "Heckfield Place", area: "Hampshire", rate: null, ourTake: "A Georgian family home on a working farm estate — quietly, impeccably done." },
-    { name: "Gleneagles", area: "Perthshire", rate: null, ourTake: "The glamorous Highland sporting estate — golf, gundogs and a grand hotel." },
-    { name: "The Newt in Somerset", area: "Somerset", rate: null, ourTake: "A cider-and-gardens estate hotel, one of Britain's most talked-about country stays." },
   ],
   // ── CROATIA & SLOVENIA ──────────────────────────────────────────────────────────────
   // The largest gap in the app before this: one curated destination in the whole of eastern
@@ -3213,6 +3279,35 @@ const FAVORITES = {
     { name: "100 Princes Street", area: "Princes Street \u00b7 Edinburgh (EDI)", rate: null, ourTake: "Twenty-nine rooms facing the Castle, opened in 2024 by Red Carnation \u2014 a five-star town house rather than a hotel, with the personalised service that scale allows and a real sense of place. THE INTIMATE ALTERNATIVE to the Balmoral, for clients who would rather be known by name than have a concierge desk." },
     { name: "Gleneagles Townhouse", area: "St Andrew Square \u00b7 Edinburgh (EDI)", rate: null, ourTake: "Gleneagles' city outpost \u2014 thirty-three rooms in a Georgian former bank on St Andrew Square, with a members'-club atmosphere, a rooftop bar and strong wellness. THE CONTEMPORARY CHOICE, and the right answer for a younger or more design-conscious client. One Michelin Key." },
     { name: "Prestonfield House", area: "Priestfield \u00b7 Edinburgh (EDI)", rate: null, ourTake: "Twenty-three rooms in a 17th-century house on twenty acres of parkland with Highland cattle and peacocks \u2014 and still ten minutes from the Royal Mile. COMPLETELY DIFFERENT FROM A CITY HOTEL: the feeling of a private Scottish estate without leaving Edinburgh. Dark, theatrical and deeply romantic. AA Five Red Stars." },
+    { name: "The Caledonian Edinburgh", area: "West End · Princes Street", rate: null, ourTake: "The old railway hotel at the west end of Princes Street, the Castle filling the windows, now Hilton's Curio flag with the Guerlain spa.", contact: { addr: "Princes Street, Edinburgh EH1 2AB", web: "hilton.com" } },
+    { name: "The Witchery by the Castle", area: "Old Town · Castlehill", rate: null, ourTake: "Nine theatrical suites in a sixteenth-century building at the castle gates, with the famous restaurant downstairs — Gothic Edinburgh at its most indulgent.", contact: { addr: "Castlehill, The Royal Mile, Edinburgh EH1 2NF", web: "thewitchery.com" } },
+  ],
+  "Gleneagles": [
+    { name: "Gleneagles", area: "Auchterarder · Perthshire", rate: null, ourTake: "The glamorous Highland sporting estate — golf, gundogs and a grand hotel — with three courses, the shooting school and the Ochils behind.", contact: { addr: "Auchterarder PH3 1NF", web: "gleneagles.com" } },
+  ],
+  "Braemar": [
+    { name: "The Fife Arms", area: "Braemar · Royal Deeside", rate: null, ourTake: "Hauser & Wirth's Victorian coaching inn turned art hotel in Braemar — Picasso in the drawing room, the Flying Stag bar, and the Cairngorms at the door.", contact: { addr: "Mar Road, Braemar AB35 5YN", web: "thefifearms.com" } },
+  ],
+  "Loch Lomond": [
+    { name: "Cameron House", area: "Loch Lomond · the southern shore", rate: null, ourTake: "The baronial mansion on the loch with its own marina, seaplane and golf course, rebuilt after the fire — forty minutes from Glasgow.", contact: { addr: "Loch Lomond, Alexandria G83 8QZ", web: "cameronhouse.co.uk" } },
+  ],
+  "Glasgow": [
+    { name: "Crossbasket Castle", area: "High Blantyre · 20 min from the city", rate: null, ourTake: "A seventeenth-century castle on the Calder outside Glasgow, nine rooms and the new Michel Roux Jr dining room — the country house for a Glasgow trip.", contact: { addr: "Stoneymeadow Road, High Blantyre G72 9UE", web: "crossbasketcastle.com" } },
+  ],
+  "Scottish Highlands": [
+    { name: "The Torridon", area: "Wester Ross · Loch Torridon", rate: null, ourTake: "A Victorian shooting lodge at the head of Loch Torridon with the mountains of Wester Ross around it — the most dramatic setting of any hotel in Scotland.", contact: { addr: "Achnasheen, Wester Ross IV22 2EY", web: "thetorridon.com" } },
+    { name: "Inverlochy Castle Hotel", area: "Torlundy · near Fort William", rate: null, ourTake: "The castle in the foothills of Ben Nevis where Queen Victoria stayed, with Michel Roux Jr's kitchen and the Great Glen outside.", contact: { addr: "Torlundy, Fort William PH33 6SN", web: "inverlochycastlehotel.com" } },
+    { name: "Kinloch Lodge", area: "Sleat · Isle of Skye", rate: null, ourTake: "The Macdonald clan's lodge on the Sleat peninsula, Lady Claire's kitchen now in her son's hands, and Skye's south coast from the windows.", contact: { addr: "Sleat, Isle of Skye IV43 8QY", web: "kinloch-lodge.co.uk" } },
+    { name: "Isle of Eriska Hotel, Spa & Island", area: "Benderloch · near Oban", rate: null, ourTake: "A baronial house on its own three-hundred-acre island reached by a bridge, with golf, a spa and the seals on the shore.", contact: { addr: "Isle of Eriska, Benderloch, Oban PA37 1SD", web: "eriska-hotel.co.uk" } },
+  ],
+  "Wales": [
+    { name: "Palé Hall", area: "Llandderfel · near Bala, Snowdonia", rate: null, ourTake: "A Victorian mansion on the edge of Snowdonia with a Michelin-starred dining room and the Dee valley below — Wales's grandest country house.", contact: { addr: "Palé Estate, Llandderfel, Bala LL23 7PS", web: "palehall.co.uk" } },
+    { name: "The Grove of Narberth", area: "Narberth · Pembrokeshire", rate: null, ourTake: "An eighteenth-century house in the Pembrokeshire hills with the Fernery restaurant and the coast path twenty minutes away.", contact: { addr: "Molleston, Narberth SA67 8BX", web: "grovenarberth.co.uk" } },
+  ],
+  "Belfast": [
+    { name: "The Merchant Hotel", area: "Cathedral Quarter", rate: null, ourTake: "The Ulster Bank's Victorian headquarters, all gilt and marble, with the Great Room and the best cocktail bar in the city.", contact: { addr: "16 Skipper Street, Belfast BT1 2DZ", web: "themerchanthotel.com" } },
+    { name: "Grand Central Hotel", area: "Bedford Street · city centre", rate: null, ourTake: "The tall modern hotel in the centre with the Observatory bar on the twenty-third floor — polished and well placed.", contact: { addr: "9-15 Bedford Street, Belfast BT2 7FF", web: "grandcentralhotelbelfast.com" } },
+    { name: "Slieve Donard", area: "Newcastle, County Down · 1 hr from Belfast", rate: null, ourTake: "The red-brick Victorian railway hotel on the beach under the Mourne Mountains, beside Royal County Down — now Marine & Lawn's flag.", contact: { addr: "Downs Road, Newcastle BT33 0AH", web: "marineandlawn.com" } },
   ],
   // ═══ ZERMATT — Tricia's classification, Sept 2026 ═══════════════════════════════════════════
   // FIVE LUXURY, NO ULTRA. Being one of the best hotels in Zermatt is not a reason to promote
@@ -9165,6 +9260,25 @@ const GATEWAY = {
   "Belize": { air: "Belize City", note: "BELIZE CITY (BZE) has nonstops from Miami, Houston, Dallas and Atlanta; Caye Chapel is a short boat or helicopter transfer from there, arranged by the resort." },
   "Siena": { air: "Florence", note: "FLORENCE (FLR) is ninety minutes by road; PISA (PSA) about the same; from the US, one stop through Rome, Munich, Frankfurt or Paris, or fly into ROME and drive two and a half hours up the A1." },
   "Henley-on-Thames": { air: "London", note: "HEATHROW (LHR) is forty minutes by road." },
+  "Somerset": { air: "London", note: "HEATHROW (LHR) is about two hours by road; Bristol (BRS) is fifty minutes with European flights only." },
+  "Bath": { air: "London", note: "HEATHROW (LHR) is an hour and three quarters by road, or the train from Paddington reaches Bath Spa in eighty minutes." },
+  "Windsor": { air: "London", note: "HEATHROW (LHR) is twenty minutes by road — Windsor is the closest country stay to the airport." },
+  "Berkshire": { air: "London", note: "HEATHROW (LHR) is about an hour by road to the Newbury side of the county." },
+  "New Forest": { air: "London", note: "HEATHROW (LHR) is an hour and three quarters by road; Southampton (SOU) is thirty minutes with European flights only." },
+  "Hampshire": { air: "London", note: "HEATHROW (LHR) is about fifty minutes by road to Hook." },
+  "Sussex": { air: "London", note: "GATWICK (LGW) is half an hour by road; Heathrow about an hour." },
+  "Surrey": { air: "London", note: "HEATHROW (LHR) and Gatwick (LGW) are each about half an hour by road." },
+  "Cornwall": { air: "London", note: "Newquay (NQY) is forty minutes away with flights from London and a few European cities; otherwise HEATHROW (LHR) and five hours by road, or the train from Paddington to Truro in four and a half." },
+  "Devon": { air: "London", note: "Exeter (EXT) is under an hour from Dartmoor with flights from London and Europe; HEATHROW (LHR) is three and a half hours by road, or the train from Paddington to Exeter in two and a quarter." },
+  "Lake District": { air: "Manchester", note: "MANCHESTER (MAN) takes the long-haul flights and is an hour and a half by road to Windermere; the train from London reaches Oxenholme in under three hours." },
+  "Yorkshire": { air: "Manchester", note: "MANCHESTER (MAN) takes the long-haul flights and is an hour and a half by road to Harrogate; Leeds Bradford (LBA) is forty minutes with European flights only." },
+  "Gleneagles": { air: "Edinburgh", note: "EDINBURGH (EDI) is an hour by road; Gleneagles has its own railway station on the Glasgow–Perth line." },
+  "Braemar": { air: "Aberdeen", note: "ABERDEEN (ABZ) is an hour and a half by road through Royal Deeside; Edinburgh (EDI) about two and a half." },
+  "Loch Lomond": { air: "Glasgow", note: "GLASGOW (GLA) is forty minutes by road to the southern shore." },
+  "Wales": { air: "Manchester", note: "MANCHESTER (MAN) is about two hours by road to Bala and Snowdonia; for Pembrokeshire fly to Cardiff (CWL) or London and allow four hours by road." },
+  "Northern Ireland": { air: "Belfast", note: "BELFAST (BFS, or the city airport BHD) is the way in; Dublin (DUB) is two hours by road or train and takes the long-haul flights." },
+  "Scotland": { air: "Edinburgh", note: "EDINBURGH (EDI) for the east and the Highlands, Glasgow (GLA) for the west; both take some North American flights and connect through London." },
+  "England": { air: "London", note: "HEATHROW (LHR) for the south and the Cotswolds, Manchester (MAN) for the north." },
   "Ascot": { air: "London", note: "HEATHROW (LHR) is twenty-five minutes by road." },
   "Cannes": { air: "Nice", note: "NICE (NCE) is forty minutes by road, or seven minutes by helicopter to the Cannes heliport in festival season." },
   "Salzburg": { air: "Munich", note: "SALZBURG (SZG) has European service; from the US, MUNICH (MUC) is ninety minutes by road or train and VipWing meets you there." },
@@ -9543,6 +9657,7 @@ const AIRPORTS = {
   "Seville": { code: "SVQ", scale: "regional" }, "Granada": { code: "GRX", scale: "regional" },
   "Bilbao": { code: "BIO", scale: "regional" }, "San Sebastián": { code: "EAS", scale: "regional" },
   "Edinburgh": { code: "EDI", scale: "regional" }, "Dublin": { code: "DUB", scale: "intercontinental" },
+  "Manchester": { code: "MAN", scale: "intercontinental" }, "Glasgow": { code: "GLA", scale: "regional" }, "Belfast": { code: "BFS", scale: "regional" }, "Inverness": { code: "INV", scale: "regional" }, "Aberdeen": { code: "ABZ", scale: "regional" },
   "Phoenix": { code: "PHX", scale: "intercontinental" }, "Calgary": { code: "YYC", scale: "intercontinental" },
   "Sapporo": { code: "CTS", scale: "regional" }, "Kilimanjaro": { code: "JRO", scale: "regional" },
   "Aspen": { code: "ASE", scale: "regional" }, "Denver": { code: "DEN", scale: "intercontinental" },
@@ -10286,8 +10401,8 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
   "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
-  "britain": ["London","Edinburgh","St Andrews"],
-  "ireland": ["Dublin"],
+  "britain": ["London","Edinburgh","St Andrews","Cotswolds","Oxford","Henley-on-Thames","Ascot","Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Scottish Highlands","Wales","Scotland","England","Manchester","Inverness","Aberdeen"],
+  "ireland": ["Dublin","Ireland","Belfast","Northern Ireland"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
   "capri": ["Capri"],
   "mallorca": ["Mallorca"],
@@ -10472,7 +10587,7 @@ const COORDS = {
   "Montana": [45.44,-110.71], "St-Tropez": [43.27,6.64], "Antibes": [43.55,7.12], "Taormina": [37.85,15.29],
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
   "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
-  "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
+  "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
   "Abu Dhabi": [24.45,54.38], "Red Sea": [28.57,34.54], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
   "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
   "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
@@ -11023,6 +11138,7 @@ const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
 // Common ways a city gets typed → the canonical key our data is filed under. Keeps "NYC",
 // "New York", "New York, NY" all resolving to "New York City", and the like.
 const CITY_ALIASES = {
+  "oxfordshire": "Cotswolds", "woodstock": "Cotswolds", "great tew": "Cotswolds", "southrop": "Cotswolds", "broadway": "Cotswolds", "broadway, cotswolds": "Cotswolds", "the cotswolds": "Cotswolds",
   "new york": "New York City", "nyc": "New York City", "manhattan": "New York City", "new york ny": "New York City",
   "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
   "sf": "San Francisco", "san fran": "San Francisco",
@@ -20034,7 +20150,7 @@ function isSight(m) {
 // THE IN-TOWN RADIUS. Six miles by default; wider for the cities that sprawl. A rule with a short
 // table of exceptions, not a list of places — add a city here the day its "in town" is bigger.
 const SPRAWL_MI = { "Los Angeles": 15, "Beverly Hills": 15, "Houston": 15, "Dallas": 12, "Atlanta": 12, "Miami": 12, "Phoenix": 15, "Scottsdale": 12, "Tokyo": 12, "Sydney": 12, "Mexico City": 12, "S\u00e3o Paulo": 12, "Rio de Janeiro": 10, "Buenos Aires": 10, "Johannesburg": 12, "Cape Town": 10, "Dubai": 12, "Riyadh": 12, "Shanghai": 12, "Beijing": 12, "Bangkok": 10, "Istanbul": 10, "Moscow": 10, "London": 8, "Paris": 8, "Berlin": 8, "Rome": 8, "Madrid": 8, "Chicago": 10, "New York City": 8, "Toronto": 10, "Montreal": 8, "Las Vegas": 10, "Orlando": 12 };
-const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Lake Lucerne": 20, "Lake Geneva": 40, "Engadine": 30, "Bernese Oberland": 50, "Ticino": 40, "Valais": 70, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
+const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Lake Lucerne": 20, "Lake Geneva": 40, "Somerset": 40, "Berkshire": 30, "New Forest": 20, "Hampshire": 40, "Sussex": 40, "Surrey": 30, "Cornwall": 80, "Devon": 60, "Yorkshire": 60, "Wales": 120, "Scotland": 200, "England": 250, "Northern Ireland": 80, "Engadine": 30, "Bernese Oberland": 50, "Ticino": 40, "Valais": 70, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
 function inTownRadiusMi(city) {
   const b = dnrm(bareCity(city || ""));
   const r = Object.keys(REGION_MI).find((c) => dnrm(c) === b || sameCity(c, city)); if (r) return REGION_MI[r];   // a region's in-town is the region
