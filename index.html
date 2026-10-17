@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M841";
+const BUILD = "M842";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -16793,6 +16793,7 @@ function OneList({ onPick, onBack, onHome }) {
                     <div style={{ fontFamily: font.display, fontSize: on ? 27 : 22, color: t.paper }}>{s.name}</div>
                     {s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}
                   </div>
+                  {(() => { const ve = virtuosoEvidence(s.name); return ve && ve.member ? <div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: "#B6C0B6", fontWeight: 500, marginTop: 4 }}>Virtuoso</div> : null; })()}
                   <div style={{ fontSize: on ? 15 : 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
                     <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
@@ -16801,7 +16802,14 @@ function OneList({ onPick, onBack, onHome }) {
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
                   {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book directly — tap any hotel below to change.</div> : null}
                 </button>); };
-            const feat = g.stay || [];
+            // ONE HOTEL LIST, EVERYWHERE. An experience names the hotels that suit it and says why — the
+            // walk to the courts, the view of the course — but the hotel itself is the central record:
+            // its name as we spell it, its address and site, its rate and tier, its Virtuoso line. The
+            // experience's own entry supplies only the note and, failing a central one, the area and
+            // rate. A featured name with no approved record is not shown at all, so nothing can be
+            // offered on an event page that the destination page would not offer. (Tricia, 17 Oct 2026.)
+            const central = (nm) => { let hit = null; Object.keys(FAVORITES).some((c) => { const r = (FAVORITES[c] || []).find((f) => f.name === nm) || (FAVORITES[c] || []).find((f) => nameMatch(f.name, nm)); if (r) { hit = r; return true; } return false; }); return hit; };
+            const feat = (g.stay || []).map((s) => { const f = central(s.name); return f ? { ...s, name: f.name, area: s.area || f.area, rate: f.rate != null ? f.rate : (s.rate || null), contact: f.contact || s.contact || null, note: s.note || f.ourTake } : null; }).filter(Boolean);
             const collKey = g.stayCollection || (g.stayFromBase && basePick ? basePick.city : null);
             const collection = (collKey && FAVORITES[collKey]) ? FAVORITES[collKey].filter((f) => !feat.some((s) => s.name === f.name)).filter((f) => !g.stayArea || dnrm(f.area || "").indexOf(dnrm(g.stayArea)) === 0).map((f) => ({ name: f.name, area: f.area, rate: f.rate || null, note: f.ourTake || f.note, contact: f.contact || null })) : [];
             const isKnown = (nm) => feat.some((s) => s.name === nm) || collection.some((s) => s.name === nm);
