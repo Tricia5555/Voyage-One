@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M833";
+const BUILD = "M834";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -595,6 +595,7 @@ const NEARBY_CITIES = {
   "Bologna": ["Modena"],
   "Nice": ["Monaco"],
   "Monaco": ["Nice"],   // a country on paper, so it borrows by hand, not by distance
+  "Alentejo": ["Comporta"],
   "French Riviera": ["Nice", "Monaco"],
   // ══ REGIONS PEOPLE TYPE ════════════════════════════════════════════════════════════════════
   // A traveller says "the Cyclades", "the Balearics", "Corsica", "the Cape Winelands" \u2014 names of
@@ -1064,7 +1065,6 @@ const ULTRA_LUX = [
   "The Greenwich Hotel", "The Fifth Avenue Hotel", "Casa Cipriani New York",
   "Hotel Bel-Air",
   "Zaborin",
-  "Reid's Palace, a Belmond Hotel",
   // ══ THE AMERICAS — RE-TIERED 3 SEPT 2026 ON TRICIA'S HOTEL TIER CORRECTIONS ══════════
   // The standard is Aman-level, and the correction document is explicit that this file does NOT
   // decide tier. Michelin Keys, Forbes, LHW, Relais & Châteaux, brand, rate and fame are none of
@@ -1165,7 +1165,9 @@ const ULTRA_LUX = [
   "Cap Rocat", "La Residencia, a Belmond Hotel",
   // SPAIN REVIEW, 16 Oct 2026 (Tricia): Rosewood Villa Magna and Six Senses Ibiza up to Ultra Luxury; Grand Hotel Son Net added at Ultra Luxury.
   "Rosewood Villa Magna", "Six Senses Ibiza", "Grand Hotel Son Net",
-  "Domaine de Murtoli", "Six Senses Douro Valley", "Sublime Comporta",
+  "Domaine de Murtoli", "Six Senses Douro Valley",
+  // PORTUGAL REVIEW, 16 Oct 2026 (Tricia): Reid's Palace and Sublime Comporta to Luxury; Vila Vita Parc at Ultra Luxury.
+  "Vila Vita Parc Resort & Spa",
   // Greece
   "Amanzoe", "Four Seasons Astir Palace Athens", "One&Only Aesthesis",
   // One&Only Kéa Island removed from Ultra Luxury Sept 2026 per the Greek islands audit: it is
@@ -1676,7 +1678,7 @@ const MODES = [
 const CITIES = [
   "New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Miami","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Buenos Aires","Mendoza","Costa Rica","Galápagos",
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
-  "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Douro Valley","Portugal",
+  "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
   "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
@@ -1841,6 +1843,39 @@ const FAVORITES = {
   "Lisbon": [
     { name: "Four Seasons Hotel Ritz Lisbon", area: "Avenida da Liberdade", rate: null, vo: 1, voNote: "a particularly strong Lisbon hotel: service exceptional throughout, and the location is excellent for shopping \u2014 Avenida da Liberdade, Lisbon\u2019s grand luxury boulevard and its closest thing to the Champs-\u00c9lys\u00e9es, is just around the corner", ourTake: "A mid-century icon with a rooftop track and museum-grade art. Service is exceptional throughout, and the location is excellent for shopping \u2014 Avenida da Liberdade, Lisbon\u2019s grand luxury boulevard and its closest thing to the Champs-\u00c9lys\u00e9es, is just around the corner. The choice for a true luxury hotel with the best shopping at the door.", contact: { addr: "Rua Rodrigo da Fonseca 88, Lisbon", web: "fourseasons.com/lisbon" } },
     { name: "Olissippo Lapa Palace", area: "Lapa", rate: null, ourTake: "An aristocratic hillside palace with gardens and Tagus views.", contact: { addr: "Rua do Pau de Bandeira 4, Lisbon", web: "olissippohotels.com" } },
+    { name: "Valverde Hotel", area: "Avenida da Liberdade", rate: null, ourTake: "A townhouse hotel on the Avenida with a courtyard garden and pool behind it — Relais & Châteaux, twenty-five rooms, the city's quietest address on its grandest street.", contact: { addr: "Avenida da Liberdade 164, 1250-146 Lisboa", web: "valverdehotel.com" } },
+    { name: "Bairro Alto Hotel", area: "Chiado · Praça Luís de Camões", rate: null, ourTake: "On the square between Chiado and the Bairro Alto, rebuilt with a rooftop terrace over the river and the city — the best-placed hotel in Lisbon for walking everywhere.", contact: { addr: "Praça Luís de Camões 2, 1200-243 Lisboa", web: "bairroaltohotel.com" } },
+    { name: "The One Palácio da Anunciada", area: "Restauradores · Rua das Portas de Santo Antão", rate: null, ourTake: "A sixteenth-century palace restored around its garden, with a spa and pool, a block from the Avenida and the Rossio.", contact: { addr: "Rua das Portas de Santo Antão 112-134, 1150-268 Lisboa", web: "hotelstheone.com" } },
+    { name: "Verride Palácio Santa Catarina", area: "Chiado · Santa Catarina viewpoint", rate: null, ourTake: "Nineteen rooms in an eighteenth-century palace on the Santa Catarina bluff, with a rooftop pool and the Tagus below it; now part of the Valverde family.", contact: { addr: "Rua de Santa Catarina 1, 1200-401 Lisboa", web: "verridesc.pt" } },
+    { name: "Palácio Ludovice Wine Experience Hotel", area: "Bairro Alto · São Pedro de Alcântara", rate: null, ourTake: "The architect of Mafra's own palace, by the São Pedro de Alcântara garden, built around Portuguese wine — tastings, a cellar restaurant and the Bairro Alto at the door.", contact: { addr: "Rua de São Pedro de Alcântara 39-49, 1250-237 Lisboa", web: "palacioludovice.com" } },
+    { name: "Sublime Lisboa", area: "Amoreiras", rate: null, ourTake: "The Comporta house's city sister in a quiet residential street by the Amoreiras garden — small, calm and a short ride from the centre.", contact: { addr: "Rua Marquês de Subserra 10, 1070-012 Lisboa", web: "sublimehotels.pt" } },
+  ],
+  "Sintra": [
+    { name: "Penha Longa Resort", area: "Sintra hills · Linhó", rate: null, ourTake: "A fourteenth-century monastery estate between Sintra and Cascais with two golf courses, a Six Senses spa and three Michelin kitchens — the resort of the Lisbon coast.", contact: { addr: "Estrada da Lagoa Azul, Linhó, 2714-511 Sintra", web: "penhalonga.com" } },
+    { name: "Valverde Sintra Palácio de Seteais", area: "Sintra · the old town", rate: null, ourTake: "The neoclassical palace above Sintra with the romantic gardens and the view to the sea — the place to sleep when the day-trippers have gone.", contact: { addr: "Rua Barbosa du Bocage 8, 2710-517 Sintra", web: "valverdepalacioseteais.com" } },
+  ],
+  "Cascais": [
+    { name: "Hotel Cascais Miragem Health & Spa", area: "Avenida Marginal · the bay", rate: null, ourTake: "A modern hotel on the Marginal with every room facing the sea and a serious spa — the straightforward luxury choice in Cascais itself.", contact: { addr: "Avenida Marginal 8554, 2754-536 Cascais", web: "cascaismirage.com" } },
+    { name: "The Oitavos", area: "Quinta da Marinha · 10 min from Cascais", rate: null, ourTake: "A clean modern house on the dunes with its own links course and the Atlantic in front — for golf and the wild coast rather than the town.", contact: { addr: "Rua de Oitavos, 2750-374 Cascais", web: "theoitavos.com" } },
+    { name: "InterContinental Cascais-Estoril", area: "Estoril · Avenida Marginal", rate: null, ourTake: "On the Marginal between the casino and the beach, with the pool terrace over the sea; Cascais is a seafront walk away.", contact: { addr: "Avenida Marginal 8023, 2765-249 Estoril", web: "ihg.com" } },
+  ],
+  "Porto": [
+    { name: "The Yeatman", area: "Vila Nova de Gaia · above the port lodges", rate: null, ourTake: "The wine hotel of Portugal, terraced over the Douro facing Porto, with the Taylor's cellars, two Michelin stars and a decanter-shaped pool.", contact: { addr: "Rua do Choupelo 345, 4400-088 Vila Nova de Gaia", web: "the-yeatman-hotel.com" } },
+    { name: "The Rebello Hotel & Spa", area: "Vila Nova de Gaia · the riverfront", rate: null, ourTake: "Converted warehouses on the Gaia quay with apartment-sized rooms, a rooftop pool and the whole of Porto across the water.", contact: { addr: "Cais de Gaia 380, 4400-245 Vila Nova de Gaia", web: "therebello.com" } },
+    { name: "Torel Avantgarde", area: "Miragaia · above the Douro", rate: null, ourTake: "An art-filled boutique hotel on the hill above the river, each room themed to an artist, with a pool terrace facing the sunset.", contact: { addr: "Rua da Restauração 336, 4050-501 Porto", web: "torelavantgarde.com" } },
+    { name: "The One Monumental Palace", area: "Avenida dos Aliados", rate: null, ourTake: "The Art Deco palace on the Aliados, reborn as the city's grand hotel — the bar, the spa and the whole of the Baixa at the door. Formerly Maison Albar – Le Monumental Palace; H10's The One since 2025.", contact: { addr: "Avenida dos Aliados 151, 4000-067 Porto", web: "h10hotels.com" } },
+    { name: "The Largo", area: "Ribeira · Largo de São Domingos", rate: null, ourTake: "Eighteen rooms across a row of old houses on the square, with Cozinha das Flores and Flôr downstairs — the small, design-led way to do the old town.", contact: { addr: "Largo de São Domingos 60, 4050-545 Porto", web: "thelargo.com" } },
+  ],
+  "Algarve": [
+    { name: "Vila Vita Parc Resort & Spa", area: "Porches · the Lagoa cliffs", rate: null, ourTake: "The grande dame of the Algarve on its own cliff-top park — the two-star Ocean, a vast spa and villas in the gardens.", contact: { addr: "Rua Anneliese Pohl, Alporchinhos, 8400-450 Porches", web: "vilavitaparc.com" } },
+    { name: "Vila Joya", area: "Albufeira · Praia da Galé", rate: null, ourTake: "A small house on the cliffs over Galé with a two-Michelin-star table that is the reason to come; twenty-odd rooms and a garden pool.", contact: { addr: "Estrada da Galé, 8200-416 Albufeira", web: "vilajoya.com" } },
+    { name: "Conrad Algarve", area: "Quinta do Lago", rate: null, ourTake: "The contemporary resort inside Quinta do Lago, with the golf, the Ria Formosa and the beach a short ride away — polished and spacious.", contact: { addr: "Estrada da Quinta do Lago, 8135-106 Almancil", web: "hilton.com" } },
+    { name: "Pine Cliffs, a Luxury Collection Resort", area: "Albufeira · Praia da Falésia", rate: null, ourTake: "The pine-topped cliffs of Falésia with the famous red-rock beach below, a golf course and everything a family resort should have.", contact: { addr: "Praia da Falésia, Pinhal do Concelho, 8200-593 Albufeira", web: "pinecliffs.com" } },
+    { name: "W Algarve", area: "Albufeira · Sesmarias", rate: null, ourTake: "The W on the cliffs west of Albufeira — pools, a beach club and a louder, younger take on the coast.", contact: { addr: "Estrada da Galé, Sesmarias, 8200-385 Albufeira", web: "marriott.com" } },
+  ],
+  "Alentejo": [
+    { name: "São Lourenço do Barrocal", area: "Monsaraz · the Alqueva plain", rate: null, ourTake: "A family farm estate of two centuries, restored as a village of rooms, with its own wine, horses and the Alqueva lake and Monsaraz above — the Alentejo at its best.", contact: { addr: "São Lourenço do Barrocal, 7200-177 Monsaraz", web: "barrocal.pt" } },
+    { name: "Torre de Palma Wine Hotel", area: "Monforte · the high Alentejo", rate: null, ourTake: "A fourteenth-century estate rebuilt as a wine hotel with its own vineyard, riding stables and a quiet pool — the Alentejo of oak and vine.", contact: { addr: "Herdade de Torre de Palma, 7450-250 Vaiamonte, Monforte", web: "torredepalma.com" } },
   ],
   // ── THE MIDWEST — RE-AUDITED 4 SEPT 2026 ON THE STRICT STANDARD. Chicago has two Luxury and no
   // Ultra: The Peninsula and Trump International, both current Forbes Five-Star. Four Seasons,
@@ -2264,9 +2299,12 @@ const FAVORITES = {
   ],
   "Douro Valley": [
     { name: "Six Senses Douro Valley", area: "Lamego", rate: null, vo: 1, voNote: "the food is sensational, every bite; service is excellent and the staff work extremely hard to make a stay special; and it is very much a wellness retreat \u2014 peaceful, restorative, strongly spa-led", ourTake: "A 19th-century manor over the terraced vineyards, wellness and wine in equal measure. The food is sensational \u2014 exceptional in every bite \u2014 and the staff throughout work extremely hard to make the stay special. The atmosphere is a wellness retreat: peaceful, restorative and strongly spa-led. For a traveller who wants the Six Senses philosophy and a serene, immersive retreat rather than a base for sightseeing." },
+    { name: "The Vintage House Hotel", area: "Pinhão · on the river", rate: null, ourTake: "An old port lodge on the riverbank at Pinhão, the heart of the vineyards, with the railway station and the boats a walk away.", contact: { addr: "Rua António Manuel Saraiva, 5085-034 Pinhão", web: "vintagehousehotel.com" } },
+    { name: "Quinta de Ventozelo Hotel & Quinta", area: "Ervedosa do Douro · a working quinta", rate: null, ourTake: "A seven-hundred-year-old wine estate on the south bank, rooms in the old buildings across the hillside and the quinta's own wines at dinner.", contact: { addr: "5130-057 Ervedosa do Douro", web: "hotel.quintadeventozelo.pt" } },
   ],
   "Comporta": [
     { name: "Sublime Comporta", area: "Comporta", rate: null, ourTake: "Barefoot-chic cabanas among the rice paddies and pines, near wild Atlantic beaches." },
+    { name: "Quinta da Comporta", area: "Carvalhal · the rice fields", rate: null, ourTake: "Miguel Câncio Martins' low wooden houses on the edge of the rice paddies, a spa, a long pool and the beach five minutes away.", contact: { addr: "Rua de Alto de Pina 2, 7570-779 Carvalhal", web: "quintadacomporta.com" } },
   ],
   "Athens": [
     { name: "Four Seasons Astir Palace Athens", area: "Vouliagmeni", rate: null, ourTake: "A pine-clad peninsula on the Riviera with three private beaches, half an hour from the Acropolis." },
@@ -8957,6 +8995,9 @@ const GATEWAY = {
   "Provence": { air: "Marseille", note: "Marseille (MRS) or Nice (NCE) — then a car is essential." },
   "Napa Valley": { air: "San Francisco", note: "San Francisco (SFO) is the gateway — about 1 hr 30 north." },
   "Algarve": { air: "Faro", note: "Faro (FAO) sits right in the middle of the coast." },
+  "Sintra": { air: "Lisbon", note: "Lisbon (LIS) is the airport, about thirty-five minutes by road; Sintra is a day out from the city and a quiet night after it." },
+  "Cascais": { air: "Lisbon", note: "Lisbon (LIS) is the airport, about thirty minutes by road along the coast; the train from Cais do Sodré takes forty." },
+  "Alentejo": { air: "Lisbon", note: "Lisbon (LIS) is the airport, then an hour and a half to two hours east by road; the estates are spread out, so a car is the way." },
 };
 function gatewayFor(place) { const r = resolvePlace(place); if (!r) return null; const k = Object.keys(GATEWAY).find((x) => x.toLowerCase() === r.toLowerCase()); return k ? GATEWAY[k] : null; }
 // Cities whose own airport still needs a special last hop to the hotel — Venice is all water,
@@ -10067,7 +10108,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -10293,7 +10334,7 @@ const COORDS = {
   "Dolomites": [46.41,11.84], "Cinque Terre": [44.13,9.71], "Pisa": [43.72,10.40], "Geneva": [46.20,6.14], "Lyon": [45.76,4.84],
   "Madrid": [40.42,-3.70], "Barcelona": [41.39,2.17], "San Sebastián": [43.32,-1.98], "La Rioja": [42.51,-2.62], "Córdoba, Spain": [37.88,-4.78], "Seville": [37.39,-5.99], "Granada": [37.18,-3.60], "Mallorca": [39.57,2.65],
   "Lisbon": [38.72,-9.14], "Porto": [41.15,-8.61], "Sintra": [38.80,-9.39], "Cascais": [38.70,-9.42], "Óbidos": [39.36,-9.16],
-  "Comporta": [38.38,-8.78], "Évora": [38.57,-7.91], "Algarve": [37.09,-8.25], "Faro": [37.02,-7.93], "Douro Valley": [41.16,-7.79], "Portugal": [39.40,-8.22],
+  "Comporta": [38.38,-8.78], "Évora": [38.57,-7.91], "Alentejo": [38.57,-7.91], "Algarve": [37.09,-8.25], "Faro": [37.02,-7.93], "Douro Valley": [41.16,-7.79], "Portugal": [39.40,-8.22],
   "Amsterdam": [52.37,4.90], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
   "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26],
