@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M836";
+const BUILD = "M837";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -636,6 +636,7 @@ const NEARBY_CITIES = {
   "Nice": ["Monaco"],
   "Monaco": ["Nice"],   // a country on paper, so it borrows by hand, not by distance
   "Alentejo": ["Comporta"],
+  "Lake Lucerne": ["Lucerne", "Bürgenstock"],
   "French Riviera": ["Nice", "Monaco"],
   // ══ REGIONS PEOPLE TYPE ════════════════════════════════════════════════════════════════════
   // A traveller says "the Cyclades", "the Balearics", "Corsica", "the Cape Winelands" \u2014 names of
@@ -1100,7 +1101,7 @@ const ULTRA_LUX = [
   "Estelle Manor",   // Cotswolds — editorial tier set 12 Oct 2026
   "Airelles Palladio, Venezia", "Castello di Reschio",   // Italy additions, 15 Oct 2026
   // Confirmed 2027 openings (Tricia, 5 Oct 2026)
-  "Bvlgari Resort Ranfushi", "Six Senses Milan", "Six Senses Loire Valley", "Mandarin Oriental Old Cataract, Aswan", "Mandarin Oriental, Bali", "Four Seasons Resort and Residences Caye Chapel, Belize", "The Park Gstaad, A Four Seasons Hotel", "Rosewood Seoul", "Rosewood Calistoga",
+  "Bvlgari Resort Ranfushi", "Six Senses Milan", "Six Senses Loire Valley", "Mandarin Oriental Old Cataract, Aswan", "Mandarin Oriental, Bali", "Four Seasons Resort and Residences Caye Chapel, Belize", "Rosewood Seoul", "Rosewood Calistoga",
   "Belmond Castello di Casole",
   "The Greenwich Hotel", "The Fifth Avenue Hotel", "Casa Cipriani New York",
   "Hotel Bel-Air",
@@ -1195,8 +1196,8 @@ const ULTRA_LUX = [
   // Italy — Puglia / Dolomites
   "Borgo Egnazia", "Aman Rosa Alpina",
   // Switzerland
-  "Badrutt's Palace", "Kulm Hotel St Moritz", "The Alpina Gstaad", "Gstaad Palace", "Baur au Lac",
-  "La Réserve Genève", "Four Seasons Hotel des Bergues Geneva", "The Woodward Geneva",
+  "Badrutt's Palace", "The Alpina Gstaad", "Gstaad Palace", "Baur au Lac",
+  "Four Seasons Hotel des Bergues Geneva", "The Woodward Geneva",
   // Austria & Germany
   "Hotel Sacher Wien", "Rosewood Vienna", "Hotel Imperial Vienna", "Rosewood Munich",
   "Mandarin Oriental Munich", "Brenners Park-Hotel & Spa Baden-Baden",
@@ -1239,7 +1240,10 @@ const ULTRA_LUX = [
   // Caudalie and Royal Champagne moved to Luxury; the houses below came up to Ultra Luxury.
   "Grand-Hôtel du Cap-Ferrat, a Four Seasons", "Château de la Messardière", "The Maybourne Riviera",
   "Cheval Blanc Courchevel", "Les Airelles Courchevel", "L'Apogée Courchevel", "Four Seasons Hotel Megève",
-  "Beau-Rivage Genève", "Bürgenstock Resort", "Les Trois Rois",
+  "Bürgenstock Resort",
+  // SWITZERLAND REVIEW, 17 Oct 2026 (Tricia): La Réserve Genève, Beau-Rivage Genève, Kulm, Les Trois Rois and Park Gstaad to
+  // Luxury; the houses below came in at Ultra Luxury.
+  "The Dolder Grand", "Carlton Hotel St. Moritz", "The Chedi Andermatt", "Park Hotel Vitznau", "Beau-Rivage Palace", "The Lodge, Verbier",
   "Amanemu", "Hotel The Mitsui Kyoto", "The Shinmonzen", "Palace Hotel Tokyo", "Asaba",
   "Four Seasons Resort Chiang Mai", "Phulay Bay, a Ritz-Carlton Reserve", "Samujana",
   "Taj Lake Palace", "RAAS Devigarh",
@@ -1719,7 +1723,7 @@ const CITIES = [
   "New York City","Los Angeles","San Francisco","Chicago","Boston","Washington DC","Miami","Seattle","Newark","Napa Valley","Sedona","Aspen","Banff","Toronto","Vancouver","Mexico City","Buenos Aires","Mendoza","Costa Rica","Galápagos",
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
-  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
+  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
 
@@ -2012,6 +2016,7 @@ const FAVORITES = {
   ],
   "Bürgenstock": [
     { name: "Bürgenstock Resort", area: "Lake Lucerne", rate: null, ourTake: "A cliff-top resort 500 meters above Lake Lucerne, with a sky-edge infinity pool.", contact: { web: "buergenstock.ch" } },
+    { name: "Waldhotel by Bürgenstock", area: "Bürgenstock · the resort's forest wing", rate: null, ourTake: "The health and medical wing of the Bürgenstock resort, Matteo Thun's timber building in the woods with the resort's spa, pools and lake views a stroll away.", contact: { addr: "Bürgenstock 30, 6363 Obbürgen", web: "buergenstock.ch" } },
   ],
   "Basel": [
     { name: "Les Trois Rois", area: "Old Town", rate: null, ourTake: "One of Europe's oldest city hotels, on the Rhine since 1681.", contact: { web: "lestroisrois.com" } },
@@ -2213,20 +2218,76 @@ const FAVORITES = {
   "St Moritz": [
     { name: "Badrutt's Palace", area: "St Moritz", rate: null, ourTake: "The turreted alpine icon over the lake — where the winter season was invented." },
     { name: "Kulm Hotel St Moritz", area: "St Moritz", rate: null, ourTake: "The original St Moritz grand hotel, with its own Olympic history and skating." },
+    { name: "Carlton Hotel St. Moritz", area: "St Moritz · above the lake", rate: null, ourTake: "Sixty suites, all facing the lake, in the 1913 palace above the village — the Carlton is the quieter, all-suite answer to Badrutt's.", contact: { addr: "Via Johannes Badrutt 11, 7500 St. Moritz", web: "carlton-stmoritz.ch" } },
+    { name: "Grand Hotel des Bains Kempinski", area: "St Moritz-Bad · by the Signal cable car", rate: null, ourTake: "The grand hotel by the Signal lift in St Moritz-Bad, with the Engadine's largest spa and ski-in access that the Dorf hotels cannot offer.", contact: { addr: "Via Mezdi 27, 7500 St. Moritz", web: "kempinski.com" } },
+    { name: "Suvretta House", area: "Suvretta · outside the village", rate: null, ourTake: "The family-run grande dame on its own hillside with its own lift to the Corviglia pistes — old-school, formal and loved for it.", contact: { addr: "Via Chasellas 1, 7500 St. Moritz", web: "suvrettahouse.ch" } },
   ],
   "Gstaad": [
     { name: "The Park Gstaad, A Four Seasons Hotel", area: "Gstaad \u00b7 by the Promenade", rate: null, opening: "Summer 2027", ourTake: "The historic Park Gstaad reimagined as a Four Seasons: 75 rooms and suites, seven restaurants and lounges, indoor and outdoor pools, and a Four Seasons spa with Clinique La Prairie, a walk from the Promenade." },
     { name: "The Alpina Gstaad", area: "Gstaad", rate: null, ourTake: "A modern chalet masterpiece above the village, with a Six Senses spa." },
     { name: "Gstaad Palace", area: "Gstaad", rate: null, ourTake: "The family-owned fairy-tale castle crowning Gstaad since 1913." },
+    { name: "Le Grand Bellevue", area: "Gstaad · the village", rate: null, ourTake: "Daniel Koetser's Belle Époque hotel done over in colour and wit, with a large spa, Leonard's restaurant and the village at the door.", contact: { addr: "Untergstaadstrasse 17, 3780 Saanen", web: "bellevue-gstaad.ch" } },
   ],
   "Zurich": [
     { name: "Baur au Lac", area: "Zurich", rate: null, ourTake: "The discreet lakeside grande dame in its own park, family-run since 1844." },
+    { name: "The Dolder Grand", area: "Adlisberg · above the city", rate: null, ourTake: "The castle on the hill above Zurich, Norman Foster's wings either side, with the city's biggest spa, a serious art collection and the whole lake below.", contact: { addr: "Kurhausstrasse 65, 8032 Zürich", web: "thedoldergrand.com" } },
+    { name: "La Réserve Eden au Lac Zurich", area: "Seefeld · Utoquai, on the lake", rate: null, ourTake: "Philippe Starck's yacht-club reimagining of the old Eden au Lac — forty rooms on the lakefront and the rooftop Muna, the smartest table in town.", contact: { addr: "Utoquai 45, 8008 Zürich", web: "lareserve-zurich.com" } },
+    { name: "Park Hyatt Zurich", area: "Enge · Beethovenstrasse", rate: null, ourTake: "The modern business-district house a few minutes from the Bahnhofstrasse and the lake — large rooms, a spa, and the quiet reliability Zurich does well.", contact: { addr: "Beethovenstrasse 21, 8002 Zürich", web: "hyatt.com" } },
+    { name: "Widder Hotel", area: "Altstadt · Rennweg", rate: null, ourTake: "Nine medieval townhouses joined into one hotel in the old town, each room different, with the Widder Bar's jazz downstairs.", contact: { addr: "Rennweg 7, 8001 Zürich", web: "widderhotel.com" } },
   ],
   "Geneva": [
     { name: "La Réserve Genève", area: "Bellevue", rate: null, ourTake: "A lakeside resort-and-spa retreat with a Garrell-designed safari-lodge feel." },
     { name: "Four Seasons Hotel des Bergues Geneva", area: "Old Town", rate: null, ourTake: "Geneva's oldest grand hotel, on the lake by the Old Town." },
     { name: "The Woodward Geneva", area: "Lakefront", rate: null, ourTake: "An all-suite Oetker jewel on the water, with a Guerlain spa." },
     { name: "Beau-Rivage Genève", area: "Lakefront", rate: null, ourTake: "A family-owned lakefront grande dame since 1865.", contact: { web: "beau-rivage.ch" } },
+    { name: "Mandarin Oriental Geneva", area: "Rhône riverfront · Quai Turrettini", rate: null, ourTake: "On the river a few minutes from the old town and the shops, with the Mandarin's spa and Rasoi by Vineet upstairs.", contact: { addr: "Quai Turrettini 1, 1201 Genève", web: "mandarinoriental.com" } },
+    { name: "Hotel d'Angleterre Geneva", area: "Lakefront · Quai du Mont-Blanc", rate: null, ourTake: "The Red Carnation house on the quay, forty-five rooms, Windows restaurant looking at the Jet d'Eau and the Leopard Bar — personal where the palaces are grand.", contact: { addr: "Quai du Mont-Blanc 17, 1201 Genève", web: "dangleterrehotel.com" } },
+    { name: "The Ritz-Carlton Hotel de la Paix, Geneva", area: "Lakefront · Quai du Mont-Blanc", rate: null, ourTake: "The 1865 Hotel de la Paix on the quay, now the Ritz-Carlton, with the lake and Mont Blanc from the front rooms and the Living Room bar.", contact: { addr: "Quai du Mont-Blanc 11, 1201 Genève", web: "ritzcarlton.com" } },
+  ],
+  "Andermatt": [
+    { name: "The Chedi Andermatt", area: "Andermatt · the village", rate: null, ourTake: "Jean-Michel Gathy's Asian-alpine house at the foot of the Gemsstock — the cheese cellar, the twelve-metre indoor pool and the quiet of a valley that was nothing a decade ago.", contact: { addr: "Gotthardstrasse 4, 6490 Andermatt", web: "thechediandermatt.com" } },
+  ],
+  "Lucerne": [
+    { name: "Mandarin Oriental Palace, Luzern", area: "Haldenstrasse · on the lake", rate: null, ourTake: "The 1906 Palace on the lakefront, reopened by Mandarin Oriental in 2022 — the Alps across the water from every front room and the old town a walk along the quay.", contact: { addr: "Haldenstrasse 10, 6002 Luzern", web: "mandarinoriental.com" } },
+    { name: "Hotel Schweizerhof Luzern", area: "Schweizerhofquai · on the lake", rate: null, ourTake: "The family-owned grande dame on the quay since 1845 — Wagner and Tolstoy stayed — with the lake in front and the Chapel Bridge round the corner.", contact: { addr: "Schweizerhofquai 3, 6002 Luzern", web: "schweizerhof-luzern.ch" } },
+  ],
+  "Lake Lucerne": [
+    { name: "Park Hotel Vitznau", area: "Vitznau · on the lake", rate: null, ourTake: "The fairy-tale hotel on the water below the Rigi, rebuilt as an all-suite house with a wine cellar of thirty thousand bottles and the lake boat to Lucerne from the pier outside.", contact: { addr: "Seestrasse 18, 6354 Vitznau", web: "parkhotel-vitznau.ch" } },
+  ],
+  "Lausanne": [
+    { name: "Beau-Rivage Palace", area: "Ouchy · on the lake", rate: null, ourTake: "The grandest hotel on Lake Geneva, in its park at Ouchy since 1861 — Anne-Sophie Pic's two stars, the Cinq Mondes spa and the lake steamers at the door.", contact: { addr: "Chemin de Beau-Rivage 21, 1006 Lausanne", web: "brp.ch" } },
+    { name: "Lausanne Palace", area: "City centre · Grand-Chêne", rate: null, ourTake: "The Belle Époque palace in the middle of town, the IOC's hotel, with a serious spa and the lake view from the terrace.", contact: { addr: "Rue du Grand-Chêne 7-9, 1003 Lausanne", web: "lausanne-palace.ch" } },
+    { name: "Royal Savoy Hotel & Spa", area: "Avenue d'Ouchy · between town and lake", rate: null, ourTake: "The 1909 château-hotel rebuilt with a new wing, a rooftop Sky Lounge and one of the city's best spas, halfway down to Ouchy.", contact: { addr: "Avenue d'Ouchy 40, 1006 Lausanne", web: "royalsavoylausanne.com" } },
+  ],
+  "Verbier": [
+    { name: "The Lodge, Verbier", area: "Verbier · above the village", rate: null, ourTake: "Richard Branson's chalet of nine rooms and a bunk room, taken by the room in season and whole in between — the indoor pool, the hot tub on the terrace, and the most personal house in Verbier.", contact: { addr: "Chemin de Plénadzeu 3, 1936 Verbier", web: "virginlimitededition.com" } },
+    { name: "W Verbier", area: "Médran · at the lift", rate: null, ourTake: "The W at the foot of the Médran gondola — ski-in, ski-out, a big spa, and the louder end of Verbier's evenings.", contact: { addr: "Rue de Médran 70, 1936 Verbier", web: "marriott.com" } },
+  ],
+  "Crans-Montana": [
+    { name: "Six Senses Crans-Montana", area: "Crans-Montana · at the lifts", rate: null, ourTake: "Ski-in, ski-out at the Cry d'Er cable car with the Six Senses spa, the Byakko sushi counter and the Rhône valley two thousand metres below.", contact: { addr: "Route des Téléphériques 60, 3963 Crans-Montana", web: "sixsenses.com" } },
+  ],
+  "Bad Ragaz": [
+    { name: "Grand Resort Bad Ragaz", area: "Bad Ragaz · the thermal park", rate: null, ourTake: "The thermal spa resort of Switzerland, on the Tamina springs, with two hotels, a medical centre, a two-star kitchen and golf — the place for a proper week of being looked after.", contact: { addr: "Bernhard-Simon-Strasse 20, 7310 Bad Ragaz", web: "grandresort.ch" } },
+  ],
+  "Interlaken": [
+    { name: "Victoria-Jungfrau Grand Hotel & Spa", area: "Höheweg · facing the Jungfrau", rate: null, ourTake: "The grand hotel of the Bernese Oberland, the Jungfrau framed in its windows, with the Nescens spa — the base for the Jungfraujoch and the Lauterbrunnen valley.", contact: { addr: "Höheweg 41, 3800 Interlaken", web: "victoria-jungfrau.ch" } },
+  ],
+  "Bern": [
+    { name: "Bellevue Palace", area: "Old town · beside the Bundeshaus", rate: null, ourTake: "The Swiss government's own hotel next to the parliament, with the Alps across the Aare from the terrace — Bern's grand address.", contact: { addr: "Kochergasse 3-5, 3011 Bern", web: "bellevue-palace.ch" } },
+    { name: "Hotel Schweizerhof Bern & Spa", area: "Bahnhofplatz · old town", rate: null, ourTake: "Opposite the station at the top of the old town, with the rooftop Sky Terrace and a spa — the practical, polished choice in Bern.", contact: { addr: "Bahnhofplatz 11, 3001 Bern", web: "schweizerhofbern.com" } },
+  ],
+  "Lugano": [
+    { name: "Hotel Splendide Royal", area: "Riva Caccia · on the lake", rate: null, ourTake: "The 1887 lakefront palace in Lugano, Italian in manner and Swiss in precision, with the Ticino and Lake Como an hour away.", contact: { addr: "Riva Antonio Caccia 7, 6900 Lugano", web: "splendide.ch" } },
+    { name: "Villa Principe Leopoldo", area: "Collina d'Oro · above the lake", rate: null, ourTake: "A prince's villa on the Golden Hill above Lugano, all suites, with a serious kitchen and the lake and mountains from the terrace.", contact: { addr: "Via Montalbano 5, 6900 Lugano", web: "leopoldohotel.com" } },
+  ],
+  "Ascona": [
+    { name: "Castello del Sole Beach Resort & Spa", area: "Ascona · the Maggia delta", rate: null, ourTake: "A country estate on Lake Maggiore with its own farm, rice fields and wine, a beach on the lake and the Tre Stagioni table — the quiet side of the Ticino.", contact: { addr: "Via Muraccio 142, 6612 Ascona", web: "castellodelsole.com" } },
+  ],
+  "Engelberg": [
+    { name: "Kempinski Palace Engelberg", area: "Engelberg · the village", rate: null, ourTake: "The 1904 Palace reopened by Kempinski in 2021 at the foot of the Titlis, with a rooftop pool over the village and the glacier lifts ten minutes away.", contact: { addr: "Dorfstrasse 40, 6390 Engelberg", web: "kempinski.com" } },
+  ],
+  "Vals": [
+    { name: "7132 Hotel", area: "Vals · the thermal baths", rate: null, ourTake: "Peter Zumthor's thermal baths and the hotel around them, rooms by Ando, Kuma and Morphosis — architecture pilgrimage and hot water in a high valley.", contact: { addr: "Poststrasse 560, 7132 Vals", web: "7132.com" } },
   ],
   "Vienna": [
     { name: "Hotel Sacher Wien", area: "Opera", rate: null, ourTake: "The red-velvet imperial institution behind the Opera — home of the Sachertorte." },
@@ -8892,6 +8953,20 @@ const GATEWAY = {
   "French Riviera": { air: "Nice", note: "NICE (NCE) serves the whole coast \u2014 Monaco is thirty minutes east, Cannes thirty minutes west, and the Riviera villages in between." },
   "St Andrews": { air: "Edinburgh", note: "St Andrews has no airport. Fly to EDINBURGH (EDI) and drive about an hour and a half up the Fife coast, or take the train to Leuchars and a ten-minute taxi. Glasgow is a similar distance from the west." },
   "Zermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then rail — Zermatt is car-free, so the train is the only way in." },
+  "Bürgenstock": { air: "Zurich", note: "Fly to Zurich (ZRH); the resort is about an hour by road, or by train to Lucerne and the resort's own boat and funicular from the quay." },
+  "Andermatt": { air: "Zurich", note: "Fly to Zurich (ZRH), then about an hour and three quarters by road or train through the Reuss valley." },
+  "Lucerne": { air: "Zurich", note: "Fly to Zurich (ZRH); Lucerne is under an hour by road, or an hour by direct train from the airport station." },
+  "Lake Lucerne": { air: "Zurich", note: "Fly to Zurich (ZRH); the lake is an hour by road, and the hotels on its shores are reached by car or by the lake boats from Lucerne." },
+  "Lausanne": { air: "Geneva", note: "Fly to Geneva (GVA); Lausanne is forty-five minutes by road or by direct train from the airport." },
+  "Verbier": { air: "Geneva", note: "Fly to Geneva (GVA), then about two hours by road up the Val de Bagnes; the train to Le Châble and the lift up is the car-free way." },
+  "Crans-Montana": { air: "Geneva", note: "Fly to Geneva (GVA), then about two and a quarter hours by road up to the plateau; Sion is the small airport nearer, with few flights." },
+  "Bad Ragaz": { air: "Zurich", note: "Fly to Zurich (ZRH), then about an hour and a quarter by road or train." },
+  "Interlaken": { air: "Zurich", note: "Fly to Zurich (ZRH), then two hours by train with one change at Bern, or by road; Geneva is the same distance the other way." },
+  "Bern": { air: "Zurich", note: "Fly to Zurich (ZRH); Bern is an hour and a quarter by direct train from the airport station. Bern's own airfield has no useful scheduled service." },
+  "Lugano": { air: "Milan", note: "Fly to Milan Malpensa (MXP), about an hour by road across the border; Zurich (ZRH) is two hours by train through the Gotthard base tunnel." },
+  "Ascona": { air: "Milan", note: "Fly to Milan Malpensa (MXP), about an hour and three quarters by road; Zurich (ZRH) is two and a half hours by train to Locarno." },
+  "Engelberg": { air: "Zurich", note: "Fly to Zurich (ZRH), then about an hour and a half by road or train via Lucerne." },
+  "Vals": { air: "Zurich", note: "Fly to Zurich (ZRH), then about two and a half hours by road up the Vals valley; the train to Ilanz and a bus is the alternative." },
   "Chamonix": { air: "Geneva", note: "Fly to Geneva (GVA), then about an hour by road." },
   "Courchevel": { air: "Lyon", note: "Fly to Lyon (LYS), then roughly 2 hr 30 up the valley." },
   "Niseko": { air: "Sapporo", note: "Fly to Sapporo (CTS), then about 2 hr by road." },
@@ -10148,7 +10223,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews"],
   "ireland": ["Dublin"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -10376,7 +10451,7 @@ const COORDS = {
   "Lisbon": [38.72,-9.14], "Porto": [41.15,-8.61], "Sintra": [38.80,-9.39], "Cascais": [38.70,-9.42], "Óbidos": [39.36,-9.16],
   "Comporta": [38.38,-8.78], "Évora": [38.57,-7.91], "Alentejo": [38.57,-7.91], "Algarve": [37.09,-8.25], "Faro": [37.02,-7.93], "Douro Valley": [41.16,-7.79], "Portugal": [39.40,-8.22],
   "Amsterdam": [52.37,4.90], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
-  "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
+  "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Andermatt": [46.63,8.59], "Lucerne": [47.05,8.31], "Lake Lucerne": [47.01,8.48], "Lausanne": [46.52,6.63], "Verbier": [46.10,7.23], "Crans-Montana": [46.31,7.48], "Bad Ragaz": [47.00,9.50], "Interlaken": [46.69,7.86], "Bern": [46.95,7.45], "Lugano": [46.00,8.95], "Ascona": [46.16,8.77], "Engelberg": [46.82,8.40], "Vals": [46.62,9.18], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26],
   "Burgundy": [47.02,4.84], "Umbria": [43.11,12.39], "Scottish Highlands": [57.48,-4.22],
   // ROUTE TOWNS. Not destinations we sell — places with award-winning tables that sit on the roads
