@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M845";
+const BUILD = "M846";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,6 +390,10 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── BELGIUM ── (hotels added 17 Oct 2026 on Tricia's independent quality review; Virtuoso verified on each property's own virtuoso.com page the same day)
+  "Corinthia Grand Hotel Astoria Brussels": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/16636082/corinthia-grand-hotel-astoria-brussels", vname: "Corinthia Grand Hotel Astoria", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Rue Royale 103, 1000 Brussels. Property page read 17 Oct 2026. Two Michelin Keys 2026 per Tricia." },
+  "Hotel Amigo, a Rocco Forte Hotel": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6163779/hotel-amigo-a-rocco-forte-hotel", vname: "Hotel Amigo, a Rocco Forte hotel", year: "2019", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast, for up to two in room guests, or Continental in room", "$85 EUR Food & Beverage Credit, to be utilized during stay (not combinable, no cash value if not redeemed in full)", "Complimentary Wi-Fi", "Early check-in/late check-out, subject to availability"], amenitiesUnverified: true, note: "Rue de l'Amigo 1-3, 1000 Brussels. Live listing page read 17 Oct 2026; the only amenities list the page exposes is dated 2019 — treat the benefits as indicative until the current-year list is read. One Michelin Key per Tricia." },
+  "Botanic Sanctuary Antwerp": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/travel/luxury-hotels/16922163/botanic-sanctuary-antwerp", vname: "Botanic Sanctuary Antwerp", year: null, amenities: [], amenitiesUnverified: true, note: "Lange Gasthuisstraat 45, 2000 Antwerp. Live listing page read 17 Oct 2026; amenities section renders client-side and could not be read. Two Michelin Keys 2026 per Tricia." },
   // ── AUSTRIA ──
   "Rosewood Vienna": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/16568919/rosewood-vienna", vname: "Rosewood Vienna", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent in local currency Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Petersplatz 7, Vienna 1010. Property page read 17 Oct 2026; the Central Europe 2026 awards page Tricia supplied is supporting, not the basis." },
   "Hotel Sacher Wien": { status: "listed", member: true, checked: "2026-10-17", source: "https://virtuoso.com/hotels/6164212/hotel-sacher-wien-vienna", vname: "Hotel Sacher Wien Vienna", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet Breakfast for up to two guests per bedroom, served in the hotel restaurant", "$100 USD equivalent Hotel credit to be utilized during stay, valid at Sacher Boutique Spa and Food & Beverage outlets (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Philharmonikerstrasse 4, Vienna 1010. Page carries both 2024 and 2025 lists; 2025 recorded. Also /suppliers/4425/." },
@@ -1257,6 +1261,7 @@ const SHOW_RATES = false;
 // can always pin the tier by hand.
 const ULTRA_LUX = [
   "Estelle Manor",   // Cotswolds — editorial tier set 12 Oct 2026
+  "Corinthia Grand Hotel Astoria Brussels",   // Belgium — Tricia 17 Oct 2026 (two Michelin Keys 2026); Hotel Amigo and Botanic Sanctuary Antwerp are Luxury
   "Airelles Palladio, Venezia", "Castello di Reschio",   // Italy additions, 15 Oct 2026
   // Confirmed 2027 openings (Tricia, 5 Oct 2026)
   "Bvlgari Resort Ranfushi", "Six Senses Milan", "Six Senses Loire Valley", "Mandarin Oriental Old Cataract, Aswan", "Mandarin Oriental, Bali", "Four Seasons Resort and Residences Caye Chapel, Belize", "Rosewood Seoul", "Rosewood Calistoga",
@@ -1891,7 +1896,7 @@ const CITIES = [
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
   "Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Wales","Belfast","Scotland","Northern Ireland",
-  "Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
+  "Amsterdam","Brussels","Antwerp","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
 
@@ -2099,6 +2104,13 @@ const FAVORITES = {
     { name: "Conservatorium Hotel", area: "Museum Quarter", rate: null, ourTake: "A striking glass-roofed atrium in the old conservatory by the museums.", contact: { addr: "Van Baerlestraat 27, Amsterdam", web: "conservatoriumhotel.com" } },
     { name: "De L'Europe Amsterdam", area: "Old Centre", rate: null, ourTake: "A riverfront grande dame at the Amstel, family-owned and classic.", contact: { addr: "Nieuwe Doelenstraat 2-14, Amsterdam", web: "deleurope.com" } },
     { name: "Rosewood Amsterdam", area: "Canal Belt", rate: null, ourTake: "The former Palace of Justice on the Prinsengracht, newly reborn.", contact: { addr: "Prinsengracht 436, Amsterdam", web: "rosewoodhotels.com" } },
+  ],
+  "Brussels": [
+    { name: "Corinthia Grand Hotel Astoria Brussels", area: "Rue Royale · Botanique", rate: null, ourTake: "The 1909 Belle Époque grand hotel on the Rue Royale, reopened by Corinthia after a decade-long restoration — gilded salons, a serious spa and the city's grandest dining rooms.", contact: { addr: "Rue Royale 103, 1000 Brussels", web: "corinthia.com" } },
+    { name: "Hotel Amigo, a Rocco Forte Hotel", area: "Grand-Place", rate: null, ourTake: "Steps from the Grand-Place, the former city prison turned Rocco Forte flagship — Flemish tapestries, Magritte prints in the rooms, and the Bocconi for Italian dinner.", contact: { addr: "Rue de l'Amigo 1-3, 1000 Brussels", web: "roccofortehotels.com" } },
+  ],
+  "Antwerp": [
+    { name: "Botanic Sanctuary Antwerp", area: "Botanic Garden · Lange Gasthuisstraat", rate: null, ourTake: "A medieval hospital-and-monastery complex beside the botanic garden, restored into the city's first true grand hotel — cloister gardens, a serious spa and Michelin-starred dining under its own roof.", contact: { addr: "Lange Gasthuisstraat 45, 2000 Antwerp", web: "botanicantwerp.be" } },
   ],
   "Berlin": [
     { name: "Hotel Adlon Kempinski", area: "Brandenburg Gate", rate: null, ourTake: "The legendary grande dame beside the Brandenburg Gate.", contact: { addr: "Unter den Linden 77, Berlin", web: "kempinski.com" } },
@@ -9160,6 +9172,7 @@ function nearMiss(sel) {
 }
 const GATEWAY = {
   "Portugal": { air: "Lisbon", note: "Lisbon (LIS) is the gateway — hire a car there and the country opens up." },
+  "Antwerp": { air: "Brussels", note: "Brussels (BRU) is the airport, about forty minutes by road or thirty-five by direct train to Antwerpen-Centraal; Antwerp's own field has no useful service." },
   "Amalfi Coast": { air: "Naples", note: "Naples (NAP) is the gateway — roughly 1 hr 15 by car down to Positano." },
   "Tuscany": { air: "Florence", note: "Florence (FLR) is the gateway — Pisa (PSA) often has cheaper long-haul connections." },
   "Capri": { air: "Naples", note: "Capri has no airport — you fly to Naples (NAP), then take the ferry across." },
@@ -9731,7 +9744,7 @@ const AIRPORTS = {
   "London": { code: "LHR", scale: "intercontinental" }, "Paris": { code: "CDG", scale: "intercontinental" },
   "Milan": { code: "MXP", scale: "intercontinental" }, "Rome": { code: "FCO", scale: "intercontinental" }, "Denver": { code: "DEN", scale: "intercontinental" }, "Seoul": { code: "ICN", scale: "intercontinental" }, "Belize": { code: "BZE", scale: "regional" }, "Caye Chapel": { code: "BZE", scale: "regional" }, "Louisville": { code: "SDF", scale: "regional" }, "Salzburg": { code: "SZG", scale: "regional" },
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
-  "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" },
+  "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" }, "Brussels": { code: "BRU", scale: "intercontinental" },
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
   "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" },
   "Tokyo": { code: "HND", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
@@ -10494,7 +10507,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 // Palermo to the Amalfi Coast is 310km of straight line — and a sea crossing.
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
-  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
+  "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Brussels","Antwerp","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Split","Rovinj","Lake Bled","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
   "britain": ["London","Edinburgh","St Andrews","Cotswolds","Oxford","Henley-on-Thames","Ascot","Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Scottish Highlands","Wales","Scotland","England","Manchester","Inverness","Aberdeen"],
   "ireland": ["Dublin","Ireland","Belfast","Northern Ireland"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
@@ -10721,7 +10734,7 @@ const COORDS = {
   "Madrid": [40.42,-3.70], "Barcelona": [41.39,2.17], "San Sebastián": [43.32,-1.98], "La Rioja": [42.51,-2.62], "Córdoba, Spain": [37.88,-4.78], "Seville": [37.39,-5.99], "Granada": [37.18,-3.60], "Mallorca": [39.57,2.65],
   "Lisbon": [38.72,-9.14], "Porto": [41.15,-8.61], "Sintra": [38.80,-9.39], "Cascais": [38.70,-9.42], "Óbidos": [39.36,-9.16],
   "Comporta": [38.38,-8.78], "Évora": [38.57,-7.91], "Alentejo": [38.57,-7.91], "Algarve": [37.09,-8.25], "Faro": [37.02,-7.93], "Douro Valley": [41.16,-7.79], "Portugal": [39.40,-8.22],
-  "Amsterdam": [52.37,4.90], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
+  "Amsterdam": [52.37,4.90], "Brussels": [50.85,4.35], "Antwerp": [51.22,4.40], "Berlin": [52.52,13.40], "Munich": [48.14,11.58], "Vienna": [48.21,16.37], "Prague": [50.08,14.44],
   "Zurich": [47.38,8.54], "Zermatt": [46.02,7.75], "Andermatt": [46.63,8.59], "Lake Geneva": [46.45,6.55], "Engadine": [46.50,9.84], "Bernese Oberland": [46.60,7.70], "Ticino": [46.10,8.90], "Valais": [46.20,7.50], "Lucerne": [47.05,8.31], "Lake Lucerne": [47.01,8.48], "Lausanne": [46.52,6.63], "Verbier": [46.10,7.23], "Crans-Montana": [46.31,7.48], "Bad Ragaz": [47.00,9.50], "Interlaken": [46.69,7.86], "Bern": [46.95,7.45], "Lugano": [46.00,8.95], "Ascona": [46.16,8.77], "Engelberg": [46.82,8.40], "Vals": [46.62,9.18], "Chamonix": [45.92,6.87], "Courchevel": [45.41,6.63], "Provence": [43.93,5.05],
   "Marseille": [43.30,5.37], "Bordeaux": [44.84,-0.58], "Nice": [43.70,7.27], "French Riviera": [43.70,7.26],
   "Burgundy": [47.02,4.84], "Umbria": [43.11,12.39], "Scottish Highlands": [57.48,-4.22],
@@ -15899,7 +15912,7 @@ const REGION_PROFILES = {
 // place is. Entries that are themselves a country map to themselves.
 const CITY_COUNTRY = {
   "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Agra": "India", "AlUla": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
-  "Amalfi Coast": "Italy", "Amman": "Jordan", "Amsterdam": "Netherlands", "Angra dos Reis": "Brazil", "Antigua Guatemala": "Guatemala", "Antioquia": "Colombia",
+  "Amalfi Coast": "Italy", "Amman": "Jordan", "Amsterdam": "Netherlands", "Antwerp": "Belgium", "Brussels": "Belgium", "Angra dos Reis": "Brazil", "Antigua Guatemala": "Guatemala", "Antioquia": "Colombia",
   "Aqaba": "Jordan", "Arenal": "Costa Rica", "Arequipa": "Peru", "Aswan": "Egypt", "Atacama": "Chile", "Baden-Baden": "Germany", "Bagaces": "Costa Rica",
   "Bajos del Toro": "Costa Rica", "Bali": "Indonesia", "Bangkok": "Thailand", "Barcelona": "Spain", "Bar\u00fa": "Colombia", "Basel": "Switzerland",
   "Bay of Islands": "New Zealand", "Beijing": "China", "Berlin": "Germany", "Bhutan": "Bhutan", "Bijagua": "Costa Rica", "Bocas del Toro": "Panama",
