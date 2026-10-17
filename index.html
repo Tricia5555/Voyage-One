@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M850";
+const BUILD = "M851";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,6 +390,11 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── ICELAND ── (hotels added 17 Oct 2026 on Tricia's quality review; only the EDITION carries Virtuoso)
+  "The Reykjavik EDITION": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/16251472/the-reykjavik-edition", vname: "The Reykjavik EDITION", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant and via in-room dining", "$100 USD equivalent in local currency Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Bookings in our Suites will receive an additional $100 Food & Beverage credit (for a total of $200 during stay)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Austurbakki 2, Reykjavík. Property page read 17 Oct 2026." },
+  "The Retreat at Blue Lagoon": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (Tricia, 17 Oct 2026) — no notation. One Michelin Key; Moss one star." },
+  "Hotel Rangá": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (Tricia, 17 Oct 2026) — no notation. One Michelin Key." },
+  "Eleven Deplar Farm": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (Tricia, 17 Oct 2026) — no notation." },
   // ── NORWAY ── (hotels added 17 Oct 2026 on Tricia's quality review, all Luxury; Virtuoso verified separately)
   "Hotel Continental": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/14368272/hotel-continental-oslo", vname: "Hotel Continental Oslo", year: null, amenities: [], amenitiesUnverified: true, note: "Stortingsgata 24-26, Oslo. Live listing page read 17 Oct 2026 (title 'Hotel Continental Oslo | Virtuoso'); amenities section renders client-side and could not be read. One Michelin Key 2026 per Tricia." },
   "Sommerro": { status: "unverified", member: false, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/16784803/sommerro", vname: "Sommerro", year: null, amenities: [], amenitiesUnverified: true, note: "Sommerrogata 1, Oslo. Virtuoso's search index carries 'Sommerro - Virtuoso' at this /hotels/ URL and classictravel.com's Virtuoso Norway page lists it with rate benefits, but the page itself refuses automated reading, so it has not been read — same standard as Fairmont Windsor Park. Flip to listed/member when the page is confirmed to show Virtuoso Amenities. One Michelin Key 2026 per Tricia." },
@@ -814,6 +819,11 @@ const NEARBY_CITIES = {
   "England": ["London", "Cotswolds", "Henley-on-Thames", "Ascot", "Windsor", "Berkshire", "Somerset", "Bath", "Hampshire", "New Forest", "Sussex", "Surrey", "Cornwall", "Devon", "Lake District", "Yorkshire"],
   "Scotland": ["Edinburgh", "St Andrews", "Gleneagles", "Braemar", "Loch Lomond", "Glasgow", "Scottish Highlands"],
   "Northern Ireland": ["Belfast"],
+  // Iceland: four destinations, three regions. "Iceland" is the country search; the peninsulas hold one hotel each.
+  "Iceland": ["Reykjavik", "Blue Lagoon", "Hella", "Troll Peninsula"],
+  "Reykjanes Peninsula": ["Blue Lagoon"],
+  "South Iceland": ["Hella"],
+  "North Iceland": ["Troll Peninsula"],
   "Engadine": ["St Moritz"],
   "Bernese Oberland": ["Gstaad", "Interlaken"],
   "Ticino": ["Lugano", "Ascona"],
@@ -1280,6 +1290,7 @@ const SHOW_RATES = false;
 // can always pin the tier by hand.
 const ULTRA_LUX = [
   "Estelle Manor",   // Cotswolds — editorial tier set 12 Oct 2026
+  "Eleven Deplar Farm",   // Iceland, Troll Peninsula — Tricia 17 Oct 2026; EDITION, Retreat at Blue Lagoon and Hotel Rangá are Luxury
   "Hotel d'Angleterre",   // Copenhagen — Tricia 17 Oct 2026; Nimb is Luxury, Hotel Sanders OUT
   "Corinthia Grand Hotel Astoria Brussels",   // Belgium — Tricia 17 Oct 2026 (two Michelin Keys 2026); Hotel Amigo and Botanic Sanctuary Antwerp are Luxury
   "Airelles Palladio, Venezia", "Castello di Reschio",   // Italy additions, 15 Oct 2026
@@ -1916,7 +1927,7 @@ const CITIES = [
   "London","Paris","Rome","Florence","Venice","Milan","Naples","Palermo","Sorrento","Positano","Amalfi","Ravello","Capri","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre",
   "Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Mallorca","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Douro Valley","Portugal",
   "Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Wales","Belfast","Scotland","Northern Ireland",
-  "Amsterdam","Brussels","Antwerp","Copenhagen","Oslo","Trondheim","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
+  "Amsterdam","Brussels","Antwerp","Copenhagen","Oslo","Trondheim","Reykjavik","Blue Lagoon","Hella","Troll Peninsula","Iceland","Reykjanes Peninsula","South Iceland","North Iceland","Berlin","Munich","Vienna","Prague","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Bordeaux","Nice","Dublin","Edinburgh","St Andrews","Athens","Santorini","Mykonos","Istanbul","Dubrovnik","Reykjavik",
   "Dubai","Marrakech","Tokyo","Kyoto","Niseko","Singapore","Hong Kong","Bangkok","Bali","Maldives","Sydney","Queenstown","Cape Town","Kruger","Serengeti","Turks & Caicos",
 ];
 
@@ -2124,6 +2135,18 @@ const FAVORITES = {
     { name: "Mandarin Oriental Conservatorium, Amsterdam", area: "Museum Quarter", rate: null, ourTake: "A striking glass-roofed atrium in the old conservatory by the museums.", contact: { addr: "Van Baerlestraat 27, Amsterdam", web: "conservatoriumhotel.com" } },
     { name: "De L'Europe Amsterdam", area: "Old Centre", rate: null, ourTake: "A riverfront grande dame at the Amstel, family-owned and classic.", contact: { addr: "Nieuwe Doelenstraat 2-14, Amsterdam", web: "deleurope.com" } },
     { name: "Rosewood Amsterdam", area: "Canal Belt", rate: null, ourTake: "The former Palace of Justice on the Prinsengracht, newly reborn.", contact: { addr: "Prinsengracht 436, Amsterdam", web: "rosewoodhotels.com" } },
+  ],
+  "Reykjavik": [
+    { name: "The Reykjavik EDITION", area: "Old Harbour · Austurbakki", rate: null, ourTake: "On the harbour beside Harpa — the city's one international luxury hotel, with the Roof bar, Tides restaurant and a spa, ten minutes on foot from everything.", contact: { addr: "Austurbakki 2, 101 Reykjavík", web: "editionhotels.com" } },
+  ],
+  "Blue Lagoon": [
+    { name: "The Retreat at Blue Lagoon", area: "Grindavík · Reykjanes Peninsula · 20 min from KEF", rate: null, ourTake: "Suites built into the lava with a private lagoon for hotel guests only, the subterranean Retreat Spa, and Moss, the Michelin-starred dining room. The Reykjanes eruptions have closed the lagoon at short notice since 2023 — confirm it is open before you book.", contact: { addr: "Norðurljósavegur 11, 240 Grindavík", web: "bluelagoon.com" } },
+  ],
+  "Hella": [
+    { name: "Hotel Rangá", area: "Suðurlandsvegur · 8 km east of Hella · 1 hr 30 from Reykjavík", rate: null, ourTake: "A timber lodge on the Rangá river under the south-coast sky — outdoor hot tubs, its own observatory, and the base for Vík, the glaciers and the Northern Lights without going north. Lodge, not grand hotel, and all the better for it.", contact: { addr: "Suðurlandsvegur, 851 Hella", web: "hotelranga.is" } },
+  ],
+  "Troll Peninsula": [
+    { name: "Eleven Deplar Farm", area: "Fljót valley · Tröllaskagi · Akureyri (AEY) 1 hr 30 by road", rate: null, ourTake: "Thirteen rooms in a turf-roofed sheep farm at the end of a valley in the north — heli-skiing in spring, salmon and sea kayaks in summer, a geothermal pool that opens to the aurora, and a staff-to-guest ratio nothing else in Iceland matches. Two seasons, winter and summer, with a closed shoulder between; minimum stays apply — confirm dates and terms with Eleven. Whole-lodge buyouts possible.", contact: { addr: "Deplar, Fljót, 625 Ólafsfjörður", web: "elevenexperience.com" } },
   ],
   "Oslo": [
     { name: "Hotel Continental", area: "Stortingsgata · by the National Theatre", rate: null, ourTake: "The Brockmann family's grand hotel since 1909, across from the National Theatre — Theatercaféen downstairs, Munch on the walls, and the city's most polished rooms.", contact: { addr: "Stortingsgata 24-26, 0117 Oslo", web: "hotelcontinental.no" } },
@@ -8433,7 +8456,7 @@ const RANCH = [
   { n: "Flockhill", city: "Canterbury", set: ["Mountains & alpine","Ranch & wilderness","Countryside"], act: ["Hiking & nature","Adventure","Food & wine"], spec: "Working high-country station", best: "Nov–Apr", stay: "Flockhill Lodge", why: "Thirty-six thousand acres of Canterbury high country, and a lodge as good as any in New Zealand." },
   { n: "Holme Station Homestead", city: "South Canterbury", set: ["Countryside","Ranch & wilderness"], act: ["Food & wine","Hiking & nature"], spec: "Historic merino station", best: "Nov–Apr", stay: "Holme Station Homestead", why: "A restored homestead rooted in New Zealand merino history, run as a private house rather than a hotel." },
   { n: "Arkaba", city: "Flinders Ranges", set: ["Ranch & wilderness","Desert","Mountains & alpine"], act: ["Wildlife","Hiking & nature","Photography & scenery"], spec: "Outback station · riding to confirm", best: "Apr–Oct", stay: "Arkaba, Luxury Lodges of Australia", why: "Sixty thousand acres of private Flinders Ranges conservancy with five rooms. We confirm the equestrian program before offering it." },
-  { n: "Iceland · riding the Icelandic horse", city: "Olafsfjordur", set: ["Arctic & remote","Mountains & alpine","Coastal & seaside"], act: ["Fly fishing","Wellness & spa","Adventure","Photography & scenery"], spec: "Icelandic horses · the tölt", best: "Jun–Sep", stay: "Deplar Farm", why: "The Icelandic horse has a fifth gait no other breed has, and riding it across lava fields is worth the journey by itself." },
+  { n: "Iceland · riding the Icelandic horse", city: "Troll Peninsula", set: ["Arctic & remote","Mountains & alpine","Coastal & seaside"], act: ["Fly fishing","Wellness & spa","Adventure","Photography & scenery"], spec: "Icelandic horses · the tölt", best: "Jun–Sep", stay: "Eleven Deplar Farm", why: "The Icelandic horse has a fifth gait no other breed has, and riding it across lava fields is worth the journey by itself." },
 ];
 
 const SHOP = [
@@ -9203,6 +9226,13 @@ function nearMiss(sel) {
 }
 const GATEWAY = {
   "Portugal": { air: "Lisbon", note: "Lisbon (LIS) is the gateway — hire a car there and the country opens up." },
+  "Blue Lagoon": { air: "Reykjavik", note: "Keflavík (KEF) is twenty minutes away — the Retreat is the first or last night of any Iceland trip." },
+  "Reykjanes Peninsula": { air: "Reykjavik", note: "Keflavík (KEF) sits on the peninsula itself; the Blue Lagoon is twenty minutes from the terminal." },
+  "Hella": { air: "Reykjavik", note: "Keflavík (KEF), then about two hours by road along the south coast; Reykjavík is an hour and a half." },
+  "South Iceland": { air: "Reykjavik", note: "Keflavík (KEF), then the Ring Road east — Hella is two hours, Vík three." },
+  "Troll Peninsula": { air: "Reykjavik", note: "Keflavík (KEF), then the domestic hop from Reykjavík city airport to Akureyri (AEY) and an hour and a half by road — or Eleven's helicopter. Driving from Reykjavík is five hours." },
+  "North Iceland": { air: "Reykjavik", note: "Keflavík (KEF), then the domestic flight from Reykjavík city airport to Akureyri (AEY); the drive north is five hours." },
+  "Iceland": { air: "Reykjavik", note: "Keflavík (KEF) is the only gateway — nonstop from the US East Coast and most of Europe. Hire a car there and the Ring Road opens up." },
   "Antwerp": { air: "Brussels", note: "Brussels (BRU) is the airport, about forty minutes by road or thirty-five by direct train to Antwerpen-Centraal; Antwerp's own field has no useful service." },
   "Amalfi Coast": { air: "Naples", note: "Naples (NAP) is the gateway — roughly 1 hr 15 by car down to Positano." },
   "Tuscany": { air: "Florence", note: "Florence (FLR) is the gateway — Pisa (PSA) often has cheaper long-haul connections." },
@@ -9556,7 +9586,7 @@ const AIRPORTS = {
   "Milos": { code: "MLO", scale: "regional" }, "Syros": { code: "JSY", scale: "regional" },
   // Kea and Sifnos have no airfield at all \u2014 both are reached by ferry from the Athens coast.
   "Kea": { code: "ATH", scale: "regional" }, "Sifnos": { code: "ATH", scale: "regional" },
-  "Oslo": { code: "OSL", scale: "intercontinental" }, "Trondheim": { code: "TRD", scale: "regional" }, "Stockholm": { code: "ARN", scale: "intercontinental" }, "Helsinki": { code: "HEL", scale: "intercontinental" },
+  "Oslo": { code: "OSL", scale: "intercontinental" }, "Reykjavik": { code: "KEF", scale: "intercontinental" }, "Trondheim": { code: "TRD", scale: "regional" }, "Stockholm": { code: "ARN", scale: "intercontinental" }, "Helsinki": { code: "HEL", scale: "intercontinental" },
   "Tromsø": { code: "TOS", scale: "regional" }, "Alta": { code: "ALF", scale: "regional" },
   "Abisko": { code: "KRN", scale: "regional" }, "Kiruna": { code: "KRN", scale: "regional" },
   "Rovaniemi": { code: "RVN", scale: "regional" }, "Levi": { code: "KTT", scale: "regional" },
@@ -10546,7 +10576,7 @@ const ZONE = {
   "mallorca": ["Mallorca"],
   "santorini": ["Santorini"],
   "mykonos": ["Mykonos"],
-  "iceland": ["Reykjavik"],
+  "iceland": ["Reykjavik","Blue Lagoon","Hella","Troll Peninsula","Iceland","Reykjanes Peninsula","South Iceland","North Iceland"],
   // The aurora zone. Kept OUT of continental-europe deliberately: these are Arctic destinations
   // reached on their own routes, and lumping them in with Paris and Rome would have the distance
   // and drive-time rules treating a Lapland transfer as a European city hop.
@@ -10790,7 +10820,7 @@ const COORDS = {
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
   "Aeolian Islands": [38.48,14.95], "Sonoma County": [38.51,-122.80], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
   "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
-  "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94],
+  "Dubrovnik": [42.65,18.09], "Reykjavik": [64.15,-21.94], "Blue Lagoon": [63.88,-22.45], "Hella": [63.83,-20.40], "Troll Peninsula": [65.98,-19.10], "Iceland": [64.96,-19.02], "Reykjanes Peninsula": [63.88,-22.45], "South Iceland": [63.85,-20.20], "North Iceland": [65.80,-18.60],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
   "Madeira": [32.65,-16.91],
@@ -11234,7 +11264,7 @@ const ISLAND_OF = {
   "Maldives": "Maldives", "Mauritius": "Mauritius", "Seychelles": "Seychelles", "Zanzibar": "Zanzibar",
   "Maui": "Maui", "Kauai": "Kauai", "Lanai": "Lanai", "Big Island": "Big Island", "Oahu": "Oahu",
   "Bali": "Bali", "Phuket": "Phuket", "Bora Bora": "Bora Bora", "Fiji": "Fiji", "Rapa Nui": "Rapa Nui",
-  "Iceland": "Iceland", "Reykjavik": "Iceland", "Svalbard": "Svalbard", "Sri Lanka": "Sri Lanka",
+  "Iceland": "Iceland", "Reykjavik": "Iceland", "Blue Lagoon": "Iceland", "Hella": "Iceland", "Troll Peninsula": "Iceland", "Reykjanes Peninsula": "Iceland", "South Iceland": "Iceland", "North Iceland": "Iceland", "Svalbard": "Svalbard", "Sri Lanka": "Sri Lanka",
 };
 const ISLAND_LOOKUP = (() => { const m = {}; Object.keys(ISLAND_OF).forEach((k) => { m[dnrm(k)] = ISLAND_OF[k]; }); return m; })();
 function islandOf(place) {
@@ -11277,6 +11307,7 @@ const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
 // "New York", "New York, NY" all resolving to "New York City", and the like.
 const CITY_ALIASES = {
   "oxfordshire": "Cotswolds", "woodstock": "Cotswolds", "great tew": "Cotswolds", "southrop": "Cotswolds", "broadway": "Cotswolds", "broadway, cotswolds": "Cotswolds", "the cotswolds": "Cotswolds",
+  "reykjavík": "Reykjavik", "grindavik": "Blue Lagoon", "grindavík": "Blue Lagoon", "the blue lagoon": "Blue Lagoon", "reykjanes": "Reykjanes Peninsula", "deplar": "Troll Peninsula", "deplar farm": "Troll Peninsula", "olafsfjordur": "Troll Peninsula", "ólafsfjörður": "Troll Peninsula", "fljot": "Troll Peninsula", "fljót": "Troll Peninsula", "trollaskagi": "Troll Peninsula", "tröllaskagi": "Troll Peninsula", "troll peninsula, iceland": "Troll Peninsula",
   "new york": "New York City", "nyc": "New York City", "manhattan": "New York City", "new york ny": "New York City",
   "la": "Los Angeles", "l.a.": "Los Angeles", "los angeles ca": "Los Angeles",
   "sf": "San Francisco", "san fran": "San Francisco",
@@ -15964,7 +15995,7 @@ const CITY_COUNTRY = {
   "Mali Lo\u0161inj": "Croatia", "Manuel Antonio": "Costa Rica", "Marrakech": "Morocco", "Masai Mara": "Kenya", "Mashpi": "Ecuador", "Medell\u00edn": "Colombia",
   "Mendoza": "Argentina", "Milan": "Italy", "Monaco": "Monaco", "Mont-Tremblant": "Canada", "Montana": "Montana", "Montevideo": "Uruguay", "Montreal": "Canada",
   "Munich": "Germany", "Musandam": "Oman", "Muscat": "Oman", "Nairobi": "Kenya", "Namibia": "Namibia", "Napa Valley": "California", "New York City": "New York",
-  "Ngorongoro": "Tanzania", "Nice": "France", "North Hatley": "Canada", "Oslo": "Norway", "Trondheim": "Norway", "Nosara": "Costa Rica", "Okavango": "Botswana", "Osa Peninsula": "Costa Rica", "Pacuare": "Costa Rica",
+  "Ngorongoro": "Tanzania", "Nice": "France", "North Hatley": "Canada", "Oslo": "Norway", "Trondheim": "Norway", "Reykjavik": "Iceland", "Blue Lagoon": "Iceland", "Hella": "Iceland", "Troll Peninsula": "Iceland", "Reykjanes Peninsula": "Iceland", "South Iceland": "Iceland", "North Iceland": "Iceland", "Nosara": "Costa Rica", "Okavango": "Botswana", "Osa Peninsula": "Costa Rica", "Pacuare": "Costa Rica",
   "Pampas": "Argentina", "Panama City": "Panama", "Pantanal": "Brazil", "Paraty": "Brazil", "Paris": "France", "Peninsula Papagayo": "Costa Rica", "Peruvian Amazon": "Peru",
   "Petra": "Jordan", "Phuket": "Thailand", "Prague": "Czechia", "Provence": "France", "Puerto Natales": "Chile", "Puerto Varas": "Chile", "Puglia": "Italy",
   "Punta del Este": "Uruguay", "Quebec City": "Canada", "Quito": "Ecuador", "Ranthambore": "India", "Red Sea": "Saudi Arabia", "Rio de Janeiro": "Brazil",
@@ -20296,7 +20327,7 @@ function isSight(m) {
 // THE IN-TOWN RADIUS. Six miles by default; wider for the cities that sprawl. A rule with a short
 // table of exceptions, not a list of places — add a city here the day its "in town" is bigger.
 const SPRAWL_MI = { "Los Angeles": 15, "Beverly Hills": 15, "Houston": 15, "Dallas": 12, "Atlanta": 12, "Miami": 12, "Phoenix": 15, "Scottsdale": 12, "Tokyo": 12, "Sydney": 12, "Mexico City": 12, "S\u00e3o Paulo": 12, "Rio de Janeiro": 10, "Buenos Aires": 10, "Johannesburg": 12, "Cape Town": 10, "Dubai": 12, "Riyadh": 12, "Shanghai": 12, "Beijing": 12, "Bangkok": 10, "Istanbul": 10, "Moscow": 10, "London": 8, "Paris": 8, "Berlin": 8, "Rome": 8, "Madrid": 8, "Chicago": 10, "New York City": 8, "Toronto": 10, "Montreal": 8, "Las Vegas": 10, "Orlando": 12 };
-const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Lake Lucerne": 20, "Lake Geneva": 40, "Somerset": 40, "Berkshire": 30, "New Forest": 20, "Hampshire": 40, "Sussex": 40, "Surrey": 30, "Cornwall": 80, "Devon": 60, "Yorkshire": 60, "Wales": 120, "Scotland": 200, "England": 250, "Northern Ireland": 80, "Engadine": 30, "Bernese Oberland": 50, "Ticino": 40, "Valais": 70, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
+const REGION_MI = { "Napa Valley": 30, "Sonoma": 30, "Sonoma County": 35, "Douro Valley": 45, "Tuscany": 60, "Chianti": 25, "Val d\u2019Orcia": 25, "Piedmont": 40, "Langhe": 25, "Loire Valley": 70, "Provence": 60, "Luberon": 25, "Burgundy": 50, "Champagne": 40, "Bordeaux": 40, "Alsace": 40, "Cotswolds": 30, "Lake District": 30, "Scottish Highlands": 90, "Amalfi Coast": 25, "Dolomites": 40, "Lake Como": 25, "Lake Garda": 25, "Lake Lucerne": 20, "Lake Geneva": 40, "Somerset": 40, "Berkshire": 30, "New Forest": 20, "Hampshire": 40, "Sussex": 40, "Surrey": 30, "Cornwall": 80, "Devon": 60, "Yorkshire": 60, "Wales": 120, "Scotland": 200, "Iceland": 250, "Reykjanes Peninsula": 25, "South Iceland": 80, "North Iceland": 100, "England": 250, "Northern Ireland": 80, "Engadine": 30, "Bernese Oberland": 50, "Ticino": 40, "Valais": 70, "Hamptons": 30, "Berkshires": 35, "Hudson Valley": 50, "Algarve": 50, "Alentejo": 60, "Mendoza": 40, "Valle de Uco": 30, "Barossa Valley": 25, "Hunter Valley": 30, "Margaret River": 40, "Stellenbosch": 20, "Cape Winelands": 35, "Marlborough": 30, "Central Otago": 50, "Okanagan": 50, "Willamette Valley": 40, "Paso Robles": 25, "Santa Barbara Wine Country": 35, "Greek Islands": 60, "Cyclades": 60, "Sicily": 100, "Sardinia": 90, "Corsica": 70, "Mallorca": 40, "Ibiza": 25, "Bali": 40, "Maldives": 120, "Pampas": 60, "Patagonia": 150, "Galápagos": 120, "Serengeti": 120, "Okavango Delta": 80, "Kruger": 100, "Costa Brava": 40, "Riviera Maya": 50, "Big Sur": 40, "Jackson Hole": 30, "Aspen": 20, "Vail": 20 };
 function inTownRadiusMi(city) {
   const b = dnrm(bareCity(city || ""));
   const r = Object.keys(REGION_MI).find((c) => dnrm(c) === b || sameCity(c, city)); if (r) return REGION_MI[r];   // a region's in-town is the region
