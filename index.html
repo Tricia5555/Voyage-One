@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M855";
+const BUILD = "M856";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,6 +390,12 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── HUNGARY ── (17 Oct 2026: Párisi Udvar and Anantara New York Palace added on Tricia's review, both Luxury; each Virtuoso tag rests on the hotel's own virtuoso.com page read that day)
+  "Four Seasons Hotel Gresham Palace Budapest": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6164398/four-seasons-hotel-gresham-palace-budapest", vname: "Four Seasons Hotel Gresham Palace Budapest", year: null, amenities: [], amenitiesUnverified: true, note: "Széchenyi István tér 5-6, Budapest. Live listing page read 17 Oct 2026; amenities render client-side and could not be read. Two Michelin Keys per Tricia." },
+  "Matild Palace, a Luxury Collection Hotel": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/travel/luxury-hotels/16177423/matild-palace-a-luxury-collection-hotel-budapest", vname: "Matild Palace, a Luxury Collection Hotel, Budapest", year: null, amenities: [], amenitiesUnverified: true, note: "Váci utca 36, Budapest. Live listing page read 17 Oct 2026 (title 'Matild Palace, a Luxury Collection Hotel, Budapest | Virtuoso'); amenities not readable. Two Michelin Keys per Tricia." },
+  "Párisi Udvar Hotel Budapest": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/travel/luxury-hotels/18051976/parisi-udvar-hotel-budapest-in-the-unbound-collection-by-hyatt", vname: "Párisi Udvar Hotel Budapest, in The Unbound Collection by Hyatt", year: null, amenities: [], amenitiesUnverified: true, note: "Petőfi Sándor utca 2-4, Budapest. Current membership confirmed on its own live listing page 17 Oct 2026 (title '… | Virtuoso'); amenities not readable. One Michelin Key per Tricia." },
+  "Anantara New York Palace Budapest": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Erzsébet körút 9-11, Budapest. Not verified on Virtuoso (Tricia, 17 Oct 2026) — no notation. One Michelin Key." },
+  "Dorothea Hotel, Autograph Collection": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Dorottya utca 2, Budapest. Not verified on Virtuoso (Tricia, 17 Oct 2026) — no notation. One Michelin Key." },
   // ── CZECH REPUBLIC ── (audit 17 Oct 2026; Mandarin Oriental and Fairmont added the same day on Tricia's review, both Luxury)
   "Mandarin Oriental, Prague": { status: "listed", member: true, checked: "2026-10-17", source: "https://www.virtuoso.com/hotels/6163798/mandarin-oriental-prague", vname: "Mandarin Oriental, Prague", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Hotel Credit, applicable at our Restaurant or for Spa treatments (not combinable, no cash value if not redeemed in full)", "VIP Amenity", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Nebovidská 1, Prague. Property page read 17 Oct 2026." },
   "Fairmont Golden Prague": { status: "none", member: false, checked: "2026-10-17", source: "", vname: "", year: null, amenities: [], note: "Pařížská 30, Prague. No listing page on virtuoso.com on 17 Oct 2026 — no notation. Added on quality (Luxury; two Michelin Keys 2025 and 2026)." },
@@ -3835,6 +3841,8 @@ const FAVORITES = {
     { name: "Four Seasons Hotel Gresham Palace Budapest", area: "Pest", rate: null, ourTake: "The art nouveau palace at the foot of the Chain Bridge \u2014 the best hotel in central Europe, and it knows it." },
     { name: "Matild Palace, a Luxury Collection Hotel", area: "Pest", rate: null, ourTake: "The Gresham's twin across the river, restored with a serious bar and a lighter touch." },
     { name: "Dorothea Hotel, Autograph Collection", area: "Pest", rate: null, ourTake: "Three historic buildings knocked together off V\u00f6r\u00f6smarty Square \u2014 the newest good thing in the city." },
+    { name: "Párisi Udvar Hotel Budapest", area: "Pest · Ferenciek tere", rate: null, ourTake: "The 1910s Parisian Court arcade — a glazed, Moorish-Gothic atrium that is the most beautiful room in Budapest, with the hotel built around it. Hyatt's Unbound Collection; the rooms are quieter than the lobby suggests.", contact: { addr: "Petőfi Sándor utca 2-4, 1052 Budapest", web: "hyatt.com" } },
+    { name: "Anantara New York Palace Budapest", area: "Erzsébetváros · Grand Boulevard", rate: null, ourTake: "The 1894 New York Palace on the ring road, with the New York Café — the gilded coffeehouse everyone photographs — downstairs and Anantara's spa upstairs. Grand, busy, and the best value of the palaces.", contact: { addr: "Erzsébet körút 9-11, 1073 Budapest", web: "anantara.com" } },
     { name: "W Budapest", area: "Andr\u00e1ssy \u00fat", rate: null, ourTake: "In the old Drechsler Palace on Andr\u00e1ssy \u2014 loud, young, and the most fun room in Budapest." },
     { name: "The Ritz-Carlton Budapest", area: "Erzs\u00e9betv\u00e1ros", rate: null, ourTake: "Behind a 1910s facade on Erzs\u00e9bet Square, with the largest rooms of the central hotels." },
     { name: "Kempinski Hotel Corvinus Budapest", area: "Deak Ferenc", rate: null, ourTake: "Central and reliable, long the business address, with a good spa." },
