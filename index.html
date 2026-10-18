@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M881";
+const BUILD = "M882";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -391,6 +391,10 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── KUWAIT ── (review 18 Oct 2026: Kuwait City created with 3 Luxury hotels, no Ultra tier; no Kuwait hotel has a virtuoso.com property page)
+  "Four Seasons Hotel Kuwait at Burj Alshaya": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Al Mirqab, Kuwait City. Not verified on Virtuoso (18 Oct 2026) — no notation; Four Seasons Preferred Partner is a brand programme, not Virtuoso." },
+  "The St. Regis Kuwait": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Kuwait City. Not verified on Virtuoso (18 Oct 2026) — no notation." },
+  "Waldorf Astoria Kuwait": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Al Rai, Kuwait. Not verified on Virtuoso (18 Oct 2026) — no notation." },
   // ── BAHRAIN ── (review 18 Oct 2026: Manama created with 3 hotels; Raffles Al Areen Ultra Luxury on owner review; no Bahrain hotel has a virtuoso.com property page)
   "Raffles Al Areen Palace Bahrain": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Zallaq. Not verified on Virtuoso (18 Oct 2026) — no notation; only a classictravel.com directory entry exists, which does not count." },
   "Four Seasons Hotel Bahrain Bay": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Bahrain Bay, Manama. Not verified on Virtuoso (18 Oct 2026) — no notation; Four Seasons Preferred Partner is a brand programme, not Virtuoso." },
@@ -4185,6 +4189,12 @@ const FAVORITES = {
     { name: "Raffles Al Areen Palace Bahrain", area: "Zallaq · west coast · 45 min from Manama", rate: null, ourTake: "Seventy-eight private-pool villas behind their own garden walls in the desert at Zallaq, a butler to each, and the quietest address in the Gulf — Raffles took the old Al Areen Palace and made it the reason to come to Bahrain. Two Michelin Keys.", contact: { addr: "Building 2046, Road 62320, Zallaq", web: "raffles.com" } },
     { name: "Four Seasons Hotel Bahrain Bay", area: "Bahrain Bay · private island", rate: null, ourTake: "A 68-storey tower on its own island in Bahrain Bay with the Manama skyline across the water — a private beach, Wolfgang Puck's CUT and re/Asian, Byblos on the sand, and a spa spread over four pavilions. The city hotel, and the one Bahrain does business in.", contact: { addr: "Building 555, Road 4606, Block 346, Bahrain Bay, Manama", web: "fourseasons.com" } },
     { name: "The Ritz-Carlton, Bahrain", area: "Al Seef · beachfront", rate: null, ourTake: "Seventy acres of beach, lagoon and its own island in the Seef district — 260 rooms with 19 three-bedroom seafront villas with private infinity pools, a marina, sixteen restaurants and the Royal Beach Club. The established resort of the island.", contact: { addr: "Building 173, Road 2803, Al Seef, Block 428, Manama", web: "ritzcarlton.com" } },
+  ],
+  // Kuwait — Tricia 18 Oct 2026: no Ultra Luxury tier. Three Luxury houses; do not elevate on brand or price.
+  "Kuwait City": [
+    { name: "Four Seasons Hotel Kuwait at Burj Alshaya", area: "Al Mirqab · Burj Alshaya", rate: null, ourTake: "The city's grand hotel, 284 rooms and suites in the Burj Alshaya towers above the Al Soor gardens — a spa complex on a scale the Gulf rarely manages, serious dining, and Forbes Five-Star service. One Michelin Key; the address Kuwait uses.", contact: { addr: "Al Soor Street, Al Mirqab, Kuwait City", web: "fourseasons.com" } },
+    { name: "The St. Regis Kuwait", area: "Kuwait City · by the Cultural Centre", rate: null, ourTake: "An intimate 102 rooms and suites with butler service, steps from the Sheikh Jaber Al-Ahmad Cultural Centre and fifteen minutes from the airport — the afternoon tea ritual in the English Lounge, and the quietest of the three.", contact: { addr: "Fahd Al-Salem Street, Kuwait City", web: "marriott.com" } },
+    { name: "Waldorf Astoria Kuwait", area: "Al Rai · The Avenues", rate: null, ourTake: "Two hundred rooms and suites in Art Deco spirit connected to The Avenues, with Peacock Alley for tea, ROKA for robata, AVA for the Mediterranean, and a 1,260 m² spa with its own hammam. Kuwait's Leading Luxury Hotel, World Travel Awards 2026.", contact: { addr: "The Avenues, Al Rai, Kuwait", web: "hilton.com" } },
   ],
   "Ajman": [
     { name: "The Oberoi Beach Resort, Al Zorah", area: "Al Zorah · mangroves · 40 min from DXB", rate: null, ourTake: "Oberoi's only house in the Gulf, 89 rooms, suites and villas between a private beach and the Al Zorah mangroves forty minutes from Dubai — glass-walled, low and quiet, with the service the Oberoi name promises.", contact: { addr: "Al Zorah, Al Ittihad Road, Ajman", web: "oberoihotels.com" } },
@@ -10155,7 +10165,7 @@ const AIRPORTS = {
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
   "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" }, "Brussels": { code: "BRU", scale: "intercontinental" }, "Copenhagen": { code: "CPH", scale: "intercontinental" }, "Malta": { code: "MLA", scale: "regional" },
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
-  "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" }, "Abu Dhabi": { code: "AUH", scale: "intercontinental" }, "Manama": { code: "BAH", scale: "intercontinental" },
+  "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" }, "Abu Dhabi": { code: "AUH", scale: "intercontinental" }, "Manama": { code: "BAH", scale: "intercontinental" }, "Kuwait City": { code: "KWI", scale: "intercontinental" },
   "Tokyo": { code: "HND", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
   "Venice": { code: "VCE", scale: "intercontinental" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
@@ -10943,7 +10953,7 @@ const ZONE = {
   "central-america": ["Costa Rica"],
   "galapagos": ["Galápagos"],
   "caribbean-tci": ["Turks & Caicos"],
-  "arabia": ["Dubai","Abu Dhabi","Liwa Desert","Ras Al Khaimah","Ajman","Manama"],
+  "arabia": ["Dubai","Abu Dhabi","Liwa Desert","Ras Al Khaimah","Ajman","Manama","Kuwait City"],
   "morocco": ["Marrakech","Fez","Essaouira","Atlas Mountains","Skoura","Casablanca","Tamuda Bay","Oualidia"],
   // Egypt is its own zone. It is neither Maghreb nor sub-Saharan, and filing it with Morocco
   // would let the app treat Marrakech and Aswan as a short hop. They are 4,000 km apart.
@@ -11106,7 +11116,7 @@ const COORDS = {
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
   "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
   "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
-  "Abu Dhabi": [24.45,54.38], "Liwa Desert": [23.12,54.08], "Ras Al Khaimah": [25.79,55.94], "Ajman": [25.41,55.44], "Manama": [26.22,50.58], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
+  "Abu Dhabi": [24.45,54.38], "Liwa Desert": [23.12,54.08], "Ras Al Khaimah": [25.79,55.94], "Ajman": [25.41,55.44], "Manama": [26.22,50.58], "Kuwait City": [29.37,47.98], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
   "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
   "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
   "Phuket": [7.98,98.28], "Chiang Rai": [20.35,100.08], "Koh Samui": [9.53,100.06], "Koh Kood": [11.66,102.55],
@@ -11657,6 +11667,7 @@ const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
 // "New York", "New York, NY" all resolving to "New York City", and the like.
 const CITY_ALIASES = {
   "oxfordshire": "Cotswolds", "woodstock": "Cotswolds", "great tew": "Cotswolds", "southrop": "Cotswolds", "broadway": "Cotswolds", "broadway, cotswolds": "Cotswolds", "the cotswolds": "Cotswolds",
+  "kuwait": "Kuwait City", "salmiya": "Kuwait City", "al rai": "Kuwait City", "the avenues kuwait": "Kuwait City",
   "bahrain": "Manama", "zallaq": "Manama", "bahrain bay": "Manama", "seef": "Manama", "al seef": "Manama", "muharraq": "Manama",
   "liwa": "Liwa Desert", "empty quarter": "Liwa Desert", "rub al khali": "Liwa Desert", "rak": "Ras Al Khaimah", "al wadi": "Ras Al Khaimah", "al zorah": "Ajman", "saadiyat": "Abu Dhabi", "saadiyat island": "Abu Dhabi", "dubai desert": "Dubai", "palm jumeirah": "Dubai", "the palm": "Dubai",
   "ummahat": "Red Sea", "sheybarah": "Red Sea", "shura island": "Red Sea", "al wajh": "Red Sea", "umluj": "Red Sea", "the red sea": "Red Sea", "red sea global": "Red Sea", "riyad": "Riyadh", "jedda": "Jeddah", "al ula": "AlUla", "al-ula": "AlUla", "hegra": "AlUla",
@@ -16336,7 +16347,7 @@ const REGION_PROFILES = {
 // "Japan" or "Costa Rica" can be typed and the tab finds what we hold there. Facts only: where a
 // place is. Entries that are themselves a country map to themselves.
 const CITY_COUNTRY = {
-  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Liwa Desert": "United Arab Emirates", "Ras Al Khaimah": "United Arab Emirates", "Ajman": "United Arab Emirates", "Manama": "Bahrain", "Agra": "India", "AlUla": "Saudi Arabia", "Riyadh": "Saudi Arabia", "Jeddah": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
+  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Liwa Desert": "United Arab Emirates", "Ras Al Khaimah": "United Arab Emirates", "Ajman": "United Arab Emirates", "Manama": "Bahrain", "Kuwait City": "Kuwait", "Agra": "India", "AlUla": "Saudi Arabia", "Riyadh": "Saudi Arabia", "Jeddah": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
   "Amalfi Coast": "Italy", "Amman": "Jordan", "Amsterdam": "Netherlands", "Antwerp": "Belgium", "Brussels": "Belgium", "Copenhagen": "Denmark", "Angra dos Reis": "Brazil", "Antigua Guatemala": "Guatemala", "Antioquia": "Colombia",
   "Aqaba": "Jordan", "Arenal": "Costa Rica", "Arequipa": "Peru", "Aswan": "Egypt", "Atacama": "Chile", "Baden-Baden": "Germany", "Bagaces": "Costa Rica",
   "Bajos del Toro": "Costa Rica", "Bali": "Indonesia", "Bangkok": "Thailand", "Barcelona": "Spain", "Bar\u00fa": "Colombia", "Basel": "Switzerland",
