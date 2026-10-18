@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M871";
+const BUILD = "M873";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,6 +390,18 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── JORDAN ── (audit 18 Oct 2026: no Jordanian hotel has a virtuoso.com listing — the directory shows only tour products for Jordan; nothing added, no tiers changed)
+  "Four Seasons Hotel Amman": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Abdoun. No virtuoso.com listing found 18 Oct 2026 — no notation. Forbes Five-Star history per Tricia." },
+  "The St. Regis Amman": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Abdoun. No virtuoso.com listing found 18 Oct 2026 — no notation." },
+  "The Ritz-Carlton Amman": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Abdoun. No virtuoso.com listing found 18 Oct 2026 — no notation." },
+  "Kempinski Hotel Ishtar Dead Sea": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Sweimeh. No virtuoso.com listing found 18 Oct 2026 — no notation." },
+  // ── EGYPT ── (audit 18 Oct 2026; each tag rests on the hotel's own virtuoso.com page read that day)
+  "Four Seasons Hotel Cairo at Nile Plaza": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6164071/four-seasons-hotel-cairo-at-nile-plaza", vname: "Four Seasons Hotel Cairo at Nile Plaza", year: null, amenities: [], amenitiesUnverified: true, note: "Corniche El Nil, Garden City. Live listing page read 18 Oct 2026; the page publishes no itemised benefits (Four Seasons pages often don't)." },
+  "Four Seasons Hotel Cairo at The First Residence": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6164036/four-seasons-hotel-cairo-at-the-first-residence", vname: "Four Seasons Hotel Cairo, at The First Residence", year: null, amenities: [], amenitiesUnverified: true, note: "Giza. Live listing page read 18 Oct 2026; no itemised benefits published." },
+  "Mandarin Oriental Old Cataract, Aswan": { status: "unverified", member: false, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/11162377/old-cataract-aswan", vname: "Old Cataract Aswan", year: null, amenities: [], amenitiesUnverified: true, note: "Virtuoso still carries the listing (title 'Old Cataract Aswan | Virtuoso'; the Sofitel name survives only in the URL and meta text); no benefits readable. Mandarin Oriental took over management May 2026 (Jardines/MO release 11 Feb 2026) — the listing predates the operator change, so per Tricia the badge is HELD until current membership under MO is confirmed. Hotel open through the Nile Wing works; full relaunch July 2027." },
+  "The St. Regis Cairo": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Corniche El Nil. Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation." },
+  "Four Seasons Resort Sharm El Sheikh": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation." },
+  "The Oberoi Zahra, Luxury Nile Cruise": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/6164437/the-oberoi-zahra-luxury-nile-cruise", vname: "The Oberoi Zahra, Luxury Nile Cruise", year: null, amenities: [], amenitiesUnverified: true, note: "NOT A HOTEL ROW — a seven-night Luxor–Aswan cruise. Live listing read 18 Oct 2026; benefits not readable. Voyage One has no Nile cruise experience yet; recorded here so the designation is ready when one is built." },
   // ── MOROCCO ── (18 Oct 2026: 7 hotels added on Tricia's review; every Virtuoso tag rests on the hotel's own virtuoso.com page read that day by a researcher)
   "Amanjena": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6163776/amanjena", vname: "Amanjena", year: "2025", amenities: ["Upgrade on arrival, subject to availability (Upgrade to next room level within same room category. i.e Pavilion to Pavilion, Maison to Maison- excludes Al Hamra Maison)", "Daily breakfast for up to two guests per bedroom, served in the restaurant (already included in property rates)", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Route De Ouarzazate Km. 12, Marrakech 40000. No 'book with a Virtuoso advisor' button rendered; page says 'contact your travel advisor'. Page lists a renovation period Jun 15 - Sep 30, 2025 (not a closure)." },
   "Royal Mansour Marrakech": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6164512/royal-mansour-marrakech", vname: "Royal Mansour Marrakech", year: "2025", amenities: ["Upgrade on arrival, subject to availability (up to Premier one bedroom Riad)", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Rue Abou Abbas El Sebti, Marrakech 40 000. No 'book with a Virtuoso advisor' button rendered; page says 'contact your travel advisor'. No seasonal closure." },
@@ -4019,10 +4031,10 @@ const FAVORITES = {
   ],
   "Luxor": [
     { name: "Al Moudira Hotel", area: "West Bank", rate: null, ourTake: "Domed rooms and gardens on the quiet bank, hand-built and unlike anything else in Egypt." },
-    { name: "Sofitel Winter Palace Luxor", area: "Corniche", rate: null, ourTake: "The Victorian icon above the Nile, with the gardens Agatha Christie wrote in." },
+    { name: "Sofitel Winter Palace Luxor", opening: "July 2027 \u00b7 closed for restoration", opensOn: "2027-07-01", area: "Corniche", rate: null, ourTake: "The Victorian icon above the Nile, with the gardens Agatha Christie wrote in. Closed since early 2026 for a complete restoration; reopens July 2027 under Mandarin Oriental." },
   ],
   "Aswan": [
-    { name: "Mandarin Oriental Old Cataract, Aswan", wasNamed: "Old Cataract Aswan", opening: "2027 \u00b7 transformation", area: "Nile", rate: null, ourTake: "The historic Old Cataract on the Nile \u2014 Agatha Christie\u2019s hotel \u2014 under Mandarin Oriental, with a full renovation completing in 2027. The iconic address of any Nile journey." },
+    { name: "Mandarin Oriental Old Cataract, Aswan", wasNamed: "Old Cataract Aswan", opening: "July 2027 \u00b7 open during the works", opensOn: "2027-07-01", area: "Nile", rate: null, ourTake: "The historic Old Cataract on the Nile \u2014 Agatha Christie\u2019s hotel \u2014 under Mandarin Oriental since May 2026 and open to guests while the Nile Wing is renovated; the full relaunch completes July 2027. The iconic address of any Nile journey." },
   ],
   "Sharm El Sheikh": [
     { name: "Four Seasons Resort Sharm El Sheikh", area: "Red Sea", rate: null, ourTake: "Terraced gardens down to a private reef \u2014 the best of the Red Sea resorts by some distance." },
