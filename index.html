@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M875";
+const BUILD = "M876";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -188,6 +188,7 @@ const AREA_GROUPS = {
     "Lusail": ["lusail"],
     "Msheireb & the old town": ["msheireb", "doha"],
     "The Pearl": ["the pearl"],
+    "Al Ruwais & the north": ["al ruwais", "ruwais", "al shamal"],
   },
   "Budapest": {
     "Pest \u2014 the Danube bank": ["pest", "deak ferenc"],
@@ -390,6 +391,14 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── QATAR ── (review 18 Oct 2026: Zulal added as Luxury; Park Hyatt, Marsa Malaz Kempinski and Banyan Tree withheld; each Virtuoso tag rests on the hotel's own virtuoso.com page read that day)
+  "Raffles Doha": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/16384295/raffles-doha", vname: "Raffles Doha", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Complimentary one-way private airport transfers (must have minimum value of $100 USD equivalent)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Lusail. Property page read 18 Oct 2026. Ultra Luxury confirmed by Tricia." },
+  "The St. Regis Doha": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/11164561/the-st-regis-doha", vname: "The St. Regis Doha", year: "2018", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast, for up to two in room guests", "Early check-in/late check-out, subject to availability", "$100 USD Equivalent Spa Services credit, (not combinable, not valid on products, no cash value if not redeemed in full)", "Complimentary Wi-Fi"], amenitiesUnverified: true, note: "West Bay. Live listing page read 18 Oct 2026; the only amenities list the page exposes is dated 2018 — treat the benefits as indicative until the current-year list is read." },
+  "Waldorf Astoria Doha West Bay": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/16926991/waldorf-astoria-doha-west-bay", vname: "Waldorf Astoria Doha West Bay", year: null, amenities: [], amenitiesUnverified: true, note: "West Bay. Live listing page read 18 Oct 2026; the amenities section renders client-side and could not be read." },
+  "Four Seasons Hotel Doha": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "West Bay. Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation. Ultra Luxury in Voyage One since curation; the 18 Oct brief lists it as Luxury — conflict reported, tier preserved." },
+  "Mandarin Oriental Doha": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Msheireb. Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation. Ultra Luxury in Voyage One since curation; the 18 Oct brief lists it as Luxury — conflict reported, tier preserved." },
+  "Rosewood Doha": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Lusail. Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation. Ultra Luxury in Voyage One since curation; the 18 Oct brief lists it as Luxury — conflict reported, tier preserved." },
+  "Zulal Wellness Resort by Chiva-Som": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Al Ruwais, northern Qatar. Added 18 Oct 2026 as Luxury on Tricia's review. Not verified on Virtuoso — no notation." },
   // ── OMAN ── (audit 18 Oct 2026; all seven hotels already approved; each tag rests on the hotel's own virtuoso.com page read that day)
   "The Chedi Muscat": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6163892/the-chedi-muscat", vname: "The Chedi Muscat", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Stays of 6+ nights will receive an additional $100 Food & Beverage credit (for a total of $200 during stay)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Al Ghubra North, Muscat. Property page read 18 Oct 2026. One Michelin Key; Forbes Four-Star per Tricia." },
   "Jumeirah Muscat Bay": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/16329207/jumeirah-muscat-bay", vname: "Jumeirah Muscat Bay", year: null, amenities: [], amenitiesUnverified: true, note: "Bandar Jissah. Live listing page read 18 Oct 2026 (title 'Jumeirah Muscat Bay | Virtuoso'); amenities render client-side and could not be read." },
@@ -3984,13 +3993,17 @@ const FAVORITES = {
     { name: "Four Seasons Resort at The Pearl", area: "The Pearl", rate: null, ourTake: "Resort rather than city hotel, out on the reclaimed island with the water on three sides." },
     { name: "The Ned Doha", area: "Doha", rate: null, ourTake: "A converted ministry building, members' club downstairs, and the most interesting rooms in the city." },
     // PARK HYATT is carried at LUXURY and is never Ultra Luxury. Every OTHER Hyatt brand — Hyatt Regency, Grand Hyatt, Andaz, Alila, Thompson, Miraval, Secrets, Dreams, Zoetry — stays withheld.
-    { name: "Park Hyatt Doha", area: "Msheireb", rate: null, ourTake: "Restrained and low-rise in the old quarter, for anyone tired of towers." },
+    // OUT — Tricia 18 Oct 2026 (Qatar review: does not meet the Voyage One standard)
+    // { name: "Park Hyatt Doha", area: "Msheireb", rate: null, ourTake: "Restrained and low-rise in the old quarter, for anyone tired of towers." },
     { name: "Sharq Village & Spa, a Ritz-Carlton Hotel", area: "Doha", rate: null, ourTake: "Built as a Qatari village on its own beach \u2014 the Six Senses spa is the reason to come." },
     { name: "The Ritz-Carlton Doha", area: "West Bay Lagoon", rate: null, ourTake: "On the lagoon with a private marina, the classic family choice." },
-    { name: "Marsa Malaz Kempinski", area: "The Pearl", rate: null, ourTake: "A palace on its own island at the head of The Pearl, gilded and unembarrassed about it." },
-    { name: "Banyan Tree Doha", area: "Doha", rate: null, ourTake: "High floors, city views and the calmest spa in the centre." },
+    // OUT — Tricia 18 Oct 2026 (Qatar review: does not meet the Voyage One standard)
+    // { name: "Marsa Malaz Kempinski", area: "The Pearl", rate: null, ourTake: "A palace on its own island at the head of The Pearl, gilded and unembarrassed about it." },
+    // OUT — Tricia 18 Oct 2026 (Qatar review: does not meet the Voyage One standard)
+    // { name: "Banyan Tree Doha", area: "Doha", rate: null, ourTake: "High floors, city views and the calmest spa in the centre." },
     { name: "Waldorf Astoria Doha West Bay", area: "West Bay", rate: null, ourTake: "Straightforward and well run, in the middle of the business district." },
     { name: "The St. Regis Doha", area: "West Bay", rate: null, ourTake: "Butler service and a long private beach, one of the earliest of the modern arrivals." },
+    { name: "Zulal Wellness Resort by Chiva-Som", area: "Al Ruwais · northern tip · 90 min from Doha", rate: null, ourTake: "Chiva-Som's first resort outside Thailand, alone on the coast at the northern tip of the peninsula — 180 rooms in two halves, Serenity for adults only and Discovery for families, built around Arabic and Islamic medicine, the programmes rather than the beach. The wellness stay in the Gulf; ninety minutes up the Al Shamal road or a helicopter from Doha.", contact: { addr: "Building 100, Street 319, Zone 79, Al Ruwais 70034", web: "zulal.com" } },
   ],
   // AlUla is the newest luxury destination on this list and the only one built around
   // archaeology. Two genuine top-tier houses and two that exist to put you in the landscape.
