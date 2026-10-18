@@ -12765,7 +12765,7 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   // typing its name should be offered it, from us, whatever Google thinks it is. Starts-with
   // matches first, then contains, so "harb" lists Harbour Island before anything merely containing
   // the letters. The departure picker keeps the small list — a home airport needs no curation.
-  const pool = (curatedOnly ? Array.from(new Set(CITIES.concat(Object.keys(FAVORITES)))) : CITIES).filter((c) => !advisoryBlocked(c));
+  const pool = curatedOnly ? Array.from(new Set(CITIES.concat(Object.keys(FAVORITES)))) : CITIES;
   // ALIASES ARE TYPEABLE. A client types the name of the country or the coast, not the name of
   // the key — "Dominican Republic", not "Punta Cana"; "Cayman Islands", not "Grand Cayman". Those
   // names are in CITY_ALIASES, but the dropdown only searched the keys, and Google throws a
@@ -13169,11 +13169,9 @@ function useFreshBuild(screen) {
 // stale rather than pretending to be current.
 //
 // Where it shows: the top of every destination card (city, region or country), the itinerary,
-// the experience guide, a line on every hotel card, and a gate on every outbound booking link
-// (hotel, restaurant, tickets, car, rail) for an affected destination — Level 3 asks for an
-// acknowledgment first, Level 4 does not open the link at all. Level 4 destinations are also
-// kept out of the search suggestions and the "open to suggestions" lists, and the destination
-// card shows the warning with everything bookable hidden. Nothing in the hotel data is touched.
+// the experience guide, and a line on every hotel card. WARNING ONLY (Tricia, 18 Oct 2026):
+// nothing is hidden, gated or disabled at either level — the traveller sees the advisory and
+// decides; the airlines decide the rest. Nothing in the hotel data is touched.
 //
 // Sub-regions: an advisory may name a state, a province or a city. A destination is matched
 // against those by its own name and by ADVISORY_DEST_REGION (the state the State Department
@@ -13216,9 +13214,6 @@ const ADVISORY_PIN = {
   // north, where the hotels are. A text match cannot tell the halves apart; the owner reads it as 3.
   "guayaquil": 3,
 };
-// Destinations where Voyage One has not approved new booking even after a Level 3 acknowledgment.
-// Empty until the owner names one.
-const ADVISORY_BOOKING_HOLD = [];
 // Read by hand from each country's own travel.state.gov page on verifiedAt. level null = the State
 // Department publishes no advisory (US territories) or the page could not be read (status).
 const ADVISORY_SNAPSHOT = { verifiedAt: "2026-10-18", countries: {
@@ -13435,12 +13430,9 @@ function advisoryFor(city) {
     level, country: base ? base.name : (live ? live.name : country), updated: src ? src.updated : null, reasons: src ? src.reasons : "",
     url: (src && src.url) || (base && base.url) || ADVISORY_INDEX_URL, regionHit, live: liveOk,
     checkedAt: liveOk ? ADVISORY_LIVE.fetchedAt.slice(0, 10) : verifiedAt, stale: !liveOk && ageDays > ADVISORY_STALE_DAYS,
-    pendingLower: !!(live && base && liveLevel && liveLevel < baseLevel), bookingHold: ADVISORY_BOOKING_HOLD.some((x) => sameCity(x, bare) || advKey(x) === k),
+    pendingLower: !!(live && base && liveLevel && liveLevel < baseLevel),
   };
 }
-function advisoryBlocked(city) { const a = advisoryFor(city); return !!(a && a.level >= 4); }
-function advisoryAcked(country) { try { return sessionStorage.getItem("voyage-one:adv-ack:" + advKey(country)) === "1"; } catch (e) { return false; } }
-function advisoryAck(country) { try { sessionStorage.setItem("voyage-one:adv-ack:" + advKey(country), "1"); } catch (e) {} }
 function advDate(iso) { if (!iso) return ""; const d = new Date(iso + "T00:00:00"); return isNaN(d) ? iso : d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }); }
 const ADV_STYLE = {
   3: { bg: "#FFF6E0", border: "#D9A94A", ink: "#6B4A00", eyebrow: "#8A5E12", label: "Level 3 — Reconsider Travel", sentence: "The U.S. Department of State advises Americans to reconsider travel to this destination due to serious safety or security risks." },
@@ -13467,7 +13459,6 @@ function AdvisoryBanner({ city, compact }) {
       <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: st.ink, fontWeight: 700, textDecoration: "underline" }}>Read Official Travel Advisory ↗</a>
       <span style={{ opacity: .85 }}>{a.updated ? `Advisory dated ${advDate(a.updated)}` : "Advisory date not published"} · {a.live ? `Checked ${advDate(a.checkedAt)}` : (a.stale ? `Last verified ${advDate(a.checkedAt)} — live check unavailable, treat as possibly out of date` : `Last verified ${advDate(a.checkedAt)}`)}</span>
     </div>
-    {a.level >= 4 ? <div style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>Voyage One is not building new trips or opening reservations for this destination while the Level 4 advisory stands.</div> : null}
   </div>);
 }
 // Every destination on the trip that carries a warning, for the itinerary.
@@ -13477,46 +13468,6 @@ function AdvisoryList({ dests }) {
   (dests || []).forEach((d) => { if (!d || !d.city) return; const a = advisoryFor(d.city); if (!a) return; const key = a.regionHit ? a.regionHit.area : a.country; if (seen.has(key)) return; seen.add(key); rows.push(d.city); });
   if (!rows.length) return null;
   return (<div style={{ marginTop: 18 }}>{rows.map((c) => <AdvisoryBanner key={c} city={c} />)}</div>);
-}
-// The gate on outbound booking links. Installed once on the document in the capture phase, so it
-// runs before the link's own handler: Level 4 never opens; Level 3 opens after an acknowledgment,
-// once per country per session. Links without a destination (flights home, airport assist) pass.
-let ADV_GATE_SET = null;
-function openAdvisoryGate(state) { if (ADV_GATE_SET) ADV_GATE_SET(state); }
-function installAdvisoryGate() {
-  if (typeof document === "undefined" || window.__voAdvGate) return;
-  window.__voAdvGate = true;
-  document.addEventListener("click", (e) => {
-    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a) return;
-    const m = /utm_content=([^&#]+)/.exec(a.getAttribute("href") || ""); if (!m) return;
-    const ctx = OUTBOUND[m[1]]; if (!ctx || !ctx.city) return;
-    const adv = advisoryFor(ctx.city); if (!adv) return;
-    if (adv.level >= 4 || adv.bookingHold || !advisoryAcked(adv.country)) {
-      e.preventDefault(); e.stopPropagation();
-      openAdvisoryGate({ adv, ctx, ref: m[1], href: a.href, city: ctx.city });
-    }
-  }, true);
-}
-function AdvisoryGateHost() {
-  const [g, setG] = useState(null);
-  useEffect(() => { ADV_GATE_SET = setG; return () => { if (ADV_GATE_SET === setG) ADV_GATE_SET = null; }; }, []);
-  if (!g) return null;
-  const { adv, ctx, ref, href, city } = g;
-  const blocked = adv.level >= 4 || adv.bookingHold;
-  const proceed = () => { advisoryAck(adv.country); setG(null); try { logClick(ref); } catch (e) {} window.open(href, "_blank", "noopener"); };
-  return (<div role="dialog" aria-modal="true" onClick={() => setG(null)} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(20,24,20,.55)", display: "grid", placeItems: "center", padding: 16 }}>
-    <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, background: t.paper, borderRadius: 18, padding: "22px 22px 20px", boxShadow: "0 18px 50px rgba(0,0,0,.35)" }}>
-      <div style={{ fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint }}>Before you book{ctx.name ? ` · ${ctx.name}` : ""}</div>
-      <AdvisoryBanner city={city} />
-      {blocked
-        ? (<div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.55, marginTop: 10 }}>{adv.level >= 4 ? "Reservations for this destination are paused while the Level 4 advisory stands." : "Voyage One has not approved new bookings for this destination yet."} The property’s details stay on the card; nothing has been removed.</div>)
-        : (<div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.55, marginTop: 10 }}>You can continue to the booking site, and your acknowledgment is kept for the rest of this visit.</div>)}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
-        <button onClick={() => setG(null)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, fontSize: 14 }}>{blocked ? "Close" : "Not now"}</button>
-        {!blocked ? <button onClick={proceed} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 14, fontWeight: 600 }}>I have read the advisory — continue</button> : null}
-      </div>
-    </div>
-  </div>);
 }
 // Owner panel, inside #diag: what the system knows, what it could not verify, and what changed.
 function AdvisoryOwnerPanel() {
@@ -13549,7 +13500,7 @@ function AdvisoryOwnerPanel() {
 }
 
 function VoyageOne() {
-  useEffect(() => { installAdvisoryGate(); loadAdvisories(); }, []);
+  useEffect(() => { loadAdvisories(); }, []);
   const [screen, setScreen] = useState("landing");
   const [step, setStep] = useState(0);
   const [dates, setDates] = useState({ depart: "", ret: "" });
@@ -13954,7 +13905,6 @@ function VoyageOne() {
     <FontStyles />
     {fresh.ready && screen !== "landing" ? <div className="vo-noprint" onClick={fresh.refresh} style={{ position: "fixed", top: "calc(10px + env(safe-area-inset-top, 0px))", left: "50%", transform: "translateX(-50%)", zIndex: 90, background: t.brass, color: t.paper, borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>A new version of Voyage One is ready — tap to refresh</div> : null}
     <BookingPrompt />
-    <AdvisoryGateHost />
     {screen === "landing" && <Landing onExplore={() => setScreen("explore")} trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
@@ -17998,7 +17948,7 @@ function IdeasPicker({ d, i, p }) {
   const setSel = (next) => p.setDest(i, { ideaSel: next });
   const toggle = (group, v) => { const cur = sel[group] || []; setSel({ ...sel, [group]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); };
   const any = (sel.set || []).length + (sel.act || []).length + (sel.w || []).length > 0;
-  const ranked = (any ? rankIdeas(sel) : []).filter((r) => !advisoryBlocked(r.idea.city || r.idea.n));
+  const ranked = any ? rankIdeas(sel) : [];
   const matches = ranked.map((r) => r.idea);
   const missFor = {};
   ranked.forEach((r) => { missFor[r.idea.n] = r.s; });
@@ -18192,7 +18142,6 @@ function IdeasPicker({ d, i, p }) {
   </div>);
 }
 function DestCard({ d, i, p }) {
-  const advBlocked = d && d.city ? advisoryBlocked(d.city) : false;
   if (d.mode === "ideas") {
     return (<div style={{ background: t.white, border: `1px solid ${t.brass}`, borderRadius: 16, padding: "22px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -18227,7 +18176,6 @@ function DestCard({ d, i, p }) {
       </div>
     </div>
     {d.city ? <AdvisoryBanner city={d.city} /> : null}
-    <div style={advBlocked ? { display: "none" } : undefined}>
     {/* When the trip is built around a property — a ranch, a lodge, a sporting hotel in a village
         nobody has heard of — the property is the destination and the town is only its address.
         Lead with the name and let the place sit quietly beside it. */}
@@ -18253,7 +18201,6 @@ function DestCard({ d, i, p }) {
         reached through the airport you are already at (London to the Cotswolds). Same rule as the
         leg panel, so the two rows never disagree. */}
     {d.mode !== "ideas" && <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE.filter((m) => !(m.key === "Flight" && d.city && sameAirport(legStart(p, i), d.city)) && !(m.key === "Ferry" && !ferryPossible(legStart(p, i), d.city, null)))} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>}
-    </div>
   </div>);
 }
 
