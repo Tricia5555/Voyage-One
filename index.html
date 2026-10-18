@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M874";
+const BUILD = "M875";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -390,6 +390,14 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── OMAN ── (audit 18 Oct 2026; all seven hotels already approved; each tag rests on the hotel's own virtuoso.com page read that day)
+  "The Chedi Muscat": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6163892/the-chedi-muscat", vname: "The Chedi Muscat", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Stays of 6+ nights will receive an additional $100 Food & Beverage credit (for a total of $200 during stay)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Al Ghubra North, Muscat. Property page read 18 Oct 2026. One Michelin Key; Forbes Four-Star per Tricia." },
+  "Jumeirah Muscat Bay": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/16329207/jumeirah-muscat-bay", vname: "Jumeirah Muscat Bay", year: null, amenities: [], amenitiesUnverified: true, note: "Bandar Jissah. Live listing page read 18 Oct 2026 (title 'Jumeirah Muscat Bay | Virtuoso'); amenities render client-side and could not be read." },
+  "Anantara Al Jabal Al Akhdar Resort": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/17903928/anantara-al-jabal-al-akhdar-resort", vname: "Anantara Al Jabal Al Akhdar Resort", year: null, amenities: [], amenitiesUnverified: true, note: "Jabal Akhdar. Live listing page read 18 Oct 2026; amenities not readable." },
+  "Six Senses Zighy Bay": { status: "unverified", member: false, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6163698/six-senses-zighy-bay", vname: "Six Senses Zighy Bay", year: null, amenities: [], amenitiesUnverified: true, note: "Zighy Bay, Musandam. Virtuoso's own search index titles the page 'Six Senses Zighy Bay - Virtuoso' at this URL, but the page refuses automated reading, so it has not been read — same standard as Sommerro and Fairmont Windsor Park. Flip to listed/member when the page is confirmed to show Virtuoso Amenities. Tier Ultra Luxury → Luxury 18 Oct 2026 per Tricia." },
+  "Alila Jabal Akhdar": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation. Two Michelin Keys." },
+  "Mandarin Oriental Muscat": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Shatti Al Qurum. Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation." },
+  "Al Bustan Palace, a Ritz-Carlton Hotel": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (Tricia, 18 Oct 2026) — no notation." },
   // ── JORDAN ── (audit 18 Oct 2026: no Jordanian hotel has a virtuoso.com listing — the directory shows only tour products for Jordan; nothing added, no tiers changed)
   "Four Seasons Hotel Amman": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Abdoun. No virtuoso.com listing found 18 Oct 2026 — no notation. Forbes Five-Star history per Tricia." },
   "The St. Regis Amman": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Abdoun. No virtuoso.com listing found 18 Oct 2026 — no notation." },
@@ -1490,7 +1498,7 @@ const ULTRA_LUX = [
   "Al Moudira Hotel", "Four Seasons Resort Sharm El Sheikh",
   "Four Seasons Hotel Amman", "The Ritz-Carlton Amman",
   "Mandarin Oriental Muscat", "The Chedi Muscat", "Shangri-La Al Husn",
-  "Six Senses Zighy Bay", "Anantara Al Jabal Al Akhdar Resort",
+  "Anantara Al Jabal Al Akhdar Resort",   // Six Senses Zighy Bay moved Ultra Luxury → LUXURY, Tricia 18 Oct 2026 (explicit in the Oman instructions)
   // United Kingdom — London
   "Claridge's", "The Connaught", "The Berkeley", "The Emory", "The Dorchester", "45 Park Lane",
   "The Peninsula London", "Raffles London at The OWO",
