@@ -13168,8 +13168,8 @@ function useFreshBuild(screen) {
 // snapshot stands and the banner says when it was last verified; past 45 days it says it is
 // stale rather than pretending to be current.
 //
-// Where it shows: the top of every destination card (city, region or country), the itinerary,
-// the experience guide, and a line on every hotel card. WARNING ONLY (Tricia, 18 Oct 2026):
+// Where it shows: one line under the name of the place — on the destination card, the explore
+// screen, the itinerary and the experience guide. Never on the hotels. WARNING ONLY (Tricia, 18 Oct 2026):
 // nothing is hidden, gated or disabled at either level — the traveller sees the advisory and
 // decides; the airlines decide the rest. Nothing in the hotel data is touched.
 //
@@ -13435,31 +13435,19 @@ function advisoryFor(city) {
 }
 function advDate(iso) { if (!iso) return ""; const d = new Date(iso + "T00:00:00"); return isNaN(d) ? iso : d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }); }
 const ADV_STYLE = {
-  3: { bg: "#FFF6E0", border: "#D9A94A", ink: "#6B4A00", eyebrow: "#8A5E12", label: "Level 3 — Reconsider Travel", sentence: "The U.S. Department of State advises Americans to reconsider travel to this destination due to serious safety or security risks." },
-  4: { bg: "#FBE9E7", border: "#C0392B", ink: "#7A1C12", eyebrow: "#A42A1C", label: "Level 4 — Do Not Travel", sentence: "The U.S. Department of State advises Americans not to travel to this destination because of serious safety or security risks." },
+  3: { ink: "#8A5E12", label: "Level 3 \u2014 Reconsider travel" },
+  4: { ink: "#A42A1C", label: "Level 4 \u2014 Do not travel" },
 };
-function AdvisoryBanner({ city, compact }) {
+// One line under the name of the place (Tricia, 18 Oct 2026): "US State Department Level 3 —
+// Reconsider travel". Nothing more, nothing on the hotels. The line opens the official advisory.
+function AdvisoryBanner({ city, style }) {
   useAdvisoryTick();
   const a = advisoryFor(city); if (!a) return null;
   const st = ADV_STYLE[a.level >= 4 ? 4 : 3];
-  const where = a.regionHit ? `${a.regionHit.area}` : a.country;
-  if (compact) return (<div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: st.bg, border: `1px solid ${st.border}`, color: st.ink, borderRadius: 999, padding: "3px 10px", fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", marginTop: 6 }}>
-    <span aria-hidden="true">▲</span> {st.label}{a.regionHit ? ` · ${a.regionHit.area}` : ""}
-  </div>);
-  return (<div role="alert" className="vo-advisory" style={{ background: st.bg, border: `1.5px solid ${st.border}`, borderLeft: `6px solid ${st.border}`, borderRadius: 12, padding: "14px 16px", margin: "12px 0 4px", color: st.ink }}>
-    <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", fontWeight: 600, color: st.eyebrow }}>U.S. State Department Travel Advisory</div>
-    <div style={{ fontFamily: font.display, fontSize: 21, fontWeight: 700, marginTop: 4, lineHeight: 1.15 }}>{st.label}</div>
-    <div style={{ fontSize: 14, lineHeight: 1.5, marginTop: 6 }}>{st.sentence}</div>
-    <div style={{ fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>
-      <strong>Applies to:</strong> {where}{a.regionHit ? ` (${a.country})` : ""}
-      {a.reasons ? <> · <strong>Cited risks:</strong> {a.reasons}</> : null}
-      {a.regionHit && a.regionHit.reason ? <> · {a.regionHit.reason}</> : null}
-    </div>
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", alignItems: "center", marginTop: 10, fontSize: 12.5 }}>
-      <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: st.ink, fontWeight: 700, textDecoration: "underline" }}>Read Official Travel Advisory ↗</a>
-      <span style={{ opacity: .85 }}>{a.updated ? `Advisory dated ${advDate(a.updated)}` : "Advisory date not published"} · {a.live ? `Checked ${advDate(a.checkedAt)}` : (a.stale ? `Last verified ${advDate(a.checkedAt)} — live check unavailable, treat as possibly out of date` : `Last verified ${advDate(a.checkedAt)}`)}</span>
-    </div>
-  </div>);
+  const title = `${a.country}${a.regionHit ? " \u00b7 " + a.regionHit.area : ""}${a.updated ? " \u00b7 advisory dated " + advDate(a.updated) : ""} \u00b7 ${a.live ? "checked " + advDate(a.checkedAt) : "last verified " + advDate(a.checkedAt)}${a.stale ? " \u2014 may be out of date" : ""}`;
+  return (<a className="vo-advisory" href={a.url} target="_blank" rel="noopener noreferrer" title={title} style={{ display: "inline-block", fontSize: 14, fontWeight: 600, color: st.ink, textDecoration: "none", marginTop: 6, ...(style || {}) }}>
+    US State Department {st.label}{a.regionHit ? ` (${a.regionHit.area})` : ""}
+  </a>);
 }
 // Every destination on the trip that carries a warning, for the itinerary.
 function AdvisoryList({ dests }) {
@@ -13467,7 +13455,7 @@ function AdvisoryList({ dests }) {
   const seen = new Set(); const rows = [];
   (dests || []).forEach((d) => { if (!d || !d.city) return; const a = advisoryFor(d.city); if (!a) return; const key = a.regionHit ? a.regionHit.area : a.country; if (seen.has(key)) return; seen.add(key); rows.push(d.city); });
   if (!rows.length) return null;
-  return (<div style={{ marginTop: 18 }}>{rows.map((c) => <AdvisoryBanner key={c} city={c} />)}</div>);
+  return (<div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 4 }}>{rows.map((c) => <div key={c} style={{ fontSize: 14, color: t.ink }}>{bareCity(c)}: <AdvisoryBanner city={c} style={{ marginTop: 0 }} /></div>)}</div>);
 }
 // Owner panel, inside #diag: what the system knows, what it could not verify, and what changed.
 function AdvisoryOwnerPanel() {
@@ -14109,6 +14097,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
     {chosen ? (<div style={{ marginTop: 22 }}>
       <Photo query={chosen} h={260} radius={18} />
       <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{placeLine(chosen)}</div>
+      <AdvisoryBanner city={chosen} />
       {seasonTxt ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>When to go.</strong> {typeof seasonTxt === "string" ? seasonTxt : (seasonTxt.window ? `${seasonTxt.window}. ` : "") + (seasonTxt.note || "")}</div> : null}
       {gw && gw.note ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}><strong style={{ color: t.ink }}>Getting there.</strong> {gw.note}</div> : null}
       {code ? <div style={{ marginTop: 10 }}><AssistCard code={code} when="on arrival" /></div> : null}
@@ -18175,7 +18164,7 @@ function DestCard({ d, i, p }) {
         <button onClick={() => p.removeDest(i)} style={{ background: "none", border: "none", color: t.inkFaint, marginLeft: 2 }}><X size={18} /></button>
       </div>
     </div>
-    {d.city ? <AdvisoryBanner city={d.city} /> : null}
+    {d.city ? <div style={{ marginLeft: 30 }}><AdvisoryBanner city={d.city} /></div> : null}
     {/* When the trip is built around a property — a ranch, a lodge, a sporting hotel in a village
         nobody has heard of — the property is the destination and the town is only its address.
         Lead with the name and let the place sit quietly beside it. */}
@@ -20411,7 +20400,6 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
           (VIRTUOSO_EVIDENCE, member: true). The word and nothing more — no amenities, no booking
           claim — until the host agency arrangement is settled. (Tricia, 16 Oct 2026.) */}
       {(() => { const ve = virtuosoEvidence(s.name); return ve && ve.member ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginTop: 5 }}>Virtuoso</div> : null; })()}
-      {city ? <AdvisoryBanner city={s.nearbyFrom || city} compact /> : null}
       {/* A temporary state the client must see before they fall for the photograph — closed for
           works, reopening on a date, phased renovation. Hand-written on the FAVORITES entry as
           `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
