@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M885";
+const BUILD = "M886";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -12765,7 +12765,7 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   // typing its name should be offered it, from us, whatever Google thinks it is. Starts-with
   // matches first, then contains, so "harb" lists Harbour Island before anything merely containing
   // the letters. The departure picker keeps the small list — a home airport needs no curation.
-  const pool = curatedOnly ? Array.from(new Set(CITIES.concat(Object.keys(FAVORITES)))) : CITIES;
+  const pool = (curatedOnly ? Array.from(new Set(CITIES.concat(Object.keys(FAVORITES)))) : CITIES).filter((c) => !advisoryBlocked(c));
   // ALIASES ARE TYPEABLE. A client types the name of the country or the coast, not the name of
   // the key — "Dominican Republic", not "Punta Cana"; "Cayman Islands", not "Grand Cayman". Those
   // names are in CITY_ALIASES, but the dropdown only searched the keys, and Google throws a
@@ -13156,7 +13156,400 @@ function useFreshBuild(screen) {
   useEffect(() => { if (ready && screen === "landing") refresh(); }, [ready, screen]);
   return { ready, refresh };
 }
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+// U.S. STATE DEPARTMENT TRAVEL ADVISORIES — one system for every destination (Tricia, 18 Oct 2026).
+//
+// Only Level 3 (Reconsider Travel) and Level 4 (Do Not Travel) are shown. The official source is
+// the State Department's own feed, read by /api/advisories (cached a week at the edge; Tricia:
+// monthly is fine). ADVISORY_SNAPSHOT below is what was read by hand on the date in verifiedAt,
+// country by country, and it is the OWNER-APPROVED baseline: the live feed can only RAISE a
+// level (a new Level 4 restricts booking the moment the feed is read); it never lowers one.
+// Lowering ships in a build, which is the owner's approval. If the live read fails, the
+// snapshot stands and the banner says when it was last verified; past 45 days it says it is
+// stale rather than pretending to be current.
+//
+// Where it shows: the top of every destination card (city, region or country), the itinerary,
+// the experience guide, a line on every hotel card, and a gate on every outbound booking link
+// (hotel, restaurant, tickets, car, rail) for an affected destination — Level 3 asks for an
+// acknowledgment first, Level 4 does not open the link at all. Level 4 destinations are also
+// kept out of the search suggestions and the "open to suggestions" lists, and the destination
+// card shows the warning with everything bookable hidden. Nothing in the hotel data is touched.
+//
+// Sub-regions: an advisory may name a state, a province or a city. A destination is matched
+// against those by its own name and by ADVISORY_DEST_REGION (the state the State Department
+// would write — "Los Cabos" sits in "Baja California Sur", not "Baja California"). Exceptions
+// in the text ("except Sharm El-Sheikh by air") are honoured. This is a text match and can
+// miss or over-match; the owner panel (#diag) lists every match for review, and ADVISORY_PIN
+// is the owner's final word on a destination.
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+const ADVISORY_FEED_URL = "https://travel.state.gov/_res/rss/TAsTWs.xml";
+const ADVISORY_INDEX_URL = "https://travel.state.gov/en/international-travel/travel-advisories.html";
+const ADVISORY_STALE_DAYS = 45;
+// Destination label → the country the State Department writes. US states and territories carry
+// no advisory and resolve to null. Anything not here falls through to the label itself.
+const ADVISORY_COUNTRY_ALIAS = {
+  "England": "United Kingdom", "Scotland": "United Kingdom", "Wales": "United Kingdom", "Northern Ireland": "United Kingdom",
+  "Aeolian Islands": "Italy", "French Riviera": "France", "Monaco": "France",   // the France advisory is "about France and Monaco"
+  "Caribbean — the Nature Island": "Dominica", "British West Indies": "Anguilla", "North Atlantic": "Bermuda",
+  "Dutch Caribbean": null,   // Aruba and Curaçao have their own advisories — resolved per destination below
+  "Caribbean": null,         // likewise
+  "USVI": null, "PR": null, "District of Columbia": null, "Montana": null, "Utah": null, "Vermont": null,
+};
+// Destination → country, for the labels above that cover several countries.
+const ADVISORY_DEST_COUNTRY = {
+  "turks & caicos": "Turks and Caicos Islands", "british virgin islands": "British Virgin Islands", "grenada": "Grenada", "barbados": "Barbados", "st lucia": "Saint Lucia",
+  "aruba": "Aruba", "curacao": "Curaçao", "st barth": "French West Indies", "martinique": "French West Indies", "guadeloupe": "French West Indies",
+  "canouan": "Saint Vincent and the Grenadines", "mustique": "Saint Vincent and the Grenadines", "bequia": "Saint Vincent and the Grenadines", "st maarten": "Sint Maarten",
+};
+// Destination → the sub-region label the State Department uses, where a destination sits inside
+// a state or province that the advisory may name. Only needed where the name alone would not match
+// or would match wrongly.
+const ADVISORY_DEST_REGION = {
+  "mexico city": "Mexico City", "san miguel de allende": "Guanajuato", "los cabos": "Baja California Sur", "riviera nayarit": "Nayarit", "riviera maya": "Quintana Roo",
+  "guayaquil": "Guayaquil", "sharm el sheikh": "Sharm El-Sheikh", "cusco": "Cusco city", "palawan": "Palawan", "siem reap": "Siem Reap", "phnom penh": "Phnom Penh",
+  "hong kong": "Hong Kong SAR", "bali": "Bali", "nairobi": "Nairobi", "lima": "Lima",
+};
+// The owner's final word: a destination pinned here shows this level whatever the text match says
+// (3 or 4 to force a warning, 0 to clear a false match). Empty until needed.
+const ADVISORY_PIN = {
+  // Guayaquil: the advisory splits the city at Portete de Tarqui Avenue — Level 4 south of it, Level 3
+  // north, where the hotels are. A text match cannot tell the halves apart; the owner reads it as 3.
+  "guayaquil": 3,
+};
+// Destinations where Voyage One has not approved new booking even after a Level 3 acknowledgment.
+// Empty until the owner names one.
+const ADVISORY_BOOKING_HOLD = [];
+// Read by hand from each country's own travel.state.gov page on verifiedAt. level null = the State
+// Department publishes no advisory (US territories) or the page could not be read (status).
+const ADVISORY_SNAPSHOT = { verifiedAt: "2026-10-18", countries: {
+  "Antigua and Barbuda": { level: 1, updated: "2026-05-20", url: "https://travel.state.gov/en/international-travel/travel-advisories/antigua-and-barbuda.html", reasons: "", indicators: [], aka: ["Antigua & Barbuda"], status: "verified" },
+  "Argentine Republic": { level: 1, updated: "2026-07-10", url: "https://travel.state.gov/en/international-travel/travel-advisories/argentina.html", reasons: "", indicators: [], aka: ["Argentina"], status: "verified" },
+  "Commonwealth of Australia": { level: 1, updated: "2026-08-18", url: "https://travel.state.gov/en/international-travel/travel-advisories/australia.html", reasons: "", indicators: [], aka: ["Australia"], status: "verified" },
+  "Republic of Austria": { level: 1, updated: "2026-08-21", url: "https://travel.state.gov/en/international-travel/travel-advisories/austria.html", reasons: "", indicators: [], aka: ["Austria"], status: "verified" },
+  "Commonwealth of The Bahamas": { level: 2, updated: "2026-07-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/the-bahamas.html", reasons: "crime", indicators: ["C"], aka: ["The Bahamas"], status: "verified" },
+  "Kingdom of Bahrain": { level: 3, updated: "2026-08-27", url: "https://travel.state.gov/en/international-travel/travel-advisories/bahrain.html", reasons: "terrorism and armed conflict", indicators: ["T", "O"], aka: ["Bahrain"], status: "verified" },
+  "Kingdom of Belgium": { level: 2, updated: "2026-07-23", url: "https://travel.state.gov/en/international-travel/travel-advisories/belgium.html", reasons: "crime, terrorism, and unrest", indicators: ["T"], aka: ["Belgium"], status: "verified" },
+  "Belize": { level: 2, updated: "2026-03-12", url: "https://travel.state.gov/en/international-travel/travel-advisories/belize.html", reasons: "crime", indicators: ["C"], aka: [], status: "verified", regions: [{ area: "Southside Belize City", level: 3, reason: "due to crime" }] },
+  "Kingdom of Bhutan": { level: 1, updated: "2026-09-04", url: "https://travel.state.gov/en/international-travel/travel-advisories/bhutan.html", reasons: "", indicators: [], aka: ["Bhutan"], status: "verified" },
+  "Plurinational State of Bolivia": { level: 2, updated: "2026-08-18", url: "https://travel.state.gov/en/international-travel/travel-advisories/bolivia.html", reasons: "crime, unrest, and health", indicators: ["C"], aka: ["Bolivia"], status: "verified", regions: [{ area: "Chapare Province", level: 4, reason: "due to crime" }] },
+  "Republic of Botswana": { level: 2, updated: "2026-06-17", url: "https://travel.state.gov/en/international-travel/travel-advisories/botswana.html", reasons: "crime", indicators: ["C"], aka: ["Botswana"], status: "verified" },
+  "Federative Republic of Brazil": { level: 2, updated: "2026-08-31", url: "https://travel.state.gov/en/international-travel/travel-advisories/brazil.html", reasons: "crime and kidnapping", indicators: ["C", "K"], aka: ["Brazil"], status: "verified", regions: [{ area: "International land borders", level: 4, reason: "due to crime and kidnapping" }, { area: "Informal housing developments (favelas, vilas, comunidades or conglomerados)", level: 4, reason: "due to crime" }] },
+  "Anguilla": { level: 1, updated: "2026-05-22", url: "https://travel.state.gov/en/international-travel/travel-advisories/anguilla.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Kingdom of Cambodia": { level: 2, updated: "2026-09-15", url: "https://travel.state.gov/en/international-travel/travel-advisories/cambodia.html", reasons: "crime, unrest, and unexploded ordnance", indicators: ["C", "U", "O"], aka: ["Cambodia"], status: "verified", regions: [{ area: "Cambodia-Thailand border (areas within 50 km of the border)", level: 4, reason: "Do not travel to areas within 50km of the Cambodia - Thailand border" }] },
+  "Canada": { level: 1, updated: "2026-06-05", url: "https://travel.state.gov/en/international-travel/travel-advisories/canada.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Cayman Islands": { level: 1, updated: "2026-05-21", url: "https://travel.state.gov/en/international-travel/travel-advisories/cayman-islands.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Republic of Chile": { level: 2, updated: "2026-08-19", url: "https://travel.state.gov/en/international-travel/travel-advisories/chile.html", reasons: "crime, unrest, and health", indicators: ["C", "U", "H"], aka: ["Chile"], status: "verified" },
+  "China": { level: 2, updated: "2026-09-04", url: "https://travel.state.gov/en/international-travel/travel-advisories/china.html", reasons: "arbitrary enforcement of local laws, the use of exit bans without a fair and transparent process under the law, and the risk of unjust arrest or detention", indicators: ["O"], aka: [], status: "verified", regions: [{ area: "Macau SAR", level: 3, reason: "due to limited emergency consular services and arbitrary enforcement of local laws" }] },
+  "Colombia": { level: 3, updated: "2026-03-31", url: "https://travel.state.gov/en/international-travel/travel-advisories/colombia.html", reasons: "crime, terrorism, civil unrest, kidnapping, and natural disasters", indicators: ["C", "T", "U", "K", "N"], aka: [], status: "verified", regions: [{ area: "Arauca, Cauca (excluding Popayán), Valle del Cauca (excluding Cali), and Norte de Santander departments", level: 4, reason: "due to crime and terrorism" }, { area: "Colombia-Venezuela border region (within 10 km / approx. 6 miles of the border)", level: 4, reason: "due to crime, kidnapping, conflict between armed groups, and the risk of detention" }] },
+  "Costa Rica": { level: 2, updated: "2026-04-02", url: "https://travel.state.gov/en/international-travel/travel-advisories/costa-rica.html", reasons: "crime", indicators: ["C"], aka: [], status: "verified" },
+  "Croatia": { level: 1, updated: "2026-05-18", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.hrv.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Czechia": { level: 1, updated: "2026-01-08", url: "https://travel.state.gov/en/international-travel/travel-advisories/czechia.html", reasons: "", indicators: [], aka: ["Czech Republic"], status: "verified" },
+  "Kingdom of Denmark": { level: 2, updated: "2024-09-17", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/denmark-travel-advisory.html", reasons: "terrorism", indicators: ["T"], aka: ["Denmark"], status: "verified" },
+  "Dominica": { level: 1, updated: "2026-05-20", url: "https://travel.state.gov/en/international-travel/travel-advisories/dominica.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Dominican Republic": { level: 2, updated: "2025-06-12", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.dom.html", reasons: "crime", indicators: ["C"], aka: [], status: "verified" },
+  "Aruba": { level: 1, updated: "2026-08-20", url: "https://travel.state.gov/en/international-travel/travel-advisories/aruba.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Curaçao": { level: 1, updated: "2026-09-09", url: "https://travel.state.gov/en/international-travel/travel-advisories/curacao.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Ecuador": { level: 2, updated: "2026-08-18", url: "https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.ecu.html", reasons: "risk of crime, terrorism, unrest, and kidnapping", indicators: ["C", "T", "U", "K"], aka: [], status: "verified", regions: [{ area: "Guayaquil: Nueva Prosperina and Pascuales districts, and all areas south of Portete de Tarqui Avenue", level: 4, reason: "due to crime and terrorism" }, { area: "Huaquillas and Arenillas (El Oro province)", level: 4, reason: "due to crime and terrorism" }, { area: "Quevedo, Quinsaloma, and Pueblo Viejo (Los Rios province)", level: 4, reason: "due to crime and terrorism" }, { area: "Duran (Guayas province)", level: 4, reason: "due to crime and terrorism" }, { area: "Esmeraldas City and all areas north of it (Esmeraldas province)", level: 4, reason: "due to crime and terrorism" }, { area: "Area north of Esmeraldas City to the Colombian border and east to Carchi province", level: 4, reason: "due to crime and terrorism" }, { area: "Guayaquil: all areas north of Portete de Tarqui Avenue", level: 3, reason: "due to crime and terrorism" }, { area: "El Oro province, outside Huaquillas and Arenillas", level: 3, reason: "due to crime and terrorism" }, { area: "Los Rios province, outside Quevedo, Quinsaloma, and Pueblo Viejo", level: 3, reason: "due to crime and terrorism" }, { area: "All areas south of Esmeraldas City (Esmeraldas province)", level: 3, reason: "due to crime and terrorism" }, { area: "Sucumbios province", level: 3, reason: "due to crime and terrorism" }, { area: "Manabi province", level: 3, reason: "due to crime and terrorism" }, { area: "Santa Elena province", level: 3, reason: "due to crime and terrorism" }, { area: "Santo Domingo province", level: 3, reason: "due to crime and terrorism" }] },
+  "Egypt": { level: 2, updated: "2025-07-15", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.egy.html", reasons: "terrorism, crime, and health", indicators: ["T", "C", "H", "O"], aka: [], status: "verified", regions: [{ area: "Northern and Middle Sinai Peninsula", level: 4, reason: "due to terrorism" }, { area: "Western Desert (unless traveling with a professionally licensed tour company)", level: 4, reason: "due to risk to safety and security" }, { area: "Egyptian border areas", level: 4, reason: "due to military zones" }] },
+  "El Salvador": { level: 1, updated: "2026-06-25", url: "https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.slv.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "United Kingdom": { level: 2, updated: "2026-09-09", url: "https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.gbr.html", reasons: "terrorism", indicators: ["T"], aka: ["England", "Great Britain", "Northern Ireland", "Scotland", "Wales"], status: "verified" },
+  "Fiji": { level: 1, updated: "2024-12-02", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/fiji-travel-advisory.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Finland": { level: 1, updated: "2026-03-13", url: "https://travel.state.gov/en/international-travel/travel-advisories/finland.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "France": { level: 2, updated: "2025-05-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/france.html", reasons: "terrorism and unrest", indicators: ["T", "U"], aka: [], status: "verified" },
+  "French Polynesia": { level: 1, updated: "2024-12-02", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/french-polynesia-travel-advisory.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "French West Indies": { level: 1, updated: "2024-08-22", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/french-west-indies-travel-advisory.html", reasons: "", indicators: [], aka: ["French Saint Martin", "Guadeloupe", "Martinique", "Saint Barthelemy", "St Barth"], status: "verified" },
+  "Germany": { level: 2, updated: "2025-05-13", url: "https://travel.state.gov/en/international-travel/travel-advisories/germany.html", reasons: "terrorism", indicators: ["T"], aka: [], status: "verified" },
+  "Greece": { level: 1, updated: "2025-10-23", url: "https://travel.state.gov/en/international-travel/travel-advisories/greece.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Guatemala": { level: 3, updated: "2026-03-12", url: "https://travel.state.gov/en/international-travel/travel-advisories/guatemala.html", reasons: "crime and terrorism", indicators: ["C", "T"], aka: [], status: "verified", regions: [{ area: "San Marcos Department", level: 4, reason: "due to risk of crime and terrorism" }, { area: "Huehuetenango Department", level: 4, reason: "due to risk of crime and terrorism" }, { area: "Zone 18 in Guatemala City and the city of Villa Nueva", level: 4, reason: "due to risk of crime and terrorism" }] },
+  "Honduras": { level: 3, updated: "2026-08-25", url: "https://travel.state.gov/en/international-travel/travel-advisories/honduras.html", reasons: "crime and terrorism", indicators: ["C", "T"], aka: [], status: "verified", regions: [{ area: "Gracias a Dios Department", level: 4, reason: "due to crime" }] },
+  "Hong Kong": { level: 2, updated: "2026-09-04", url: "https://travel.state.gov/en/international-travel/travel-advisories/hong-kong.html", reasons: "arbitrary enforcement of local laws", indicators: ["O"], aka: ["Hong Kong SAR"], status: "verified" },
+  "Hungary": { level: 1, updated: "2026-04-15", url: "https://travel.state.gov/en/international-travel/travel-advisories/hungary.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Iceland": { level: 1, updated: "2026-05-05", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.isl.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "India": { level: 2, updated: "2025-06-16", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.ind.html", reasons: "crime and terrorism", indicators: ["U", "C", "T", "O"], aka: [], status: "verified", regions: [{ area: "Union Territory of Jammu and Kashmir (except the eastern Ladakh region and its capital, Leh)", level: 4, reason: "due to terrorism and civil unrest" }, { area: "India-Pakistan Border", level: 4, reason: "due to potential for armed conflict" }, { area: "Parts of Central and East India (Naxalite-affected areas: Bihar, Jharkhand, Chhattisgarh, West Bengal, Meghalaya, Odisha, eastern Maharashtra, eastern Madhya Pradesh)", level: 4, reason: "due to terrorism" }, { area: "Manipur", level: 4, reason: "due to the threat of violence and crime" }, { area: "Northeastern States (Assam, Nagaland, Arunachal Pradesh, Mizoram, Sikkim, Tripura)", level: 3, reason: "due to terrorism and violence" }] },
+  "Indonesia": { level: 2, updated: "2026-07-07", url: "https://travel.state.gov/en/international-travel/travel-advisories/indonesia.html", reasons: "risk of natural disasters, unrest, and terrorism", indicators: ["U", "N", "T"], aka: [], status: "verified", regions: [{ area: "Central Papua (Papua Tengah) and Highland Papua (Papua Pegunungan)", level: 4, reason: "due to risk of civil unrest" }] },
+  "Ireland": { level: 1, updated: "2026-03-20", url: "https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.irl.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Israel, The West Bank and Gaza": { level: 3, updated: "2026-08-26", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/israel-west-bank-and-gaza-travel-advisory.html", reasons: "terrorism and unrest", indicators: ["U", "T"], aka: ["Israel", "Israel, the West Bank and Gaza"], status: "verified", regions: [{ area: "Gaza", level: 4, reason: "due to terrorism, unrest, and limited health infrastructure" }, { area: "West Bank", level: 3, reason: "due to terrorism and unrest" }, { area: "Areas north of Route 85 to Route 90 (south) to Route 87 (northern Israel)", level: 4, reason: "due to armed conflict" }, { area: "Within 11.3 kilometers/7 miles of the Gaza Strip (Gaza border)", level: 4, reason: "due to armed conflict" }, { area: "Within 2.4 kilometers/1.5 miles of the Israel-Egypt border, except the Taba (Menachem Begin) border crossing", level: 4, reason: "due to armed conflict" }] },
+  "Italy": { level: 2, updated: "2026-09-10", url: "https://travel.state.gov/en/international-travel/travel-advisories/italy.html", reasons: "terrorism", indicators: ["T"], aka: [], status: "verified" },
+  "Jamaica": { level: 2, updated: "2026-06-23", url: "https://travel.state.gov/en/international-travel/travel-advisories/jamaica.html", reasons: "crime and health risks", indicators: ["C", "H", "N"], aka: [], status: "verified", regions: [{ area: "St. Ann's Parish - Steer Town", level: 3, reason: "due to risk of crime" }, { area: "St. Catherine's Parish - Central Village, Waterford, March Pen, and Grange Lane", level: 3, reason: "due to risk of crime" }, { area: "Clarendon Parish - York Town and Western Park", level: 3, reason: "due to risk of crime" }, { area: "St. Elizabeth's Parish - Crawford District and New Town", level: 3, reason: "due to risk of crime" }, { area: "Hanover Parish - The Green Island Area", level: 3, reason: "due to risk of crime" }, { area: "St. James Parish - Salt Spring, Flankers, Rose Heights, the Hart Street area, Norwood, and Mount Salem", level: 3, reason: "due to risk of crime" }, { area: "Kingston and St. Andrew Parish - August Town, Brooke Valley, Mountain View, Nannyville Gardens, Swallowfield area, New Haven, the Sherlock Crescent Area, Denham Town, Parade Gardens, and Greenwich Town", level: 3, reason: "due to risk of crime" }, { area: "Manchester Parish - Old England, New Hall, and Grey Ground", level: 3, reason: "due to risk of crime" }, { area: "St. Thomas Parish - The Seaforth Area (Blacksmith Lane and Navarre Lane)", level: 3, reason: "due to risk of crime" }, { area: "Westmoreland Parish - Grange Hill and Savanna-la-Mar", level: 3, reason: "due to risk of crime" }] },
+  "Japan": { level: 1, updated: "2025-05-15", url: "https://travel.state.gov/en/international-travel/travel-advisories/japan.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Jordan": { level: 3, updated: "2026-08-29", url: "https://travel.state.gov/en/international-travel/travel-advisories/jordan.html", reasons: "terrorism and armed conflict", indicators: ["T", "O"], aka: [], status: "verified", regions: [{ area: "Mansheyat al Ghayyath, Ruwayshid, and the border with Syria and Iraq", level: 4, reason: "due to risk of terrorism and unrest" }, { area: "Designated Syrian refugee camps in Jordan", level: 4, reason: "due to the Government of Jordan's restrictions on entry into these camps" }, { area: "Rusayfah City", level: 4, reason: "due to risk of terrorism and crime" }, { area: "The Baqa'a neighborhood of Ayn Basha", level: 4, reason: "due to risk of terrorism and crime" }, { area: "Zarqa City", level: 3, reason: "heightened risk of terrorism and crime" }, { area: "Ma'an city and Ma'an Governorate (all areas east of Highway 15, and areas within two kilometers west of Highway 15)", level: 3, reason: "heightened risk of terrorism and crime" }] },
+  "Kenya": { level: 2, updated: "2026-07-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/kenya.html", reasons: "risk of health, crime, kidnapping, terrorism, unrest, and traffic safety", indicators: ["C", "K", "T", "U", "H", "O"], aka: [], status: "verified", regions: [{ area: "Nairobi neighborhoods of Eastleigh and Kibera", level: 4, reason: "due to risk of crime and kidnapping" }, { area: "Counties of Garissa, Wajir, Mandera, Lamu, Tana River (except Tsavo National Park), Kilifi (north of highway C103), and coastal areas north of Malindi", level: 4, reason: "due to risk of kidnapping and terrorism" }, { area: "West Pokot County and western Turkana County", level: 4, reason: "due to risk of crime" }, { area: "Marsabit and Turkana Counties within 30 miles (50 kilometers) of the border with Ethiopia", level: 4, reason: "due to risk of unrest" }] },
+  "Kuwait": { level: 3, updated: "2026-08-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/kuwait.html", reasons: "the threat of armed conflict, landmines, and crime", indicators: ["C", "O"], aka: [], status: "verified" },
+  "Laos": { level: 2, updated: "2026-07-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/laos.html", reasons: "crime, unrest, and unexploded ordnances", indicators: ["C", "U", "O"], aka: [], status: "verified", regions: [{ area: "Xaisomboun Province", level: 3, reason: "due to civil unrest" }] },
+  "Madagascar": { level: 2, updated: "2025-12-05", url: "https://travel.state.gov/en/international-travel/travel-advisories/madagascar.html", reasons: "crime, unrest, and health", indicators: ["C", "U", "H"], aka: [], status: "verified", regions: [{ area: "Tsaratanana, Betsiboka Region", level: 3, reason: "violent crime, such as armed carjacking, banditry, mugging, home invasion, and kidnapping" }, { area: "The unnamed road between Tsiroanomandidy, Bongolava Region, and Maintirano, Melaky Region", level: 3, reason: "violent crime, such as armed carjacking, banditry, mugging, home invasion, and kidnapping" }, { area: "Betroka, Anosy Region", level: 3, reason: "violent crime, such as armed carjacking, banditry, mugging, home invasion, and kidnapping" }, { area: "National Road 34 (RN34) between Miandrivazo and Malaimbandy, Menabe Region", level: 3, reason: "violent crime, such as armed carjacking, banditry, mugging, home invasion, and kidnapping" }, { area: "National Road 13 (RN13) between Ihosy, Ihorombe Region, and Betroka, Anosy Region", level: 3, reason: "violent crime, such as armed carjacking, banditry, mugging, home invasion, and kidnapping" }, { area: "The Menabe Region south of Morondava", level: 3, reason: "violent crime, such as armed carjacking, banditry, mugging, home invasion, and kidnapping" }] },
+  "Maldives": { level: 2, updated: "2025-10-07", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/maldives-travel-advisory.html", reasons: "terrorism", indicators: ["T"], aka: [], status: "verified" },
+  "Malta": { level: 1, updated: "2026-07-09", url: "https://travel.state.gov/en/international-travel/travel-advisories/malta.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Mexico": { level: 2, updated: "2026-05-29", url: "https://travel.state.gov/en/international-travel/travel-advisories/mexico.html", reasons: "terrorism, crime, and kidnapping", indicators: ["T", "C", "K"], aka: [], status: "verified", regions: [{ area: "Colima", level: 4, reason: "due to terrorism, crime, and kidnapping" }, { area: "Guerrero", level: 4, reason: "due to terrorism, crime, and kidnapping" }, { area: "Michoacan", level: 4, reason: "due to terrorism and crime" }, { area: "Sinaloa", level: 4, reason: "due to terrorism and crime" }, { area: "Tamaulipas", level: 4, reason: "due to terrorism, crime, and kidnapping" }, { area: "Zacatecas", level: 4, reason: "due to terrorism and crime" }, { area: "Baja California", level: 3, reason: "due to terrorism, crime, and kidnapping" }, { area: "Chiapas", level: 3, reason: "due to terrorism and crime" }, { area: "Chihuahua", level: 3, reason: "due to terrorism, crime, and kidnapping" }, { area: "Guanajuato", level: 3, reason: "due to terrorism, crime, and kidnapping" }, { area: "Jalisco", level: 3, reason: "due to terrorism, crime, and kidnapping" }, { area: "Morelos", level: 3, reason: "due to terrorism and crime" }, { area: "Sonora", level: 3, reason: "due to terrorism and crime" }] },
+  "Monaco": { level: null, updated: null, url: "https://travel.state.gov/en/international-travel/travel-advisories/monaco.html", reasons: "", indicators: [], aka: [], status: "unverified" },
+  "Morocco": { level: 2, updated: "2026-09-04", url: "https://travel.state.gov/en/international-travel/travel-advisories/morocco.html", reasons: "risk of terrorism", indicators: ["T"], aka: [], status: "verified" },
+  "Namibia": { level: 2, updated: "2026-05-15", url: "https://travel.state.gov/en/international-travel/travel-advisories/namibia.html", reasons: "crime and health", indicators: ["C", "H"], aka: [], status: "verified" },
+  "Netherlands": { level: 2, updated: "2026-08-18", url: "https://travel.state.gov/en/international-travel/travel-advisories/netherlands.html", reasons: "terrorism", indicators: ["T"], aka: [], status: "verified" },
+  "New Zealand": { level: 1, updated: "2026-04-29", url: "https://travel.state.gov/en/international-travel/travel-advisories/new-zealand.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Nicaragua": { level: 3, updated: "2026-05-14", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/nicaragua-travel-advisory.html", reasons: "risk of crime, health, wrongful detention, and arbitrary enforcement of local laws", indicators: ["C", "H", "D", "O"], aka: [], status: "verified" },
+  "Bermuda": { level: 1, updated: "2026-04-10", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/bermuda-travel-advisory.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Norway": { level: 1, updated: "2026-07-06", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/norway-travel-advisory.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Oman": { level: 3, updated: "2026-08-30", url: "https://travel.state.gov/en/international-travel/travel-advisories/oman.html", reasons: "risk of armed conflict and terrorism", indicators: ["T", "O"], aka: [], status: "verified", regions: [{ area: "The Yemen border region", level: 4, reason: "due to terrorism and armed conflict" }] },
+  "Panama": { level: 2, updated: "2026-08-19", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/panama-travel-advisory.html", reasons: "crime", indicators: ["C"], aka: [], status: "verified", regions: [{ area: "Mosquito Gulf (within 10 miles of the coastline, from Alligator Creek to Cocle del Norte)", level: 4, reason: "due to crime" }, { area: "Parts of the Darien Region (all areas south of Jaque, Manene, Yaviza, and Lajas Blancas communities to the Colombian border; the community of Lajas Blancas; the community of El Salto)", level: 4, reason: "due to crime" }] },
+  "Peru": { level: 2, updated: "2026-09-04", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.per.html", reasons: "risk of crime, unrest, kidnapping, and terrorism", indicators: ["C", "T", "U", "K"], aka: [], status: "verified", regions: [{ area: "Colombia-Peru border area in the Loreto Region", level: 4, reason: "due to crime" }, { area: "Valley of the Apurímac, Ene, and Mantaro Rivers (VRAEM), which includes Vilcabamba", level: 4, reason: "due to crime and threats of terrorism" }, { area: "Abancay, Ayacucho, Huancavelica, and Huancayo (within the regions of Ayacucho, Cusco, Huancavelica, and Junín)", level: 4, reason: "due to crime and threats of terrorism" }] },
+  "Philippines": { level: 2, updated: "2026-09-01", url: "https://travel.state.gov/en/international-travel/travel-advisories/philippines.html", reasons: "crime, terrorism, unrest, and kidnapping", indicators: ["C", "T", "U", "K"], aka: [], status: "verified", regions: [{ area: "The Sulu Archipelago, including the southern Sulu Sea", level: 4, reason: "due to the risk of crime, terrorism, unrest, and kidnapping" }, { area: "Marawi City in Mindanao", level: 4, reason: "due to the risk of terrorism and unrest" }, { area: "Certain other areas of Mindanao (excluding Davao City central business district and airport, Davao del Norte Province, the Dinagat Islands, Samal Island, and Siargao Island)", level: 3, reason: "due to crime, terrorism, unrest, and kidnapping" }] },
+  "Poland": { level: 1, updated: "2025-06-05", url: "https://travel.state.gov/en/international-travel/travel-advisories/poland.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Portugal": { level: 1, updated: "2025-12-23", url: "https://www.travel.state.gov/en/international-travel/travel-advisories/portugal.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Qatar": { level: 3, updated: "2026-08-28", url: "https://travel.state.gov/content/travel/en/traveladvisories/traveladvisories/qatar-travel-advisory.html", reasons: "risk of armed conflict", indicators: [], aka: [], status: "verified" },
+  "Rwanda": { level: 3, updated: "2026-06-04", url: "https://travel.state.gov/en/international-travel/travel-advisories/rwanda.html", reasons: "crime, unrest and health risks", indicators: ["H", "C", "U"], aka: [], status: "verified", regions: [{ area: "Rwanda's border with the Democratic Republic of the Congo (within 10 kilometers)", level: 4, reason: "due to unrest" }] },
+  "Saudi Arabia": { level: 3, updated: "2026-10-12", url: "https://travel.state.gov/en/international-travel/travel-advisories/saudi-arabia.html", reasons: "risk of drone and missile targeting of American interests by Iran and the Iranian-supported Houthis, armed conflict, terrorism, exit bans, and local laws regarding social media activity", indicators: ["T", "O"], aka: [], status: "verified", regions: [{ area: "Yemen border region", level: 4, reason: "due to terrorism" }] },
+  "Seychelles": { level: 1, updated: "2025-12-09", url: "https://travel.state.gov/en/international-travel/travel-advisories/seychelles.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Singapore": { level: 1, updated: "2026-03-09", url: "https://travel.state.gov/en/international-travel/travel-advisories/singapore.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Slovenia": { level: 1, updated: "2026-05-15", url: "https://travel.state.gov/en/international-travel/travel-advisories/slovenia.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "South Africa": { level: 2, updated: "2025-05-27", url: "https://travel.state.gov/en/international-travel/travel-advisories/south-africa.html", reasons: "crime, terrorism, unrest, and kidnapping", indicators: ["C", "T", "U", "K"], aka: [], status: "verified" },
+  "South Korea": { level: 1, updated: "2025-05-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/south-korea.html", reasons: "", indicators: [], aka: ["Korea", "Republic of Korea"], status: "verified" },
+  "Spain": { level: 2, updated: "2026-08-01", url: "https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.esp.html", reasons: "terrorism and unrest", indicators: ["T", "U"], aka: [], status: "verified", regions: [{ area: "Ceuta", level: 3, reason: "due to unrest" }] },
+  "Sri Lanka": { level: 2, updated: "2025-10-14", url: "https://travel.state.gov/en/international-travel/travel-advisories/destination.lka.html", reasons: "civil unrest, terrorism, and landmines", indicators: ["U", "T", "O"], aka: [], status: "verified" },
+  "Saint Kitts and Nevis": { level: 1, updated: "2026-07-07", url: "https://travel.state.gov/en/international-travel/travel-advisories/saint-kitts-and-nevis.html", reasons: "", indicators: [], aka: ["St Kitts & Nevis", "St. Kitts and Nevis"], status: "verified" },
+  "Sint Maarten": { level: 1, updated: "2026-08-24", url: "https://travel.state.gov/en/international-travel/travel-advisories/sint-maarten.html", reasons: "", indicators: [], aka: ["St Maarten", "St Martin / Sint Maarten"], status: "verified" },
+  "Sweden": { level: 2, updated: "2026-05-18", url: "https://travel.state.gov/en/international-travel/travel-advisories/sweden.html", reasons: "terrorism", indicators: ["T"], aka: [], status: "verified" },
+  "Switzerland": { level: 1, updated: "2026-08-14", url: "https://travel.state.gov/en/international-travel/travel-advisories/switzerland.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Tanzania": { level: 2, updated: "2026-10-16", url: "https://travel.state.gov/en/international-travel/travel-advisories/tanzania.html", reasons: "crime, terrorism, health, unrest, arbitrary enforcement of laws, and targeting gay and lesbian individuals", indicators: ["C", "T", "U", "H", "O"], aka: [], status: "verified", regions: [{ area: "Border between Tanzania and Mozambique in the Mtwara Region", level: 3, reason: "terrorism" }] },
+  "Thailand": { level: 1, updated: "2026-07-07", url: "https://travel.state.gov/en/international-travel/travel-advisories/thailand.html", reasons: "", indicators: ["U"], aka: [], status: "verified" },
+  "Saint Vincent and the Grenadines": { level: 1, updated: "2026-07-07", url: "https://travel.state.gov/en/international-travel/travel-advisories/saint-vincent-and-the-grenadines.html", reasons: "", indicators: [], aka: ["St Vincent and the Grenadines", "The Grenadines"], status: "verified" },
+  "Turkey": { level: 2, updated: "2026-06-09", url: "https://travel.state.gov/en/international-travel/travel-advisories/turkey.html", reasons: "terrorism, armed conflict, and arbitrary detentions", indicators: ["T", "O"], aka: ["Türkiye"], status: "verified", regions: [{ area: "Border region with Syria and Iraq (within 10 km / 6 miles of the borders)", level: 4, reason: "terrorism and armed conflict" }] },
+  "Uruguay": { level: 2, updated: "2026-07-28", url: "https://travel.state.gov/en/international-travel/travel-advisories/uruguay.html", reasons: "crime", indicators: ["C"], aka: [], status: "verified" },
+  "Vietnam": { level: 1, updated: "2026-06-24", url: "https://travel.state.gov/en/international-travel/travel-advisories/vietnam.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Turks and Caicos Islands": { level: 2, updated: "2026-07-07", url: "https://travel.state.gov/en/international-travel/travel-advisories/turks-and-caicos-islands.html", reasons: "crime", indicators: ["C"], aka: ["Turks & Caicos"], status: "verified" },
+  "British Virgin Islands": { level: 1, updated: "2026-05-22", url: "https://travel.state.gov/en/international-travel/travel-advisories/british-virgin-islands.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Grenada": { level: 2, updated: "2026-01-05", url: "https://travel.state.gov/en/international-travel/travel-advisories/grenada.html", reasons: "crime", indicators: ["C"], aka: [], status: "verified" },
+  "Barbados": { level: 1, updated: "2026-04-10", url: "https://travel.state.gov/en/international-travel/travel-advisories/barbados.html", reasons: "", indicators: [], aka: [], status: "verified" },
+  "Saint Lucia": { level: 2, updated: "2026-07-10", url: "https://travel.state.gov/en/international-travel/travel-advisories/saint-lucia.html", reasons: "risk of crime", indicators: ["C"], aka: ["St Lucia", "St. Lucia"], status: "verified" },
+  "Puerto Rico (US territory — may have no advisory)": { level: null, updated: null, url: "", reasons: "", indicators: [], aka: ["Puerto Rico"], status: "unverified" },
+  "U.S. Virgin Islands (US territory — may have no advisory)": { level: null, updated: null, url: "", reasons: "", indicators: [], aka: ["U.S. Virgin Islands"], status: "unverified" },
+  "Lebanon": { level: 4, updated: "2026-08-21", url: "https://travel.state.gov/en/international-travel/travel-advisories/lebanon.html", reasons: "civil unrest, crime, terrorism, risk of wrongful detention, kidnapping, and limited health facilities", indicators: ["C", "T", "U", "K", "O"], aka: [], status: "verified", regions: [{ area: "Southern Lebanon", level: 4, reason: "risk of terrorism, kidnapping, and armed conflict" }, { area: "The border with Syria", level: 4, reason: "risk of terrorism, kidnapping, unexploded ordnance, and armed conflict" }, { area: "The Dahiyeh and areas of southern Beirut", level: 4, reason: "risk of terrorism, kidnapping, unexploded ordnance, and armed conflict" }, { area: "Refugee settlements", level: 4, reason: "risk of crime, terrorism, civil unrest, unexploded ordnance, and armed conflict" }] },
+  "Cyprus": { level: 1, updated: "2026-06-01", url: "https://travel.state.gov/en/international-travel/travel-advisories/cyprus.html", reasons: "", indicators: ["O"], aka: [], status: "verified" },
+  "Trinidad and Tobago": { level: 3, updated: "2026-04-13", url: "https://travel.state.gov/en/international-travel/travel-advisories/trinidad-and-tobago.html", reasons: "crime, health, and terrorism", indicators: ["C", "H", "T"], aka: [], status: "verified" },
+  "United Arab Emirates": { level: 3, updated: "2026-08-29", url: "https://travel.state.gov/content/tsg_aem/us/en/home/international-travel/travel-advisories/destination.are.html", reasons: "terrorism and armed conflict", indicators: ["T", "O"], aka: [], status: "verified" },
+} };
+function advKey(s) {
+  return dnrm(String(s || "").replace(/’/g, "'"))
+    .replace(/\b(the|kingdom of|republic of|commonwealth of|state of|plurinational|federative|sar)\b/g, " ")
+    .replace(/\s+/g, " ").trim();
+}
+let ADV_INDEX = null;
+function advIndex() {
+  if (ADV_INDEX) return ADV_INDEX;
+  ADV_INDEX = {};
+  Object.keys(ADVISORY_SNAPSHOT.countries).forEach((name) => {
+    const e = { ...ADVISORY_SNAPSHOT.countries[name], name };
+    ADV_INDEX[advKey(name)] = e;
+    (e.aka || []).forEach((a) => { ADV_INDEX[advKey(a)] = e; });
+  });
+  return ADV_INDEX;
+}
+// The live read. One fetch per page load; listeners re-render when it lands.
+let ADVISORY_LIVE = null;            // { fetchedAt, index: { key: { name, level, updated, url, reasons, regions } } } | { failed: true }
+const ADV_LISTENERS = new Set();
+function advNotify() { ADV_LISTENERS.forEach((fn) => { try { fn((n) => n + 1); } catch (e) {} }); }
+function useAdvisoryTick() { const [, set] = useState(0); useEffect(() => { ADV_LISTENERS.add(set); return () => ADV_LISTENERS.delete(set); }, []); }
+async function loadAdvisories() {
+  if (ADVISORY_LIVE) return;
+  try {
+    const r = await fetch("/api/advisories");
+    const j = r.ok ? await r.json() : null;
+    if (!j || !j.ok || !Array.isArray(j.items) || !j.items.length) throw new Error((j && j.reason) || "no-data");
+    const index = {};
+    j.items.forEach((it) => { if (it && it.country) index[advKey(it.country)] = { name: it.country, level: it.level, updated: it.updated, url: it.url, reasons: it.reasons, regions: it.regions || [], tag: it.tag }; });
+    ADVISORY_LIVE = { fetchedAt: j.fetchedAt || new Date().toISOString(), index, count: j.items.length };
+    advRecordHistory();
+  } catch (e) {
+    ADVISORY_LIVE = { failed: true, reason: String(e && e.message || e), fetchedAt: new Date().toISOString() };
+  }
+  advNotify();
+}
+// Internal history: every level the live feed has ever shown for a country we carry, and every
+// change, kept in this browser. The owner panel reads it.
+function advRecordHistory() {
+  if (!ADVISORY_LIVE || ADVISORY_LIVE.failed) return;
+  let seen = {}, hist = [];
+  try { seen = JSON.parse(localStorage.getItem("voyage-one:adv-seen") || "{}"); hist = JSON.parse(localStorage.getItem("voyage-one:adv-history") || "[]"); } catch (e) {}
+  const now = new Date().toISOString().slice(0, 10);
+  const idx = advIndex();
+  Object.keys(idx).forEach((k) => {
+    const live = ADVISORY_LIVE.index[k]; if (!live || !live.level) return;
+    const prev = seen[k] != null ? seen[k] : (idx[k].level || null);
+    if (prev !== live.level) { hist.push({ at: now, country: idx[k].name, from: prev, to: live.level }); seen[k] = live.level; }
+    else if (seen[k] == null) seen[k] = live.level;
+  });
+  try { localStorage.setItem("voyage-one:adv-seen", JSON.stringify(seen)); localStorage.setItem("voyage-one:adv-history", JSON.stringify(hist.slice(-200))); } catch (e) {}
+}
+function advisoryCountryOf(city) {
+  const bare = bareCity(city || ""); if (!bare) return null;
+  const alias = (name) => (Object.prototype.hasOwnProperty.call(ADVISORY_COUNTRY_ALIAS, name) ? ADVISORY_COUNTRY_ALIAS[name] : name);
+  const direct = ADVISORY_DEST_COUNTRY[dnrm(bare)]; if (direct) return alias(direct);
+  if (Object.prototype.hasOwnProperty.call(ADVISORY_COUNTRY_ALIAS, bare)) return ADVISORY_COUNTRY_ALIAS[bare];
+  if (advIndex()[advKey(bare)]) return alias(advIndex()[advKey(bare)].name);   // a country typed as the destination
+  if (isUS(bare)) return null;
+  const label = countryOfCity(bare); if (!label) return null;
+  if (/^[A-Z]{2}$/.test(label)) return null;   // a US state abbreviation
+  return alias(label);
+}
+// A destination matches a named area only when it IS one of the listed places — "Guanajuato",
+// "Colima state", "Macau SAR" — not when its name merely appears inside a longer phrase
+// ("Rwanda's border with the DRC", "Nairobi neighborhoods of Eastleigh and Kibera",
+// "Southside Belize City"). The list is split on commas, semicolons and "and"; each item is
+// compared whole, after the words state/province/region/city/… are dropped. Exceptions in the
+// text ("except Sharm El-Sheikh by air") remove a match.
+function advRegionMatches(r, bare, regionLabel) {
+  const raw = String(r.area || ""); if (!raw.trim()) return false;
+  const full = advKey(raw);
+  const exc = (full.split(/\b(?:except|excluding|with exception of|other than|outside)\b/)[1] || "").trim();
+  const main = String(raw).replace(/\((?!\s*(?:except|excluding))[^)]*\)/g, " ");
+  const items = main.split(/[,;:]|\band\b|\bor\b|&/).map((x) => advKey(x).replace(/\b(state|province|region|city|county|parish|department|governorate|district|area|the)\b/g, " ").replace(/\s+/g, " ").trim()).filter(Boolean);
+  const tokens = [advKey(bare), regionLabel ? advKey(regionLabel) : ""].map((t) => t.replace(/\b(state|province|region|city|county|parish|department|governorate|district|the)\b/g, " ").replace(/\s+/g, " ").trim()).filter((t) => t && t.length >= 4);
+  const hit = tokens.some((t) => items.indexOf(t) >= 0);
+  const excluded = tokens.some((t) => exc && exc.indexOf(t) >= 0);
+  return hit && !excluded;
+}
+function advisoryEntry(country) {
+  const k = advKey(country);
+  const base = advIndex()[k] || null;
+  const live = ADVISORY_LIVE && !ADVISORY_LIVE.failed ? (ADVISORY_LIVE.index[k] || null) : null;
+  return { k, base, live };
+}
+// The advisory that applies to a destination, or null when nothing is at Level 3 or above.
+function advisoryFor(city) {
+  const country = advisoryCountryOf(city); if (!country) return null;
+  const bare = bareCity(city || "");
+  const { k, base, live } = advisoryEntry(country);
+  if (!base && !live) return null;
+  const baseLevel = base && base.level ? base.level : 0, liveLevel = live && live.level ? live.level : 0;
+  let level = Math.max(baseLevel, liveLevel);
+  const src = liveLevel >= baseLevel && live ? live : base;
+  const regionLabel = ADVISORY_DEST_REGION[dnrm(bare)] || null;
+  const regions = [].concat(base && base.regions ? base.regions : [], live && live.regions ? live.regions : []);
+  let regionHit = null;
+  regions.forEach((r) => { if (r && r.level > level && advRegionMatches(r, bare, regionLabel)) { level = r.level; regionHit = r; } });
+  const pin = ADVISORY_PIN[dnrm(bare)];
+  if (pin != null) { level = pin; if (pin < 3) return null; regionHit = { area: bare, level: pin, reason: "" }; }
+  if (level < 3) return null;
+  const verifiedAt = ADVISORY_SNAPSHOT.verifiedAt;
+  const liveOk = !!(ADVISORY_LIVE && !ADVISORY_LIVE.failed);
+  const ageDays = Math.round((Date.now() - new Date(verifiedAt + "T00:00:00").getTime()) / 86400000);
+  return {
+    level, country: base ? base.name : (live ? live.name : country), updated: src ? src.updated : null, reasons: src ? src.reasons : "",
+    url: (src && src.url) || (base && base.url) || ADVISORY_INDEX_URL, regionHit, live: liveOk,
+    checkedAt: liveOk ? ADVISORY_LIVE.fetchedAt.slice(0, 10) : verifiedAt, stale: !liveOk && ageDays > ADVISORY_STALE_DAYS,
+    pendingLower: !!(live && base && liveLevel && liveLevel < baseLevel), bookingHold: ADVISORY_BOOKING_HOLD.some((x) => sameCity(x, bare) || advKey(x) === k),
+  };
+}
+function advisoryBlocked(city) { const a = advisoryFor(city); return !!(a && a.level >= 4); }
+function advisoryAcked(country) { try { return sessionStorage.getItem("voyage-one:adv-ack:" + advKey(country)) === "1"; } catch (e) { return false; } }
+function advisoryAck(country) { try { sessionStorage.setItem("voyage-one:adv-ack:" + advKey(country), "1"); } catch (e) {} }
+function advDate(iso) { if (!iso) return ""; const d = new Date(iso + "T00:00:00"); return isNaN(d) ? iso : d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }); }
+const ADV_STYLE = {
+  3: { bg: "#FFF6E0", border: "#D9A94A", ink: "#6B4A00", eyebrow: "#8A5E12", label: "Level 3 — Reconsider Travel", sentence: "The U.S. Department of State advises Americans to reconsider travel to this destination due to serious safety or security risks." },
+  4: { bg: "#FBE9E7", border: "#C0392B", ink: "#7A1C12", eyebrow: "#A42A1C", label: "Level 4 — Do Not Travel", sentence: "The U.S. Department of State advises Americans not to travel to this destination because of serious safety or security risks." },
+};
+function AdvisoryBanner({ city, compact }) {
+  useAdvisoryTick();
+  const a = advisoryFor(city); if (!a) return null;
+  const st = ADV_STYLE[a.level >= 4 ? 4 : 3];
+  const where = a.regionHit ? `${a.regionHit.area}` : a.country;
+  if (compact) return (<div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: st.bg, border: `1px solid ${st.border}`, color: st.ink, borderRadius: 999, padding: "3px 10px", fontSize: 11, fontWeight: 600, letterSpacing: ".06em", textTransform: "uppercase", marginTop: 6 }}>
+    <span aria-hidden="true">▲</span> {st.label}{a.regionHit ? ` · ${a.regionHit.area}` : ""}
+  </div>);
+  return (<div role="alert" className="vo-advisory" style={{ background: st.bg, border: `1.5px solid ${st.border}`, borderLeft: `6px solid ${st.border}`, borderRadius: 12, padding: "14px 16px", margin: "12px 0 4px", color: st.ink }}>
+    <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", fontWeight: 600, color: st.eyebrow }}>U.S. State Department Travel Advisory</div>
+    <div style={{ fontFamily: font.display, fontSize: 21, fontWeight: 700, marginTop: 4, lineHeight: 1.15 }}>{st.label}</div>
+    <div style={{ fontSize: 14, lineHeight: 1.5, marginTop: 6 }}>{st.sentence}</div>
+    <div style={{ fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>
+      <strong>Applies to:</strong> {where}{a.regionHit ? ` (${a.country})` : ""}
+      {a.reasons ? <> · <strong>Cited risks:</strong> {a.reasons}</> : null}
+      {a.regionHit && a.regionHit.reason ? <> · {a.regionHit.reason}</> : null}
+    </div>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", alignItems: "center", marginTop: 10, fontSize: 12.5 }}>
+      <a href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: st.ink, fontWeight: 700, textDecoration: "underline" }}>Read Official Travel Advisory ↗</a>
+      <span style={{ opacity: .85 }}>{a.updated ? `Advisory dated ${advDate(a.updated)}` : "Advisory date not published"} · {a.live ? `Checked ${advDate(a.checkedAt)}` : (a.stale ? `Last verified ${advDate(a.checkedAt)} — live check unavailable, treat as possibly out of date` : `Last verified ${advDate(a.checkedAt)}`)}</span>
+    </div>
+    {a.level >= 4 ? <div style={{ fontSize: 13, fontWeight: 600, marginTop: 8 }}>Voyage One is not building new trips or opening reservations for this destination while the Level 4 advisory stands.</div> : null}
+  </div>);
+}
+// Every destination on the trip that carries a warning, for the itinerary.
+function AdvisoryList({ dests }) {
+  useAdvisoryTick();
+  const seen = new Set(); const rows = [];
+  (dests || []).forEach((d) => { if (!d || !d.city) return; const a = advisoryFor(d.city); if (!a) return; const key = a.regionHit ? a.regionHit.area : a.country; if (seen.has(key)) return; seen.add(key); rows.push(d.city); });
+  if (!rows.length) return null;
+  return (<div style={{ marginTop: 18 }}>{rows.map((c) => <AdvisoryBanner key={c} city={c} />)}</div>);
+}
+// The gate on outbound booking links. Installed once on the document in the capture phase, so it
+// runs before the link's own handler: Level 4 never opens; Level 3 opens after an acknowledgment,
+// once per country per session. Links without a destination (flights home, airport assist) pass.
+let ADV_GATE_SET = null;
+function openAdvisoryGate(state) { if (ADV_GATE_SET) ADV_GATE_SET(state); }
+function installAdvisoryGate() {
+  if (typeof document === "undefined" || window.__voAdvGate) return;
+  window.__voAdvGate = true;
+  document.addEventListener("click", (e) => {
+    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if (!a) return;
+    const m = /utm_content=([^&#]+)/.exec(a.getAttribute("href") || ""); if (!m) return;
+    const ctx = OUTBOUND[m[1]]; if (!ctx || !ctx.city) return;
+    const adv = advisoryFor(ctx.city); if (!adv) return;
+    if (adv.level >= 4 || adv.bookingHold || !advisoryAcked(adv.country)) {
+      e.preventDefault(); e.stopPropagation();
+      openAdvisoryGate({ adv, ctx, ref: m[1], href: a.href, city: ctx.city });
+    }
+  }, true);
+}
+function AdvisoryGateHost() {
+  const [g, setG] = useState(null);
+  useEffect(() => { ADV_GATE_SET = setG; return () => { if (ADV_GATE_SET === setG) ADV_GATE_SET = null; }; }, []);
+  if (!g) return null;
+  const { adv, ctx, ref, href, city } = g;
+  const blocked = adv.level >= 4 || adv.bookingHold;
+  const proceed = () => { advisoryAck(adv.country); setG(null); try { logClick(ref); } catch (e) {} window.open(href, "_blank", "noopener"); };
+  return (<div role="dialog" aria-modal="true" onClick={() => setG(null)} style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(20,24,20,.55)", display: "grid", placeItems: "center", padding: 16 }}>
+    <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, background: t.paper, borderRadius: 18, padding: "22px 22px 20px", boxShadow: "0 18px 50px rgba(0,0,0,.35)" }}>
+      <div style={{ fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint }}>Before you book{ctx.name ? ` · ${ctx.name}` : ""}</div>
+      <AdvisoryBanner city={city} />
+      {blocked
+        ? (<div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.55, marginTop: 10 }}>{adv.level >= 4 ? "Reservations for this destination are paused while the Level 4 advisory stands." : "Voyage One has not approved new bookings for this destination yet."} The property’s details stay on the card; nothing has been removed.</div>)
+        : (<div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.55, marginTop: 10 }}>You can continue to the booking site, and your acknowledgment is kept for the rest of this visit.</div>)}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
+        <button onClick={() => setG(null)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "10px 18px", color: t.ink, fontSize: 14 }}>{blocked ? "Close" : "Not now"}</button>
+        {!blocked ? <button onClick={proceed} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 14, fontWeight: 600 }}>I have read the advisory — continue</button> : null}
+      </div>
+    </div>
+  </div>);
+}
+// Owner panel, inside #diag: what the system knows, what it could not verify, and what changed.
+function AdvisoryOwnerPanel() {
+  useAdvisoryTick();
+  const idx = advIndex();
+  const live = ADVISORY_LIVE;
+  const cities = Object.keys(FAVORITES);
+  const rows = [], unresolved = [], regionHits = [], pendingLower = [];
+  const byCountry = {};
+  cities.forEach((c) => { const k = advisoryCountryOf(c); if (k === null) return; if (k === undefined || !advIndex()[advKey(k)]) { unresolved.push(`${c} → ${k || "(no country)"}`); return; } (byCountry[k] = byCountry[k] || []).push(c); });
+  Object.keys(byCountry).sort().forEach((k) => {
+    const { base, live: lv } = advisoryEntry(k);
+    const lvl = Math.max(base && base.level || 0, lv && lv.level || 0);
+    if (lv && base && lv.level && lv.level < base.level) pendingLower.push(`${k}: live ${lv.level}, approved ${base.level}`);
+    const affected = byCountry[k].filter((c) => advisoryFor(c));
+    byCountry[k].forEach((c) => { const a = advisoryFor(c); if (a && a.regionHit) regionHits.push(`${c}: Level ${a.level} — ${a.regionHit.area}`); });
+    if (lvl >= 3 || (base && base.status !== "verified")) rows.push(`${k}: Level ${lvl || "?"} (${base ? base.status : "not in snapshot"}${lv ? ", live " + lv.level : ""}) — ${affected.length}/${byCountry[k].length} destinations warned`);
+  });
+  let hist = []; try { hist = JSON.parse(localStorage.getItem("voyage-one:adv-history") || "[]"); } catch (e) {}
+  const mono = { fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11.5, color: t.inkSoft, whiteSpace: "pre-wrap" };
+  return (<div style={{ marginTop: 14, borderTop: `1px solid ${t.line}`, paddingTop: 10 }}>
+    <div style={{ fontSize: 12, fontWeight: 700, color: t.pine, letterSpacing: ".1em", textTransform: "uppercase" }}>Travel advisories</div>
+    <div style={mono}>{`snapshot verified ${ADVISORY_SNAPSHOT.verifiedAt} · ${Object.keys(ADVISORY_SNAPSHOT.countries).length} countries · live: ${!live ? "loading" : live.failed ? "FAILED (" + live.reason + ")" : live.count + " items at " + live.fetchedAt.slice(0, 16)}`}</div>
+    <div style={mono}>{"Level 3/4 countries carried:\n" + (rows.join("\n") || "none")}</div>
+    <div style={mono}>{"Regional matches (review):\n" + (regionHits.join("\n") || "none")}</div>
+    <div style={mono}>{"Live lower than approved (ships in a build):\n" + (pendingLower.join("\n") || "none")}</div>
+    <div style={mono}>{"Destinations with no verified advisory:\n" + (unresolved.join("\n") || "none")}</div>
+    <div style={mono}>{"Change history (this browser):\n" + (hist.slice(-30).map((h) => `${h.at} ${h.country}: ${h.from} → ${h.to}`).join("\n") || "none")}</div>
+  </div>);
+}
+
 function VoyageOne() {
+  useEffect(() => { installAdvisoryGate(); loadAdvisories(); }, []);
   const [screen, setScreen] = useState("landing");
   const [step, setStep] = useState(0);
   const [dates, setDates] = useState({ depart: "", ret: "" });
@@ -13561,6 +13954,7 @@ function VoyageOne() {
     <FontStyles />
     {fresh.ready && screen !== "landing" ? <div className="vo-noprint" onClick={fresh.refresh} style={{ position: "fixed", top: "calc(10px + env(safe-area-inset-top, 0px))", left: "50%", transform: "translateX(-50%)", zIndex: 90, background: t.brass, color: t.paper, borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>A new version of Voyage One is ready — tap to refresh</div> : null}
     <BookingPrompt />
+    <AdvisoryGateHost />
     {screen === "landing" && <Landing onExplore={() => setScreen("explore")} trips={trips} onOpen={openTrip} onBegin={beginTrip} onDelete={removeTrip} canSave={canSave} stale={stale}
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
@@ -17145,6 +17539,7 @@ function OneList({ onPick, onBack, onHome }) {
         <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city || "Venue to be announced"} · {ev.dateLabel}</div>
         {ev.airport ? <div style={{ fontSize: 13, color: t.inkFaint, marginTop: 4 }}>✈ Fly into {ev.airportName} ({ev.airport})</div> : null}
       </div>
+      {ev.city ? <AdvisoryBanner city={ev.city} /> : null}
       {/* A single big hero here; the remaining gallery shots are woven through the body below. */}
       {gal.length ? (ev.heroContain
         ? (<div style={{ width: bandW, maxWidth: "94vw", margin: "0 auto 30px" }}><Photo query={gal[0]} h={bandH} radius={18} raw contain /></div>)
@@ -17603,7 +17998,7 @@ function IdeasPicker({ d, i, p }) {
   const setSel = (next) => p.setDest(i, { ideaSel: next });
   const toggle = (group, v) => { const cur = sel[group] || []; setSel({ ...sel, [group]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); };
   const any = (sel.set || []).length + (sel.act || []).length + (sel.w || []).length > 0;
-  const ranked = any ? rankIdeas(sel) : [];
+  const ranked = (any ? rankIdeas(sel) : []).filter((r) => !advisoryBlocked(r.idea.city || r.idea.n));
   const matches = ranked.map((r) => r.idea);
   const missFor = {};
   ranked.forEach((r) => { missFor[r.idea.n] = r.s; });
@@ -17797,6 +18192,7 @@ function IdeasPicker({ d, i, p }) {
   </div>);
 }
 function DestCard({ d, i, p }) {
+  const advBlocked = d && d.city ? advisoryBlocked(d.city) : false;
   if (d.mode === "ideas") {
     return (<div style={{ background: t.white, border: `1px solid ${t.brass}`, borderRadius: 16, padding: "22px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -17830,6 +18226,8 @@ function DestCard({ d, i, p }) {
         <button onClick={() => p.removeDest(i)} style={{ background: "none", border: "none", color: t.inkFaint, marginLeft: 2 }}><X size={18} /></button>
       </div>
     </div>
+    {d.city ? <AdvisoryBanner city={d.city} /> : null}
+    <div style={advBlocked ? { display: "none" } : undefined}>
     {/* When the trip is built around a property — a ranch, a lodge, a sporting hotel in a village
         nobody has heard of — the property is the destination and the town is only its address.
         Lead with the name and let the place sit quietly beside it. */}
@@ -17855,6 +18253,7 @@ function DestCard({ d, i, p }) {
         reached through the airport you are already at (London to the Cotswolds). Same rule as the
         leg panel, so the two rows never disagree. */}
     {d.mode !== "ideas" && <div style={{ marginTop: 18 }}><Chips prefix={i === 0 ? "Arrive by" : "Travel here by"} options={ARRIVE.filter((m) => !(m.key === "Flight" && d.city && sameAirport(legStart(p, i), d.city)) && !(m.key === "Ferry" && !ferryPossible(legStart(p, i), d.city, null)))} value={d.arriveBy} onChange={(v) => p.setDest(i, { arriveBy: v })} /></div>}
+    </div>
   </div>);
 }
 
@@ -20065,6 +20464,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
           (VIRTUOSO_EVIDENCE, member: true). The word and nothing more — no amenities, no booking
           claim — until the host agency arrangement is settled. (Tricia, 16 Oct 2026.) */}
       {(() => { const ve = virtuosoEvidence(s.name); return ve && ve.member ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginTop: 5 }}>Virtuoso</div> : null; })()}
+      {city ? <AdvisoryBanner city={s.nearbyFrom || city} compact /> : null}
       {/* A temporary state the client must see before they fall for the photograph — closed for
           works, reopening on a date, phased renovation. Hand-written on the FAVORITES entry as
           `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
@@ -23061,6 +23461,7 @@ function LegDiagnostic({ p }) {
     <button onClick={() => setOpen(!open)} style={{ background: "none", border: `1px dashed ${t.line}`, borderRadius: 10, padding: "8px 14px", color: t.inkFaint, fontSize: 12 }}>{open ? "Hide" : "Show"} trip diagnostic</button>
     {open && <div style={{ marginTop: 10, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "14px 16px" }}>
       <div style={{ fontSize: 11.5, color: t.inkFaint, marginBottom: 8 }}>Temporary — screenshot this and send it, then it comes out.</div>
+      <AdvisoryOwnerPanel />
       {rows}
       <div style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 11.5, color: t.inkSoft, marginTop: 6 }}>{`from="${p.fromCity || ""}" home="${p.homeCity || ""}" returnFrom="${p.returnFrom || ""}" legs=${(p.dests || []).length}`}</div>
     </div>}
@@ -23212,6 +23613,7 @@ function ItineraryView(p) {
       </div>
     </header>
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 clamp(22px,5vw,56px) 100px" }}>
+      <AdvisoryList dests={p.dests} />
       {/* A drawn masthead rather than a photograph. The photo was fetched lazily and so was
           usually absent from the PDF, leaving a gray rectangle at the top of the document a
           client had been sent. Type and rules always print, at any size, on any device — and
