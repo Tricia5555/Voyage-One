@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M882";
+const BUILD = "M883";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -391,6 +391,12 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── ISRAEL ── (review 18 Oct 2026: Israel created with 5 Luxury hotels; every one verified on its own virtuoso.com page that day)
+  "The Ritz-Carlton Herzliya": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/13811608/the-ritz-carlton-herzliya", vname: "The Ritz-Carlton, Herzliya", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Customized Amenity: Ritz-Carlton Organic Luxury Soaps", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Property page read 18 Oct 2026; benefits headed For 2025." },
+  "The David Kempinski Tel Aviv": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/16251470/the-david-kempinski-tel-aviv", vname: "The David Kempinski Tel Aviv", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily breakfast for up to two guests per bedroom, served in the restaurant (already included in property rates)", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Property page read 18 Oct 2026; benefits headed For 2025." },
+  "Six Senses Shaharut": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/16389869/six-senses-shaharut", vname: "Six Senses Shaharut", year: "2024", amenities: ["Upgrade not applicable at this property", "Daily full breakfast for up to two guests per bedroom, served in the hotel restaurant", "$100USD equivalent in local currency Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Stays of 7+ nights will receive an additional $200 USD Resort or Hotel credit (for a total of $300 during stay)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], amenitiesUnverified: true, note: "Live listing page read 18 Oct 2026; the only amenities list the page exposes is dated 2024 — treat the benefits as indicative until the current-year list is read." },
+  "The Norman Tel Aviv": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/15476829/the-norman-tel-aviv", vname: "The Norman Tel Aviv", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant and via in-room dining", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Property page read 18 Oct 2026; benefits headed For 2025." },
+  "King David Jerusalem": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/6889315/king-david-jerusalem", vname: "King David Jerusalem", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Food & Beverage credit to be utilized during stay (not applicable in the \"Grill Room\" restaurant; not combinable, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Property page read 18 Oct 2026; benefits headed For 2025." },
   // ── KUWAIT ── (review 18 Oct 2026: Kuwait City created with 3 Luxury hotels, no Ultra tier; no Kuwait hotel has a virtuoso.com property page)
   "Four Seasons Hotel Kuwait at Burj Alshaya": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Al Mirqab, Kuwait City. Not verified on Virtuoso (18 Oct 2026) — no notation; Four Seasons Preferred Partner is a brand programme, not Virtuoso." },
   "The St. Regis Kuwait": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Kuwait City. Not verified on Virtuoso (18 Oct 2026) — no notation." },
@@ -4195,6 +4201,21 @@ const FAVORITES = {
     { name: "Four Seasons Hotel Kuwait at Burj Alshaya", area: "Al Mirqab · Burj Alshaya", rate: null, ourTake: "The city's grand hotel, 284 rooms and suites in the Burj Alshaya towers above the Al Soor gardens — a spa complex on a scale the Gulf rarely manages, serious dining, and Forbes Five-Star service. One Michelin Key; the address Kuwait uses.", contact: { addr: "Al Soor Street, Al Mirqab, Kuwait City", web: "fourseasons.com" } },
     { name: "The St. Regis Kuwait", area: "Kuwait City · by the Cultural Centre", rate: null, ourTake: "An intimate 102 rooms and suites with butler service, steps from the Sheikh Jaber Al-Ahmad Cultural Centre and fifteen minutes from the airport — the afternoon tea ritual in the English Lounge, and the quietest of the three.", contact: { addr: "Fahd Al-Salem Street, Kuwait City", web: "marriott.com" } },
     { name: "Waldorf Astoria Kuwait", area: "Al Rai · The Avenues", rate: null, ourTake: "Two hundred rooms and suites in Art Deco spirit connected to The Avenues, with Peacock Alley for tea, ROKA for robata, AVA for the Mediterranean, and a 1,260 m² spa with its own hammam. Kuwait's Leading Luxury Hotel, World Travel Awards 2026.", contact: { addr: "The Avenues, Al Rai, Kuwait", web: "hilton.com" } },
+  ],
+  // Israel — Tricia 18 Oct 2026: five Luxury houses, no Ultra Luxury (Six Senses Shaharut is Luxury, not Ultra).
+  // OUT by owner decision, never to be added: The Setai Tel Aviv; Waldorf Astoria Jerusalem.
+  "Tel Aviv": [
+    { name: "The David Kempinski Tel Aviv", area: "Hayarkon Street · beachfront", rate: null, ourTake: "Two hundred and fifty rooms in a 34-storey tower on the beach at Hayarkon Street, 2022, every one glass to the floor — Cloud 51 bar and pool on the roof, the Okoa spa, and private check-in from the 22nd floor up. The grand beachfront house of the city.", contact: { addr: "Hayarkon 51, Tel Aviv 6343203", web: "kempinski.com" } },
+    { name: "The Norman Tel Aviv", area: "White City · Rothschild Boulevard", rate: null, ourTake: "Fifty rooms in two restored 1920s buildings beside Rothschild Boulevard, a citrus garden between them and an infinity pool on the roof — Alena for Mediterranean dinner, Dinings for sushi upstairs, and the best-dressed hotel in Israel. The small one, and the one to choose.", contact: { addr: "23–25 Nachmani Street, Tel Aviv 6579441", web: "thenorman.com" } },
+  ],
+  "Herzliya": [
+    { name: "The Ritz-Carlton Herzliya", area: "Herzliya Marina · 20 min north of Tel Aviv", rate: null, ourTake: "A hundred and ninety-seven rooms and suites above Israel's largest marina, the Ritz-Carlton's first in the country — a rooftop pool and bar on the twelfth floor, a hammam in the spa, and the sea on three sides. Twenty minutes from Tel Aviv, and quieter for it.", contact: { addr: "4 Hashunit Street, Herzliya 4655504", web: "ritzcarlton.com" } },
+  ],
+  "Jerusalem": [
+    { name: "King David Jerusalem", area: "King David Street · facing the Old City", rate: null, ourTake: "The 1931 grand hotel of Jerusalem, a Leading Hotel of the World and the address of every state visit since — 233 rooms and suites, gardens and the largest pool in the city, the Old City walls a fifteen-minute walk away. There is no other hotel in Jerusalem with this history.", contact: { addr: "23 King David Street, Jerusalem 9410147", web: "danhotels.com" } },
+  ],
+  "Negev Desert": [
+    { name: "Six Senses Shaharut", area: "Shaharut · Arava Valley · Ramon (ETM) 45 min", rate: null, ourTake: "Sixty suites and pool villas built into a cliff above the Arava Valley in the southern Negev, camels in the stables, a spa cut into the rock and the desert silent to the horizon — Six Senses' first in Israel, 2021. Four hours from Tel Aviv by road, forty-five minutes from Ramon airport, or by helicopter.", contact: { addr: "Shaharut, Hevel Eilot 8886500", web: "sixsenses.com" } },
   ],
   "Ajman": [
     { name: "The Oberoi Beach Resort, Al Zorah", area: "Al Zorah · mangroves · 40 min from DXB", rate: null, ourTake: "Oberoi's only house in the Gulf, 89 rooms, suites and villas between a private beach and the Al Zorah mangroves forty minutes from Dubai — glass-walled, low and quiet, with the service the Oberoi name promises.", contact: { addr: "Al Zorah, Al Ittihad Road, Ajman", web: "oberoihotels.com" } },
@@ -9774,6 +9795,9 @@ const GATEWAY = {
   "Liwa Desert": { air: "Abu Dhabi", note: "Abu Dhabi (AUH) is about two hours by road south into the Empty Quarter; the resort arranges the transfer. Dubai (DXB) is three." },
   "Ras Al Khaimah": { air: "Dubai", note: "Dubai (DXB) is about an hour by road; Ras Al Khaimah's own field (RKT) takes only a handful of flights." },
   "Ajman": { air: "Dubai", note: "Dubai (DXB) is about forty minutes by road up the coast; Sharjah (SHJ) is closer but mostly low-cost carriers." },
+  "Herzliya": { air: "Tel Aviv", note: "Ben Gurion (TLV) is about thirty-five minutes by road; Herzliya is twenty minutes up the coast from Tel Aviv itself." },
+  "Jerusalem": { air: "Tel Aviv", note: "Ben Gurion (TLV) is about forty minutes by road, or thirty by the fast train to Jerusalem–Yitzhak Navon." },
+  "Negev Desert": { air: "Tel Aviv", note: "Ramon (ETM), near Eilat, is forty-five minutes from Shaharut but takes mostly domestic flights from Tel Aviv; by road from Ben Gurion (TLV) it is about four hours, and the resort arranges helicopter transfers." },
   "Musandam": { air: "Dubai", note: "Fly to Dubai (DXB), then about two hours by road to the coast \u2014 or arrive by boat. Musandam is an Omani exclave and is not reached overland from Muscat." },
   "Jabal Akhdar": { air: "Muscat", note: "Fly to Muscat (MCT), then two hours and a mountain road. Four-wheel drive is required at the checkpoint, not optional." },
   "Wahiba Sands": { air: "Muscat", note: "Fly to Muscat (MCT), then about two and a half hours; the last stretch is soft sand and the camp will meet you." },
@@ -10165,7 +10189,7 @@ const AIRPORTS = {
   "Madrid": { code: "MAD", scale: "intercontinental" }, "Barcelona": { code: "BCN", scale: "intercontinental" },
   "Lisbon": { code: "LIS", scale: "intercontinental" }, "Amsterdam": { code: "AMS", scale: "intercontinental" }, "Brussels": { code: "BRU", scale: "intercontinental" }, "Copenhagen": { code: "CPH", scale: "intercontinental" }, "Malta": { code: "MLA", scale: "regional" },
   "Zurich": { code: "ZRH", scale: "intercontinental" }, "Munich": { code: "MUC", scale: "intercontinental" },
-  "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" }, "Abu Dhabi": { code: "AUH", scale: "intercontinental" }, "Manama": { code: "BAH", scale: "intercontinental" }, "Kuwait City": { code: "KWI", scale: "intercontinental" },
+  "Athens": { code: "ATH", scale: "intercontinental" }, "Dubai": { code: "DXB", scale: "intercontinental" }, "Abu Dhabi": { code: "AUH", scale: "intercontinental" }, "Manama": { code: "BAH", scale: "intercontinental" }, "Kuwait City": { code: "KWI", scale: "intercontinental" }, "Tel Aviv": { code: "TLV", scale: "intercontinental" },
   "Tokyo": { code: "HND", scale: "intercontinental" }, "Singapore": { code: "SIN", scale: "intercontinental" },
   "Venice": { code: "VCE", scale: "intercontinental" }, "Florence": { code: "FLR", scale: "regional" },
   "Naples": { code: "NAP", scale: "regional" }, "Palermo": { code: "PMO", scale: "regional" },
@@ -11068,6 +11092,7 @@ const ZONE = {
   "rapa-nui": ["Easter Island"],
   "qatar": ["Doha"],
   "saudi": ["AlUla","Red Sea","Riyadh","Jeddah"],
+  "israel": ["Tel Aviv","Herzliya","Jerusalem","Negev Desert"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
   "oman": ["Muscat","Musandam","Jabal Akhdar","Wahiba Sands"],
   "southern-africa": ["Cape Town","Kruger", "Franschhoek", "Stellenbosch", "Okavango", "Botswana", "Namibia"],
@@ -11116,7 +11141,7 @@ const COORDS = {
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
   "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
   "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
-  "Abu Dhabi": [24.45,54.38], "Liwa Desert": [23.12,54.08], "Ras Al Khaimah": [25.79,55.94], "Ajman": [25.41,55.44], "Manama": [26.22,50.58], "Kuwait City": [29.37,47.98], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
+  "Abu Dhabi": [24.45,54.38], "Liwa Desert": [23.12,54.08], "Ras Al Khaimah": [25.79,55.94], "Ajman": [25.41,55.44], "Manama": [26.22,50.58], "Kuwait City": [29.37,47.98], "Tel Aviv": [32.08,34.78], "Herzliya": [32.17,34.80], "Jerusalem": [31.77,35.22], "Negev Desert": [29.92,35.05], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
   "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
   "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
   "Phuket": [7.98,98.28], "Chiang Rai": [20.35,100.08], "Koh Samui": [9.53,100.06], "Koh Kood": [11.66,102.55],
@@ -11667,6 +11692,7 @@ const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
 // "New York", "New York, NY" all resolving to "New York City", and the like.
 const CITY_ALIASES = {
   "oxfordshire": "Cotswolds", "woodstock": "Cotswolds", "great tew": "Cotswolds", "southrop": "Cotswolds", "broadway": "Cotswolds", "broadway, cotswolds": "Cotswolds", "the cotswolds": "Cotswolds",
+  "israel": "Tel Aviv", "jaffa": "Tel Aviv", "herzliya marina": "Herzliya", "herzliya pituach": "Herzliya", "shaharut": "Negev Desert", "negev": "Negev Desert", "arava": "Negev Desert", "the negev": "Negev Desert",
   "kuwait": "Kuwait City", "salmiya": "Kuwait City", "al rai": "Kuwait City", "the avenues kuwait": "Kuwait City",
   "bahrain": "Manama", "zallaq": "Manama", "bahrain bay": "Manama", "seef": "Manama", "al seef": "Manama", "muharraq": "Manama",
   "liwa": "Liwa Desert", "empty quarter": "Liwa Desert", "rub al khali": "Liwa Desert", "rak": "Ras Al Khaimah", "al wadi": "Ras Al Khaimah", "al zorah": "Ajman", "saadiyat": "Abu Dhabi", "saadiyat island": "Abu Dhabi", "dubai desert": "Dubai", "palm jumeirah": "Dubai", "the palm": "Dubai",
@@ -16347,7 +16373,7 @@ const REGION_PROFILES = {
 // "Japan" or "Costa Rica" can be typed and the tab finds what we hold there. Facts only: where a
 // place is. Entries that are themselves a country map to themselves.
 const CITY_COUNTRY = {
-  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Liwa Desert": "United Arab Emirates", "Ras Al Khaimah": "United Arab Emirates", "Ajman": "United Arab Emirates", "Manama": "Bahrain", "Kuwait City": "Kuwait", "Agra": "India", "AlUla": "Saudi Arabia", "Riyadh": "Saudi Arabia", "Jeddah": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
+  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Liwa Desert": "United Arab Emirates", "Ras Al Khaimah": "United Arab Emirates", "Ajman": "United Arab Emirates", "Manama": "Bahrain", "Kuwait City": "Kuwait", "Tel Aviv": "Israel", "Herzliya": "Israel", "Jerusalem": "Israel", "Negev Desert": "Israel", "Agra": "India", "AlUla": "Saudi Arabia", "Riyadh": "Saudi Arabia", "Jeddah": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
   "Amalfi Coast": "Italy", "Amman": "Jordan", "Amsterdam": "Netherlands", "Antwerp": "Belgium", "Brussels": "Belgium", "Copenhagen": "Denmark", "Angra dos Reis": "Brazil", "Antigua Guatemala": "Guatemala", "Antioquia": "Colombia",
   "Aqaba": "Jordan", "Arenal": "Costa Rica", "Arequipa": "Peru", "Aswan": "Egypt", "Atacama": "Chile", "Baden-Baden": "Germany", "Bagaces": "Costa Rica",
   "Bajos del Toro": "Costa Rica", "Bali": "Indonesia", "Bangkok": "Thailand", "Barcelona": "Spain", "Bar\u00fa": "Colombia", "Basel": "Switzerland",
