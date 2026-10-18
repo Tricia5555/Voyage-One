@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M878";
+const BUILD = "M879";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -391,6 +391,18 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── SAUDI ARABIA ── (review 18 Oct 2026: 7 hotels added, Shebara Ultra Luxury on owner review; every Virtuoso tag rests on the hotel's own virtuoso.com page read that day)
+  "Desert Rock": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "Nujuma, a Ritz-Carlton Reserve": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "Shebara Resort": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "The St. Regis Red Sea Resort": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/18057500/the-st-regis-red-sea-resort", vname: "The St. Regis Red Sea Resort", year: null, amenities: [], amenitiesUnverified: true, note: "Live listing page read 18 Oct 2026 (title and description match the property; not a Preview Property); the amenities section renders client-side and could not be read." },
+  "Six Senses Southern Dunes": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "Banyan Tree AlUla": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/travel/luxury-hotels/16728537/banyan-tree-alula", vname: "Banyan Tree AlUla", year: null, amenities: [], amenitiesUnverified: true, note: "Live listing page read 18 Oct 2026 (title and description match the property; not a Preview Property); the amenities section renders client-side and could not be read." },
+  "Shangri-La Jeddah": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/16352992/shangri-la-jeddah", vname: "Shangri-La Jeddah", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "Complimentary 50 minute massage for up to two people, per room, once during stay", "Early check-in / Late check-out, subject to availability", "Complimentary Wi-Fi"], note: "Property page read 18 Oct 2026; benefits headed For 2025." },
+  "Four Seasons Hotel Riyadh at Kingdom Centre": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "Mandarin Oriental Al Faisaliah, Riyadh": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "The St. Regis Riyadh": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
+  "The Ritz-Carlton, Riyadh": { status: "none", member: false, checked: "2026-10-18", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (18 Oct 2026) — no notation. No virtuoso.com property page found in three searches." },
   // ── QATAR ── (review 18 Oct 2026: Zulal added as Luxury; Park Hyatt, Marsa Malaz Kempinski and Banyan Tree withheld; each Virtuoso tag rests on the hotel's own virtuoso.com page read that day)
   "Raffles Doha": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/16384295/raffles-doha", vname: "Raffles Doha", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Complimentary one-way private airport transfers (must have minimum value of $100 USD equivalent)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Lusail. Property page read 18 Oct 2026. Ultra Luxury confirmed by Tricia." },
   "The St. Regis Doha": { status: "listed", member: true, checked: "2026-10-18", source: "https://www.virtuoso.com/hotels/11164561/the-st-regis-doha", vname: "The St. Regis Doha", year: "2018", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast, for up to two in room guests", "Early check-in/late check-out, subject to availability", "$100 USD Equivalent Spa Services credit, (not combinable, not valid on products, no cash value if not redeemed in full)", "Complimentary Wi-Fi"], amenitiesUnverified: true, note: "West Bay. Live listing page read 18 Oct 2026; the only amenities list the page exposes is dated 2018 — treat the benefits as indicative until the current-year list is read." },
@@ -1602,6 +1614,7 @@ const ULTRA_LUX = [
   // Saudi Arabia
   "Nujuma, a Ritz-Carlton Reserve", "Six Senses Southern Dunes", "Desert Rock",
   "Four Seasons Resort and Residences Red Sea at Shura Island",
+  "Shebara Resort",   // Red Sea — Tricia 18 Oct 2026 (owner-reviewed Ultra Luxury; do not downgrade). St. Regis Red Sea, Riyadh and Jeddah houses are Luxury.
   // India
   "The Oberoi Udaivilas", "The Oberoi Amarvilas", "Rambagh Palace", "Umaid Bhawan Palace",
   "Amanbagh", "Aman-i-Khás", "The Leela Palace Udaipur",
@@ -4120,6 +4133,17 @@ const FAVORITES = {
     { name: "Six Senses Southern Dunes", area: "The Red Sea", rate: null, ourTake: "A desert-dune wellness retreat inspired by ancient Nabataean design." },
     { name: "Desert Rock", area: "The Red Sea", rate: null, ourTake: "Villas carved into a hidden mountain valley — architecture as landscape." },
     { name: "Four Seasons Resort and Residences Red Sea at Shura Island", area: "Shura Island", rate: null, ourTake: "A dolphin-shaped island resort on the new Red Sea coast." },
+    { name: "Shebara Resort", area: "Sheybarah Island · 25 km offshore · seaplane 30 min from RSI", rate: null, ourTake: "Red Sea Global's own flagship on Sheybarah Island — 73 villas, 38 of them mirror-clad steel orbs standing over the lagoon and the rest on the beach, every one with its own pool. Alcohol-free, run on its own solar farm, and like nowhere else on earth. Two Michelin Keys.", contact: { addr: "Sheybarah Island, Al Wajh Lagoon, The Red Sea", web: "shebara.sa" } },
+    { name: "The St. Regis Red Sea Resort", area: "Ummahat Island · Al Wajh Lagoon · boat or seaplane from RSI", rate: null, ourTake: "Kengo Kuma's ninety private-pool villas on their own island in the Al Wajh Lagoon, beachfront or over the water — Gishiki 45 for Japanese dinner, the reeftop grill at Tilina, and no road to any of it. One Michelin Key.", contact: { addr: "Ummahat Island, Al Wajh Lagoon, The Red Sea", web: "marriott.com" } },
+  ],
+  "Riyadh": [
+    { name: "Four Seasons Hotel Riyadh at Kingdom Centre", area: "Olaya · Kingdom Centre", rate: null, ourTake: "Eleven floors of the Kingdom Centre tower, rooms from the 30th floor up with the whole city below — 276 keys, Daniel Boulud's two restaurants and a Pierre Hermé counter, and the address Riyadh itself uses. Forbes Five-Star; one Michelin Key.", contact: { addr: "Kingdom Centre, Olaya Street, Riyadh 11321", web: "fourseasons.com" } },
+    { name: "Mandarin Oriental Al Faisaliah, Riyadh", area: "Olaya · Al Faisaliah Tower", rate: null, ourTake: "The 2000 Al Faisaliah Hotel remade under Mandarin Oriental in 2024 — 325 keys beside the tower, The Globe inside its golden sphere, LPM and Yauatcha downstairs, and a ladies-only spa with its own hammam. The grande dame, renewed. One Michelin Key.", contact: { addr: "King Fahad Road, Olaya, Riyadh 11491", web: "mandarinoriental.com" } },
+    { name: "The St. Regis Riyadh", area: "Al Hada · VIA Riyadh · Diplomatic Quarter", rate: null, ourTake: "Eighty-three keys inside VIA Riyadh at the gate of the Diplomatic Quarter, 2023 — Tuwaiq stone outside, art deco within, Jackie over two floors and the pool on the roof at Stella Sky. The intimate one, and the newest. One Michelin Key.", contact: { addr: "2941 Makkah Al Mukarramah Road, Al Hada, Riyadh 12912", web: "marriott.com" } },
+    { name: "The Ritz-Carlton, Riyadh", area: "Al Hada · Diplomatic Quarter", rate: null, ourTake: "A palace in 52 acres of gardens by the Diplomatic Quarter — 492 rooms built for state guests in 2011 and run that way since, the Friday brunch at Al Orjouan, high tea at Chorisia, and the grandest lobby in the Kingdom. Forbes Five-Star.", contact: { addr: "Al Hada, Makkah Road, Riyadh 11493", web: "ritzcarlton.com" } },
+  ],
+  "Jeddah": [
+    { name: "Shangri-La Jeddah", area: "Corniche · Burj Assila", rate: null, ourTake: "Shangri-La's first house in the Kingdom, high in the 64-storey Burj Assila on the Corniche — 220 rooms and suites with the Red Sea below, Shang Palace, a 25-metre outdoor pool, and twenty minutes from the airport. The Jeddah city hotel.", contact: { addr: "Burj Assila, Corniche Road, Ash Shati, Jeddah 23611", web: "shangri-la.com" } },
   ],
   "Udaipur": [
     { name: "The Oberoi Udaivilas", area: "Lake Pichola", rate: null, ourTake: "A palace on the lake, regularly named the best hotel in the world." },
@@ -10036,7 +10060,7 @@ const AIRPORTS = {
   "Cusco": { code: "CUZ", scale: "regional" }, "Cartagena": { code: "CTG", scale: "regional" },
   "Zagreb": { code: "ZAG", scale: "regional" },
   "Doha": { code: "DOH", scale: "intercontinental" }, "Budapest": { code: "BUD", scale: "intercontinental" },
-  "AlUla": { code: "ULH", scale: "regional" }, "Fez": { code: "FEZ", scale: "regional" }, "Marrakech": { code: "RAK", scale: "regional" }, "Casablanca": { code: "CMN", scale: "intercontinental" },
+  "AlUla": { code: "ULH", scale: "regional" }, "Red Sea": { code: "RSI", scale: "regional" }, "Riyadh": { code: "RUH", scale: "intercontinental" }, "Jeddah": { code: "JED", scale: "intercontinental" }, "Fez": { code: "FEZ", scale: "regional" }, "Marrakech": { code: "RAK", scale: "regional" }, "Casablanca": { code: "CMN", scale: "intercontinental" },
   "Essaouira": { code: "ESU", scale: "regional" },
   // CROATIA & SLOVENIA. Dubrovnik and Split fly; Rovinj is served by Pula, Lake Bled by
   // Ljubljana, and Hvar not at all — it is reached by ferry from Split, which is the whole
@@ -10859,7 +10883,7 @@ const ZONE = {
   "morocco": ["Marrakech","Fez","Essaouira","Atlas Mountains","Skoura","Casablanca","Tamuda Bay","Oualidia"],
   // Egypt is its own zone. It is neither Maghreb nor sub-Saharan, and filing it with Morocco
   // would let the app treat Marrakech and Aswan as a short hop. They are 4,000 km apart.
-  "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna", "Red Sea"],
+  "egypt": ["Cairo","Luxor","Aswan","Sharm El Sheikh","El Gouna"],
   // Croatian islands get their own zones, as Capri and Mallorca do: reaching them means a
   // crossing, and the ground logic needs to know that rather than assume a road.
   "hvar": ["Hvar"],
@@ -10969,7 +10993,7 @@ const ZONE = {
   // Rapa Nui is 3,700 km off the Chilean coast — its own zone, or the app will treat it as a drive.
   "rapa-nui": ["Easter Island"],
   "qatar": ["Doha"],
-  "saudi": ["AlUla"],
+  "saudi": ["AlUla","Red Sea","Riyadh","Jeddah"],
   "jordan": ["Amman","Petra","Wadi Rum","Dead Sea","Aqaba"],
   "oman": ["Muscat","Musandam","Jabal Akhdar","Wahiba Sands"],
   "southern-africa": ["Cape Town","Kruger", "Franschhoek", "Stellenbosch", "Okavango", "Botswana", "Namibia"],
@@ -11018,7 +11042,7 @@ const COORDS = {
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
   "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
   "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
-  "Abu Dhabi": [24.45,54.38], "Red Sea": [28.57,34.54], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
+  "Abu Dhabi": [24.45,54.38], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
   "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
   "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
   "Phuket": [7.98,98.28], "Chiang Rai": [20.35,100.08], "Koh Samui": [9.53,100.06], "Koh Kood": [11.66,102.55],
@@ -11569,6 +11593,7 @@ const fmtOr = (n) => (n == null || isNaN(n) ? "on request" : fmt(n));
 // "New York", "New York, NY" all resolving to "New York City", and the like.
 const CITY_ALIASES = {
   "oxfordshire": "Cotswolds", "woodstock": "Cotswolds", "great tew": "Cotswolds", "southrop": "Cotswolds", "broadway": "Cotswolds", "broadway, cotswolds": "Cotswolds", "the cotswolds": "Cotswolds",
+  "ummahat": "Red Sea", "sheybarah": "Red Sea", "shura island": "Red Sea", "al wajh": "Red Sea", "umluj": "Red Sea", "the red sea": "Red Sea", "red sea global": "Red Sea", "riyad": "Riyadh", "jedda": "Jeddah", "al ula": "AlUla", "al-ula": "AlUla", "hegra": "AlUla",
   "asni": "Atlas Mountains", "imlil": "Atlas Mountains", "high atlas": "Atlas Mountains", "toubkal": "Atlas Mountains", "atlas": "Atlas Mountains", "ouarzazate": "Skoura", "skoura oasis": "Skoura", "dades": "Skoura", "tamouda bay": "Tamuda Bay", "tetouan": "Tamuda Bay", "tétouan": "Tamuda Bay", "m'diq": "Tamuda Bay", "fnideq": "Tamuda Bay", "fes": "Fez", "fès": "Fez",
   "göreme": "Cappadocia", "goreme": "Cappadocia", "uçhisar": "Cappadocia", "uchisar": "Cappadocia", "ürgüp": "Cappadocia", "urgup": "Cappadocia", "kapadokya": "Cappadocia", "kaplankaya": "Bodrum", "milas": "Bodrum", "yalıkavak": "Bodrum", "yalikavak": "Bodrum", "türkbükü": "Bodrum", "turkbuku": "Bodrum", "datça": "Marmaris", "datca": "Marmaris", "turkish riviera": "Turquoise Coast", "turkish coast": "Turquoise Coast",
   "floriana": "Valletta", "valletta, malta": "Valletta", "the silent city": "Mdina", "mdina, malta": "Mdina", "gozo": "Malta", "sliema": "Valletta", "st julian's": "Valletta", "st julians": "Valletta",
@@ -16245,7 +16270,7 @@ const REGION_PROFILES = {
 // "Japan" or "Costa Rica" can be typed and the tab finds what we hold there. Facts only: where a
 // place is. Entries that are themselves a country map to themselves.
 const CITY_COUNTRY = {
-  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Agra": "India", "AlUla": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
+  "Abisko": "Sweden", "Abu Dhabi": "United Arab Emirates", "Agra": "India", "AlUla": "Saudi Arabia", "Riyadh": "Saudi Arabia", "Jeddah": "Saudi Arabia", "Alagoas": "Brazil", "Alwar": "India",
   "Amalfi Coast": "Italy", "Amman": "Jordan", "Amsterdam": "Netherlands", "Antwerp": "Belgium", "Brussels": "Belgium", "Copenhagen": "Denmark", "Angra dos Reis": "Brazil", "Antigua Guatemala": "Guatemala", "Antioquia": "Colombia",
   "Aqaba": "Jordan", "Arenal": "Costa Rica", "Arequipa": "Peru", "Aswan": "Egypt", "Atacama": "Chile", "Baden-Baden": "Germany", "Bagaces": "Costa Rica",
   "Bajos del Toro": "Costa Rica", "Bali": "Indonesia", "Bangkok": "Thailand", "Barcelona": "Spain", "Bar\u00fa": "Colombia", "Basel": "Switzerland",
