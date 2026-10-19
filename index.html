@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M905";
+const BUILD = "M906";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -17351,7 +17351,7 @@ const HELP_GUIDE = [
   { id: "flights", title: "Flights", text: "In each destination's section the flight panel searches live fares into the airport the site chose — or a hub you pick, if you would rather fly into Milan and drive to Florence. Tap a fare to lock it in. If you booked elsewhere, or by phone, use ALREADY BOOKED THIS FLIGHT YOURSELF? RECORD IT under the panel: the airline is enough, everything else is optional, and it prints on the itinerary. Dates more than about eleven months out show no fares because airlines have not released them yet — the panel tells you when they open." },
   { id: "delta-emirates", title: "Delta and Emirates", text: "Delta and Emirates do not appear in the live fares — neither sells through the channel the site searches. Each has its own panel under the flights: enter the flight you found on their site (or by phone) and it is recorded and printed like any other. Book them directly with the airline." },
   { id: "cabins", title: "Finding the right flight", text: "Use the flight panel to explore: play with the dates, the times, the routing and the class until the route looks right — nonstop or one stop, morning or evening, Business or First. The fares are there to show you what exists and roughly what it costs. Then book it yourself, direct with the airline, in whatever cabin you want on each leg; the airline's own site will let you choose Business for the long flight and whatever the short hop sells. Record what you booked here and it prints on the itinerary." },
-  { id: "booked", title: "Booked / Not booked", text: "Under every chosen hotel, flight and restaurant there is a BOOKED / NOT BOOKED row with a field for the confirmation number. Nothing detects anything — you tell it, which is right for a hotel you booked by phone or a group booking made months ago. The itinerary prints what you tell it. If you tap a Book directly link, the site asks fifteen seconds later whether you booked. Every booking question has two answers, YES and NO. Yes opens the details \u2014 a confirmation, a date, the company \u2014 and the itinerary shows Booked; No leaves the item on your list as Not booked. Nothing is ever marked booked by the app on its own." },
+  { id: "booked", title: "Booked / Not booked", text: "Under every chosen hotel, flight and restaurant there is a BOOKED / NOT BOOKED row with a field for the confirmation number. Nothing detects anything — you tell it, which is right for a hotel you booked by phone or a group booking made months ago. The itinerary prints what you tell it. If you tap a link out to a hotel's or operator's own site, Voyage One asks fifteen seconds later whether you booked. Every booking question has two answers, YES and NO. Yes opens the details \u2014 a confirmation, a date, the company \u2014 and the itinerary shows Booked; No leaves the item on your list as Not booked. Nothing is ever marked booked by the app on its own." },
   { id: "cars", title: "Rental cars", text: "A car is offered at the airport you land at \u2014 Malpensa for Florence, Palermo for Sciacca. Under the panel, DID YOU BOOK A CAR? records the company, where you collected it and where you are dropping it. ONE CAR, MANY STOPS: record a drop-off in another city or at an airport and the car travels with you \u2014 the stops between are by road, and the return goes on the itinerary on the day you fly. Venice, Capri, Hydra and Zermatt show the water or rail arrival instead. Any SIXT booking carries an inside scoop: they will often collect the car from your hotel and take it to the airport." },
   { id: "exit", title: "Flying out from", text: "Each destination shows FLYING OUT FROM — what the site worked out, with a CHANGE link. Tap it to pick a different city (Porto instead of Lisbon, say) or type one. Your choice wins over every guess, including the car drop-off." },
   { id: "hotels", title: "Hotels and neighbourhoods", text: "Hotels come in two tiers, LUXURY and ULTRA LUXURY, and every one has been vetted — there is nothing below five-star caliber on the site. In larger cities a WHERE IN [CITY] row lets you narrow to a neighbourhood: Mayfair, the 8th, Elounda. Tap a hotel to open it; WHERE IS IT? shows that hotel alone on a map. Some places also show a NEARBY group — Monaco's Riviera hotels, for instance — with the travel time on each card." },
@@ -20456,7 +20456,7 @@ function sessionId() {
 // A URL parameter is attribution, not commission. Commission and Virtuoso benefits attach only
 // to a reservation the advisor places through the host's channel — that is what the
 // "Reserve with the hotel" request is for.
-const HOST = { name: "", iata: "" };
+const HOST = { name: "", iata: "", email: "" };
 function brandedLink(url, ctx) {
   if (!url) return null;
   var hash = "", u = String(url);
@@ -20532,6 +20532,88 @@ function BookingPrompt() {
     </>)}
   </div>);
 }
+// ══ RESERVE WITH THE HOTEL ═══════════════════════════════════════════════════════════════════
+// The client does not book on a platform; the reservation is placed DIRECTLY WITH THE HOTEL, in
+// the client's name, by Voyage One under the host agency's IATA. The hotel confirms to the client
+// and the client pays the hotel. That is the opposite of an OTA booking, and the words say so —
+// "directly", "in your name", "the hotel confirms to you". The words to avoid anywhere near this
+// button: book, booking, through, via, platform, partner. (Tricia, 19 Oct 2026.)
+// Benefits are promised generically — "any benefits the hotel extends to our guests" — which is
+// true for every hotel: nothing on a hotel with no programme, modest on a Virtuoso one. The
+// specific Virtuoso list the file holds is NOT shown until the host arrangement is signed.
+// The request lands in the Supabase `reservations` table (insert-only from the site); Tricia
+// places it with the hotel. No e-mail is sent yet — that needs a mail provider and a small API.
+const RESERVE_LINE = "Your reservation is made directly with the hotel, in your name. The hotel confirms to you and you pay the hotel — Voyage One arranges it, with any benefits the hotel extends to our guests.";
+async function requestReservation(r) {
+  const sb = await supa(); if (!sb) return { ok: false, reason: "offline" };
+  let uid = null;
+  try { const sess = await sb.auth.getSession(); uid = sess && sess.data && sess.data.session ? sess.data.session.user.id : null; } catch (e) {}
+  try {
+    const row = { user_id: uid, session_id: sessionId(), hotel: r.hotel, city: r.city || null, check_in: r.checkIn || null, check_out: r.checkOut || null, guests: r.guests || null,
+      guest_first: r.first, guest_last: r.last, email: r.email, phone: r.phone || null, room: r.room || null, notes: r.notes || null,
+      virtuoso: !!r.virtuoso, host: HOST.name || null, site: r.site || null, status: "requested" };
+    const res = await sb.from("reservations").insert(row);
+    return res.error ? { ok: false, reason: res.error.message || "error" } : { ok: true };
+  } catch (e) { return { ok: false, reason: String(e && e.message || e) }; }
+}
+function ReserveSheet({ s, city, site, onClose }) {
+  const [f, setF] = useState({ first: "", last: "", email: "", phone: "", checkIn: "", checkOut: "", guests: "2", room: "", notes: "" });
+  const [state, setState] = useState("form");   // form | sending | done | error
+  const [why, setWhy] = useState("");
+  useEffect(() => {
+    // Prefill the e-mail of a signed-in client; nothing else is assumed.
+    let alive = true;
+    (async () => { try { const sb = await supa(); if (!sb) return; const sess = await sb.auth.getSession(); const em = sess && sess.data && sess.data.session ? sess.data.session.user.email : ""; if (alive && em) setF((x) => (x.email ? x : { ...x, email: em })); } catch (e) {} })();
+    return () => { alive = false; };
+  }, []);
+  const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.value }));
+  const ve = virtuosoEvidence(s.name);
+  const ready = f.first.trim() && f.last.trim() && /\S+@\S+\.\S+/.test(f.email) && f.checkIn && f.checkOut && f.checkOut > f.checkIn;
+  const submit = async () => {
+    if (!ready || state === "sending") return;
+    setState("sending");
+    const r = await requestReservation({ hotel: s.name, city: bareCity(city || ""), site: site || null, virtuoso: !!(ve && ve.member), first: f.first.trim(), last: f.last.trim(), email: f.email.trim(), phone: f.phone.trim(), checkIn: f.checkIn, checkOut: f.checkOut, guests: Number(f.guests) || null, room: f.room.trim(), notes: f.notes.trim() });
+    if (r.ok) setState("done"); else { setWhy(r.reason || ""); setState("error"); }
+  };
+  const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", border: `1px solid ${t.line}`, borderRadius: 10, fontSize: 15, fontFamily: font.ui, color: t.ink, background: t.white };
+  const lab = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600, marginBottom: 5, display: "block" };
+  const field = (label, el) => (<div style={{ marginBottom: 12 }}><label style={lab}>{label}</label>{el}</div>);
+  return (<div onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onClose(); }} style={{ position: "fixed", inset: 0, zIndex: 9500, background: "rgba(34,29,25,.45)", display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: font.ui }}>
+    <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto", background: t.paper, borderRadius: "18px 18px 0 0", padding: "18px 20px 28px", boxShadow: "0 -8px 40px rgba(0,0,0,.18)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+        <div>
+          <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Reserve with the hotel</div>
+          <div style={{ fontFamily: font.display, fontSize: 26, color: t.ink, lineHeight: 1.1, marginTop: 4 }}>{s.name}</div>
+          {city ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 3 }}>{placeLine(city)}</div> : null}
+        </div>
+        <button onClick={onClose} aria-label="Close" style={{ background: "none", border: "none", fontSize: 26, lineHeight: 1, color: t.inkFaint, padding: "0 2px" }}>×</button>
+      </div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, margin: "12px 0 16px" }}>{RESERVE_LINE}</div>
+      {state === "done" ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "16px 16px" }}>
+        <div style={{ fontFamily: font.display, fontSize: 22, color: t.pine }}>Thank you, {f.first.trim()}.</div>
+        <div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.6, marginTop: 8 }}>We will place your reservation directly with {s.name}, in your name, for {f.checkIn} to {f.checkOut}. You will hear from Voyage One shortly, and the hotel's own confirmation will come to you at {f.email.trim()}.</div>
+        <button onClick={onClose} style={{ marginTop: 14, padding: "10px 18px", borderRadius: 999, background: t.pine, color: t.white, border: "none", fontSize: 14 }}>Done</button>
+      </div>) : (<>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {field("First name", <input value={f.first} onChange={set("first")} autoComplete="given-name" style={inp} />)}
+          {field("Last name", <input value={f.last} onChange={set("last")} autoComplete="family-name" style={inp} />)}
+        </div>
+        {field("E-mail — where the hotel's confirmation goes", <input type="email" value={f.email} onChange={set("email")} autoComplete="email" inputMode="email" style={inp} />)}
+        {field("Phone (optional)", <input type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" inputMode="tel" style={inp} />)}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 72px", gap: 10 }}>
+          {field("Arrive", <input type="date" value={f.checkIn} onChange={set("checkIn")} style={inp} />)}
+          {field("Depart", <input type="date" value={f.checkOut} min={f.checkIn || undefined} onChange={set("checkOut")} style={inp} />)}
+          {field("Guests", <input type="number" min="1" max="12" value={f.guests} onChange={set("guests")} inputMode="numeric" style={inp} />)}
+        </div>
+        {field("Room preference (optional)", <input value={f.room} onChange={set("room")} placeholder="A suite, a high floor, a view of the water…" style={inp} />)}
+        {field("Anything else (optional)", <textarea value={f.notes} onChange={set("notes")} rows={3} placeholder="An anniversary, an early arrival, a connecting room…" style={{ ...inp, resize: "vertical" }} />)}
+        {state === "error" ? <div style={{ fontSize: 13, color: "#B0563A", lineHeight: 1.5, marginBottom: 10 }}>That did not go through just now{why ? ` (${why})` : ""}. Please try again in a moment{HOST.email ? <> or <a href={`mailto:${HOST.email}?subject=${encodeURIComponent("Reservation request: " + s.name)}&body=${encodeURIComponent(`${f.first} ${f.last}\n${s.name}${city ? ", " + placeLine(city) : ""}\n${f.checkIn} to ${f.checkOut}, ${f.guests} guests\n${f.room}\n${f.notes}\n${f.email} ${f.phone}`)}`} style={{ color: t.pine }}>e-mail us</a></> : null}.</div> : null}
+        <button onClick={submit} disabled={!ready || state === "sending"} style={{ width: "100%", padding: "13px 18px", borderRadius: 999, background: ready ? t.pine : t.mist, color: ready ? t.white : t.inkFaint, border: "none", fontSize: 15, fontWeight: 600, letterSpacing: ".03em" }}>{state === "sending" ? "Sending…" : "Reserve with the hotel"}</button>
+        <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5, marginTop: 10, textAlign: "center" }}>No payment is taken here. The hotel's own confirmation comes to you, and you pay the hotel.</div>
+      </>)}
+    </div>
+  </div>);
+}
 const HOTEL_PHOTO_CACHE = {};
 function useHotelInfo(city, name) {
   const key = ((city || "") + "|" + (name || "")).toLowerCase();
@@ -20585,6 +20667,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   // photo, and that is shown first; if it ever fails to load, the looked-up one takes over rather
   // than leaving the card blank. Universal: any hotel row, one field.
   const [bad, setBad] = useState(null);
+  const [reserve, setReserve] = useState(false);   // the "Reserve with the hotel" sheet
   const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
   const rating = null;   // Google crowd rating — deliberately not shown. See note above.
@@ -20617,7 +20700,12 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
       {s.vo ? <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 600, marginTop: 6, lineHeight: 1.5 }}>VO ♥ Voyage One favorite{s.voNote ? ` — ${s.voNote}` : ""}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
-          : site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, textDecoration: "none", fontSize: 13, fontWeight: 500, letterSpacing: ".03em", padding: "10px 18px", borderRadius: 999 }}>Book directly at {s.name} →</a> : null}
+          : (<div onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setReserve(true)} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 13.5, fontWeight: 500, letterSpacing: ".03em", padding: "11px 20px", borderRadius: 999 }}>Reserve with the hotel</button>
+            <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 8 }}>{RESERVE_LINE}</div>
+            {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 8, fontSize: 12.5, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Visit {s.name}'s website →</a> : null}
+            {reserve ? <ReserveSheet s={s} city={city} site={site} onClose={() => setReserve(false)} /> : null}
+          </div>)}
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
