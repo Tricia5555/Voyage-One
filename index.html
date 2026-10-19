@@ -47,9 +47,10 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M906";
+const BUILD = "M907";
 
 import { createRoot } from "react-dom/client";
+import { createPortal } from "react-dom";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Plane, Car, TrainFront, MapPin, Plus, Minus, ArrowRight, ArrowLeft, Lock, Ticket,
@@ -20578,7 +20579,7 @@ function ReserveSheet({ s, city, site, onClose }) {
   const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", border: `1px solid ${t.line}`, borderRadius: 10, fontSize: 15, fontFamily: font.ui, color: t.ink, background: t.white };
   const lab = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600, marginBottom: 5, display: "block" };
   const field = (label, el) => (<div style={{ marginBottom: 12 }}><label style={lab}>{label}</label>{el}</div>);
-  return (<div onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onClose(); }} style={{ position: "fixed", inset: 0, zIndex: 9500, background: "rgba(34,29,25,.45)", display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: font.ui }}>
+  const body = (<div onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) onClose(); }} style={{ position: "fixed", inset: 0, zIndex: 9500, background: "rgba(34,29,25,.45)", display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: font.ui }}>
     <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto", background: t.paper, borderRadius: "18px 18px 0 0", padding: "18px 20px 28px", boxShadow: "0 -8px 40px rgba(0,0,0,.18)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
         <div>
@@ -20613,6 +20614,8 @@ function ReserveSheet({ s, city, site, onClose }) {
       </>)}
     </div>
   </div>);
+  // Rendered on the body, never inside the card (see the note above).
+  return (typeof document !== "undefined" && document.body && document.body.nodeType === 1) ? createPortal(body, document.body) : body;
 }
 const HOTEL_PHOTO_CACHE = {};
 function useHotelInfo(city, name) {
@@ -20701,7 +20704,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
           : (<div onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setReserve(true)} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 13.5, fontWeight: 500, letterSpacing: ".03em", padding: "11px 20px", borderRadius: 999 }}>Reserve with the hotel</button>
+            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 13.5, fontWeight: 500, letterSpacing: ".03em", padding: "11px 20px", borderRadius: 999 }}>Reserve with the hotel</button>
             <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 8 }}>{RESERVE_LINE}</div>
             {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 8, fontSize: 12.5, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Visit {s.name}'s website →</a> : null}
             {reserve ? <ReserveSheet s={s} city={city} site={site} onClose={() => setReserve(false)} /> : null}
