@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M904";
+const BUILD = "M905";
 
 import { createRoot } from "react-dom/client";
 import React, { useState, useEffect, useRef } from "react";
@@ -9654,7 +9654,7 @@ function StayCard({ stay, city }) {
     <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginTop: 2 }}>Chosen with the destination — this is why you are here. Rates are confirmed with you before anything is booked.</div>
     {match && match.addr ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 8 }}>{match.addr}</div> : null}
     {match && match.phone ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 2 }}>{match.phone}</div> : null}
-    {site ? <a href={site} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 14, padding: "10px 18px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site →</a> : null}
+    {site ? <a href={brandedLink(site, { kind: "hotel", name: stay.name, city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 14, padding: "10px 18px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Visit site →</a> : null}
     </div>
   </div>);
 }
@@ -20447,6 +20447,16 @@ function sessionId() {
   try { let id = localStorage.getItem("voyage-one:session"); if (!id) { id = "s-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem("voyage-one:session", id); } return id; }
   catch (e) { return "s-nostore"; }
 }
+// THE HOST AGENCY — one place, one line to change. Voyage One books under a host agency's IATA
+// number (Brownell or FORA — decided by Tricia, not yet signed, 19 Oct 2026). Every outbound link
+// the app hands to a hotel, airline or operator carries that number as `iata=` alongside the
+// Voyage One reference: harmless where a site ignores it, credited where its booking engine
+// honours it (SynXis does; the big brands' consumer sites mostly do not — see the project doc).
+// While `iata` is empty NOTHING is appended: no placeholder, no made-up number, ever.
+// A URL parameter is attribution, not commission. Commission and Virtuoso benefits attach only
+// to a reservation the advisor places through the host's channel — that is what the
+// "Reserve with the hotel" request is for.
+const HOST = { name: "", iata: "" };
 function brandedLink(url, ctx) {
   if (!url) return null;
   var hash = "", u = String(url);
@@ -20454,9 +20464,10 @@ function brandedLink(url, ctx) {
   var qi = u.indexOf("?");
   var base = qi >= 0 ? u.slice(0, qi) : u;
   var qs = qi >= 0 ? u.slice(qi + 1) : "";
-  var parts = qs ? qs.split("&").filter(function (p) { return p && p.slice(0, 4) !== "utm_"; }) : [];
+  var parts = qs ? qs.split("&").filter(function (p) { return p && p.slice(0, 4) !== "utm_" && p.slice(0, 5) !== "iata="; }) : [];
   var ref = voRef();
   parts.push("utm_source=voyageoneworld.com", "utm_medium=referral", "utm_campaign=voyageone", "utm_content=" + ref);
+  if (HOST.iata) parts.push("iata=" + encodeURIComponent(HOST.iata));
   OUTBOUND[ref] = { kind: (ctx && ctx.kind) || "link", name: (ctx && ctx.name) || "", city: (ctx && ctx.city) || "", url: base };
   return base + "?" + parts.join("&") + hash;
 }
