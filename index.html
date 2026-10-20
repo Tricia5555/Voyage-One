@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M915";
+const BUILD = "M917";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -392,6 +392,23 @@ const AREA_MIN_HOTELS = 6;
 // United Kingdom complete 17 Oct 2026 (83 hotels: 47 listed, 36 none).
 // Austria complete 17 Oct 2026 (6 approved hotels: 5 listed, 1 none). Virtuoso notation only — nothing added, no tier moved.
 const VIRTUOSO_EVIDENCE = {
+  // ── UNITED STATES — HAWAII & ALASKA ── (20 Oct 2026: all sixteen hotels in the app checked on virtuoso.com that day; Kona Village, The Resort at Kapalua Bay, 1 Hotel Hanalei Bay and Sheldon Chalet added on Tricia's brief.)
+  "Four Seasons Resort Hualalai": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/12866195/four-seasons-resort-hualalai", vname: "Four Seasons Resort Hualalai", year: null, amenities: [], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026. Amenities block generic, no dated list. Forbes: Five-Star. Michelin: Two Keys." },
+  "Mauna Lani, Auberge Collection": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/suppliers/3781/mauna-lani-auberge-resorts-collection", vname: "Mauna Lani, Auberge Resorts Collection", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet Breakfast for up to two guests per bedroom, served in the hotel restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Recommended. Michelin: One Key." },
+  "Four Seasons Resort Lanai": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/6164399/four-seasons-resort-lanai", vname: "Four Seasons Resort Lana'i", year: null, amenities: [], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026. Amenities block generic, no dated list. Forbes: Five-Star. Michelin: One Key." },
+  "Sensei Lanai, a Four Seasons Resort": { status: "listed", member: true, checked: "2026-10-20", source: "https://virtuoso.com/hotels/6164183/four-seasons-hotel-lanai-at-koele", vname: "Sensei Lana'i, A Four Seasons Resort", year: null, amenities: [], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026. Amenities block generic, no dated list. Forbes: Four-Star." },
+  "Four Seasons Resort Maui at Wailea": { status: "listed", member: true, checked: "2026-10-20", source: "https://virtuoso.com/hotels/6163842/four-seasons-resort-maui-at-wailea", vname: "Four Seasons Resort Maui at Wailea", year: null, amenities: [], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026. Amenities block generic, no dated list. Forbes: Five-Star. Michelin: One Key. Tier Ultra, preserved (brief said Luxury — conflict reported)." },
+  "Hotel Wailea": { status: "none", member: false, checked: "2026-10-20", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (20 Oct 2026) — no notation. No virtuoso.com property page in three searches. Forbes: Recommended." },
+  "Halekulani": { status: "listed", member: true, checked: "2026-10-20", source: "https://virtuoso.com/hotels/6163848/halekulani", vname: "Halekulani", year: "2025", amenities: ["Upgrade at time of booking, subject to availability (Partial Ocean View to Ocean View or Ocean View to Oceanfront)", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant", "$100USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Bookings in our Pool View Suite or higher categories will receive an additional $100 Resort or Hotel credit (for a total of $200 during stay)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Four-Star hotel. Michelin: Two Keys." },
+  "Four Seasons Resort Oahu at Ko Olina": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/15268050/four-seasons-resort-oahu-at-ko-olina", vname: "Four Seasons Resort Oahu at Ko Olina", year: null, amenities: [], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026. Amenities block generic, no dated list. Forbes: Four-Star. Michelin: One Key." },
+  "ESPACIO The Jewel of Waikiki": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/16793583/espacio-the-jewel-of-waikiki", vname: "ESPACIO The Jewel of Waikiki", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily breakfast credit of $45 per person, for up to two guests per bedroom, served in the restaurant and via in-room dining (credit is non-cumulative)", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate & taxes, no cash value if not redeemed in full)", "Early check-in / Late check-out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Five-Star." },
+  "The Ritz-Carlton Residences, Waikiki Beach": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/15975715/the-ritz-carlton-residences-waikiki-beach", vname: "The Ritz-Carlton Residences, Waikiki Beach", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Full breakfast for up to two guests per bedroom, served in the restaurant and via in-room dining", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Four-Star. Michelin: One Key." },
+  "The Ritz-Carlton Maui, Kapalua": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/6164026/the-ritz-carlton-kapalua", vname: "The Ritz-Carlton Maui, Kapalua", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Four-Star." },
+  "Grand Wailea, A Waldorf Astoria Resort": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/16895722/grand-wailea-a-waldorf-astoria-resort", vname: "Grand Wailea, A Waldorf Astoria Resort", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early check-in / Late check-out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Recommended." },
+  "Kona Village, A Rosewood Resort": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/16663627/kona-village-a-rosewood-resort", vname: "Kona Village, A Rosewood Resort", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily breakfast credit of $75 per person, for up to two guests per bedroom, served in the restaurant and via in-room dining (credit is non-cumulative)", "$100 USD equivalent Resort or Hotel credit to be utilized during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Four-Star — NOT Five-Star. FTG hotel page and FTG Big Island. Michelin: Three Keys. Forbes Four-Star (not Five, Oct 2026); Three Michelin Keys. Brief: Ultra. Added at Luxury on the standing rule that a Four-Star is not promoted to Ultra automatically — Tricia's one word moves it." },
+  "The Resort at Kapalua Bay, Maui": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/14031598/montage-kapalua-bay", vname: "Montage Kapalua Bay", year: "2025", amenities: ["One-view upgrade on arrival, subject to availability", "Daily breakfast credit of $45 per person, for up to two guests per bedroom, served in the restaurant and via in-room dining (credit is non-cumulative)", "$150 USD equivalent Spa Montage Kapalua Bay Spa Services Credit to be used during stay (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: Five-Star as Montage Kapalua Bay. Michelin: Two Keys. Page still carries the Montage name and credit — stale since the March 2026 handover to Marriott; current membership under the new name unconfirmed, so the badge rests on the live page as it stands." },
+  "1 Hotel Hanalei Bay": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/16291831/1-hotel-hanalei-bay", vname: "1 Hotel Hanalei Bay", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily Buffet breakfast for up to two guests per bedroom, served in the restaurant", "$100 USD equivalent Hotel Credit, applicable towards our Food & Beverage outlets or towards Spa Services (not combinable, not valid on room rate, no cash value if not redeemed in full)", "Early check-in / Late check-out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026. 'For 2025' list read verbatim. Forbes: not confirmed — FTG Kauai destination page and FTG hotel pag. Michelin: One Key." },
+  "Sheldon Chalet": { status: "none", member: false, checked: "2026-10-20", source: "", vname: "", year: null, amenities: [], note: "Not verified on Virtuoso (20 Oct 2026) — no notation. No virtuoso.com property page in three searches. Forbes: none." },
   // ── UNITED STATES — IDAHO, MONTANA & WYOMING ── (audit 20 Oct 2026; M914 added Four Seasons Jackson Hole, One&Only Moonlight Basin, Triple Creek Ranch, RiverView Ranch at Luxury on Tricia's decisions. Paws Up, Rusty Parrot, Shore Lodge, Brush Creek: NO. Rock Creek, Green O, Hotel Jackson: undecided.)
   "The Ranch at Rock Creek": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/6164506/the-ranch-at-rock-creek", vname: "The Ranch at Rock Creek", year: "2025", amenities: ["Upgrade on arrival, subject to availability", "Daily breakfast for up to two guests per bedroom, served in the restaurant (already included in property rates)", "$100 USD equivalent Resort or Hotel credit to be utilized during stay", "Early Check-In / Late Check-Out, subject to availability", "Complimentary Wi-Fi"], note: "Hotel's own virtuoso.com page read 20 Oct 2026; 'For 2025' list read verbatim. Forbes Five-Star every year since 2014; no Michelin Key. Luxury by Tricia's word (brief said Ultra)." },
   "Four Seasons Resort and Residences Jackson Hole": { status: "listed", member: true, checked: "2026-10-20", source: "https://www.virtuoso.com/hotels/6164057/four-seasons-resort-jackson-hole", vname: "Four Seasons Resort Jackson Hole", year: null, amenities: [], amenitiesUnverified: true, note: "Hotel's own virtuoso.com page read 20 Oct 2026 — name and description render; amenities block generic with a stale 'valid through 25 Oct 2020' line. Forbes: Four-Star on Forbes' own 2026 page (Five-Star 2022–25); Tricia rates it Five-Star from her own stays and sets Luxury." },
@@ -2006,6 +2023,8 @@ const ULTRA_LUX = [
   // the Northeast/West line further down and is Luxury.
   "Four Seasons Resort Lanai", "Four Seasons Resort Maui at Wailea", "Four Seasons Resort Hualalai",
   "ESPACIO The Jewel of Waikiki",
+  // Alaska, 20 Oct 2026: the one hotel in the state, Ultra by Tricia's brief — a five-bedroom buyout on a glacier.
+  "Sheldon Chalet",
   // United States — Mountain West / South / Northeast
   "Amangiri", "The Little Nell", "Amangani",
   // Montage Palmetto Bluff and The Cloister came down to Luxury on 4 Sept 2026 (Carolinas &
@@ -5277,12 +5296,22 @@ const FAVORITES = {
   "Maui": [
     { name: "Four Seasons Resort Maui at Wailea", area: "Wailea", rate: null, ourTake: "The defining resort of Hawaii on the best beach in Wailea \u2014 Forbes Five-Star, a service culture nothing else on the islands matches, and a clientele that returns every year. Large, and Ultra Luxury on the strength of that service, by instruction." },
     { name: "Hotel Wailea", area: "Wailea, in the hills", rate: null, ourTake: "Seventy-two suites on fifteen acres above the coast, adults only, quiet and independent. The intimate alternative to the beach resorts below it." },
+    { name: "The Resort at Kapalua Bay, Maui", area: "Kapalua \u00b7 on the bay, north-west Maui", rate: null, keys: 2, status: "Became The Resort at Kapalua Bay in March 2026 when Montage's management ended; open through a renovation and becomes a St. Regis in 2027.", ourTake: "The former Montage Kapalua Bay \u2014 fifty residential suites of one to four bedrooms above the bay, a 30,000-square-foot spa, Cane & Canoe, and the tiered pool down to the sand. Forbes Five-Star in its Montage years; two Michelin Keys. Luxury, by instruction.", contact: { addr: "1 Bay Drive, Kapalua, HI 96761", web: "marriott.com" } },
     { name: "The Ritz-Carlton Maui, Kapalua", area: "Kapalua, north-west Maui", rate: null, ourTake: "The full-service resort on the Kapalua headland with the two courses, the spa and the pineapple-plantation coast around it. The conventional luxury of west Maui." },
     { name: "Grand Wailea, A Waldorf Astoria Resort", area: "Wailea", rate: null, ourTake: "The big one on Wailea Beach \u2014 the famous pools, a huge spa, villas and suites, with serious money spent on all of it. Built for families and unashamed of it." },
   ],
   "Big Island": [
     { name: "Four Seasons Resort Hualalai", area: "Kona-Kohala Coast", rate: null, ourTake: "Two hundred and forty-nine bungalow rooms on 865 acres of lava and sea, eight pools, the golf and a spa \u2014 Forbes Five-Star for seventeen years running and the only one on the island. The benchmark Hawaii resort, effortless and warm, and one of the strongest Ultra Luxury calls in the state." },
+    { name: "Kona Village, A Rosewood Resort", area: "Ka\u02bbupulehu \u00b7 Kahuwai Bay, next door to Hualalai", rate: null, keys: 3, ourTake: "The 1965 village of thatched hale on Kahuwai Bay, closed by the 2011 tsunami and rebuilt by Rosewood in 2023 \u2014 150 stand-alone hale of one to four bedrooms, no televisions, Moana on the water, the Asaya spa with its hot and cold pools, and the only three Michelin Keys in Hawaii. Forbes Four-Star. Luxury, by instruction \u2014 the brief asked for Ultra; see the note in the evidence record.", contact: { addr: "72-300 Maheawalu Drive, Kailua-Kona, HI 96740", web: "rosewoodhotels.com/en/kona-village" } },
     { name: "Mauna Lani, Auberge Collection", area: "Kohala Coast", rate: null, ourTake: "Rebuilt from the ground up for Auberge \u2014 three pools on the water, two courses, a cultural centre and a serious spa. The polished Kohala resort that is not a Four Seasons." },
+  ],
+  // ── KAUAI — 20 OCT 2026. The island joins with one hotel; Lihue (LIH) listed with it.
+  "Kauai": [
+    { name: "1 Hotel Hanalei Bay", area: "Princeville \u00b7 on the bluff above Hanalei Bay, the north shore", rate: null, keys: 1, ourTake: "The old St. Regis Princeville rebuilt from the frame in 2023 \u2014 252 rooms on the bluff over Hanalei Bay, a Bamford spa with a float room and a hyperbaric chamber, three pools including an adults-only infinity edge, and the north shore's green walls behind. One Michelin Key. Luxury, by instruction.", contact: { addr: "5520 Ka Haku Road, Princeville, HI 96722", web: "1hotels.com/hanalei-bay" } },
+  ],
+  // ── DENALI — 20 OCT 2026. Alaska's first and only hotel: the whole chalet or nothing.
+  "Denali": [
+    { name: "Sheldon Chalet", area: "Ruth Glacier \u00b7 the Don Sheldon Amphitheater, Denali National Park", rate: null, ourTake: "A five-bedroom chalet on a nunatak at six thousand feet in the Don Sheldon Amphitheater, reached only by helicopter \u2014 ten guests at most, the whole chalet or nothing, three nights minimum, a live-in chef, a cedar sauna in the snow, the aurora from September to April and the midnight sun in summer. Ultra Luxury, by instruction.", contact: { addr: "Don Sheldon Amphitheater, Ruth Glacier, Denali National Park, Alaska \u2014 by helicopter from Talkeetna", web: "sheldonchalet.com" } },
   ],
   "Lanai": [
     { name: "Sensei Lanai, a Four Seasons Resort", area: "Lanai", rate: null, ourTake: "An adults-only wellness retreat in the cool uplands of Larry Ellison's island." },
@@ -9613,7 +9642,7 @@ const PLACE_REGION = {
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
   "davidson": "Charlotte, North Carolina", "marietta": "Atlanta, Georgia", "avondale estates": "Atlanta, Georgia", "sullivan's island": "Charleston, South Carolina",
   "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada", "caldwell": "Idaho", "boise": "Idaho",
-  "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
+  "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "kauai": "Hawaii", "denali": "Alaska", "anchorage": "Alaska", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
   "st john": "US Virgin Islands", "st croix": "US Virgin Islands", "grand cayman": "Cayman Islands", "little cayman": "Cayman Islands",
@@ -9678,7 +9707,7 @@ function placeLine(city) {
   return r ? c + ", " + r : c;
 }
 // EVERY AMERICAN PLACE CARRIES ITS STATE (Tricia, 6 Oct 2026): "Napa Valley, CA", "Charleston, SC".
-const US_STATE = {"Chicago": "IL", "Kohler": "WI", "Boston": "MA", "Middleburg": "VA", "Primland": "VA", "Keswick": "VA", "Washington, Virginia": "VA", "Laguna Beach": "CA", "Honolulu": "HI", "Savannah": "GA", "Charleston": "SC", "Menlo Park": "CA", "The Hamptons": "NY", "New York City": "NY", "Los Angeles": "CA", "Santa Barbara": "CA", "Beverly Hills": "CA", "Ojai": "CA", "Pebble Beach": "CA", "Healdsburg": "CA", "Palm Springs": "CA", "San Francisco": "CA", "Napa Valley": "CA", "San Diego": "CA", "Miami": "FL", "Florida Keys": "FL", "Palm Beach": "FL", "Boca Raton": "FL", "Naples, Florida": "FL", "Orlando": "FL", "Sarasota": "FL", "Maui": "HI", "Big Island": "HI", "Lanai": "HI", "Aspen": "CO", "Jackson Hole": "WY", "Big Sky": "MT", "Park City": "UT", "New Orleans": "LA", "Austin": "TX", "Dallas": "TX", "Houston": "TX", "San Antonio": "TX", "Santa Fe": "NM", "Scottsdale": "AZ", "Tucson": "AZ", "Las Vegas": "NV", "Philadelphia": "PA", "Nemacolin": "PA", "Blackberry Farm": "TN", "Franklin, Tennessee": "TN", "Nashville": "TN", "Reno": "NV", "Philipsburg, Montana": "MT", "Darby, Montana": "MT", "Alberton, Montana": "MT", "Missoula": "MT", "Seattle": "WA", "Woodinville": "WA", "Snoqualmie": "WA", "Leavenworth": "WA", "Portland, Oregon": "OR", "Willamette Valley": "OR", "Cannon Beach": "OR", "Gold Beach": "OR", "Coos Bay": "OR", "Kiawah Island": "SC", "Palmetto Bluff": "SC", "Raleigh": "NC", "Atlanta": "GA", "Lake Oconee": "GA", "Sea Island": "GA", "Newport": "RI", "Watch Hill": "RI", "Chatham": "MA", "Harwich": "MA", "Lenox": "MA", "Washington, Connecticut": "CT", "Kennebunk": "ME", "Adirondacks": "NY", "Louisville": "KY", "Denver": "CO", "San Juan": "PR", "Dorado": "PR", "Río Grande, Puerto Rico": "PR", "St Thomas": "USVI"};
+const US_STATE = {"Chicago": "IL", "Kohler": "WI", "Boston": "MA", "Middleburg": "VA", "Primland": "VA", "Keswick": "VA", "Washington, Virginia": "VA", "Laguna Beach": "CA", "Honolulu": "HI", "Savannah": "GA", "Charleston": "SC", "Menlo Park": "CA", "The Hamptons": "NY", "New York City": "NY", "Los Angeles": "CA", "Santa Barbara": "CA", "Beverly Hills": "CA", "Ojai": "CA", "Pebble Beach": "CA", "Healdsburg": "CA", "Palm Springs": "CA", "San Francisco": "CA", "Napa Valley": "CA", "San Diego": "CA", "Miami": "FL", "Florida Keys": "FL", "Palm Beach": "FL", "Boca Raton": "FL", "Naples, Florida": "FL", "Orlando": "FL", "Sarasota": "FL", "Maui": "HI", "Big Island": "HI", "Kauai": "HI", "Denali": "AK", "Anchorage": "AK", "Lanai": "HI", "Aspen": "CO", "Jackson Hole": "WY", "Big Sky": "MT", "Park City": "UT", "New Orleans": "LA", "Austin": "TX", "Dallas": "TX", "Houston": "TX", "San Antonio": "TX", "Santa Fe": "NM", "Scottsdale": "AZ", "Tucson": "AZ", "Las Vegas": "NV", "Philadelphia": "PA", "Nemacolin": "PA", "Blackberry Farm": "TN", "Franklin, Tennessee": "TN", "Nashville": "TN", "Reno": "NV", "Philipsburg, Montana": "MT", "Darby, Montana": "MT", "Alberton, Montana": "MT", "Missoula": "MT", "Seattle": "WA", "Woodinville": "WA", "Snoqualmie": "WA", "Leavenworth": "WA", "Portland, Oregon": "OR", "Willamette Valley": "OR", "Cannon Beach": "OR", "Gold Beach": "OR", "Coos Bay": "OR", "Kiawah Island": "SC", "Palmetto Bluff": "SC", "Raleigh": "NC", "Atlanta": "GA", "Lake Oconee": "GA", "Sea Island": "GA", "Newport": "RI", "Watch Hill": "RI", "Chatham": "MA", "Harwich": "MA", "Lenox": "MA", "Washington, Connecticut": "CT", "Kennebunk": "ME", "Adirondacks": "NY", "Louisville": "KY", "Denver": "CO", "San Juan": "PR", "Dorado": "PR", "Río Grande, Puerto Rico": "PR", "St Thomas": "USVI"};
 function usStateOf(city) { const b = bareCity(city || ""); const k = Object.keys(US_STATE).find((c) => c === b || c.toLowerCase() === b.toLowerCase() || dnrm(c) === dnrm(b)); return k ? US_STATE[k] : null; }
 function regionOf(city) {
   const st = usStateOf(city); if (st) return st;
@@ -10070,6 +10099,8 @@ const GATEWAY = {
   "Big Sky": { air: "Bozeman", note: "Fly to Bozeman (BZN) \u2014 nonstops from most of the west and, in winter, the east coast \u2014 then an hour south through the Gallatin canyon. Montage sends a car." },
   "Park City": { air: "Salt Lake City", note: "Fly to Salt Lake City (SLC), then thirty-five minutes up the canyon to Park City \u2014 the easiest ski arrival in America. Blue Sky is another twenty minutes on, at Wanship." },
   "Utah": { air: "Las Vegas", note: "Fly to Las Vegas (LAS), then four and a half hours across the desert to Canyon Point \u2014 or the same from Phoenix. Amangiri arranges the car, and for most of its clients the private-jet strip at Page, fifteen minutes away. There is no scheduled flight worth taking." },
+  "Kauai": { air: "Kauai", note: "Fly to Lihue (LIH) \u2014 nonstops from the west coast \u2014 then about an hour north to Hanalei Bay. The hotel arranges a car." },
+  "Denali": { air: "Anchorage", note: "Fly to Anchorage (ANC). The chalet takes it from there: about two and a half hours north to Talkeetna by road or a short flight, then the helicopter onto the Ruth Glacier \u2014 all arranged with the booking, weather permitting." },
   "Lanai": { air: "Honolulu", note: "Fly to Honolulu (HNL), then twenty-five minutes on Lanai Air \u2014 the Four Seasons' own aircraft, booked with the room \u2014 or Mokulele from Honolulu or Maui. The resorts meet every flight. The Maui ferry ended in 2023; the aircraft is the way." },
   "Nevis": { air: "St Kitts", note: "Fly to St Kitts (SKB), then across the Narrows by boat \u2014 the Four Seasons runs its own launch from the harbour, about twenty minutes, and every hotel on Nevis will arrange a water taxi. The public ferry is forty-five minutes from Basseterre. Tradewind and Winair also fly into Nevis's own strip from San Juan and St Maarten, if that is the better connection." },
   "Canouan": { air: "St Vincent", note: "Fly to St Vincent (SVD), then twenty minutes on SVG Air to Canouan \u2014 or from Barbados on the same shuttle, which is often the better connection from Europe. Canouan's strip takes private jets, and for the Mandarin Oriental's villa clients that is how it is usually done." },
@@ -10389,9 +10420,9 @@ const AIRPORTS = {
   // HAWAII. Honolulu (HNL) is the Pacific hub; Kahului (OGG) on Maui and Kona (KOA) on the Big
   // Island take mainland nonstops from most of the west — Kona takes Japan Airlines from Tokyo
   // too. All three intercontinental and sold through Duffel. Lanai (LNY) is Lanai Air and
-  // Mokulele only, not listed, routed through Honolulu. Lihue (LIH) is not listed because Kauai
-  // has no hotel.
-  "Honolulu": { code: "HNL", scale: "intercontinental" }, "Maui": { code: "OGG", scale: "intercontinental" },
+  // Mokulele only, not listed, routed through Honolulu. Lihue (LIH) joined on 20 Oct 2026 with
+  // 1 Hotel Hanalei Bay — mainland nonstops from the west coast.
+  "Kauai": { code: "LIH", scale: "intercontinental" }, "Anchorage": { code: "ANC", scale: "intercontinental" }, "Honolulu": { code: "HNL", scale: "intercontinental" }, "Maui": { code: "OGG", scale: "intercontinental" },
   "Big Island": { code: "KOA", scale: "intercontinental" },
   // BERMUDA. L.F. Wade (BDA) takes British Airways from Gatwick and every US east-coast carrier —
   // intercontinental, and the door. Not Caribbean: it is a thousand kilometers north of it, off
@@ -11379,6 +11410,9 @@ const ZONE = {
   "maui": ["Maui"],
   "big-island": ["Big Island"],
   "lanai": ["Lanai"],
+  "kauai": ["Kauai"],
+  // ALASKA. Its own zone: nothing on the continent is within reach of it by road in a day.
+  "alaska": ["Denali", "Anchorage"],
   // BERMUDA. Its own zone, and nothing within a thousand kilometers of it.
   "bermuda": ["Bermuda"],
   // ST BARTS. Two islands, two zones, one ferry between them in FERRIES.
@@ -11567,7 +11601,7 @@ const COORDS = {
   "Grand Cayman": [19.32,-81.24], "Little Cayman": [19.69,-80.05],
   "British Virgin Islands": [18.45,-64.55], "Virgin Gorda": [18.48,-64.40], "Tortola": [18.43,-64.62], "St Thomas": [18.34,-64.93],
   "St John": [18.33,-64.74], "St Croix": [17.73,-64.75],
-  "Honolulu": [21.31,-157.86], "Maui": [20.72,-156.45], "Big Island": [19.74,-155.99], "Lanai": [20.83,-156.92],
+  "Honolulu": [21.31,-157.86], "Maui": [20.72,-156.45], "Big Island": [19.74,-155.99], "Lanai": [20.83,-156.92], "Kauai": [22.20,-159.50], "Denali": [62.98,-150.68], "Anchorage": [61.22,-149.90],
   "Bermuda": [32.30,-64.78], "Barbados": [13.19,-59.54], "St Lucia": [13.85,-61.00], "Antigua": [17.08,-61.80], "Anguilla": [18.22,-63.05], "St Barth": [17.90,-62.83], "St Maarten": [18.04,-63.11],
   "Nassau": [25.06,-77.35], "Paradise Island": [25.08,-77.32], "Exuma": [23.51,-75.77], "Exumas": [23.51,-75.77],
   "Great Exuma": [23.51,-75.77], "Staniel Cay": [24.17,-76.44], "Eleuthera": [25.30,-76.40],
@@ -12140,7 +12174,7 @@ const CITY_ALIASES = {
   "kona": "Big Island", "hawaii": "Big Island", "big island of hawaii": "Big Island", "kailua-kona": "Big Island", "hawaii island": "Big Island", "kohala coast": "Big Island", "hualalai": "Big Island",
   "oahu": "Honolulu", "waikiki": "Honolulu", "ko olina": "Honolulu", "honolulu, hi": "Honolulu",
   "wailea": "Maui", "kapalua": "Maui", "kahului": "Maui", "lahaina": "Maui", "kihei": "Maui", "maui, hi": "Maui",
-  "lanai city": "Lanai", "manele bay": "Lanai", "lana'i": "Lanai",
+  "montage kapalua bay": "Maui", "kapalua bay": "Maui", "kona village": "Big Island", "lanai city": "Lanai", "manele bay": "Lanai", "lana'i": "Lanai", "kaua'i": "Kauai", "hanalei": "Kauai", "hanalei bay": "Kauai", "princeville": "Kauai", "lihue": "Kauai", "north shore kauai": "Kauai", "sheldon chalet": "Denali", "denali national park": "Denali", "ruth glacier": "Denali", "talkeetna": "Denali", "alaska": "Denali", "anchorage, alaska": "Anchorage", "anchorage, ak": "Anchorage",
   "como": "Lake Como", "firenze": "Florence", "venezia": "Venice", "roma": "Rome", "milano": "Milan", "napoli": "Naples",
   "wien": "Vienna", "munchen": "Munich", "münchen": "Munich", "geneve": "Geneva", "genève": "Geneva",
   "marrakesh": "Marrakech", "cdmx": "Mexico City", "rio": "Rio de Janeiro", "sao paulo": "São Paulo",
@@ -12308,6 +12342,7 @@ function isUS(city) {
   const raw = String(city).trim();
   if (naCountry(raw)) return false;   // Canada and Mexico are on the continent, not in the country
   if (zoneOf(raw) === "north-america") return true;
+  if (usStateOf(raw)) return true;   // Lanai, Kauai, Denali: a state in the table is the country settled
   const c = bareCity(raw).toLowerCase();
   const st = /[,\s]([a-z]{2})$/.exec(c);
   if (st && US_STATE_CODES.has(st[1].toUpperCase())) return true;
@@ -13826,7 +13861,7 @@ function AdvisoryOwnerPanel() {
 
 function VoyageOne() {
   useEffect(() => { loadAdvisories(); }, []);
-  const [screen, setScreen] = useState("landing");
+  const [screen, setScreen] = useState(DEEP_LINK.experience && findOneListEvent(DEEP_LINK.experience) ? "oneList" : "landing");
   const [step, setStep] = useState(0);
   const [dates, setDates] = useState({ depart: "", ret: "" });
   const [travelers, setTravelers] = useState([{ first: "", last: "" }]);
@@ -14236,7 +14271,7 @@ function VoyageOne() {
     {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
       <HelpPanel screen={screen} step={step} hideButton={screen === "landing"} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
-    {screen === "oneList" && <OneList onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+    {screen === "oneList" && <OneList initial={DEEP_LINK.experience} onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "explore" && <ExploreScreen onBack={() => setScreen("landing")} onHome={() => { setScreen("landing"); setStep(0); }} onPlan={(c, pk) => { setDests((d) => { const base = d && d.length ? d : [{ id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]; const out = base.slice(); const k = out.findIndex((x) => !String(x.city || "").trim()); const src = k >= 0 ? out[k] : out[0]; const nd = { ...src, city: c, air: iataFor(c) || "", pick: { ...(src.pick || {}), stay: (pk && pk.stay) || (src.pick && src.pick.stay) || null, dines: (pk && pk.dines && pk.dines.length) ? pk.dines : ((src.pick && src.pick.dines) || []), tours: (pk && pk.tours && pk.tours.length) ? pk.tours : ((src.pick && src.pick.tours) || []) } }; if (k >= 0) out[k] = nd; else out.push({ ...nd, id: newId() }); return out; }); setScreen("plan"); setStep(0); }} />}
     {screen === "plan" && <Planner {...shared} />}
     {screen === "itinerary" && <ItineraryView {...shared} onEdit={() => setScreen("plan")} />}
@@ -17668,10 +17703,31 @@ function evGallery(ev) {
   add(ev.photo || ev.title); add(ev.city); add(ev.title);
   return out.slice(0, 4);
 }
-function OneList({ onPick, onBack, onHome }) {
-  const [cat, setCat] = useState(null);
-  const [type, setType] = useState(null);
-  const [sel, setSel] = useState(null);
+function slugOf(s) { return dnrm(s).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+function findOneListEvent(slug) {
+  const want = slugOf(slug || ""); if (!want) return null;
+  for (const cat of Object.keys(ONE_LIST)) for (const type of Object.keys(ONE_LIST[cat] || {})) for (const ev of (ONE_LIST[cat][type] || [])) {
+    if (slugOf(ev.title) === want || (ev.slug && slugOf(ev.slug) === want)) return { cat, type, ev };
+  }
+  return null;
+}
+function readDeepLink() {
+  if (typeof window === "undefined") return {};
+  const out = {};
+  try {
+    const q = new URLSearchParams(window.location.search || "");
+    const h = new URLSearchParams(String(window.location.hash || "").replace(/^#\/?/, ""));
+    const ex = q.get("experience") || h.get("experience");
+    if (ex) out.experience = ex;
+  } catch (e) {}
+  return out;
+}
+const DEEP_LINK = readDeepLink();
+function OneList({ onPick, onBack, onHome, initial }) {
+  const first = initial ? findOneListEvent(initial) : null;
+  const [cat, setCat] = useState(first ? first.cat : null);
+  const [type, setType] = useState(first ? first.type : null);
+  const [sel, setSel] = useState(first ? first.ev : null);
   const [aecPick, setAecPick] = useState(null);
   // WHICH COURT, PER DAY. Wimbledon days are priced for two courts at once — "Sat 3 Jul · 3rd round
   // · Centre £3,350 · No.1 £1,900" — and a traveller taking three days may well want Centre for one
