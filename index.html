@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M934";
+const BUILD = "M936";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -7303,9 +7303,14 @@ const ACCOLADES = {
   // (up from Local Favorite), and the 2026 newcomers Little Betty and Locanda Brasato in Mountain
   // Brook and Austin Whereabouts in Bessemer, each keyed to its own town and rolled up here.
   // Michelin also recommends Current Charcoal Grill, Helen and Rêve — not asked for, not added.
-  "birmingham": [{ n: "Hot and Hot Fish Club", us:1, jb:1, msel:1 }, { n: "Highlands Bar & Grill", us:1, jb:1, closed:1 }, { n: "Automatic Seafood and Oysters", us:1, jb:1, msel:1 }, { n: "Bayonet", us:1, bib:1 }, { n: "La Fête", us:1, bib:1 }, { n: "OvenBird", us:1, bib:1 }, { n: "Pizza Grace", us:1, bib:1 }, { n: "Bottega", us:1, msel:1 }, { n: "Chez Fonfon", us:1, msel:1 }, { n: "Tropea", bib:1 }],
-  "mountain brook": [{ n: "Little Betty Steak Bar", us:1, msel:1 }, { n: "Locanda Brasato", us:1, msel:1 }],
-  "bessemer": [{ n: "Austin Whereabouts", us:1, msel:1 }],
+  // 22 Oct 2026, Tricia's policy: Michelin Bib Gourmand and Michelin Recommended are both Voyage One
+  // RECOMMENDED; a Beard win stays a Destination (Hot and Hot, Automatic — flagged, not demoted).
+  // The whole 2026 Alabama guide is here: five Bibs, thirteen Recommended. `my` is the edition year.
+  "birmingham": [{ n: "Hot and Hot Fish Club", us:1, jb:1, msel:1, my:2026 }, { n: "Highlands Bar & Grill", us:1, jb:1, closed:1 }, { n: "Automatic Seafood and Oysters", us:1, jb:1, msel:1, my:2026 }, { n: "Bayonet", us:1, bib:1, my:2026 }, { n: "La Fête", us:1, bib:1, my:2026 }, { n: "OvenBird", us:1, bib:1, my:2026 }, { n: "Pizza Grace", us:1, bib:1, my:2026 }, { n: "Bottega", us:1, msel:1, my:2026 }, { n: "Chez Fonfon", us:1, msel:1, my:2026 }, { n: "Current Charcoal Grill", us:1, msel:1, my:2026 }, { n: "Helen", us:1, msel:1, my:2026 }, { n: "Rêve", us:1, msel:1, my:2026 }, { n: "Tropea", bib:1 }],
+  "mountain brook": [{ n: "Little Betty Steak Bar", us:1, msel:1, my:2026, op: "Michelin Service Award 2026 \u2014 Jared Patterson" }, { n: "Locanda Brasato", us:1, msel:1, my:2026 }],
+  "bessemer": [{ n: "Austin Whereabouts", us:1, msel:1, my:2026 }],
+  "auburn": [{ n: "1856 \u2013 Culinary Residence", us:1, msel:1, my:2026 }],
+  "huntsville": [{ n: "Purveyor", us:1, msel:1, my:2026 }, { n: "Salt Smokehouse", us:1, msel:1, my:2026 }],
   "birstonas": [{ n: "Pievos", bib:1 }],
   "bischofswiesen": [{ n: "Kulturhof Stanggass - Gasthaus", bib:1 }],
   "bishop s cleeve": [{ n: "Jai Ho", bib:1 }],
@@ -7979,7 +7984,7 @@ const ACCOLADES = {
   "mirano": [{ n: "Da Flavio e Fabrizio \"Al Teatro\"", bib:1 }],
   "mission": [{ n: "Ana Liz Taqueria", us:1, jb:1 }],
   "mizunami": [{ n: "Yanagiya", ll:97, lly:2026 }],
-  "mobile": [{ n: "The Noble South", us:1, bib:1 }],
+  "mobile": [{ n: "The Noble South", us:1, bib:1, my:2026 }],
   "modave": [{ n: "La Roseraie", bib:1 }],
   "modena": [{ n: "Osteria Francescana", bob: 1, bobY: 2016 }, { n: "Antica Moka", bib:1 }, { n: "Trattoria Pomposa - Al Re gras", bib:1 }],
   "moena": [{ n: "Ostaria Tyrol", bib:1 }, { n: "Foresta", bib:1 }, { n: "Agritur El Mas", bib:1 }],
@@ -9107,10 +9112,9 @@ const LOCALFAV = {
   // Naples, Florida, 4 Sept 2026. A Beard semifinalist is not an award; Tricia keeps it as a
   // Local Favorite on its own merits. Key is dnrm("Naples, Florida").
   "naples florida": [{ n: "Bicyclette Cookshop", us:1 }],
-  "birmingham": [
-    { n: "Bottega Cafe", us:1 },
-    // Chez Fonfon moved up to the award list as Michelin Recommended (22 Oct 2026).
-  ],
+  // Birmingham, Alabama: Bottega and Chez Fonfon both moved up to the award list as Michelin
+  // Recommended (Tricia, 22 Oct 2026); nothing is left here.
+  "birmingham": [],
   // Bermuda has no starred or accoladed table, so the Local Favorite tab is the whole dining
   // page. Tricia's own list, 4 Sept 2026 — she goes all the time. Not US, so no `us` flag.
   "bermuda": [
@@ -21400,7 +21404,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
           {r.r50 ? <div>{r.r50n || "Regional"}'s 50 Best · #{r.r50}{r.r50y ? " (" + r.r50y + ")" : ""}</div> : null}
           {r.r50a ? <div>{r.r50n || "Regional"}'s 50 Best · {r.r50a}{r.r50y ? " (" + r.r50y + ")" : ""}</div> : null}
           {r.r50d ? <div>50 Best Discovery</div> : null}
-          {r.msel ? <div>Michelin Guide</div> : null}
+          {r.msel ? <div>Michelin Recommended{r.my ? " (" + r.my + ")" : ""}</div> : null}
           {r.mgs ? <div>Michelin Green Star</div> : null}
           {(r.gt && !(r.gm >= 19) && !r.gmc) ? <div>Gault&Millau — {r.gt} Toques{r.gy ? " · " + r.gy : ""}</div> : null}
           {r.r50p ? <div>{r.r50n || "Regional"}'s 50 Best · previously ranked</div> : null}
@@ -21410,7 +21414,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
           {r.access ? <div style={{ color: "#B0563A" }}>{r.access}</div> : null}
           {r.ll >= 95 ? <div>La Liste {r.ll}/100{r.lly ? " (" + r.lly + ")" : ""}</div> : null}
           {(r.gm >= 19 || r.gmc) ? <div>Gault&Millau — {r.gm >= 19 ? r.gm + "/20" + (r.gt ? " · " + r.gt + " Toques" : "") : r.gmc}{r.gy ? " · " + r.gy : ""}</div> : null}
-          {r.bib ? <div>Michelin Bib Gourmand</div> : null}
+          {r.bib ? <div>Michelin Bib Gourmand{r.my ? " (" + r.my + ")" : ""}</div> : null}
           {r.lf ? <div>Local Favorite · our pick</div> : null}
           {r.op ? <div>{r.op}</div> : null}
           {r.vo ? <div style={{ color: t.ink }}>VO ♥ Voyage One favorite{r.voNote ? ` — ${r.voNote}` : ""}</div> : null}
@@ -21450,7 +21454,8 @@ function accoladeBadge(r) {
   if (r.r50d) return "50 Best Discovery";
   // Michelin SELECTED — in the guide, not starred and not a Bib. A real credential and a
   // Recommended one: it means the inspectors rate the place, not that it is worth the journey.
-  if (r.msel) return "Michelin Guide";
+  // Michelin Recommended (msel) is decided further down, AFTER the Destination credentials — a
+  // Beard win or a Forbes Five-Star outranks it on the card (22 Oct 2026).
   // An outpost: the flagship's recognition, named as the flagship's. Recommended.
   if (r.op) return r.op;
   // Gault&Millau Toques with no score attached. Four Toques is excellent and still Recommended;
@@ -21465,7 +21470,8 @@ function accoladeBadge(r) {
   if (r.ll >= 95) return "La Liste " + r.ll;
   if (r.gm >= 19) return "Gault&Millau " + r.gm + "/20";
   if (r.gmc) return "Gault&Millau · " + r.gmc;
-  if (r.bib) return "Michelin Bib Gourmand";
+  if (r.bib) return "Michelin Bib Gourmand" + (r.my ? " (" + r.my + ")" : "");
+  if (r.msel) return "Michelin Recommended" + (r.my ? " (" + r.my + ")" : "");   // Michelin's own word for it (Tricia, 22 Oct 2026)
   if (r.lf) return "Local Favorite";
   return "Recommended";
 }
@@ -21562,7 +21568,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
           onToggle={() => upd({ dines: found ? dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)) : [...dines.filter((x) => keyOf(x.name, x.level) !== keyOf(r.n, level)), { name: r.n, price: null, level, date: "", michelin: true }] })}
           onDate={(dt) => setDate(r.n, level, dt)} onSet={(patch) => setField(r.n, level, patch)} nights={nights} />); })}
     </div> : <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty[level] || ""}</div>}
-    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Gault&Millau 19+ · Recommended = Michelin Bib Gourmand · Local Favorite = our own picks · click thru to book.</div>
+    <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Gault&Millau 19+ · Recommended = Michelin Bib Gourmand · Michelin Recommended · Local Favorite = our own picks · click thru to book.</div>
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
