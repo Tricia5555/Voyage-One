@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M932";
+const BUILD = "M934";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -7298,7 +7298,14 @@ const ACCOLADES = {
   // closed with its 2018 Outstanding Restaurant kept as a record. Automatic stays a winner: Adam
   // Evans took Best Chef: South in 2022, and the audit's semifinalist list names it in error.
   // Bottega and Chez Fonfon are Local Favorites by instruction and inherit nothing from Highlands.
-  "birmingham": [{ n: "Hot and Hot Fish Club", us:1, jb:1 }, { n: "Highlands Bar & Grill", us:1, jb:1, closed:1 }, { n: "Automatic Seafood and Oysters", us:1, jb:1 }, { n: "Bayonet", us:1, bib:1 }, { n: "La Fête", us:1, bib:1 }, { n: "OvenBird", us:1, bib:1 }, { n: "Pizza Grace", us:1, bib:1 }, { n: "Tropea", bib:1 }],
+  // Michelin American South, 2025 and 2026 (Tricia, 22 Oct 2026): the four Bibs held; Recommended
+  // added for Automatic (which keeps its Beard win), Hot and Hot likewise, Bottega and Chez Fonfon
+  // (up from Local Favorite), and the 2026 newcomers Little Betty and Locanda Brasato in Mountain
+  // Brook and Austin Whereabouts in Bessemer, each keyed to its own town and rolled up here.
+  // Michelin also recommends Current Charcoal Grill, Helen and Rêve — not asked for, not added.
+  "birmingham": [{ n: "Hot and Hot Fish Club", us:1, jb:1, msel:1 }, { n: "Highlands Bar & Grill", us:1, jb:1, closed:1 }, { n: "Automatic Seafood and Oysters", us:1, jb:1, msel:1 }, { n: "Bayonet", us:1, bib:1 }, { n: "La Fête", us:1, bib:1 }, { n: "OvenBird", us:1, bib:1 }, { n: "Pizza Grace", us:1, bib:1 }, { n: "Bottega", us:1, msel:1 }, { n: "Chez Fonfon", us:1, msel:1 }, { n: "Tropea", bib:1 }],
+  "mountain brook": [{ n: "Little Betty Steak Bar", us:1, msel:1 }, { n: "Locanda Brasato", us:1, msel:1 }],
+  "bessemer": [{ n: "Austin Whereabouts", us:1, msel:1 }],
   "birstonas": [{ n: "Pievos", bib:1 }],
   "bischofswiesen": [{ n: "Kulturhof Stanggass - Gasthaus", bib:1 }],
   "bishop s cleeve": [{ n: "Jai Ho", bib:1 }],
@@ -8988,8 +8995,16 @@ function dineCityKeys(city){
   // A QUALIFIED NAME IS A TOWN, NOT A REGION. "Washington, Virginia" must not expand into the
   // State of Washington's towns because its first word matches the state (19 Oct 2026, when
   // Seattle and its neighbours acquired the "Washington" label). Only a bare name expands.
-  const base = (al || raw).toLowerCase();
-  const members = base.indexOf(",") === -1 ? (regionMembers()[base.trim()] || []) : [];
+  let base = (al || raw).toLowerCase(), stateTail = null;
+  if (base.indexOf(",") !== -1) {
+    const t = base.slice(base.lastIndexOf(",") + 1).trim().replace(/\.$/, ""), code = t.toUpperCase();
+    if (US_STATE_CODES.has(code) && US_STATE_NAME_OF[code]) stateTail = US_STATE_NAME_OF[code]; else if (US_STATE_NAMES.has(t)) stateTail = t;
+    if (stateTail) base = base.slice(0, base.lastIndexOf(",")).trim();   // "birmingham, al" → "birmingham", bound to Alabama
+  }
+  // A town with its state expands only into suburbs whose region label names that state — so
+  // "Birmingham, AL" reaches Bessemer and Mountain Brook, "St Louis, MO" reaches Webster Groves,
+  // and "Washington, Virginia" still reaches nothing in Washington State (22 Oct 2026).
+  const members = base.indexOf(",") === -1 ? (regionMembers()[base.trim()] || []).filter((m) => !stateTail || String(PLACE_REGION[m] || "").toLowerCase().indexOf(stateTail) !== -1) : [];
   return [canon].concat(members.map(dnrm).filter((m) => m !== canon));
 }
 // Accolade-only restaurants (James Beard / World's 50 Best / La Liste / Bib Gourmand) that a
@@ -9094,7 +9109,7 @@ const LOCALFAV = {
   "naples florida": [{ n: "Bicyclette Cookshop", us:1 }],
   "birmingham": [
     { n: "Bottega Cafe", us:1 },
-    { n: "Chez Fonfon", us:1 },
+    // Chez Fonfon moved up to the award list as Michelin Recommended (22 Oct 2026).
   ],
   // Bermuda has no starred or accoladed table, so the Local Favorite tab is the whole dining
   // page. Tricia's own list, 4 Sept 2026 — she goes all the time. Not US, so no `us` flag.
@@ -9743,7 +9758,7 @@ const PLACE_REGION = {
   // dining rollup: Sozai's suburb opens on Detroit
   "clawson": "Detroit, Michigan", "minneapolis": "Minnesota", "st louis": "Missouri",
   // dining rollup: the Twin Cities open on Minneapolis; Balkan Treat Box's suburb opens on St Louis
-  "st paul": "Minneapolis, Minnesota", "webster groves": "St Louis, Missouri", "boston": "Massachusetts", "newport": "Rhode Island", "watch hill": "Rhode Island", "providence": "Rhode Island", "vermont": "Barnard, Vermont", "portland, maine": "Maine", "mystic": "Connecticut", "kennebunk": "Maine", "dover": "New Hampshire", "randolph": "Vermont",
+  "st paul": "Minneapolis, Minnesota", "webster groves": "St Louis, Missouri", "mountain brook": "Birmingham, Alabama", "bessemer": "Birmingham, Alabama", "boston": "Massachusetts", "newport": "Rhode Island", "watch hill": "Rhode Island", "providence": "Rhode Island", "vermont": "Barnard, Vermont", "portland, maine": "Maine", "mystic": "Connecticut", "kennebunk": "Maine", "dover": "New Hampshire", "randolph": "Vermont",
   "middleburg": "Virginia", "boca raton": "Florida", "washington dc": "District of Columbia", "washington, virginia": "Virginia", "baltimore": "Maryland", "st michaels": "Eastern Shore, Maryland", "philadelphia": "Pennsylvania", "nemacolin": "Laurel Highlands, Pennsylvania", "peapack": "New Jersey", "pittsburgh": "Pennsylvania", "farmington": "Nemacolin, Pennsylvania", "blackberry farm": "Tennessee", "knoxville": "Tennessee", "franklin, tennessee": "Tennessee", "lake tahoe": "Nevada / California", "reno": "Nevada", "darby, montana": "Montana", "philipsburg, montana": "Montana", "alberton, montana": "Montana", "missoula": "Montana", "portland, oregon": "Oregon", "willamette valley": "Oregon", "cannon beach": "Oregon", "gold beach": "Oregon", "coos bay": "Oregon", "seattle": "Washington", "woodinville": "Washington", "snoqualmie": "Washington", "leavenworth": "Washington", "atlanta": "Georgia", "sea island": "Georgia", "savannah": "Georgia", "charlotte": "North Carolina", "raleigh": "North Carolina", "asheville": "North Carolina",
   "charleston": "South Carolina", "kiawah island": "South Carolina", "palmetto bluff": "South Carolina", "greenville": "South Carolina",
   // dining rollup: towns whose tables belong to a destination page
@@ -12431,6 +12446,11 @@ function sameCity(a, b) { return !!(a && b && bareCity(a).toLowerCase() === bare
 // Birmingham, Nashville, Charleston and every other American city read as foreign — which
 // switched off the long-haul advice for the people most likely to need it. Now: the ZONE
 // table if it knows, then a state suffix like "Birmingham, AL", then the airport code.
+// A STATE SPELLED OUT IS STILL A STATE. "Birmingham, Alabama" was foreign to isUS() because only
+// the two-letter code and the airport code were recognised, so it was served Birmingham, England's
+// Bib Gourmand beside its own (found 22 Oct 2026). Fifty states and the District, lower-case.
+const US_STATE_NAMES = new Set(["alabama","alaska","arizona","arkansas","california","colorado","connecticut","delaware","florida","georgia","hawaii","idaho","illinois","indiana","iowa","kansas","kentucky","louisiana","maine","maryland","massachusetts","michigan","minnesota","mississippi","missouri","montana","nebraska","nevada","new hampshire","new jersey","new mexico","new york","north carolina","north dakota","ohio","oklahoma","oregon","pennsylvania","rhode island","south carolina","south dakota","tennessee","texas","utah","vermont","virginia","washington","west virginia","wisconsin","wyoming","district of columbia","puerto rico","us virgin islands","u.s. virgin islands"]);
+const US_STATE_NAME_OF = { AL: "alabama", AK: "alaska", AZ: "arizona", AR: "arkansas", CA: "california", CO: "colorado", CT: "connecticut", DE: "delaware", FL: "florida", GA: "georgia", HI: "hawaii", ID: "idaho", IL: "illinois", IN: "indiana", IA: "iowa", KS: "kansas", KY: "kentucky", LA: "louisiana", ME: "maine", MD: "maryland", MA: "massachusetts", MI: "michigan", MN: "minnesota", MS: "mississippi", MO: "missouri", MT: "montana", NE: "nebraska", NV: "nevada", NH: "new hampshire", NJ: "new jersey", NM: "new mexico", NY: "new york", NC: "north carolina", ND: "north dakota", OH: "ohio", OK: "oklahoma", OR: "oregon", PA: "pennsylvania", RI: "rhode island", SC: "south carolina", SD: "south dakota", TN: "tennessee", TX: "texas", UT: "utah", VT: "vermont", VA: "virginia", WA: "washington", WV: "west virginia", WI: "wisconsin", WY: "wyoming", DC: "district of columbia", PR: "puerto rico" };
 const US_STATE_CODES = new Set(["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"]);
 const US_AIRPORT_CODES = new Set(["NYC","JFK","LGA","EWR","MIA","LAX","SFO","CHI","ORD","BOS","WAS","IAD","DCA","ATL","DFW","DEN","IAH","SAN","LAS","MCO","BNA","MSY","AUS","MSP","DTW","CLT","PHL","SLC","PDX","TPA","FLL","HNL","BHM","CHS","SAV","JAX","RDU","RIC","PIT","CLE","CVG","IND","MCI","STL","MEM","SDF","CMH","MKE","SMF","SJC","PBI","RSW","SRQ","EYW","PHX","SEA","OGG","KOA","LIH","ANC"]);
 // Canada and Mexico sit inside the north-america ZONE because they share the landmass, and
@@ -12473,12 +12493,17 @@ function naCountry(city) {
 function isUS(city) {
   if (!city) return false;
   const raw = String(city).trim();
+  // A STATE NAMED IN THE TEXT SETTLES IT FIRST. "Vancouver, Washington" is Washington, whatever
+  // the Canada hand list says about "vancouver" (22 Oct 2026).
+  { const c0 = bareCity(raw).toLowerCase(); const st0 = /[,\s]([a-z]{2})$/.exec(c0); if (st0 && US_STATE_CODES.has(st0[1].toUpperCase()) && !CA_PROVINCES.has(st0[1].toUpperCase())) return true; const tail0 = c0.indexOf(",") !== -1 ? c0.slice(c0.lastIndexOf(",") + 1).trim().replace(/\.$/, "") : ""; if (tail0 && US_STATE_NAMES.has(tail0)) return true; }
   if (naCountry(raw)) return false;   // Canada and Mexico are on the continent, not in the country
   if (zoneOf(raw) === "north-america") return true;
   if (usStateOf(raw)) return true;   // Lanai, Kauai, Denali: a state in the table is the country settled
   const c = bareCity(raw).toLowerCase();
   const st = /[,\s]([a-z]{2})$/.exec(c);
   if (st && US_STATE_CODES.has(st[1].toUpperCase())) return true;
+  const tail = c.indexOf(",") !== -1 ? c.slice(c.lastIndexOf(",") + 1).trim().replace(/\.$/, "") : "";
+  if (tail && US_STATE_NAMES.has(tail)) return true;   // "Birmingham, Alabama"
   // EVERY AMERICAN AIRPORT COUNTS. US_AIRPORT_CODES is the short hand list the picker uses;
   // US_AIRPORT_STATE is the whole map. "Portland, Maine (PWM)" and "Kennebunk (PWM)" read as
   // foreign on the short list and lost their tables (found 19 Oct 2026).
@@ -12496,7 +12521,11 @@ function isUS(city) {
 function dineGeoOk(city, entryIsUS) {
   const code = codeOf(city);
   const qUS = isUS(city);
-  const qForeign = !!code && !US_AIRPORT_CODES.has(code) && !US_AIRPORT_STATE[code]; // a real foreign airport code
+  // A trailing country is as good as an airport code: "Birmingham, England" is not Alabama, and
+  // was being served Alabama's tables until 22 Oct 2026. COUNTRY_SUFFIX is the same set the
+  // resolver trusts; naCountry covers Canada and Mexico typed plainly.
+  const tail = (() => { const b = bareCity(city).toLowerCase(); return b.indexOf(",") !== -1 ? b.slice(b.lastIndexOf(",") + 1).trim() : ""; })();
+  const qForeign = (!!code && !US_AIRPORT_CODES.has(code) && !US_AIRPORT_STATE[code]) || (!qUS && (COUNTRY_SUFFIX.has(tail) || !!naCountry(city))); // a real foreign airport code or country
   if (qUS && !entryIsUS) return false;
   if (qForeign && entryIsUS) return false;
   return true;
