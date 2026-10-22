@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M939";
+const BUILD = "M941";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -6445,6 +6445,13 @@ const DINING = {
   // stays; the dining panel does not show a closed table as somewhere to book.
   "Marietta": [{ n: "Spring", s: 1 }],   // closed for renovation 2025, quietly reopened Feb 2026 at reduced capacity (AJC, 18 Apr 2026); star held in the 2026 list
   "Gay": [{ n: "Uberto Restaurant", s: 1 }],   // 2026: new star, Gay, Georgia
+  // TEXAS 2026 (8 Oct 2026) — nineteen One Stars; none had ever been entered here. la Barbecue lost its star (Recommended now).
+  "Austin": [{ n: "Barley Swine", s: 1 }, { n: "Craft Omakase", s: 1 }, { n: "Fabrik", s: 1 }, { n: "Hestia", s: 1 }, { n: "InterStellar BBQ", s: 1 }, { n: "Kappo Kappo", s: 1 }, { n: "LeRoy and Lewis Barbecue", s: 1 }],
+  "Houston": [{ n: "BCN Taste & Tradition", s: 1 }, { n: "Le Jardinier Houston", s: 1 }, { n: "March", s: 1 }, { n: "Musaafer", s: 1 }, { n: "Tatemó", s: 1 }],
+  "Spring": [{ n: "CorkScrew BBQ", s: 1 }],
+  "Dallas": [{ n: "Mamani", s: 1 }, { n: "Tatsu Dallas", s: 1 }],
+  "Fort Worth": [{ n: "Goldee's Bar-B-Q", s: 1 }],
+  "San Antonio": [{ n: "Isidore", s: 1 }, { n: "Mixtli", s: 1 }, { n: "Nicōsi", s: 1 }],
   "Marina del Cantone": [{ n: "Taverna del Capitano", s: 1 }],
   "Marina di Bibbona": [{ n: "La Pineta", s: 1 }],
   "Marina di Gioiosa Ionica": [{ n: "Gambero Rosso", s: 1 }],
@@ -7020,9 +7027,14 @@ const DINING = {
 // this "Birmingham (BHM)" (Alabama) would match our "Birmingham" (England) Michelin list. This
 // lets the lookup refuse a foreign list for a US city and vice-versa. Generated from the raw
 // Michelin country column — not a hand list.
-const DINING_US = { "Atherton": 1, "Atlanta": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
+const DINING_US = { "Atherton": 1, "Atlanta": 1, "Austin": 1, "Dallas": 1, "Fort Worth": 1, "Gay": 1, "Houston": 1, "San Antonio": 1, "Spring": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
 
 const ACCOLADES = {
+  // ── MICHELIN TEXAS 2026 (revealed 8 Oct 2026; applied 22 Oct on Tricia's policy: Bib Gourmand and Michelin Recommended are both Voyage One Recommended, `my` = edition year). Towns new to the file:
+  "arlington texas": [{ n: "Smoke'N Ash BBQ", us:1, msel:1, my:2026 }],
+  "katy": [{ n: "Hong Kong Food Street", us:1, msel:1, my:2026 }],
+  "mckinney": [{ n: "Harvest at the Masonic", us:1, msel:1, my:2026 }],
+  "plano": [{ n: "Jashan", us:1, msel:1, my:2026 }],
   // ── MICHELIN AMERICAN SOUTH 2026 (revealed 21 Oct 2026; applied 22 Oct on Tricia's policy: Bib Gourmand and Michelin Recommended are both Voyage One Recommended, `my` = edition year). Towns new to the file:
   "baton rouge": [{ n: "Elsie's Plate & Pie", us:1, msel:1, my:2026 }],
   "biloxi": [{ n: "White Pillars", us:1, msel:1, my:2026 }],
@@ -7252,7 +7264,7 @@ const ACCOLADES = {
   "aumont aubrac": [{ n: "La Gabale", bib:1 }],
   "auray": [{ n: "La Chebaudière", bib:1 }],
   "aurora": [{ n: "Annette", us:1, jb:1 }],
-  "austin": [{ n: "Briscuits", us:1, bib:1 }, { n: "Cuantos Tacos", us:1, bib:1 }, { n: "Dai Due", us:1, bib:1 }, { n: "Distant Relatives", us:1, bib:1 }, { n: "Emmer & Rye", us:1, bib:1 }, { n: "Franklin Barbecue", us:1, bib:1 }, { n: "Kemuri Tatsu-ya", us:1, bib:1 }, { n: "KG BBQ", us:1, bib:1 }, { n: "La Santa Barbacha", us:1, bib:1 }, { n: "Mercado Sin Nombre", us:1, bib:1 }, { n: "Micklethwait Craft Meats", us:1, bib:1 }, { n: "Nixta Taqueria", us:1, bib:1 }, { n: "Odd Duck", us:1, bib:1 }, { n: "Parish Barbecue", us:1, bib:1 }, { n: "Ramen del Barrio", us:1, bib:1 }, { n: "Veracruz Fonda & Bar", us:1, bib:1 }],
+  "austin": [{ n: "Briscuits", us:1, bib:1, my:2026 }, { n: "Cuantos Tacos", us:1, bib:1, my:2026 }, { n: "Dai Due", us:1, bib:1, my:2026 }, { n: "Distant Relatives", us:1, bib:1, my:2026 }, { n: "Emmer & Rye", us:1, bib:1, my:2026 }, { n: "Franklin Barbecue", us:1, bib:1, my:2026 }, { n: "Kemuri Tatsu-ya", us:1, bib:1, my:2026 }, { n: "KG BBQ", us:1, bib:1, my:2026 }, { n: "La Santa Barbacha", us:1, bib:1, my:2026 }, { n: "Mercado Sin Nombre", us:1, bib:1, my:2026 }, { n: "Micklethwait Craft Meats", us:1, bib:1, my:2026 }, { n: "Nixta Taqueria", us:1, bib:1, my:2026 }, { n: "Odd Duck", us:1, bib:1, my:2026 }, { n: "Parish Barbecue", us:1, bib:1, my:2026 }, /* OUT OF THE 2026 GUIDE (22 Oct 2026): { n: "Ramen del Barrio", us:1 } */, { n: "Veracruz Fonda & Bar", us:1, bib:1, my:2026 }, { n: "Ezov", us:1, msel:1, my:2026 }, { n: "Apt 115", us:1, msel:1, my:2026 }, { n: "Le Calamar", us:1, msel:1, my:2026 }, { n: "Tare", us:1, msel:1, my:2026 }, { n: "Mexta", us:1, msel:1, my:2026 }, { n: "Comedor", us:1, msel:1, my:2026 }, { n: "Suerte", us:1, msel:1, my:2026 }, { n: "la Barbecue", us:1, msel:1, my:2026 }, { n: "La Condesa", us:1, msel:1, my:2026 }, { n: "Lenoir", us:1, msel:1, my:2026 }, { n: "Terry Black's BBQ", us:1, msel:1, my:2026 }, { n: "Toshokan", us:1, msel:1, my:2026 }, { n: "Lutie's", us:1, msel:1, my:2026 }, { n: "Birdie's", us:1, msel:1, my:2026 }, { n: "Launderette", us:1, msel:1, my:2026 }, { n: "Siti", us:1, msel:1, my:2026 }, { n: "Este", us:1, msel:1, my:2026 }, { n: "Ling Kitchen", us:1, msel:1, my:2026 }, { n: "Mum Foods Smokehouse & Delicatessen", us:1, msel:1, my:2026 }, { n: "Joe's Bakery & Coffee Shop", us:1, msel:1, my:2026 }, { n: "Discada", us:1, msel:1, my:2026 }, { n: "Jeffrey's", us:1, msel:1, my:2026 }, { n: "Din Ho Chinese BBQ", us:1, msel:1, my:2026 }],
   "auxey duresses": [{ n: "Le Sarment", bib:1 }],
   "auzouville sur saane": [{ n: "Auberge de La Mère Duval", bib:1 }],
   "avegno": [{ n: "Grotto Valmaggese", bib:1 }],
@@ -7301,7 +7313,7 @@ const ACCOLADES = {
   "belfast": [{ n: "Beau", bib:1 }, { n: "EDŌ", bib:1 }, { n: "Deanes at Queens", bib:1 }, { n: "Home", bib:1 }, { n: "mrDeanes", bib:1 }],
   "belgrade": [{ n: "Bela Reka", bib:1 }, { n: "Istok", bib:1 }, { n: "Iva New Balkan Cuisine", bib:1 }],
   "bell gardens": [{ n: "Rocio's Mexican Kitchen", us:1, bib:1 }],
-  "bellaire": [{ n: "Blood Bros BBQ", us:1, bib:1 }],
+  "bellaire": [{ n: "Blood Bros BBQ", us:1, bib:1, my:2026 }],
   "belleville en beaujolais": [{ n: "Le Beaujolais", bib:1 }],
   "belluno": [{ n: "Al Borgo", bib:1 }],
   "benicarlo": [{ n: "Pau", bib:1 }],
@@ -7570,7 +7582,7 @@ const ACCOLADES = {
   "cutigliano": [{ n: "Trattoria da Fagiolino", bib:1 }],
   "cuttoli": [{ n: "U Licettu", bib:1 }],
   "dalfsen": [{ n: "De Witte Gans", bib:1 }],
-  "dallas": [{ n: "Cattleack", us:1, bib:1 }, { n: "Gemma", us:1, bib:1 }, { n: "Lucia", us:1, bib:1 }, { n: "Một Hai Ba", us:1, bib:1 }, { n: "Ngon Vietnamese Kitchen", us:1, bib:1 }, { n: "nonna", us:1, bib:1 }],
+  "dallas": [{ n: "Cattleack", us:1, bib:1, my:2026 }, { n: "Gemma", us:1, bib:1, my:2026 }, { n: "Lucia", us:1, msel:1, my:2026 }, { n: "Một Hai Ba", us:1, bib:1, my:2026 }, { n: "Ngon Vietnamese Kitchen", us:1, bib:1, my:2026 }, { n: "nonna", us:1, bib:1, my:2026 }, { n: "Resident Taqueria", us:1, bib:1, my:2026 }, { n: "Stillwell's", us:1, msel:1, my:2026 }, { n: "Tei-An", us:1, msel:1, my:2026 }, { n: "Barsotti's", us:1, msel:1, my:2026 }, { n: "Knox Bistro", us:1, msel:1, my:2026 }, { n: "El Carlos Elegante", us:1, msel:1, my:2026 }, { n: "Crown Block", us:1, msel:1, my:2026 }, { n: "Fearing's Restaurant", us:1, msel:1, my:2026 }, { n: "Mercat Bistro", us:1, msel:1, my:2026 }, { n: "MĀBO", us:1, msel:1, my:2026 }, { n: "Stock & Barrel", us:1, msel:1, my:2026 }, { n: "Monarch", us:1, msel:1, my:2026 }, { n: "Sushi Kozy", us:1, msel:1, my:2026 }, { n: "Written By The Seasons", us:1, msel:1, my:2026 }, { n: "Mister Charles", us:1, msel:1, my:2026 }, { n: "Sachet", us:1, msel:1, my:2026 }, { n: "Quarter Acre", us:1, msel:1, my:2026 }, { n: "Fond", us:1, msel:1, my:2026 }, { n: "Olōyō", us:1, msel:1, my:2026 }],
   "dartmouth": [{ n: "Andria", bib:1 }],
   "dave": [{ n: "Le Beau Rivage by Curtis", bib:1 }],
   "davos platz": [{ n: "Golden Dragon", bib:1 }],
@@ -7662,7 +7674,7 @@ const ACCOLADES = {
   "fordham": [{ n: "The Three Horseshoes", bib:1 }],
   "forstinning": [{ n: "Zum Vaas", bib:1 }],
   "fort lauderdale": [{ n: "Heritage", us:1, bib:1 }],
-  "fort worth": [{ n: "Goldee's Bar-B-Q", us:1, bib:1 }],
+  "fort worth": [{ n: "Birrieria y Taqueria Cortez", us:1, msel:1, my:2026 }, { n: "Panther City BBQ", us:1, msel:1, my:2026 }],   // Goldee's Bar-B-Q is a One Star (2026) — in the stars table, not here
   "fossombrone": [{ n: "Osteria Zanchetti", bib:1 }],
   "fouday": [{ n: "Julien", bib:1 }],
   "fougeres sur bievre": [{ n: "Avarum", bib:1 }],
@@ -7776,7 +7788,7 @@ const ACCOLADES = {
   "hoorn": [{ n: "HAVN", bib:1 }],
   "horsforth": [{ n: "Bavette", bib:1 }],
   "houlgate": [{ n: "L'Éden", bib:1 }],
-  "houston": [{ n: "JŪN", us:1, jb:1 }, { n: "Street to Kitchen", us:1, jb:1, bib:1 }, { n: "Hugo's", us:1, jb:1 }, { n: "Annam", us:1, bib:1 }, { n: "Casaema", us:1, bib:1 }, { n: "ChòpnBlọk", us:1, bib:1 }, { n: "da Gama Canteen", us:1, bib:1 }, { n: "Killen's", us:1, bib:1 }, { n: "Mala Sichuan Bistro", us:1, bib:1 }, { n: "Maximo", us:1, bib:1 }, { n: "Nam Giao", us:1, bib:1 }, { n: "Nancy's Hustle", us:1, bib:1 }, { n: "nobie's", us:1, bib:1 }, { n: "Papalo Taqueria", us:1, bib:1 }, { n: "Pinkerton's Barbecue", us:1, bib:1 }, { n: "Rosie Cannonball", us:1, bib:1 }, { n: "The Pit Room", us:1, bib:1 }, { n: "Theodore Rex", us:1, bib:1 }, { n: "Truth BBQ", us:1, bib:1 }],
+  "houston": [{ n: "JŪN", us:1, jb:1 }, { n: "Street to Kitchen", us:1, bib:1, my:2026, jb:1 }, { n: "Hugo's", us:1, jb:1 }, { n: "Annam", us:1, bib:1, my:2026 }, { n: "Casaema", us:1, bib:1, my:2026 }, { n: "ChòpnBlọk", us:1, bib:1, my:2026 }, { n: "da Gama Canteen", us:1, bib:1, my:2026 }, /* OUT OF THE 2026 GUIDE (22 Oct 2026): { n: "Killen's", us:1 } */, { n: "Mala Sichuan Bistro", us:1, bib:1, my:2026 }, { n: "Maximo", us:1, bib:1, my:2026 }, { n: "Nam Giao", us:1, bib:1, my:2026 }, { n: "Nancy's Hustle", us:1, bib:1, my:2026 }, { n: "nobie's", us:1, bib:1, my:2026 }, { n: "Papalo Taqueria", us:1, bib:1, my:2026 }, { n: "Pinkerton's Barbecue", us:1, bib:1, my:2026 }, { n: "Rosie Cannonball", us:1, bib:1, my:2026 }, { n: "The Pit Room", us:1, bib:1, my:2026 }, { n: "Theodore Rex", us:1, bib:1, my:2026 }, { n: "Truth BBQ", us:1, bib:1, my:2026 }, { n: "Murray's Pizza & Wine", us:1, bib:1, my:2026 }, { n: "Kitchen Rumors", us:1, bib:1, my:2026 }, { n: "Bar Buena", us:1, bib:1, my:2026 }, { n: "Xolo", us:1, bib:1, my:2026, op: "Michelin Exceptional Cocktails Award 2026 \u2014 Angel Bautista" }, { n: "Khói Barbecue", us:1, bib:1, my:2026 }, { n: "The Marigold Club", us:1, msel:1, my:2026 }, { n: "Credence", us:1, msel:1, my:2026 }, { n: "Josephine's", us:1, msel:1, my:2026 }, { n: "Perseid", us:1, msel:1, my:2026 }, { n: "Agnes and Sherman", us:1, msel:1, my:2026 }, { n: "Bludorn", us:1, msel:1, my:2026 }, { n: "Pappas Bros. Steakhouse", us:1, msel:1, my:2026 }, { n: "Angie's Pizza", us:1, msel:1, my:2026 }, { n: "Bar Bludorn", us:1, msel:1, my:2026 }, { n: "Mayahuel", us:1, msel:1, my:2026 }, { n: "Baso", us:1, msel:1, my:2026, op: "Michelin Young Chef Award 2026 \u2014 Jacques Varon and Max Lappe" }, { n: "Sushi Horiuchi", us:1, msel:1, my:2026, op: "Michelin Sommelier Award 2026 \u2014 Jessica Cano" }, { n: "Jantra", us:1, msel:1, my:2026 }, { n: "J-Bar-M Barbecue", us:1, msel:1, my:2026 }, { n: "Candente", us:1, msel:1, my:2026 }, { n: "Di An Pho", us:1, msel:1, my:2026 }, { n: "Levant BBQ", us:1, msel:1, my:2026 }, { n: "Osteria di Mercato", us:1, msel:1, my:2026 }, { n: "Oru", us:1, msel:1, my:2026 }, { n: "1111", us:1, msel:1, my:2026 }],
   "hovelhof": [{ n: "Gasthof Brink", bib:1 }],
   "hradec kralove": [{ n: "Šatlava", bib:1 }],
   "hsinchu city": [{ n: "Nung Wei Hsiao Chu", bib:1 }],
@@ -7932,7 +7944,7 @@ const ACCOLADES = {
   "livorno": [{ n: "Azzighe - Osteria a metà", bib:1 }],
   "llanes": [{ n: "Le Bistró", bib:1 }],
   "lleida": [{ n: "Sisè", bib:1 }, { n: "Aimia", bib:1 }],
-  "lockhart": [{ n: "Barbs B Q", us:1, bib:1 }],
+  "lockhart": [{ n: "Barbs B Q", us:1, bib:1, my:2026 }],
   "logrono": [{ n: "La Cocina de Ramón", bib:1 }],
   "longiano": [{ n: "Dei Cantoni", bib:1 }],
   "looe": [{ n: "Sardine Factory", bib:1 }],
@@ -8164,7 +8176,7 @@ const ACCOLADES = {
   "parma": [{ n: "Brisla Trattoria", bib:1 }, { n: "I Tri Siochètt", bib:1 }],
   "pasadena": [{ n: "Union", us:1, bib:1 }],
   "pau": [{ n: "Omnivore", bib:1 }],
-  "pearland": [{ n: "Killen's BBQ", us:1, bib:1 }],
+  "pearland": [{ n: "Killen's BBQ", us:1, bib:1, my:2026 }],
   "pecs": [{ n: "Morzsa", bib:1 }],
   "peillon": [{ n: "Les Plaisirs", bib:1 }],
   "perigueux": [{ n: "Café Louise", bib:1 }],
@@ -8354,7 +8366,7 @@ const ACCOLADES = {
   "samerberg": [{ n: "Gasthof Alpenrose", bib:1 }],
   "samoens": [{ n: "Le Lodge", bib:1 }],
   "san anselmo": [{ n: "Insalata's", us:1, bib:1 }],
-  "san antonio": [{ n: "Cullum's Attaboy", us:1, bib:1 }, { n: "Ladino", us:1, bib:1 }, { n: "Mezquite", us:1, bib:1 }, { n: "Southerleigh Fine Food & Brewery", us:1, bib:1 }, { n: "The Jerk Shack", us:1, bib:1 }],
+  "san antonio": [{ n: "Cullum's Attaboy", us:1, bib:1, my:2026 }, { n: "Ladino", us:1, bib:1, my:2026 }, { n: "Mezquite", us:1, bib:1, my:2026 }, { n: "Southerleigh Fine Food & Brewery", us:1, bib:1, my:2026 }, { n: "The Jerk Shack", us:1, bib:1, my:2026 }, { n: "Leche de Tigre", us:1, msel:1, my:2026 }, { n: "Signature Restaurant", us:1, msel:1, my:2026 }, { n: "Little Em's Oyster Bar", us:1, msel:1, my:2026 }, { n: "Reese Bros Barbecue", us:1, msel:1, my:2026 }, { n: "2M Smokehouse", us:1, msel:1, my:2026 }, { n: "Lovers Pizzeria", us:1, msel:1, my:2026 }, { n: "Garcia's Mexican Food", us:1, msel:1, my:2026 }, { n: "Petit Coquin", us:1, msel:1, my:2026 }],
   "san cristobal de la laguna": [{ n: "Silbo Gomero", bib:1 }],
   "san desiderio": [{ n: "Bruxaboschi", bib:1 }],
   // Boca Raton, 4 Sept 2026 cleanup: Flybridge is Forbes Five-Star and Destination; access is
@@ -8429,7 +8441,7 @@ const ACCOLADES = {
   "sebastopol": [{ n: "Khom Loi", us:1, bib:1 }, { n: "Ramen Gaijin", us:1, bib:1 }],
   "seberang perai": [{ n: "Neighbourwood", bib:1 }, { n: "BM Yam Rice", bib:1 }, { n: "BM Cathay Pancake", bib:1 }, { n: "Taman Bukit Curry Mee", bib:1 }],
   "sedella": [{ n: "El Chiringuito", bib:1 }],
-  "seguin": [{ n: "Burnt Bean Co.", us:1, bib:1 }],
+  "seguin": [{ n: "Burnt Bean Co.", us:1, bib:1, my:2026 }],
   "selva": [{ n: "Miceli", bib:1 }],
   "selva malvezzi": [{ n: "Locanda Pincelli", bib:1 }],
   "senas": [{ n: "Le Bon Temps", bib:1 }],
@@ -8461,7 +8473,7 @@ const ACCOLADES = {
   "sowerby bridge": [{ n: "Engine Social Dining", bib:1 }],
   "spalt": [{ n: "Gasthof Blumenthal", bib:1 }],
   "split": [{ n: "Konoba Fetivi", msel: 1 }, { n: "\u0160ug", msel: 1 }, { n: "K.užina", bib:1 }],
-  "spring": [{ n: "Belly of the Beast", us:1, jb:1, bib:1 }, { n: "Rosemeyer Bar-B-Q", us:1, bib:1 }],
+  "spring": [{ n: "Belly of the Beast", us:1, bib:1, my:2026, jb:1 }, { n: "Rosemeyer Bar-B-Q", us:1, bib:1, my:2026 }],
   "st leonards on sea": [{ n: "The Royal", bib:1 }],
   "st louis": [{ n: "Sidney Street Cafe", us:1, jb:1 }],
   "st paul": [{ n: "Myriel", us:1, jb:1 }],
@@ -8522,7 +8534,7 @@ const ACCOLADES = {
   "tisbury": [{ n: "Pythouse Kitchen Garden", bib:1 }],
   "tivoli": [{ n: "Li Somari", bib:1 }],
   "tokyo": [{ n: "S\u00e9zanne", w: 7, wy: 2025 }, { n: "Matsukawa", ll:99.5, lly:2026 }, { n: "L'Osier", ll:98.5, lly:2026 }, { n: "Hoshino", ll:98.5, lly:2026 }, { n: "Sugita", ll:98.5, lly:2026 }, { n: "Makimura", ll:97.5, lly:2026 }, { n: "Aoyagi", ll:97.5, lly:2026 }, { n: "Takiya", ll:97, lly:2026 }, { n: "Sugalabo", ll:95, lly:2026 }, { n: "Sushi Arai", ll:95, lly:2026 }],
-  "tomball": [{ n: "Tejas Chocolate + Barbecue", us:1, bib:1 }],
+  "tomball": [{ n: "Tejas Chocolate + Barbecue", us:1, bib:1, my:2026 }],
   "tonda": [{ n: "3 Pipos", bib:1 }],
   "torano nuovo": [{ n: "Osteria dei Maltagliati", bib:1 }],
   "torun": [{ n: "Piernicova", bib:1 }],
@@ -9804,6 +9816,7 @@ const PLACE_REGION = {
   "charleston": "South Carolina", "kiawah island": "South Carolina", "palmetto bluff": "South Carolina", "greenville": "South Carolina",
   // dining rollup: towns whose tables belong to a destination page
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
+  "spring": "Houston, Texas", "tomball": "Houston, Texas", "pearland": "Houston, Texas", "bellaire": "Houston, Texas", "katy": "Houston, Texas", "lockhart": "Austin, Texas", "seguin": "San Antonio, Texas", "plano": "Dallas, Texas", "mckinney": "Dallas, Texas", "arlington texas": "Dallas, Texas", "fort worth": "Dallas, Texas",
   "davidson": "Charlotte, North Carolina", "concord": "Charlotte, North Carolina", "cornelius": "Charlotte, North Carolina", "marietta": "Atlanta, Georgia", "avondale estates": "Atlanta, Georgia", "decatur": "Atlanta, Georgia", "roswell": "Atlanta, Georgia", "chamblee": "Atlanta, Georgia", "doraville": "Atlanta, Georgia", "duluth": "Atlanta, Georgia", "johns creek": "Atlanta, Georgia", "sullivan's island": "Charleston, South Carolina", "hanahan": "Charleston, South Carolina", "knightdale": "Raleigh, North Carolina", "carrboro": "Raleigh, North Carolina", "madison tennessee": "Nashville, Tennessee", "cordova tennessee": "Memphis, Tennessee", "maryville": "Knoxville, Tennessee", "loudon": "Knoxville, Tennessee",
   "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada", "caldwell": "Idaho", "boise": "Idaho",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "kauai": "Hawaii", "denali": "Alaska", "anchorage": "Alaska", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
@@ -13307,6 +13320,28 @@ const CITY_SUGGEST_CACHE = {};
 // name and can type it in full; what they should not get is the app suggesting it.
 const US_AIRPORT_STATE = { BHM: "AL", HSV: "AL", MGM: "AL", MOB: "AL", ANC: "AK", PHX: "AZ", TUS: "AZ", LIT: "AR", LAX: "CA", SFO: "CA", SAN: "CA", SJC: "CA", OAK: "CA", SMF: "CA", SNA: "CA", BUR: "CA", LGB: "CA", ONT: "CA", PSP: "CA", SBA: "CA", MRY: "CA", STS: "CA", DEN: "CO", ASE: "CO", EGE: "CO", COS: "CO", HDN: "CO", MTJ: "CO", BDL: "CT", DCA: "DC", IAD: "DC", MIA: "FL", FLL: "FL", PBI: "FL", MCO: "FL", TPA: "FL", RSW: "FL", JAX: "FL", EYW: "FL", SRQ: "FL", PNS: "FL", ATL: "GA", SAV: "GA", HNL: "HI", OGG: "HI", KOA: "HI", LIH: "HI", ITO: "HI", BOI: "ID", SUN: "ID", ORD: "IL", MDW: "IL", IND: "IN", CID: "IA", DSM: "IA", MCI: "MO", STL: "MO", SDF: "KY", LEX: "KY", MSY: "LA", BTR: "LA", PWM: "ME", BWI: "MD", BOS: "MA", ACK: "MA", MVY: "MA", DTW: "MI", GRR: "MI", TVC: "MI", MSP: "MN", JAN: "MS", GPT: "MS", BZN: "MT", MSO: "MT", OMA: "NE", LAS: "NV", RNO: "NV", MHT: "NH", EWR: "NJ", ACY: "NJ", ABQ: "NM", SAF: "NM", JFK: "NY", LGA: "NY", HPN: "NY", ALB: "NY", BUF: "NY", ROC: "NY", SYR: "NY", ISP: "NY", CLT: "NC", RDU: "NC", AVL: "NC", ILM: "NC", CLE: "OH", CMH: "OH", CVG: "OH", OKC: "OK", TUL: "OK", PDX: "OR", PHL: "PA", PIT: "PA", PVD: "RI", CHS: "SC", HHH: "SC", GSP: "SC", MYR: "SC", RSD: "SD", FSD: "SD", BNA: "TN", MEM: "TN", TYS: "TN", CHA: "TN", DFW: "TX", DAL: "TX", IAH: "TX", HOU: "TX", AUS: "TX", SAT: "TX", ELP: "TX", SLC: "UT", BTV: "VT", RIC: "VA", ORF: "VA", SEA: "WA", GEG: "WA", MKE: "WI", JAC: "WY", SJU: "PR", STT: "USVI", STX: "USVI" };
 const CITY_NAMED_REGIONS = new Set(["lisbon", "lisboa", "porto", "madrid", "vienna", "wien", "berlin", "hamburg", "bremen", "prague", "praha", "zagreb", "bratislava", "budapest", "dublin", "brussels", "bruxelles", "luxembourg", "buenos aires", "mexico city", "ciudad de m\u00e9xico", "santiago", "bogot\u00e1", "bogota", "montevideo", "lima", "istanbul", "ankara", "tokyo", "seoul", "bangkok", "jakarta", "manila", "cairo", "riyadh", "doha", "dubai", "abu dhabi", "moscow", "kyiv", "oslo", "stockholm", "copenhagen", "helsinki", "warsaw", "sofia", "belgrade", "athens", "rome", "roma", "milan", "milano", "naples", "napoli", "paris", "london", "edinburgh", "glasgow", "lyon", "marseille", "nice", "geneva", "gen\u00e8ve", "zurich", "z\u00fcrich", "basel", "bern", "singapore", "hong kong", "shanghai", "beijing", "sydney", "melbourne", "auckland", "wellington", "cape town", "johannesburg", "nairobi", "marrakech", "casablanca", "tunis", "algiers", "beirut", "amman", "jerusalem", "tel aviv", "havana", "panama", "san jos\u00e9", "quito", "guayaquil", "la paz", "asunci\u00f3n", "caracas"]);
+// A PLACE VOYAGE ONE CARRIES. Hotels, OR an ideas card, OR our own coordinates, OR a card on an
+// experience layer, OR a curated dining table (including Local Favorites). This is the rule the
+// destination picker has used since October; Explore a place used "has a hotel" instead, so
+// Birmingham, Alabama — fourteen Michelin tables and three of Tricia's own — was offered in the
+// box and then opened nothing (Tricia, 22 Oct 2026). One function now, used by both.
+function carried(name) {
+  // Hotels count only for a place that RESOLVES: lookup() falls back to the bare town, so
+  // "Paris, Texas" would otherwise ride in on Paris, France's hotels.
+  const rk = resolvePlace(name);
+  if (rk && (FAVORITES[rk] || []).length) return true;
+  if (FAVORITES[bareCity(String(name || ""))] && FAVORITES[bareCity(String(name || ""))].length) return true;
+  const k = rk || bareCity(String(name || "")); const lc = k.toLowerCase();
+  if (COORDS[k]) return true;
+  if (IDEAS.some((i) => String(i.n || "").toLowerCase() === lc)) return true;
+  if ([RANCH, SHOP, FLY, FISH, SKI, WINE, GOLF, TENNIS].some((L) => L.some((x) => String(x.city || x.n || "").toLowerCase() === lc))) return true;
+  // Tables count only when they are THIS place's tables: "Paris, Texas" must not open on the
+  // strength of Paris, France's stars. The same country gate the dining panel applies.
+  if (lookup(DINING, name) && dineGeoOk(name, !!lookup(DINING_US, name))) return true;
+  if ((accoladesFor(name) || []).length) return true;   // accolades are already country-gated per entry, and reach the suburbs
+  const lf = lookup(LOCALFAV, name); if (lf && lf.length && dineGeoOk(name, !!(lf[0] && lf[0].us))) return true;
+  return false;
+}
 function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   const [open, setOpen] = useState(false);
   const [live, setLive] = useState([]);
@@ -13320,17 +13355,7 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   // coordinates and geography, OR a curated dining table. The hotel panel says plainly when there
   // is no hotel; that is the standard speaking, and it is not a reason to hide the place.
   const hasHotels = (name) => { const f = lookup(FAVORITES, name); return !!(f && f.length); };
-  const servable = (name) => {
-    if (hasHotels(name)) return true;
-    const k = resolvePlace(name) || bareCity(String(name || "")); const lc = k.toLowerCase();
-    if (COORDS[k]) return true;
-    if (IDEAS.some((i) => String(i.n || "").toLowerCase() === lc)) return true;
-    // …or a card on any experience layer names it as the place you stay for that experience —
-    // Vail and Telluride on the skiing layer, Tucson on the tennis layer
-    if ([RANCH, SHOP, FLY, FISH, SKI, WINE, GOLF, TENNIS].some((L) => L.some((x) => String(x.city || x.n || "").toLowerCase() === lc))) return true;
-    if (lookup(DINING, name) || lookup(ACCOLADES, name)) return true;
-    return false;
-  };
+  const servable = carried;   // the one rule, shared with Explore a place (M941)
   // THE DESTINATION PICKER SUGGESTS FROM OUR OWN CURATED LIST FIRST. It used to match only the
   // short static CITIES list, and rely on Google for everything else — and Google's rows are
   // filtered in citysearch.js to towns, districts and attractions. Islands, lakes and reserves
@@ -14654,7 +14679,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
   const [pick, setPick] = useState({ stay: null, dines: [], tours: [] });
   const upd = (patch) => setPick((p0) => ({ ...p0, ...patch }));
   useEffect(() => { setPick({ stay: null, dines: [], tours: [] }); }, [open]);
-  const chosen = open && (lookup(FAVORITES, open) || []).length ? open : "";
+  const chosen = open && carried(open) ? open : "";   // a curated place opens, hotel or not (M941)
   const seasonTxt = chosen ? seasonFor(chosen) : null;
   const gw = chosen ? gatewayFor(chosen) : null;
   const code = chosen ? iataFor(chosen) : null;
@@ -14668,7 +14693,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
     {back()}
     <Eyebrow>Explore a place</Eyebrow>
     <div style={{ fontFamily: font.display, fontSize: 30, color: t.ink, margin: "6px 0 14px" }}>The whole scoop on a city, before you plan anything</div>
-    <div style={{ maxWidth: 620 }}><CityBox value={city} onChange={(v) => { setCity(v); if ((lookup(FAVORITES, v) || []).length) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly inputStyle={{ fontFamily: font.display, fontSize: 26, padding: "14px 4px", width: "100%", background: "none", border: "none", borderBottom: `2px solid ${t.line}`, color: t.ink, outline: "none" }} /></div>
+    <div style={{ maxWidth: 620 }}><CityBox value={city} onChange={(v) => { setCity(v); if (carried(v)) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly inputStyle={{ fontFamily: font.display, fontSize: 26, padding: "14px 4px", width: "100%", background: "none", border: "none", borderBottom: `2px solid ${t.line}`, color: t.ink, outline: "none" }} /></div>
     {chosen ? (<div style={{ marginTop: 22 }}>
       <Photo query={chosen} h={260} radius={18} />
       <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{placeLine(chosen)}</div>
