@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M943";
+const BUILD = "M944";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -6455,6 +6455,9 @@ const DINING = {
   // stays; the dining panel does not show a closed table as somewhere to book.
   "Marietta": [{ n: "Spring", s: 1 }],   // closed for renovation 2025, quietly reopened Feb 2026 at reduced capacity (AJC, 18 Apr 2026); star held in the 2026 list
   "Gay": [{ n: "Uberto Restaurant", s: 1 }],   // 2026: new star, Gay, Georgia
+  // SOUTHWEST 2026 (26 Aug 2026): the inaugural selection. Arizona and New Mexico have no star.
+  "Las Vegas": [{ n: "Restaurant de Jo\u00ebl Robuchon", s: 2 }, { n: "Restaurant Guy Savoy", s: 1 }, { n: "\u00e9 by Jos\u00e9 Andr\u00e9s", s: 1 }, { n: "L\u0027Atelier de Jo\u00ebl Robuchon Las Vegas", s: 1 }],
+  "South Salt Lake": [{ n: "Monte", s: 1 }],
   // TEXAS 2026 (8 Oct 2026) — nineteen One Stars; none had ever been entered here. la Barbecue lost its star (Recommended now).
   "Austin": [{ n: "Barley Swine", s: 1 }, { n: "Craft Omakase", s: 1 }, { n: "Fabrik", s: 1 }, { n: "Hestia", s: 1 }, { n: "InterStellar BBQ", s: 1 }, { n: "Kappo Kappo", s: 1 }, { n: "LeRoy and Lewis Barbecue", s: 1 }],
   "Houston": [{ n: "BCN Taste & Tradition", s: 1 }, { n: "Le Jardinier Houston", s: 1 }, { n: "March", s: 1 }, { n: "Musaafer", s: 1 }, { n: "Tatemó", s: 1 }],
@@ -7040,9 +7043,18 @@ const DINING = {
 // 22 Oct 2026: audited against every stars-table city that isUS() recognises — Aspen, Baltimore,
 // Healdsburg, Washington DC, Washington, Virginia and Yountville were missing, so their stars
 // (Bosq, The French Laundry, SingleThread, The Inn at Little Washington, Jônt…) never rendered.
-const DINING_US = { "Aspen": 1, "Baltimore": 1, "Healdsburg": 1, "Washington DC": 1, "Washington, Virginia": 1, "Yountville": 1, "Atherton": 1, "Atlanta": 1, "Austin": 1, "Dallas": 1, "Fort Worth": 1, "Gay": 1, "Houston": 1, "San Antonio": 1, "Spring": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
+const DINING_US = { "Las Vegas": 1, "South Salt Lake": 1, "Aspen": 1, "Baltimore": 1, "Healdsburg": 1, "Washington DC": 1, "Washington, Virginia": 1, "Yountville": 1, "Atherton": 1, "Atlanta": 1, "Austin": 1, "Dallas": 1, "Fort Worth": 1, "Gay": 1, "Houston": 1, "San Antonio": 1, "Spring": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
 
 const ACCOLADES = {
+  // ── MICHELIN SOUTHWEST 2026 — Arizona, Nevada, New Mexico, Utah (revealed 26 Aug 2026; applied 22 Oct on Tricia's policy: Bib Gourmand and Michelin Recommended are both Voyage One Recommended, `my` = edition year). Towns new to the file:
+  "albuquerque": [{ n: "Frontier", us:1, bib:1, my:2026 }],
+  "flagstaff": [{ n: "Atria", us:1, msel:1, my:2026 }],
+  "los ranchos de albuquerque": [{ n: "Campo at Los Poblanos", us:1, msel:1, my:2026, op: "Michelin Exceptional Cocktails Award 2026 \u2014 Joseph Simonson" }],
+  "paradise valley": [{ n: "INDIBAR", us:1, msel:1, my:2026 }],
+  "park city": [{ n: "Matilda", us:1, msel:1, my:2026 }, { n: "Handle", us:1, msel:1, my:2026 }, { n: "The Nelson Cottage by High West", us:1, msel:1, my:2026 }],
+  "salt lake city": [{ n: "Feldman's Deli", us:1, bib:1, my:2026 }, { n: "Star of India", us:1, msel:1, my:2026 }, { n: "Koyote", us:1, msel:1, my:2026 }],
+  "south salt lake": [{ n: "One More Noodle House", us:1, bib:1, my:2026 }],
+  "west valley city": [{ n: "Phở 777", us:1, bib:1, my:2026 }],
   // ── MICHELIN COLORADO 2026 (revealed 14 Sept 2026; applied 22 Oct on Tricia's policy: Bib Gourmand and Michelin Recommended are both Voyage One Recommended, `my` = edition year). Towns new to the file:
   "aspen": [{ n: "Element 47", us:1, msel:1, my:2026 }, { n: "Prospect", us:1, msel:1, my:2026 }, { n: "Mawa's Kitchen", us:1, msel:1, my:2026 }],
   "avon": [{ n: "Mirabelle", us:1, msel:1, my:2026 }],
@@ -7907,7 +7919,7 @@ const ACCOLADES = {
   // Las Vegas, 4 Sept 2026. Casa Playa (Best Chef: Southwest 2026) and Bob Taylor's (America's
   // Classics 2026) are Beard winners; Robuchon, Guy Savoy and Wing Lei are Destination on their
   // Forbes Five-Star restaurant standing. The named semifinalists are not added.
-  "las vegas": [{ n: "Casa Playa", us:1, jb:1 }, { n: "Bob Taylor's Ranch House", us:1, jb:1 }, { n: "Jo\u00ebl Robuchon", us:1, f5:1 }, { n: "Restaurant Guy Savoy", us:1, f5:1 }, { n: "Wing Lei", us:1, f5:1 }],
+  "las vegas": [{ n: "Casa Playa", us:1, jb:1 }, { n: "Bob Taylor's Ranch House", us:1, jb:1 }, { n: "Restaurant de Jo\u00ebl Robuchon", us:1, f5:1 }, { n: "Restaurant Guy Savoy", us:1, f5:1 }, { n: "Wing Lei", us:1, msel:1, my:2026, f5:1 }, { n: "Esther's Kitchen", us:1, bib:1, my:2026 }, { n: "China Poblano", us:1, bib:1, my:2026 }, { n: "YEN Viet Kitchen", us:1, bib:1, my:2026 }, { n: "Sparrow + Wolf", us:1, msel:1, my:2026 }, { n: "Gymkhana Las Vegas", us:1, msel:1, my:2026 }, { n: "Cote Las Vegas", us:1, msel:1, my:2026 }, { n: "Michael Mina", us:1, msel:1, my:2026 }, { n: "Anima by Edo", us:1, msel:1, my:2026 }, { n: "Kabuto", us:1, msel:1, my:2026 }, { n: "Mott 32", us:1, msel:1, my:2026 }, { n: "Lamaii", us:1, msel:1, my:2026 }, { n: "Kame Omakase", us:1, msel:1, my:2026 }, { n: "Partage", us:1, msel:1, my:2026 }, { n: "SoulBelly BBQ", us:1, msel:1, my:2026 }, { n: "Stubborn Seed Las Vegas", us:1, msel:1, my:2026 }, { n: "Ping Pang Pong", us:1, msel:1, my:2026 }, { n: "Estiatorio Milos", us:1, msel:1, my:2026 }, { n: "Pho Ga Bac Bac", us:1, msel:1, my:2026 }, { n: "Bouchon", us:1, msel:1, my:2026 }],
   "lattes": [{ n: "Le Temps d'Aime", bib:1 }],
   "lattrop": [{ n: "Landgoed de Holtweijde", bib:1 }],
   "lausanne": [{ n: "Myò Sushi Bar", bib:1 }],
@@ -8218,7 +8230,7 @@ const ACCOLADES = {
   "nemacolin": [{ n: "Lautrec", us:1, f5:1 }, { n: "Aqueous", us:1 }],
   "philadelphia": [{ n: "Oyster House", us:1, jb:1 }, { n: "Mawn", us:1, jb:1 }, { n: "My Loup", us:1, msel:1 }, { n: "Forsythia", us:1, msel:1 }, { n: "Vedge", us:1, msel:1 }, { n: "Pietramala", us:1, msel:1 }, { n: "Laser Wolf", us:1, msel:1 }, { n: "Hiroki", us:1, msel:1 },
     { n: "Ambra", us:1, msel:1 }, { n: "High Street Restaurant & Bar", us:1, msel:1 }, { n: "Honeysuckle", us:1, msel:1 }, { n: "Illata", us:1, msel:1 }, { n: "Little Water", us:1, msel:1 }, { n: "Mish Mish", us:1, msel:1 }, { n: "River Twice", us:1, msel:1 }, { n: "Roxanne", us:1, msel:1 }, { n: "Southwark", us:1, msel:1 }, { n: "Suraya", us:1, msel:1 }, { n: "Vetri Cucina", us:1, msel:1 }, { n: "Kalaya", us:1, jb:1 }, { n: "Royal Sushi & Izakaya", us:1, jb:1, bib:1 }, { n: "South Philly Barbacoa", us:1, jb:1 }, { n: "Zahav", us:1, jb:1 }, { n: "Vernick Food & Drink", us:1, jb:1 }, { n: "Angelo's", us:1, bib:1 }, { n: "Del Rossi's", us:1, bib:1 }, { n: "Fiorella", us:1, bib:1 }, { n: "Famous 4th Street Delicatessen", us:1, bib:1 }, { n: "Dizengoff", us:1, bib:1 }, { n: "Pizzeria Beddia", us:1, bib:1 }, { n: "Dalessandro's", us:1, bib:1 }, { n: "El Chingon", us:1, bib:1 }, { n: "Sally", us:1, bib:1 }],
-  "phoenix": [{ n: "Lom Wong", us:1, jb:1 }, { n: "Bacanora", us:1, jb:1 }],
+  "phoenix": [{ n: "Lom Wong", us:1, bib:1, my:2026, jb:1 }, { n: "Bacanora", us:1, msel:1, my:2026, jb:1, op: "Michelin Young Chef Award 2026 \u2014 Ren\u00e9 Andrade" }, { n: "Huarachis Taqueria", us:1, bib:1, my:2026, op: "Michelin Young Chef Award 2026 \u2014 Ren\u00e9 Andrade" }, { n: "kid sister", us:1, bib:1, my:2026 }, { n: "Valentine", us:1, bib:1, my:2026 }, { n: "Pizzeria Bianco", us:1, bib:1, my:2026 }, { n: "Little Miss BBQ", us:1, bib:1, my:2026 }, { n: "Tratto", us:1, msel:1, my:2026 }, { n: "Christopher's at Wrigley Mansion", us:1, msel:1, my:2026 }, { n: "Latha", us:1, msel:1, my:2026 }, { n: "Pretty Penny", us:1, msel:1, my:2026 }, { n: "Fry Bread House", us:1, msel:1, my:2026 }, { n: "Glai Baan", us:1, msel:1, my:2026 }],
   "piadena": [{ n: "Dell'Alba", bib:1 }],
   "pianiga": [{ n: "Trattoria da Paeto", bib:1 }],
   "pieve san giacomo": [{ n: "Osteria del Miglio 2.10", bib:1 }],
@@ -8431,7 +8443,7 @@ const ACCOLADES = {
   "santa coloma de gramenet": [{ n: "Bar Verat", bib:1 }],
   "santa coloma de queralt": [{ n: "Hostal Colomí", bib:1 }],
   "santa cruz de tenerife": [{ n: "Moral", bib:1 }, { n: "El Aguarde", bib:1 }, { n: "San Sebastián 57", bib:1 }],
-  "santa fe": [{ n: "Sazón", us:1, jb:1 }],
+  "santa fe": [{ n: "Sazón", us:1, jb:1 }, { n: "Jambo Cafe", us:1, bib:1, my:2026 }, { n: "La Choza", us:1, bib:1, my:2026 }, { n: "Paper Dosa", us:1, bib:1, my:2026 }, { n: "Tia Sophia's", us:1, bib:1, my:2026 }, { n: "Paloma", us:1, msel:1, my:2026 }, { n: "Arroyo Vino", us:1, msel:1, my:2026 }, { n: "Restaurant Martin", us:1, msel:1, my:2026 }, { n: "Izanami", us:1, msel:1, my:2026 }, { n: "Market Steer", us:1, msel:1, my:2026 }, { n: "Joseph's Culinary Pub", us:1, msel:1, my:2026 }],
   "santa monica": [{ n: "Seline", us:1, jb:1 }, { n: "Cobi's", us:1, bib:1 }, { n: "Colapasta", us:1, bib:1 }],
   "santander": [{ n: "Umma", bib:1 }, { n: "Agua Salada", bib:1 }],
   "santenay": [{ n: "L'Ouillette", bib:1 }],
@@ -8455,7 +8467,7 @@ const ACCOLADES = {
   "schwarzenberg": [{ n: "Gasthof Adler", bib:1 }],
   "schwarzenburg": [{ n: "Bären", bib:1 }],
   "schwerin": [{ n: "Weinbistro \"George\"", bib:1 }],
-  "scottsdale": [{ n: "FnB", us:1, jb:1 }],
+  "scottsdale": [{ n: "FnB", us:1, bib:1, my:2026, jb:1 }, { n: "Reserve", us:1, msel:1, my:2026, op: "Michelin Sommelier Award 2026 \u2014 John Germain" }, { n: "Hush Public House", us:1, msel:1, my:2026 }, { n: "ShinBay", us:1, msel:1, my:2026 }],
   "seaside": [{ n: "Maligne", us:1, bib:1 }],
   "seattle": [{ n: "Canlis", us:1, jb:1 }],
   "sebastopol": [{ n: "Khom Loi", us:1, bib:1 }, { n: "Ramen Gaijin", us:1, bib:1 }],
@@ -9843,7 +9855,7 @@ const PLACE_REGION = {
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
   "spring": "Houston, Texas", "tomball": "Houston, Texas", "pearland": "Houston, Texas", "bellaire": "Houston, Texas", "katy": "Houston, Texas", "lockhart": "Austin, Texas", "seguin": "San Antonio, Texas", "plano": "Dallas, Texas", "mckinney": "Dallas, Texas", "arlington texas": "Dallas, Texas", "fort worth": "Dallas, Texas",
   "davidson": "Charlotte, North Carolina", "concord": "Charlotte, North Carolina", "cornelius": "Charlotte, North Carolina", "marietta": "Atlanta, Georgia", "avondale estates": "Atlanta, Georgia", "decatur": "Atlanta, Georgia", "roswell": "Atlanta, Georgia", "chamblee": "Atlanta, Georgia", "doraville": "Atlanta, Georgia", "duluth": "Atlanta, Georgia", "johns creek": "Atlanta, Georgia", "sullivan's island": "Charleston, South Carolina", "hanahan": "Charleston, South Carolina", "knightdale": "Raleigh, North Carolina", "carrboro": "Raleigh, North Carolina", "madison tennessee": "Nashville, Tennessee", "cordova tennessee": "Memphis, Tennessee", "maryville": "Knoxville, Tennessee", "loudon": "Knoxville, Tennessee",
-  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "aurora": "Denver, Colorado", "avon": "Beaver Creek, Colorado", "colorado springs": "Colorado", "breckenridge": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada", "caldwell": "Idaho", "boise": "Idaho",
+  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "aurora": "Denver, Colorado", "phoenix": "Scottsdale, Arizona", "paradise valley": "Scottsdale, Arizona", "flagstaff": "Arizona", "los ranchos de albuquerque": "Albuquerque, New Mexico", "south salt lake": "Salt Lake City, Utah", "west valley city": "Salt Lake City, Utah", "avon": "Beaver Creek, Colorado", "colorado springs": "Colorado", "breckenridge": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada", "caldwell": "Idaho", "boise": "Idaho",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "kauai": "Hawaii", "denali": "Alaska", "anchorage": "Alaska", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
