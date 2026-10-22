@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M941";
+const BUILD = "M942";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -6135,7 +6135,7 @@ const DINING = {
   // stars were already loaded and stay. Bosq is Aspen's; Frasca is Boulder's and rolls up to Denver.
   "Aspen": [{ n: "Bosq", s: 1 }],
   "Boulder": [{ n: "Frasca Food and Wine", s: 1 }],
-  "Denver": [{ n: "Kizaki", s: 1 }, { n: "Margot", s: 1 }, { n: "Alma Fonda Fina", s: 1 }, { n: "Mezcaleria Alma", s: 1 }, { n: "Brut\u00f8", s: 1 }, { n: "Beckon", s: 1 }, { n: "The Wolf's Tailor", s: 2 }],
+  "Denver": [{ n: "Kizaki", s: 1 }, { n: "Margot", s: 1 }, { n: "Alma Fonda Fina", s: 1 }, { n: "Mezcaleria Alma", s: 1 }, { n: "Brut\u00f8", s: 1 }, { n: "Beckon", s: 1 }, { n: "Milpero", s: 1 }, { n: "The Wolf's Tailor", s: 2 }],   // Milpero: new star 2026
   "Desenzano del Garda": [{ n: "Esplanade", s: 1 }],
   "Dijon": [{ n: "William Frachot", s: 2 }, { n: "CIBO", s: 1 }, { n: "L'Aspérule", s: 1 }, { n: "Loiseau des Ducs", s: 1 }, { n: "Origine", s: 1 }],
   "Dima": [{ n: "Garena", s: 1 }],
@@ -7027,9 +7027,19 @@ const DINING = {
 // this "Birmingham (BHM)" (Alabama) would match our "Birmingham" (England) Michelin list. This
 // lets the lookup refuse a foreign list for a US city and vice-versa. Generated from the raw
 // Michelin country column — not a hand list.
-const DINING_US = { "Atherton": 1, "Atlanta": 1, "Austin": 1, "Dallas": 1, "Fort Worth": 1, "Gay": 1, "Houston": 1, "San Antonio": 1, "Spring": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
+// 22 Oct 2026: audited against every stars-table city that isUS() recognises — Aspen, Baltimore,
+// Healdsburg, Washington DC, Washington, Virginia and Yountville were missing, so their stars
+// (Bosq, The French Laundry, SingleThread, The Inn at Little Washington, Jônt…) never rendered.
+const DINING_US = { "Aspen": 1, "Baltimore": 1, "Healdsburg": 1, "Washington DC": 1, "Washington, Virginia": 1, "Yountville": 1, "Atherton": 1, "Atlanta": 1, "Austin": 1, "Dallas": 1, "Fort Worth": 1, "Gay": 1, "Houston": 1, "San Antonio": 1, "Spring": 1, "Boston": 1, "Carlsbad": 1, "Carmel-by-the-Sea": 1, "Charleston": 1, "Charlotte": 1, "Chicago": 1, "Coral Gables": 1, "Costa Mesa": 1, "Culver City": 1, "Denver": 1, "Elk": 1, "Fort Lauderdale": 1, "Greenville": 1, "Laguna Beach": 1, "Los Alamos": 1, "Los Angeles": 1, "Marietta": 1, "Miami": 1, "Miami Beach": 1, "Montecito": 1, "Nashville": 1, "New Orleans": 1, "New York City": 1, "North Salem": 1, "Oakland": 1, "Oceanside": 1, "Orlando": 1, "Palo Alto": 1, "Paso Robles": 1, "Philadelphia": 1, "Sacramento": 1, "San Anselmo": 1, "San Diego": 1, "San Francisco": 1, "San Mateo": 1, "Santa Barbara": 1, "Santa Monica": 1, "Saratoga": 1, "Sonoma": 1, "Surfside": 1, "Tampa": 1, "Tarrytown/Pocantico Hills": 1, "Washington": 1, "West Palm Beach": 1, "Winter Park": 1, "Woodside": 1 };
 
 const ACCOLADES = {
+  // ── MICHELIN COLORADO 2026 (revealed 14 Sept 2026; applied 22 Oct on Tricia's policy: Bib Gourmand and Michelin Recommended are both Voyage One Recommended, `my` = edition year). Towns new to the file:
+  "aspen": [{ n: "Element 47", us:1, msel:1, my:2026 }, { n: "Prospect", us:1, msel:1, my:2026 }, { n: "Mawa's Kitchen", us:1, msel:1, my:2026 }],
+  "avon": [{ n: "Mirabelle", us:1, msel:1, my:2026 }],
+  "beaver creek": [{ n: "Splendido at the Chateau", us:1, msel:1, my:2026 }],
+  "colorado springs": [{ n: "The Penrose Room", us:1, msel:1, my:2026, op: "Michelin Outstanding Service Award 2026" }, { n: "Four by Brother Luck", us:1, msel:1, my:2026, op: "Michelin Exceptional Cocktails Award 2026" }],
+  "telluride": [{ n: "The National", us:1, msel:1, my:2026 }],
+  "vail": [{ n: "Sweet Basil", us:1, msel:1, my:2026 }, { n: "Osaki's", us:1, msel:1, my:2026 }],
   // ── MICHELIN TEXAS 2026 (revealed 8 Oct 2026; applied 22 Oct on Tricia's policy: Bib Gourmand and Michelin Recommended are both Voyage One Recommended, `my` = edition year). Towns new to the file:
   "arlington texas": [{ n: "Smoke'N Ash BBQ", us:1, msel:1, my:2026 }],
   "katy": [{ n: "Hong Kong Food Street", us:1, msel:1, my:2026 }],
@@ -7263,7 +7273,7 @@ const ACCOLADES = {
   "aulon": [{ n: "Auberge des Aryelets", bib:1 }],
   "aumont aubrac": [{ n: "La Gabale", bib:1 }],
   "auray": [{ n: "La Chebaudière", bib:1 }],
-  "aurora": [{ n: "Annette", us:1, jb:1 }],
+  "aurora": [{ n: "Annette", us:1, bib:1, my:2026, jb:1 }, { n: "Dân Dã", us:1, msel:1, my:2026 }],
   "austin": [{ n: "Briscuits", us:1, bib:1, my:2026 }, { n: "Cuantos Tacos", us:1, bib:1, my:2026 }, { n: "Dai Due", us:1, bib:1, my:2026 }, { n: "Distant Relatives", us:1, bib:1, my:2026 }, { n: "Emmer & Rye", us:1, bib:1, my:2026 }, { n: "Franklin Barbecue", us:1, bib:1, my:2026 }, { n: "Kemuri Tatsu-ya", us:1, bib:1, my:2026 }, { n: "KG BBQ", us:1, bib:1, my:2026 }, { n: "La Santa Barbacha", us:1, bib:1, my:2026 }, { n: "Mercado Sin Nombre", us:1, bib:1, my:2026 }, { n: "Micklethwait Craft Meats", us:1, bib:1, my:2026 }, { n: "Nixta Taqueria", us:1, bib:1, my:2026 }, { n: "Odd Duck", us:1, bib:1, my:2026 }, { n: "Parish Barbecue", us:1, bib:1, my:2026 }, /* OUT OF THE 2026 GUIDE (22 Oct 2026): { n: "Ramen del Barrio", us:1 } */, { n: "Veracruz Fonda & Bar", us:1, bib:1, my:2026 }, { n: "Ezov", us:1, msel:1, my:2026 }, { n: "Apt 115", us:1, msel:1, my:2026 }, { n: "Le Calamar", us:1, msel:1, my:2026 }, { n: "Tare", us:1, msel:1, my:2026 }, { n: "Mexta", us:1, msel:1, my:2026 }, { n: "Comedor", us:1, msel:1, my:2026 }, { n: "Suerte", us:1, msel:1, my:2026 }, { n: "la Barbecue", us:1, msel:1, my:2026 }, { n: "La Condesa", us:1, msel:1, my:2026 }, { n: "Lenoir", us:1, msel:1, my:2026 }, { n: "Terry Black's BBQ", us:1, msel:1, my:2026 }, { n: "Toshokan", us:1, msel:1, my:2026 }, { n: "Lutie's", us:1, msel:1, my:2026 }, { n: "Birdie's", us:1, msel:1, my:2026 }, { n: "Launderette", us:1, msel:1, my:2026 }, { n: "Siti", us:1, msel:1, my:2026 }, { n: "Este", us:1, msel:1, my:2026 }, { n: "Ling Kitchen", us:1, msel:1, my:2026 }, { n: "Mum Foods Smokehouse & Delicatessen", us:1, msel:1, my:2026 }, { n: "Joe's Bakery & Coffee Shop", us:1, msel:1, my:2026 }, { n: "Discada", us:1, msel:1, my:2026 }, { n: "Jeffrey's", us:1, msel:1, my:2026 }, { n: "Din Ho Chinese BBQ", us:1, msel:1, my:2026 }],
   "auxey duresses": [{ n: "Le Sarment", bib:1 }],
   "auzouville sur saane": [{ n: "Auberge de La Mère Duval", bib:1 }],
@@ -7385,7 +7395,7 @@ const ACCOLADES = {
   "boston": [{ n: "O Ya", us:1, jb:1 }, { n: "Uni", us:1, jb:1 }, { n: "Myers + Chang", us:1, jb:1 }, { n: "Fox & The Knife", us:1, bib:1 }, { n: "Bar Volpe", us:1, bib:1 }],
   "boudes": [{ n: "Le Boudes La Vigne", bib:1 }],
   "bouge": [{ n: "Pré de chez vous", bib:1 }],
-  "boulder": [{ n: "Frasca Food and Wine", us:1, jb:1 }, { n: "Basta", us:1, bib:1 }, { n: "Cozobi Fonda Fina", us:1, bib:1 }],
+  "boulder": [{ n: "Frasca Food and Wine", us:1, jb:1 }, { n: "Basta", us:1, bib:1, my:2026 }, { n: "Cozobi Fonda Fina", us:1, bib:1, my:2026 }, { n: "Stella's Cucina", us:1, msel:1, my:2026, closed:1 }   /* reported temporarily closed (Tricia, 22 Oct 2026) — award kept, not offered to book until she confirms it is open */, { n: "Bramble & Hare", us:1, msel:1, my:2026 }, { n: "Oak at Fourteenth", us:1, msel:1, my:2026 }, { n: "Blackbelly Market & Restaurant", us:1, msel:1, my:2026 }, { n: "Casa Juani", us:1, msel:1, my:2026 }, { n: "Santo", us:1, msel:1, my:2026 }, { n: "Zoe Ma Ma", us:1, msel:1, my:2026 }, { n: "Boulder Dushanbe Tea House", us:1, msel:1, my:2026 }],
   "boulogne billancourt": [{ n: "Baca'v - Boulogne", bib:1 }],
   "bourg en bresse": [{ n: "Agave", bib:1 }, { n: "Mets et Vins", bib:1 }],
   "bourg en bresse area": [{ n: "Au Petit Relais", bib:1 }, { n: "La Table Bâgésienne", bib:1 }],
@@ -7398,7 +7408,7 @@ const ACCOLADES = {
   "braine le chateau": [{ n: "Bistro Racine", bib:1 }],
   "brand": [{ n: "Gufer 55", bib:1 }],
   "bratislava": [{ n: "ECK Restaurant", ll:95, lly:2026 }],
-  "breckenridge": [{ n: "Rootstalk", us:1, jb:1 }],
+  "breckenridge": [{ n: "Rootstalk", us:1, msel:1, my:2026, jb:1 }, { n: "Radicato", us:1, msel:1, my:2026, op: "Michelin Young Chef Award 2026" }],
   "brentonico": [{ n: "Maso Palù", bib:1 }],
   "brescia": [{ n: "Trattoria Porteri", bib:1 }],
   "breskens": [{ n: "Escobar", bib:1 }],
@@ -7590,7 +7600,7 @@ const ACCOLADES = {
   "decatur": [{ n: "The Deer and the Dove", us:1, msel:1, my:2026, jb:1 }, { n: "Kimball House", us:1, msel:1, my:2026 }, { n: "Fawn Wine & Amaro Bar", us:1, msel:1, my:2026 }, { n: "Chai Pani", us:1, msel:1, my:2026 }],
   "deidesheim": [{ n: "Gasthaus zur Kanne", bib:1 }],
   "delft": [{ n: "De Vieux Jean", bib:1 }],
-  "denver": [{ n: "Yuan Wonton", us:1, jb:1 }, { n: "Mercantile Dining & Provision", us:1, jb:1 }, { n: "Ash'Kara", us:1, bib:1 }, { n: "Glo Noodle House", us:1, bib:1 }, { n: "Hop Alley", us:1, bib:1 }, { n: "La Diabla Pozole y Mezcal", us:1, bib:1 }, { n: "MAKfam", us:1, bib:1 }, { n: "Mister Oso", us:1, bib:1 }, { n: "Tavernetta", us:1, bib:1 }, { n: "The Ginger Pig", us:1, bib:1 }],
+  "denver": [{ n: "Yuan Wonton", us:1, jb:1 }, { n: "Mercantile Dining & Provision", us:1, msel:1, my:2026, jb:1 }, { n: "Ash'Kara", us:1, bib:1, my:2026 }, { n: "Glo Noodle House", us:1, bib:1, my:2026 }, { n: "Hop Alley", us:1, bib:1, my:2026 }, { n: "La Diabla Pozole y Mezcal", us:1, bib:1, my:2026 }, { n: "MAKfam", us:1, bib:1, my:2026 }, { n: "Mister Oso", us:1, bib:1, my:2026 }, { n: "Tavernetta", us:1, bib:1, my:2026 }, { n: "The Ginger Pig", us:1, bib:1, my:2026 }, { n: "Safta", us:1, msel:1, my:2026 }, { n: "Pig and Tiger", us:1, bib:1, my:2026 }, { n: "Rougarou", us:1, bib:1, my:2026 }, { n: "Wildflower", us:1, msel:1, my:2026 }, { n: "Florence Supper Club", us:1, msel:1, my:2026 }, { n: "Restaurant Olivia", us:1, msel:1, my:2026 }, { n: "Barolo Grill", us:1, msel:1, my:2026 }, { n: "Heretík", us:1, msel:1, my:2026, op: "Michelin Sommelier Award 2026" }, { n: "Alteño", us:1, msel:1, my:2026 }, { n: "Brasserie Brixton", us:1, msel:1, my:2026 }, { n: "Marco's Coal-Fired", us:1, msel:1, my:2026 }, { n: "Dear Emilia", us:1, msel:1, my:2026 }, { n: "Kawa Ni", us:1, msel:1, my:2026 }, { n: "Ukiyo", us:1, msel:1, my:2026 }, { n: "Hey Kiddo", us:1, msel:1, my:2026 }, { n: "Madeline", us:1, msel:1, my:2026 }, { n: "Temaki Den", us:1, msel:1, my:2026 }, { n: "Smok", us:1, msel:1, my:2026 }, { n: "A5 Steakhouse", us:1, msel:1, my:2026 }, { n: "Dio Mio", us:1, msel:1, my:2026 }],
   "dieppe": [{ n: "Bistrot du Pollet", bib:1 }],
   "diessenhofen": [{ n: "Gasthaus Schupfen", bib:1 }],
   "dijon": [{ n: "Spica", bib:1 }, { n: "Cave", bib:1 }, { n: "L'Évidence", bib:1 }, { n: "So", bib:1 }],
@@ -9818,7 +9828,7 @@ const PLACE_REGION = {
   "cary": "Raleigh, North Carolina", "durham": "Raleigh, North Carolina", "pittsboro": "Raleigh, North Carolina",
   "spring": "Houston, Texas", "tomball": "Houston, Texas", "pearland": "Houston, Texas", "bellaire": "Houston, Texas", "katy": "Houston, Texas", "lockhart": "Austin, Texas", "seguin": "San Antonio, Texas", "plano": "Dallas, Texas", "mckinney": "Dallas, Texas", "arlington texas": "Dallas, Texas", "fort worth": "Dallas, Texas",
   "davidson": "Charlotte, North Carolina", "concord": "Charlotte, North Carolina", "cornelius": "Charlotte, North Carolina", "marietta": "Atlanta, Georgia", "avondale estates": "Atlanta, Georgia", "decatur": "Atlanta, Georgia", "roswell": "Atlanta, Georgia", "chamblee": "Atlanta, Georgia", "doraville": "Atlanta, Georgia", "duluth": "Atlanta, Georgia", "johns creek": "Atlanta, Georgia", "sullivan's island": "Charleston, South Carolina", "hanahan": "Charleston, South Carolina", "knightdale": "Raleigh, North Carolina", "carrboro": "Raleigh, North Carolina", "madison tennessee": "Nashville, Tennessee", "cordova tennessee": "Memphis, Tennessee", "maryville": "Knoxville, Tennessee", "loudon": "Knoxville, Tennessee",
-  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada", "caldwell": "Idaho", "boise": "Idaho",
+  "sarasota": "Florida", "winter park": "Orlando, Florida", "miami": "Florida", "palm beach": "Florida", "naples, florida": "Florida", "florida keys": "Florida", "orlando": "Florida", "new orleans": "Louisiana", "austin": "Texas", "dallas": "Texas", "houston": "Texas", "san antonio": "Texas", "santa fe": "New Mexico", "albuquerque": "New Mexico", "scottsdale": "Arizona", "aspen": "Colorado", "boulder": "Denver, Colorado", "aurora": "Denver, Colorado", "avon": "Beaver Creek, Colorado", "colorado springs": "Colorado", "breckenridge": "Colorado", "jackson hole": "Wyoming", "big sky": "Montana", "bozeman": "Montana", "park city": "Utah", "salt lake city": "Utah", "utah": "Canyon Point, Utah", "denver": "Colorado", "las vegas": "Nevada", "caldwell": "Idaho", "boise": "Idaho",
   "santa barbara": "California", "laguna beach": "California", "san diego": "California", "honolulu": "Oahu, Hawaii", "maui": "Hawaii", "big island": "Hawaii", "kauai": "Hawaii", "denali": "Alaska", "anchorage": "Alaska", "lanai": "Hawaii", "bermuda": "North Atlantic", "turks & caicos": "Caribbean", "st barth": "French West Indies", "st maarten": "St Martin / Sint Maarten", "anguilla": "British West Indies",
   "antigua": "Antigua & Barbuda", "st lucia": "Caribbean", "barbados": "Caribbean",
   "british virgin islands": "Caribbean", "virgin gorda": "British Virgin Islands", "tortola": "British Virgin Islands", "st thomas": "US Virgin Islands",
@@ -12518,6 +12528,7 @@ const US_AIRPORT_CODES = new Set(["NYC","JFK","LGA","EWR","MIA","LAX","SFO","CHI
 // the bare names in our own CITIES constant, which carry neither.
 const CA_AIRPORT_CODES = new Set(["YYZ","YVR","YYC","YUL","YOW","YEG","YHZ","YQB","YWG","YXE","YYJ","YLW","YXY","YZF","YQR","YYT","YXX","YTZ","YMM","YQT","YKA","YCD"]);
 const MX_AIRPORT_CODES = new Set(["MEX","CUN","SJD","PVR","GDL","MTY","OAX","MID","LAP","LTO","ZIH","HUX","BJX","QRO","CZM","TIJ","SLP","VER","ACA","CUU","MZT","NLU","TQO"]);
+const CA_PROVINCE_NAMES = new Set(["ontario", "quebec", "british columbia", "alberta", "manitoba", "saskatchewan", "nova scotia", "new brunswick", "newfoundland and labrador", "newfoundland", "prince edward island", "yukon", "northwest territories", "nunavut"]);
 const CA_PROVINCES = new Set(["ON","QC","BC","AB","MB","SK","NS","NB","NL","PE","YT","NT","NU"]);
 const NON_US_NA = { "san miguel de allende": "MX", "quer\u00e9taro": "MX", "queretaro": "MX", "toronto": "CA", "vancouver": "CA", "banff": "CA", "calgary": "CA", "mexico city": "MX" };
 function naCountry(city) {
@@ -12532,6 +12543,7 @@ function naCountry(city) {
   const st = /[,\s]([a-z]{2})$/.exec(bare);
   if (st && CA_PROVINCES.has(st[1].toUpperCase())) return "CA";
   if (/,\s*canada$/.test(bare)) return "CA";
+  { const tail = bare.indexOf(",") !== -1 ? bare.slice(bare.lastIndexOf(",") + 1).trim() : ""; if (tail && CA_PROVINCE_NAMES.has(dnrm(tail))) return "CA"; }   // "Québec City, Québec" (22 Oct 2026)
   if (/,\s*m[e\u00e9]xico$/.test(bare)) return "MX";
   // MONTREAL IS IN CANADA. The hand list above and the suffix tests only caught a Canadian or
   // Mexican place typed with its code or its country; a bare "Montreal" fell through, and isUS()
@@ -21554,7 +21566,11 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
   // A table flagged closed:1 keeps its award history in the file and is not offered as somewhere
   // to book — Spring at Marietta, 4 Sept 2026.
   const michRaw = (() => { const seen = {}; const out = []; dineCityKeys(city).forEach((k) => { const key = Object.keys(DINING).find((x) => dnrm(x) === k); (key ? DINING[key] : []).forEach((r) => { if (r.closed) return; const id = dnrm(r.n); if (!seen[id]) { seen[id] = 1; out.push(r); } }); }); return out; })();
-  const michOK = michRaw.length && dineGeoOk(city, !!lookup(DINING_US, city));
+  // THE GATE IS ASKED OF THE TOWNS THE STARS COME FROM, not of the name typed: "Napa Valley" is
+  // not a DINING_US key, Yountville is, and The French Laundry was vanishing on that technicality
+  // (found 22 Oct 2026). Any contributing town in DINING_US makes the list American.
+  const michUS = dineCityKeys(city).some((k) => Object.keys(DINING_US).some((x) => dnrm(x) === k));
+  const michOK = michRaw.length && dineGeoOk(city, michUS || !!lookup(DINING_US, city));
   // Fold accolades onto our Michelin records so a 1★ that is also 50 Best/JB stays a Destination and
   // its credentials show on the card.
   const mich = michOK ? michRaw.map((m) => ({ ...m, ...(credOf(m.n, city) || {}) })) : [];
