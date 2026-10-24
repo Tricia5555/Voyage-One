@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M963";
+const BUILD = "M964";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -23334,7 +23334,8 @@ function BrokerRequest({ ev, g, d, tk, set }) {
   const days = (pk.sports || []).filter((x) => x && x.date).slice().sort((a, c) => String(a.date).localeCompare(String(c.date)));
   const seats = Number(tk.seats) || b.seatsDefault || 2;
   const name = tk.name || "";
-  const stay = pk.stay && pk.stay.name ? pk.stay.name : "";
+  // The request is about the seats and nothing else — not the hotel, not the rest of the trip
+  // (Tricia, 24 Oct 2026). The broker learns the days, the seats and the name.
   const year = String(ev.start || "").slice(0, 4);
   const esc = (x) => String(x).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const dayLine = (x) => "\u2022 " + String(x.name || "").replace(new RegExp("^" + esc(ev.title) + "\\s*\u00b7\\s*"), "").replace(/\s*\u00a3[\d,]+/g, "").trim();
@@ -23344,8 +23345,7 @@ function BrokerRequest({ ev, g, d, tk, set }) {
     `I'm planning ${ev.title}${year ? " " + year : ""} through Voyage One and would like to request ${b.unit || "tickets"} for:`, "",
     ...(lines.length ? lines : ["\u2022 (days to be confirmed)"]), "",
     `Seats: ${seats}${b.pairs ? " (I understand they are sold in pairs)" : ""}`,
-    `Name: ${name}`,
-    ...(stay ? [`Staying at: ${stay}`] : []), "",
+    `Name: ${name}`, "",
     b.closing || "Please confirm availability and the price.", "",
     "Thank you,", name, "",
     "\u2014 sent from Voyage One \u00b7 voyageoneworld.com",
