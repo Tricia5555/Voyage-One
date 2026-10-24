@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M970";
+const BUILD = "M971";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -21784,7 +21784,18 @@ function sessionId() {
 // A URL parameter is attribution, not commission. Commission and Virtuoso benefits attach only
 // to a reservation the advisor places through the host's channel — that is what the
 // "Reserve with the hotel" request is for.
-const HOST = { name: "", iata: "", email: "" };
+// RESERVE THROUGH VOYAGE ONE (Tricia, 24 Oct 2026 — "we are the reason you get the benefits").
+// The research of 24 Oct (project doc hotel-commission-trade-side.md) settled it: every brand
+// pays commission and applies its programme benefits only to a booking that carries the agency's
+// number FROM BIRTH. A client booking on the hotel's own site can never be credited afterwards at
+// Four Seasons or Marriott, and only "sometimes" anywhere else. So the booking is placed by us:
+// the client looks at rooms and rates on the hotel's site, comes back, and one tap sends a
+// pre-filled agency booking request to the hotel (and to us and the host) through /api/reserve.
+// `ids` holds the brand programme IDs the request quotes (e.g. a Four Seasons Advisor ID), keyed
+// by brand as brandOf() names it. All empty until the host signs; the request still goes to us.
+const HOST = { name: "", iata: "", email: "", ids: {} };
+const HOTEL_BRANDS = ["Four Seasons", "Aman", "Rosewood", "Belmond", "Mandarin Oriental", "Oetker", "Dorchester", "Peninsula", "One&Only", "Six Senses", "Cheval Blanc", "Auberge", "Rocco Forte", "Park Hyatt", "Alila", "Andaz", "Ritz-Carlton", "St. Regis", "Luxury Collection", "EDITION", "Waldorf Astoria", "Conrad", "Raffles", "Fairmont", "Sofitel", "Shangri-La", "Kempinski", "Jumeirah", "Capella", "Bulgari", "COMO", "Montage", "Anantara", "Soneva", "Langham", "Nobu", "Banyan Tree", "Faena", "Relais & Châteaux"];
+function brandOf(name) { const n = dnrm(name || ""); return HOTEL_BRANDS.find((b) => n.includes(dnrm(b))) || ""; }
 function brandedLink(url, ctx) {
   if (!url) return null;
   var hash = "", u = String(url);
@@ -21871,7 +21882,20 @@ function BookingPrompt() {
 // specific Virtuoso list the file holds is NOT shown until the host arrangement is signed.
 // The request lands in the Supabase `reservations` table (insert-only from the site); Tricia
 // places it with the hotel. No e-mail is sent yet — that needs a mail provider and a small API.
-const RESERVE_LINE = "Your reservation is made directly with the hotel, in your name. The hotel confirms to you and you pay the hotel — Voyage One arranges it, with any benefits the hotel extends to our guests.";
+const RESERVE_LINE = "The hotel's own rate — and every benefit the hotel extends to our guests: breakfast, a hotel credit, upgrade priority, a proper welcome, where the hotel offers them. The reservation is in your name; the hotel confirms to you and you pay the hotel.";
+const RESERVE_SITE_LINE = "Booking on the hotel's site is the same price, without the benefits.";
+const RESERVE_SHEET_LINE = (hotel) => `We place this with ${hotel} in your name, with our partner benefits applied. The hotel confirms to you, usually within a business day. If you saw a special rate or offer on their site, tell us its name and we'll ask for it.`;
+const RESERVE_WAIT_LINE = (hotel) => `Requested · ${hotel} confirms to you directly, usually within a business day.`;
+// The e-mail from Voyage One to the hotel's reservations desk (and to us and the host). Best
+// effort: a missing API or key does not fail the request — the row is already in the table.
+async function emailReservation(r) {
+  try {
+    const res = await fetch("/api/reserve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...r, host: HOST.name || null, iata: HOST.iata || null, programId: (HOST.ids && HOST.ids[r.brand || ""]) || null, build: BUILD }) });
+    if (!res.ok) return { ok: false, reason: "api " + res.status };
+    const j = await res.json().catch(() => null);
+    return j && j.ok ? { ok: true, to: j.to || "" } : { ok: false, reason: (j && j.reason) || "api" };
+  } catch (e) { return { ok: false, reason: String(e && e.message || e) }; }
+}
 async function requestReservation(r) {
   const sb = await supa(); if (!sb) return { ok: false, reason: "offline" };
   let uid = null;
@@ -21881,27 +21905,33 @@ async function requestReservation(r) {
       guest_first: r.first, guest_last: r.last, email: r.email, phone: r.phone || null, room: r.room || null, notes: r.notes || null,
       virtuoso: !!r.virtuoso, host: HOST.name || null, site: r.site || null, status: "requested" };
     const res = await sb.from("reservations").insert(row);
-    return res.error ? { ok: false, reason: res.error.message || "error" } : { ok: true };
+    if (res.error) return { ok: false, reason: res.error.message || "error" };
+    const mail = await emailReservation(r);
+    return { ok: true, mailed: mail.ok, mailTo: mail.to || "" };
   } catch (e) { return { ok: false, reason: String(e && e.message || e) }; }
 }
-function ReserveSheet({ s, city, site, onClose }) {
-  const [f, setF] = useState({ first: "", last: "", email: "", phone: "", checkIn: "", checkOut: "", guests: "2", room: "", notes: "" });
+function ReserveSheet({ s, city, site, onClose, prefill, onRequested }) {
+  const pf = prefill || {};
+  const [f, setF] = useState({ first: pf.first || "", last: pf.last || "", email: pf.email || "", phone: pf.phone || "", checkIn: pf.checkIn || "", checkOut: pf.checkOut || "", guests: String(pf.guests || 2), room: "", offer: "", notes: "" });
   const [state, setState] = useState("form");   // form | sending | done | error
   const [why, setWhy] = useState("");
+  const [mailed, setMailed] = useState(false);
   useEffect(() => {
-    // Prefill the e-mail of a signed-in client; nothing else is assumed.
+    // The signed-in client's e-mail, and the name as on their passport if they saved it.
     let alive = true;
+    try { const tr = readTraveller(); if (tr && tr.name && !f.first && !f.last) { const parts = tr.name.trim().split(/\s+/); if (parts.length > 1) setF((x) => ({ ...x, first: x.first || parts[0], last: x.last || parts[parts.length - 1] })); } } catch (e) {}
     (async () => { try { const sb = await supa(); if (!sb) return; const sess = await sb.auth.getSession(); const em = sess && sess.data && sess.data.session ? sess.data.session.user.email : ""; if (alive && em) setF((x) => (x.email ? x : { ...x, email: em })); } catch (e) {} })();
     return () => { alive = false; };
   }, []);
   const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.value }));
   const ve = virtuosoEvidence(s.name);
   const ready = f.first.trim() && f.last.trim() && /\S+@\S+\.\S+/.test(f.email) && f.checkIn && f.checkOut && f.checkOut > f.checkIn;
+  const fmtD = (d) => { if (!d) return ""; const x = new Date(d + "T00:00:00"); return isNaN(x) ? d : x.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }); };
   const submit = async () => {
     if (!ready || state === "sending") return;
     setState("sending");
-    const r = await requestReservation({ hotel: s.name, city: bareCity(city || ""), site: site || null, virtuoso: !!(ve && ve.member), first: f.first.trim(), last: f.last.trim(), email: f.email.trim(), phone: f.phone.trim(), checkIn: f.checkIn, checkOut: f.checkOut, guests: Number(f.guests) || null, room: f.room.trim(), notes: f.notes.trim() });
-    if (r.ok) setState("done"); else { setWhy(r.reason || ""); setState("error"); }
+    const r = await requestReservation({ hotel: s.name, brand: brandOf(s.name), city: bareCity(city || ""), site: site || null, resEmail: s.resEmail || null, virtuoso: !!(ve && ve.member), first: f.first.trim(), last: f.last.trim(), email: f.email.trim(), phone: f.phone.trim(), checkIn: f.checkIn, checkOut: f.checkOut, guests: Number(f.guests) || null, room: f.room.trim(), notes: [f.offer.trim() ? "Rate/offer seen on the hotel's site: " + f.offer.trim() : "", f.notes.trim()].filter(Boolean).join("\n") });
+    if (r.ok) { setMailed(!!r.mailed); setState("done"); if (onRequested) onRequested({ at: Date.now(), checkIn: f.checkIn, checkOut: f.checkOut, room: f.room.trim() }); } else { setWhy(r.reason || ""); setState("error"); }
   };
   const inp = { width: "100%", boxSizing: "border-box", padding: "10px 12px", border: `1px solid ${t.line}`, borderRadius: 10, fontSize: 15, fontFamily: font.ui, color: t.ink, background: t.white };
   const lab = { fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600, marginBottom: 5, display: "block" };
@@ -21910,39 +21940,50 @@ function ReserveSheet({ s, city, site, onClose }) {
     <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 560, maxHeight: "92vh", overflowY: "auto", background: t.paper, borderRadius: "18px 18px 0 0", padding: "18px 20px 28px", boxShadow: "0 -8px 40px rgba(0,0,0,.18)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
         <div>
-          <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Reserve with the hotel</div>
+          <div style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Reserve through Voyage One</div>
           <div style={{ fontFamily: font.display, fontSize: 26, color: t.ink, lineHeight: 1.1, marginTop: 4 }}>{s.name}</div>
           {city ? <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 3 }}>{placeLine(city)}</div> : null}
         </div>
         <button onClick={onClose} aria-label="Close" style={{ background: "none", border: "none", fontSize: 26, lineHeight: 1, color: t.inkFaint, padding: "0 2px" }}>×</button>
       </div>
-      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, margin: "12px 0 16px" }}>{RESERVE_LINE}</div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, margin: "12px 0 16px" }}>{RESERVE_SHEET_LINE(s.name)}</div>
       {state === "done" ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "16px 16px" }}>
         <div style={{ fontFamily: font.display, fontSize: 22, color: t.pine }}>Thank you, {f.first.trim()}.</div>
-        <div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.6, marginTop: 8 }}>We will place your reservation directly with {s.name}, in your name, for {f.checkIn} to {f.checkOut}. You will hear from Voyage One shortly, and the hotel's own confirmation will come to you at {f.email.trim()}.</div>
+        <div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.6, marginTop: 8 }}>Your reservation at {s.name} is requested in your name for {fmtD(f.checkIn)} to {fmtD(f.checkOut)}{f.room.trim() ? `, ${f.room.trim()}` : ""}. The hotel confirms to you at {f.email.trim()}, usually within a business day; enter the confirmation number on your trip when it arrives.</div>
         <button onClick={onClose} style={{ marginTop: 14, padding: "10px 18px", borderRadius: 999, background: t.pine, color: t.white, border: "none", fontSize: 14 }}>Done</button>
       </div>) : (<>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 72px", gap: 10 }}>
+          {field("Arrive", <input type="date" value={f.checkIn} onChange={set("checkIn")} style={inp} />)}
+          {field("Depart", <input type="date" value={f.checkOut} min={f.checkIn || undefined} onChange={set("checkOut")} style={inp} />)}
+          {field("Guests", <input type="number" min="1" max="12" value={f.guests} onChange={set("guests")} inputMode="numeric" style={inp} />)}
+        </div>
+        {field("Room or suite — as named on the hotel's site", <input value={f.room} onChange={set("room")} placeholder="Junior Suite Garden View" style={inp} />)}
+        {field("Rate or offer you saw there (optional)", <input value={f.offer} onChange={set("offer")} placeholder="Stay 4 pay 3, Bed & Breakfast…" style={inp} />)}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {field("First name", <input value={f.first} onChange={set("first")} autoComplete="given-name" style={inp} />)}
           {field("Last name", <input value={f.last} onChange={set("last")} autoComplete="family-name" style={inp} />)}
         </div>
         {field("E-mail — where the hotel's confirmation goes", <input type="email" value={f.email} onChange={set("email")} autoComplete="email" inputMode="email" style={inp} />)}
         {field("Phone (optional)", <input type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" inputMode="tel" style={inp} />)}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 72px", gap: 10 }}>
-          {field("Arrive", <input type="date" value={f.checkIn} onChange={set("checkIn")} style={inp} />)}
-          {field("Depart", <input type="date" value={f.checkOut} min={f.checkIn || undefined} onChange={set("checkOut")} style={inp} />)}
-          {field("Guests", <input type="number" min="1" max="12" value={f.guests} onChange={set("guests")} inputMode="numeric" style={inp} />)}
-        </div>
-        {field("Room preference (optional)", <input value={f.room} onChange={set("room")} placeholder="A suite, a high floor, a view of the water…" style={inp} />)}
-        {field("Anything else (optional)", <textarea value={f.notes} onChange={set("notes")} rows={3} placeholder="An anniversary, an early arrival, a connecting room…" style={{ ...inp, resize: "vertical" }} />)}
-        {state === "error" ? <div style={{ fontSize: 13, color: "#B0563A", lineHeight: 1.5, marginBottom: 10 }}>That did not go through just now{why ? ` (${why})` : ""}. Please try again in a moment{HOST.email ? <> or <a href={`mailto:${HOST.email}?subject=${encodeURIComponent("Reservation request: " + s.name)}&body=${encodeURIComponent(`${f.first} ${f.last}\n${s.name}${city ? ", " + placeLine(city) : ""}\n${f.checkIn} to ${f.checkOut}, ${f.guests} guests\n${f.room}\n${f.notes}\n${f.email} ${f.phone}`)}`} style={{ color: t.pine }}>e-mail us</a></> : null}.</div> : null}
-        <button onClick={submit} disabled={!ready || state === "sending"} style={{ width: "100%", padding: "13px 18px", borderRadius: 999, background: ready ? t.pine : t.mist, color: ready ? t.white : t.inkFaint, border: "none", fontSize: 15, fontWeight: 600, letterSpacing: ".03em" }}>{state === "sending" ? "Sending…" : "Reserve with the hotel"}</button>
-        <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5, marginTop: 10, textAlign: "center" }}>No payment is taken here. The hotel's own confirmation comes to you, and you pay the hotel.</div>
+        {field("Anything else (optional)", <textarea value={f.notes} onChange={set("notes")} rows={2} placeholder="An anniversary, an early arrival, a connecting room…" style={{ ...inp, resize: "vertical" }} />)}
+        {state === "error" ? <div style={{ fontSize: 13, color: "#B0563A", lineHeight: 1.5, marginBottom: 10 }}>That did not go through just now{why ? ` (${why})` : ""}. Please try again in a moment{HOST.email ? <> or <a href={`mailto:${HOST.email}?subject=${encodeURIComponent("Reservation request: " + s.name)}&body=${encodeURIComponent(`${f.first} ${f.last}\n${s.name}${city ? ", " + placeLine(city) : ""}\n${f.checkIn} to ${f.checkOut}, ${f.guests} guests\n${f.room}\n${f.offer}\n${f.notes}\n${f.email} ${f.phone}`)}`} style={{ color: t.pine }}>e-mail us</a></> : null}.</div> : null}
+        <button onClick={submit} disabled={!ready || state === "sending"} style={{ width: "100%", padding: "13px 18px", borderRadius: 999, background: ready ? t.pine : t.mist, color: ready ? t.white : t.inkFaint, border: "none", fontSize: 15, fontWeight: 600, letterSpacing: ".03em" }}>{state === "sending" ? "Sending…" : "Reserve it through Voyage One"}</button>
+        <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5, marginTop: 10, textAlign: "center" }}>No payment is taken here. The hotel takes its usual guarantee from you directly and confirms to you; you pay the hotel.</div>
       </>)}
     </div>
   </div>);
   // Rendered on the body, never inside the card (see the note above).
   return (typeof document !== "undefined" && document.body && document.body.nodeType === 1) ? createPortal(body, document.body) : body;
+}
+// WHILE THEY ARE ON THE HOTEL'S SITE our tab stays open with this on its right edge, so coming
+// back there is nothing to find. Portaled to the body — a fixed element inside the card resolves
+// against the card's animated ancestor and lands at the top of the page (see the Delta note).
+function ReservePin({ hotel, onOpen, onClose }) {
+  const el = (<div className="vo-noprint" style={{ position: "fixed", right: 0, top: "40%", zIndex: 1390, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+    <button onClick={onOpen} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: "12px 0 0 12px", padding: "16px 12px", fontSize: 13, fontWeight: 700, letterSpacing: ".08em", writingMode: "vertical-rl", textOrientation: "mixed", boxShadow: "-4px 0 16px rgba(0,0,0,.16)", cursor: "pointer" }}>Reserve it through Voyage One</button>
+    <button onClick={onClose} aria-label="Dismiss" style={{ marginTop: 4, background: t.paper, color: t.inkFaint, border: `1px solid ${t.line}`, borderRight: "none", borderRadius: "10px 0 0 10px", padding: "4px 9px", fontSize: 12, cursor: "pointer" }}>×</button>
+  </div>);
+  return (typeof document !== "undefined" && document.body && document.body.nodeType === 1) ? createPortal(el, document.body) : el;
 }
 const HOTEL_PHOTO_CACHE = {};
 function useHotelInfo(city, name) {
@@ -21988,7 +22029,7 @@ function PlaceMap({ name, city, area }) {
     </div>) : null}
   </div>);
 }
-function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
+function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested }) {
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
   // way the presentation is identical — one card for every hotel.
   const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
@@ -21997,7 +22038,8 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
   // photo, and that is shown first; if it ever fails to load, the looked-up one takes over rather
   // than leaving the card blank. Universal: any hotel row, one field.
   const [bad, setBad] = useState(null);
-  const [reserve, setReserve] = useState(false);   // the "Reserve with the hotel" sheet
+  const [reserve, setReserve] = useState(false);   // the "Reserve through Voyage One" sheet
+  const [looked, setLooked] = useState(false);     // they opened the hotel's site: pin the way back
   const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
   const rating = null;   // Google crowd rating — deliberately not shown. See note above.
@@ -22030,11 +22072,17 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
       {s.vo ? <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 600, marginTop: 6, lineHeight: 1.5 }}>VO ♥ Voyage One favorite{s.voNote ? ` — ${s.voNote}` : ""}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
-          : (<div onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 11, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 13.5, fontWeight: 500, letterSpacing: ".03em", padding: "11px 20px", borderRadius: 999 }}>Reserve with the hotel</button>
-            <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 8 }}>{RESERVE_LINE}</div>
-            {site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 8, fontSize: 12.5, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Visit {s.name}'s website →</a> : null}
-            {reserve ? <ReserveSheet s={s} city={city} site={site} onClose={() => setReserve(false)} /> : null}
+          : (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 12, padding: "14px 16px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12 }}>
+            <div style={{ fontFamily: font.display, fontSize: 19, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>Reserve through Voyage One.</div>
+            <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE}</div>
+            {requested ? <div style={{ fontSize: 13.5, color: t.pine, fontWeight: 700, lineHeight: 1.5, marginTop: 10 }}>{RESERVE_WAIT_LINE(s.name)}</div> : null}
+            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLooked(false); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : "Reserve it through Voyage One"}</button>
+            {site ? <div style={{ marginTop: 12, fontSize: 13, color: t.inkSoft, lineHeight: 1.55 }}>
+              <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={() => setLooked(true)} style={{ color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Look at the rooms and rates at {s.name} ↗</a> — then come back and we'll reserve it.
+              <div style={{ fontStyle: "italic", color: t.inkSoft, marginTop: 3 }}>{RESERVE_SITE_LINE}</div>
+            </div> : null}
+            {looked && !reserve ? <ReservePin hotel={s.name} onOpen={() => { setLooked(false); setReserve(true); }} onClose={() => setLooked(false)} /> : null}
+            {reserve ? <ReserveSheet s={s} city={city} site={site} prefill={prefill} onRequested={onRequested} onClose={() => setReserve(false)} /> : null}
           </div>)}
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
@@ -22042,7 +22090,10 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp }) {
     </div>
   </div>);
 }
-function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, eventTitle }) {
+function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, eventTitle, stayDates, pax, lead }) {
+  // What the reservation sheet opens with: the leg's dates, the party, the lead traveller.
+  const prefill = { checkIn: stayDates && stayDates.checkIn || "", checkOut: stayDates && stayDates.checkOut || "", guests: pax || 2, first: lead && lead.first || "", last: lead && lead.last || "" };
+  const onRequested = (req) => upd({ stay: { ...(pick.stay || {}), requested: req } });
   const favs = lookup(FAVORITES, city) || [];
   // OPEN ON THE FIRST TAB THAT HAS SOMETHING IN IT. The default used to be Ultra Luxury,
   // unconditionally, which was fine when most curated cities had one. After the Sept 2026 tier
@@ -22172,7 +22223,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
     {collapsed && (<div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {(() => {
         const f = favs.find((x) => x.name === chosen.name);
-        return f ? <FavHotelCard s={f} city={city} cur={favCur} sel={true} onClick={() => upd({ stay: null })} nights={nights} />
+        return f ? <FavHotelCard s={f} city={city} cur={favCur} sel={true} onClick={() => upd({ stay: null })} nights={nights} prefill={prefill} requested={pick.stay && pick.stay.requested} onRequested={onRequested} />
           : <div style={{ gridColumn: "1 / -1", background: "#fff", border: `2px solid ${t.brass}`, borderRadius: 16, padding: "16px 18px" }}>
               <div style={{ fontFamily: font.display, fontSize: 22, color: t.ink }}>{chosen.name || chosen.level}</div>
               {chosen.band ? <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 3 }}>{chosen.band}</div> : null}
@@ -22187,22 +22238,22 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {favOrdered.map((s, k) => { const sel = chosenName && dnrm(s.name) === chosenName; return (
-          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel}
+          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} /></div>); })}
       </div>
       {fromExperience && favChosen.length && favRest.length ? (
         <button onClick={() => setShowOthers(!showOthers)} style={{ marginTop: 12, background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13.5, fontFamily: "inherit", cursor: "pointer" }}>
           {showOthers ? "Hide the other options" : `See the other ${favRest.length} ${favRest.length === 1 ? "option" : "options"} in ${bareCity(city)}`}
         </button>) : null}
-      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>{collapse ? "This is your choice — book it directly with the property, or see the other options above to change it." : "Tap one to open it up and choose — then book it directly with the property."}</div>
+      <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>{collapse ? "This is your choice — we reserve it for you, or see the other options above to change it." : "Tap one to open it up and choose — then we reserve it for you."}</div>
     </>)}
       {/* A HOTEL YOU BOOKED ELSEWHERE STILL NEEDS A PLACE TO SAY SO. This sat inside the expanded
           picker, so a collapsed card, a hotel from the live feed, or one seeded by an experience
           — Villa San Michele, Verdura, both Four Seasons — had no booked tab at all. Whenever a
           hotel is chosen, the tab is here. */}
       {pick.stay && pick.stay.name ? (<div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderRadius: 12, padding: "12px 14px" }}>
-        <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 9 }}>{pick.stay.name} — have you booked it yet?</div>
-        <BookingRow item={pick.stay} onSet={(patch) => upd({ stay: { ...pick.stay, ...patch } })} />
+        <div style={{ fontSize: 12.5, color: t.inkSoft, marginBottom: 9 }}>{pick.stay.requested ? `${pick.stay.name} — requested through Voyage One. When the hotel's confirmation arrives, mark it here with the confirmation number.` : `${pick.stay.name} — has the hotel confirmed it yet?`}</div>
+        <BookingRow item={pick.stay} onSet={(patch) => upd({ stay: { ...pick.stay, ...patch } })} yesLabel="Confirmed" noLabel="Not yet confirmed" />
         {/* THE RATE, so the trip adds up: what the client was quoted or paid per night, times the
             nights. Until it is typed, a curated rate is shown as an estimate; a live hotel shows
             nothing rather than a made-up number. (Tricia, 11 Oct 2026.) */}
@@ -22316,13 +22367,13 @@ function stayLine(stay, nights) {
   if (c.web) bits.push(String(c.web).replace(/^https?:\/\//, ""));
   return bits.join(" \u00b7 ");
 }
-function BookingRow({ item, onSet, timeLabel }) {
+function BookingRow({ item, onSet, timeLabel, yesLabel, noLabel }) {
   const booked = !!(item && item.booked);
   const pill = (on) => ({ border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : "transparent", color: on ? t.paper : t.inkSoft, borderRadius: 999, padding: "7px 15px", fontSize: 13, fontWeight: on ? 600 : 400 });
   return (<div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" }}>
     <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>Status</span>
-    <button onClick={() => onSet({ booked: false })} style={pill(!booked)}>Not booked</button>
-    <button onClick={() => onSet({ booked: true })} style={pill(booked)}>Booked</button>
+    <button onClick={() => onSet({ booked: false })} style={pill(!booked)}>{noLabel || "Not booked"}</button>
+    <button onClick={() => onSet({ booked: true })} style={pill(booked)}>{yesLabel || "Booked"}</button>
     {timeLabel ? (<label style={{ display: "flex", alignItems: "center", gap: 7, marginLeft: 4 }}>
       <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>{timeLabel}</span>
       <input type="time" value={(item && item.time) || ""} onChange={(e) => onSet({ time: e.target.value })}
@@ -23798,7 +23849,7 @@ function CitySection({ d, i, p, from, legSched }) {
         ? <Panel icon={BedDouble} title={`Your stay · ${nights} ${nights === 1 ? "night" : "nights"}`}>
             <StayCard stay={pick.stay} city={d.city} />
           </Panel>
-        : d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker eventStay={(() => { const ex = findExperience(d.event); return ex && ex.guide && ex.guide.stay ? ex.guide.stay : null; })()} eventTitle={d.event} city={d.city} nights={nights} pick={pick} upd={upd} fromExperience={!!d.fromExperience} /></Panel>}
+        : d.mode !== "flights" && <Panel icon={BedDouble} title={`Where to stay in ${d.city || "this city"} · ${nights} ${nights === 1 ? "night" : "nights"}`} right={pick.stay ? <button onClick={() => upd({ stay: null })} style={{ background: "none", border: "none", color: t.inkFaint, fontSize: 12 }}>Skip hotel</button> : null}><HotelPicker eventStay={(() => { const ex = findExperience(d.event); return ex && ex.guide && ex.guide.stay ? ex.guide.stay : null; })()} eventTitle={d.event} city={d.city} nights={nights} pick={pick} upd={upd} fromExperience={!!d.fromExperience} stayDates={legSched ? { checkIn: ymd(legSched.arrive), checkOut: ymd(legSched.depart) } : null} pax={partySize(p)} lead={(p.travelers || [])[0] || null} /></Panel>}
       {d.event && d.mode !== "flights" ? <EventTicketsPanel d={d} upd={upd} p={p} /> : null}
       {/* At a ranch, a safari camp or a river lodge, "restaurants nearby" and "spas nearby" are
           not just unhelpful — they are wrong. There is nothing nearby. The property feeds you,
