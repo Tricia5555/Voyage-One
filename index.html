@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M967";
+const BUILD = "M969";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -14205,6 +14205,175 @@ function Panel({ icon: Icon, title, right, children, collapsed }) {
 // NAMING A CARRIER WITHOUT A WAY TO REACH IT IS HALF AN ANSWER. Arrival options can now carry
 // a link, shown under the row so the client goes straight to the operator that flies the leg.
 // An <a> cannot be nested inside the row's <button>, so it sits beneath it as a sibling.
+// ══ MY DETAILS — FREQUENT-FLYER AND KNOWN TRAVELER NUMBERS (Tricia, 24 Oct 2026) ═══════════════
+// The airline's own site will not take a pre-filled booking from us, so the one thing we CAN do
+// at the hand-off is put the client's numbers under their thumb: SkyMiles when the flight is
+// Delta, Skywards when it is Emirates, Known Traveler and Redress for any US carrier — each one a
+// tap to copy. Airlines only (Tricia: "No hotel programs … So just airlines").
+//
+// WHERE IT LIVES: in this browser's storage on this device — Safari on her iPad — and nowhere
+// else. It is not sent to Voyage One, not saved to the account, not in any database. The panel
+// says so in plain words. Passport numbers and dates of birth are deliberately NOT asked for:
+// those belong in the airline's own secure profile, not in a web page's local storage.
+//
+// UNIVERSAL: the programme is looked up by airline name, and an alliance partner's number is
+// offered as a partner programme ("your United MileagePlus number can be credited on this
+// Lufthansa flight") — the rule, not a list of cities or routes.
+const TRAVELLER_KEY = "voyage-one:traveller";
+function readTraveller() {
+  try { const raw = window.localStorage.getItem(TRAVELLER_KEY); const x = raw ? JSON.parse(raw) : null; return x && typeof x === "object" ? { name: "", ktn: "", redress: "", programs: [], ...x, programs: Array.isArray(x.programs) ? x.programs : [] } : { name: "", ktn: "", redress: "", programs: [] }; }
+  catch (e) { return { name: "", ktn: "", redress: "", programs: [] }; }
+}
+function writeTraveller(x) {
+  try { window.localStorage.setItem(TRAVELLER_KEY, JSON.stringify({ ...x, updated: Date.now() })); window.dispatchEvent(new Event("vo-traveller-changed")); return true; } catch (e) { return false; }
+}
+// One hook: the saved details, kept current when the panel saves.
+function useTraveller() {
+  const [tr, setTr] = useState(readTraveller);
+  useEffect(() => { const h = () => setTr(readTraveller()); window.addEventListener("vo-traveller-changed", h); return () => window.removeEventListener("vo-traveller-changed", h); }, []);
+  return tr;
+}
+// Airline → its loyalty programme and alliance. Name-keyed through dnrm, so "Delta", "Delta Air
+// Lines" and "DL" all land on SkyMiles. Alliance lets a partner's number be offered on a flight.
+const LOYALTY = {
+  "delta": ["Delta", "SkyMiles", "SkyTeam"], "delta air lines": ["Delta", "SkyMiles", "SkyTeam"], "dl": ["Delta", "SkyMiles", "SkyTeam"],
+  "air france": ["Air France", "Flying Blue", "SkyTeam"], "klm": ["KLM", "Flying Blue", "SkyTeam"], "korean air": ["Korean Air", "SKYPASS", "SkyTeam"], "aeromexico": ["Aeromexico", "Aeromexico Rewards", "SkyTeam"], "ita airways": ["ITA Airways", "Volare", "SkyTeam"], "ita": ["ITA Airways", "Volare", "SkyTeam"], "virgin atlantic": ["Virgin Atlantic", "Flying Club", "SkyTeam"], "kenya airways": ["Kenya Airways", "Asante Rewards", "SkyTeam"], "sas": ["SAS", "EuroBonus", "SkyTeam"], "garuda": ["Garuda Indonesia", "GarudaMiles", "SkyTeam"], "vietnam airlines": ["Vietnam Airlines", "Lotusmiles", "SkyTeam"], "china airlines": ["China Airlines", "Dynasty Flyer", "SkyTeam"], "aerolineas argentinas": ["Aerolíneas Argentinas", "Aerolíneas Plus", "SkyTeam"], "saudia": ["Saudia", "Alfursan", "SkyTeam"], "tarom": ["TAROM", "Flying Blue", "SkyTeam"],
+  "united": ["United", "MileagePlus", "Star Alliance"], "united airlines": ["United", "MileagePlus", "Star Alliance"], "air canada": ["Air Canada", "Aeroplan", "Star Alliance"], "lufthansa": ["Lufthansa", "Miles & More", "Star Alliance"], "swiss": ["SWISS", "Miles & More", "Star Alliance"], "austrian": ["Austrian", "Miles & More", "Star Alliance"], "brussels airlines": ["Brussels Airlines", "Miles & More", "Star Alliance"], "lot": ["LOT", "Miles & More", "Star Alliance"], "croatia airlines": ["Croatia Airlines", "Miles & More", "Star Alliance"], "ana": ["ANA", "ANA Mileage Club", "Star Alliance"], "singapore airlines": ["Singapore Airlines", "KrisFlyer", "Star Alliance"], "thai airways": ["Thai Airways", "Royal Orchid Plus", "Star Alliance"], "thai": ["Thai Airways", "Royal Orchid Plus", "Star Alliance"], "turkish airlines": ["Turkish Airlines", "Miles&Smiles", "Star Alliance"], "tap air portugal": ["TAP Air Portugal", "TAP Miles&Go", "Star Alliance"], "tap": ["TAP Air Portugal", "TAP Miles&Go", "Star Alliance"], "aegean": ["Aegean", "Miles+Bonus", "Star Alliance"], "air india": ["Air India", "Maharaja Club", "Star Alliance"], "asiana": ["Asiana", "Asiana Club", "Star Alliance"], "avianca": ["Avianca", "LifeMiles", "Star Alliance"], "copa": ["Copa", "ConnectMiles", "Star Alliance"], "ethiopian": ["Ethiopian", "ShebaMiles", "Star Alliance"], "egyptair": ["EgyptAir", "EgyptAir Plus", "Star Alliance"], "south african airways": ["South African Airways", "Voyager", "Star Alliance"], "south african": ["South African Airways", "Voyager", "Star Alliance"], "air new zealand": ["Air New Zealand", "Airpoints", "Star Alliance"], "eva air": ["EVA Air", "Infinity MileageLands", "Star Alliance"], "air china": ["Air China", "PhoenixMiles", "Star Alliance"],
+  "american airlines": ["American Airlines", "AAdvantage", "oneworld"], "american": ["American Airlines", "AAdvantage", "oneworld"], "aa": ["American Airlines", "AAdvantage", "oneworld"], "british airways": ["British Airways", "Executive Club", "oneworld"], "iberia": ["Iberia", "Iberia Plus", "oneworld"], "finnair": ["Finnair", "Finnair Plus", "oneworld"], "qatar airways": ["Qatar Airways", "Privilege Club", "oneworld"], "qatar": ["Qatar Airways", "Privilege Club", "oneworld"], "cathay pacific": ["Cathay Pacific", "Cathay", "oneworld"], "japan airlines": ["Japan Airlines", "JAL Mileage Bank", "oneworld"], "jal": ["Japan Airlines", "JAL Mileage Bank", "oneworld"], "qantas": ["Qantas", "Qantas Frequent Flyer", "oneworld"], "alaska airlines": ["Alaska Airlines", "Mileage Plan", "oneworld"], "alaska": ["Alaska Airlines", "Mileage Plan", "oneworld"], "royal jordanian": ["Royal Jordanian", "Royal Club", "oneworld"], "royal air maroc": ["Royal Air Maroc", "Safar Flyer", "oneworld"], "malaysia airlines": ["Malaysia Airlines", "Enrich", "oneworld"], "srilankan": ["SriLankan", "FlySmiLes", "oneworld"], "fiji airways": ["Fiji Airways", "Tabua Club", "oneworld"], "oman air": ["Oman Air", "Sindbad", "oneworld"],
+  "emirates": ["Emirates", "Skywards", ""], "etihad": ["Etihad", "Etihad Guest", ""], "jetblue": ["JetBlue", "TrueBlue", ""], "southwest": ["Southwest", "Rapid Rewards", ""], "latam": ["LATAM", "LATAM Pass", ""], "icelandair": ["Icelandair", "Saga Club", ""], "aer lingus": ["Aer Lingus", "AerClub", ""], "el al": ["El Al", "Matmid", ""], "virgin australia": ["Virgin Australia", "Velocity", ""], "hawaiian": ["Hawaiian Airlines", "HawaiianMiles", ""], "hawaiian airlines": ["Hawaiian Airlines", "HawaiianMiles", ""], "air tahiti nui": ["Air Tahiti Nui", "Club Tiare", ""], "westjet": ["WestJet", "WestJet Rewards", ""], "porter": ["Porter", "VIPorter", ""], "norwegian": ["Norwegian", "Norwegian Reward", ""], "wideroe": ["Widerøe", "EuroBonus", "SkyTeam"], "rwandair": ["RwandAir", "Dream Miles", ""], "air mauritius": ["Air Mauritius", "Kestrelflyer", ""], "air seychelles": ["Air Seychelles", "Etihad Guest", ""], "bangkok airways": ["Bangkok Airways", "FlyerBonus", ""], "philippine airlines": ["Philippine Airlines", "Mabuhay Miles", ""], "air europa": ["Air Europa", "SUMA", "SkyTeam"], "vueling": ["Vueling", "Vueling Club", ""], "easyjet": ["easyJet", "", ""], "ryanair": ["Ryanair", "", ""],
+};
+// The airlines a client can choose from when adding a number: every programme above, once.
+const LOYALTY_AIRLINES = (() => { const seen = {}; const out = []; Object.keys(LOYALTY).forEach((k) => { const [air, prog] = LOYALTY[k]; if (!prog || seen[air]) return; seen[air] = 1; out.push([air, prog]); }); return out.sort((a, b) => a[0].localeCompare(b[0])); })();
+function loyaltyInfo(airline) {
+  if (!airline) return null;
+  const k = dnrm(String(airline));
+  if (LOYALTY[k]) return LOYALTY[k];
+  const hit = Object.keys(LOYALTY).find((a) => a.length > 2 && (k.includes(a) || a.includes(k)));
+  return hit ? LOYALTY[hit] : null;
+}
+// Which saved numbers apply to this airline: its own programme first, then alliance partners'.
+function numbersFor(airline, tr) {
+  const info = loyaltyInfo(airline); const progs = (tr && tr.programs) || [];
+  const own = progs.filter((x) => x && x.number && (dnrm(x.airline || "") === dnrm(airline || "") || (info && loyaltyInfo(x.airline) && loyaltyInfo(x.airline)[1] === info[1])));
+  const partners = info && info[2] ? progs.filter((x) => x && x.number && !own.includes(x) && loyaltyInfo(x.airline) && loyaltyInfo(x.airline)[2] === info[2]) : [];
+  return { info, own, partners };
+}
+// One tap copies the value; the chip says so for a moment. Falls back to a hidden textarea where
+// the clipboard API is not available. Never printed.
+function CopyChip({ label, value }) {
+  const [done, setDone] = useState(false);
+  const copy = () => {
+    const v = String(value || "");
+    const ok = () => { setDone(true); setTimeout(() => setDone(false), 1600); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(v).then(ok, () => fallback()); return; }
+    } catch (e) {}
+    fallback();
+    function fallback() { try { const ta = document.createElement("textarea"); ta.value = v; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); ok(); } catch (e) {} }
+  };
+  return (<button className="vo-noprint" onClick={copy} title="Tap to copy" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 999, border: `1px solid ${done ? t.pine : t.line}`, background: done ? t.mist : t.white, color: t.ink, fontSize: 12.5, cursor: "pointer", marginRight: 8, marginTop: 8 }}>
+    <span style={{ color: t.inkFaint }}>{label}</span><span style={{ fontWeight: 600, letterSpacing: ".04em" }}>{value}</span><span style={{ fontSize: 11, color: done ? t.pine : t.brass, fontWeight: 600 }}>{done ? "Copied" : "Copy"}</span>
+  </button>);
+}
+// The client's numbers for THIS airline, at the hand-off. Nothing saved yet → one quiet line
+// offering to save them. Partner programmes are labelled as such; the client decides.
+function TravellerChips({ airline, compact }) {
+  const tr = useTraveller();
+  const has = tr.name || tr.ktn || tr.redress || (tr.programs || []).some((x) => x && x.number);
+  const open = (e) => { e.preventDefault(); window.dispatchEvent(new Event("vo-open-details")); };
+  if (!has) return (<div className="vo-noprint" style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: compact ? 8 : 10 }}>Save your frequent-flyer and Known Traveler numbers once in <a href="#" onClick={open} style={{ color: t.pine, fontWeight: 600 }}>My details</a> and they appear here, ready to copy into {airline || "the airline"}'s form.</div>);
+  const { info, own, partners } = numbersFor(airline, tr);
+  return (<div className="vo-noprint" style={{ marginTop: compact ? 8 : 10 }}>
+    <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600 }}>Your details{airline ? ` for ${airline}` : ""} · tap to copy</div>
+    <div>
+      {own.map((x, i) => <CopyChip key={"o" + i} label={(loyaltyInfo(x.airline) || [x.airline, x.airline])[1] || x.airline} value={x.number} />)}
+      {partners.map((x, i) => <CopyChip key={"p" + i} label={`${(loyaltyInfo(x.airline) || [x.airline, x.airline])[1] || x.airline} (${info[2]} partner)`} value={x.number} />)}
+      {tr.ktn ? <CopyChip label="Known Traveler" value={tr.ktn} /> : null}
+      {tr.redress ? <CopyChip label="Redress" value={tr.redress} /> : null}
+      {tr.name ? <CopyChip label="Name as on passport" value={tr.name} /> : null}
+    </div>
+    {airline && info && !own.length ? <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 6 }}>No {info[1]} number saved{partners.length ? ` — a ${info[2]} partner's number can usually be credited instead` : ""}. <a href="#" onClick={open} style={{ color: t.pine, fontWeight: 600 }}>Add one</a>.</div> : null}
+  </div>);
+}
+// The panel itself: name as on passport, Known Traveler Number, Redress, and one line per airline
+// programme. Opens from the menu ("My details") and from any hand-off that offers the chips.
+const travellerHas = (x) => !!(x && (x.name || x.ktn || x.redress || (x.programs || []).some((q) => q && q.number)));
+function TravellerPanel({ user }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => { const h = () => setOpen(true); window.addEventListener("vo-open-details", h); return () => window.removeEventListener("vo-open-details", h); }, []);
+  const [tr, setTr] = useState(readTraveller);
+  const [saved, setSaved] = useState(false);     // false | "device" | "account" | "device-only"
+  const [cloudState, setCloudState] = useState("");   // "" | "synced" | "unreachable"
+  useEffect(() => { if (open) { setTr(readTraveller()); setSaved(false); } }, [open]);
+  // On sign-in: the account's copy wins when it is newer; a device copy with nothing in the
+  // account is copied up. Nothing is ever deleted by this step.
+  useEffect(() => {
+    if (!user) { setCloudState(""); return; }
+    let alive = true;
+    (async () => {
+      const c = await cloudTravellerRead();
+      if (!alive) return;
+      if (!c) { setCloudState("unreachable"); return; }
+      const local = readTraveller();
+      if (c.data && travellerHas(c.data) && (c.updated || 0) >= (local.updated || 0)) { writeTraveller({ ...c.data, updated: c.updated }); setTr(readTraveller()); }
+      else if (travellerHas(local)) { await cloudTravellerWrite(user.id, local); }
+      if (alive) setCloudState("synced");
+    })();
+    return () => { alive = false; };
+  }, [user && user.id]);
+  const canStore = storageWorks();
+  const set = (patch) => { setTr((x) => ({ ...x, ...patch })); setSaved(false); };
+  const setProg = (i, patch) => set({ programs: tr.programs.map((x, k) => (k === i ? { ...x, ...patch } : x)) });
+  const addProg = () => set({ programs: [...tr.programs, { airline: "", number: "" }] });
+  const dropProg = (i) => set({ programs: tr.programs.filter((_, k) => k !== i) });
+  const save = async () => {
+    const clean = { ...tr, name: tr.name.trim(), ktn: tr.ktn.trim(), redress: tr.redress.trim(), programs: tr.programs.filter((x) => x && (x.airline || x.number)).map((x) => ({ airline: String(x.airline || "").trim(), number: String(x.number || "").trim() })) };
+    const okLocal = writeTraveller(clean);
+    setTr(readTraveller());
+    if (!user) { setSaved(okLocal ? "device" : false); return; }
+    setSaved("saving");
+    const okCloud = await cloudTravellerWrite(user.id, { ...clean, updated: Date.now() });
+    setSaved(okCloud ? "account" : "device-only"); setCloudState(okCloud ? "synced" : "unreachable");
+  };
+  const clear = async () => { try { window.localStorage.removeItem(TRAVELLER_KEY); } catch (e) {} window.dispatchEvent(new Event("vo-traveller-changed")); setTr(readTraveller()); setSaved(false); if (user) await cloudTravellerDelete(); };
+  const inp = { width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.line}`, fontSize: 14, color: t.ink, background: t.white, fontFamily: font.ui };
+  const lab = { display: "block", fontSize: 11.5, color: t.inkFaint, marginBottom: 4 };
+  if (!open) return null;
+  return (<div className="vo-noprint" style={{ position: "fixed", inset: 0, zIndex: 79, background: "rgba(34,29,25,.32)" }} onClick={() => setOpen(false)}>
+    <div onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "min(460px, 100%)", background: t.paper, boxShadow: "-8px 0 30px rgba(0,0,0,.18)", overflowY: "auto", padding: "24px 22px 90px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+        <div style={{ fontFamily: font.display, fontSize: 26, color: t.ink }}>My details</div>
+        <button onClick={() => setOpen(false)} style={{ width: 32, height: 32, borderRadius: 999, border: "none", background: t.mist, color: t.ink, display: "grid", placeItems: "center", cursor: "pointer" }}><X size={16} /></button>
+      </div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 8 }}>The numbers every airline asks for, saved once. When you book a flight, the ones that apply to that airline appear beside the booking link, each a tap to copy.</div>
+      <div style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.6, marginTop: 10, padding: "10px 12px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>
+        {user ? <>Saved to <strong>your account</strong>, so they are there wherever you sign in, and kept on this device as well. Only you can read them — your sign-in is the key. Clear everything below whenever you like.</>
+              : <>Kept <strong>on this device only</strong> while you are signed out. <a href="#" onClick={(e) => { e.preventDefault(); setOpen(false); window.dispatchEvent(new Event("vo-open-auth")); }} style={{ color: t.pine, fontWeight: 600 }}>Sign in</a> and they follow you to any device. Clear everything below whenever you like.</>}
+        {" "}We do not ask for passport numbers or dates of birth: those belong in the airline's own secure profile.
+      </div>
+      {user && cloudState === "unreachable" ? <div style={{ fontSize: 12.5, color: t.brass, lineHeight: 1.5, marginTop: 10 }}>Your account could not be reached just now, so these are saved on this device only. They will be copied to your account the next time it can be reached.</div> : null}
+      {!canStore ? <div style={{ fontSize: 12.5, color: t.brass, lineHeight: 1.5, marginTop: 10 }}>This browser will not let Voyage One keep anything — private browsing usually causes this. You can fill these in for now, but they will be gone next time.</div> : null}
+      <div style={{ height: 1, background: t.line, margin: "18px 0" }} />
+      <label style={{ display: "block", marginBottom: 12 }}><span style={lab}>Name as it appears on your passport</span><input value={tr.name} onChange={(e) => set({ name: e.target.value })} placeholder="First Middle Last, exactly as printed" autoComplete="off" style={inp} /></label>
+      <label style={{ display: "block", marginBottom: 12 }}><span style={lab}>Known Traveler Number (Global Entry / TSA PreCheck)</span><input value={tr.ktn} onChange={(e) => set({ ktn: e.target.value })} placeholder="9 digits, on the back of your Global Entry card" autoComplete="off" inputMode="numeric" style={inp} /></label>
+      <label style={{ display: "block", marginBottom: 12 }}><span style={lab}>Redress number (only if you have one)</span><input value={tr.redress} onChange={(e) => set({ redress: e.target.value })} placeholder="Optional" autoComplete="off" style={inp} /></label>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, margin: "18px 0 8px" }}>Airline programmes</div>
+      {tr.programs.length === 0 ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginBottom: 8 }}>None yet. Add each airline you hold a number with — Delta SkyMiles, United MileagePlus, Emirates Skywards and so on.</div> : null}
+      {tr.programs.map((x, i) => { const info = loyaltyInfo(x.airline); return (<div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 32px", gap: 8, alignItems: "end", marginBottom: 10 }}>
+        <label><span style={lab}>Airline</span><input list="vo-airlines" value={x.airline} onChange={(e) => setProg(i, { airline: e.target.value })} placeholder="Delta" autoComplete="off" style={inp} /></label>
+        <label><span style={lab}>{info && info[1] ? info[1] + " number" : "Member number"}</span><input value={x.number} onChange={(e) => setProg(i, { number: e.target.value })} placeholder="Number" autoComplete="off" style={inp} /></label>
+        <button onClick={() => dropProg(i)} aria-label="Remove" style={{ width: 32, height: 40, border: "none", background: "none", color: t.inkFaint, cursor: "pointer" }}><X size={15} /></button>
+      </div>); })}
+      <datalist id="vo-airlines">{LOYALTY_AIRLINES.map(([air, prog]) => <option key={air} value={air}>{prog}</option>)}</datalist>
+      <button onClick={addProg} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 12.5, color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>+ Add an airline</button>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 20 }}>
+        <button onClick={save} disabled={saved === "saving"} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 13.5, fontWeight: 600, fontFamily: font.ui, cursor: "pointer", opacity: saved === "saving" ? 0.6 : 1 }}>{user ? "Save to my account" : "Save on this device"}</button>
+        {saved === "saving" ? <span style={{ fontSize: 12.5, color: t.inkFaint }}>Saving…</span> : saved === "account" ? <span style={{ fontSize: 12.5, color: t.pine, fontWeight: 600 }}>Saved to your account</span> : saved === "device" ? <span style={{ fontSize: 12.5, color: t.pine, fontWeight: 600 }}>Saved on this device</span> : saved === "device-only" ? <span style={{ fontSize: 12.5, color: t.brass, fontWeight: 600 }}>Saved on this device — account not reachable</span> : null}
+        <button onClick={clear} style={{ marginLeft: "auto", background: "none", border: "none", color: t.inkFaint, fontSize: 12.5, fontFamily: font.ui, cursor: "pointer", textDecoration: "underline" }}>Clear everything</button>
+      </div>
+    </div>
+  </div>);
+}
 // The handoff itself. Shown only once a flight is actually chosen, so it reads as "now go and
 // buy this one" rather than as another thing to browse.
 function FlightBookLinks({ flight, dateISO, returnISO, city }) {
@@ -14218,6 +14387,7 @@ function FlightBookLinks({ flight, dateISO, returnISO, city }) {
     {air ? <a href={brandedLink(air.url, { kind: "flight", name: air.name, city: city || "" })} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: t.pine, color: t.paper }}>Book with {air.name} ↗</a> : null}
     {search ? <a href={search} target="_blank" rel="noopener noreferrer" style={{ ...btn, background: "none", border: `1px solid ${t.line}`, color: t.inkSoft }}>Open with your dates ↗</a> : null}
     <div style={{ fontSize: 13, color: t.ink, marginTop: 10, fontWeight: 500 }}>{flightSearchLine(flight, dateISO, returnISO)}</div>
+    <TravellerChips airline={(air && air.name) || flight.airline || ""} />
     <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 9 }}>
       The airline’s own site will not accept a pre-filled itinerary from us, so those are your search details above — and BOOKING DIRECT IS THE RIGHT WAY ANYWAY: it is the only place your frequent-flyer number, Known Traveler, points, upgrades and any credit on file will apply. “Open with your dates” starts the search already filled in and hands you through to the airline. Everything opens in a new tab, so your trip stays here — come back and mark it Booked. The fare above is what the search returned; the airline quotes its own price and that is the one you pay.
     </div>
@@ -14345,6 +14515,28 @@ async function cloudWrite(id, userId, data, where) {
 async function cloudDelete(id) {
   const sb = await supa(); if (!sb) return false;
   try { const r = await sb.from("trips").delete().eq("id", id); return !r.error; } catch (e) { return false; }
+}
+
+// MY DETAILS FOLLOW THE LOGIN (Tricia, 24 Oct 2026: "if the person has to login and use a password
+// what is wrong with that?" — nothing). Table `traveller`: user_id (primary key, = auth.uid()),
+// data jsonb, updated_at. RLS on the table limits every read and write to the signed-in user's own
+// row, exactly as `trips`. Null from a read means "could not reach the account" — the table may not
+// exist yet, or the network is down — and the device copy stands; it is never read as "empty".
+async function cloudTravellerRead() {
+  const sb = await supa(); if (!sb) return null;
+  try {
+    const r = await sb.from("traveller").select("data,updated_at").maybeSingle();
+    if (r.error) return null;
+    return r.data ? { data: r.data.data || null, updated: r.data.updated_at ? Date.parse(r.data.updated_at) : 0 } : { data: null, updated: 0 };
+  } catch (e) { return null; }
+}
+async function cloudTravellerWrite(userId, data) {
+  const sb = await supa(); if (!sb) return false;
+  try { const r = await sb.from("traveller").upsert({ user_id: userId, data, updated_at: new Date().toISOString() }); return !r.error; } catch (e) { return false; }
+}
+async function cloudTravellerDelete() {
+  const sb = await supa(); if (!sb) return false;
+  try { const r = await sb.from("traveller").delete().not("user_id", "is", null); return !r.error; } catch (e) { return false; }
 }
 
 // ---- Saved journeys -----------------------------------------------------------------
@@ -14799,6 +14991,7 @@ function VoyageOne() {
   // saving to this browser. `authReady` is separate from "signed in": it means we have
   // finished asking, so we know which shelf to read.
   const [user, setUser] = useState(null);
+  useEffect(() => { const h = () => setAuthPanel(true); window.addEventListener("vo-open-auth", h); return () => window.removeEventListener("vo-open-auth", h); }, []);
   const [authReady, setAuthReady] = useState(false);
   const [cloudErr, setCloudErr] = useState("");
   const [migratable, setMigratable] = useState([]);
@@ -15184,6 +15377,7 @@ function VoyageOne() {
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
     {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
       <HelpPanel screen={screen} step={step} hideButton={screen === "landing"} />
+      <TravellerPanel user={user} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "oneList" && <OneList initial={DEEP_LINK.experience} onPick={seedFromEvent} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
     {screen === "explore" && <ExploreScreen onBack={() => setScreen("landing")} onHome={() => { setScreen("landing"); setStep(0); }} onPlan={(c, pk) => { setDests((d) => { const base = d && d.length ? d : [{ id: newId(), city: "", mode: "full", nights: 2, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], exploreMode: "", stops: [] } }]; const out = base.slice(); const k = out.findIndex((x) => !String(x.city || "").trim()); const src = k >= 0 ? out[k] : out[0]; const nd = { ...src, city: c, air: iataFor(c) || "", pick: { ...(src.pick || {}), stay: (pk && pk.stay) || (src.pick && src.pick.stay) || null, dines: (pk && pk.dines && pk.dines.length) ? pk.dines : ((src.pick && src.pick.dines) || []), tours: (pk && pk.tours && pk.tours.length) ? pk.tours : ((src.pick && src.pick.tours) || []) } }; if (k >= 0) out[k] = nd; else out.push({ ...nd, id: newId() }); return out; }); setScreen("plan"); setStep(0); }} />}
@@ -15416,6 +15610,7 @@ function LandingMenu({ user, authReady, onOpenAuth, onSignOut, onExplore }) {
         <a href={textUsHref("I have a question")} style={{ ...item, textDecoration: "none" }}>Text us</a>
         <a href={`mailto:${VO_SUGGEST_EMAIL}?subject=${encodeURIComponent("A suggestion for Voyage One")}`} style={{ ...item, textDecoration: "none" }}>Suggestions</a>
         <button onClick={() => { setOpen(false); onExplore(); }} style={item}>Explore a place</button>
+        <button onClick={() => { setOpen(false); window.dispatchEvent(new Event("vo-open-details")); }} style={item}>My details</button>
         <button onClick={() => { setOpen(false); window.dispatchEvent(new Event("vo-open-help")); }} style={item}>Help</button>
       </div>) : null}
       <button onClick={() => setOpen((o) => !o)} aria-label="Menu" style={{ pointerEvents: "auto", width: 48, height: 48, borderRadius: 999, background: t.pine, color: t.paper, border: "none", fontSize: 20, lineHeight: "48px", padding: 0, cursor: "pointer", boxShadow: "0 6px 20px rgba(0,0,0,.18)" }}>☰</button>
@@ -19890,6 +20085,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
           <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 5 }}>Find your flight there, then switch back to this tab and write it down below. This panel stays open, and a <strong>Delta</strong> tab will sit on the right edge of the screen if you close it.</div>
         </div>
         <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5 }}>Delta won't let their site show inside ours, so this is the closest thing to a side window.</div>
+        <TravellerChips airline="Delta" compact />
         <div style={{ height: 1, background: t.line, margin: "16px 0" }} />
         <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Save the flight you picked</div>
         <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginBottom: 12 }}>Jot what you found on Delta and it goes straight into this leg's itinerary — nothing here is required.</div>
@@ -19927,6 +20123,7 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
           <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 5 }}>Find your flight there, then switch back to this tab and write it down below. An <strong>Emirates</strong> tab will sit on the right edge of the screen if you close this panel.</div>
         </div>
         <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5 }}>This checks Emirates fares (First, Business and the rest) for your exact route and date.</div>
+        <TravellerChips airline="Emirates" compact />
         <div style={{ height: 1, background: t.line, margin: "16px 0" }} />
         <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 8 }}>Save the flight you picked</div>
         <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.5, marginBottom: 12 }}>Jot what you found on Emirates and it goes straight into this leg's itinerary — nothing here is required.</div>
