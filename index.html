@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M969";
+const BUILD = "M970";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -14281,10 +14281,14 @@ function TravellerChips({ airline, compact }) {
   const tr = useTraveller();
   const has = tr.name || tr.ktn || tr.redress || (tr.programs || []).some((x) => x && x.number);
   const open = (e) => { e.preventDefault(); window.dispatchEvent(new Event("vo-open-details")); };
-  if (!has) return (<div className="vo-noprint" style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, marginTop: compact ? 8 : 10 }}>Save your frequent-flyer and Known Traveler numbers once in <a href="#" onClick={open} style={{ color: t.pine, fontWeight: 600 }}>My details</a> and they appear here, ready to copy into {airline || "the airline"}'s form.</div>);
+  if (!has) return (<div className="vo-noprint" style={{ marginTop: compact ? 10 : 14, padding: "14px 16px", background: t.card, border: `2px solid ${t.brass}`, borderRadius: 12 }}>
+    <div style={{ fontFamily: font.display, fontSize: 18, fontWeight: 700, color: t.ink, lineHeight: 1.3 }}>Save your frequent-flyer and Global Entry numbers once.</div>
+    <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.55, marginTop: 6 }}>They will be right here for every flight, each one a tap to copy into {airline || "the airline"}'s form — no hunting through wallets and e-mails at booking time.</div>
+    <button onClick={open} style={{ marginTop: 10, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "11px 20px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".04em", fontFamily: font.ui, cursor: "pointer" }}>Add my details</button>
+  </div>);
   const { info, own, partners } = numbersFor(airline, tr);
   return (<div className="vo-noprint" style={{ marginTop: compact ? 8 : 10 }}>
-    <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600 }}>Your details{airline ? ` for ${airline}` : ""} · tap to copy</div>
+    <div style={{ fontSize: 13, letterSpacing: ".1em", textTransform: "uppercase", color: t.ink, fontWeight: 700 }}>Your details{airline ? ` for ${airline}` : ""} · tap to copy</div>
     <div>
       {own.map((x, i) => <CopyChip key={"o" + i} label={(loyaltyInfo(x.airline) || [x.airline, x.airline])[1] || x.airline} value={x.number} />)}
       {partners.map((x, i) => <CopyChip key={"p" + i} label={`${(loyaltyInfo(x.airline) || [x.airline, x.airline])[1] || x.airline} (${info[2]} partner)`} value={x.number} />)}
@@ -14292,7 +14296,7 @@ function TravellerChips({ airline, compact }) {
       {tr.redress ? <CopyChip label="Redress" value={tr.redress} /> : null}
       {tr.name ? <CopyChip label="Name as on passport" value={tr.name} /> : null}
     </div>
-    {airline && info && !own.length ? <div style={{ fontSize: 12, color: t.inkFaint, lineHeight: 1.5, marginTop: 6 }}>No {info[1]} number saved{partners.length ? ` — a ${info[2]} partner's number can usually be credited instead` : ""}. <a href="#" onClick={open} style={{ color: t.pine, fontWeight: 600 }}>Add one</a>.</div> : null}
+    {airline && info && !own.length ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.5, marginTop: 8 }}>No {info[1]} number saved{partners.length ? ` — a ${info[2]} partner's number can usually be credited instead` : ""}. <a href="#" onClick={open} style={{ color: t.pine, fontWeight: 600 }}>Add one</a>.</div> : null}
   </div>);
 }
 // The panel itself: name as on passport, Known Traveler Number, Redress, and one line per airline
