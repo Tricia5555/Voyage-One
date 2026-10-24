@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M960";
+const BUILD = "M961";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -15821,7 +15821,9 @@ const ONE_LIST = {
           ] },
         ],
         days: "There is no ordinary day at Wimbledon, but they are far from equal. Contrary to the myth, the first week is not blissfully uncrowded — it is busy and gloriously alive. What it offers instead is breadth: every top seed on court, and the chance to see all your favorite players in a single day. As the fortnight narrows, the tennis sharpens and the prices climb toward the finals.",
-        ticketContact: "Tickets and hospitality are arranged through SOPHIE WALKER at Sporting Agenda, our partner for Wimbledon, Roland-Garros and the Italian Open \u2014 sophiewalker@sportingagenda.co.uk \u00b7 +44 (0) 1488 649 770 \u00b7 toll-free from the US +1 866 508 8467 \u00b7 sportingagenda.co.uk. Tell her the days you want and the level; she confirms what is available and invoices in sterling.",
+        broker: { who: "Sophie Walker", first: "Sophie", firm: "Sporting Agenda", city: "London", email: "sophiewalker@sportingagenda.co.uk", phone: "+44 (0) 1488 649 770", phoneUS: "+1 866 508 8467 toll-free from the US", site: "sportingagenda.co.uk", unit: "Debenture seats", pairs: true, seatsDefault: 2,
+          intro: "Your seats are arranged by our Debenture broker in London \u2014 highly experienced with Wimbledon, and the reason the days above can be had at all. Choose your days here; once you build your trip, one tap sends the request with everything filled in.",
+          closing: "Please confirm availability and the price, and invoice in sterling as usual." },
         stayNote: "We prefer to stay in London so we can take advantage of all the great shopping and dining when not at the AEC. So, here are our picks for a truly great London hotel.",
         stay: [
           { name: "The Cadogan, a Belmond Hotel", area: "Chelsea", rate: 1150, note: "In Chelsea, so a touch closer to SW19 — quietly perfect, with a Michelin table and Cadogan Gardens at the door." },
@@ -15964,7 +15966,9 @@ const ONE_LIST = {
         ],
         daysSubTitle: "The fortnight",
         days: "A fortnight on the red clay of the Bois de Boulogne — the longest, most physical tennis of the year. The first week is for roaming (every court in play, stars everywhere, the best value); the second week concentrates the drama on Chatrier under the roof and lights. Do both a day session and a night session if you can — they feel completely different.",
-        ticketContact: "Tickets and hospitality are arranged through SOPHIE WALKER at Sporting Agenda, our partner for Wimbledon, Roland-Garros and the Italian Open \u2014 sophiewalker@sportingagenda.co.uk \u00b7 +44 (0) 1488 649 770 \u00b7 toll-free from the US +1 866 508 8467 \u00b7 sportingagenda.co.uk. Tell her the days you want and the level; she confirms what is available and invoices in sterling.",
+        broker: { who: "Sophie Walker", first: "Sophie", firm: "Sporting Agenda", city: "London", email: "sophiewalker@sportingagenda.co.uk", phone: "+44 (0) 1488 649 770", phoneUS: "+1 866 508 8467 toll-free from the US", site: "sportingagenda.co.uk", unit: "Court Philippe-Chatrier seats with hospitality", pairs: false, seatsDefault: 2,
+          intro: "Your seats and hospitality are arranged by our broker in London \u2014 highly experienced with Roland-Garros. Choose your days and your restaurant here; once you build your trip, one tap sends the request with everything filled in.",
+          closing: "Please confirm availability and the price, and invoice in sterling as usual." },
         stayNote: "Here's the insider move: the players' Paris is the leafy 16th, out by the Bois de Boulogne — not the central palaces. So we base you in fabulous hotels on that side of the city, closer to the courts than most (roughly 10–20 minutes) without sacrificing an ounce of glamour. Prefer the thick of central Paris? Choose any address in the full collection below — the Ritz, Le Bristol, Cheval Blanc and the rest — and we'll arrange the cars.",
         stayCollection: "Paris",
         stay: [
@@ -18914,11 +18918,12 @@ function OneList({ onPick, onBack, onHome, initial }) {
             </div>) : null)}
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
           {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
+          {g.broker && !(g.tickets || g.ticketNote) ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.broker.intro}</div> : null}
           {photoBand(1)}
           {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.reminders && g.reminders.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.reminders.map((r, k) => <CalendarButton key={k} label={r.label} event={r.ics} filename={r.filename} />)}</div>) : null}{g.pricing ? <PricingGuide pricing={g.pricing} /> : null}{g.sale && (!g.buildOnly || g.accessOnPage) ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && (!g.buildOnly || g.accessOnPage) ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
-          </div>) : null}{g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
+          </div>) : null}{g.broker ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.broker.intro}</div> : g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
           {photoBand(2)}
           {g.costumes ? (<div>{secHead(g.costumesTitle || "Costumes & masks")}{g.costumeNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.costumeNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -23313,6 +23318,58 @@ function findExperience(title) {
 // EVENT TICKETS, INSIDE THE TRIP. The event page explains; this is where the ticket is bought and
 // recorded, in its place between the hotel and the dinners. Which ticket, in one line; the official
 // link; and a record — date, guests, reference — that prints on the itinerary.
+// REQUEST THE SEATS, SOUP TO NUTS (Tricia, 23 Oct 2026). On the guide the broker is "our Debenture
+// broker in London" and nothing more — the name, the e-mail and the numbers do not belong there.
+// Here, once the trip is built, the days the client chose are already in the message: one tap
+// opens their mail with the request written, addressed to the broker, with the days, the court,
+// the number of seats, their name and their hotel. The phone numbers are information; the e-mail
+// is the action. Universal: any experience whose guide carries a `broker` gets this panel.
+function BrokerRequest({ ev, g, d, tk, set }) {
+  const b = g.broker; const pk = d.pick || {};
+  const days = (pk.sports || []).filter((x) => x && x.date).slice().sort((a, c) => String(a.date).localeCompare(String(c.date)));
+  const seats = Number(tk.seats) || b.seatsDefault || 2;
+  const name = tk.name || "";
+  const stay = pk.stay && pk.stay.name ? pk.stay.name : "";
+  const year = String(ev.start || "").slice(0, 4);
+  const esc = (x) => String(x).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const dayLine = (x) => "\u2022 " + String(x.name || "").replace(new RegExp("^" + esc(ev.title) + "\\s*\u00b7\\s*"), "").replace(/\s*\u00a3[\d,]+/g, "").trim();
+  const lines = days.map(dayLine);
+  const body = [
+    `Hello ${b.first || b.who},`, "",
+    `I'm planning ${ev.title}${year ? " " + year : ""} through Voyage One and would like to request ${b.unit || "tickets"} for:`, "",
+    ...(lines.length ? lines : ["\u2022 (days to be confirmed)"]), "",
+    `Seats: ${seats}${b.pairs ? " (I understand they are sold in pairs)" : ""}`,
+    `Name: ${name}`,
+    ...(stay ? [`Staying at: ${stay}`] : []), "",
+    b.closing || "Please confirm availability and the price.", "",
+    "Thank you,", name, "",
+    "\u2014 sent from Voyage One \u00b7 voyageoneworld.com",
+  ].join("\n");
+  const subject = `${ev.title}${year ? " " + year : ""} \u2014 ${b.unit || "ticket"} request via Voyage One`;
+  const href = `mailto:${b.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`.replace(/'/g, "%27");   // apostrophes encoded too — some mail apps cut the body at a bare one
+  const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
+  const stepBtn = { width: 34, height: 34, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 18, cursor: "pointer" };
+  return (<div style={{ marginBottom: 14, padding: "14px 16px", background: t.card, borderLeft: `3px solid ${t.pine}`, borderRadius: 12 }}>
+    <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Request your {b.unit || "tickets"}</div>
+    {lines.length ? (<div style={{ fontSize: 14, color: t.ink, lineHeight: 1.7 }}>{lines.map((l, k) => <div key={k}>{l}</div>)}</div>)
+      : <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>Choose your days on the {ev.title} page and they appear here, ready to send.</div>}
+    <div className="vo-noprint" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
+      <span style={{ fontSize: 13.5, color: t.inkSoft }}>Seats</span>
+      <button onClick={() => set({ seats: Math.max(1, seats - (b.pairs ? 2 : 1)) })} style={stepBtn}>{"\u2212"}</button>
+      <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink, minWidth: 22, textAlign: "center" }}>{seats}</span>
+      <button onClick={() => set({ seats: Math.min(20, seats + (b.pairs ? 2 : 1)) })} style={stepBtn}>+</button>
+      <input placeholder="Your name" value={name} onChange={(e) => set({ name: e.target.value })} style={{ ...inp, minWidth: 180 }} />
+    </div>
+    <div className="vo-noprint" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
+      <a href={href} onClick={() => set({ requested: true })} style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "11px 20px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>E-mail the request</a>
+      {tk.requested ? <span style={{ fontSize: 12.5, color: t.pine, fontWeight: 600 }}>{"Requested \u00b7 awaiting confirmation"}</span> : null}
+    </div>
+    <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.6, marginTop: 10 }}>
+      Your mail opens with the request written {"\u2014"} send it as it is, or add anything you like. <strong style={{ color: t.ink }}>{b.who}</strong> at {b.firm}, {b.city}, confirms what is available and invoices you directly.
+    </div>
+    <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.6, marginTop: 4 }}>{b.email}{b.phone ? ` \u00b7 ${b.phone}` : ""}{b.phoneUS ? ` \u00b7 ${b.phoneUS}` : ""}{b.site ? ` \u00b7 ${b.site}` : ""}</div>
+  </div>);
+}
 function EventTicketsPanel({ d, upd, p }) {
   const ev = findExperience(d.event); if (!ev || !ev.guide) return null;
   const g = ev.guide; const tk = (d.pick && d.pick.eventTicket) || {};
@@ -23330,6 +23387,7 @@ function EventTicketsPanel({ d, upd, p }) {
   const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
   const pill = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" });
   return (<Panel icon={Ticket} title={`${ev.title} \u00b7 tickets`}>
+    {g.broker ? <BrokerRequest ev={ev} g={g} d={d} tk={tk} set={set} /> : null}
     {rec ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}><strong>The ticket you need:</strong> {rec.label}{rec.price ? <span style={{ color: t.inkSoft }}> — {rec.price}</span> : null}</div> : (g.ticketBands && g.ticketBands.length ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{g.ticketBands.slice(0, 3).map((b, k) => <div key={k}><strong>{b.label}</strong>{b.price ? <span style={{ color: t.inkSoft }}> — {b.price}</span> : null}</div>)}</div> : null)}
     {g.ticketNote ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 6 }}>{g.ticketNote}</div> : null}
     {g.sale ? <TicketSale sale={g.sale} title={ev.title} compact /> : null}
@@ -23368,15 +23426,15 @@ function EventTicketsPanel({ d, upd, p }) {
       {(g.ticketLinks || []).map((l, k) => <a key={k} href={brandedLink(l.url, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}
     </div>
     <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${t.line}` }}>
-      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Record your tickets<Hint text="Tickets are bought on the official site, not here. Once you have them, say so, with the date and the number of guests, and they go on your itinerary." /></div>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Record your tickets<Hint text={g.broker ? `Once ${g.broker.who} confirms your seats, say so here, with the date and the number of guests, and they go on your itinerary.` : "Tickets are bought on the official site, not here. Once you have them, say so, with the date and the number of guests, and they go on your itinerary."} /></div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        <button onClick={() => set({ booked: true })} style={pill(!!tk.booked)}>Purchased</button>
+        <button onClick={() => set({ booked: true })} style={pill(!!tk.booked)}>{g.broker ? "Confirmed" : "Purchased"}</button>
         <button onClick={() => set({ booked: false })} style={pill(!tk.booked)}>No</button>
         <input type="date" value={tk.date || ""} onChange={(e) => set({ date: e.target.value })} style={inp} />
         <input type="number" min={1} max={20} placeholder="Guests" value={tk.guests || ""} onChange={(e) => set({ guests: e.target.value })} style={{ ...inp, width: 90 }} />
         <input placeholder="Reference (optional)" value={tk.ref || ""} onChange={(e) => set({ ref: e.target.value })} style={{ ...inp, minWidth: 180 }} />
       </div>
-      {tk.booked ? <div style={{ fontSize: 13, color: t.pine, marginTop: 8 }}>✓ {ev.title} tickets{tk.date ? ` \u00b7 ${fmtDay(new Date(tk.date + "T00:00:00"))}` : ""}{tk.guests ? ` \u00b7 ${tk.guests} ${Number(tk.guests) === 1 ? "guest" : "guests"}` : ""} \u00b7 purchased externally through official ticketing{tk.ref ? ` \u00b7 ${tk.ref}` : ""}</div> : null}
+      {tk.booked ? <div style={{ fontSize: 13, color: t.pine, marginTop: 8 }}>✓ {ev.title} tickets{tk.date ? ` \u00b7 ${fmtDay(new Date(tk.date + "T00:00:00"))}` : ""}{tk.guests ? ` \u00b7 ${tk.guests} ${Number(tk.guests) === 1 ? "guest" : "guests"}` : ""} \u00b7 {g.broker ? `arranged through ${g.broker.firm}` : "purchased externally through official ticketing"}{tk.ref ? ` \u00b7 ${tk.ref}` : ""}</div> : null}
     </div>
   </Panel>);
 }
