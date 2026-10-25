@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -32,7 +32,7 @@ const MODEL = "claude-haiku-4-5-20251001";
 // client sees); without it they still try the bundled browser, which works on hosts that have
 // the library. ?debug=1 reports which one answered.
 async function openBrowser() {
-  const token = process.env.BROWSERLESS_TOKEN;
+  const token = (process.env.BROWSERLESS_TOKEN || "").trim();
   if (token) {
     const region = process.env.BROWSERLESS_REGION || "production-sfo";
     const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true`;
@@ -86,6 +86,7 @@ async function findBookingLink(site) {
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
+  res.setHeader("Cache-Control", "no-store");
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   const q = req.query || {};
   const hotel = String(q.hotel || "").slice(0, 120).trim();
@@ -118,7 +119,7 @@ export default async function handler(req, res) {
     finalUrl = page.url();
   } catch (e) {
     if (browser) { try { await browser.close(); } catch (x) {} }
-    return res.status(200).json({ ok: false, reason: "browser", node: process.version, detail: String(e && e.message || e).slice(0, 700), url });
+    res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "browser", node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), detail: String(e && e.message || e).slice(0, 700), url });
   }
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 60000);
