@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; launch flags + Node 22 M975, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -18,12 +18,12 @@
 //     card says "Rate confirmed by the hotel". Add an engine = add one line to ENGINES.
 //   • A redesign at a brand breaks its line until the pattern is updated — the card then shows no
 //     price for that brand rather than a wrong one. Nothing is ever estimated.
-//   • Needs a browser on the server: package.json adds playwright-core + @sparticuz/chromium and
+//   • Needs a browser on the server: package.json adds puppeteer-core + @sparticuz/chromium and
 //     vercel.json gives this function 60 seconds and 1.5 GB. Needs ANTHROPIC_API_KEY (already set).
 //   • Cached 5 minutes per hotel/dates/party; never searched in the background.
 
 import chromiumPkg from "@sparticuz/chromium";
-import { chromium } from "playwright-core";
+import puppeteer from "puppeteer-core";
 
 const MODEL = "claude-haiku-4-5-20251001";
 const UA = "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
@@ -88,20 +88,21 @@ export default async function handler(req, res) {
   // 2. A real browser opens the rate page for those dates and reads what a guest would see.
   let text = "", finalUrl = url, browser = null;
   try {
-    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server: the usual cause of a launch crash
-    browser = await chromium.launch({ args: [...chromiumPkg.args, "--disable-gpu", "--single-process", "--no-zygote"], executablePath: await chromiumPkg.executablePath(), headless: true });
-    const ctx = await browser.newContext({ userAgent: UA, viewport: { width: 1180, height: 1600 }, locale: "en-US" });
-    const page = await ctx.newPage();
+    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server
+    browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
+    const page = await browser.newPage();
+    await page.setUserAgent(UA);
+    await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-    try { await page.waitForLoadState("networkidle", { timeout: 15000 }); } catch (e) {}
+    try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
     // Prices arrive after the app renders; give it a moment, then scroll so lazy rows appear.
-    await page.waitForTimeout(2500);
-    try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await page.waitForTimeout(1500); } catch (e) {}
+    await new Promise((r) => setTimeout(r, 2500));
+    try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await new Promise((r) => setTimeout(r, 1500)); } catch (e) {}
     text = await page.evaluate(() => document.body ? document.body.innerText : "");
     finalUrl = page.url();
   } catch (e) {
     if (browser) { try { await browser.close(); } catch (x) {} }
-    return res.status(200).json({ ok: false, reason: "browser", detail: String(e && e.message || e).slice(0, 200), url });
+    return res.status(200).json({ ok: false, reason: "browser", node: process.version, detail: String(e && e.message || e).slice(0, 700), url });
   }
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 60000);
