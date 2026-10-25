@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; launch flags + Node 22 M975, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -88,7 +88,8 @@ export default async function handler(req, res) {
   // 2. A real browser opens the rate page for those dates and reads what a guest would see.
   let text = "", finalUrl = url, browser = null;
   try {
-    browser = await chromium.launch({ args: chromiumPkg.args, executablePath: await chromiumPkg.executablePath(), headless: true });
+    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server: the usual cause of a launch crash
+    browser = await chromium.launch({ args: [...chromiumPkg.args, "--disable-gpu", "--single-process", "--no-zygote"], executablePath: await chromiumPkg.executablePath(), headless: true });
     const ctx = await browser.newContext({ userAgent: UA, viewport: { width: 1180, height: 1600 }, locale: "en-US" });
     const page = await ctx.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
