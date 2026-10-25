@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -35,7 +35,7 @@ async function openBrowser() {
   const token = (process.env.BROWSERLESS_TOKEN || "").trim();
   if (token) {
     const region = process.env.BROWSERLESS_REGION || "production-sfo";
-    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true`;
+    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true&timeout=90000`;
     const browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: { width: 1180, height: 1600 } });
     return { browser, via: "browserless" };
   }
@@ -129,6 +129,8 @@ export default async function handler(req, res) {
   const checkIn = String(q.checkIn || ""), checkOut = String(q.checkOut || "");
   const pax = Math.min(6, Math.max(1, parseInt(q.pax, 10) || 2));
   const debug = String(q.debug || "") === "1";
+  const stage = String(q.stage || "");   // "link" | "page" | "" (full) — M986 diagnostics
+  const T0 = Date.now(); const ms = () => Date.now() - T0;
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
   LOG.length = 0;
@@ -142,7 +144,10 @@ export default async function handler(req, res) {
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     // 1. The hotel's own booking link, and the engine it belongs to.
+    LOG.push({ step: "browser-open", via, ms: ms() });
     try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site) || await findBookingLink(site, page, via); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
+    LOG.push({ step: "link", link, ms: ms() });
+    if (stage === "link") { await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: !!link, stage, link, log: LOG }); }
     if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
     engine = ENGINES.find((e) => e.test.test(link));
     const built = engine ? engine.build(link, checkIn, checkOut, pax) : null;
@@ -179,7 +184,7 @@ export default async function handler(req, res) {
       }
       text = t;
       finalUrl = page.url();
-      LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, priced: looksPriced(text || "") });
+      LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, priced: looksPriced(text || ""), ms: ms() });
       if (looksPriced(text || "")) break;
       if (Date.now() - started > 70000) break;   // leave time for the reading step
     }
@@ -189,6 +194,7 @@ export default async function handler(req, res) {
   }
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 30000);
+  if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000) }); }
   if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
 
   // 3. The page as data: rooms and their rate plans, exactly as shown.
