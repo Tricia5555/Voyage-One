@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -35,7 +35,9 @@ async function openBrowser() {
   const token = (process.env.BROWSERLESS_TOKEN || "").trim();
   if (token) {
     const region = process.env.BROWSERLESS_REGION || "production-sfo";
-    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true&timeout=90000`;
+    // No ad blocking: booking apps load through tag managers and testing tools (Four Seasons waits
+    // for Optimizely before it draws a single room), and a blocker leaves a blank shell (M988).
+    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&timeout=90000`;
     const browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: { width: 1180, height: 1600 } });
     return { browser, via: "browserless" };
   }
@@ -191,7 +193,8 @@ export default async function handler(req, res) {
     };
     const readText = async () => {
       let out = "";
-      try { for (const f of page.frames()) { try { out += (await f.evaluate(deepText)) + "\n"; } catch (e) {} } } catch (e) {}
+      const within = (p, n) => Promise.race([p, new Promise((r) => setTimeout(() => r(""), n))]);
+      try { for (const f of page.frames()) { try { out += (await within(f.evaluate(deepText), 1500)) + "\n"; } catch (e) {} } } catch (e) {}
       if (!out.trim()) { try { out = await page.evaluate(() => document.body ? document.body.innerText : ""); } catch (e) {} }
       return out;
     };
@@ -205,6 +208,7 @@ export default async function handler(req, res) {
       // Prices arrive after the app renders: poll for up to 14 s, scrolling so lazy rows appear.
       let t = "";
       for (let i = 0; i < 14; i++) {
+        if (ms() > 45000) break;   // keep the whole answer inside Safari's patience
         await new Promise((r) => setTimeout(r, 1000));
         if (!agreed && i === 2) agreed = await agreeCookies();
         try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); } catch (e) {}
