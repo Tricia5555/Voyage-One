@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -26,6 +26,23 @@ import chromiumPkg from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
 const MODEL = "claude-haiku-4-5-20251001";
+// WHERE THE BROWSER RUNS (M977, 25 Oct 2026). Vercel's function image lacks a system library the
+// bundled Chromium needs ("libnss3.so"), so the browser is hosted: with BROWSERLESS_TOKEN set in
+// Vercel, the readers connect to Browserless (plumbing, like Vercel or Supabase — nothing a
+// client sees); without it they still try the bundled browser, which works on hosts that have
+// the library. ?debug=1 reports which one answered.
+async function openBrowser() {
+  const token = process.env.BROWSERLESS_TOKEN;
+  if (token) {
+    const region = process.env.BROWSERLESS_REGION || "production-sfo";
+    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true`;
+    const browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: { width: 1180, height: 1600 } });
+    return { browser, via: "browserless" };
+  }
+  chromiumPkg.setGraphicsMode = false;
+  const browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
+  return { browser, via: "bundled" };
+}
 const UA = "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
 // Which engine a booking link belongs to, and how that engine takes dates and guests.
@@ -86,10 +103,9 @@ export default async function handler(req, res) {
   if (!url) return res.status(200).json({ ok: false, reason: "unsupported-engine", hotel, link });
 
   // 2. A real browser opens the rate page for those dates and reads what a guest would see.
-  let text = "", finalUrl = url, browser = null;
+  let text = "", finalUrl = url, browser = null, via = "";
   try {
-    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server
-    browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
+    const opened = await openBrowser(); browser = opened.browser; via = opened.via;
     const page = await browser.newPage();
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
@@ -143,5 +159,5 @@ ${text}`;
   }
   if (!Object.keys(rates).length) return res.status(200).json({ ok: false, reason: "no-rates-visible", url: finalUrl, sample: debug ? text.slice(0, 3000) : undefined });
   res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=300");
-  return res.status(200).json({ ok: true, hotel, checkIn, checkOut, pax, engine: engine.name, source: finalUrl, currency, rates, sample: debug ? text.slice(0, 3000) : undefined });
+  return res.status(200).json({ ok: true, hotel, checkIn, checkOut, pax, engine: engine.name, source: finalUrl, currency, rates, via: debug ? via : undefined, sample: debug ? text.slice(0, 3000) : undefined });
 }
