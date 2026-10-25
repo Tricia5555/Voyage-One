@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -83,32 +83,25 @@ function linkIn(html, baseUrl) {
   while ((m = re.exec(html))) { try { urls.push(new URL(m[1].replace(/&amp;/g, "&"), baseUrl).toString()); } catch (e) {} }
   return bestLink(urls);
 }
-async function findBookingLink(site) {
+const LINK_CACHE = {};   // hotel site → booking link, for the life of the function instance
+async function findBookingLink(site, page, via) {
+  if (LINK_CACHE[site]) { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
-  const pages = [base, base.replace(/\/+$/, "") + "/accommodations", base.replace(/\/+$/, "") + "/rooms"];
-  // Plain requests first (fast); the hotels that refuse them get the hosted browser (M981).
+  const pages = [base, base.replace(/\/+$/, "") + "/accommodations"];
+  // One plain request (fast); a hotel that refuses it gets the browser (M981/M984).
+  let got = null; try { got = await fetchText(base); } catch (e) { got = null; }
+  LOG.push({ step: "find-link", url: base, via: "fetch", ok: !!got });
+  if (got) { const u = linkIn(got.html, got.url); if (u) { LINK_CACHE[site] = u; return u; } }
   for (const p of pages) {
-    let got = null; try { got = await fetchText(p); } catch (e) { got = null; }
-    LOG.push({ step: "find-link", url: p, via: "fetch", ok: !!got });
-    if (!got) continue;
-    const u = linkIn(got.html, got.url); if (u) return u;
+    try {
+      await page.goto(p, { waitUntil: "domcontentloaded", timeout: 20000 });
+      try { await page.waitForNetworkIdle({ idleTime: 600, timeout: 6000 }); } catch (e) {}
+      const hrefs = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href));
+      LOG.push({ step: "find-link", url: p, via: "browser:" + via, links: hrefs.length });
+      const u = bestLink(hrefs);
+      if (u) { LINK_CACHE[site] = u; return u; }
+    } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
   }
-  let browser = null;
-  try {
-    const opened = await openBrowser(); browser = opened.browser;
-    const page = await browser.newPage(); await page.setUserAgent(UA);
-    for (const p of pages.slice(0, 2)) {
-      try {
-        await page.goto(p, { waitUntil: "domcontentloaded", timeout: 25000 });
-        try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
-        const hrefs = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href));
-        LOG.push({ step: "find-link", url: p, via: "browser:" + opened.via, links: hrefs.length });
-        const u = bestLink(hrefs);
-        if (u) { await browser.close(); return u; }
-      } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
-    }
-    await browser.close();
-  } catch (e) { LOG.push({ step: "find-link", via: "browser", error: String(e && e.message || e).slice(0, 300) }); if (browser) { try { await browser.close(); } catch (x) {} } }
   return null;
 }
 
@@ -125,24 +118,25 @@ export default async function handler(req, res) {
   const debug = String(q.debug || "") === "1";
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
-  // 1. The hotel's own booking link, and the engine it belongs to.
   LOG.length = 0;
-  let link = null; try { link = await findBookingLink(site); } catch (e) { link = null; }
-  if (!link) return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined });
-  const engine = ENGINES.find((e) => e.test.test(link));
-  const built = engine ? engine.build(link, checkIn, checkOut, pax) : null;
-  const candidates = Array.isArray(built) ? built.filter(Boolean) : built ? [built] : [];
-  if (!candidates.length) return res.status(200).json({ ok: false, reason: "unsupported-engine", hotel, link });
-
-  // 2. A real browser opens the rate page for those dates and reads what a guest would see.
-  //    Each candidate address is tried until one shows prices.
-  let text = "", finalUrl = candidates[0], browser = null, via = "", url = candidates[0];
+  const started = Date.now();
+  let text = "", finalUrl = "", browser = null, via = "", url = "", link = null, engine = null, candidates = [];
   const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP)\s?\d{2,3}(?:[,.]\d{3})*|\d{2,3}(?:[,.]\d{3})*\s?(?:USD|EUR|GBP|€|£)/.test(t);
   try {
+    // One browser for the whole job (M984): find the hotel's booking link, then read the rates.
     const opened = await openBrowser(); browser = opened.browser; via = opened.via;
     const page = await browser.newPage();
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
+    // 1. The hotel's own booking link, and the engine it belongs to.
+    try { link = await findBookingLink(site, page, via); } catch (e) { link = null; }
+    if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
+    engine = ENGINES.find((e) => e.test.test(link));
+    const built = engine ? engine.build(link, checkIn, checkOut, pax) : null;
+    candidates = Array.isArray(built) ? built.filter(Boolean) : built ? [built] : [];
+    if (!candidates.length) { await browser.close(); return res.status(200).json({ ok: false, reason: "unsupported-engine", hotel, link }); }
+    url = candidates[0]; finalUrl = url;
+    // 2. The rate page for those dates, read as a guest would see it.
     // Tap the cookie banner's Agree/Accept, as a guest would — the Four Seasons app hides the
     // rooms behind it (M983). Harmless on pages without one.
     const agreeCookies = async () => {
@@ -161,9 +155,9 @@ export default async function handler(req, res) {
       await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 25000 });
       try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
       let agreed = await agreeCookies();
-      // Prices arrive after the app renders: poll for up to 20 s, scrolling so lazy rows appear.
+      // Prices arrive after the app renders: poll for up to 14 s, scrolling so lazy rows appear.
       let t = "";
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 14; i++) {
         await new Promise((r) => setTimeout(r, 1000));
         if (!agreed && i === 2) agreed = await agreeCookies();
         try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); } catch (e) {}
@@ -174,6 +168,7 @@ export default async function handler(req, res) {
       finalUrl = page.url();
       LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, priced: looksPriced(text || "") });
       if (looksPriced(text || "")) break;
+      if (Date.now() - started > 70000) break;   // leave time for the reading step
     }
   } catch (e) {
     if (browser) { try { await browser.close(); } catch (x) {} }
