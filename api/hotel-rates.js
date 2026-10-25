@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
 
   LOG.length = 0;
   const started = Date.now();
-  let text = "", finalUrl = "", browser = null, via = "", url = "", link = null, engine = null, candidates = [];
+  let text = "", finalUrl = "", browser = null, via = "", url = "", link = null, engine = null, candidates = [], htmlPeek = "";
   const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP)\s?\d{2,3}(?:[,.]\d{3})*|\d{2,3}(?:[,.]\d{3})*\s?(?:USD|EUR|GBP|€|£)/.test(t);
   try {
     // One browser for the whole job (M984): find the hotel's booking link, then read the rates.
@@ -167,12 +167,41 @@ export default async function handler(req, res) {
         });
       } catch (e) { return null; }
     };
-    const readText = async () => { try { return await page.evaluate(() => document.body ? document.body.innerText : ""); } catch (e) { return ""; } };
+    // Read the text of EVERY frame and every sealed (shadow) component, not just the outer page —
+    // the Four Seasons app rendered zero visible characters to the plain read (M987).
+    const deepText = () => {
+      const seen = new Set();
+      const walk = (root) => {
+        let out = "";
+        const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+        let n;
+        while ((n = w.nextNode())) {
+          if (n.nodeType === 3) {
+            const pt = n.parentNode && n.parentNode.tagName;
+            if (pt && /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(pt)) continue;
+            const t = n.textContent; if (t && t.trim()) out += t.trim() + " ";
+          } else {
+            if (n.shadowRoot && !seen.has(n.shadowRoot)) { seen.add(n.shadowRoot); out += walk(n.shadowRoot); }
+            if (/^(P|DIV|LI|TR|H[1-6]|SECTION|ARTICLE|BUTTON)$/.test(n.tagName)) out += String.fromCharCode(10);
+          }
+        }
+        return out;
+      };
+      return walk(document.body || document.documentElement);
+    };
+    const readText = async () => {
+      let out = "";
+      try { for (const f of page.frames()) { try { out += (await f.evaluate(deepText)) + "\n"; } catch (e) {} } } catch (e) {}
+      if (!out.trim()) { try { out = await page.evaluate(() => document.body ? document.body.innerText : ""); } catch (e) {} }
+      return out;
+    };
+    const pageSize = async () => { try { return (await page.content()).length; } catch (e) { return 0; } };
     for (const cand of candidates) {
       url = cand;
       await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 25000 });
       try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
       let agreed = await agreeCookies();
+      if (agreed) { try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {} }
       // Prices arrive after the app renders: poll for up to 14 s, scrolling so lazy rows appear.
       let t = "";
       for (let i = 0; i < 14; i++) {
@@ -184,9 +213,10 @@ export default async function handler(req, res) {
       }
       text = t;
       finalUrl = page.url();
-      LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, priced: looksPriced(text || ""), ms: ms() });
+      if ((t || "").trim().length < 200) { try { htmlPeek = (await page.content()).replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/\s+/g, " ").slice(0, 3000); } catch (e) {} }
+      LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, html: await pageSize(), frames: page.frames().length, priced: looksPriced(text || ""), ms: ms() });
       if (looksPriced(text || "")) break;
-      if (Date.now() - started > 70000) break;   // leave time for the reading step
+      if (Date.now() - started > 25000) break;   // Safari gives up at ~60 s: a second try only when the first failed fast
     }
   } catch (e) {
     if (browser) { try { await browser.close(); } catch (x) {} }
@@ -194,7 +224,7 @@ export default async function handler(req, res) {
   }
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 30000);
-  if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000) }); }
+  if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000), htmlPeek: text.length < 200 ? htmlPeek : undefined }); }
   if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
 
   // 3. The page as data: rooms and their rate plans, exactly as shown.
