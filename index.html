@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M973";
+const BUILD = "M974";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22001,20 +22001,24 @@ function useHotelRooms(hotel, site) {
 // the hotel confirms the rate. Shape when live: { [roomName]: [{ plan, price, currency, perNight,
 // cancel, benefits }] } — the card already renders it.
 const RATES_CACHE = {};
-function useRoomRates(hotel, checkIn, checkOut, pax) {
-  const key = hotel && checkIn && checkOut ? `${hotel}|${checkIn}|${checkOut}|${pax || 2}` : "";
-  const [rates, setRates] = useState(key && RATES_CACHE[key] !== undefined ? RATES_CACHE[key] : null);
+// Returns { rates, status } — status "loading" while the hotel's booking engine is being read
+// (20–40 s through the hosted browser), "ok" with rates, or "none". M974: the request now carries
+// the hotel's website (the server refuses one without it — M973 never sent it, so no tile could
+// show a rate), and the tiles say "Checking rates with the hotel…" instead of nothing.
+function useRoomRates(hotel, site, checkIn, checkOut, pax) {
+  const key = hotel && site && checkIn && checkOut ? `${hotel}|${site}|${checkIn}|${checkOut}|${pax || 2}` : "";
+  const [state, setState] = useState(key && RATES_CACHE[key] !== undefined ? RATES_CACHE[key] : { rates: null, status: key ? "loading" : "none" });
   useEffect(() => {
     if (!key) return;
-    if (RATES_CACHE[key] !== undefined) { setRates(RATES_CACHE[key]); return; }
+    if (RATES_CACHE[key] !== undefined) { setState(RATES_CACHE[key]); return; }
     let dead = false;
-    fetch(`/api/hotel-rates?hotel=${encodeURIComponent(hotel)}&checkIn=${checkIn}&checkOut=${checkOut}&pax=${pax || 2}`)
+    fetch(`/api/hotel-rates?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&checkIn=${checkIn}&checkOut=${checkOut}&pax=${pax || 2}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const v = j && j.ok && j.rates ? j.rates : null; RATES_CACHE[key] = v; if (!dead) setRates(v); })
-      .catch(() => { RATES_CACHE[key] = null; if (!dead) setRates(null); });
+      .then((j) => { const rec = j && j.ok && j.rates ? { rates: j.rates, status: "ok" } : { rates: null, status: "none" }; RATES_CACHE[key] = rec; if (!dead) setState(rec); })
+      .catch(() => { const rec = { rates: null, status: "none" }; RATES_CACHE[key] = rec; if (!dead) setState(rec); });
     return () => { dead = true; };
   }, [key]);
-  return rates;
+  return state;
 }
 const fmtRate = (pl) => `${pl.currency || ""} ${Number(pl.price).toLocaleString("en-US")}`.trim() + (pl.perNight ? " / night" : " for the stay");
 function ratesFor(rates, name) {
@@ -22023,7 +22027,7 @@ function ratesFor(rates, name) {
   const k = dnrm(name); const hit = Object.keys(rates).find((x) => dnrm(x) === k) || Object.keys(rates).find((x) => dnrm(x).includes(k) || k.includes(dnrm(x)));
   return hit ? rates[hit] : null;
 }
-function RoomTile({ r, chosen, onChoose, rates, chosenPlan }) {
+function RoomTile({ r, chosen, onChoose, rates, ratesStatus, chosenPlan }) {
   const [bad, setBad] = useState(false);
   const img = r.images && r.images[0];
   const plans = ratesFor(rates, r.name);
@@ -22042,15 +22046,16 @@ function RoomTile({ r, chosen, onChoose, rates, chosenPlan }) {
           <div key={k} role="button" onClick={(e) => { e.stopPropagation(); onChoose(r, pl); }} style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.45, padding: "5px 8px", margin: "3px 0", borderRadius: 8, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.white : "transparent", cursor: "pointer" }}>
             <strong>{fmtRate(pl)}</strong>{pl.plan ? ` · ${pl.plan}` : ""}{pl.benefits ? <div style={{ color: t.pine, fontSize: 11.5 }}>{pl.benefits}</div> : null}{pl.cancel ? <div style={{ color: t.inkFaint, fontSize: 11 }}>{pl.cancel}</div> : null}
           </div>); })}</div>)
-        : <div style={{ fontSize: 11, color: t.inkFaint, marginTop: 6, fontStyle: "italic" }}>Rate confirmed by the hotel</div>}
+        : <div style={{ fontSize: 11, color: t.inkFaint, marginTop: 6, fontStyle: "italic" }}>{ratesStatus === "loading" ? "Checking rates with the hotel…" : "Rate confirmed by the hotel"}</div>}
       <div style={{ fontSize: 11.5, color: chosen ? t.pine : t.brass, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", marginTop: 8 }}>{chosen ? "✓ Your room" : soldOut ? "" : "Choose this room"}</div>
     </div>
   </button>);
 }
-function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax }) {
+function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax, onStatus }) {
   const { rooms, status } = useHotelRooms(hotel, site);
-  const rates = useRoomRates(hotel, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax);
+  const { rates, status: ratesStatus } = useRoomRates(hotel, site, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax);
   const [all, setAll] = useState(false);
+  useEffect(() => { if (onStatus) onStatus(status); }, [status]);
   if (status === "loading") return <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 10 }}>Fetching the rooms from {hotel}…</div>;
   if (!rooms) return null;
   const chosenName = chosen && chosen.name ? dnrm(chosen.name) : "";
@@ -22059,10 +22064,10 @@ function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax }) {
   return (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 12 }}>
     <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Rooms & suites · choose yours</div>
     <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))" }}>
-      {show.map((r, k) => <RoomTile key={k} r={r} chosen={chosenName && dnrm(r.name) === chosenName} onChoose={onChoose} rates={rates} chosenPlan={chosen && chosen.plan} />)}
+      {show.map((r, k) => <RoomTile key={k} r={r} chosen={chosenName && dnrm(r.name) === chosenName} onChoose={onChoose} rates={rates} ratesStatus={ratesStatus} chosenPlan={chosen && chosen.plan} />)}
     </div>
     {rooms.length > 6 && !all ? <button type="button" onClick={() => setAll(true)} style={{ marginTop: 10, background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", fontSize: 12.5, color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>See all {rooms.length} rooms and suites{cats.length > 1 ? "" : ""}</button> : null}
-    <div style={{ fontSize: 11, color: t.inkFaint, lineHeight: 1.5, marginTop: 8 }}>{rates ? `Rooms, photographs and rates as published by ${hotel} for your dates.` : `Rooms and photographs as published by ${hotel}.`}</div>
+    <div style={{ fontSize: 11, color: t.inkFaint, lineHeight: 1.5, marginTop: 8 }}>{rates ? `Rooms, photographs and rates as published by ${hotel} for your dates.` : ratesStatus === "loading" ? `Rooms and photographs as published by ${hotel} — reading its rates for your dates now.` : `Rooms and photographs as published by ${hotel}.`}</div>
   </div>);
 }
 // WHILE THEY ARE ON THE HOTEL'S SITE our tab stays open with this on its right edge, so coming
@@ -22130,6 +22135,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
   const [bad, setBad] = useState(null);
   const [reserve, setReserve] = useState(false);   // the "Reserve through Voyage One" sheet
   const [localRoom, setLocalRoom] = useState(null); // the chosen room when no trip holds it (Explore)
+  const [roomsStatus, setRoomsStatus] = useState("none"); // "loading" while the hotel's rooms are being fetched
   const roomChosen = room || localRoom;
   const chooseRoom = (r, pl) => { const v = r ? { ...r, plan: pl && !pl.soldOut ? { plan: pl.plan, price: pl.price, currency: pl.currency, perNight: !!pl.perNight, cancel: pl.cancel || null } : null } : null; setLocalRoom(v); if (onRoom) onRoom(v); };
   const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
@@ -22161,7 +22167,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
         : <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>}
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
-        {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} /> : null}
+        {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} onStatus={setRoomsStatus} /> : null}
       {s.vo ? <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 600, marginTop: 6, lineHeight: 1.5 }}>VO ♥ Voyage One favorite{s.voNote ? ` — ${s.voNote}` : ""}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
@@ -22170,7 +22176,9 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
             <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE}</div>
             {requested ? <div style={{ fontSize: 13.5, color: t.pine, fontWeight: 700, lineHeight: 1.5, marginTop: 10 }}>{RESERVE_WAIT_LINE(s.name)}</div> : null}
             {roomChosen && roomChosen.name ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}><span style={{ color: t.inkSoft }}>Your room:</span> <strong>{roomChosen.name}</strong>{roomChosen.plan ? <span> · {fmtRate(roomChosen.plan)}{roomChosen.plan.plan ? ` · ${roomChosen.plan.plan}` : ""}</span> : null}</div> : null}
-            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : roomChosen && roomChosen.name ? `Reserve the ${roomChosen.name}` : "Reserve it through Voyage One"}</button>
+            {roomsStatus === "loading"
+              ? <div style={{ display: "inline-block", marginTop: 12, background: t.mist, color: t.inkSoft, fontFamily: font.ui, fontSize: 13.5, fontWeight: 600, padding: "13px 24px", borderRadius: 999 }}>Bringing in the rooms from {s.name}… choose yours, then reserve</div>
+              : <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : roomChosen && roomChosen.name ? `Reserve the ${roomChosen.name}` : "Reserve it through Voyage One"}</button>}
             {reserve ? <ReserveSheet s={s} city={city} site={site} prefill={{ ...(prefill || {}), room: roomChosen && roomChosen.name ? roomChosen.name : "", offer: roomChosen && roomChosen.plan ? `${roomChosen.plan.plan || "Rate"} · ${fmtRate(roomChosen.plan)}${roomChosen.plan.cancel ? " · " + roomChosen.plan.cancel : ""}` : "" }} onRequested={onRequested} onClose={() => setReserve(false)} /> : null}
           </div>)}
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
