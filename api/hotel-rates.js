@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -50,9 +50,11 @@ const mdy = (iso) => { const [y, m, d] = iso.split("-"); return `${m}/${d}/${y}`
 const ENGINES = [
   { name: "fourseasons", test: /reservations\.fourseasons\.com/i, build: (u, ci, co, pax) => {
       // The hotel's Check Rates link carries its code (…locationId=MAD166 or hotelCode=MAD166).
+      // Two address forms are tried in turn; the one that shows prices wins (M981).
       const code = (/(?:locationId|hotelCode)=([A-Z0-9]+)/i.exec(u) || [])[1];
       if (!code) return null;
-      return `https://reservations.fourseasons.com/?hotelCode=${code}&checkIn=${ci}&checkOut=${co}&adults=${pax}&children=0&rooms=1`;
+      const x = new URL(u); x.searchParams.set("checkIn", ci); x.searchParams.set("checkOut", co); x.searchParams.set("adults", String(pax)); x.searchParams.set("children", "0"); x.searchParams.set("rooms", "1");
+      return [`https://reservations.fourseasons.com/?hotelCode=${code}&checkIn=${ci}&checkOut=${co}&adults=${pax}&children=0&rooms=1`, x.toString()];
     } },
   { name: "synxis", test: /be\.synxis\.com/i, build: (u, ci, co, pax) => {
       const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); return x.toString();
@@ -68,18 +70,41 @@ async function fetchText(url) {
   return { url: r.url, html: await r.text() };
 }
 // The hotel's own "Check Rates" / "Book" link, found on its site. One method for every hotel.
+const LOG = [];
+function linkIn(html, baseUrl) {
+  const re = /href\s*=\s*["']([^"']+)["']/gi; let m;
+  while ((m = re.exec(html))) {
+    let u; try { u = new URL(m[1].replace(/&amp;/g, "&"), baseUrl).toString(); } catch (e) { continue; }
+    if (ENGINES.some((e) => e.test.test(u))) return u;
+  }
+  return null;
+}
 async function findBookingLink(site) {
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const pages = [base, base.replace(/\/+$/, "") + "/accommodations", base.replace(/\/+$/, "") + "/rooms"];
+  // Plain requests first (fast); the hotels that refuse them get the hosted browser (M981).
   for (const p of pages) {
     let got = null; try { got = await fetchText(p); } catch (e) { got = null; }
+    LOG.push({ step: "find-link", url: p, via: "fetch", ok: !!got });
     if (!got) continue;
-    const re = /href\s*=\s*["']([^"']+)["']/gi; let m;
-    while ((m = re.exec(got.html))) {
-      let u; try { u = new URL(m[1], got.url).toString(); } catch (e) { continue; }
-      if (ENGINES.some((e) => e.test.test(u))) return u;
-    }
+    const u = linkIn(got.html, got.url); if (u) return u;
   }
+  let browser = null;
+  try {
+    const opened = await openBrowser(); browser = opened.browser;
+    const page = await browser.newPage(); await page.setUserAgent(UA);
+    for (const p of pages.slice(0, 2)) {
+      try {
+        await page.goto(p, { waitUntil: "domcontentloaded", timeout: 25000 });
+        try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
+        const hrefs = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href));
+        LOG.push({ step: "find-link", url: p, via: "browser:" + opened.via, links: hrefs.length });
+        const u = hrefs.find((h) => ENGINES.some((e) => e.test.test(h)));
+        if (u) { await browser.close(); return u; }
+      } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
+    }
+    await browser.close();
+  } catch (e) { LOG.push({ step: "find-link", via: "browser", error: String(e && e.message || e).slice(0, 300) }); if (browser) { try { await browser.close(); } catch (x) {} } }
   return null;
 }
 
@@ -97,33 +122,42 @@ export default async function handler(req, res) {
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
   // 1. The hotel's own booking link, and the engine it belongs to.
+  LOG.length = 0;
   let link = null; try { link = await findBookingLink(site); } catch (e) { link = null; }
-  if (!link) return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site });
+  if (!link) return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined });
   const engine = ENGINES.find((e) => e.test.test(link));
-  const url = engine ? engine.build(link, checkIn, checkOut, pax) : null;
-  if (!url) return res.status(200).json({ ok: false, reason: "unsupported-engine", hotel, link });
+  const built = engine ? engine.build(link, checkIn, checkOut, pax) : null;
+  const candidates = Array.isArray(built) ? built.filter(Boolean) : built ? [built] : [];
+  if (!candidates.length) return res.status(200).json({ ok: false, reason: "unsupported-engine", hotel, link });
 
   // 2. A real browser opens the rate page for those dates and reads what a guest would see.
-  let text = "", finalUrl = url, browser = null, via = "";
+  //    Each candidate address is tried until one shows prices.
+  let text = "", finalUrl = candidates[0], browser = null, via = "", url = candidates[0];
+  const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP)\s?\d{2,3}(?:[,.]\d{3})*|\d{2,3}(?:[,.]\d{3})*\s?(?:USD|EUR|GBP|€|£)/.test(t);
   try {
     const opened = await openBrowser(); browser = opened.browser; via = opened.via;
     const page = await browser.newPage();
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-    try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
-    // Prices arrive after the app renders; give it a moment, then scroll so lazy rows appear.
-    await new Promise((r) => setTimeout(r, 2500));
-    try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await new Promise((r) => setTimeout(r, 1500)); } catch (e) {}
-    text = await page.evaluate(() => document.body ? document.body.innerText : "");
-    finalUrl = page.url();
+    for (const cand of candidates) {
+      url = cand;
+      await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 25000 });
+      try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
+      // Prices arrive after the app renders; give it a moment, then scroll so lazy rows appear.
+      await new Promise((r) => setTimeout(r, 3000));
+      try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await new Promise((r) => setTimeout(r, 1500)); } catch (e) {}
+      text = await page.evaluate(() => document.body ? document.body.innerText : "");
+      finalUrl = page.url();
+      LOG.push({ step: "rates", url: cand, landed: finalUrl, chars: (text || "").length, priced: looksPriced(text || "") });
+      if (looksPriced(text || "")) break;
+    }
   } catch (e) {
     if (browser) { try { await browser.close(); } catch (x) {} }
-    res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "browser", node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), detail: String(e && e.message || e).slice(0, 700), url });
+    res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "browser", node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), detail: String(e && e.message || e).slice(0, 700), url, log: debug ? LOG : undefined });
   }
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 60000);
-  if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, sample: debug ? text : undefined });
+  if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
 
   // 3. The page as data: rooms and their rate plans, exactly as shown.
   const prompt = `Below is the visible text of a hotel's own booking page for ${hotel}, ${checkIn} to ${checkOut}, ${pax} adult(s). Extract every ROOM/SUITE shown with its RATE PLANS and prices, exactly as displayed.
@@ -151,7 +185,7 @@ ${text}`;
       parsed = objs.length ? { currency: cm ? cm[1] : null, rooms: objs } : null;
     }
   } catch (e) { parsed = null; }
-  if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", url: finalUrl, sample: debug ? text.slice(0, 3000) : undefined });
+  if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", url: finalUrl, log: debug ? LOG : undefined, sample: debug ? text.slice(0, 3000) : undefined });
 
   const currency = parsed.currency ? String(parsed.currency).slice(0, 6) : null;
   const rates = {};
@@ -165,7 +199,7 @@ ${text}`;
     })).filter((p) => Number.isFinite(p.price) && p.price > 0);
     if (plans.length || room.soldOut) rates[String(room.name).slice(0, 120)] = room.soldOut && !plans.length ? [{ plan: "Sold out", price: 0, currency, perNight: true, cancel: null, benefits: null, soldOut: true }] : plans;
   }
-  if (!Object.keys(rates).length) return res.status(200).json({ ok: false, reason: "no-rates-visible", url: finalUrl, sample: debug ? text.slice(0, 3000) : undefined });
+  if (!Object.keys(rates).length) return res.status(200).json({ ok: false, reason: "no-rates-visible", url: finalUrl, log: debug ? LOG : undefined, sample: debug ? text.slice(0, 3000) : undefined });
   res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=300");
-  return res.status(200).json({ ok: true, hotel, checkIn, checkOut, pax, engine: engine.name, source: finalUrl, currency, rates, via: debug ? via : undefined, sample: debug ? text.slice(0, 3000) : undefined });
+  return res.status(200).json({ ok: true, hotel, checkIn, checkOut, pax, engine: engine.name, source: finalUrl, currency, rates, via: debug ? via : undefined, log: debug ? LOG : undefined, sample: debug ? text.slice(0, 3000) : undefined });
 }
