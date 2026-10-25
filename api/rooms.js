@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; launch flags + Node 22 M975, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -23,7 +23,7 @@
 // card falls back to its usual photograph).
 
 import chromiumPkg from "@sparticuz/chromium";
-import { chromium } from "playwright-core";
+import puppeteer from "puppeteer-core";
 
 const MODEL = "claude-haiku-4-5-20251001";
 const TRIED = [];
@@ -31,20 +31,21 @@ const TRIED = [];
 async function getWithBrowser(url) {
   let browser = null;
   try {
-    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server: the usual cause of a launch crash
-    browser = await chromium.launch({ args: [...chromiumPkg.args, "--disable-gpu", "--single-process", "--no-zygote"], executablePath: await chromiumPkg.executablePath(), headless: true });
-    const ctx = await browser.newContext({ userAgent: UA, viewport: { width: 1180, height: 1600 }, locale: "en-US" });
-    const page = await ctx.newPage();
+    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server
+    browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
+    const page = await browser.newPage();
+    await page.setUserAgent(UA);
+    await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-    try { await page.waitForLoadState("networkidle", { timeout: 10000 }); } catch (e) {}
-    await page.waitForTimeout(1500);
+    try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
+    await new Promise((r) => setTimeout(r, 1500));
     const html = await page.content();
     const finalUrl = page.url();
     TRIED.push({ url, via: "browser", status: resp ? resp.status() : null, bytes: html.length });
     await browser.close();
     return html && html.length > 500 ? { url: finalUrl, html } : null;
   } catch (e) {
-    TRIED.push({ url, via: "browser", error: String(e && e.message || e).slice(0, 120) });
+    TRIED.push({ url, via: "browser", error: String(e && e.message || e).slice(0, 700) });
     if (browser) { try { await browser.close(); } catch (x) {} }
     return null;
   }
@@ -115,7 +116,7 @@ export default async function handler(req, res) {
 
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
-  if (!page) return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, tried: TRIED });
+  if (!page) return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, tried: TRIED });
   const text = distill(page.html, page.url).slice(0, 70000);
   if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined });
 
