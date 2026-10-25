@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -152,7 +152,7 @@ async function work(req, res, S) {
   const checkIn = String(q.checkIn || ""), checkOut = String(q.checkOut || "");
   const pax = Math.min(6, Math.max(1, parseInt(q.pax, 10) || 2));
   const debug = String(q.debug || "") === "1";
-  const stage = String(q.stage || "");   // "link" | "page" | "" (full) — M986 diagnostics
+  const stage = String(q.stage || "");   // "link" | "page" | "bundle" | "" (full) — M986/M992 diagnostics
   const T0 = Date.now(); const ms = () => Date.now() - T0;
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
@@ -241,6 +241,21 @@ async function work(req, res, S) {
       S.url = cand;
       await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 20000 });
       try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
+      if (stage === "bundle") {
+        // READ THE APP'S OWN CODE (M992). Its script is public and names every service address it
+        // calls — the room-level rate call among them — and the exact code that crashes in our browser.
+        await new Promise((r) => setTimeout(r, 5000));   // let the app run far enough to crash
+        const scripts = await page.evaluate(() => Array.from(document.scripts).map((s) => s.src).filter(Boolean));
+        const main = scripts.find((s) => /\/main\.[a-z0-9]+\.js|\/main\.js|\/app\.[a-z0-9]+\.js|bundle/i.test(s)) || scripts[scripts.length - 1] || null;
+        let src = ""; if (main) { try { src = await page.evaluate(async (u) => { const r = await fetch(u); return await r.text(); }, main); } catch (e) { src = ""; } }
+        const found = new Set(); let m;
+        const re1 = /["'`]([^"'`\n]{0,120}?tretail\/[^"'`\n]{0,160})["'`]/g; while ((m = re1.exec(src)) && found.size < 80) found.add(m[1]);
+        const re2 = /["'`]((?:\/|https?:\/\/)[^"'`\n]{0,60}(?:availab|rate|room|book|offer|search)[^"'`\n]{0,100})["'`]/gi; while ((m = re2.exec(src)) && found.size < 160) found.add(m[1]);
+        const wait = /\.js:(\d+):(\d+)/.exec(S.console.join("\n"));
+        let crash = ""; if (wait && src) { const lineNo = +wait[1], col = +wait[2]; let p = 0; for (let i = 1; i < lineNo; i++) { const nl = src.indexOf("\n", p); if (nl < 0) break; p = nl + 1; } crash = src.slice(Math.max(0, p + col - 1200), p + col + 400); }
+        await browser.close(); res.setHeader("Cache-Control", "no-store");
+        return res.status(200).json({ ok: !!src, stage, script: main, size: src.length, endpoints: [...found], crashAt: wait ? wait[0] : null, crash, console: S.console, log: LOG });
+      }
       let agreed = await agreeCookies();
       if (agreed) { try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 5000 }); } catch (e) {} }
       // Prices arrive after the app renders: poll for up to 14 s, scrolling so lazy rows appear.
