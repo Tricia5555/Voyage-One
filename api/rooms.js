@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -148,7 +148,7 @@ Return ONLY a JSON object: { "rooms": [ { "name", "category", "size", "beds", "o
 - occupancy: as written, or null
 - view: the view or defining feature as written (terrace, balcony, garden, sea view), or null
 - description: the hotel's own one- or two-sentence description of that room if present, else null — never write your own
-- images: up to 3 image URLs that belong to this room (the [IMG] entries nearest its name, or whose alt names it); [] if none
+- images: up to 2 image URLs that belong to this room (the [IMG] entries nearest its name, or whose alt names it); [] if none
 - url: the room's own detail page [LINK] if there is one, else null
 Rules: list every category once, in page order; do not invent, merge or rename rooms; skip offers, dining, spa and navigation; if the page has no rooms, return { "rooms": [] }. No prose outside the JSON.
 
@@ -159,14 +159,20 @@ ${text}`;
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 4000, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 8000, messages: [{ role: "user", content: prompt }] }),
     });
     if (!r.ok) { const detail = await r.text(); return res.status(200).json({ ok: false, reason: "anthropic-error", status: r.status, detail: detail.slice(0, 200) }); }
     const data = await r.json();
     const out = (data.content || []).map((b) => b.text || "").join("").trim();
     const jm = /\{[\s\S]*\}/.exec(out);
     let parsed; try { parsed = jm ? JSON.parse(jm[0]) : null; } catch (e) { parsed = null; }
-    if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined });
+    if (!parsed || !Array.isArray(parsed.rooms)) {
+      // A long answer can be cut off mid-list: keep every room object that is complete.
+      const objs = []; const re = /\{\s*"name"\s*:[\s\S]*?\}(?=\s*(?:,\s*\{|\s*\]))/g; let m;
+      while ((m = re.exec(out))) { try { objs.push(JSON.parse(m[0])); } catch (e) {} }
+      parsed = objs.length ? { rooms: objs, truncated: true } : null;
+    }
+    if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url, textLength: text.length, tried: debug ? TRIED : undefined, answer: debug ? out.slice(0, 1500) : undefined, sample: debug ? text.slice(0, 2000) : undefined });
     const S = (v, n = 300) => (v == null || v === "" ? null : String(v).trim().slice(0, n));
     const rooms = parsed.rooms.filter((x) => x && x.name).slice(0, 40).map((x) => ({
       name: S(x.name, 120), category: S(x.category, 80), size: S(x.size, 80), beds: S(x.beds, 120), occupancy: S(x.occupancy, 120), view: S(x.view, 120), description: S(x.description, 600),
@@ -175,7 +181,7 @@ ${text}`;
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
     if (!rooms.length) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
-    return res.status(200).json({ ok: true, hotel, source: page.url, fetched: new Date().toISOString(), rooms, tried: debug ? TRIED : undefined });
+    return res.status(200).json({ ok: true, hotel, source: page.url, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch", detail: String(e && e.message || e).slice(0, 200) });
   }
