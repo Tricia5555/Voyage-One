@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -82,15 +82,24 @@ async function get(url) {
 }
 function abs(base, href) { try { return new URL(href, base).toString(); } catch (e) { return null; } }
 // HTML → readable text keeping image addresses and links, so the reader can tie photos to rooms.
+// Images are numbered as they are kept, so the reader can refer to "image 7" and the server
+// restores the exact address — long addresses were being abbreviated when copied (M980).
+const IMAGES = [];
 function distill(html, base) {
+  IMAGES.length = 0;
   let h = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<!--[\s\S]*?-->/g, " ").replace(/<svg[\s\S]*?<\/svg>/gi, " ").replace(/<noscript>/gi, "").replace(/<\/noscript>/gi, "");
   h = h.replace(/<img\b[^>]*>/gi, (tag) => {
-    const src = /\b(?:data-src|data-lazy-src|srcset|data-srcset|src)\s*=\s*["']([^"']+)["']/i.exec(tag);
+    // Prefer a plain src; fall back to a srcset. A srcset is a comma-separated LIST, so only
+    // there is a comma a separator — an address itself may contain commas (Four Seasons' do).
+    const plain = /\b(?:data-src|data-lazy-src|src)\s*=\s*["']([^"']+)["']/i.exec(tag);
+    const set = /\b(?:srcset|data-srcset)\s*=\s*["']([^"']+)["']/i.exec(tag);
     const alt = /\balt\s*=\s*["']([^"']*)["']/i.exec(tag);
-    let u = src ? src[1].split(",")[0].trim().split(/\s+/)[0] : "";
+    let u = plain ? plain[1].trim() : set ? set[1].trim().split(/\s+\d+[wx]\s*,?\s*|,\s+(?=\S+\s+\d+[wx])/)[0].trim().split(/\s+/)[0] : "";
     if (!u || /^data:/.test(u)) return " ";
     u = abs(base, u); if (!u) return " ";
-    return ` [IMG ${u}${alt && alt[1] ? " | " + alt[1].trim() : ""}] `;
+    if (/\.svg(\?|$)|\/icons?\/|logo|sprite|pixel|tracking/i.test(u)) return " ";
+    IMAGES.push(u);
+    return ` [IMG#${IMAGES.length}${alt && alt[1] ? " | " + alt[1].trim() : ""}] `;
   });
   h = h.replace(/<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>/gi, (tag, href) => { const u = abs(base, href); return u ? ` [LINK ${u}] ` : " "; });
   h = h.replace(/<(?:br|\/p|\/div|\/li|\/h[1-6]|\/tr|\/section|\/article)\b[^>]*>/gi, "\n").replace(/<[^>]+>/g, " ");
@@ -138,7 +147,7 @@ export default async function handler(req, res) {
   const text = distill(page.html, page.url).slice(0, 70000);
   if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined });
 
-  const prompt = `Below is the text of a hotel's own website page, with its images shown as [IMG url | alt] and links as [LINK url]. The hotel is "${hotel}". Extract the hotel's ROOM AND SUITE CATEGORIES exactly as the hotel names them.
+  const prompt = `Below is the text of a hotel's own website page, with its images shown as [IMG#n | alt] (n is the image number) and links as [LINK url]. The hotel is "${hotel}". Extract the hotel's ROOM AND SUITE CATEGORIES exactly as the hotel names them.
 
 Return ONLY a JSON object: { "rooms": [ { "name", "category", "size", "beds", "occupancy", "view", "description", "images", "url" } ] }
 - name: the room/suite/villa name exactly as written on the page
@@ -148,7 +157,7 @@ Return ONLY a JSON object: { "rooms": [ { "name", "category", "size", "beds", "o
 - occupancy: as written, or null
 - view: the view or defining feature as written (terrace, balcony, garden, sea view), or null
 - description: the hotel's own one- or two-sentence description of that room if present, else null — never write your own
-- images: up to 2 image URLs that belong to this room (the [IMG] entries nearest its name, or whose alt names it); [] if none
+- images: up to 2 image NUMBERS (plain integers) that belong to this room (the [IMG#n] entries nearest its name, or whose alt names it); [] if none
 - url: the room's own detail page [LINK] if there is one, else null
 Rules: list every category once, in page order; do not invent, merge or rename rooms; skip offers, dining, spa and navigation; if the page has no rooms, return { "rooms": [] }. No prose outside the JSON.
 
@@ -176,7 +185,7 @@ ${text}`;
     const S = (v, n = 300) => (v == null || v === "" ? null : String(v).trim().slice(0, n));
     const rooms = parsed.rooms.filter((x) => x && x.name).slice(0, 40).map((x) => ({
       name: S(x.name, 120), category: S(x.category, 80), size: S(x.size, 80), beds: S(x.beds, 120), occupancy: S(x.occupancy, 120), view: S(x.view, 120), description: S(x.description, 600),
-      images: (Array.isArray(x.images) ? x.images : []).filter((u) => typeof u === "string" && /^https?:\/\//.test(u)).slice(0, 3),
+      images: (Array.isArray(x.images) ? x.images : []).map((v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10); return n >= 1 && n <= IMAGES.length ? IMAGES[n - 1] : (typeof v === "string" && /^https?:\/\//.test(v) ? v : null); }).filter(Boolean).slice(0, 2),
       url: typeof x.url === "string" && /^https?:\/\//.test(x.url) ? x.url : null,
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
