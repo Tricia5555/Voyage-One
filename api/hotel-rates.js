@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -52,11 +52,12 @@ const mdy = (iso) => { const [y, m, d] = iso.split("-"); return `${m}/${d}/${y}`
 const ENGINES = [
   { name: "fourseasons", test: /reservations\.fourseasons\.com/i, build: (u, ci, co, pax) => {
       // The hotel's Check Rates link carries its code (…locationId=MAD166 or hotelCode=MAD166).
-      // Two address forms are tried in turn; the one that shows prices wins (M981).
+      // NO "rooms=1" (M993): the app reads a `rooms` parameter as its list of room occupancies and
+      // crashed on the word "1" ("K.map is not a function") on every run since M973 — a parameter
+      // I assumed, which the hotel's own form never writes. Only parameters the app itself uses.
       const code = (/(?:locationId|hotelCode)=([A-Z0-9]+)/i.exec(u) || [])[1];
       if (!code) return null;
-      const x = new URL(u); x.searchParams.set("checkIn", ci); x.searchParams.set("checkOut", co); x.searchParams.set("adults", String(pax)); x.searchParams.set("children", "0"); x.searchParams.set("rooms", "1");
-      return [`https://reservations.fourseasons.com/?hotelCode=${code}&checkIn=${ci}&checkOut=${co}&adults=${pax}&children=0&rooms=1`, x.toString()];
+      return [`https://reservations.fourseasons.com/?hotelCode=${code}&checkIn=${ci}&checkOut=${co}&adults=${pax}&children=0`];
     } },
   { name: "synxis", test: /be\.synxis\.com/i, build: (u, ci, co, pax) => {
       const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); return x.toString();
