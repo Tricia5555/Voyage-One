@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -71,13 +71,17 @@ async function fetchText(url) {
 }
 // The hotel's own "Check Rates" / "Book" link, found on its site. One method for every hotel.
 const LOG = [];
+// Of the engine links on a page, the one that names the hotel wins (a "Check Rates" link carries a
+// hotel code; "Sign in" / "Find a reservation" links on the same engine do not) — M982.
+const CODED = /(?:locationId|hotelCode|hotel|hotelId|propertyId|productId|chain|Hotel|Chain)=/;
+function bestLink(urls) {
+  const eng = urls.filter((u) => ENGINES.some((e) => e.test.test(u)) && !/\/(?:profile|signin|sign-in|login|findreservation|find-reservation|itinerary)/i.test(u));
+  return eng.find((u) => CODED.test(u)) || eng[0] || null;
+}
 function linkIn(html, baseUrl) {
-  const re = /href\s*=\s*["']([^"']+)["']/gi; let m;
-  while ((m = re.exec(html))) {
-    let u; try { u = new URL(m[1].replace(/&amp;/g, "&"), baseUrl).toString(); } catch (e) { continue; }
-    if (ENGINES.some((e) => e.test.test(u))) return u;
-  }
-  return null;
+  const re = /href\s*=\s*["']([^"']+)["']/gi; let m; const urls = [];
+  while ((m = re.exec(html))) { try { urls.push(new URL(m[1].replace(/&amp;/g, "&"), baseUrl).toString()); } catch (e) {} }
+  return bestLink(urls);
 }
 async function findBookingLink(site) {
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
@@ -99,7 +103,7 @@ async function findBookingLink(site) {
         try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
         const hrefs = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href));
         LOG.push({ step: "find-link", url: p, via: "browser:" + opened.via, links: hrefs.length });
-        const u = hrefs.find((h) => ENGINES.some((e) => e.test.test(h)));
+        const u = bestLink(hrefs);
         if (u) { await browser.close(); return u; }
       } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
     }
