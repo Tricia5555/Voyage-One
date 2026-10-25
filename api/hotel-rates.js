@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -120,7 +120,25 @@ async function findBookingLink(site, page, via) {
   return null;
 }
 
+// A HARD 50-SECOND ANSWER (M989). Safari drops a request at about 60 s and the client sees a dead
+// page — and we see nothing at all, not even the log. Whatever has happened by 50 s is sent back
+// as the answer: the log, the characters read so far, a glimpse of the page. Slow is reported;
+// silent is forbidden.
 export default async function handler(req, res) {
+  const S = { text: "", url: "", htmlPeek: "", browser: null, sent: false, t0: Date.now(), net: [], api: [], console: [] };
+  const json = res.json.bind(res);
+  res.json = (b) => { if (S.sent) return res; S.sent = true; return json(b); };
+  const timer = new Promise((r) => setTimeout(r, 50000, "timeout"));
+  let outcome = "done";
+  try { outcome = await Promise.race([work(req, res, S).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
+  if (!S.sent) {
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, ms: Date.now() - S.t0, url: S.url, chars: S.text.length, log: LOG, sample: S.text.slice(0, 4000), htmlPeek: S.text.length < 200 ? S.htmlPeek : undefined, net: S.net, api: S.api, console: S.console });
+  }
+  if (S.browser) { try { S.browser.close().catch(() => {}); } catch (e) {} }
+}
+
+async function work(req, res, S) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
   res.setHeader("Cache-Control", "no-store");
@@ -141,10 +159,16 @@ export default async function handler(req, res) {
   const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP)\s?\d{2,3}(?:[,.]\d{3})*|\d{2,3}(?:[,.]\d{3})*\s?(?:USD|EUR|GBP|€|£)/.test(t);
   try {
     // One browser for the whole job (M984): find the hotel's booking link, then read the rates.
-    const opened = await openBrowser(); browser = opened.browser; via = opened.via;
+    const opened = await openBrowser(); browser = opened.browser; via = opened.via; S.browser = browser;
     const page = await browser.newPage();
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
+    // What the app itself sees (M990): failed requests, its API calls, and its error console. A
+    // page that draws nothing explains itself here, not in its text.
+    page.on("response", (r) => { try { const s = r.status(); const u = r.url(); const ty = r.request().resourceType(); if (s >= 400 && S.net.length < 40) S.net.push({ s, u: u.slice(0, 160) }); if ((ty === "xhr" || ty === "fetch") && S.api.length < 30) S.api.push({ s, u: u.slice(0, 160) }); } catch (e) {} });
+    page.on("requestfailed", (r) => { try { if (S.net.length < 40) S.net.push({ s: "failed", u: r.url().slice(0, 160), e: ((r.failure() || {}).errorText || "").slice(0, 60) }); } catch (e) {} });
+    page.on("console", (m) => { try { if (m.type() === "error" && S.console.length < 20) S.console.push(m.text().slice(0, 240)); } catch (e) {} });
+    page.on("pageerror", (e) => { try { if (S.console.length < 20) S.console.push("pageerror: " + String(e && e.message || e).slice(0, 240)); } catch (x) {} });
     // 1. The hotel's own booking link, and the engine it belongs to.
     LOG.push({ step: "browser-open", via, ms: ms() });
     try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site) || await findBookingLink(site, page, via); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
@@ -201,10 +225,11 @@ export default async function handler(req, res) {
     const pageSize = async () => { try { return (await page.content()).length; } catch (e) { return 0; } };
     for (const cand of candidates) {
       url = cand;
-      await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 25000 });
-      try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
+      S.url = cand;
+      await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 20000 });
+      try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
       let agreed = await agreeCookies();
-      if (agreed) { try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {} }
+      if (agreed) { try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 5000 }); } catch (e) {} }
       // Prices arrive after the app renders: poll for up to 14 s, scrolling so lazy rows appear.
       let t = "";
       for (let i = 0; i < 14; i++) {
@@ -212,12 +237,12 @@ export default async function handler(req, res) {
         await new Promise((r) => setTimeout(r, 1000));
         if (!agreed && i === 2) agreed = await agreeCookies();
         try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); } catch (e) {}
-        t = await readText();
+        t = await readText(); S.text = t;
         if (looksPriced(t)) { await new Promise((r) => setTimeout(r, 1500)); t = await readText(); break; }
       }
-      text = t;
-      finalUrl = page.url();
-      if ((t || "").trim().length < 200) { try { htmlPeek = (await page.content()).replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/\s+/g, " ").slice(0, 3000); } catch (e) {} }
+      text = t; S.text = t;
+      finalUrl = page.url(); S.url = finalUrl;
+      if ((t || "").trim().length < 200) { try { const full = (await page.content()).replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/\s+/g, " "); const bi = full.indexOf("<body"); htmlPeek = (bi >= 0 ? full.slice(bi) : full).slice(0, 3000); S.htmlPeek = htmlPeek; } catch (e) {} }
       LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, html: await pageSize(), frames: page.frames().length, priced: looksPriced(text || ""), ms: ms() });
       if (looksPriced(text || "")) break;
       if (Date.now() - started > 25000) break;   // Safari gives up at ~60 s: a second try only when the first failed fast
@@ -228,7 +253,7 @@ export default async function handler(req, res) {
   }
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 30000);
-  if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000), htmlPeek: text.length < 200 ? htmlPeek : undefined }); }
+  if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000), htmlPeek: text.length < 200 ? htmlPeek : undefined, net: S.net, api: S.api, console: S.console }); }
   if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
 
   // 3. The page as data: rooms and their rate plans, exactly as shown.
