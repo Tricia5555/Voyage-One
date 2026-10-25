@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -73,7 +73,7 @@ async function fetchText(url) {
   return { url: r.url, html: await r.text() };
 }
 // The hotel's own "Check Rates" / "Book" link, found on its site. One method for every hotel.
-const LOG = [];
+// One log per request (M994): a module-level log was shared by simultaneous requests.
 // Of the engine links on a page, the one that names the hotel wins (a "Check Rates" link carries a
 // hotel code; "Sign in" / "Find a reservation" links on the same engine do not) — M982.
 const CODED = /(?:locationId|hotelCode|hotel|hotelId|propertyId|productId|chain|Hotel|Chain)=/;
@@ -87,7 +87,7 @@ function linkIn(html, baseUrl) {
   return bestLink(urls);
 }
 const LINK_CACHE = {};   // hotel site → booking link, for the life of the function instance
-async function linkFromRooms(req, hotel, site) {
+async function linkFromRooms(req, hotel, site, LOG) {
   // The rooms reader already holds the hotel's page and is cached for a month: its answer carries
   // the booking link, so this costs milliseconds instead of a browser session (M985).
   try {
@@ -103,7 +103,7 @@ async function linkFromRooms(req, hotel, site) {
     return u && ENGINES.some((e) => e.test.test(u)) ? u : null;
   } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: /abort/i.test(String(e && e.name || e)) ? "cold cache — warming" : String(e && e.message || e).slice(0, 120) }); return null; }
 }
-async function findBookingLink(site, page, via) {
+async function findBookingLink(site, page, via, LOG) {
   if (LINK_CACHE[site]) { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const pages = [base, base.replace(/\/+$/, "") + "/accommodations"];
@@ -129,7 +129,7 @@ async function findBookingLink(site, page, via) {
 // as the answer: the log, the characters read so far, a glimpse of the page. Slow is reported;
 // silent is forbidden.
 export default async function handler(req, res) {
-  const S = { text: "", url: "", htmlPeek: "", browser: null, sent: false, t0: Date.now(), net: [], api: [], console: [] };
+  const S = { text: "", url: "", htmlPeek: "", browser: null, sent: false, t0: Date.now(), net: [], api: [], console: [], log: [] };
   const json = res.json.bind(res);
   res.json = (b) => { if (S.sent) return res; S.sent = true; return json(b); };
   const timer = new Promise((r) => setTimeout(r, 50000, "timeout"));
@@ -137,7 +137,7 @@ export default async function handler(req, res) {
   try { outcome = await Promise.race([work(req, res, S).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
   if (!S.sent) {
     res.setHeader("Cache-Control", "no-store");
-    res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, ms: Date.now() - S.t0, url: S.url, chars: S.text.length, log: LOG, sample: S.text.slice(0, 4000), htmlPeek: S.text.length < 200 ? S.htmlPeek : undefined, net: S.net, api: S.api, console: S.console });
+    res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, ms: Date.now() - S.t0, url: S.url, chars: S.text.length, log: S.log, sample: S.text.slice(0, 4000), htmlPeek: S.text.length < 200 ? S.htmlPeek : undefined, net: S.net, api: S.api, console: S.console });
   }
   if (S.browser) { try { S.browser.close().catch(() => {}); } catch (e) {} }
 }
@@ -157,10 +157,12 @@ async function work(req, res, S) {
   const T0 = Date.now(); const ms = () => Date.now() - T0;
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
-  LOG.length = 0;
+  const LOG = S.log;
   const started = Date.now();
   let text = "", finalUrl = "", browser = null, via = "", url = "", link = null, engine = null, candidates = [], htmlPeek = "";
-  const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP)\s?\d{2,3}(?:[,.]\d{3})*|\d{2,3}(?:[,.]\d{3})*\s?(?:USD|EUR|GBP|€|£)/.test(t);
+  // A price: a currency mark beside a number of at least two digits, with or without thousands
+  // separators ("EUR 2,036", "$1,468", "850 €"). M993's detector missed every separated price.
+  const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP|CHF|AED|JPY)\s?(?:\d{1,3}(?:[,.]\d{3})+|\d{2,})(?!\d)|(?:\d{1,3}(?:[,.]\d{3})+|\d{2,})\s?(?:USD|EUR|GBP|CHF|AED|€|£)(?![A-Za-z])/.test(t);
   try {
     // One browser for the whole job (M984): find the hotel's booking link, then read the rates.
     const opened = await openBrowser(); browser = opened.browser; via = opened.via; S.browser = browser;
@@ -185,7 +187,7 @@ async function work(req, res, S) {
     page.on("pageerror", (e) => { try { if (S.console.length < 20) S.console.push("pageerror: " + String(e && e.stack || e && e.message || e).slice(0, 600)); } catch (x) {} });
     // 1. The hotel's own booking link, and the engine it belongs to.
     LOG.push({ step: "browser-open", via, ms: ms() });
-    try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site) || await findBookingLink(site, page, via); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
+    try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site, LOG) || await findBookingLink(site, page, via, LOG); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
     LOG.push({ step: "link", link, ms: ms() });
     if (stage === "link") { await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: !!link, stage, link, log: LOG }); }
     if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
@@ -232,7 +234,8 @@ async function work(req, res, S) {
     const readText = async () => {
       let out = "";
       const within = (p, n) => Promise.race([p, new Promise((r) => setTimeout(() => r(""), n))]);
-      try { for (const f of page.frames()) { try { out += (await within(f.evaluate(deepText), 1500)) + "\n"; } catch (e) {} } } catch (e) {}
+      const own = (f) => { try { const u = f.url() || ""; return f === page.mainFrame() || !u || u === "about:blank" || /^about:srcdoc/.test(u) || new URL(u).host === new URL(page.url()).host; } catch (e) { return false; } };
+      try { for (const f of page.frames()) { if (!own(f)) continue; try { out += (await within(f.evaluate(deepText), 1500)) + "\n"; } catch (e) {} } } catch (e) {}
       if (!out.trim()) { try { out = await page.evaluate(() => document.body ? document.body.innerText : ""); } catch (e) {} }
       return out;
     };
