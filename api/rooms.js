@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -144,6 +144,16 @@ export default async function handler(req, res) {
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
   if (!page) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
+  // The hotel's own "Check Rates" link, from the page we already hold, so the rates reader need
+  // not open the site again to find it (M985). Prefer the link that names the hotel.
+  const booking = (() => {
+    const ENG = /reservations\.fourseasons\.com|be\.synxis\.com|reservations\.travelclick\.com|ihotelier|secure-hotel-booking|reservation\.|reservations\.|\/booking\/|\/book\//i;
+    const CODED = /(?:locationId|hotelCode|hotel|hotelId|propertyId|productId|chain|Hotel|Chain)=/;
+    const urls = []; const re = /href\s*=\s*["']([^"']+)["']/gi; let m;
+    while ((m = re.exec(page.html))) { try { urls.push(new URL(m[1].replace(/&amp;/g, "&"), page.url).toString()); } catch (e) {} }
+    const eng = urls.filter((u) => ENG.test(u) && !/\/(?:profile|signin|sign-in|login|findreservation|find-reservation|itinerary|modify|cancel)/i.test(u));
+    return eng.find((u) => CODED.test(u)) || eng[0] || null;
+  })();
   const text = distill(page.html, page.url).slice(0, 70000);
   if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined });
 
@@ -190,7 +200,7 @@ ${text}`;
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
     if (!rooms.length) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
-    return res.status(200).json({ ok: true, hotel, source: page.url, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
+    return res.status(200).json({ ok: true, hotel, source: page.url, booking, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch", detail: String(e && e.message || e).slice(0, 200) });
   }
