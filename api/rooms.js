@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -33,7 +33,7 @@ const TRIED = [];
 // client sees); without it they still try the bundled browser, which works on hosts that have
 // the library. ?debug=1 reports which one answered.
 async function openBrowser() {
-  const token = process.env.BROWSERLESS_TOKEN;
+  const token = (process.env.BROWSERLESS_TOKEN || "").trim();
   if (token) {
     const region = process.env.BROWSERLESS_REGION || "production-sfo";
     const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true`;
@@ -62,7 +62,7 @@ async function getWithBrowser(url) {
     await browser.close();
     return html && html.length > 500 ? { url: finalUrl, html } : null;
   } catch (e) {
-    TRIED.push({ url, via: "browser", error: String(e && e.message || e).slice(0, 700) });
+    TRIED.push({ url, via: "browser", hosted: !!(process.env.BROWSERLESS_TOKEN || "").trim(), error: String(e && e.message || e).slice(0, 700) });
     if (browser) { try { await browser.close(); } catch (x) {} }
     return null;
   }
@@ -124,6 +124,7 @@ async function findRoomsPage(site) {
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
+  res.setHeader("Cache-Control", "no-store");
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   TRIED.length = 0;
   const debug = String(req.query.debug || "") === "1";
@@ -133,7 +134,7 @@ export default async function handler(req, res) {
 
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
-  if (!page) return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, tried: TRIED });
+  if (!page) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
   const text = distill(page.html, page.url).slice(0, 70000);
   if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined });
 
