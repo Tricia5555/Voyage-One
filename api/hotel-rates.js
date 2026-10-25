@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -84,6 +84,19 @@ function linkIn(html, baseUrl) {
   return bestLink(urls);
 }
 const LINK_CACHE = {};   // hotel site → booking link, for the life of the function instance
+async function linkFromRooms(req, hotel, site) {
+  // The rooms reader already holds the hotel's page and is cached for a month: its answer carries
+  // the booking link, so this costs milliseconds instead of a browser session (M985).
+  try {
+    const proto = (req.headers["x-forwarded-proto"] || "https").split(",")[0];
+    const host = req.headers["x-forwarded-host"] || req.headers.host;
+    const r = await fetch(`${proto}://${host}/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&v=2`);
+    const j = r.ok ? await r.json() : null;
+    const u = j && j.ok && j.booking ? String(j.booking) : null;
+    LOG.push({ step: "find-link", via: "rooms-api", ok: !!u, link: u || undefined });
+    return u && ENGINES.some((e) => e.test.test(u)) ? u : null;
+  } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: String(e && e.message || e).slice(0, 120) }); return null; }
+}
 async function findBookingLink(site, page, via) {
   if (LINK_CACHE[site]) { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
@@ -129,7 +142,7 @@ export default async function handler(req, res) {
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     // 1. The hotel's own booking link, and the engine it belongs to.
-    try { link = await findBookingLink(site, page, via); } catch (e) { link = null; }
+    try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site) || await findBookingLink(site, page, via); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
     if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
     engine = ENGINES.find((e) => e.test.test(link));
     const built = engine ? engine.build(link, checkIn, checkOut, pax) : null;
@@ -175,7 +188,7 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "browser", node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), detail: String(e && e.message || e).slice(0, 700), url, log: debug ? LOG : undefined });
   }
   try { await browser.close(); } catch (e) {}
-  text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 60000);
+  text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 30000);
   if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
 
   // 3. The page as data: rooms and their rate plans, exactly as shown.
