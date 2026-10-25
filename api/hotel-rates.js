@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -143,16 +143,36 @@ export default async function handler(req, res) {
     const page = await browser.newPage();
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
+    // Tap the cookie banner's Agree/Accept, as a guest would — the Four Seasons app hides the
+    // rooms behind it (M983). Harmless on pages without one.
+    const agreeCookies = async () => {
+      try {
+        return await page.evaluate(() => {
+          const els = Array.from(document.querySelectorAll("button, a, [role=button]"));
+          const hit = els.find((el) => /^\s*(agree|accept|accept all|allow all|i agree|ok|got it|accept cookies|accept all cookies)\s*$/i.test((el.innerText || el.textContent || "").trim()));
+          if (hit) { hit.click(); return (hit.innerText || hit.textContent || "").trim(); }
+          return null;
+        });
+      } catch (e) { return null; }
+    };
+    const readText = async () => { try { return await page.evaluate(() => document.body ? document.body.innerText : ""); } catch (e) { return ""; } };
     for (const cand of candidates) {
       url = cand;
       await page.goto(cand, { waitUntil: "domcontentloaded", timeout: 25000 });
       try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 15000 }); } catch (e) {}
-      // Prices arrive after the app renders; give it a moment, then scroll so lazy rows appear.
-      await new Promise((r) => setTimeout(r, 3000));
-      try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await new Promise((r) => setTimeout(r, 1500)); } catch (e) {}
-      text = await page.evaluate(() => document.body ? document.body.innerText : "");
+      let agreed = await agreeCookies();
+      // Prices arrive after the app renders: poll for up to 20 s, scrolling so lazy rows appear.
+      let t = "";
+      for (let i = 0; i < 20; i++) {
+        await new Promise((r) => setTimeout(r, 1000));
+        if (!agreed && i === 2) agreed = await agreeCookies();
+        try { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); } catch (e) {}
+        t = await readText();
+        if (looksPriced(t)) { await new Promise((r) => setTimeout(r, 1500)); t = await readText(); break; }
+      }
+      text = t;
       finalUrl = page.url();
-      LOG.push({ step: "rates", url: cand, landed: finalUrl, chars: (text || "").length, priced: looksPriced(text || "") });
+      LOG.push({ step: "rates", url: cand, landed: finalUrl, agreed: agreed || null, chars: (text || "").length, priced: looksPriced(text || "") });
       if (looksPriced(text || "")) break;
     }
   } catch (e) {
