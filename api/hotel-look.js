@@ -1,4 +1,4 @@
-// api/hotel-look.js — the hotel's own introduction: its video and its photographs (build M977, 25 Oct 2026).
+// api/hotel-look.js — the hotel's own introduction: its film, its photographs, what it has (M977; M981: playable films only, large stills, names only, facilities — 25 Oct 2026).
 //
 // Before the rooms, the place (Tricia, 25 Oct 2026): the film the hotel runs on its own home page,
 // and the photographs it publishes of the lobby, pool, spa, dining and grounds. This function opens
@@ -11,8 +11,9 @@
 // GET /api/hotel-look?hotel=<name>&site=<hotel website>
 //   &debug=1 → also returns every address tried and the raw candidates
 // Returns: { ok:true, hotel, source, fetched,
-//            video: { src, kind:"mp4"|"hls"|"webm"|"youtube"|"vimeo", poster } | null,
-//            gallery: [ { src, label } ] }
+//            video: { src, kind:"mp4"|"hls"|"webm"|"youtube"|"vimeo", poster } | null,   — only a film that plays from OUTSIDE the hotel's site (M981)
+//            gallery: [ { src, label } ],   — large stills; label only a proper name the hotel uses (a restaurant, a bar, a named spa), else ""
+//            facilities: [ { name, kind } ] }   — what the hotel says it has: restaurants and bars by name, spa, pool, fitness
 // Cached at the edge for 30 days. Needs ANTHROPIC_API_KEY and BROWSERLESS_TOKEN (both set).
 //
 // How the video is found, in order: a <video> element's sources on the page; any video the page
@@ -93,6 +94,7 @@ async function readPage(page, url, wire) {
   try { await page.evaluate(async () => { const h = document.body.scrollHeight; for (let y = 0; y < h; y += 700) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 120)); } window.scrollTo(0, 0); }); } catch (e) {}
   await new Promise((r) => setTimeout(r, 1200));
   const got = await page.evaluate(harvest);
+  try { got.text = await page.evaluate(() => (document.body ? document.body.innerText : "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim()); } catch (e) { got.text = ""; }
   const base = page.url();
   got.videos = got.videos.map((v) => ({ src: abs(base, v.src), poster: v.poster ? abs(base, v.poster) : "" })).filter((v) => v.src);
   got.images = got.images.map((im) => ({ ...im, src: abs(base, im.src) })).filter((im) => im.src && /^https?:/.test(im.src));
@@ -151,40 +153,64 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: false, reason: "browser", detail: String(e && e.message || e).slice(0, 400), log });
   }
 
-  // 1. The film: a <video> on the home page first, then anything streamed, then an embed.
+  // 1. The film: a <video> on the home page first, then anything streamed, then an embed — and only
+  //    one that answers from outside the hotel's site. M977 offered a file the hotel locks to its own
+  //    pages and the card showed a black square (Tricia, 25 Oct 2026). A film that will not play is
+  //    not offered; the stills take its place.
+  const plays = async (u) => {
+    try {
+      const r = await fetch(u, { method: "GET", headers: { "User-Agent": UA, "Range": "bytes=0-1023", "Origin": "https://voyageoneworld.com" }, redirect: "follow" });
+      const ct = (r.headers.get("content-type") || "").toLowerCase();
+      log.push({ step: "video-check", url: u.slice(0, 140), status: r.status, type: ct.slice(0, 40) });
+      return (r.status === 200 || r.status === 206) && (/^video\//.test(ct) || /mpegurl|octet-stream/.test(ct));
+    } catch (e) { log.push({ step: "video-check", url: u.slice(0, 140), error: String(e && e.message || e).slice(0, 80) }); return false; }
+  };
   let video = null;
-  const vids = [...home.videos.map((v) => ({ src: v.src, poster: v.poster })), ...wire.map((u) => ({ src: u, poster: "" }))].filter((v) => v.src && !/blob:/.test(v.src));
-  const pick = vids.find((v) => /\.m3u8(\?|$)/i.test(v.src)) || vids.find((v) => /\.mp4(\?|$)/i.test(v.src)) || vids[0];
-  if (pick) video = { src: pick.src, kind: kindOf(pick.src), poster: pick.poster || (home.videos[0] && home.videos[0].poster) || null };
-  else if (home.embeds.length) video = { src: home.embeds[0], kind: kindOf(home.embeds[0]), poster: null };
+  const vids = [...home.videos.map((v) => ({ src: v.src, poster: v.poster })), ...wire.map((u) => ({ src: u, poster: "" }))].filter((v) => v.src && !/blob:/.test(v.src) && !/\.ts(\?|$)|\/seg|chunk|fragment/i.test(v.src));
+  const order = [...vids.filter((v) => /\.mp4(\?|$)/i.test(v.src)), ...vids.filter((v) => /\.m3u8(\?|$)/i.test(v.src)), ...vids.filter((v) => !/\.(mp4|m3u8)(\?|$)/i.test(v.src))];
+  for (const v of order.slice(0, 4)) { if (Date.now() - T0 > 60000) break; if (await plays(v.src)) { video = { src: v.src, kind: kindOf(v.src), poster: v.poster || (home.videos[0] && home.videos[0].poster) || null }; break; } }
+  if (!video && home.embeds.length) video = { src: home.embeds[0], kind: kindOf(home.embeds[0]), poster: null };
 
   // 2. The photographs: large, the hotel's own, labelled in its words. The model chooses and
   //    labels up to twelve from the candidates; it may not add, rename or invent any.
   const cands = [...(gallery ? gallery.images : []), ...home.images]
-    .filter((im) => !NOISE.test(im.src) && !NOISE.test(im.alt) && (im.w >= 700 || im.h >= 500))
+    .filter((im) => !NOISE.test(im.src) && !NOISE.test(im.alt) && (im.w >= 1000 || im.h >= 700))   // large enough to fill the card
     .filter((im, i, a) => a.findIndex((x) => x.src === im.src) === i)
     .slice(0, 80);
-  let picked = [];
+  let picked = [], facilities = [];
   if (cands.length) {
     const list = cands.map((im, i) => `[${i + 1}] ${im.w}x${im.h} | alt: ${im.alt || "-"} | near: ${im.near || "-"} | ${im.src}`).join("\n");
-    const prompt = `These are photographs found on the website of "${hotel}" (its home page and gallery). Choose up to 12 that introduce the hotel to a guest — exterior, lobby, pool, spa, dining, bar, gardens, views, signature spaces — in a good order for a gallery strip. Skip guest rooms and suites (shown elsewhere), people-only shots, logos, maps, and near-duplicates. Give each a short label in the hotel's own words where the alt or nearby text supplies one (e.g. "Rooftop pool", "Dani Brasserie", "The lobby"), otherwise a plain two-word label from what the alt text says; never invent a name.
-Return ONLY JSON: { "pick": [ { "n": <number from the list>, "label": "<label>" } ] }
+    const words = (home.text || "").slice(0, 12000);
+    const prompt = `Below are (A) photographs found on the website of "${hotel}" and (B) the text of its home page.
 
-${list}`;
+TASK 1 — choose up to 12 photographs that introduce the hotel as the hotel itself would: the building and its setting, the lobby, the bar, the restaurants, the pool, the spa, gardens, views, signature spaces — in a good order, the most striking first. Skip guest rooms and suites (shown elsewhere), portraits, logos, maps, menus, near-duplicates and anything small or cropped oddly.
+"label": ONLY a proper name the hotel uses for that place — a restaurant or bar by name, a spa or club with its own name (e.g. "Dani Brasserie", "Isa", "El Patio"). Otherwise "" — never a description such as "Hotel exterior", "The lobby", "Pool area", "Spa"; the photograph speaks for itself.
+
+TASK 2 — list what the hotel says it has, from the page text only: each restaurant and bar BY NAME, the spa (by name if it has one, else "Spa"), "Pool" or "Rooftop pool" as the text puts it, "Fitness" if a gym is mentioned, and any named club or notable space. Nothing the text does not state.
+
+Return ONLY JSON: { "pick": [ { "n": <number>, "label": "<proper name or empty>" } ], "facilities": [ { "name": "<as the hotel writes it>", "kind": "restaurant"|"bar"|"spa"|"pool"|"fitness"|"other" } ] }
+
+(A) PHOTOGRAPHS
+${list}
+
+(B) HOME PAGE TEXT
+${words}`;
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify({ model: MODEL, max_tokens: 1200, messages: [{ role: "user", content: prompt }] }) });
       if (r.ok) {
         const data = await r.json(); const out = (data.content || []).map((b) => b.text || "").join("");
         const jm = /\{[\s\S]*\}/.exec(out); const parsed = jm ? JSON.parse(jm[0]) : null;
-        if (parsed && Array.isArray(parsed.pick)) picked = parsed.pick.map((p) => { const im = cands[Number(p.n) - 1]; return im ? { src: im.src, label: String(p.label || im.alt || "").slice(0, 80) } : null; }).filter(Boolean).slice(0, 12);
+        const BANNED = /^(hotel|the hotel|exterior|interior|lobby|the lobby|pool|pool area|spa|gym|fitness|garden|view|views|terrace|restaurant|bar|dining|room|suite|building|facade|entrance|night|day)(\s|'s|$)/i;
+        if (parsed && Array.isArray(parsed.pick)) picked = parsed.pick.map((p) => { const im = cands[Number(p.n) - 1]; if (!im) return null; const lab = String(p.label || "").trim().slice(0, 60); return { src: im.src, label: lab && !BANNED.test(lab) && lab.split(/\s+/).length <= 4 ? lab : "" }; }).filter(Boolean).slice(0, 12);
+        if (parsed && Array.isArray(parsed.facilities)) facilities = parsed.facilities.filter((f) => f && f.name).map((f) => ({ name: String(f.name).trim().slice(0, 60), kind: /^(restaurant|bar|spa|pool|fitness|other)$/.test(f.kind) ? f.kind : "other" })).slice(0, 14);
       }
     } catch (e) { picked = []; }
-    if (!picked.length) picked = cands.slice(0, 8).map((im) => ({ src: im.src, label: im.alt || "" }));   // the model is a curator, not a gate
+    if (!picked.length) picked = cands.slice(0, 8).map((im) => ({ src: im.src, label: "" }));   // the model is a curator, not a gate
   }
   if (video && video.poster && !picked.some((p) => p.src === video.poster)) { /* the poster stays with the video */ }
 
   const ok = !!(video || picked.length);
   res.setHeader("Cache-Control", ok ? "public, s-maxage=2592000, stale-while-revalidate=604800" : "no-store");
-  return res.status(200).json({ ok, hotel, source: home.url, fetched: new Date().toISOString(), video, gallery: picked, reason: ok ? undefined : "nothing-found",
+  return res.status(200).json({ ok, hotel, source: home.url, fetched: new Date().toISOString(), video, gallery: picked, facilities, reason: ok ? undefined : "nothing-found",
     log: debug ? log : undefined, candidates: debug ? { videos: home.videos, wire, embeds: home.embeds, images: cands.slice(0, 40) } : undefined });
 }
