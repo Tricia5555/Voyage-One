@@ -1,4 +1,4 @@
-// api/hotel-look.js — the hotel's own introduction: its film, its photographs, what it has (M977; M981: playable films only, large stills, names only, facilities — 25 Oct 2026).
+// api/hotel-look.js — the hotel's own introduction: its film, its photographs, what it has (M977; M981: playable films only, large stills, names only, facilities; M983: mp4 first for Safari, hidden gallery links, labels must be the photo's own — 25 Oct 2026).
 //
 // Before the rooms, the place (Tricia, 25 Oct 2026): the film the hotel runs on its own home page,
 // and the photographs it publishes of the lobby, pool, spa, dining and grounds. This function opens
@@ -26,7 +26,7 @@ import puppeteer from "puppeteer-core";
 
 const MODEL = "claude-haiku-4-5-20251001";
 const UA = "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
-const GALLERY_PATHS = ["/gallery", "/photo-gallery", "/photos", "/gallery/", "/media-gallery", "/en/gallery", "/the-hotel/gallery", "/hotel/gallery", "/images"];
+const GALLERY_PATHS = ["/photos-and-videos", "/photos-videos", "/gallery", "/photo-gallery", "/photos", "/gallery/photos", "/media-gallery", "/en/gallery", "/the-hotel/gallery", "/hotel/gallery", "/images"];
 
 async function openBrowser() {
   const token = (process.env.BROWSERLESS_TOKEN || "").trim();
@@ -132,8 +132,9 @@ export default async function handler(req, res) {
     // the gallery page: a link on the home page that says so, else the usual addresses
     let galleryUrl = null;
     try {
-      const links = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => ({ href: a.href, text: (a.innerText || a.getAttribute("aria-label") || "").trim().slice(0, 60) })));
-      const hit = links.find((l) => /gallery|photos|photo gallery/i.test(l.text) && new URL(l.href).origin === origin) || links.find((l) => /\/(gallery|photos|photo-gallery|media)(\/|$|\?)/i.test(l.href) && new URL(l.href).origin === origin);
+      const links = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => ({ href: a.href, text: (a.textContent || a.getAttribute("aria-label") || a.getAttribute("title") || "").replace(/\s+/g, " ").trim().slice(0, 60) })));
+      const same = (l) => { try { return new URL(l.href).origin === origin; } catch (e) { return false; } };
+      const hit = links.find((l) => /\/(gallery|photos|photo-gallery|photos-and-videos|photos-videos|media-gallery)(\/|$|\?)/i.test(l.href) && same(l)) || links.find((l) => /^(photos?|gallery|photo gallery|photos\s*&\s*videos|photos and videos)$/i.test(l.text) && same(l));
       if (hit) galleryUrl = hit.href;
     } catch (e) {}
     if (!galleryUrl) {
@@ -157,18 +158,26 @@ export default async function handler(req, res) {
   //    one that answers from outside the hotel's site. M977 offered a file the hotel locks to its own
   //    pages and the card showed a black square (Tricia, 25 Oct 2026). A film that will not play is
   //    not offered; the stills take its place.
+  // Returns the file's real type when it answers from outside, else null. Four Seasons serves its
+  // film as WebM/AV1 first — which Safari on an iPad cannot play (the black square, M981) — and
+  // as plain MP4 too; the page is given every verified version, MP4 first, and the browser
+  // takes the one it can play.
   const plays = async (u) => {
     try {
       const r = await fetch(u, { method: "GET", headers: { "User-Agent": UA, "Range": "bytes=0-1023", "Origin": "https://voyageoneworld.com" }, redirect: "follow" });
       const ct = (r.headers.get("content-type") || "").toLowerCase();
       log.push({ step: "video-check", url: u.slice(0, 140), status: r.status, type: ct.slice(0, 40) });
-      return (r.status === 200 || r.status === 206) && (/^video\//.test(ct) || /mpegurl|octet-stream/.test(ct));
-    } catch (e) { log.push({ step: "video-check", url: u.slice(0, 140), error: String(e && e.message || e).slice(0, 80) }); return false; }
+      return (r.status === 200 || r.status === 206) && (/^video\//.test(ct) || /mpegurl|octet-stream/.test(ct)) ? (ct.split(";")[0] || "video/mp4") : null;
+    } catch (e) { log.push({ step: "video-check", url: u.slice(0, 140), error: String(e && e.message || e).slice(0, 80) }); return null; }
   };
   let video = null;
   const vids = [...home.videos.map((v) => ({ src: v.src, poster: v.poster })), ...wire.map((u) => ({ src: u, poster: "" }))].filter((v) => v.src && !/blob:/.test(v.src) && !/\.ts(\?|$)|\/seg|chunk|fragment/i.test(v.src));
-  const order = [...vids.filter((v) => /\.mp4(\?|$)/i.test(v.src)), ...vids.filter((v) => /\.m3u8(\?|$)/i.test(v.src)), ...vids.filter((v) => !/\.(mp4|m3u8)(\?|$)/i.test(v.src))];
-  for (const v of order.slice(0, 4)) { if (Date.now() - T0 > 60000) break; if (await plays(v.src)) { video = { src: v.src, kind: kindOf(v.src), poster: v.poster || (home.videos[0] && home.videos[0].poster) || null }; break; } }
+  const transcoded = (u) => /vid-opt|~av1|~vp9|\.webm/i.test(u);   // a site's re-encoded copies, after its plain file
+  const order = [...vids.filter((v) => /\.mp4(\?|$)/i.test(v.src) && !transcoded(v.src)), ...vids.filter((v) => /\.m3u8(\?|$)/i.test(v.src)), ...vids.filter((v) => !(/\.mp4(\?|$)/i.test(v.src) && !transcoded(v.src)) && !/\.m3u8(\?|$)/i.test(v.src))];
+  const sources = [];
+  for (const v of order.slice(0, 5)) { if (Date.now() - T0 > 60000) break; const ty = await plays(v.src); if (ty) sources.push({ src: v.src, type: ty, poster: v.poster || "" }); }
+  sources.sort((a, b) => (/mp4|mpegurl/.test(a.type) ? 0 : 1) - (/mp4|mpegurl/.test(b.type) ? 0 : 1));
+  if (sources.length) video = { src: sources[0].src, kind: kindOf(sources[0].src), poster: sources.find((x) => x.poster) ? sources.find((x) => x.poster).poster : (home.videos[0] && home.videos[0].poster) || null, sources: sources.map((x) => ({ src: x.src, type: x.type })) };
   if (!video && home.embeds.length) video = { src: home.embeds[0], kind: kindOf(home.embeds[0]), poster: null };
 
   // 2. The photographs: large, the hotel's own, labelled in its words. The model chooses and
@@ -201,8 +210,8 @@ ${words}`;
         const data = await r.json(); const out = (data.content || []).map((b) => b.text || "").join("");
         const jm = /\{[\s\S]*\}/.exec(out); const parsed = jm ? JSON.parse(jm[0]) : null;
         const BANNED = /^(hotel|the hotel|exterior|interior|lobby|the lobby|pool|pool area|spa|gym|fitness|garden|view|views|terrace|restaurant|bar|dining|room|suite|building|facade|entrance|night|day)(\s|'s|$)/i;
-        if (parsed && Array.isArray(parsed.pick)) picked = parsed.pick.map((p) => { const im = cands[Number(p.n) - 1]; if (!im) return null; const lab = String(p.label || "").trim().slice(0, 60); return { src: im.src, label: lab && !BANNED.test(lab) && lab.split(/\s+/).length <= 4 ? lab : "" }; }).filter(Boolean).slice(0, 12);
-        if (parsed && Array.isArray(parsed.facilities)) facilities = parsed.facilities.filter((f) => f && f.name).map((f) => ({ name: String(f.name).trim().slice(0, 60), kind: /^(restaurant|bar|spa|pool|fitness|other)$/.test(f.kind) ? f.kind : "other" })).slice(0, 14);
+        if (parsed && Array.isArray(parsed.pick)) picked = parsed.pick.map((p) => { const im = cands[Number(p.n) - 1]; if (!im) return null; const lab = String(p.label || "").trim().slice(0, 60); const own = lab && ((im.alt || "") + " " + (im.near || "")).toLowerCase().includes(lab.toLowerCase()); return { src: im.src, label: own && !BANNED.test(lab) && lab.split(/\s+/).length <= 4 ? lab : "" }; }).filter(Boolean).slice(0, 12);
+        if (parsed && Array.isArray(parsed.facilities)) { const seen = new Set(); facilities = parsed.facilities.filter((f) => f && f.name).map((f) => ({ name: String(f.name).trim().slice(0, 60), kind: /^(restaurant|bar|spa|pool|fitness|other)$/.test(f.kind) ? f.kind : "other" })).filter((f) => { const k = f.name.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 14); }
       }
     } catch (e) { picked = []; }
     if (!picked.length) picked = cands.slice(0, 8).map((im) => ({ src: im.src, label: "" }));   // the model is a curator, not a gate
