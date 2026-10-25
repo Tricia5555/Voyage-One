@@ -1,4 +1,10 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (build M972, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974, 25 Oct 2026).
+//
+// M974: plain requests from our server were refused by Four Seasons and the Lotte alike
+// ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
+// is not a real browser. So when the plain request fails, the page is opened in the same
+// server-side browser the rates reader uses, which passes those checks and also renders pages
+// built in JavaScript. ?debug=1 lists every address tried and what came back.
 //
 // The client chooses a room ON VOYAGE ONE — names, sizes, beds, occupancy and the hotel's own
 // photographs — and never has to visit the hotel's site. This function fetches the hotel's
@@ -16,17 +22,44 @@
 // the hotel's own addresses, served from the hotel's server (if a site blocks hot-linking the
 // card falls back to its usual photograph).
 
+import chromiumPkg from "@sparticuz/chromium";
+import { chromium } from "playwright-core";
+
 const MODEL = "claude-haiku-4-5-20251001";
+const TRIED = [];
+// The same page, fetched by a real browser. Used whenever the plain request is refused.
+async function getWithBrowser(url) {
+  let browser = null;
+  try {
+    browser = await chromium.launch({ args: chromiumPkg.args, executablePath: await chromiumPkg.executablePath(), headless: true });
+    const ctx = await browser.newContext({ userAgent: UA, viewport: { width: 1180, height: 1600 }, locale: "en-US" });
+    const page = await ctx.newPage();
+    const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
+    try { await page.waitForLoadState("networkidle", { timeout: 10000 }); } catch (e) {}
+    await page.waitForTimeout(1500);
+    const html = await page.content();
+    const finalUrl = page.url();
+    TRIED.push({ url, via: "browser", status: resp ? resp.status() : null, bytes: html.length });
+    await browser.close();
+    return html && html.length > 500 ? { url: finalUrl, html } : null;
+  } catch (e) {
+    TRIED.push({ url, via: "browser", error: String(e && e.message || e).slice(0, 120) });
+    if (browser) { try { await browser.close(); } catch (x) {} }
+    return null;
+  }
+}
 const UA = "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
-const ROOM_PATHS = ["/accommodations", "/accommodations/", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay", "/suites", "/rooms-suites/", "/en/rooms", "/en/accommodation", "/en/accommodations", "/en/stay", "/the-rooms", "/villas", "/tents"];
+const ROOM_PATHS = ["/accommodations", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay", "/suites", "/en/rooms", "/en/accommodations", "/villas"];
 
 async function get(url) {
-  const r = await fetch(url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow" });
-  if (!r.ok) return null;
-  const ct = r.headers.get("content-type") || "";
-  if (!/html/i.test(ct)) return null;
-  const html = await r.text();
-  return { url: r.url, html };
+  try {
+    const r = await fetch(url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow" });
+    const ct = r.headers.get("content-type") || "";
+    TRIED.push({ url, via: "fetch", status: r.status, type: ct.slice(0, 40) });
+    if (r.ok && /html/i.test(ct)) { const html = await r.text(); if (html.length > 500) return { url: r.url, html }; }
+    if (r.status === 404) return null;              // a real "no such page": no point opening a browser on it
+  } catch (e) { TRIED.push({ url, via: "fetch", error: String(e && e.message || e).slice(0, 120) }); }
+  return await getWithBrowser(url);
 }
 function abs(base, href) { try { return new URL(href, base).toString(); } catch (e) { return null; } }
 // HTML → readable text keeping image addresses and links, so the reader can tie photos to rooms.
@@ -73,15 +106,17 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
+  TRIED.length = 0;
+  const debug = String(req.query.debug || "") === "1";
   const hotel = String(req.query.hotel || "").slice(0, 120).trim();
   const site = String(req.query.site || "").slice(0, 300).trim();
   if (!hotel || !site || !/^[a-z0-9.-]+\.[a-z]{2,}/i.test(site.replace(/^https?:\/\//, ""))) return res.status(200).json({ ok: false, reason: "bad-request" });
 
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
-  if (!page) return res.status(200).json({ ok: false, reason: "unreachable", hotel, site });
+  if (!page) return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, tried: TRIED });
   const text = distill(page.html, page.url).slice(0, 70000);
-  if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url });
+  if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined });
 
   const prompt = `Below is the text of a hotel's own website page, with its images shown as [IMG url | alt] and links as [LINK url]. The hotel is "${hotel}". Extract the hotel's ROOM AND SUITE CATEGORIES exactly as the hotel names them.
 
@@ -111,7 +146,7 @@ ${text}`;
     const out = (data.content || []).map((b) => b.text || "").join("").trim();
     const jm = /\{[\s\S]*\}/.exec(out);
     let parsed; try { parsed = jm ? JSON.parse(jm[0]) : null; } catch (e) { parsed = null; }
-    if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url });
+    if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined });
     const S = (v, n = 300) => (v == null || v === "" ? null : String(v).trim().slice(0, n));
     const rooms = parsed.rooms.filter((x) => x && x.name).slice(0, 40).map((x) => ({
       name: S(x.name, 120), category: S(x.category, 80), size: S(x.size, 80), beds: S(x.beds, 120), occupancy: S(x.occupancy, 120), view: S(x.view, 120), description: S(x.description, 600),
@@ -119,7 +154,8 @@ ${text}`;
       url: typeof x.url === "string" && /^https?:\/\//.test(x.url) ? x.url : null,
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
-    return res.status(200).json({ ok: true, hotel, source: page.url, fetched: new Date().toISOString(), rooms });
+    if (!rooms.length) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
+    return res.status(200).json({ ok: true, hotel, source: page.url, fetched: new Date().toISOString(), rooms, tried: debug ? TRIED : undefined });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch", detail: String(e && e.message || e).slice(0, 200) });
   }
