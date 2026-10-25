@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -27,12 +27,29 @@ import puppeteer from "puppeteer-core";
 
 const MODEL = "claude-haiku-4-5-20251001";
 const TRIED = [];
+// WHERE THE BROWSER RUNS (M977, 25 Oct 2026). Vercel's function image lacks a system library the
+// bundled Chromium needs ("libnss3.so"), so the browser is hosted: with BROWSERLESS_TOKEN set in
+// Vercel, the readers connect to Browserless (plumbing, like Vercel or Supabase — nothing a
+// client sees); without it they still try the bundled browser, which works on hosts that have
+// the library. ?debug=1 reports which one answered.
+async function openBrowser() {
+  const token = process.env.BROWSERLESS_TOKEN;
+  if (token) {
+    const region = process.env.BROWSERLESS_REGION || "production-sfo";
+    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&blockAds=true`;
+    const browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: { width: 1180, height: 1600 } });
+    return { browser, via: "browserless" };
+  }
+  chromiumPkg.setGraphicsMode = false;
+  const browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
+  return { browser, via: "bundled" };
+}
+
 // The same page, fetched by a real browser. Used whenever the plain request is refused.
 async function getWithBrowser(url) {
   let browser = null;
   try {
-    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server
-    browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
+    const opened = await openBrowser(); browser = opened.browser;
     const page = await browser.newPage();
     await page.setUserAgent(UA);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
@@ -41,7 +58,7 @@ async function getWithBrowser(url) {
     await new Promise((r) => setTimeout(r, 1500));
     const html = await page.content();
     const finalUrl = page.url();
-    TRIED.push({ url, via: "browser", status: resp ? resp.status() : null, bytes: html.length });
+    TRIED.push({ url, via: "browser:" + opened.via, status: resp ? resp.status() : null, bytes: html.length });
     await browser.close();
     return html && html.length > 500 ? { url: finalUrl, html } : null;
   } catch (e) {
