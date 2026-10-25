@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -137,12 +137,19 @@ ${text}`;
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST", headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 4000, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 8000, messages: [{ role: "user", content: prompt }] }),
     });
     if (!r.ok) { const detail = await r.text(); return res.status(200).json({ ok: false, reason: "anthropic-error", status: r.status, detail: detail.slice(0, 200) }); }
     const data = await r.json();
     const out = (data.content || []).map((b) => b.text || "").join("").trim();
-    const jm = /\{[\s\S]*\}/.exec(out); parsed = jm ? JSON.parse(jm[0]) : null;
+    const jm = /\{[\s\S]*\}/.exec(out);
+    try { parsed = jm ? JSON.parse(jm[0]) : null; } catch (e) { parsed = null; }
+    if (!parsed || !Array.isArray(parsed.rooms)) {
+      const objs = []; const re = /\{\s*"name"\s*:[\s\S]*?\]\s*\}/g; let m;
+      while ((m = re.exec(out))) { try { objs.push(JSON.parse(m[0])); } catch (e) {} }
+      const cm = /"currency"\s*:\s*"([^"]*)"/.exec(out);
+      parsed = objs.length ? { currency: cm ? cm[1] : null, rooms: objs } : null;
+    }
   } catch (e) { parsed = null; }
   if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", url: finalUrl, sample: debug ? text.slice(0, 3000) : undefined });
 
