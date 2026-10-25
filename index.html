@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M982";
+const BUILD = "M984";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22016,7 +22016,7 @@ function useHotelLook(hotel, site) {
     let dead = false;
     fetch(`/api/hotel-look?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const rec = j && j.ok ? { look: { video: j.video || null, gallery: Array.isArray(j.gallery) ? j.gallery : [] }, status: "ok" } : { look: null, status: "none" }; LOOK_CACHE[key] = rec; if (!dead) setState(rec); })
+      .then((j) => { const rec = j && j.ok ? { look: { video: j.video || null, gallery: Array.isArray(j.gallery) ? j.gallery : [], facilities: Array.isArray(j.facilities) ? j.facilities : [] }, status: "ok" } : { look: null, status: "none" }; LOOK_CACHE[key] = rec; if (!dead) setState(rec); })
       .catch(() => { const rec = { look: null, status: "none" }; LOOK_CACHE[key] = rec; if (!dead) setState(rec); });
     return () => { dead = true; };
   }, [key]);
@@ -22049,7 +22049,9 @@ function HotelLook({ hotel, site }) {
   const fac = look.facilities || [];
   return (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 12 }}>
     {v && !isEmbed ? (<div style={{ position: "relative", borderRadius: 14, overflow: "hidden", aspectRatio: "16 / 9", display: playing ? "block" : "none", background: "#000" }}>
-      <video src={v.src} poster={v.poster || undefined} autoPlay muted loop playsInline preload="auto" onPlaying={() => setPlaying(true)} onError={() => setVideoBad(true)} onStalled={() => { if (!playing) setVideoBad(true); }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      <video poster={v.poster || undefined} autoPlay muted loop playsInline preload="auto" onPlaying={() => setPlaying(true)} onError={() => setVideoBad(true)} onStalled={() => { if (!playing) setVideoBad(true); }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}>
+        {(Array.isArray(v.sources) && v.sources.length ? v.sources : [{ src: v.src, type: undefined }]).map((x, k) => <source key={k} src={x.src} type={x.type || undefined} />)}
+      </video>
     </div>) : null}
     {v && isEmbed ? (<div style={{ position: "relative", borderRadius: 14, overflow: "hidden", aspectRatio: "16 / 9", background: "#000" }}><iframe src={embedSrc(v)} title={`${hotel} — film`} allow="autoplay; fullscreen" style={{ width: "100%", height: "100%", border: 0, display: "block" }} /></div>) : null}
     {pics.length ? (<div style={{ position: "relative", marginTop: (v && (playing || isEmbed)) ? 8 : 0 }}>
