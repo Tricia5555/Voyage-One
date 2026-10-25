@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -92,12 +92,15 @@ async function linkFromRooms(req, hotel, site) {
   try {
     const proto = (req.headers["x-forwarded-proto"] || "https").split(",")[0];
     const host = req.headers["x-forwarded-host"] || req.headers.host;
-    const r = await fetch(`${proto}://${host}/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&v=2`);
-    const j = r.ok ? await r.json() : null;
+    // Six seconds, no more (M991): a cached answer arrives in under one; a cold cache (every deploy
+    // clears it) keeps computing on its own and is warm for the next visit, while we scan the site.
+    const ac = new AbortController(); const timer = setTimeout(() => ac.abort(), 6000);
+    let r = null; try { r = await fetch(`${proto}://${host}/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&v=2`, { signal: ac.signal }); } finally { clearTimeout(timer); }
+    const j = r && r.ok ? await r.json() : null;
     const u = j && j.ok && j.booking ? String(j.booking) : null;
     LOG.push({ step: "find-link", via: "rooms-api", ok: !!u, link: u || undefined });
     return u && ENGINES.some((e) => e.test.test(u)) ? u : null;
-  } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: String(e && e.message || e).slice(0, 120) }); return null; }
+  } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: /abort/i.test(String(e && e.name || e)) ? "cold cache — warming" : String(e && e.message || e).slice(0, 120) }); return null; }
 }
 async function findBookingLink(site, page, via) {
   if (LINK_CACHE[site]) { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
@@ -165,10 +168,20 @@ async function work(req, res, S) {
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     // What the app itself sees (M990): failed requests, its API calls, and its error console. A
     // page that draws nothing explains itself here, not in its text.
-    page.on("response", (r) => { try { const s = r.status(); const u = r.url(); const ty = r.request().resourceType(); if (s >= 400 && S.net.length < 40) S.net.push({ s, u: u.slice(0, 160) }); if ((ty === "xhr" || ty === "fetch") && S.api.length < 30) S.api.push({ s, u: u.slice(0, 160) }); } catch (e) {} });
+    const NOISE = /cookielaw|onetrust|optimizely|apm\.|\/akam\/|google|facebook|doubleclick|smooch|fonts\./i;
+    page.on("response", async (r) => {
+      try {
+        const s = r.status(); const u = r.url(); const ty = r.request().resourceType();
+        const data = (ty === "xhr" || ty === "fetch") && !NOISE.test(u);
+        const telling = s >= 400 || /avail|rate|room|price|search|tretail|book/i.test(u);
+        let body; if (data && telling && S.api.length < 40) { try { body = (await r.text()).replace(/\s+/g, " ").slice(0, 400); } catch (e) { body = undefined; } }
+        if (s >= 400 && S.net.length < 40) S.net.push({ s, u: u.slice(0, 160), body });
+        if (data && S.api.length < 40) S.api.push({ s, u: u.slice(0, 160), m: r.request().method(), body: telling ? body : undefined });
+      } catch (e) {}
+    });
     page.on("requestfailed", (r) => { try { if (S.net.length < 40) S.net.push({ s: "failed", u: r.url().slice(0, 160), e: ((r.failure() || {}).errorText || "").slice(0, 60) }); } catch (e) {} });
     page.on("console", (m) => { try { if (m.type() === "error" && S.console.length < 20) S.console.push(m.text().slice(0, 240)); } catch (e) {} });
-    page.on("pageerror", (e) => { try { if (S.console.length < 20) S.console.push("pageerror: " + String(e && e.message || e).slice(0, 240)); } catch (x) {} });
+    page.on("pageerror", (e) => { try { if (S.console.length < 20) S.console.push("pageerror: " + String(e && e.stack || e && e.message || e).slice(0, 600)); } catch (x) {} });
     // 1. The hotel's own booking link, and the engine it belongs to.
     LOG.push({ step: "browser-open", via, ms: ms() });
     try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site) || await findBookingLink(site, page, via); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
