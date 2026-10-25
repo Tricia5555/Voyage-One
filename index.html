@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M975";
+const BUILD = "M976";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22665,7 +22665,13 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
     Recommended: `No Michelin Bib Gourmand in ${bareCity(city)} yet.`,
     Local: `No Local Favorite in ${bareCity(city)} yet — these are hand-picked.`,
   };
+  const nDest = pool.filter((r) => michTier(r, dense) === "Destination").length, nRec = pool.filter((r) => michTier(r, dense) === "Recommended").length, nLoc = localFavRows.length;
+  const nAll = nDest + nRec + nLoc;
   return (<>
+    {level == null && nAll > 0 ? (<div style={{ marginBottom: 10 }}>
+      <div style={{ fontFamily: font.display, fontSize: 19, fontWeight: 700, color: t.ink, letterSpacing: ".02em" }}>{nAll} {nAll === 1 ? "TABLE" : "TABLES"} IN {bareCity(city).toUpperCase()}</div>
+      <div style={{ fontSize: 12.5, letterSpacing: ".1em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginTop: 3 }}>{[nDest ? `${nDest} Destination` : "", nRec ? `${nRec} Recommended` : "", nLoc ? `${nLoc} Local Favorite` : ""].filter(Boolean).join(" · ")}{nAll > 2 ? " — two shown below, tap a category to see them all" : ""}</div>
+    </div>) : null}
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12, alignItems: "center" }}>
       {/* Local Favorite is hidden where there is nothing in it. Destination stays even when
           empty — that tier is the aspiration, and its absence in a city is information. Local
@@ -22673,7 +22679,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
           has got to this city yet, which is about us rather than about the place. */}
       {DINE_TABS.map((dl) => { const n = dl.key === "Local" ? localFavRows.length : pool.filter((r) => michTier(r, dense) === dl.key).length; const on = level === dl.key;
         if (!n) return null;   // no chip for an empty category: a tap that does nothing is worse than no tap
-        return (<button key={dl.key} onClick={() => setLevel(on ? null : dl.key)} style={{ ...chip(on), padding: level == null ? "12px 18px" : "9px 14px", fontSize: level == null ? 14.5 : 13 }}>{dl.label}{n ? <span style={{ marginLeft: 8, fontSize: 11.5, opacity: .8 }}>{n}</span> : null}</button>); })}
+        return (<button key={dl.key} onClick={() => setLevel(on ? null : dl.key)} style={{ ...chip(on), padding: level == null ? "12px 18px" : "9px 14px", fontSize: level == null ? 14.5 : 13 }}>{dl.label}{n ? <span style={{ marginLeft: 8, fontSize: 13, fontWeight: 800 }}>{n}</span> : null}</button>); })}
       <span style={{ marginLeft: "auto", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Curated</span>
     </div>
     {level == null ? (() => {
@@ -22698,7 +22704,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
               onDate={(dt) => setDate(found.name, found.level, dt)} onSet={(patch) => setField(found.name, found.level, patch)} nights={nights} />); })}
           {tease.map((r, k) => <div key={k} onClick={() => setLevel(teaseLevel)} style={{ cursor: "pointer" }}><DineCard r={r} city={city} level={teaseLevel} found={null} onToggle={() => setLevel(teaseLevel)} onDate={() => {}} onSet={() => {}} nights={nights} /></div>)}
         </div>
-        {total > shownN ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}>{total - shownN} more {total - shownN === 1 ? "table" : "tables"} — tap a category above.</div> : null}
+        {total > shownN ? <div style={{ fontSize: 13, color: t.pine, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", marginTop: 12 }}>+ {total - shownN} more {total - shownN === 1 ? "table" : "tables"} — tap a category above to see them all</div> : null}
       </div>);
     })() : cardRows.length > 0 ? <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {cardRows.map((r, k) => { const found = dines.find((x) => keyOf(x.name, x.level) === keyOf(r.n, level)); return (
