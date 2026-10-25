@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; launch flags + Node 22 M975, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -31,7 +31,8 @@ const TRIED = [];
 async function getWithBrowser(url) {
   let browser = null;
   try {
-    browser = await chromium.launch({ args: chromiumPkg.args, executablePath: await chromiumPkg.executablePath(), headless: true });
+    chromiumPkg.setGraphicsMode = false;   // no WebGL on a server: the usual cause of a launch crash
+    browser = await chromium.launch({ args: [...chromiumPkg.args, "--disable-gpu", "--single-process", "--no-zygote"], executablePath: await chromiumPkg.executablePath(), headless: true });
     const ctx = await browser.newContext({ userAgent: UA, viewport: { width: 1180, height: 1600 }, locale: "en-US" });
     const page = await ctx.newPage();
     const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
