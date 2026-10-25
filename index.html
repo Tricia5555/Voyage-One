@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M971";
+const BUILD = "M973";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -21884,7 +21884,7 @@ function BookingPrompt() {
 // places it with the hotel. No e-mail is sent yet — that needs a mail provider and a small API.
 const RESERVE_LINE = "The hotel's own rate — and every benefit the hotel extends to our guests: breakfast, a hotel credit, upgrade priority, a proper welcome, where the hotel offers them. The reservation is in your name; the hotel confirms to you and you pay the hotel.";
 const RESERVE_SITE_LINE = "Booking on the hotel's site is the same price, without the benefits.";
-const RESERVE_SHEET_LINE = (hotel) => `We place this with ${hotel} in your name, with our partner benefits applied. The hotel confirms to you, usually within a business day. If you saw a special rate or offer on their site, tell us its name and we'll ask for it.`;
+const RESERVE_SHEET_LINE = (hotel) => `We place this with ${hotel} in your name, with our partner benefits applied. The hotel confirms the room and the rate to you, usually within a business day.`;
 const RESERVE_WAIT_LINE = (hotel) => `Requested · ${hotel} confirms to you directly, usually within a business day.`;
 // The e-mail from Voyage One to the hotel's reservations desk (and to us and the host). Best
 // effort: a missing API or key does not fail the request — the row is already in the table.
@@ -21912,7 +21912,7 @@ async function requestReservation(r) {
 }
 function ReserveSheet({ s, city, site, onClose, prefill, onRequested }) {
   const pf = prefill || {};
-  const [f, setF] = useState({ first: pf.first || "", last: pf.last || "", email: pf.email || "", phone: pf.phone || "", checkIn: pf.checkIn || "", checkOut: pf.checkOut || "", guests: String(pf.guests || 2), room: "", offer: "", notes: "" });
+  const [f, setF] = useState({ first: pf.first || "", last: pf.last || "", email: pf.email || "", phone: pf.phone || "", checkIn: pf.checkIn || "", checkOut: pf.checkOut || "", guests: String(pf.guests || 2), room: pf.room || "", offer: pf.offer || "", notes: "" });
   const [state, setState] = useState("form");   // form | sending | done | error
   const [why, setWhy] = useState("");
   const [mailed, setMailed] = useState(false);
@@ -21957,8 +21957,8 @@ function ReserveSheet({ s, city, site, onClose, prefill, onRequested }) {
           {field("Depart", <input type="date" value={f.checkOut} min={f.checkIn || undefined} onChange={set("checkOut")} style={inp} />)}
           {field("Guests", <input type="number" min="1" max="12" value={f.guests} onChange={set("guests")} inputMode="numeric" style={inp} />)}
         </div>
-        {field("Room or suite — as named on the hotel's site", <input value={f.room} onChange={set("room")} placeholder="Junior Suite Garden View" style={inp} />)}
-        {field("Rate or offer you saw there (optional)", <input value={f.offer} onChange={set("offer")} placeholder="Stay 4 pay 3, Bed & Breakfast…" style={inp} />)}
+        {field("Room or suite", <input value={f.room} onChange={set("room")} placeholder="Choose a room on the card, or name one" style={inp} />)}
+        {field("Rate and offer", <input value={f.offer} onChange={set("offer")} placeholder="As shown beside the room, or one you would like us to ask for" style={inp} />)}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {field("First name", <input value={f.first} onChange={set("first")} autoComplete="given-name" style={inp} />)}
           {field("Last name", <input value={f.last} onChange={set("last")} autoComplete="family-name" style={inp} />)}
@@ -21974,6 +21974,96 @@ function ReserveSheet({ s, city, site, onClose, prefill, onRequested }) {
   </div>);
   // Rendered on the body, never inside the card (see the note above).
   return (typeof document !== "undefined" && document.body && document.body.nodeType === 1) ? createPortal(body, document.body) : body;
+}
+// ══ THE HOTEL'S ROOMS, ON OUR CARD (Tricia, 25 Oct 2026: "they do not actually go to the Madrid
+// Four Seasons") ════════════════════════════════════════════════════════════════════════════════
+// /api/rooms fetches the hotel's own accommodation page on our server and returns its room and
+// suite categories with the hotel's own photographs — one method for every brand. The client
+// chooses the room here, and the reservation request carries the exact name the hotel uses.
+const ROOMS_CACHE = {};
+function useHotelRooms(hotel, site) {
+  const key = hotel && site ? `${hotel}|${site}` : "";
+  const [state, setState] = useState(key && ROOMS_CACHE[key] ? ROOMS_CACHE[key] : { rooms: null, status: key ? "loading" : "none" });
+  useEffect(() => {
+    if (!key) return;
+    if (ROOMS_CACHE[key]) { setState(ROOMS_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const rec = j && j.ok && Array.isArray(j.rooms) && j.rooms.length ? { rooms: j.rooms, status: "ok", source: j.source } : { rooms: null, status: "none" }; ROOMS_CACHE[key] = rec; if (!dead) setState(rec); })
+      .catch(() => { const rec = { rooms: null, status: "none" }; ROOMS_CACHE[key] = rec; if (!dead) setState(rec); });
+    return () => { dead = true; };
+  }, [key]);
+  return state;
+}
+// READY FOR SABRE. Live rates and availability per room arrive from /api/hotel-rates once the
+// host's Sabre line is sponsored; until that function exists this returns null and the card says
+// the hotel confirms the rate. Shape when live: { [roomName]: [{ plan, price, currency, perNight,
+// cancel, benefits }] } — the card already renders it.
+const RATES_CACHE = {};
+function useRoomRates(hotel, checkIn, checkOut, pax) {
+  const key = hotel && checkIn && checkOut ? `${hotel}|${checkIn}|${checkOut}|${pax || 2}` : "";
+  const [rates, setRates] = useState(key && RATES_CACHE[key] !== undefined ? RATES_CACHE[key] : null);
+  useEffect(() => {
+    if (!key) return;
+    if (RATES_CACHE[key] !== undefined) { setRates(RATES_CACHE[key]); return; }
+    let dead = false;
+    fetch(`/api/hotel-rates?hotel=${encodeURIComponent(hotel)}&checkIn=${checkIn}&checkOut=${checkOut}&pax=${pax || 2}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { const v = j && j.ok && j.rates ? j.rates : null; RATES_CACHE[key] = v; if (!dead) setRates(v); })
+      .catch(() => { RATES_CACHE[key] = null; if (!dead) setRates(null); });
+    return () => { dead = true; };
+  }, [key]);
+  return rates;
+}
+const fmtRate = (pl) => `${pl.currency || ""} ${Number(pl.price).toLocaleString("en-US")}`.trim() + (pl.perNight ? " / night" : " for the stay");
+function ratesFor(rates, name) {
+  if (!rates || !name) return null;
+  if (rates[name]) return rates[name];
+  const k = dnrm(name); const hit = Object.keys(rates).find((x) => dnrm(x) === k) || Object.keys(rates).find((x) => dnrm(x).includes(k) || k.includes(dnrm(x)));
+  return hit ? rates[hit] : null;
+}
+function RoomTile({ r, chosen, onChoose, rates, chosenPlan }) {
+  const [bad, setBad] = useState(false);
+  const img = r.images && r.images[0];
+  const plans = ratesFor(rates, r.name);
+  const soldOut = plans && plans.length === 1 && plans[0].soldOut;
+  const spec = [r.size, r.beds, r.occupancy].filter(Boolean).join(" · ");
+  return (<button type="button" onClick={() => onChoose(chosen ? null : r, plans && plans.length && !soldOut ? plans[0] : null)} style={{ textAlign: "left", background: chosen ? t.mist : t.white, border: `2px solid ${chosen ? t.pine : t.line}`, borderRadius: 14, padding: 0, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column", fontFamily: font.ui, opacity: soldOut ? 0.6 : 1 }}>
+    <div style={{ height: 130, background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", overflow: "hidden" }}>
+      {img && !bad ? <img src={img} alt="" loading="lazy" onError={() => setBad(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+    </div>
+    <div style={{ padding: "10px 12px 12px" }}>
+      <div style={{ fontFamily: font.display, fontSize: 17, color: t.ink, lineHeight: 1.15 }}>{r.name}</div>
+      {spec ? <div style={{ fontSize: 11.5, color: t.inkSoft, lineHeight: 1.45, marginTop: 4 }}>{spec}</div> : null}
+      {r.view ? <div style={{ fontSize: 11.5, color: t.brass, marginTop: 3 }}>{r.view}</div> : null}
+      {soldOut ? <div style={{ fontSize: 12, color: "#B0563A", marginTop: 6, fontWeight: 600 }}>Sold out for your dates</div>
+        : plans && plans.length ? (<div style={{ marginTop: 6 }}>{plans.slice(0, 4).map((pl, k) => { const on = chosen && chosenPlan && chosenPlan.plan === pl.plan && chosenPlan.price === pl.price; return (
+          <div key={k} role="button" onClick={(e) => { e.stopPropagation(); onChoose(r, pl); }} style={{ fontSize: 12.5, color: t.ink, lineHeight: 1.45, padding: "5px 8px", margin: "3px 0", borderRadius: 8, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.white : "transparent", cursor: "pointer" }}>
+            <strong>{fmtRate(pl)}</strong>{pl.plan ? ` · ${pl.plan}` : ""}{pl.benefits ? <div style={{ color: t.pine, fontSize: 11.5 }}>{pl.benefits}</div> : null}{pl.cancel ? <div style={{ color: t.inkFaint, fontSize: 11 }}>{pl.cancel}</div> : null}
+          </div>); })}</div>)
+        : <div style={{ fontSize: 11, color: t.inkFaint, marginTop: 6, fontStyle: "italic" }}>Rate confirmed by the hotel</div>}
+      <div style={{ fontSize: 11.5, color: chosen ? t.pine : t.brass, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", marginTop: 8 }}>{chosen ? "✓ Your room" : soldOut ? "" : "Choose this room"}</div>
+    </div>
+  </button>);
+}
+function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax }) {
+  const { rooms, status } = useHotelRooms(hotel, site);
+  const rates = useRoomRates(hotel, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax);
+  const [all, setAll] = useState(false);
+  if (status === "loading") return <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 10 }}>Fetching the rooms from {hotel}…</div>;
+  if (!rooms) return null;
+  const chosenName = chosen && chosen.name ? dnrm(chosen.name) : "";
+  const show = all || rooms.length <= 6 ? rooms : rooms.slice(0, 6);
+  const cats = [...new Set(show.map((r) => r.category).filter(Boolean))];
+  return (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 12 }}>
+    <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 8 }}>Rooms & suites · choose yours</div>
+    <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))" }}>
+      {show.map((r, k) => <RoomTile key={k} r={r} chosen={chosenName && dnrm(r.name) === chosenName} onChoose={onChoose} rates={rates} chosenPlan={chosen && chosen.plan} />)}
+    </div>
+    {rooms.length > 6 && !all ? <button type="button" onClick={() => setAll(true)} style={{ marginTop: 10, background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", fontSize: 12.5, color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>See all {rooms.length} rooms and suites{cats.length > 1 ? "" : ""}</button> : null}
+    <div style={{ fontSize: 11, color: t.inkFaint, lineHeight: 1.5, marginTop: 8 }}>{rates ? `Rooms, photographs and rates as published by ${hotel} for your dates.` : `Rooms and photographs as published by ${hotel}.`}</div>
+  </div>);
 }
 // WHILE THEY ARE ON THE HOTEL'S SITE our tab stays open with this on its right edge, so coming
 // back there is nothing to find. Portaled to the body — a fixed element inside the card resolves
@@ -22029,7 +22119,7 @@ function PlaceMap({ name, city, area }) {
     </div>) : null}
   </div>);
 }
-function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested }) {
+function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested, room, onRoom, stayDates, pax }) {
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
   // way the presentation is identical — one card for every hotel.
   const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
@@ -22039,7 +22129,9 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
   // than leaving the card blank. Universal: any hotel row, one field.
   const [bad, setBad] = useState(null);
   const [reserve, setReserve] = useState(false);   // the "Reserve through Voyage One" sheet
-  const [looked, setLooked] = useState(false);     // they opened the hotel's site: pin the way back
+  const [localRoom, setLocalRoom] = useState(null); // the chosen room when no trip holds it (Explore)
+  const roomChosen = room || localRoom;
+  const chooseRoom = (r, pl) => { const v = r ? { ...r, plan: pl && !pl.soldOut ? { plan: pl.plan, price: pl.price, currency: pl.currency, perNight: !!pl.perNight, cancel: pl.cancel || null } : null } : null; setLocalRoom(v); if (onRoom) onRoom(v); };
   const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
   const rating = null;   // Google crowd rating — deliberately not shown. See note above.
@@ -22069,6 +22161,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
         : <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>}
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
+        {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} /> : null}
       {s.vo ? <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 600, marginTop: 6, lineHeight: 1.5 }}>VO ♥ Voyage One favorite{s.voNote ? ` — ${s.voNote}` : ""}</div> : null}
         {s.contact ? <div style={{ fontSize: 12, color: t.inkSoft, lineHeight: 1.55, marginTop: 9, paddingTop: 9, borderTop: `1px solid ${t.line}` }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.web ? <div>{site ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: t.pineSoft, textDecoration: "none" }}>{s.contact.web}</a> : s.contact.web}</div> : null}</div> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
@@ -22076,13 +22169,9 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
             <div style={{ fontFamily: font.display, fontSize: 19, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>Reserve through Voyage One.</div>
             <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE}</div>
             {requested ? <div style={{ fontSize: 13.5, color: t.pine, fontWeight: 700, lineHeight: 1.5, marginTop: 10 }}>{RESERVE_WAIT_LINE(s.name)}</div> : null}
-            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLooked(false); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : "Reserve it through Voyage One"}</button>
-            {site ? <div style={{ marginTop: 12, fontSize: 13, color: t.inkSoft, lineHeight: 1.55 }}>
-              <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" onClick={() => setLooked(true)} style={{ color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>Look at the rooms and rates at {s.name} ↗</a> — then come back and we'll reserve it.
-              <div style={{ fontStyle: "italic", color: t.inkSoft, marginTop: 3 }}>{RESERVE_SITE_LINE}</div>
-            </div> : null}
-            {looked && !reserve ? <ReservePin hotel={s.name} onOpen={() => { setLooked(false); setReserve(true); }} onClose={() => setLooked(false)} /> : null}
-            {reserve ? <ReserveSheet s={s} city={city} site={site} prefill={prefill} onRequested={onRequested} onClose={() => setReserve(false)} /> : null}
+            {roomChosen && roomChosen.name ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}><span style={{ color: t.inkSoft }}>Your room:</span> <strong>{roomChosen.name}</strong>{roomChosen.plan ? <span> · {fmtRate(roomChosen.plan)}{roomChosen.plan.plan ? ` · ${roomChosen.plan.plan}` : ""}</span> : null}</div> : null}
+            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : roomChosen && roomChosen.name ? `Reserve the ${roomChosen.name}` : "Reserve it through Voyage One"}</button>
+            {reserve ? <ReserveSheet s={s} city={city} site={site} prefill={{ ...(prefill || {}), room: roomChosen && roomChosen.name ? roomChosen.name : "", offer: roomChosen && roomChosen.plan ? `${roomChosen.plan.plan || "Rate"} · ${fmtRate(roomChosen.plan)}${roomChosen.plan.cancel ? " · " + roomChosen.plan.cancel : ""}` : "" }} onRequested={onRequested} onClose={() => setReserve(false)} /> : null}
           </div>)}
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
@@ -22094,6 +22183,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   // What the reservation sheet opens with: the leg's dates, the party, the lead traveller.
   const prefill = { checkIn: stayDates && stayDates.checkIn || "", checkOut: stayDates && stayDates.checkOut || "", guests: pax || 2, first: lead && lead.first || "", last: lead && lead.last || "" };
   const onRequested = (req) => upd({ stay: { ...(pick.stay || {}), requested: req } });
+  const onRoom = (r) => upd({ stay: { ...(pick.stay || {}), room: r ? { name: r.name, size: r.size || null, beds: r.beds || null, plan: r.plan || null } : null, nightly: r && r.plan && r.plan.perNight ? r.plan.price : (pick.stay && pick.stay.nightly) || null, estimated: !(r && r.plan && r.plan.perNight) } });
   const favs = lookup(FAVORITES, city) || [];
   // OPEN ON THE FIRST TAB THAT HAS SOMETHING IN IT. The default used to be Ultra Luxury,
   // unconditionally, which was fine when most curated cities had one. After the Sept 2026 tier
@@ -22223,7 +22313,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
     {collapsed && (<div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {(() => {
         const f = favs.find((x) => x.name === chosen.name);
-        return f ? <FavHotelCard s={f} city={city} cur={favCur} sel={true} onClick={() => upd({ stay: null })} nights={nights} prefill={prefill} requested={pick.stay && pick.stay.requested} onRequested={onRequested} />
+        return f ? <FavHotelCard s={f} city={city} cur={favCur} sel={true} onClick={() => upd({ stay: null })} nights={nights} prefill={prefill} requested={pick.stay && pick.stay.requested} onRequested={onRequested} room={pick.stay && pick.stay.room} onRoom={onRoom} stayDates={stayDates} pax={pax} />
           : <div style={{ gridColumn: "1 / -1", background: "#fff", border: `2px solid ${t.brass}`, borderRadius: 16, padding: "16px 18px" }}>
               <div style={{ fontFamily: font.display, fontSize: 22, color: t.ink }}>{chosen.name || chosen.level}</div>
               {chosen.band ? <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 3 }}>{chosen.band}</div> : null}
@@ -22238,7 +22328,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {favOrdered.map((s, k) => { const sel = chosenName && dnrm(s.name) === chosenName; return (
-          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested}
+          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested} room={sel && pick.stay ? pick.stay.room : null} onRoom={sel ? onRoom : null} stayDates={stayDates} pax={pax}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} /></div>); })}
       </div>
       {fromExperience && favChosen.length && favRest.length ? (
@@ -22361,6 +22451,7 @@ function stayLine(stay, nights) {
   const bits = [`${nights} ${nights === 1 ? "night" : "nights"}`];
   if (stay.level) bits.push(stay.level);
   if (stay.area) bits.push(bareCity(String(stay.area).split("\u00b7")[0].trim()));
+  if (stay.room && stay.room.name) bits.push(stay.room.name);
   bits.push(stay.booked ? (stay.ref ? `Booked \u00b7 ${stay.ref}` : "Booked") : "Not booked");
   const c = stay.contact || {};
   if (c.tel) bits.push(c.tel);
