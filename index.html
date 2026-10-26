@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M989";
+const BUILD = "M990";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22086,7 +22086,7 @@ function useHotelRooms(hotel, site) {
     if (ROOMS_CACHE[key] && ROOMS_CACHE[key].status === "ok") { setState(ROOMS_CACHE[key]); return; }
     let dead = false;
     setState({ rooms: null, status: "loading" });
-    fetch(`/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}${attempt ? `&retry=${attempt}` : ""}`)
+    fetch(`/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&v=2${attempt ? `&retry=${attempt}` : ""}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => { const rec = j && j.ok && Array.isArray(j.rooms) && j.rooms.length ? { rooms: j.rooms, status: "ok", source: j.source } : { rooms: null, status: "failed" }; if (rec.status === "ok") ROOMS_CACHE[key] = rec; if (!dead) setState(rec); })
       .catch(() => { if (!dead) setState({ rooms: null, status: "failed" }); });
