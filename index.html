@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M986";
+const BUILD = "M988";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -21904,9 +21904,9 @@ function BookingPrompt() {
 // specific Virtuoso list the file holds is NOT shown until the host arrangement is signed.
 // The request lands in the Supabase `reservations` table (insert-only from the site); Tricia
 // places it with the hotel. No e-mail is sent yet — that needs a mail provider and a small API.
-const RESERVE_LINE = "The hotel's own rate — and every benefit the hotel extends to our guests: breakfast, a hotel credit, upgrade priority, a proper welcome, where the hotel offers them. The reservation is in your name; the hotel confirms to you and you pay the hotel.";
+const RESERVE_LINE = (hotelName) => `The hotel's own rate, with ${virtuosoEvidence(hotelName) && virtuosoEvidence(hotelName).member ? "Virtuoso benefits when they are offered" : "any benefits the hotel extends to our guests"}. The reservation is in your name; the hotel confirms to you and you pay the hotel.`;
 const RESERVE_SITE_LINE = "Booking on the hotel's site is the same price, without the benefits.";
-const RESERVE_SHEET_LINE = (hotel) => `We place this with ${hotel} in your name, with our partner benefits applied. The hotel confirms the room and the rate to you, usually within a business day.`;
+const RESERVE_SHEET_LINE = (hotel) => `We place this with ${hotel} in your name${virtuosoEvidence(hotel) && virtuosoEvidence(hotel).member ? ", with Virtuoso benefits when they are offered" : ""}. The hotel confirms the room and the rate to you.`;
 const RESERVE_WAIT_LINE = (hotel) => `Requested · ${hotel} confirms to you directly, usually within a business day.`;
 // The e-mail from Voyage One to the hotel's reservations desk (and to us and the host). Best
 // effort: a missing API or key does not fail the request — the row is already in the table.
@@ -22305,17 +22305,17 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
     </div>
     {sel ? (<div style={{ flexBasis: "100%", padding: "0 16px 16px", borderTop: `1px solid ${t.line}` }}>
       {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} onStatus={setRoomsStatus} /> : null}
-      {!isUpcoming(s) && site ? (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 12, fontSize: 13, color: t.inkSoft, lineHeight: 1.6 }}>
-        <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 700, textDecoration: "none" }}>Tour the hotel at {s.name.replace(/\s+/g, " ").trim()}'s site →</a>
+      {!isUpcoming(s) && site ? (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 16 }}>
+        <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ fontFamily: font.display, fontSize: 22, fontWeight: 700, color: t.pine, textDecoration: "none" }}>Tour {s.name} →</a>
       </div>) : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
           : (<div ref={reserveBox} onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "16px 18px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12 }}>
             <div style={{ fontFamily: font.display, fontSize: 19, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>Reserve through Voyage One.</div>
-            <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE}</div>
+            <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE(s.name)}</div>
             {requested ? <div style={{ fontSize: 13.5, color: t.pine, fontWeight: 700, lineHeight: 1.5, marginTop: 10 }}>{RESERVE_WAIT_LINE(s.name)}</div> : null}
             {roomChosen && roomChosen.name ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}><span style={{ color: t.inkSoft }}>Your room:</span> <strong>{roomChosen.name}</strong>{roomChosen.plan ? <span> · {fmtRate(roomChosen.plan)}{roomChosen.plan.plan ? ` · ${roomChosen.plan.plan}` : ""}</span> : null}</div> : null}
             {roomsStatus === "loading"
-              ? <div style={{ display: "inline-flex", alignItems: "center", gap: 10, marginTop: 12, background: t.mist, color: t.pine, fontFamily: font.ui, fontSize: 13.5, fontWeight: 700, padding: "13px 24px", borderRadius: 999 }}><span className="vo-spin" aria-hidden="true" />Bringing in the rooms — choose yours above, then reserve</div>
+              ? <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 12 }}>Choose your room above, then reserve here.</div>
               : <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : roomChosen && roomChosen.name ? `Reserve the ${roomChosen.name}` : "Reserve it through Voyage One"}</button>}
             {reserve ? <ReserveSheet s={s} city={city} site={site} prefill={{ ...(prefill || {}), room: roomChosen && roomChosen.name ? roomChosen.name : "", offer: roomChosen && roomChosen.plan ? `${roomChosen.plan.plan || "Rate"} · ${fmtRate(roomChosen.plan)}${roomChosen.plan.cancel ? " · " + roomChosen.plan.cancel : ""}` : "" }} onRequested={onRequested} onClose={() => setReserve(false)} /> : null}
             {barWanted && !boxOnScreen ? <ReserveBar hotel={s.name} room={roomChosen} onOpen={() => { setReserve(true); try { reserveBox.current && reserveBox.current.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {} }} /> : null}
