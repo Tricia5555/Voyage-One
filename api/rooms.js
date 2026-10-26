@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -107,27 +107,45 @@ function distill(html, base) {
   return h.replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
 }
 // Find the accommodation page: known paths first, then any link on the home page that says rooms.
+// Does this page actually show rooms? Not "the word room appears" — Rosewood answered a guessed
+// address with its HOME page and a 200, and the word appears there too (M995, 25 Oct 2026). A rooms
+// page names several rooms or suites and gives sizes or beds; its own canonical address does not
+// point somewhere else.
+function looksLikeRooms(got, wanted) {
+  const html = got.html || "";
+  const canon = (/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i.exec(html) || /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i.exec(html) || [])[1];
+  if (canon && wanted) { try { const c = new URL(canon).pathname.replace(/\/+$/, ""); const w = new URL(wanted).pathname.replace(/\/+$/, ""); if (c && w && c !== w && !c.startsWith(w) && !w.startsWith(c)) return false; } catch (e) {} }
+  const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ");
+  const heads = (html.match(/<h[1-4][^>]*>[\s\S]*?<\/h[1-4]>/gi) || []).map((x) => x.replace(/<[^>]+>/g, " ").trim()).filter((x) => /\b(room|suite|villa|residence|tent|penthouse|apartment|bungalow|cabin|lodge)\b/i.test(x));
+  const sizes = (text.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft|square (?:feet|metres|meters))/gi) || []).length;
+  const beds = (text.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length;
+  return heads.length >= 3 || (heads.length >= 1 && (sizes >= 2 || beds >= 2)) || sizes >= 4;
+}
+// Find the accommodation page: THE HOTEL'S OWN MENU FIRST (the link it calls Accommodation, Rooms,
+// Suites, Stay, Villas…), then the usual addresses, and only a page that looks like a rooms page.
 async function findRoomsPage(site) {
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const origin = new URL(base).origin;
   const root = base.replace(/\/+$/, "");
   const tried = new Set();
-  for (const p of ROOM_PATHS) {
-    for (const cand of [root + p, origin + p]) {
-      if (tried.has(cand)) continue; tried.add(cand);
-      try { const got = await get(cand); if (got && /room|suite|villa|tent|bedroom|accommodat/i.test(got.html)) return got; } catch (e) {}
+  const attempt = async (u) => { if (!u || tried.has(u)) return null; tried.add(u); try { const got = await get(u); if (got && looksLikeRooms(got, u)) return got; TRIED.push({ url: u, verdict: got ? "not a rooms page" : "no page" }); } catch (e) {} return null; };
+  let home = null;
+  try { home = await get(root); } catch (e) { home = null; }
+  if (home) {
+    const links = []; const re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi; let m;
+    while ((m = re.exec(home.html)) && links.length < 600) {
+      const u = abs(home.url, m[1]); if (!u || !u.startsWith(origin)) continue;
+      const txt = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      const byText = /^(accommodations?|rooms?(?: (?:&|and) suites)?|suites?(?: (?:&|and) rooms)?|stay|villas?|residences?|tents?|rooms? ?\/ ?suites|guest ?rooms|where to stay|our rooms|the rooms)$/i.test(txt);
+      const byUrl = /(^|\/)(accommodations?|rooms?(?:-and-suites|-suites)?|suites?|stay|villas?|tents?|residences?|guest-rooms)(\/|$|\?|#)/i.test(new URL(u).pathname);
+      if (byText) links.unshift(u); else if (byUrl) links.push(u);
     }
+    for (const u of [...new Set(links)].slice(0, 8)) { const got = await attempt(u.split("#")[0]); if (got) return got; }
   }
-  try {
-    const home = await get(root);
-    if (home) {
-      const links = []; const re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi; let m;
-      while ((m = re.exec(home.html)) && links.length < 400) { const u = abs(home.url, m[1]); const txt = m[2].replace(/<[^>]+>/g, " ").trim(); if (u && /(^|\/)(accommodation|accommodations|rooms?|suites?|stay|villas?|tents?|residences?)(\/|$|\?)/i.test(u) || /\b(rooms?|suites?|accommodation|stay)\b/i.test(txt)) links.push(u); }
-      for (const u of [...new Set(links)].slice(0, 6)) { if (tried.has(u)) continue; tried.add(u); try { const got = await get(u); if (got && /room|suite|villa/i.test(got.html)) return got; } catch (e) {} }
-      return home;   // better than nothing: the reader may still find a rooms section
-    }
-  } catch (e) {}
-  return null;
+  for (const p of ROOM_PATHS) {
+    for (const cand of [root + p, origin + p]) { const got = await attempt(cand); if (got) return got; }
+  }
+  return home;   // better than nothing: the reader may still find a rooms section, or say no-rooms-found
 }
 
 export default async function handler(req, res) {
