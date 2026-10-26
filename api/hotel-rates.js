@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007; residential road M1008; automatic residential retry + 2 h cache M1009; Hilton/Hyatt/Accor/Marriott engines M1010; the Book button pressed M1012, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007; residential road M1008; automatic residential retry + 2 h cache M1009; Hilton/Hyatt/Accor/Marriott engines M1010; the Book button pressed M1012; SynXis by signature M1017, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -93,8 +93,12 @@ const ENGINES = [
       const mdy2 = (iso) => { const [y, m, d] = iso.split("-"); return `${m}/${d}/${y}`; };
       return `https://www.marriott.com/reservation/availabilitySearch.mi?propertyCode=${code.toUpperCase()}&fromDate=${mdy2(ci)}&toDate=${mdy2(co)}&numberOfAdults=${pax}&numberOfRooms=1`;
     } },
-  { name: "synxis", test: /be\.synxis\.com/i, build: (u, ci, co, pax) => {
-      const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); return x.toString();
+  // SYNXIS BY ITS SIGNATURE (M1017): groups white-label it under their own domain
+  // (reservations.dorchestercollection.com/?chain=5310&hotel=60011), so the engine is recognised
+  // by its chain= and hotel= numbers, not by be.synxis.com alone. A promo rate code in the link
+  // (rate=…) is dropped so every rate shows, not one offer.
+  { name: "synxis", test: /be\.synxis\.com|[?&]chain=\d+(?:&|$).*[?&]hotel=\d+|[?&]hotel=\d+(?:&|$).*[?&]chain=\d+/i, build: (u, ci, co, pax) => {
+      const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); x.searchParams.delete("rate"); if (x.searchParams.get("hotel")) x.searchParams.set("level", "hotel"); return x.toString();
     } },
   { name: "travelclick", test: /reservations\.travelclick\.com|ihotelier/i, build: (u, ci, co, pax) => {
       const x = new URL(u); x.searchParams.set("datein", mdy(ci)); x.searchParams.set("dateout", mdy(co)); x.searchParams.set("adults", String(pax)); x.searchParams.set("children", "0"); x.searchParams.set("rooms", "1"); return x.toString();
