@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -114,7 +114,16 @@ function distill(html, base) {
 function looksLikeRooms(got, wanted) {
   const html = got.html || "";
   const canon = (/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i.exec(html) || /<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']/i.exec(html) || [])[1];
-  if (canon && wanted) { try { const c = new URL(canon).pathname.replace(/\/+$/, ""); const w = new URL(wanted).pathname.replace(/\/+$/, ""); if (c && w && c !== w && !c.startsWith(w) && !w.startsWith(c)) return false; } catch (e) {} }
+  // Served from somewhere else: the page's canonical address, or the address it redirected to,
+  // is the home page or a parent of what we asked for → a missing page dressed as a 200 (M996).
+  const norm = (u) => { try { return new URL(u).pathname.replace(/\/+$/, "").toLowerCase() || "/"; } catch (e) { return ""; } };
+  if (wanted) {
+    const w = norm(wanted);
+    for (const actual of [canon, got.url]) {
+      if (!actual) continue; const a = norm(actual);
+      if (a && w && a !== w && (w.startsWith(a + "/") || a === "/")) return false;
+    }
+  }
   const text = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ");
   const heads = (html.match(/<h[1-4][^>]*>[\s\S]*?<\/h[1-4]>/gi) || []).map((x) => x.replace(/<[^>]+>/g, " ").trim()).filter((x) => /\b(room|suite|villa|residence|tent|penthouse|apartment|bungalow|cabin|lodge)\b/i.test(x));
   const sizes = (text.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft|square (?:feet|metres|meters))/gi) || []).length;
@@ -123,6 +132,10 @@ function looksLikeRooms(got, wanted) {
 }
 // Find the accommodation page: THE HOTEL'S OWN MENU FIRST (the link it calls Accommodation, Rooms,
 // Suites, Stay, Villas…), then the usual addresses, and only a page that looks like a rooms page.
+// The same site with or without "www." — Google often gives the bare host while the hotel's own
+// links carry www. (Rosewood, M996). One hostname rule for every hotel.
+const host = (u) => { try { return new URL(u).hostname.replace(/^www\./i, "").toLowerCase(); } catch (e) { return ""; } };
+const sameSite = (a, b) => host(a) && host(a) === host(b);
 async function findRoomsPage(site) {
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const origin = new URL(base).origin;
@@ -134,7 +147,7 @@ async function findRoomsPage(site) {
   if (home) {
     const links = []; const re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi; let m;
     while ((m = re.exec(home.html)) && links.length < 600) {
-      const u = abs(home.url, m[1]); if (!u || !u.startsWith(origin)) continue;
+      const u = abs(home.url, m[1]); if (!u || !sameSite(u, home.url)) continue;
       const txt = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
       const byText = /^(accommodations?|rooms?(?: (?:&|and) suites)?|suites?(?: (?:&|and) rooms)?|stay|villas?|residences?|tents?|rooms? ?\/ ?suites|guest ?rooms|where to stay|our rooms|the rooms)$/i.test(txt);
       const byUrl = /(^|\/)(accommodations?|rooms?(?:-and-suites|-suites)?|suites?|stay|villas?|tents?|residences?|guest-rooms)(\/|$|\?|#)/i.test(new URL(u).pathname);
