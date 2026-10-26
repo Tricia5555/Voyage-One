@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011, 26 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013, 26 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -137,11 +137,30 @@ function looksLikeRooms(got, wanted) {
 const host = (u) => { try { return new URL(u).hostname.replace(/^www\./i, "").toLowerCase(); } catch (e) { return ""; } };
 const sameSite = (a, b) => host(a) && host(a) === host(b);
 async function findRoomsPage(site) {
+  const T0 = Date.now();
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const origin = new URL(base).origin;
   const root = base.replace(/\/+$/, "");
   const tried = new Set();
-  const attempt = async (u) => { if (!u || tried.has(u)) return null; tried.add(u); try { const got = await get(u); if (got && looksLikeRooms(got, u)) return got; TRIED.push({ url: u, verdict: got ? "not a rooms page" : "no page" }); } catch (e) {} return null; };
+  // A page the hotel's own menu calls Accommodation/Rooms/Stay that arrives hollow is opened in the
+  // browser BEFORE being judged (M1013): script-drawn rooms pages (Mandarin Oriental's /stay) were
+  // being rejected as "not a rooms page" on their empty shell.
+  const hollow = (got) => { const t = String(got.html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " "); return (t.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft)/gi) || []).length + (t.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length < 2; };
+  const attempt = async (u, fromMenu) => {
+    if (!u || tried.has(u)) return null; tried.add(u);
+    try {
+      let got = await get(u);
+      if (got && looksLikeRooms(got, u)) return got;
+      if (got && fromMenu && hollow(got) && !/^browser/.test(got.via || "")) {
+        TRIED.push({ url: u, note: "menu page arrived hollow — opening in the browser" });
+        const again = await getWithBrowser(u);
+        if (again && looksLikeRooms(again, u)) return again;
+        got = again || got;
+      }
+      TRIED.push({ url: u, verdict: got ? "not a rooms page" : "no page" });
+    } catch (e) {}
+    return null;
+  };
   let home = null;
   try { home = await get(root); } catch (e) { home = null; }
   if (home) {
@@ -153,7 +172,7 @@ async function findRoomsPage(site) {
       const byUrl = /(^|\/)(accommodations?|rooms?(?:-and-suites|-suites)?|suites?|stay|villas?|tents?|residences?|guest-rooms)(\/|$|\?|#)/i.test(new URL(u).pathname);
       if (byText) { if (/\?/.test(u)) links.push(u); else links.unshift(u); } else if (byUrl) links.push(u);
     }
-    for (const u of [...new Set(links)].slice(0, 8)) { const got = await attempt(u.split("#")[0]); if (got) return got; }
+    for (const u of [...new Set(links)].slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
   for (const p of ROOM_PATHS) {
     for (const cand of [root + p, origin + p]) { const got = await attempt(cand); if (got) return got; }
