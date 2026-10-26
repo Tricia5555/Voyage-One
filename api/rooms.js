@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015, 26 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016, 26 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -146,10 +146,13 @@ async function findRoomsPage(site) {
   // browser BEFORE being judged (M1013): script-drawn rooms pages (Mandarin Oriental's /stay) were
   // being rejected as "not a rooms page" on their empty shell.
   const hollow = (got) => { const t = String(got.html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " "); return (t.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft)/gi) || []).length + (t.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length < 2; };
+  let refusesFetch = false;   // M1016: once a site answers a plain request with 403, read it in the browser directly
   const attempt = async (u, fromMenu) => {
     if (!u || tried.has(u)) return null; tried.add(u);
     try {
-      let got = await get(u);
+      let got = null;
+      if (refusesFetch) { if (browserReads < 3 && Date.now() - T0 < 35000) { browserReads++; got = await getWithBrowser(u); } else { TRIED.push({ url: u, skipped: "browser budget spent" }); return null; } }
+      else { got = await get(u); if (!got && TRIED.length && TRIED[TRIED.length - 1].url === u && TRIED[TRIED.length - 1].status === 403) { refusesFetch = true; if (browserReads < 3) { browserReads++; got = await getWithBrowser(u); } } }
       if (got && looksLikeRooms(got, u)) return got;
       if (got && fromMenu && hollow(got) && !/^browser/.test(got.via || "") && browserReads < 2 && Date.now() - T0 < 30000) {
         browserReads++;
@@ -164,6 +167,7 @@ async function findRoomsPage(site) {
   };
   let home = null;
   try { home = await get(root); } catch (e) { home = null; }
+  if (home && /^browser/.test(home.via || "")) refusesFetch = true;
   if (home) {
     const links = []; const re = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi; let m;
     while ((m = re.exec(home.html)) && links.length < 600) {
@@ -179,7 +183,12 @@ async function findRoomsPage(site) {
     // first, and when the hotel has a path of its own, leave the group's pages for last.
     const ownPath = (() => { try { const p = new URL(root).pathname.replace(/\/+$/, "").toLowerCase(); return p && p !== "/" ? p : ""; } catch (e) { return ""; } })();
     const under = (u) => { try { return !!ownPath && new URL(u).pathname.toLowerCase().startsWith(ownPath + "/"); } catch (e) { return false; } };
-    const ranked = [...new Set(links)].sort((a, b) => (under(b) ? 1 : 0) - (under(a) ? 1 : 0));
+    let ranked = [...new Set(links)].sort((a, b) => (under(b) ? 1 : 0) - (under(a) ? 1 : 0));
+    // THE PARENT IS THE LIST (M1016): a menu that offers classic-room, superior-room, deluxe-room…
+    // under /rooms-suites/ is pointing at one list page. Try the parent before its children.
+    const parents = {}; for (const u of ranked) { try { const x = new URL(u); const segs = x.pathname.replace(/\/+$/, "").split("/"); if (segs.length > 2) { const p = x.origin + segs.slice(0, -1).join("/"); parents[p] = (parents[p] || 0) + 1; } } catch (e) {} }
+    const lists = Object.keys(parents).filter((p) => parents[p] >= 2 && /room|suite|accommodation|stay|villa|residence/i.test(p)).sort((a, b) => parents[b] - parents[a]);
+    ranked = [...lists, ...ranked.filter((u) => !lists.includes(u))];
     TRIED.push({ note: "menu candidates", ownPath: ownPath || null, candidates: ranked.slice(0, 8) });
     for (const u of ranked.slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
