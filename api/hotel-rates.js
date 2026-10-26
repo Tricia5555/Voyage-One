@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -111,15 +111,15 @@ async function linkFromRooms(req, hotel, site, LOG) {
     return u && ENGINES.some((e) => e.test.test(u)) ? u : null;
   } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: /abort/i.test(String(e && e.name || e)) ? "cold cache — warming" : String(e && e.message || e).slice(0, 120) }); return null; }
 }
-let STAGE = "";
+let STAGE = "", CHECK_IN = "", CHECK_OUT = "", CUR_S = null;
 async function findBookingLink(site, page, via, LOG) {
-  if (LINK_CACHE[site]) { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
+  if (LINK_CACHE[site] && STAGE !== "engine") { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const pages = [base, base.replace(/\/+$/, "") + "/accommodations"];
   // One plain request (fast); a hotel that refuses it gets the browser (M981/M984).
   let got = null; try { got = await fetchText(base); } catch (e) { got = null; }
   LOG.push({ step: "find-link", url: base, via: "fetch", ok: !!got });
-  if (got) { const u = linkIn(got.html, got.url); if (u) { LINK_CACHE[site] = u; return u; } }
+  if (got && STAGE !== "engine") { const u = linkIn(got.html, got.url); if (u) { LINK_CACHE[site] = u; return u; } }
   for (const p of pages) {
     try {
       await page.goto(p, { waitUntil: "domcontentloaded", timeout: 20000 });
@@ -134,14 +134,14 @@ async function findBookingLink(site, page, via, LOG) {
       });
       LOG.push({ step: "find-link", url: p, via: "browser:" + via, links: hrefs.length });
       const u = bestLink(hrefs);
-      if (u) { LINK_CACHE[site] = u; return u; }
+      if (u && STAGE !== "engine") { LINK_CACHE[site] = u; return u; }
       // No known engine: show what looked like a booking link, so the engine can be added.
       const bookish = [...new Set(hrefs.filter((x) => /book|reserv|availability|stay|rates|checkin|check-in/i.test(x) && !/blog|press|news|career|gift|shop|restaurant|dining|spa|event|wedding|meeting|offer|privacy|terms/i.test(x)))].slice(0, 15);
       if (bookish.length) LOG.push({ step: "find-link", url: p, unmatched: bookish });
       // stage=engine (M999): open the hotel's own reservations page and report where it lands, what
       // it embeds and what date fields it shows — so an unknown engine can be added as one line.
-      if (STAGE === "engine" && bookish.length) {
-        const own = bookish.find((x) => /reserv|book/i.test(x) && !/sevenrooms|opentable|resy|facebook|instagram/i.test(x)) || bookish[0];
+      if (STAGE === "engine" && (u || bookish.length)) {
+        const own = u || bookish.find((x) => /reserv|book/i.test(x) && !/sevenrooms|opentable|resy|facebook|instagram/i.test(x)) || bookish[0];
         try {
           await page.goto(own, { waitUntil: "domcontentloaded", timeout: 25000 });
           try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
@@ -184,8 +184,51 @@ async function findBookingLink(site, page, via, LOG) {
                 params.push({ script: s.slice(-60), params: [...found], urls: [...urls] }); } catch (e) {}
             }
             LOG.push({ step: "engine-next", codes, clicked: choice, landed: page.url(), frames: page.frames().map((f) => f.url()).filter((u) => u && u !== "about:blank").slice(0, 10), ...next, scripts: params });
+            // DRIVE THE CALENDAR AS A GUEST WOULD (M1003): open the date field, move to the month,
+            // tap check-in and check-out, press Continue — then report the address the page lands
+            // on (it carries the dates in the engine's own format) and the price calls it makes.
+            try {
+              const [ciY, ciM, ciD] = CHECK_IN.split("-").map(Number), [coY, coM, coD] = CHECK_OUT.split("-").map(Number);
+              const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+              const apiMark = CUR_S ? CUR_S.api.length : 0;
+              const opened = await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, [role=button], input, div, span, label, a")); const hit = els.find((el) => /^(date|dates|select dates|check-?in|check-?in date|arrival|arrive)$/i.test(((el.innerText || el.value || el.placeholder || "")).trim())); if (hit) { hit.click(); return (hit.innerText || hit.placeholder || "").trim(); } return null; });
+              await new Promise((r) => setTimeout(r, 1200));
+              const pickDay = async (y, m, d) => {
+                const want = `${MONTHS[m - 1]} ${y}`;
+                for (let i = 0; i < 14; i++) {
+                  const state = await page.evaluate((want) => {
+                    const all = Array.from(document.querySelectorAll("*")).filter((el) => el.children.length === 0 || el.tagName === "BUTTON");
+                    const labels = all.filter((el) => /^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}$/i.test((el.innerText || el.textContent || "").trim()));
+                    const texts = labels.map((el) => (el.innerText || el.textContent || "").trim());
+                    return { texts, has: texts.some((t) => t.toLowerCase() === want.toLowerCase()) };
+                  }, want);
+                  if (state.has) break;
+                  const moved = await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, [role=button], a, span, div")); const hit = els.find((el) => /next|forward/i.test(el.getAttribute("aria-label") || "") || /next/i.test(el.className || "") || /^(›|>|→|»)$/.test((el.innerText || "").trim())); if (hit) { hit.click(); return true; } return false; });
+                  if (!moved) return { ok: false, why: "no next-month control", seen: state.texts };
+                  await new Promise((r) => setTimeout(r, 500));
+                }
+                return await page.evaluate((want, d) => {
+                  const all = Array.from(document.querySelectorAll("*"));
+                  const label = all.find((el) => (el.children.length === 0) && (el.innerText || el.textContent || "").trim().toLowerCase() === want.toLowerCase());
+                  if (!label) return { ok: false, why: "month label not found" };
+                  const days = all.filter((el) => el.children.length === 0 && (el.innerText || el.textContent || "").trim() === String(d) && (label.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
+                  const clickable = (el) => { let n = el; for (let i = 0; i < 4 && n; i++) { if (n.tagName === "BUTTON" || n.getAttribute("role") === "button" || n.tagName === "TD" || n.onclick) return n; n = n.parentElement; } return el; };
+                  const ok = days.map(clickable).find((el) => !el.disabled && el.getAttribute("aria-disabled") !== "true" && !/disabled|past|unavailable/i.test(el.className || ""));
+                  if (!ok) return { ok: false, why: "day not clickable", candidates: days.length };
+                  ok.click(); return { ok: true, picked: `${want} ${d}` };
+                }, want, d);
+              };
+              const p1 = await pickDay(ciY, ciM, ciD); await new Promise((r) => setTimeout(r, 700));
+              const p2 = p1.ok ? await pickDay(coY, coM, coD) : null; await new Promise((r) => setTimeout(r, 700));
+              const go = await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, [role=button], a, input[type=submit]")); const hit = els.find((el) => /^(continue|search|check availability|view rates|find rooms|book now|apply|done|next)$/i.test(((el.innerText || el.value || "")).trim())); if (hit) { hit.click(); return (hit.innerText || hit.value || "").trim(); } return null; });
+              try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
+              await new Promise((r) => setTimeout(r, 2500));
+              const after = await page.evaluate(() => (document.body ? document.body.innerText : "").replace(/\s+/g, " ").slice(0, 2500));
+              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], pressed: go, landed: page.url(), priced: /(?:[$€£]|USD|EUR|GBP)\s?\d{2,}/.test(after), calls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /rosewood|avail|rate|room|price|catalog|search|book/i.test(c.u)).slice(0, 15), sample: after.slice(0, 1500) });
+            } catch (e) { LOG.push({ step: "engine-dates", error: String(e && e.message || e).slice(0, 200) }); }
           } catch (e) { LOG.push({ step: "engine-next", error: String(e && e.message || e).slice(0, 200) }); }
         } catch (e) { LOG.push({ step: "engine", opened: own, error: String(e && e.message || e).slice(0, 200) }); }
+        return u || null;
       }
     } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
   }
@@ -222,7 +265,7 @@ async function work(req, res, S) {
   const pax = Math.min(6, Math.max(1, parseInt(q.pax, 10) || 2));
   const debug = String(q.debug || "") === "1";
   const stage = String(q.stage || "");   // "link" | "page" | "bundle" | "engine" | "" (full) — M986/M992/M999 diagnostics
-  STAGE = stage;
+  STAGE = stage; CHECK_IN = checkIn; CHECK_OUT = checkOut; CUR_S = S;
   const T0 = Date.now(); const ms = () => Date.now() - T0;
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
@@ -256,7 +299,7 @@ async function work(req, res, S) {
     page.on("pageerror", (e) => { try { if (S.console.length < 20) S.console.push("pageerror: " + String(e && e.stack || e && e.message || e).slice(0, 600)); } catch (x) {} });
     // 1. The hotel's own booking link, and the engine it belongs to.
     LOG.push({ step: "browser-open", via, ms: ms() });
-    try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site, LOG) || await findBookingLink(site, page, via, LOG); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
+    try { link = stage === "engine" ? await findBookingLink(site, page, via, LOG) : (LINK_CACHE[site] || await linkFromRooms(req, hotel, site, LOG) || await findBookingLink(site, page, via, LOG)); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
     LOG.push({ step: "link", link, ms: ms() });
     if (stage === "link" || stage === "engine") { await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: !!link, stage, link, log: LOG }); }
     if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
