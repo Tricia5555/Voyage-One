@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013, 26 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014, 26 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -137,7 +137,7 @@ function looksLikeRooms(got, wanted) {
 const host = (u) => { try { return new URL(u).hostname.replace(/^www\./i, "").toLowerCase(); } catch (e) { return ""; } };
 const sameSite = (a, b) => host(a) && host(a) === host(b);
 async function findRoomsPage(site) {
-  const T0 = Date.now();
+  const T0 = Date.now(); let browserReads = 0;
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
   const origin = new URL(base).origin;
   const root = base.replace(/\/+$/, "");
@@ -151,7 +151,8 @@ async function findRoomsPage(site) {
     try {
       let got = await get(u);
       if (got && looksLikeRooms(got, u)) return got;
-      if (got && fromMenu && hollow(got) && !/^browser/.test(got.via || "")) {
+      if (got && fromMenu && hollow(got) && !/^browser/.test(got.via || "") && browserReads < 2 && Date.now() - T0 < 30000) {
+        browserReads++;
         TRIED.push({ url: u, note: "menu page arrived hollow — opening in the browser" });
         const again = await getWithBrowser(u);
         if (again && looksLikeRooms(again, u)) return again;
@@ -180,7 +181,16 @@ async function findRoomsPage(site) {
   return home;   // better than nothing: the reader may still find a rooms section, or say no-rooms-found
 }
 
+// A HARD 50-SECOND ANSWER (M1014): Safari drops the request at ~60 s and shows "server stopped
+// responding". Whatever is known by 50 s is sent back with the list of addresses tried.
 export default async function handler(req, res) {
+  let sent = false; const json = res.json.bind(res); res.json = (b) => { if (sent) return res; sent = true; return json(b); };
+  const timer = new Promise((r) => setTimeout(r, 50000, "timeout"));
+  let outcome = "done";
+  try { outcome = await Promise.race([work(req, res).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
+  if (!sent) { res.setHeader("Cache-Control", "no-store"); res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, tried: TRIED.slice(-40) }); }
+}
+async function work(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
   res.setHeader("Cache-Control", "no-store");
