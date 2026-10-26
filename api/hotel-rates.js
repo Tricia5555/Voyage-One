@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -145,14 +145,15 @@ async function findBookingLink(site, page, via, LOG) {
         try {
           await page.goto(own, { waitUntil: "domcontentloaded", timeout: 25000 });
           try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
-          await new Promise((r) => setTimeout(r, 2500));
-          const probe = await page.evaluate(() => ({
+          await new Promise((r) => setTimeout(r, 1200));
+          const probe = STAGE === "engine" ? { title: await page.title() } : await page.evaluate(() => ({
             title: document.title,
             inputs: Array.from(document.querySelectorAll("input, select")).slice(0, 40).map((i) => ({ name: i.name || null, id: i.id || null, type: i.type || i.tagName.toLowerCase(), placeholder: i.placeholder || null, aria: i.getAttribute("aria-label") || null })),
             forms: Array.from(document.querySelectorAll("form")).slice(0, 5).map((f) => ({ action: f.action || null, method: f.method || null })),
             buttons: Array.from(document.querySelectorAll("button, a[role=button]")).map((b) => (b.innerText || "").trim()).filter(Boolean).slice(0, 25),
             scripts: Array.from(document.scripts).map((s) => s.src).filter((s) => /synxis|travelclick|ihotelier|sabre|pegasus|shr|windsurfer|siteminder|cloudbeds|mews|opera|oracle|simplebooking|bookingengine|booking-engine|be\./i.test(s)).slice(0, 10),
           }));
+          if (STAGE === "engine") { /* fast path: no inputs/buttons inventory on the first page */ }
           LOG.push({ step: "engine", opened: own, landed: page.url(), frames: page.frames().map((f) => f.url()).filter((u) => u && u !== "about:blank").slice(0, 10), ...probe });
           // One step further (M1000): the hidden codes, the "Rooms / Stay" choice clicked, the next
           // page's address and fields, and any date-parameter names in the site's own script.
@@ -165,8 +166,8 @@ async function findBookingLink(site, page, via, LOG) {
               if (hit) { const txt = (hit.innerText || "").trim(); hit.click(); return txt; }
               return null;
             });
-            await new Promise((r) => setTimeout(r, 3500));
-            try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
+            await new Promise((r) => setTimeout(r, 2000));
+            try { await page.waitForNetworkIdle({ idleTime: 600, timeout: 5000 }); } catch (e) {}
             const next = await page.evaluate(() => ({
               title: document.title,
               inputs: Array.from(document.querySelectorAll("input, select")).filter((i) => !/ot-|vendor|cookie|chkbox|select-all/i.test(i.name || i.id || "")).slice(0, 30).map((i) => ({ name: i.name || null, id: i.id || null, type: i.type || i.tagName.toLowerCase(), placeholder: i.placeholder || null, aria: i.getAttribute("aria-label") || null, value: /date|check|arriv|depart/i.test(i.name || i.id || i.placeholder || "") ? String(i.value || "").slice(0, 20) : undefined })),
@@ -235,7 +236,7 @@ async function findBookingLink(site, page, via, LOG) {
                 steps.push({ pressed, landed: page.url(), priced, calls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /catalog|avail|rate|room|price|search|book/i.test(c.u) && !/pinterest|doubleclick|nr-data|google/i.test(c.u)).map((c) => ({ s: c.s, m: c.m, u: c.u.slice(0, 200), body: c.body ? c.body.slice(0, 300) : undefined })).slice(0, 10), text: txt.slice(0, 700) });
                 if (priced) break;
               }
-              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], afterPick: shown, steps });
+              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], afterPick: shown, steps, calendarCalls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /catalog|calendar|avail|rate/i.test(c.u)).map((c) => ({ s: c.s, u: c.u.slice(0, 220), body: c.body ? c.body.slice(0, 300) : undefined })).slice(0, 8) });
             } catch (e) { LOG.push({ step: "engine-dates", error: String(e && e.message || e).slice(0, 200) }); }
           } catch (e) { LOG.push({ step: "engine-next", error: String(e && e.message || e).slice(0, 200) }); }
         } catch (e) { LOG.push({ step: "engine", opened: own, error: String(e && e.message || e).slice(0, 200) }); }
