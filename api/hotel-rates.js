@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -175,7 +175,7 @@ async function findBookingLink(site, page, via, LOG) {
             }));
             const scripts = await page.evaluate(() => Array.from(document.scripts).map((s) => s.src).filter((s) => s && !/onetrust|cookielaw|google|gtm|facebook|hotjar|optimizely|adobe|tealium|clarity/i.test(s)).slice(0, 12));
             let params = [];
-            for (const s of scripts.slice(0, 4)) {
+            for (const s of scripts.slice(0, 0)) {
               try { const txt = await page.evaluate(async (u) => { const r = await fetch(u); return (await r.text()).slice(0, 2000000); }, s);
                 const found = new Set(); let m; const re = /["'`]([a-zA-Z_]*(?:checkin|checkout|check_in|check_out|arrival|departure|arrive|depart|startDate|endDate|start_date|end_date|dateIn|dateOut|datein|dateout|fromDate|toDate|adults|guests|rooms)[a-zA-Z_]*)["'`]/g;
                 while ((m = re.exec(txt)) && found.size < 30) found.add(m[1]);
@@ -184,47 +184,58 @@ async function findBookingLink(site, page, via, LOG) {
                 params.push({ script: s.slice(-60), params: [...found], urls: [...urls] }); } catch (e) {}
             }
             LOG.push({ step: "engine-next", codes, clicked: choice, landed: page.url(), frames: page.frames().map((f) => f.url()).filter((u) => u && u !== "about:blank").slice(0, 10), ...next, scripts: params });
-            // DRIVE THE CALENDAR AS A GUEST WOULD (M1003): open the date field, move to the month,
-            // tap check-in and check-out, press Continue — then report the address the page lands
-            // on (it carries the dates in the engine's own format) and the price calls it makes.
+            // DRIVE THE CALENDAR AS A GUEST WOULD (M1003; real mouse presses + multi-step M1004):
+            // open the date field, move to the month, press check-in and check-out with the
+            // mouse, press Continue up to three times (dates → guests → search), and report after
+            // each press: the address, whether prices appeared, the price calls, a glimpse of text.
             try {
               const [ciY, ciM, ciD] = CHECK_IN.split("-").map(Number), [coY, coM, coD] = CHECK_OUT.split("-").map(Number);
               const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
               const apiMark = CUR_S ? CUR_S.api.length : 0;
-              const opened = await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, [role=button], input, div, span, label, a")); const hit = els.find((el) => /^(date|dates|select dates|check-?in|check-?in date|arrival|arrive)$/i.test(((el.innerText || el.value || el.placeholder || "")).trim())); if (hit) { hit.click(); return (hit.innerText || hit.placeholder || "").trim(); } return null; });
+              const press = async (finder, arg) => {   // a real mouse press on the element the finder returns
+                const jh = await page.evaluateHandle(finder, arg); const el = jh.asElement();
+                if (!el) return null;
+                try { await el.evaluate((n) => n.scrollIntoView({ block: "center" })); } catch (e) {}
+                const label = await el.evaluate((n) => (n.innerText || n.value || n.getAttribute("aria-label") || "").trim().slice(0, 40));
+                try { await el.click({ delay: 40 }); } catch (e) { await el.evaluate((n) => n.click()); }
+                return label || true;
+              };
+              const steps = [];
+              const opened = await press(() => Array.from(document.querySelectorAll("button, [role=button], input, div, span, label, a")).find((el) => /^(date|dates|select dates|check-?in|check-?in date|arrival|arrive)$/i.test(((el.innerText || el.value || el.placeholder || "")).trim())) || null);
               await new Promise((r) => setTimeout(r, 1200));
               const pickDay = async (y, m, d) => {
                 const want = `${MONTHS[m - 1]} ${y}`;
                 for (let i = 0; i < 14; i++) {
-                  const state = await page.evaluate((want) => {
-                    const all = Array.from(document.querySelectorAll("*")).filter((el) => el.children.length === 0 || el.tagName === "BUTTON");
-                    const labels = all.filter((el) => /^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}$/i.test((el.innerText || el.textContent || "").trim()));
-                    const texts = labels.map((el) => (el.innerText || el.textContent || "").trim());
-                    return { texts, has: texts.some((t) => t.toLowerCase() === want.toLowerCase()) };
-                  }, want);
-                  if (state.has) break;
-                  const moved = await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, [role=button], a, span, div")); const hit = els.find((el) => /next|forward/i.test(el.getAttribute("aria-label") || "") || /next/i.test(el.className || "") || /^(›|>|→|»)$/.test((el.innerText || "").trim())); if (hit) { hit.click(); return true; } return false; });
-                  if (!moved) return { ok: false, why: "no next-month control", seen: state.texts };
+                  const has = await page.evaluate((want) => Array.from(document.querySelectorAll("*")).some((el) => el.children.length === 0 && (el.innerText || el.textContent || "").trim().toLowerCase() === want.toLowerCase()), want);
+                  if (has) break;
+                  const moved = await press(() => Array.from(document.querySelectorAll("button, [role=button], a, span, div")).find((el) => /next|forward/i.test(el.getAttribute("aria-label") || "") || /next/i.test(el.className || "") || /^(›|>|→|»)$/.test((el.innerText || "").trim())) || null);
+                  if (!moved) return { ok: false, why: "no next-month control" };
                   await new Promise((r) => setTimeout(r, 500));
                 }
-                return await page.evaluate((want, d) => {
-                  const all = Array.from(document.querySelectorAll("*"));
-                  const label = all.find((el) => (el.children.length === 0) && (el.innerText || el.textContent || "").trim().toLowerCase() === want.toLowerCase());
-                  if (!label) return { ok: false, why: "month label not found" };
+                const hit = await press((a) => {
+                  const [want, d] = a; const all = Array.from(document.querySelectorAll("*"));
+                  const label = all.find((el) => el.children.length === 0 && (el.innerText || el.textContent || "").trim().toLowerCase() === want.toLowerCase());
+                  if (!label) return null;
                   const days = all.filter((el) => el.children.length === 0 && (el.innerText || el.textContent || "").trim() === String(d) && (label.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
-                  const clickable = (el) => { let n = el; for (let i = 0; i < 4 && n; i++) { if (n.tagName === "BUTTON" || n.getAttribute("role") === "button" || n.tagName === "TD" || n.onclick) return n; n = n.parentElement; } return el; };
-                  const ok = days.map(clickable).find((el) => !el.disabled && el.getAttribute("aria-disabled") !== "true" && !/disabled|past|unavailable/i.test(el.className || ""));
-                  if (!ok) return { ok: false, why: "day not clickable", candidates: days.length };
-                  ok.click(); return { ok: true, picked: `${want} ${d}` };
-                }, want, d);
+                  const up = (el) => { let n = el; for (let i = 0; i < 4 && n; i++) { if (n.tagName === "BUTTON" || n.getAttribute("role") === "button" || n.getAttribute("role") === "gridcell" || n.tagName === "TD") return n; n = n.parentElement; } return el; };
+                  return days.map(up).find((el) => !el.disabled && el.getAttribute("aria-disabled") !== "true" && !/disabled|past|unavailable/i.test(el.className || "")) || null;
+                }, [want, d]);
+                return hit ? { ok: true, picked: `${want} ${d}` } : { ok: false, why: "day not found/clickable" };
               };
               const p1 = await pickDay(ciY, ciM, ciD); await new Promise((r) => setTimeout(r, 700));
-              const p2 = p1.ok ? await pickDay(coY, coM, coD) : null; await new Promise((r) => setTimeout(r, 700));
-              const go = await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, [role=button], a, input[type=submit]")); const hit = els.find((el) => /^(continue|search|check availability|view rates|find rooms|book now|apply|done|next)$/i.test(((el.innerText || el.value || "")).trim())); if (hit) { hit.click(); return (hit.innerText || hit.value || "").trim(); } return null; });
-              try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
-              await new Promise((r) => setTimeout(r, 2500));
-              const after = await page.evaluate(() => (document.body ? document.body.innerText : "").replace(/\s+/g, " ").slice(0, 2500));
-              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], pressed: go, landed: page.url(), priced: /(?:[$€£]|USD|EUR|GBP)\s?\d{2,}/.test(after), calls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /rosewood|avail|rate|room|price|catalog|search|book/i.test(c.u)).slice(0, 15), sample: after.slice(0, 1500) });
+              const p2 = p1.ok ? await pickDay(coY, coM, coD) : null; await new Promise((r) => setTimeout(r, 900));
+              const shown = await page.evaluate(() => (document.body ? document.body.innerText : "").replace(/\s+/g, " ").slice(0, 400));
+              for (let k = 0; k < 3; k++) {
+                const pressed = await press(() => Array.from(document.querySelectorAll("button, [role=button], a, input[type=submit]")).find((el) => { const t = ((el.innerText || el.value || "")).trim(); const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && /^(continue|search|check availability|view rates|find rooms|see rooms|book now|apply|done|next|confirm)$/i.test(t); }) || null);
+                if (!pressed) { steps.push({ pressed: null }); break; }
+                try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
+                await new Promise((r) => setTimeout(r, 2000));
+                const txt = await page.evaluate(() => (document.body ? document.body.innerText : "").replace(/\s+/g, " "));
+                const priced = /(?:[$€£]|USD|EUR|GBP)\s?\d{2,}/.test(txt);
+                steps.push({ pressed, landed: page.url(), priced, calls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /catalog|avail|rate|room|price|search|book/i.test(c.u) && !/pinterest|doubleclick|nr-data|google/i.test(c.u)).map((c) => ({ s: c.s, m: c.m, u: c.u.slice(0, 200), body: c.body ? c.body.slice(0, 300) : undefined })).slice(0, 10), text: txt.slice(0, 700) });
+                if (priced) break;
+              }
+              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], afterPick: shown, steps });
             } catch (e) { LOG.push({ step: "engine-dates", error: String(e && e.message || e).slice(0, 200) }); }
           } catch (e) { LOG.push({ step: "engine-next", error: String(e && e.message || e).slice(0, 200) }); }
         } catch (e) { LOG.push({ step: "engine", opened: own, error: String(e && e.message || e).slice(0, 200) }); }
