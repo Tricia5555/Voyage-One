@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -115,10 +115,20 @@ async function findBookingLink(site, page, via, LOG) {
     try {
       await page.goto(p, { waitUntil: "domcontentloaded", timeout: 20000 });
       try { await page.waitForNetworkIdle({ idleTime: 600, timeout: 6000 }); } catch (e) {}
-      const hrefs = await page.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href));
+      // Buttons too, and the addresses a "Book" button opens by script (data-href, data-url, onclick) —
+      // an unknown engine shows itself here (M998).
+      const hrefs = await page.evaluate(() => {
+        const out = [];
+        document.querySelectorAll("a[href]").forEach((a) => out.push(a.href));
+        document.querySelectorAll("[data-href],[data-url],[data-booking-url],[data-link],button[onclick],a[onclick],[data-target]").forEach((el) => { for (const k of ["data-href", "data-url", "data-booking-url", "data-link", "onclick", "data-target"]) { const v = el.getAttribute(k); if (v) { const m = /https?:\/\/[^"'\s)]+/.exec(v); if (m) out.push(m[0]); } } });
+        return out;
+      });
       LOG.push({ step: "find-link", url: p, via: "browser:" + via, links: hrefs.length });
       const u = bestLink(hrefs);
       if (u) { LINK_CACHE[site] = u; return u; }
+      // No known engine: show what looked like a booking link, so the engine can be added.
+      const bookish = [...new Set(hrefs.filter((x) => /book|reserv|availability|stay|rates|checkin|check-in/i.test(x) && !/blog|press|news|career|gift|shop|restaurant|dining|spa|event|wedding|meeting|offer|privacy|terms/i.test(x)))].slice(0, 15);
+      if (bookish.length) LOG.push({ step: "find-link", url: p, unmatched: bookish });
     } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
   }
   return null;
