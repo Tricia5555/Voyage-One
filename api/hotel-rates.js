@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -236,7 +236,7 @@ async function findBookingLink(site, page, via, LOG) {
                 steps.push({ pressed, landed: page.url(), priced, calls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /catalog|avail|rate|room|price|search|book/i.test(c.u) && !/pinterest|doubleclick|nr-data|google/i.test(c.u)).map((c) => ({ s: c.s, m: c.m, u: c.u.slice(0, 200), body: c.body ? c.body.slice(0, 300) : undefined })).slice(0, 10), text: txt.slice(0, 700) });
                 if (priced) break;
               }
-              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], afterPick: shown, steps, calendarCalls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /catalog|calendar|avail|rate/i.test(c.u)).map((c) => ({ s: c.s, u: c.u.slice(0, 220), body: c.body ? c.body.slice(0, 300) : undefined })).slice(0, 8) });
+              LOG.push({ step: "engine-dates", opened, pick: [p1, p2], afterPick: shown, steps, calendarCalls: (CUR_S ? CUR_S.api : []).slice(apiMark).filter((c) => /catalog|calendar|avail|rate/i.test(c.u)).map((c) => ({ s: c.s, u: c.u.slice(0, 220), body: c.body ? c.body.slice(0, 300) : undefined, req: c.req })).slice(0, 8) });
             } catch (e) { LOG.push({ step: "engine-dates", error: String(e && e.message || e).slice(0, 200) }); }
           } catch (e) { LOG.push({ step: "engine-next", error: String(e && e.message || e).slice(0, 200) }); }
         } catch (e) { LOG.push({ step: "engine", opened: own, error: String(e && e.message || e).slice(0, 200) }); }
@@ -276,6 +276,7 @@ async function work(req, res, S) {
   const checkIn = String(q.checkIn || ""), checkOut = String(q.checkOut || "");
   const pax = Math.min(6, Math.max(1, parseInt(q.pax, 10) || 2));
   const debug = String(q.debug || "") === "1";
+  const nativeUA = String(q.ua || "") === "native";   // M1006: arrive as the browser really is (no iPad disguise)
   const stage = String(q.stage || "");   // "link" | "page" | "bundle" | "engine" | "" (full) — M986/M992/M999 diagnostics
   STAGE = stage; CHECK_IN = checkIn; CHECK_OUT = checkOut; CUR_S = S;
   const T0 = Date.now(); const ms = () => Date.now() - T0;
@@ -291,7 +292,8 @@ async function work(req, res, S) {
     // One browser for the whole job (M984): find the hotel's booking link, then read the rates.
     const opened = await openBrowser(); browser = opened.browser; via = opened.via; S.browser = browser;
     const page = await browser.newPage();
-    await page.setUserAgent(UA);
+    if (!nativeUA) await page.setUserAgent(UA);
+    LOG.push({ step: "ua", mode: nativeUA ? "native" : "ipad", agent: (await browser.userAgent()).slice(0, 120) });
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     // What the app itself sees (M990): failed requests, its API calls, and its error console. A
     // page that draws nothing explains itself here, not in its text.
@@ -303,7 +305,7 @@ async function work(req, res, S) {
         const telling = s >= 400 || /avail|rate|room|price|search|tretail|book/i.test(u);
         let body; if (data && telling && S.api.length < 40) { try { body = (await r.text()).replace(/\s+/g, " ").slice(0, 400); } catch (e) { body = undefined; } }
         if (s >= 400 && S.net.length < 40) S.net.push({ s, u: u.slice(0, 160), body });
-        if (data && S.api.length < 40) S.api.push({ s, u: u.slice(0, 160), m: r.request().method(), body: telling ? body : undefined });
+        if (data && S.api.length < 40) S.api.push({ s, u: u.slice(0, 160), m: r.request().method(), body: telling ? body : undefined, req: /calendar|avail|catalog/i.test(u) ? (() => { const hh = r.request().headers() || {}; const keep = {}; for (const k of Object.keys(hh)) if (!/^(cookie|authorization)$/i.test(k)) keep[k] = String(hh[k]).slice(0, 120); return keep; })() : undefined });
       } catch (e) {}
     });
     page.on("requestfailed", (r) => { try { if (S.net.length < 40) S.net.push({ s: "failed", u: r.url().slice(0, 160), e: ((r.failure() || {}).errorText || "").slice(0, 60) }); } catch (e) {} });
