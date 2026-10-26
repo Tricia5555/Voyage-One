@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007; residential road M1008; automatic residential retry + 2 h cache M1009, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -31,15 +31,21 @@ const MODEL = "claude-haiku-4-5-20251001";
 // Vercel, the readers connect to Browserless (plumbing, like Vercel or Supabase — nothing a
 // client sees); without it they still try the bundled browser, which works on hosts that have
 // the library. ?debug=1 reports which one answered.
-async function openBrowser() {
+// THE RESIDENTIAL ROAD (M1008). Some hotels' price services answer a datacenter address with a
+// bare 500 while serving a real visitor (Rosewood, 26 Oct 2026). Browserless offers a residential
+// network on every plan — two words on the connection address — metered per MB of traffic, so it
+// is used only when needed: on request (?proxy=1), or automatically on a retry when a hotel's price
+// call is refused. The exit address stays the same for the whole session (stealth routes are sticky).
+async function openBrowser(residential) {
   const token = (process.env.BROWSERLESS_TOKEN || "").trim();
   if (token) {
     const region = process.env.BROWSERLESS_REGION || "production-sfo";
+    const country = (process.env.BROWSERLESS_PROXY_COUNTRY || "us").trim();
     // No ad blocking: booking apps load through tag managers and testing tools (Four Seasons waits
     // for Optimizely before it draws a single room), and a blocker leaves a blank shell (M988).
-    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&timeout=90000`;
+    const ws = `wss://${region}.browserless.io?token=${encodeURIComponent(token)}&stealth=true&timeout=90000${residential ? `&proxy=residential&proxyCountry=${encodeURIComponent(country)}&proxySticky=true` : ""}`;
     const browser = await puppeteer.connect({ browserWSEndpoint: ws, defaultViewport: { width: 1180, height: 1600 } });
-    return { browser, via: "browserless" };
+    return { browser, via: residential ? "browserless:residential" : "browserless" };
   }
   chromiumPkg.setGraphicsMode = false;
   const browser = await puppeteer.launch({ args: chromiumPkg.args, defaultViewport: { width: 1180, height: 1600 }, executablePath: await chromiumPkg.executablePath(), headless: chromiumPkg.headless });
@@ -252,18 +258,42 @@ async function findBookingLink(site, page, via, LOG) {
 // page — and we see nothing at all, not even the log. Whatever has happened by 50 s is sent back
 // as the answer: the log, the characters read so far, a glimpse of the page. Slow is reported;
 // silent is forbidden.
+// THE RESIDENTIAL RETRY (M1009). A hotel whose price service refuses the datacenter road (a 5xx on
+// its availability/rate calls, or a page that never shows prices) is tried once more through the
+// residential road when there is time, and the site is remembered so the next request goes
+// straight there. No brand is named anywhere; the hotel's own behaviour decides.
+const NEEDS_RESIDENTIAL = {};
+const RETRYABLE = /^(empty-page|dates-not-applied|no-rates-visible|unreadable)$/;
+const hostOf = (site) => { try { return new URL(/^https?:\/\//.test(site) ? site : "https://" + site).hostname.replace(/^www\./, ""); } catch (e) { return site; } };
 export default async function handler(req, res) {
-  const S = { text: "", url: "", htmlPeek: "", browser: null, sent: false, t0: Date.now(), net: [], api: [], console: [], log: [] };
-  const json = res.json.bind(res);
-  res.json = (b) => { if (S.sent) return res; S.sent = true; return json(b); };
-  const timer = new Promise((r) => setTimeout(r, 50000, "timeout"));
-  let outcome = "done";
-  try { outcome = await Promise.race([work(req, res, S).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
-  if (!S.sent) {
-    res.setHeader("Cache-Control", "no-store");
-    res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, ms: Date.now() - S.t0, url: S.url, chars: S.text.length, log: S.log, sample: S.text.slice(0, 4000), htmlPeek: S.text.length < 200 ? S.htmlPeek : undefined, net: S.net, api: S.api, console: S.console });
+  const t0 = Date.now();
+  const q = req.query || {};
+  const site = String(q.site || "");
+  const forced = String(q.proxy || "") === "1" || String(q.proxy || "") === "residential";
+  const canRetry = !!(process.env.BROWSERLESS_TOKEN || "").trim() && !String(q.stage || "");
+  const runOnce = async (residential, budgetMs) => {
+    const S = { text: "", url: "", htmlPeek: "", browser: null, sent: false, t0: Date.now(), net: [], api: [], console: [], log: [], residential, answer: null };
+    const fake = { headers: {}, setHeader(k, v) { this.headers[k] = v; return this; }, status() { return this; }, json(b) { if (!S.sent) { S.sent = true; S.answer = b; } return this; } };
+    const timer = new Promise((r) => setTimeout(r, budgetMs, "timeout"));
+    let outcome = "done";
+    try { outcome = await Promise.race([work(req, fake, S).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
+    if (!S.sent) { fake.setHeader("Cache-Control", "no-store"); S.answer = { ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, ms: Date.now() - S.t0, url: S.url, chars: S.text.length, log: S.log, sample: S.text.slice(0, 4000), htmlPeek: S.text.length < 200 ? S.htmlPeek : undefined, net: S.net, api: S.api, console: S.console }; }
+    if (S.browser) { try { S.browser.close().catch(() => {}); } catch (e) {} }
+    const refused = S.net.some((n) => /calendar|avail|rate|price|booking|catalog/i.test(n.u || "") && Number(n.s) >= 500);
+    return { answer: S.answer, headers: fake.headers, refused };
+  };
+  const first = await runOnce(forced || !!NEEDS_RESIDENTIAL[hostOf(site)], 50000);
+  let out = first;
+  const a = first.answer || {};
+  const elapsed = Date.now() - t0;
+  if (canRetry && !forced && !NEEDS_RESIDENTIAL[hostOf(site)] && a.ok === false && (first.refused || RETRYABLE.test(String(a.reason || ""))) ) {
+    NEEDS_RESIDENTIAL[hostOf(site)] = true;   // next request goes straight to the residential road
+    if (elapsed < 22000) { out = await runOnce(true, 50000 - elapsed - 1500); if (out.answer) out.answer.retried = "residential"; }
+    else if (out.answer) out.answer.nextTime = "residential";
   }
-  if (S.browser) { try { S.browser.close().catch(() => {}); } catch (e) {} }
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  for (const [k, v] of Object.entries(out.headers || {})) res.setHeader(k, v);
+  res.status(200).json(out.answer || { ok: false, reason: "error" });
 }
 
 async function work(req, res, S) {
@@ -278,6 +308,7 @@ async function work(req, res, S) {
   const pax = Math.min(6, Math.max(1, parseInt(q.pax, 10) || 2));
   const debug = String(q.debug || "") === "1";
   const nativeUA = String(q.ua || "") === "native";   // M1006: arrive as the browser really is (no iPad disguise)
+  const residential = !!S.residential;   // M1008/M1009: decided by the handler (request flag, memory, or retry)
   const stage = String(q.stage || "");   // "link" | "page" | "bundle" | "engine" | "" (full) — M986/M992/M999 diagnostics
   STAGE = stage; CHECK_IN = checkIn; CHECK_OUT = checkOut; CUR_S = S;
   const T0 = Date.now(); const ms = () => Date.now() - T0;
@@ -291,7 +322,7 @@ async function work(req, res, S) {
   const looksPriced = (t) => /(?:[$€£]|USD|EUR|GBP|CHF|AED|JPY)\s?(?:\d{1,3}(?:[,.]\d{3})+|\d{2,})(?!\d)|(?:\d{1,3}(?:[,.]\d{3})+|\d{2,})\s?(?:USD|EUR|GBP|CHF|AED|€|£)(?![A-Za-z])/.test(t);
   try {
     // One browser for the whole job (M984): find the hotel's booking link, then read the rates.
-    const opened = await openBrowser(); browser = opened.browser; via = opened.via; S.browser = browser;
+    const opened = await openBrowser(residential); browser = opened.browser; via = opened.via; S.browser = browser;
     const page = await browser.newPage();
     if (!nativeUA) await page.setUserAgent(UA);
     LOG.push({ step: "ua", mode: nativeUA ? "native" : "ipad", agent: (await browser.userAgent()).slice(0, 120) });
@@ -505,6 +536,6 @@ ${text}`;
     if (plans.length || room.soldOut) rates[String(room.name).slice(0, 120)] = room.soldOut && !plans.length ? [{ plan: "Sold out", price: 0, currency, perNight: true, cancel: null, benefits: null, soldOut: true }] : plans;
   }
   if (!Object.keys(rates).length) return res.status(200).json({ ok: false, reason: "no-rates-visible", url: finalUrl, log: debug ? LOG : undefined, sample: debug ? text.slice(0, 3000) : undefined });
-  res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=300");
+  res.setHeader("Cache-Control", "public, s-maxage=7200, stale-while-revalidate=1800");   // M1009: two hours
   return res.status(200).json({ ok: true, hotel, checkIn, checkOut, pax, engine: engine.name, source: finalUrl, currency, rates, via: debug ? via : undefined, log: debug ? LOG : undefined, sample: debug ? text.slice(0, 3000) : undefined });
 }
