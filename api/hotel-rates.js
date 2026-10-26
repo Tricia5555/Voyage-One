@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -146,6 +146,37 @@ async function findBookingLink(site, page, via, LOG) {
             scripts: Array.from(document.scripts).map((s) => s.src).filter((s) => /synxis|travelclick|ihotelier|sabre|pegasus|shr|windsurfer|siteminder|cloudbeds|mews|opera|oracle|simplebooking|bookingengine|booking-engine|be\./i.test(s)).slice(0, 10),
           }));
           LOG.push({ step: "engine", opened: own, landed: page.url(), frames: page.frames().map((f) => f.url()).filter((u) => u && u !== "about:blank").slice(0, 10), ...probe });
+          // One step further (M1000): the hidden codes, the "Rooms / Stay" choice clicked, the next
+          // page's address and fields, and any date-parameter names in the site's own script.
+          try {
+            const codes = await page.evaluate(() => Array.from(document.querySelectorAll("input[type=hidden]")).filter((i) => /code|property|hotel|chain|brand/i.test(i.name || i.id || "")).map((i) => ({ name: i.name || i.id, value: String(i.value || "").slice(0, 40) })));
+            try { await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, a, [role=button]")); const hit = els.find((el) => /^\s*(accept all cookies|allow all|accept|agree)\s*$/i.test((el.innerText || "").trim())); if (hit) hit.click(); }); await new Promise((r) => setTimeout(r, 800)); } catch (e) {}
+            const choice = await page.evaluate(() => {
+              const els = Array.from(document.querySelectorAll("a, button, [role=button], [role=link], label, li, div[tabindex]"));
+              const hit = els.find((el) => /^\s*(rooms?(\s*(&|and)\s*suites)?|stay|accommodations?|book a room|hotel stay|room reservation)\s*$/i.test((el.innerText || "").trim()));
+              if (hit) { const txt = (hit.innerText || "").trim(); hit.click(); return txt; }
+              return null;
+            });
+            await new Promise((r) => setTimeout(r, 3500));
+            try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
+            const next = await page.evaluate(() => ({
+              title: document.title,
+              inputs: Array.from(document.querySelectorAll("input, select")).filter((i) => !/ot-|vendor|cookie|chkbox|select-all/i.test(i.name || i.id || "")).slice(0, 30).map((i) => ({ name: i.name || null, id: i.id || null, type: i.type || i.tagName.toLowerCase(), placeholder: i.placeholder || null, aria: i.getAttribute("aria-label") || null, value: /date|check|arriv|depart/i.test(i.name || i.id || i.placeholder || "") ? String(i.value || "").slice(0, 20) : undefined })),
+              links: Array.from(document.querySelectorAll("a[href]")).map((a) => a.href).filter((u) => /reserv|book|room|avail|search/i.test(u) && !/sevenrooms|facebook|instagram/i.test(u)).slice(0, 12),
+              buttons: Array.from(document.querySelectorAll("button, a[role=button]")).map((b) => (b.innerText || "").trim()).filter((x) => x && !/cookie|accept|reject|allow|confirm my|privacy/i.test(x)).slice(0, 20),
+            }));
+            const scripts = await page.evaluate(() => Array.from(document.scripts).map((s) => s.src).filter((s) => s && !/onetrust|cookielaw|google|gtm|facebook|hotjar|optimizely|adobe|tealium|clarity/i.test(s)).slice(0, 12));
+            let params = [];
+            for (const s of scripts.slice(0, 4)) {
+              try { const txt = await page.evaluate(async (u) => { const r = await fetch(u); return (await r.text()).slice(0, 2000000); }, s);
+                const found = new Set(); let m; const re = /["'`]([a-zA-Z_]*(?:checkin|checkout|check_in|check_out|arrival|departure|arrive|depart|startDate|endDate|start_date|end_date|dateIn|dateOut|datein|dateout|fromDate|toDate|adults|guests|rooms)[a-zA-Z_]*)["'`]/g;
+                while ((m = re.exec(txt)) && found.size < 30) found.add(m[1]);
+                const urls = new Set(); const re2 = /["'`]((?:https?:)?\/\/[^"'`\s]{0,80}(?:reserv|book|avail|search)[^"'`\s]{0,80})["'`]|["'`](\/[a-z0-9\-\/]{0,60}(?:reserv|book|avail|search)[a-z0-9\-\/]{0,60}\??[^"'`\s]{0,80})["'`]/gi;
+                while ((m = re2.exec(txt)) && urls.size < 20) urls.add(m[1] || m[2]);
+                params.push({ script: s.slice(-60), params: [...found], urls: [...urls] }); } catch (e) {}
+            }
+            LOG.push({ step: "engine-next", codes, clicked: choice, landed: page.url(), frames: page.frames().map((f) => f.url()).filter((u) => u && u !== "about:blank").slice(0, 10), ...next, scripts: params });
+          } catch (e) { LOG.push({ step: "engine-next", error: String(e && e.message || e).slice(0, 200) }); }
         } catch (e) { LOG.push({ step: "engine", opened: own, error: String(e && e.message || e).slice(0, 200) }); }
       }
     } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
