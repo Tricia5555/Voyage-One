@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018, 26 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019, 26 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -207,6 +207,32 @@ export default async function handler(req, res) {
   try { outcome = await Promise.race([work(req, res).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
   if (!sent) { res.setHeader("Cache-Control", "no-store"); res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, tried: TRIED.slice(-40) }); }
 }
+// THE ROOMS STORE (M1019). Vercel's cache is wiped by every deploy, so the first open of every
+// hotel after a deploy paid the full 35–60 s read. The rooms now also live in Supabase
+// (table hotel_rooms, 30-day freshness), written by the server with the service key and read
+// before any site is touched. Env in Vercel: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Without
+// them the store is simply skipped.
+const STORE_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
+const STORE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+const FRESH_MS = 30 * 86400000;
+async function storeRead(site) {
+  if (!STORE_URL || !STORE_KEY) return null;
+  try {
+    const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&select=hotel,source,booking,rooms,fetched_at`, { headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } });
+    if (!r.ok) return null;
+    const rows = await r.json(); const row = rows && rows[0];
+    if (!row || !Array.isArray(row.rooms) || !row.rooms.length) return null;
+    if (Date.now() - Date.parse(row.fetched_at) > FRESH_MS) return null;
+    return row;
+  } catch (e) { return null; }
+}
+async function storeWrite(site, hotel, source, booking, rooms) {
+  if (!STORE_URL || !STORE_KEY) return false;
+  try {
+    const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source, booking, rooms, fetched_at: new Date().toISOString() }) });
+    return r.ok;
+  } catch (e) { return false; }
+}
 async function work(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
@@ -218,6 +244,11 @@ async function work(req, res) {
   const site = String(req.query.site || "").slice(0, 300).trim();
   if (!hotel || !site || !/^[a-z0-9.-]+\.[a-z]{2,}/i.test(site.replace(/^https?:\/\//, ""))) return res.status(200).json({ ok: false, reason: "bad-request" });
 
+  // The store first: no site is touched for a hotel read within the month.
+  if (String(req.query.fresh || "") !== "1") {
+    const kept = await storeRead(site);
+    if (kept) { res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800"); return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms: kept.rooms, via: "store" }); }
+  }
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
   // A HOLLOW PAGE IS READ AGAIN IN THE BROWSER (M997). Rosewood's accommodation page arrives as a
@@ -285,7 +316,8 @@ ${text}`;
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
     if (!rooms.length) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
-    return res.status(200).json({ ok: true, hotel, source: page.url, booking, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
+    const stored = await storeWrite(site, hotel, page.url, booking, rooms);
+    return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "fetch", detail: String(e && e.message || e).slice(0, 200) });
   }
