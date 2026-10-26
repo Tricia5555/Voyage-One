@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -112,6 +112,7 @@ async function linkFromRooms(req, hotel, site, LOG) {
   } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: /abort/i.test(String(e && e.name || e)) ? "cold cache — warming" : String(e && e.message || e).slice(0, 120) }); return null; }
 }
 let STAGE = "", CHECK_IN = "", CHECK_OUT = "", CUR_S = null;
+async function agreeCookiesQuick(page) { try { await page.evaluate(() => { const els = Array.from(document.querySelectorAll("button, a, [role=button]")); const hit = els.find((el) => /^\s*(accept all cookies|allow all|accept|agree|ok)\s*$/i.test((el.innerText || "").trim())); if (hit) hit.click(); }); } catch (e) {} }
 async function findBookingLink(site, page, via, LOG) {
   if (LINK_CACHE[site] && STAGE !== "engine") { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
@@ -315,6 +316,42 @@ async function work(req, res, S) {
     LOG.push({ step: "browser-open", via, ms: ms() });
     try { link = stage === "engine" ? await findBookingLink(site, page, via, LOG) : (LINK_CACHE[site] || await linkFromRooms(req, hotel, site, LOG) || await findBookingLink(site, page, via, LOG)); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
     LOG.push({ step: "link", link, ms: ms() });
+    if (stage === "calendar") {
+      // ASK THE ENGINE DIRECTLY (M1007): open the rooms step of the hotel's own booking flow, then,
+      // from inside that page (its cookies, its key), call its calendar service several ways and
+      // report each reply — and the hotel's own record, which may name the id the calendar wants.
+      const out = { stage, link };
+      try {
+        const base = /rosewoodhotels\.com\/([a-z]{2})\/([^/?#]+)\/reservations/i.exec(link || "");
+        const roomsUrl = base ? `https://www.rosewoodhotels.com/${base[1]}/${base[2]}/reservations/room-booking` : link;
+        await page.goto(roomsUrl, { waitUntil: "domcontentloaded", timeout: 25000 });
+        try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
+        await agreeCookiesQuick(page);
+        await new Promise((r) => setTimeout(r, 1500));
+        const slug = base ? base[2] : "";
+        out.tries = await page.evaluate(async (a) => {
+          const [slug, ci, co] = a;
+          const key = (() => { try { const perf = performance.getEntriesByType("resource").map((e) => e.name); return perf.find((n) => /catalog\/v1/.test(n)) ? "seen" : "none"; } catch (e) { return "?"; } })();
+          const hdr = { accept: "application/json" };
+          const variants = [
+            `/api/catalog/v1/hotel/${slug}`,
+            `/api/catalog/v1/room/calendar?hotelId=${slug}&startDate=2026-11-01&endDate=2026-11-30&numRooms=1&adults=2&childrenCountPerRoom=0`,
+            `/api/catalog/v1/room/calendar?hotelId=${slug}&startDate=2026-11-01&endDate=2026-11-30&numRooms=1&adults=2&childrenCountPerRoom=0&currencyCode=EUR&timeZone=Europe/Madrid`,
+            `/api/catalog/v1/room/calendar?hotelId=${slug}&startDate=${ci}&endDate=${co}&numRooms=1&adults=2&childrenCountPerRoom=0&currencyCode=EUR&timeZone=Europe/Madrid&userSelectedDates=true`,
+            `/api/catalog/v1/room/availability?hotelId=${slug}&startDate=${ci}&endDate=${co}&numRooms=1&adults=2&childrenCountPerRoom=0&currencyCode=EUR`,
+            `/api/catalog/v1/rooms?hotelId=${slug}&startDate=${ci}&endDate=${co}&numRooms=1&adults=2&childrenCountPerRoom=0&currencyCode=EUR`,
+            `/api/catalog/v1/hotel/${slug}/rooms?startDate=${ci}&endDate=${co}&adults=2&numRooms=1`,
+          ];
+          const res = [];
+          for (const v of variants) {
+            try { const r = await fetch(v, { headers: hdr, credentials: "include" }); const t = await r.text(); res.push({ u: v, s: r.status, body: t.replace(/\s+/g, " ").slice(0, v.includes("/hotel/") && !v.includes("rooms") ? 1800 : 500) }); }
+            catch (e) { res.push({ u: v, error: String(e && e.message || e).slice(0, 100) }); }
+          }
+          return { keySeen: key, res };
+        }, [slug, checkIn, checkOut]);
+      } catch (e) { out.error = String(e && e.message || e).slice(0, 200); }
+      await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, ...out, log: LOG });
+    }
     if (stage === "link" || stage === "engine") { await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: !!link, stage, link, log: LOG }); }
     if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
     engine = ENGINES.find((e) => e.test.test(link));
