@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997, 25 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -60,7 +60,7 @@ async function getWithBrowser(url) {
     const finalUrl = page.url();
     TRIED.push({ url, via: "browser:" + opened.via, status: resp ? resp.status() : null, bytes: html.length });
     await browser.close();
-    return html && html.length > 500 ? { url: finalUrl, html } : null;
+    return html && html.length > 500 ? { url: finalUrl, html, via: "browser" } : null;
   } catch (e) {
     TRIED.push({ url, via: "browser", hosted: !!(process.env.BROWSERLESS_TOKEN || "").trim(), error: String(e && e.message || e).slice(0, 700) });
     if (browser) { try { await browser.close(); } catch (x) {} }
@@ -75,7 +75,7 @@ async function get(url) {
     const r = await fetch(url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow" });
     const ct = r.headers.get("content-type") || "";
     TRIED.push({ url, via: "fetch", status: r.status, type: ct.slice(0, 40) });
-    if (r.ok && /html/i.test(ct)) { const html = await r.text(); if (html.length > 500) return { url: r.url, html }; }
+    if (r.ok && /html/i.test(ct)) { const html = await r.text(); if (html.length > 500) return { url: r.url, html, via: "fetch" }; }
     if (r.status === 404) return null;              // a real "no such page": no point opening a browser on it
   } catch (e) { TRIED.push({ url, via: "fetch", error: String(e && e.message || e).slice(0, 120) }); }
   return await getWithBrowser(url);
@@ -151,7 +151,7 @@ async function findRoomsPage(site) {
       const txt = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
       const byText = /^(accommodations?|rooms?(?: (?:&|and) suites)?|suites?(?: (?:&|and) rooms)?|stay|villas?|residences?|tents?|rooms? ?\/ ?suites|guest ?rooms|where to stay|our rooms|the rooms)$/i.test(txt);
       const byUrl = /(^|\/)(accommodations?|rooms?(?:-and-suites|-suites)?|suites?|stay|villas?|tents?|residences?|guest-rooms)(\/|$|\?|#)/i.test(new URL(u).pathname);
-      if (byText) links.unshift(u); else if (byUrl) links.push(u);
+      if (byText) { if (/\?/.test(u)) links.push(u); else links.unshift(u); } else if (byUrl) links.push(u);
     }
     for (const u of [...new Set(links)].slice(0, 8)) { const got = await attempt(u.split("#")[0]); if (got) return got; }
   }
@@ -174,6 +174,14 @@ export default async function handler(req, res) {
 
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
+  // A HOLLOW PAGE IS READ AGAIN IN THE BROWSER (M997). Rosewood's accommodation page arrives as a
+  // shell — menu and a promo — and draws its rooms with JavaScript afterwards; a plain fetch
+  // never sees them. If the page we hold shows few room signals, open it in the browser.
+  const roomSignals = (html) => { const t = String(html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " "); return (t.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft)/gi) || []).length + (t.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length; };
+  if (page && !/^browser/.test(page.via || "") && roomSignals(page.html) < 2) {
+    TRIED.push({ url: page.url, note: "hollow — reading again in the browser", signals: roomSignals(page.html) });
+    try { const again = await getWithBrowser(page.url); if (again && roomSignals(again.html) > roomSignals(page.html)) page = again; } catch (e) {}
+  }
   if (!page) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
   // The hotel's own "Check Rates" link, from the page we already hold, so the rates reader need
   // not open the site again to find it (M985). Prefer the link that names the hotel.
