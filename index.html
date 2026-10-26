@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M991";
+const BUILD = "M992";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22077,6 +22077,21 @@ function HotelLook({ hotel, site, enabled }) {
     </div>, document.body) : null}
   </div>);
 }
+const WARM = { queue: [], busy: false, seen: new Set() };
+function warmRooms(hotel, site) {
+  const key = hotel && site ? `${hotel}|${site}` : "";
+  if (!key || WARM.seen.has(key) || (ROOMS_CACHE[key] && ROOMS_CACHE[key].status === "ok")) return;
+  WARM.seen.add(key); WARM.queue.push({ hotel, site, key });
+  const next = () => {
+    if (WARM.busy) return; const job = WARM.queue.shift(); if (!job) return; WARM.busy = true;
+    fetch(`/api/rooms?hotel=${encodeURIComponent(job.hotel)}&site=${encodeURIComponent(job.site)}&v=2`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (j && j.ok && Array.isArray(j.rooms) && j.rooms.length) ROOMS_CACHE[job.key] = { rooms: j.rooms, status: "ok", source: j.source }; })
+      .catch(() => {})
+      .then(() => { WARM.busy = false; setTimeout(next, 400); });
+  };
+  setTimeout(next, 1500);
+}
 function useHotelRooms(hotel, site) {
   const key = hotel && site ? `${hotel}|${site}` : "";
   const [attempt, setAttempt] = useState(0);
@@ -22282,6 +22297,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
   const chooseRoom = (r, pl) => { const v = r ? { ...r, plan: pl && !pl.soldOut ? { plan: pl.plan, price: pl.price, currency: pl.currency, perNight: !!pl.perNight, cancel: pl.cancel || null } : null } : null; setLocalRoom(v); if (onRoom) onRoom(v); };
   const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  useEffect(() => { if (!sel && site && !isUpcoming(s)) warmRooms(s.name, site); }, [site, sel]);
   const rating = null;   // Google crowd rating — deliberately not shown. See note above.
   const tier = tierProp || tierOf(s.name);
   const showImg = photo && bad !== photo;
