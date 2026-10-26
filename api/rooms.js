@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014, 26 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015, 26 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -173,7 +173,15 @@ async function findRoomsPage(site) {
       const byUrl = /(^|\/)(accommodations?|rooms?(?:-and-suites|-suites)?|suites?|stay|villas?|tents?|residences?|guest-rooms)(\/|$|\?|#)/i.test(new URL(u).pathname);
       if (byText) { if (/\?/.test(u)) links.push(u); else links.unshift(u); } else if (byUrl) links.push(u);
     }
-    for (const u of [...new Set(links)].slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
+    // THE HOTEL'S OWN PAGES FIRST (M1015). On a group site the hotel lives at a path
+    // (dorchestercollection.com/london/the-dorchester); its own Rooms & Suites page sits under that
+    // path, while the group's "Residences" and other hotels' pages do not. Rank own-path links
+    // first, and when the hotel has a path of its own, leave the group's pages for last.
+    const ownPath = (() => { try { const p = new URL(root).pathname.replace(/\/+$/, "").toLowerCase(); return p && p !== "/" ? p : ""; } catch (e) { return ""; } })();
+    const under = (u) => { try { return !!ownPath && new URL(u).pathname.toLowerCase().startsWith(ownPath + "/"); } catch (e) { return false; } };
+    const ranked = [...new Set(links)].sort((a, b) => (under(b) ? 1 : 0) - (under(a) ? 1 : 0));
+    TRIED.push({ note: "menu candidates", ownPath: ownPath || null, candidates: ranked.slice(0, 8) });
+    for (const u of ranked.slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
   for (const p of ROOM_PATHS) {
     for (const cand of [root + p, origin + p]) { const got = await attempt(cand); if (got) return got; }
