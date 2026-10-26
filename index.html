@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M990";
+const BUILD = "M991";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22251,7 +22251,19 @@ function PlaceMap({ name, city, area }) {
     </div>) : null}
   </div>);
 }
+let LAST_TAP = 0;   // when the user last tapped a card; an opening card scrolls into view only after a tap
+function useScrollWhenOpened(ref, open) {
+  useEffect(() => {
+    if (!open || !ref.current || Date.now() - LAST_TAP > 2500) return;
+    const el = ref.current;
+    const go = () => { try { el.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {} };
+    const id = setTimeout(go, 60);   // after the layout has settled
+    return () => clearTimeout(id);
+  }, [open]);
+}
 function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested, room, onRoom, stayDates, pax }) {
+  const cardRef = useRef(null);
+  useScrollWhenOpened(cardRef, !!sel);
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
   // way the presentation is identical — one card for every hotel.
   const info = useHotelInfo(city, (s.photo && s.site) ? null : s.name);
@@ -22274,7 +22286,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
   const tier = tierProp || tierOf(s.name);
   const showImg = photo && bad !== photo;
   const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 44%" : "none", height: sel ? "auto" : 152, minHeight: sel ? 210 : 152, overflow: "hidden" };
-  return (<div role="button" tabIndex={0} onClick={onClick} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", flexWrap: sel ? "wrap" : "nowrap", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+  return (<div ref={cardRef} role="button" tabIndex={0} onClick={() => { LAST_TAP = Date.now(); onClick(); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); LAST_TAP = Date.now(); onClick(); } }} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", flexWrap: sel ? "wrap" : "nowrap", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)", scrollMarginTop: 92 }}>
     <div style={photoBox}>
       {showImg
         ? <img src={photo} alt="" loading="lazy" onError={() => setBad(photo)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
@@ -22631,10 +22643,12 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
   const phone = r.tel || info.phone;
   const [broken, setBroken] = useState(false);
   const sel = !!found;
+  const dineRef = useRef(null);
+  useScrollWhenOpened(dineRef, sel);
   const showImg = photo && !broken;
   const photoBox = { position: "relative", background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", flex: sel ? "0 0 40%" : "none", height: sel ? "auto" : 150, minHeight: sel ? 190 : 150, overflow: "hidden" };
-  return (<div role="button" tabIndex={0} onClick={onToggle} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
-    style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
+  return (<div ref={dineRef} role="button" tabIndex={0} onClick={() => { LAST_TAP = Date.now(); onToggle(); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); LAST_TAP = Date.now(); onToggle(); } }}
+    style={{ scrollMarginTop: 92, gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
     <div style={photoBox}>
       {showImg
         ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
