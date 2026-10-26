@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007; residential road M1008; automatic residential retry + 2 h cache M1009, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001; calendar driver probe M1003; real mouse + multi-step M1004; faster probe M1005; ua=native + request headers M1006; stage=calendar direct asks M1007; residential road M1008; automatic residential retry + 2 h cache M1009; Hilton/Hyatt/Accor/Marriott engines M1010; the Book button pressed M1012, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -73,6 +73,26 @@ const ENGINES = [
       if (!m) return null;
       return `https://www.rosewoodhotels.com/${m[1]}/${m[2]}/reservations/room-booking?startDate=${ci}&endDate=${co}&adults=${pax}&numRooms=1`;
     } },
+  // THE BIG GROUPS (M1010, 26 Oct 2026). Public, stable address formats; each is still subject to
+  // the dates-shown guard, so a format that a brand changes shows no price rather than a wrong one.
+  { name: "hilton", test: /hilton\.com\/[a-z]{2}\/book|hilton\.com\/.*ctyhocn=/i, build: (u, ci, co, pax) => {
+      const code = (/ctyhocn=([A-Z0-9]+)/i.exec(u) || [])[1]; if (!code) return null;
+      return `https://www.hilton.com/en/book/reservation/rooms/?ctyhocn=${code}&arrivalDate=${ci}&departureDate=${co}&room1NumAdults=${pax}`;
+    } },
+  { name: "hyatt", test: /hyatt\.com\/(?:shop\/rooms|en-US\/hotel|hotel)\//i, build: (u, ci, co, pax) => {
+      const code = (/hyatt\.com\/shop\/rooms\/([a-z0-9]{4,6})(?:[/?#]|$)/i.exec(u) || /hyatt\.com\/(?:en-US\/)?hotel\/[^/]+\/[^/]+\/([a-z0-9]{4,6})(?:[/?#]|$)/i.exec(u) || [])[1]; if (!code) return null;
+      return `https://www.hyatt.com/shop/rooms/${code.toLowerCase()}?checkinDate=${ci}&checkoutDate=${co}&rooms=1&adults=${pax}`;
+    } },
+  { name: "accor", test: /all\.accor\.com\/(?:ssr\/app\/[a-z]+\/rates\/|hotel\/|lien_externe)/i, build: (u, ci, co, pax) => {
+      const code = (/(?:rates|hotel)\/([A-Z0-9]{4,5})(?:\/|\.|\?|$)/i.exec(u) || /hotel_code=([A-Z0-9]{4,5})/i.exec(u) || [])[1]; if (!code) return null;
+      const nights = Math.max(1, Math.round((Date.parse(co) - Date.parse(ci)) / 86400000));
+      return `https://all.accor.com/ssr/app/all/rates/${code}/index.en.shtml?dateIn=${ci}&nights=${nights}&compositions=${pax}`;
+    } },
+  { name: "marriott", test: /marriott\.com\/(?:reservation|hotels\/travel|[a-z-]+\/hotels\/)/i, build: (u, ci, co, pax) => {
+      const code = (/propertyCode=([A-Z0-9]{5,6})/i.exec(u) || /marriott\.com\/(?:[a-z-]+\/)?hotels\/(?:travel\/)?([a-z0-9]{5,6})(?:-|\/|$)/i.exec(u) || [])[1]; if (!code) return null;
+      const mdy2 = (iso) => { const [y, m, d] = iso.split("-"); return `${m}/${d}/${y}`; };
+      return `https://www.marriott.com/reservation/availabilitySearch.mi?propertyCode=${code.toUpperCase()}&fromDate=${mdy2(ci)}&toDate=${mdy2(co)}&numberOfAdults=${pax}&numberOfRooms=1`;
+    } },
   { name: "synxis", test: /be\.synxis\.com/i, build: (u, ci, co, pax) => {
       const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); return x.toString();
     } },
@@ -142,6 +162,35 @@ async function findBookingLink(site, page, via, LOG) {
       LOG.push({ step: "find-link", url: p, via: "browser:" + via, links: hrefs.length });
       const u = bestLink(hrefs);
       if (u && STAGE !== "engine") { LINK_CACHE[site] = u; return u; }
+      // PRESS THE BOOK BUTTON (M1012). Many brands' Book buttons carry no address — a script opens the
+      // engine on press (Mandarin Oriental, 26 Oct 2026). Press it as a guest would, follow it into
+      // the same tab, a new tab or an overlay, and read the address it lands on. If that address
+      // belongs to a known engine, it is the booking link; otherwise stage=link reports it.
+      try {
+        const before = page.url();
+        const newTab = new Promise((resolve) => { const t = setTimeout(() => resolve(null), 9000); page.browser().once("targetcreated", async (tg) => { clearTimeout(t); try { const p2 = await tg.page(); resolve(p2 || null); } catch (e) { resolve(null); } }); });
+        const pressed = await (async () => {
+          const jh = await page.evaluateHandle(() => { const els = Array.from(document.querySelectorAll("a, button, [role=button], [role=link]")); const vis = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; }; return els.find((el) => vis(el) && /^(book|book now|book stay|book a stay|book your stay|reserve|reserve now|check rates|check availability|rates & availability|rates|availability)$/i.test((el.innerText || el.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim())) || null; });
+          const el = jh.asElement(); if (!el) return null;
+          const label = await el.evaluate((n) => (n.innerText || n.getAttribute("aria-label") || "").trim().slice(0, 40));
+          try { await el.click({ delay: 40 }); } catch (e) { await el.evaluate((n) => n.click()); }
+          return label;
+        })();
+        if (pressed) {
+          const tab = await newTab;
+          const target = tab || page;
+          try { await target.waitForNetworkIdle({ idleTime: 800, timeout: 8000 }); } catch (e) {}
+          await new Promise((r) => setTimeout(r, 1500));
+          const landed = target.url();
+          const frames = target.frames().map((f) => f.url()).filter((x) => x && x !== "about:blank" && !/doubleclick|google|facebook|triptease|onetrust|cookielaw/i.test(x)).slice(0, 8);
+          const inner = await target.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href).filter((x) => /book|reserv|avail|synxis|travelclick|ihotelier|fourseasons|hyatt|hilton|accor|marriott/i.test(x)).slice(0, 10)).catch(() => []);
+          LOG.push({ step: "book-button", pressed, from: before, landed, newTab: !!tab, frames, links: inner });
+          const found = bestLink([landed, ...frames, ...inner]);
+          if (tab) { try { await tab.close(); } catch (e) {} }
+          if (found) { LINK_CACHE[site] = found; if (STAGE !== "engine") return found; }
+          if (landed !== before && !tab) { try { await page.goto(p, { waitUntil: "domcontentloaded", timeout: 15000 }); } catch (e) {} }
+        }
+      } catch (e) { LOG.push({ step: "book-button", error: String(e && e.message || e).slice(0, 160) }); }
       // No known engine: show what looked like a booking link, so the engine can be added.
       const bookish = [...new Set(hrefs.filter((x) => /book|reserv|availability|stay|rates|checkin|check-in/i.test(x) && !/blog|press|news|career|gift|shop|restaurant|dining|spa|event|wedding|meeting|offer|privacy|terms/i.test(x)))].slice(0, 15);
       if (bookish.length) LOG.push({ step: "find-link", url: p, unmatched: bookish });
