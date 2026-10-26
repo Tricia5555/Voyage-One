@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -103,6 +103,7 @@ async function linkFromRooms(req, hotel, site, LOG) {
     return u && ENGINES.some((e) => e.test.test(u)) ? u : null;
   } catch (e) { LOG.push({ step: "find-link", via: "rooms-api", error: /abort/i.test(String(e && e.name || e)) ? "cold cache — warming" : String(e && e.message || e).slice(0, 120) }); return null; }
 }
+let STAGE = "";
 async function findBookingLink(site, page, via, LOG) {
   if (LINK_CACHE[site]) { LOG.push({ step: "find-link", cached: LINK_CACHE[site] }); return LINK_CACHE[site]; }
   const base = /^https?:\/\//.test(site) ? site : "https://" + site;
@@ -129,6 +130,24 @@ async function findBookingLink(site, page, via, LOG) {
       // No known engine: show what looked like a booking link, so the engine can be added.
       const bookish = [...new Set(hrefs.filter((x) => /book|reserv|availability|stay|rates|checkin|check-in/i.test(x) && !/blog|press|news|career|gift|shop|restaurant|dining|spa|event|wedding|meeting|offer|privacy|terms/i.test(x)))].slice(0, 15);
       if (bookish.length) LOG.push({ step: "find-link", url: p, unmatched: bookish });
+      // stage=engine (M999): open the hotel's own reservations page and report where it lands, what
+      // it embeds and what date fields it shows — so an unknown engine can be added as one line.
+      if (STAGE === "engine" && bookish.length) {
+        const own = bookish.find((x) => /reserv|book/i.test(x) && !/sevenrooms|opentable|resy|facebook|instagram/i.test(x)) || bookish[0];
+        try {
+          await page.goto(own, { waitUntil: "domcontentloaded", timeout: 25000 });
+          try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
+          await new Promise((r) => setTimeout(r, 2500));
+          const probe = await page.evaluate(() => ({
+            title: document.title,
+            inputs: Array.from(document.querySelectorAll("input, select")).slice(0, 40).map((i) => ({ name: i.name || null, id: i.id || null, type: i.type || i.tagName.toLowerCase(), placeholder: i.placeholder || null, aria: i.getAttribute("aria-label") || null })),
+            forms: Array.from(document.querySelectorAll("form")).slice(0, 5).map((f) => ({ action: f.action || null, method: f.method || null })),
+            buttons: Array.from(document.querySelectorAll("button, a[role=button]")).map((b) => (b.innerText || "").trim()).filter(Boolean).slice(0, 25),
+            scripts: Array.from(document.scripts).map((s) => s.src).filter((s) => /synxis|travelclick|ihotelier|sabre|pegasus|shr|windsurfer|siteminder|cloudbeds|mews|opera|oracle|simplebooking|bookingengine|booking-engine|be\./i.test(s)).slice(0, 10),
+          }));
+          LOG.push({ step: "engine", opened: own, landed: page.url(), frames: page.frames().map((f) => f.url()).filter((u) => u && u !== "about:blank").slice(0, 10), ...probe });
+        } catch (e) { LOG.push({ step: "engine", opened: own, error: String(e && e.message || e).slice(0, 200) }); }
+      }
     } catch (e) { LOG.push({ step: "find-link", url: p, via: "browser", error: String(e && e.message || e).slice(0, 200) }); }
   }
   return null;
@@ -163,7 +182,8 @@ async function work(req, res, S) {
   const checkIn = String(q.checkIn || ""), checkOut = String(q.checkOut || "");
   const pax = Math.min(6, Math.max(1, parseInt(q.pax, 10) || 2));
   const debug = String(q.debug || "") === "1";
-  const stage = String(q.stage || "");   // "link" | "page" | "bundle" | "" (full) — M986/M992 diagnostics
+  const stage = String(q.stage || "");   // "link" | "page" | "bundle" | "engine" | "" (full) — M986/M992/M999 diagnostics
+  STAGE = stage;
   const T0 = Date.now(); const ms = () => Date.now() - T0;
   if (!hotel || !site || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || checkOut <= checkIn) return res.status(200).json({ ok: false, reason: "bad-request" });
 
@@ -199,7 +219,7 @@ async function work(req, res, S) {
     LOG.push({ step: "browser-open", via, ms: ms() });
     try { link = LINK_CACHE[site] || await linkFromRooms(req, hotel, site, LOG) || await findBookingLink(site, page, via, LOG); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
     LOG.push({ step: "link", link, ms: ms() });
-    if (stage === "link") { await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: !!link, stage, link, log: LOG }); }
+    if (stage === "link" || stage === "engine") { await browser.close(); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: !!link, stage, link, log: LOG }); }
     if (!link) { await browser.close(); return res.status(200).json({ ok: false, reason: "no-booking-link", hotel, site, log: debug ? LOG : undefined }); }
     engine = ENGINES.find((e) => e.test.test(link));
     const built = engine ? engine.build(link, checkIn, checkOut, pax) : null;
