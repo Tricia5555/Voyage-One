@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002, 25 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011, 26 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -186,7 +186,7 @@ export default async function handler(req, res) {
   // The hotel's own "Check Rates" link, from the page we already hold, so the rates reader need
   // not open the site again to find it (M985). Prefer the link that names the hotel.
   const booking = (() => {
-    const ENG = /reservations\.fourseasons\.com|be\.synxis\.com|reservations\.travelclick\.com|ihotelier|secure-hotel-booking|reservation\.|reservations\.|\/reservations\/|\/booking\/|\/book\//i;   // + a hotel's own /reservations/ path (Rosewood, M1002)
+    const ENG = /reservations\.fourseasons\.com|be\.synxis\.com|reservations\.travelclick\.com|ihotelier|secure-hotel-booking|reservation\.|reservations\.|\/reservations\/|\/booking\/|\/book\/|hilton\.com\/[a-z]{2}\/book|ctyhocn=|hyatt\.com\/shop\/rooms|all\.accor\.com\/(?:ssr|hotel|lien_externe)|marriott\.com\/reservation|propertyCode=/i;   // own /reservations/ (M1002); Hilton, Hyatt, Accor, Marriott (M1011)
     const CODED = /(?:locationId|hotelCode|hotel|hotelId|propertyId|productId|chain|Hotel|Chain)=/;
     const urls = []; const re = /href\s*=\s*["']([^"']+)["']/gi; let m;
     while ((m = re.exec(page.html))) { try { urls.push(new URL(m[1].replace(/&amp;/g, "&"), page.url).toString()); } catch (e) {} }
