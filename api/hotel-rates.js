@@ -1,4 +1,4 @@
-// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000, 25 Oct 2026).
+// api/hotel-rates.js — live room rates from the hotel's own booking engine (build M973; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; link via browser + candidate addresses M981; coded link preferred M982; cookie banner + wait for prices M983; one browser, faster M984; link from rooms reader M985; stages + timings M986; frames + shadow DOM M987; no ad blocker M988; hard 50 s answer M989; network + console diagnostics M990; 6 s link budget + response bodies M991; stage=bundle M992; no rooms=1 M993; price detector + per-request log + own frames only M994; unmatched booking links listed M998; stage=engine probe M999; one step further M1000; Rosewood engine + dates-shown guard M1001, 25 Oct 2026).
 //
 // THE BRIDGE UNTIL THE HOST'S SABRE LINE. A client will not choose a room without a price beside
 // it (Tricia, 25 Oct 2026). Real per-room prices for a date live in the hotel's reservation
@@ -58,6 +58,14 @@ const ENGINES = [
       const code = (/(?:locationId|hotelCode)=([A-Z0-9]+)/i.exec(u) || [])[1];
       if (!code) return null;
       return [`https://reservations.fourseasons.com/?hotelCode=${code}&checkIn=${ci}&checkOut=${co}&adults=${pax}&children=0`];
+    } },
+  // ROSEWOOD (M1001): its own engine on its own domain. The rooms step is
+  // /<lang>/<hotel-slug>/reservations/room-booking and the page's own price call uses startDate,
+  // endDate, adults, numRooms (seen on the wire, stage=engine, 25 Oct 2026) — nothing invented.
+  { name: "rosewood", test: /rosewoodhotels\.com\/[a-z]{2}\/[^/?#]+\/reservations/i, build: (u, ci, co, pax) => {
+      const m = /rosewoodhotels\.com\/([a-z]{2})\/([^/?#]+)\/reservations/i.exec(u);
+      if (!m) return null;
+      return `https://www.rosewoodhotels.com/${m[1]}/${m[2]}/reservations/room-booking?startDate=${ci}&endDate=${co}&adults=${pax}&numRooms=1`;
     } },
   { name: "synxis", test: /be\.synxis\.com/i, build: (u, ci, co, pax) => {
       const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); return x.toString();
@@ -348,6 +356,19 @@ async function work(req, res, S) {
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 30000);
   if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000), htmlPeek: text.length < 200 ? htmlPeek : undefined, net: S.net, api: S.api, console: S.console }); }
   if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
+  // THE PAGE MUST SHOW THE CLIENT'S DATES (M1001). A date parameter the engine ignored would leave
+  // the page on its default dates and the prices would be for the wrong stay. The check-in date
+  // must appear on the page in some common form, or no price is returned at all.
+  const showsDate = (() => {
+    const [y, mo, d] = checkIn.split("-").map(Number);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const full = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const mm = String(mo).padStart(2, "0"), dd = String(d).padStart(2, "0");
+    const forms = [checkIn, `${mm}/${dd}/${y}`, `${dd}/${mm}/${y}`, `${mo}/${d}/${y}`, `${d}/${mo}/${y}`, `${dd}.${mm}.${y}`, `${months[mo - 1]} ${d}`, `${d} ${months[mo - 1]}`, `${full[mo - 1]} ${d}`, `${d} ${full[mo - 1]}`, `${months[mo - 1]}\u00a0${d}`];
+    const t = text.replace(/\u00a0/g, " ");
+    return forms.some((f) => t.includes(f.replace(/\u00a0/g, " ")));
+  })();
+  if (!showsDate) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "dates-not-applied", url: finalUrl, checkIn, log: debug ? LOG : undefined, sample: debug ? text.slice(0, 3000) : undefined }); }
 
   // 3. The page as data: rooms and their rate plans, exactly as shown.
   const prompt = `Below is the visible text of a hotel's own booking page for ${hotel}, ${checkIn} to ${checkOut}, ${pax} adult(s). Extract every ROOM/SUITE shown with its RATE PLANS and prices, exactly as displayed.
