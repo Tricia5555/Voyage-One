@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019, 26 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -151,7 +151,14 @@ async function findRoomsPage(site) {
     if (!u || tried.has(u)) return null; tried.add(u);
     try {
       let got = null;
-      if (refusesFetch) { if (browserReads < 3 && Date.now() - T0 < 35000) { browserReads++; got = await getWithBrowser(u); } else { TRIED.push({ url: u, skipped: "browser budget spent" }); return null; } }
+      if (refusesFetch) {
+        // M1020: on a site that refuses plain requests, a browser read is spent only on an address
+        // that looks like a rooms LIST (not a single room's page), and a 404 refunds it.
+        const listLike = !/\/(?:guest_rooms|rooms-suites|accommodations?|suites)\/[^/?#]+\/?$/i.test(new URL(u).pathname) || /\/(?:accommodations?|rooms(?:-and-suites|-suites)?|suites|stay|villas)\/?$/i.test(new URL(u).pathname);
+        if (!listLike) { TRIED.push({ url: u, skipped: "a single room's page" }); return null; }
+        if (browserReads < 3 && Date.now() - T0 < 35000) { browserReads++; got = await getWithBrowser(u); if (!got && TRIED.length && TRIED[TRIED.length - 1].url === u && TRIED[TRIED.length - 1].status === 404) browserReads--; }
+        else { TRIED.push({ url: u, skipped: "browser budget spent" }); return null; }
+      }
       else { got = await get(u); if (!got && TRIED.length && TRIED[TRIED.length - 1].url === u && TRIED[TRIED.length - 1].status === 403) { refusesFetch = true; if (browserReads < 3) { browserReads++; got = await getWithBrowser(u); } } }
       if (got && looksLikeRooms(got, u)) return got;
       if (got && fromMenu && hollow(got) && !/^browser/.test(got.via || "") && browserReads < 2 && Date.now() - T0 < 30000) {
@@ -190,6 +197,9 @@ async function findRoomsPage(site) {
     const lists = Object.keys(parents).filter((p) => parents[p] >= 2 && /room|suite|accommodation|stay|villa|residence/i.test(p)).sort((a, b) => parents[b] - parents[a]);
     ranked = [...lists, ...ranked.filter((u) => !lists.includes(u))];
     TRIED.push({ note: "menu candidates", ownPath: ownPath || null, candidates: ranked.slice(0, 8) });
+    if (refusesFetch) {   // M1020: on a refusing site, the usual list addresses under the hotel's own path go first
+      for (const p of ["/accommodations/", "/accommodations", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay", "/suites"]) { const got = await attempt(root + p, false); if (got) return got; if (browserReads >= 3 || Date.now() - T0 > 35000) break; }
+    }
     for (const u of ranked.slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
   for (const p of ROOM_PATHS) {
