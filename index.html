@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M992";
+const BUILD = "M993";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -19174,7 +19174,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
                   {(() => { const ve = virtuosoEvidence(s.name); return ve && ve.member ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brassLight, fontWeight: 600, marginTop: 5 }}>Virtuoso</div> : null; })()}
                   <div style={{ fontSize: on ? 15 : 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10 }}>
-                    <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : "Rate on request"}</span>
+                    <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : ""}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : `Select ${s.name} →`}</span>
                   </div>
                   {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
@@ -21768,7 +21768,7 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
       {state.matches.map((r, k) => {
         const sel = selectedName && selectedName === r.name;
         const per = r.estRate || null;
-        const priceBit = kind === "hotels" ? (SHOW_RATES && per ? "~" + fmt(per) + "/night est." : "Rate on request") : "~" + fmt(per) + "/person est.";
+        const priceBit = kind === "hotels" ? (SHOW_RATES && per ? "~" + fmt(per) + "/night est." : "") : "~" + fmt(per) + "/person est.";
         return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
           sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : tierOf(r.name) === "Best" ? "Best available" : "Luxury") : r.level}${r.band ? " · " + r.band : ""} · ${priceBit}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
           price={kind === "hotels" ? (SHOW_RATES && per && nights ? fmt(per * nights) : "") : fmt(per)} />;
@@ -22134,11 +22134,24 @@ function useRoomRates(hotel, site, checkIn, checkOut, pax, enabled) {
   return state;
 }
 const fmtRate = (pl) => `${pl.currency || ""} ${Number(pl.price).toLocaleString("en-US")}`.trim() + (pl.perNight ? " / night" : " for the stay");
+const ROOM_STOP = new Set(["the", "a", "an", "of", "and", "with", "room", "rooms", "suite", "suites", "guest", "guestroom", "bedroom", "one", "two", "three", "1", "2", "3", "king", "queen", "twin", "double", "bed", "beds", "view", "views", "terrace", "balcony", "deluxe", "premier", "superior", "grand", "executive", "junior", "classic", "signature", "luxury", "club", "city", "park", "garden", "sea", "ocean", "harbour", "harbor", "river", "lake", "mountain", "pool", "corner", "accessible", "family", "connecting"]);
+const roomWords = (n) => dnrm(n).split(" ").filter((w) => w && !ROOM_STOP.has(w));
 function ratesFor(rates, name) {
   if (!rates || !name) return null;
   if (rates[name]) return rates[name];
-  const k = dnrm(name); const hit = Object.keys(rates).find((x) => dnrm(x) === k) || Object.keys(rates).find((x) => dnrm(x).includes(k) || k.includes(dnrm(x)));
-  return hit ? rates[hit] : null;
+  const k = dnrm(name); const keys = Object.keys(rates);
+  let hit = keys.find((x) => dnrm(x) === k) || keys.find((x) => dnrm(x).includes(k) || k.includes(dnrm(x)));
+  if (hit) return rates[hit];
+  // The distinctive words (Ty Warner, Gotham, Royal, Manhattan…) must all appear on both sides;
+  // the ordinary ones (deluxe, king, view, terrace) are ignored; the full names must be close in
+  // their ordinary words too, so "Deluxe Room" and "Deluxe Suite" do not swap.
+  const mine = roomWords(name);
+  if (mine.length) {
+    const cands = keys.filter((x) => { const theirs = roomWords(x); return theirs.length && mine.every((w) => theirs.includes(w)) && theirs.every((w) => mine.includes(w)); });
+    if (cands.length === 1) return rates[cands[0]];
+    if (cands.length > 1) { const full = dnrm(name).split(" "); const best = cands.map((x) => ({ x, n: dnrm(x).split(" ").filter((w) => full.includes(w)).length })).sort((a, b) => b.n - a.n); if (best[0].n > (best[1] ? best[1].n : -1)) return rates[best[0].x]; }
+  }
+  return null;
 }
 function RoomTile({ r, chosen, onChoose, rates, ratesStatus, chosenPlan }) {
   const [bad, setBad] = useState(false);
@@ -22322,7 +22335,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
           `status`, removed by hand when it stops being true. Amanyara is the first to carry one. */}
       {s.status ? <div style={{ fontSize: 12, color: "#B0563A", fontWeight: 500, marginTop: 6, lineHeight: 1.4 }}>{s.status}</div> : null}
       {isUpcoming(s) ? <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.brass, fontWeight: 600, marginTop: 7, letterSpacing: ".04em", textTransform: "uppercase" }}>Opening {s.opening}</div>
-        : <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{SHOW_RATES && s.rate ? `from ${cur}${s.rate.toLocaleString()}` : "Rate on request"}{SHOW_RATES && s.rate ? <span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span> : null}</div>}
+        : SHOW_RATES && s.rate ? <div style={{ fontFamily: font.display, fontSize: sel ? 20 : 16.5, color: t.pine, fontWeight: 600, marginTop: 7 }}>{`from ${cur}${s.rate.toLocaleString()}`}<span style={{ fontFamily: font.ui, fontSize: 11, color: t.inkFaint, fontWeight: 400 }}> / night</span></div> : null}
       {sel ? (<>
         {s.ourTake ? <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 17, color: t.ink, lineHeight: 1.45, marginTop: 9 }}>{s.ourTake}</div> : null}
       {s.vo ? <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 600, marginTop: 6, lineHeight: 1.5 }}>VO ♥ Voyage One favorite{s.voNote ? ` — ${s.voNote}` : ""}</div> : null}
