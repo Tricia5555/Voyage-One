@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023, 27 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023; store trail + background failures noted M1024, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -226,11 +226,13 @@ export default async function handler(req, res) {
   let sent = false; const json = res.json.bind(res); res.json = (b) => { if (sent) return res; sent = true; return json(b); };
   const timer = new Promise((r) => setTimeout(r, 45000, "timeout"));
   let outcome = "done";
-  const job = work(req, res).then(() => "done").catch((e) => "error:" + String(e && e.message || e).slice(0, 200));
+  STORE_LOG.length = 0;
+  const site = String((req.query || {}).site || "").slice(0, 300).trim();
+  const job = work(req, res).then(() => "done").catch(async (e) => { const msg = "error:" + String(e && e.message || e).slice(0, 300); try { await noteFailure(site, msg); } catch (x) {} return msg; });
   try { outcome = await Promise.race([job, timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
   if (!sent) {
     res.setHeader("Cache-Control", "no-store");
-    if (outcome === "timeout") { try { waitUntil(job); } catch (e) {} res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", tried: TRIED.slice(-40) }); }
+    if (outcome === "timeout") { try { waitUntil(job); } catch (e) {} res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", store: STORE_LOG.slice(-6), tried: TRIED.slice(-40) }); }
     else res.status(200).json({ ok: false, reason: "error", detail: outcome, tried: TRIED.slice(-40) });
   }
 }
@@ -246,31 +248,39 @@ async function storeRead(site) {
   if (!STORE_URL || !STORE_KEY) return null;
   try {
     const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&select=hotel,source,booking,rooms,fetched_at`, { headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } });
+    STORE_LOG.push({ store: "read", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
     if (!r.ok) return null;
     const rows = await r.json(); const row = rows && rows[0];
     if (!row || !Array.isArray(row.rooms) || !row.rooms.length) return null;
     if (row.source === "reading") return (Date.now() - Date.parse(row.fetched_at) < 120000) ? { reading: true } : null;   // M1023: a read in progress elsewhere
+    if (row.source === "failed") return { failed: row.rooms && row.rooms[0] ? row.rooms[0] : { failed: "unknown" }, at: row.fetched_at };   // M1024: what went wrong last time
     if (Date.now() - Date.parse(row.fetched_at) > FRESH_MS) return null;
     return row;
   } catch (e) { return null; }
 }
 const READING = {};   // site → started-at (this instance); the store carries a marker for other instances
+const STORE_LOG = [];
 async function markReading(site, hotel) {
   READING[site] = Date.now();
-  if (!STORE_URL || !STORE_KEY) return;
-  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
+  if (!STORE_URL || !STORE_KEY) { STORE_LOG.push({ store: "off", url: !!STORE_URL, key: !!STORE_KEY }); return; }
+  try { const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); STORE_LOG.push({ store: "mark", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) }); } catch (e) { STORE_LOG.push({ store: "mark", error: String(e && e.message || e).slice(0, 120) }); }
+}
+async function noteFailure(site, msg) {
+  if (!STORE_URL || !STORE_KEY || !site) return;
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel: "", source: "failed", booking: null, rooms: [{ failed: msg, log: STORE_LOG.slice(-6), tried: TRIED.slice(-12) }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
 }
 async function clearReading(site) {
   delete READING[site];
   if (!STORE_URL || !STORE_KEY) return;
-  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&source=eq.reading`, { method: "DELETE", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } }); } catch (e) {}
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&source=in.(reading,failed)`, { method: "DELETE", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } }); } catch (e) {}
 }
 async function storeWrite(site, hotel, source, booking, rooms) {
   if (!STORE_URL || !STORE_KEY) return false;
   try {
     const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source, booking, rooms, fetched_at: new Date().toISOString() }) });
+    STORE_LOG.push({ store: "write", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
     return r.ok;
-  } catch (e) { return false; }
+  } catch (e) { STORE_LOG.push({ store: "write", error: String(e && e.message || e).slice(0, 120) }); return false; }
 }
 async function work(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -286,6 +296,7 @@ async function work(req, res) {
   // The store first: no site is touched for a hotel read within the month.
   if (String(req.query.fresh || "") !== "1") {
     const kept = await storeRead(site);
+    if (kept && kept.failed) { await clearReading(site); if (debug) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "last-read-failed", at: kept.at, failed: kept.failed, note: "the note is cleared; this request is reading afresh — run again" }); } }
     if (kept && kept.reading) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", via: "store" }); }
     if (kept) { res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800"); return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms: kept.rooms, via: "store" }); }
   }
@@ -349,7 +360,7 @@ ${text}`;
       headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: MODEL, max_tokens: 8000, messages: [{ role: "user", content: prompt }] }),
     });
-    if (!r.ok) { const detail = await r.text(); return res.status(200).json({ ok: false, reason: "anthropic-error", status: r.status, detail: detail.slice(0, 200) }); }
+    if (!r.ok) { const detail = await r.text(); await noteFailure(site, `anthropic ${r.status}: ${detail.slice(0, 200)}`); return res.status(200).json({ ok: false, reason: "anthropic-error", status: r.status, detail: detail.slice(0, 200) }); }
     const data = await r.json();
     const out = (data.content || []).map((b) => b.text || "").join("").trim();
     const jm = /\{[\s\S]*\}/.exec(out);
@@ -372,6 +383,7 @@ ${text}`;
     const stored = await storeWrite(site, hotel, page.url, booking, rooms);
     return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
+    await noteFailure(site, "model:" + String(e && e.message || e).slice(0, 300));
     return res.status(200).json({ ok: false, reason: "fetch", detail: String(e && e.message || e).slice(0, 200) });
   }
 }
