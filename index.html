@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M993";
+const BUILD = "M994";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22101,11 +22101,18 @@ function useHotelRooms(hotel, site) {
     if (ROOMS_CACHE[key] && ROOMS_CACHE[key].status === "ok") { setState(ROOMS_CACHE[key]); return; }
     let dead = false;
     setState({ rooms: null, status: "loading" });
-    fetch(`/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&v=2${attempt ? `&retry=${attempt}` : ""}`)
+    let polls = 0; let timer = null;
+    const ask = () => fetch(`/api/rooms?hotel=${encodeURIComponent(hotel)}&site=${encodeURIComponent(site)}&v=2${attempt ? `&retry=${attempt}` : ""}${polls ? `&poll=${polls}` : ""}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const rec = j && j.ok && Array.isArray(j.rooms) && j.rooms.length ? { rooms: j.rooms, status: "ok", source: j.source } : { rooms: null, status: "failed" }; if (rec.status === "ok") ROOMS_CACHE[key] = rec; if (!dead) setState(rec); })
+      .then((j) => {
+        if (dead) return;
+        if (j && j.ok && Array.isArray(j.rooms) && j.rooms.length) { const rec = { rooms: j.rooms, status: "ok", source: j.source }; ROOMS_CACHE[key] = rec; setState(rec); return; }
+        if (j && j.reason === "reading" && polls < 5) { polls++; timer = setTimeout(ask, 6000); return; }
+        setState({ rooms: null, status: "failed" });
+      })
       .catch(() => { if (!dead) setState({ rooms: null, status: "failed" }); });
-    return () => { dead = true; };
+    ask();
+    return () => { dead = true; if (timer) clearTimeout(timer); };
   }, [key, attempt]);
   return { ...state, retry: () => setAttempt((a) => a + 1) };
 }
