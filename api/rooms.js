@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020, 27 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -197,8 +197,14 @@ async function findRoomsPage(site) {
     const lists = Object.keys(parents).filter((p) => parents[p] >= 2 && /room|suite|accommodation|stay|villa|residence/i.test(p)).sort((a, b) => parents[b] - parents[a]);
     ranked = [...lists, ...ranked.filter((u) => !lists.includes(u))];
     TRIED.push({ note: "menu candidates", ownPath: ownPath || null, candidates: ranked.slice(0, 8) });
-    if (refusesFetch) {   // M1020: on a refusing site, the usual list addresses under the hotel's own path go first
-      for (const p of ["/accommodations/", "/accommodations", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay", "/suites"]) { const got = await attempt(root + p, false); if (got) return got; if (browserReads >= 3 || Date.now() - T0 > 35000) break; }
+    // M1021: the menu's own LIST page (a parent of several room pages) goes first — the menu knows;
+    // guessed addresses are the fallback and stop after two misses. (Hotel Eden: /accommodations/
+    // 404 twice, then the clock ran out on /rooms-suites, which was right there at the top.)
+    const menuLists = ranked.filter((u) => lists.includes(u));
+    for (const u of menuLists.slice(0, 2)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 40000) break; }
+    if (refusesFetch) {
+      let misses = 0;
+      for (const p of ["/accommodations/", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay"]) { const before = TRIED.length; const got = await attempt(root + p, false); if (got) return got; if (TRIED.slice(before).some((x) => x.status === 404 || x.verdict === "no page")) misses++; if (misses >= 2 || browserReads >= 3 || Date.now() - T0 > 35000) break; }
     }
     for (const u of ranked.slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
