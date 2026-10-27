@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022, 27 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -249,9 +249,21 @@ async function storeRead(site) {
     if (!r.ok) return null;
     const rows = await r.json(); const row = rows && rows[0];
     if (!row || !Array.isArray(row.rooms) || !row.rooms.length) return null;
+    if (row.source === "reading") return (Date.now() - Date.parse(row.fetched_at) < 120000) ? { reading: true } : null;   // M1023: a read in progress elsewhere
     if (Date.now() - Date.parse(row.fetched_at) > FRESH_MS) return null;
     return row;
   } catch (e) { return null; }
+}
+const READING = {};   // site → started-at (this instance); the store carries a marker for other instances
+async function markReading(site, hotel) {
+  READING[site] = Date.now();
+  if (!STORE_URL || !STORE_KEY) return;
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
+}
+async function clearReading(site) {
+  delete READING[site];
+  if (!STORE_URL || !STORE_KEY) return;
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&source=eq.reading`, { method: "DELETE", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } }); } catch (e) {}
 }
 async function storeWrite(site, hotel, source, booking, rooms) {
   if (!STORE_URL || !STORE_KEY) return false;
@@ -274,8 +286,10 @@ async function work(req, res) {
   // The store first: no site is touched for a hotel read within the month.
   if (String(req.query.fresh || "") !== "1") {
     const kept = await storeRead(site);
+    if (kept && kept.reading) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", via: "store" }); }
     if (kept) { res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800"); return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms: kept.rooms, via: "store" }); }
   }
+  await markReading(site, hotel);
   let page = null;
   try { page = await findRoomsPage(site); } catch (e) { page = null; }
   // A HOLLOW PAGE IS READ AGAIN IN THE BROWSER (M997). Rosewood's accommodation page arrives as a
@@ -286,7 +300,7 @@ async function work(req, res) {
     TRIED.push({ url: page.url, note: "hollow — reading again in the browser", signals: roomSignals(page.html) });
     try { const again = await getWithBrowser(page.url); if (again && roomSignals(again.html) > roomSignals(page.html)) page = again; } catch (e) {}
   }
-  if (!page) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
+  if (!page) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
   // The hotel's own "Check Rates" link, from the page we already hold, so the rates reader need
   // not open the site again to find it (M985). Prefer the link that names the hotel.
   const booking = (() => {
@@ -297,8 +311,20 @@ async function work(req, res) {
     const eng = urls.filter((u) => ENG.test(u) && !/\/(?:profile|signin|sign-in|login|findreservation|find-reservation|itinerary|modify|cancel)/i.test(u));
     return eng.find((u) => CODED.test(u)) || eng[0] || null;
   })();
-  const text = distill(page.html, page.url).slice(0, 70000);
-  if (text.length < 300) return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined });
+  // THE ROOMS ARE A FRACTION OF THE PAGE (M1023). Four Seasons New York's accommodations page is
+  // 685 KB; the room list is a few thousand words of it. Keep the stretch of text where room
+  // signals (sizes, beds, "suite", "room") are densest, up to 45,000 characters, so the model
+  // answers in time and the first read fits inside one call.
+  const whole = distill(page.html, page.url);
+  const text = (() => {
+    if (whole.length <= 45000) return whole;
+    const W = 3000; const n = Math.ceil(whole.length / W); const score = [];
+    for (let i = 0; i < n; i++) { const seg = whole.slice(i * W, (i + 1) * W); score.push((seg.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft)/gi) || []).length * 3 + (seg.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length * 2 + (seg.match(/\b(suite|room|penthouse|villa)\b/gi) || []).length + (seg.match(/\[IMG#/g) || []).length); }
+    const span = Math.floor(45000 / W); let best = 0, bestSum = -1;
+    for (let i = 0; i + span <= n; i++) { const s = score.slice(i, i + span).reduce((a, b) => a + b, 0); if (s > bestSum) { bestSum = s; best = i; } }
+    return whole.slice(best * W, best * W + 45000);
+  })();
+  if (text.length < 300) { await clearReading(site); return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined }); }
 
   const prompt = `Below is the text of a hotel's own website page, with its images shown as [IMG#n | alt] (n is the image number) and links as [LINK url]. The hotel is "${hotel}". Extract the hotel's ROOM AND SUITE CATEGORIES exactly as the hotel names them.
 
@@ -342,7 +368,7 @@ ${text}`;
       url: typeof x.url === "string" && /^https?:\/\//.test(x.url) ? x.url : null,
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
-    if (!rooms.length) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
+    if (!rooms.length) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
     const stored = await storeWrite(site, hotel, page.url, booking, rooms);
     return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
