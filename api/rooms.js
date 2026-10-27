@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021, 27 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -216,12 +216,23 @@ async function findRoomsPage(site) {
 
 // A HARD 50-SECOND ANSWER (M1014): Safari drops the request at ~60 s and shows "server stopped
 // responding". Whatever is known by 50 s is sent back with the list of addresses tried.
+// FINISH IN THE BACKGROUND (M1022). A big site read cold (three browser round-trips and a 700 KB
+// page through the model — Four Seasons New York) takes longer than Safari will wait. At 45 s the
+// reader answers "still reading" and KEEPS GOING: the function stays alive until the read is done
+// (Vercel's waitUntil; the rooms function has 90 s), the result lands in the store, and the card,
+// which polls every few seconds on "reading", picks it up. The client never sees a timeout.
+import { waitUntil } from "@vercel/functions";
 export default async function handler(req, res) {
   let sent = false; const json = res.json.bind(res); res.json = (b) => { if (sent) return res; sent = true; return json(b); };
-  const timer = new Promise((r) => setTimeout(r, 50000, "timeout"));
+  const timer = new Promise((r) => setTimeout(r, 45000, "timeout"));
   let outcome = "done";
-  try { outcome = await Promise.race([work(req, res).then(() => "done"), timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
-  if (!sent) { res.setHeader("Cache-Control", "no-store"); res.status(200).json({ ok: false, reason: outcome === "timeout" ? "timeout" : "error", detail: outcome, tried: TRIED.slice(-40) }); }
+  const job = work(req, res).then(() => "done").catch((e) => "error:" + String(e && e.message || e).slice(0, 200));
+  try { outcome = await Promise.race([job, timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
+  if (!sent) {
+    res.setHeader("Cache-Control", "no-store");
+    if (outcome === "timeout") { try { waitUntil(job); } catch (e) {} res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", tried: TRIED.slice(-40) }); }
+    else res.status(200).json({ ok: false, reason: "error", detail: outcome, tried: TRIED.slice(-40) });
+  }
 }
 // THE ROOMS STORE (M1019). Vercel's cache is wiped by every deploy, so the first open of every
 // hotel after a deploy paid the full 35–60 s read. The rooms now also live in Supabase
