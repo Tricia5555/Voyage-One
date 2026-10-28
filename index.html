@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M998";
+const BUILD = "M999";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -19510,13 +19510,15 @@ function IdeasPicker({ d, i, p }) {
   const toggle = (group, v) => { const cur = sel[group] || []; setSel({ ...sel, [group]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); };
   const any = (sel.set || []).length + (sel.act || []).length + (sel.w || []).length > 0;
   const ranked = any ? rankIdeas(sel) : [];
-  const wantsDirect = !!sel.direct;
+  const flyPref = sel.fly || "any";
+  const wantsDirect = flyPref === "direct";
   const fromCity = (p && p.fromCity) || "";
   const departDate = (p && p.dates && p.dates.depart) || "";
-  const direct = useDirectFlights(fromCity, departDate, ranked.map((r) => r.idea.city || r.idea.n), wantsDirect && !onPlaceNow(sel));
+  const direct = useDirectFlights(fromCity, departDate, ranked.map((r) => r.idea.city || r.idea.n), flyPref !== "any" && !onPlaceNow(sel));
   const directOf = (x) => direct[x.city || x.n];
   // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
   const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => { const v = directOf(x.idea); return typeof v === "number" ? (v > 0 ? 0 : 2) : 1; }; return r(a) - r(b); }) : ranked).map((r) => r.idea);
+  const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
   const fromCode = fromCity ? (iataFor(fromCity) || bareCity(fromCity)) : "";
   const missFor = {};
   ranked.forEach((r) => { missFor[r.idea.n] = r.s; });
@@ -19551,8 +19553,8 @@ function IdeasPicker({ d, i, p }) {
   const stepDot = (on) => ({ width: 7, height: 7, borderRadius: 999, background: on ? t.pine : t.line });
   return (<div style={{ marginTop: 18, background: t.card, borderRadius: 14, padding: "18px 18px 22px" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-      <span style={stepDot(true)} /><span style={stepDot(!onPlace)} />
-      <span style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginLeft: 4 }}>{onPlace ? "One of two" : "Two of two"}</span>
+      <span style={stepDot(true)} /><span style={stepDot(!onPlace)} /><span style={stepDot(flyStep && flyPref !== "any")} />
+      <span style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginLeft: 4 }}>{onPlace ? "One of three" : flyStep ? "Two and three of three" : "Two of three"}</span>
     </div>
     <div style={{ fontFamily: font.display, fontSize: 22 }}>{onPlace ? "What kind of place?" : "And what will you do there?"}</div>
     <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5, maxWidth: 460, marginTop: 3 }}>{onPlace
@@ -19563,12 +19565,6 @@ function IdeasPicker({ d, i, p }) {
       ? <Group label="Type of place" options={IDEA_SETTING} group="set" />
       : (<>
         <Group label="What you'll do" options={IDEA_DOING} group="act" />
-        <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 9 }}>Getting there</div>
-          <button type="button" onClick={() => setSel({ ...sel, direct: !sel.direct })} style={{ padding: "9px 15px", borderRadius: 999, border: `1px solid ${sel.direct ? t.pine : t.line}`, background: sel.direct ? t.pine : t.white, color: sel.direct ? t.paper : t.ink, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer" }}>{sel.direct ? "✓ " : ""}A direct flight matters{fromCode ? ` · from ${fromCode}` : ""}</button>
-          {sel.direct && (!fromCity || !departDate) ? <div style={{ fontSize: 12, color: t.brass, marginTop: 6 }}>{!fromCity ? "Add your departure city on Basics and the ideas are checked for nonstops." : "Add your dates on Basics and the ideas are checked for nonstops on your day."}</div>
-            : sel.direct ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 6 }}>Each idea is checked against real fares from {bareCity(fromCity)} on {departDate} — nonstops come first.</div> : null}
-        </div>
       </>)}
     <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap", alignItems: "center", justifyContent: "center", textAlign: "center", flexDirection: onPlace ? "column" : "row" }}>
       {onPlace
@@ -19693,19 +19689,27 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div>))}
     </div>)}
+    {flyStep && (<div style={{ marginTop: 26, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 14 }}>
+      <div style={{ fontFamily: font.display, fontSize: 20 }}>How far will you fly?</div>
+      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 3 }}>{fromCity && departDate ? `Checked against real fares from ${bareCity(fromCity)} on ${departDate}. Change your mind any time — the list re-sorts.` : !fromCity ? "Add your departure city on Basics and each place is checked for a nonstop." : "Add your dates on Basics and each place is checked for a nonstop on your day."}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+        {[["direct", `Direct flight only${fromCode ? ` · from ${fromCode}` : ""}`], ["onestop", "One stop is fine"], ["any", "Don't mind"]].map(([v, label]) => { const on = flyPref === v; return (
+          <button key={v} type="button" onClick={() => setSel({ ...sel, fly: v })} style={{ padding: "10px 16px", borderRadius: 999, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : t.white, color: on ? t.paper : t.ink, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer" }}>{on ? "✓ " : ""}{label}</button>); })}
+      </div>
+    </div>)}
     {!onPlace && any && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length} {matches.length === 1 ? "place" : "places"} · closest first</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length} {matches.length === 1 ? "place" : "places"} · {wantsDirect ? "nonstops first" : "closest first"}</div>
       {matches.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{[...x.set, ...x.act].slice(0, 3).join(" · ")}{x.best ? " \u00b7 best " + x.best : ""}</div>
-            {wantsDirect && fromCity && departDate ? (() => { const v = directOf(x); return v === "loading" || v === undefined
+            {flyPref !== "any" && fromCity && departDate ? (() => { const v = directOf(x); return v === "loading" || v === undefined
               ? <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}><span className="vo-spin sm" aria-hidden="true" />Checking nonstops from {fromCode}</div>
               : v === null ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>Could not check flights from {fromCode} just now</div>
               : v > 0 ? <div style={{ fontSize: 11.5, color: t.pine, fontWeight: 700, marginTop: 4 }}>✓ Nonstop from {fromCode} on your date</div>
-              : <div style={{ fontSize: 11.5, color: "#B0563A", marginTop: 4 }}>Needs a connection from {fromCode} on your date</div>; })() : null}
+              : <div style={{ fontSize: 11.5, color: wantsDirect ? "#B0563A" : t.inkSoft, marginTop: 4 }}>{wantsDirect ? "No nonstop from " + fromCode + " on your date" : "One stop from " + fromCode + " on your date"}</div>; })() : null}
             {missFor[x.n] && missFor[x.n].total > 0 && (missFor[x.n].missed.length === 0
               ? <div style={{ fontSize: 11.5, color: t.pine, marginTop: 4 }}>Everything you asked for.</div>
               : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div>)}
