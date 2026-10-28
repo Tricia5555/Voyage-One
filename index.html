@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1007";
+const BUILD = "M1008";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -10801,14 +10801,56 @@ function sportFor(list, sel, trigger) {
   const score = (x) => (x.hero ? 12 : 0) + acts.filter((a) => (x.act || []).includes(a)).length * 10;
   return hit.sort((a, b) => score(b) - score(a) || a.n.localeCompare(b.n)).slice(0, 8);
 }
-// Best first: most of what you asked for, then the closest fit on the kind of place.
-function rankIdeas(sel) {
-  return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel) }))
+const MONTH_IDX = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11, christmas: 11, easter: 3 };
+const MONTH_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|christmas|easter)";
+const monthIdx = (w) => { const k = w.toLowerCase(); return k in MONTH_IDX ? MONTH_IDX[k] : MONTH_IDX[k.slice(0, 3)]; };
+// Months (0–11) a season text covers, or null when it names none (M1008).
+function seasonMonths(text) {
+  const t = String(text || "").toLowerCase();
+  if (!t) return null;
+  if (/year.?round|any month|all year|every month/.test(t)) return new Set([0,1,2,3,4,5,6,7,8,9,10,11]);
+  const out = new Set();
+  let rest = t;
+  const range = new RegExp(MONTH_RE + "\\s*(?:to|through|until|[\\u2013\\u2014-])\\s*" + MONTH_RE, "g");
+  rest = rest.replace(range, (m, a, b) => { let i = monthIdx(a); const j = monthIdx(b); for (let n = 0; n < 12; n++) { out.add(i); if (i === j) break; i = (i + 1) % 12; } return " "; });
+  const single = new RegExp("\\b" + MONTH_RE + "\\b", "g");
+  let m; while ((m = single.exec(rest))) out.add(monthIdx(m[1]));
+  return out.size ? out : null;
+}
+// Months a trip touches, from its two dates; null without a departure date.
+function tripMonths(depart, ret) {
+  if (!depart) return null;
+  const a = new Date(depart + "T12:00:00"), b = ret ? new Date(ret + "T12:00:00") : a;
+  if (isNaN(a)) return null;
+  const out = new Set([a.getMonth()]);
+  if (!isNaN(b) && b > a) { let d = new Date(a); for (let n = 0; n < 12 && d <= b; n++) { out.add(d.getMonth()); d = new Date(d.getFullYear(), d.getMonth() + 1, 1); } }
+  return out;
+}
+// The season text we hold for an idea: the destination table first (by name, city, then the alias
+// table — Cap Estate is St Lucia), then the idea's own "best" months.
+function ideaSeasonText(idea) {
+  const tryKey = (k) => { const r = seasonFor(k); return r && r.window; };
+  const alias = (k) => { const v = CITY_ALIASES[String(k || "").toLowerCase()]; return v ? String(v).split(",")[0].trim() : ""; };
+  // A derived place (only on a sport list) carries that sport's months as "best" — Los Cabos says
+  // Jun–Nov because that is marlin season, not the destination's. Those are not a season here.
+  return tryKey(idea.n) || tryKey(idea.city) || tryKey(alias(idea.n)) || tryKey(alias(idea.city)) || (idea.derived ? "" : idea.best) || "";
+}
+// 0 = in season for the trip, 1 = no season on file, 2 = out of season.
+function seasonRank(idea, months) {
+  if (!months) return 1;
+  const have = seasonMonths(ideaSeasonText(idea));
+  if (!have) return 1;
+  return [...months].some((m) => have.has(m)) ? 0 : 2;
+}
+// Best first: in season for the trip's dates, then most of what you asked for, then the closest fit
+// on the kind of place.
+function rankIdeas(sel, months) {
+  return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel), season: seasonRank(x, months) }))
     .filter((r) => r.s !== null)
     // A place where the chosen type of place is incidental (third or later in what it is known for —
     // Dubai is a big city first, a desert second, a beach third) gives up one activity point to the
     // places that ARE that type. Then character breaks the remaining ties; never the alphabet.
-    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (fit(b) - fit(a)) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
+    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (a.season - b.season) || (fit(b) - fit(a)) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
 }
 function nearMiss(sel) {
   const acts = sel.act || [];
@@ -19549,7 +19591,11 @@ function IdeasPicker({ d, i, p }) {
   const setSel = (next) => p.setDest(i, { ideaSel: next });
   const toggle = (group, v) => { const cur = sel[group] || []; setSel({ ...sel, [group]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); };
   const any = (sel.set || []).length + (sel.act || []).length + (sel.w || []).length > 0;
-  const ranked = any ? rankIdeas(sel) : [];
+  const tripMs = tripMonths((p && p.dates && p.dates.depart) || "", (p && p.dates && p.dates.ret) || "");
+  const ranked = any ? rankIdeas(sel, tripMs) : [];
+  const seasonOf = {};
+  ranked.forEach((r) => { seasonOf[r.idea.n] = r.season; });
+  const monthName = tripMs ? new Date(((p && p.dates && p.dates.depart) || "") + "T12:00:00").toLocaleString("en-US", { month: "long" }) : "";
 
   const missFor = {};
   ranked.forEach((r) => { missFor[r.idea.n] = r.s; });
@@ -19769,7 +19815,7 @@ function IdeasPicker({ d, i, p }) {
         </div>) : null}
     </div>)}
     {!onPlace && any && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : "best fit first"}</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : tripMs ? `in season for ${monthName} first` : "best fit first"}</div>
       {(moreIdeas ? matches : matches.slice(0, SHOW_N)).map((x, k) => (<React.Fragment key={x.n}>{tierHead(matches)(x, k)}<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
@@ -19777,6 +19823,7 @@ function IdeasPicker({ d, i, p }) {
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase()))) ? `${[...(sel.act || []).filter((a) => x.act.includes(a))].map((a) => a.split(" · ")[0].toLowerCase()).join(", ") || "what you asked for"} — ${(x.set || []).slice(0, 2).join(" and ").toLowerCase()}.` : x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{ideaTags(x, sel).join(" · ")}{x.best && !(x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase())))) ? " \u00b7 best " + x.best : ""}</div>
             {nonstopBadge(x)}
+            {seasonOf[x.n] === 2 ? <div style={{ fontSize: 11.5, color: t.brass, marginTop: 4 }}>Not its season in {monthName}{(() => { const w = String(ideaSeasonText(x)).split(/\s+[\u2014\u2013]\s+|, and |, or /)[0]; return w ? ` \u00b7 best ${w}` : ""; })()}</div> : null}
             {missFor[x.n] && missFor[x.n].total > 0 && missFor[x.n].missed.length > 0
               ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div> : null}
           </div>
