@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M999";
+const BUILD = "M1002";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -19480,18 +19480,18 @@ function MultiChips({ options, values, onToggle }) {
 const DIRECT_CACHE = {};   // "from|to|date" → nonstop count (number) or null when the search failed
 function useDirectFlights(fromCity, date, cities, enabled) {
   const [tick, setTick] = useState(0);
-  const want = enabled && fromCity && date ? cities.slice(0, 15) : [];
+  const want = enabled && fromCity && date ? cities.slice(0, 12) : [];
   const keyOf = (c) => `${fromCity}|${c}|${date}`.toLowerCase();
   useEffect(() => {
     if (!want.length) return;
     let dead = false; let running = 0; const queue = want.filter((c) => DIRECT_CACHE[keyOf(c)] === undefined);
     const next = () => {
       if (dead) return;
-      while (running < 2 && queue.length) {
+      while (running < 4 && queue.length) {
         const c = queue.shift(); const k = keyOf(c); if (DIRECT_CACHE[k] !== undefined) continue; DIRECT_CACHE[k] = "loading"; running++;
         fetch(`/api/flights?from=${encodeURIComponent(fromCity)}&to=${encodeURIComponent(c)}&date=${encodeURIComponent(date)}&cabin=economy`)
           .then((r) => (r.ok ? r.json() : null))
-          .then((j) => { DIRECT_CACHE[k] = j && j.ok ? (Number(j.nonstopCount) || 0) : null; })
+          .then((j) => { if (!(j && j.ok)) { DIRECT_CACHE[k] = null; return; } if (Number(j.nonstopCount) > 0) { DIRECT_CACHE[k] = 0; return; } const offers = Array.isArray(j.offers) ? j.offers : []; const fewest = offers.length ? Math.min(...offers.map((o) => Number(o.stops))).valueOf() : NaN; DIRECT_CACHE[k] = Number.isFinite(fewest) ? fewest : (j.totalFound ? 1 : 9); })
           .catch(() => { DIRECT_CACHE[k] = null; })
           .then(() => { running--; if (!dead) { setTick((x) => x + 1); next(); } });
       }
@@ -19501,7 +19501,7 @@ function useDirectFlights(fromCity, date, cities, enabled) {
   }, [fromCity, date, enabled, want.join("|")]);
   const out = {};
   for (const c of want) out[c] = DIRECT_CACHE[keyOf(c)];
-  return out;   // city → number (nonstops that day), "loading", null (could not check), or undefined (not asked)
+  return out;   // city → fewest stops that day (0 = nonstop; 9 = no fare found), "loading", null (could not check), or undefined (not asked)
 }
 const onPlaceNow = (sel) => !((sel.set || []).length > 0) || !sel.setDone;
 function IdeasPicker({ d, i, p }) {
@@ -19510,19 +19510,10 @@ function IdeasPicker({ d, i, p }) {
   const toggle = (group, v) => { const cur = sel[group] || []; setSel({ ...sel, [group]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); };
   const any = (sel.set || []).length + (sel.act || []).length + (sel.w || []).length > 0;
   const ranked = any ? rankIdeas(sel) : [];
-  const flyPref = sel.fly || "any";
-  const wantsDirect = flyPref === "direct";
-  const fromCity = (p && p.fromCity) || "";
-  const departDate = (p && p.dates && p.dates.depart) || "";
-  const direct = useDirectFlights(fromCity, departDate, ranked.map((r) => r.idea.city || r.idea.n), flyPref !== "any" && !onPlaceNow(sel));
-  const directOf = (x) => direct[x.city || x.n];
-  // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
-  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => { const v = directOf(x.idea); return typeof v === "number" ? (v > 0 ? 0 : 2) : 1; }; return r(a) - r(b); }) : ranked).map((r) => r.idea);
-  const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
-  const fromCode = fromCity ? (iataFor(fromCity) || bareCity(fromCity)) : "";
+
   const missFor = {};
   ranked.forEach((r) => { missFor[r.idea.n] = r.s; });
-  const drop = any && matches.length === 0 ? nearMiss(sel) : null;
+  const drop = any && ranked.length === 0 ? nearMiss(sel) : null;
   const wantsTennis = (sel.act || []).some((x) => x.indexOf("Tennis") === 0);
   const tennis = wantsTennis ? tennisFor(sel) : [];
   const wantsGolf = (sel.act || []).some((x) => x.indexOf("Golf") === 0);
@@ -19539,6 +19530,31 @@ function IdeasPicker({ d, i, p }) {
   const shop = wantsShop ? shopFor(sel) : [];
   const wantsRanch = (sel.act || []).includes("Ranches & riding");
   const ranch = wantsRanch ? ranchFor(sel) : [];
+  const flyPref = "direct";   // M1002: always two tiers; no choice to make
+  const wantsDirect = true;
+  const fromCity = (p && p.fromCity) || "";
+  const departDate = (p && p.dates && p.dates.depart) || "";
+  const specialtyCities = [...tennis, ...golf, ...wine, ...ski, ...fish, ...fly, ...shop, ...ranch].map((x) => x.city || x.n);
+  const direct = useDirectFlights(fromCity, departDate, [...new Set([...specialtyCities, ...ranked.map((r) => r.idea.city || r.idea.n)])], !onPlaceNow(sel));
+  const directOf = (x) => direct[x.city || x.n];
+  // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
+  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => { const v = directOf(x.idea); return typeof v === "number" ? (v > 0 ? 0 : 2) : 1; }; return r(a) - r(b); }) : ranked).map((r) => r.idea);
+  const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
+  const stopsOf = (x) => direct[x.city || x.n];
+  const byNonstop = (list) => [...list].sort((a, b) => { const r = (x) => { const v = stopsOf(x); return typeof v === "number" ? v : 8.5; }; return r(a) - r(b); });
+  const tiered = (list) => { const sorted = byNonstop(list); return { nonstop: sorted.filter((x) => stopsOf(x) === 0), rest: sorted.filter((x) => stopsOf(x) !== 0) }; };
+  const nonstopBadge = (x) => { if (!fromCity || !departDate) return null; const v = stopsOf(x); return v === "loading" || v === undefined
+    ? <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}><span className="vo-spin sm" aria-hidden="true" />Checking flights from {fromCode}</div>
+    : v === null ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>Could not check flights from {fromCode} just now</div>
+    : v === 0 ? <div style={{ fontSize: 11.5, color: t.pine, fontWeight: 700, marginTop: 4 }}>✓ Nonstop from {fromCode} on your date</div>
+    : v >= 9 ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>No fares found from {fromCode} on your date</div>
+    : <div style={{ fontSize: 11.5, color: t.inkSoft, marginTop: 4 }}>{v === 1 ? "One stop" : v === 2 ? "Two stops" : v + " stops"} from {fromCode} on your date</div>; };
+  // Heading for the second tier of a list, placed before its first card with a stop.
+  const tierHead = (list) => (x, k) => { const sorted = byNonstop(list); const first = sorted.findIndex((y) => stopsOf(y) !== 0); const anyNonstop = sorted.some((y) => stopsOf(y) === 0); return anyNonstop && k === first && first > 0 ? <div key={"tier" + k} style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, margin: "14px 0 8px" }}>Worth an extra leg</div> : null; };
+  const checkable = Object.keys(direct).length;
+  const checked = Object.values(direct).filter((v) => typeof v === "number" || v === null).length;
+  const nonstops = Object.values(direct).filter((v) => v === 0).length;
+  const fromCode = fromCity ? (iataFor(fromCity) || bareCity(fromCity)) : "";
   // Fifteen settings and twenty-two activities on one screen is thirty-seven decisions at once.
   // Ask one question, then the next. Which screen you are on follows from what has been chosen,
   // so nothing new is stored and going back is just untapping — no wizard state to get stuck in.
@@ -19553,8 +19569,8 @@ function IdeasPicker({ d, i, p }) {
   const stepDot = (on) => ({ width: 7, height: 7, borderRadius: 999, background: on ? t.pine : t.line });
   return (<div style={{ marginTop: 18, background: t.card, borderRadius: 14, padding: "18px 18px 22px" }}>
     <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-      <span style={stepDot(true)} /><span style={stepDot(!onPlace)} /><span style={stepDot(flyStep && flyPref !== "any")} />
-      <span style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginLeft: 4 }}>{onPlace ? "One of three" : flyStep ? "Two and three of three" : "Two of three"}</span>
+      <span style={stepDot(true)} /><span style={stepDot(!onPlace)} />
+      <span style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginLeft: 4 }}>{onPlace ? "One of two" : "Two of two"}</span>
     </div>
     <div style={{ fontFamily: font.display, fontSize: 22 }}>{onPlace ? "What kind of place?" : "And what will you do there?"}</div>
     <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5, maxWidth: 460, marginTop: 3 }}>{onPlace
@@ -19576,147 +19592,151 @@ function IdeasPicker({ d, i, p }) {
     {!onPlace && ranch.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Saddles worth the journey</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Ranches, estancias, cattle stations and horse safaris — places where the riding or the land is the reason to go. Several are sporting lodges rather than hotels. Tell us how much you want to ride and we match the property to it.</div>
-      {ranch.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(ranch).map((x, k) => (<React.Fragment key={x.n}>{tierHead(ranch)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.spec}{x.best ? " \u00b7 best " + x.best : ""}</div>
             <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>Stay at {x.stay}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "ranches & riding") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && shop.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Where shopping is the reason to go</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Not which cities have luxury stores — where the shopping itself is worth the journey, and what is genuinely worth buying there. Private appointments, atelier visits and after-hours openings arranged where they exist.</div>
-      {shop.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(shop).map((x, k) => (<React.Fragment key={x.n}>{tierHead(shop)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.spec}{x.best ? " \u00b7 best " + x.best : ""}</div>
             <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>{x.area}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "shopping") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && fly.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Water worth the wading</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Great fisheries where you can also stay somewhere extraordinary. Several of these are sporting lodges rather than hotels — no star rating, and better than most things that have one. Run timing matters, so check the months against your dates.</div>
-      {fly.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(fly).map((x, k) => (<React.Fragment key={x.n}>{tierHead(fly)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.spec}{x.best ? " \u00b7 best " + x.best : ""}</div>
             <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>Stay at {x.stay}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "fly fishing") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && fish.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Water worth the crossing</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Not simply where you can fish — where you can have one of the great days at sea without giving up the way you like to travel. Season matters more than fame here, so check the months against your dates, and we will match the boat to the water.</div>
-      {fish.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(fish).map((x, k) => (<React.Fragment key={x.n}>{tierHead(fish)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.spec}{x.best ? " \u00b7 best " + x.best : ""}</div>
             <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>Stay at {x.stay}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "deep sea fishing") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && ski.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Mountains worth the winter</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Judged on the whole week, not the mountain alone — a famous peak does not qualify unless there is somewhere of ours to sleep. We confirm the ski-in access, the transfer and the season before anything is held.</div>
-      {ski.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(ski).map((x, k) => (<React.Fragment key={x.n}>{tierHead(ski)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.acc} · stay at {x.stay}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "skiing") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && wine.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Estates worth the detour</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Wine estates you can actually get into, each with somewhere of ours to stay. We confirm the visit, the private tasting and whether lunch can be part of it.</div>
-      {wine.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(wine).map((x, k) => (<React.Fragment key={x.n}>{tierHead(wine)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.acc} · stay at {x.stay}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "wine") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && golf.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Courses worth the journey</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Only courses you can genuinely arrange to play, each with a house of ours to sleep in. We handle the ballot, the tee times and the caddies.</div>
-      {golf.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(golf).map((x, k) => (<React.Fragment key={x.n}>{tierHead(golf)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.acc} · stay at {x.stay}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "golf") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
     {!onPlace && tennis.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Where tennis is the reason to go</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Not hotels that happen to have a court — courts worth the journey. Tell us which appeals and we will confirm the surface, the coaching and whether you can get on before anything is booked.</div>
-      {tennis.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      {byNonstop(tennis).map((x, k) => (<React.Fragment key={x.n}>{tierHead(tennis)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n + ", " + x.city} title={x.n} label={placeLine(x.city)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.kind} · {x.surf} · {x.acc}</div>
+            {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "tennis") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
     </div>)}
-    {flyStep && (<div style={{ marginTop: 26, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 14 }}>
-      <div style={{ fontFamily: font.display, fontSize: 20 }}>How far will you fly?</div>
-      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 3 }}>{fromCity && departDate ? `Checked against real fares from ${bareCity(fromCity)} on ${departDate}. Change your mind any time — the list re-sorts.` : !fromCity ? "Add your departure city on Basics and each place is checked for a nonstop." : "Add your dates on Basics and each place is checked for a nonstop on your day."}</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-        {[["direct", `Direct flight only${fromCode ? ` · from ${fromCode}` : ""}`], ["onestop", "One stop is fine"], ["any", "Don't mind"]].map(([v, label]) => { const on = flyPref === v; return (
-          <button key={v} type="button" onClick={() => setSel({ ...sel, fly: v })} style={{ padding: "10px 16px", borderRadius: 999, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : t.white, color: on ? t.paper : t.ink, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer" }}>{on ? "✓ " : ""}{label}</button>); })}
-      </div>
+    {flyStep && fromCity && departDate && (<div style={{ marginTop: 26, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 14 }}>
+      <div style={{ fontFamily: font.display, fontSize: 20 }}>Nonstops first — then the ones worth an extra leg</div>
+      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 3 }}>Each place is checked against real fares from {bareCity(fromCity)} on {departDate}. Nonstops rise to the top of every list; the rest follow with the fewest stops found.</div>
+      {checkable > 0 ? (<div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: checked < checkable ? t.pine : t.inkSoft, fontWeight: 600, marginTop: 10 }}>
+        {checked < checkable ? <span className="vo-spin sm" aria-hidden="true" /> : null}
+        {checked < checkable ? `Checking real fares — ${checked} of ${checkable} places done, ${nonstops} nonstop so far` : `${nonstops} of ${checkable} places have a nonstop from ${fromCode} on your date`}
+      </div>) : null}
     </div>)}
     {!onPlace && any && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length} {matches.length === 1 ? "place" : "places"} · {wantsDirect ? "nonstops first" : "closest first"}</div>
-      {matches.map((x) => (<div key={x.n} style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length} {matches.length === 1 ? "place" : "places"} · {fromCity && departDate ? "nonstops first" : "closest first"}</div>
+      {matches.map((x, k) => (<React.Fragment key={x.n}>{tierHead(matches)(x, k)}<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{[...x.set, ...x.act].slice(0, 3).join(" · ")}{x.best ? " \u00b7 best " + x.best : ""}</div>
-            {flyPref !== "any" && fromCity && departDate ? (() => { const v = directOf(x); return v === "loading" || v === undefined
-              ? <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}><span className="vo-spin sm" aria-hidden="true" />Checking nonstops from {fromCode}</div>
-              : v === null ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>Could not check flights from {fromCode} just now</div>
-              : v > 0 ? <div style={{ fontSize: 11.5, color: t.pine, fontWeight: 700, marginTop: 4 }}>✓ Nonstop from {fromCode} on your date</div>
-              : <div style={{ fontSize: 11.5, color: wantsDirect ? "#B0563A" : t.inkSoft, marginTop: 4 }}>{wantsDirect ? "No nonstop from " + fromCode + " on your date" : "One stop from " + fromCode + " on your date"}</div>; })() : null}
+            {nonstopBadge(x)}
             {missFor[x.n] && missFor[x.n].total > 0 && (missFor[x.n].missed.length === 0
               ? <div style={{ fontSize: 11.5, color: t.pine, marginTop: 4 }}>Everything you asked for.</div>
               : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div>)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.n, mode: regionStops(x.n).length ? "open" : "full" })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}><Plus size={15} /> Choose</button>
         </div>
-      </div>))}
+      </div></React.Fragment>))}
       {matches.length === 0 && (<div style={{ background: t.white, border: `1px solid ${t.brassLight}`, borderRadius: 14, padding: "16px 18px" }}>
         <div style={{ fontFamily: font.display, fontSize: 19 }}>Nothing fits all of that.</div>
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>
