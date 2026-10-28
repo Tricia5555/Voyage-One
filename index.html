@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M997";
+const BUILD = "M998";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -19477,13 +19477,47 @@ function MultiChips({ options, values, onToggle }) {
     {options.map((o) => { const on = (values || []).includes(o); return <button key={o} onClick={() => onToggle(o)} style={chip(on)}>{o}</button>; })}
   </div>);
 }
+const DIRECT_CACHE = {};   // "from|to|date" → nonstop count (number) or null when the search failed
+function useDirectFlights(fromCity, date, cities, enabled) {
+  const [tick, setTick] = useState(0);
+  const want = enabled && fromCity && date ? cities.slice(0, 15) : [];
+  const keyOf = (c) => `${fromCity}|${c}|${date}`.toLowerCase();
+  useEffect(() => {
+    if (!want.length) return;
+    let dead = false; let running = 0; const queue = want.filter((c) => DIRECT_CACHE[keyOf(c)] === undefined);
+    const next = () => {
+      if (dead) return;
+      while (running < 2 && queue.length) {
+        const c = queue.shift(); const k = keyOf(c); if (DIRECT_CACHE[k] !== undefined) continue; DIRECT_CACHE[k] = "loading"; running++;
+        fetch(`/api/flights?from=${encodeURIComponent(fromCity)}&to=${encodeURIComponent(c)}&date=${encodeURIComponent(date)}&cabin=economy`)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((j) => { DIRECT_CACHE[k] = j && j.ok ? (Number(j.nonstopCount) || 0) : null; })
+          .catch(() => { DIRECT_CACHE[k] = null; })
+          .then(() => { running--; if (!dead) { setTick((x) => x + 1); next(); } });
+      }
+    };
+    next();
+    return () => { dead = true; };
+  }, [fromCity, date, enabled, want.join("|")]);
+  const out = {};
+  for (const c of want) out[c] = DIRECT_CACHE[keyOf(c)];
+  return out;   // city → number (nonstops that day), "loading", null (could not check), or undefined (not asked)
+}
+const onPlaceNow = (sel) => !((sel.set || []).length > 0) || !sel.setDone;
 function IdeasPicker({ d, i, p }) {
   const sel = d.ideaSel || { set: [], act: [], w: [] };
   const setSel = (next) => p.setDest(i, { ideaSel: next });
   const toggle = (group, v) => { const cur = sel[group] || []; setSel({ ...sel, [group]: cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v] }); };
   const any = (sel.set || []).length + (sel.act || []).length + (sel.w || []).length > 0;
   const ranked = any ? rankIdeas(sel) : [];
-  const matches = ranked.map((r) => r.idea);
+  const wantsDirect = !!sel.direct;
+  const fromCity = (p && p.fromCity) || "";
+  const departDate = (p && p.dates && p.dates.depart) || "";
+  const direct = useDirectFlights(fromCity, departDate, ranked.map((r) => r.idea.city || r.idea.n), wantsDirect && !onPlaceNow(sel));
+  const directOf = (x) => direct[x.city || x.n];
+  // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
+  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => { const v = directOf(x.idea); return typeof v === "number" ? (v > 0 ? 0 : 2) : 1; }; return r(a) - r(b); }) : ranked).map((r) => r.idea);
+  const fromCode = fromCity ? (iataFor(fromCity) || bareCity(fromCity)) : "";
   const missFor = {};
   ranked.forEach((r) => { missFor[r.idea.n] = r.s; });
   const drop = any && matches.length === 0 ? nearMiss(sel) : null;
@@ -19507,7 +19541,7 @@ function IdeasPicker({ d, i, p }) {
   // Ask one question, then the next. Which screen you are on follows from what has been chosen,
   // so nothing new is stored and going back is just untapping — no wizard state to get stuck in.
   const chosenSet = (sel.set || []).length > 0;
-  const onPlace = !chosenSet || !sel.setDone;
+  const onPlace = onPlaceNow(sel);
   const goNext = () => setSel({ ...sel, setDone: true });
   const goBack = () => setSel({ ...sel, setDone: false });
   const Group = ({ label, options, group }) => (<div style={{ marginTop: 16 }}>
@@ -19527,7 +19561,15 @@ function IdeasPicker({ d, i, p }) {
     {onPlace && <div style={{ fontSize: 13, color: t.brass, lineHeight: 1.5, maxWidth: 460, marginTop: 8 }}>Every idea carries the months it is actually worth going, so you can see at a glance whether it suits your dates.</div>}
     {onPlace
       ? <Group label="Type of place" options={IDEA_SETTING} group="set" />
-      : <Group label="What you'll do" options={IDEA_DOING} group="act" />}
+      : (<>
+        <Group label="What you'll do" options={IDEA_DOING} group="act" />
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 9 }}>Getting there</div>
+          <button type="button" onClick={() => setSel({ ...sel, direct: !sel.direct })} style={{ padding: "9px 15px", borderRadius: 999, border: `1px solid ${sel.direct ? t.pine : t.line}`, background: sel.direct ? t.pine : t.white, color: sel.direct ? t.paper : t.ink, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer" }}>{sel.direct ? "✓ " : ""}A direct flight matters{fromCode ? ` · from ${fromCode}` : ""}</button>
+          {sel.direct && (!fromCity || !departDate) ? <div style={{ fontSize: 12, color: t.brass, marginTop: 6 }}>{!fromCity ? "Add your departure city on Basics and the ideas are checked for nonstops." : "Add your dates on Basics and the ideas are checked for nonstops on your day."}</div>
+            : sel.direct ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 6 }}>Each idea is checked against real fares from {bareCity(fromCity)} on {departDate} — nonstops come first.</div> : null}
+        </div>
+      </>)}
     <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap", alignItems: "center", justifyContent: "center", textAlign: "center", flexDirection: onPlace ? "column" : "row" }}>
       {onPlace
         ? <button onClick={goNext} disabled={!chosenSet} style={{ background: chosenSet ? "#16332E" : "transparent", color: chosenSet ? t.paper : t.inkFaint, border: chosenSet ? "none" : `1px solid ${t.line}`, borderRadius: 999, padding: "16px 40px", fontSize: 17, fontWeight: 600, letterSpacing: "0.02em", display: "flex", alignItems: "center", gap: 10, boxShadow: chosenSet ? "0 2px 10px rgba(22,51,46,.22)" : "none" }}>Next<ArrowRight size={19} /></button>
@@ -19659,6 +19701,11 @@ function IdeasPicker({ d, i, p }) {
           <div>
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{[...x.set, ...x.act].slice(0, 3).join(" · ")}{x.best ? " \u00b7 best " + x.best : ""}</div>
+            {wantsDirect && fromCity && departDate ? (() => { const v = directOf(x); return v === "loading" || v === undefined
+              ? <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}><span className="vo-spin sm" aria-hidden="true" />Checking nonstops from {fromCode}</div>
+              : v === null ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>Could not check flights from {fromCode} just now</div>
+              : v > 0 ? <div style={{ fontSize: 11.5, color: t.pine, fontWeight: 700, marginTop: 4 }}>✓ Nonstop from {fromCode} on your date</div>
+              : <div style={{ fontSize: 11.5, color: "#B0563A", marginTop: 4 }}>Needs a connection from {fromCode} on your date</div>; })() : null}
             {missFor[x.n] && missFor[x.n].total > 0 && (missFor[x.n].missed.length === 0
               ? <div style={{ fontSize: 11.5, color: t.pine, marginTop: 4 }}>Everything you asked for.</div>
               : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div>)}
