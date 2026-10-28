@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1002";
+const BUILD = "M1003";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -19530,27 +19530,30 @@ function IdeasPicker({ d, i, p }) {
   const shop = wantsShop ? shopFor(sel) : [];
   const wantsRanch = (sel.act || []).includes("Ranches & riding");
   const ranch = wantsRanch ? ranchFor(sel) : [];
-  const flyPref = "direct";   // M1002: always two tiers; no choice to make
-  const wantsDirect = true;
+  const flyPref = sel.fly || "any";   // M1003: a choice again
+  const wantsDirect = flyPref === "direct";
+  const soloAct = (sel.act || []).length === 1;   // specialist lists only when one thing is tapped alone
   const fromCity = (p && p.fromCity) || "";
   const departDate = (p && p.dates && p.dates.depart) || "";
   const specialtyCities = [...tennis, ...golf, ...wine, ...ski, ...fish, ...fly, ...shop, ...ranch].map((x) => x.city || x.n);
-  const direct = useDirectFlights(fromCity, departDate, [...new Set([...specialtyCities, ...ranked.map((r) => r.idea.city || r.idea.n)])], !onPlaceNow(sel));
+  const direct = useDirectFlights(fromCity, departDate, [...new Set([...specialtyCities, ...ranked.map((r) => r.idea.city || r.idea.n)])], flyPref !== "any" && !onPlaceNow(sel));
   const directOf = (x) => direct[x.city || x.n];
   // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
   const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => { const v = directOf(x.idea); return typeof v === "number" ? (v > 0 ? 0 : 2) : 1; }; return r(a) - r(b); }) : ranked).map((r) => r.idea);
   const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
+  const [moreIdeas, setMoreIdeas] = useState(false);
+  const SHOW_N = 12;
   const stopsOf = (x) => direct[x.city || x.n];
-  const byNonstop = (list) => [...list].sort((a, b) => { const r = (x) => { const v = stopsOf(x); return typeof v === "number" ? v : 8.5; }; return r(a) - r(b); });
+  const byNonstop = (list) => wantsDirect ? [...list].sort((a, b) => { const r = (x) => { const v = stopsOf(x); return typeof v === "number" ? v : 8.5; }; return r(a) - r(b); }) : list;
   const tiered = (list) => { const sorted = byNonstop(list); return { nonstop: sorted.filter((x) => stopsOf(x) === 0), rest: sorted.filter((x) => stopsOf(x) !== 0) }; };
-  const nonstopBadge = (x) => { if (!fromCity || !departDate) return null; const v = stopsOf(x); return v === "loading" || v === undefined
+  const nonstopBadge = (x) => { if (flyPref === "any" || !fromCity || !departDate) return null; const v = stopsOf(x); return v === "loading" || v === undefined
     ? <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}><span className="vo-spin sm" aria-hidden="true" />Checking flights from {fromCode}</div>
     : v === null ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>Could not check flights from {fromCode} just now</div>
     : v === 0 ? <div style={{ fontSize: 11.5, color: t.pine, fontWeight: 700, marginTop: 4 }}>✓ Nonstop from {fromCode} on your date</div>
     : v >= 9 ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>No fares found from {fromCode} on your date</div>
     : <div style={{ fontSize: 11.5, color: t.inkSoft, marginTop: 4 }}>{v === 1 ? "One stop" : v === 2 ? "Two stops" : v + " stops"} from {fromCode} on your date</div>; };
   // Heading for the second tier of a list, placed before its first card with a stop.
-  const tierHead = (list) => (x, k) => { const sorted = byNonstop(list); const first = sorted.findIndex((y) => stopsOf(y) !== 0); const anyNonstop = sorted.some((y) => stopsOf(y) === 0); return anyNonstop && k === first && first > 0 ? <div key={"tier" + k} style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, margin: "14px 0 8px" }}>Worth an extra leg</div> : null; };
+  const tierHead = () => () => null;
   const checkable = Object.keys(direct).length;
   const checked = Object.values(direct).filter((v) => typeof v === "number" || v === null).length;
   const nonstops = Object.values(direct).filter((v) => v === 0).length;
@@ -19589,7 +19592,7 @@ function IdeasPicker({ d, i, p }) {
       {onPlace && !chosenSet && <span style={{ fontSize: 12.5, color: t.inkFaint }}>Choose at least one to carry on.</span>}
       {onPlace && chosenSet && <span style={{ fontSize: 12.5, color: t.inkFaint }}>{(sel.set || []).join(" · ")}</span>}
     </div>
-    {!onPlace && ranch.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && ranch.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Saddles worth the journey</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Ranches, estancias, cattle stations and horse safaris — places where the riding or the land is the reason to go. Several are sporting lodges rather than hotels. Tell us how much you want to ride and we match the property to it.</div>
       {byNonstop(ranch).map((x, k) => (<React.Fragment key={x.n}>{tierHead(ranch)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19605,7 +19608,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && shop.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && shop.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Where shopping is the reason to go</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Not which cities have luxury stores — where the shopping itself is worth the journey, and what is genuinely worth buying there. Private appointments, atelier visits and after-hours openings arranged where they exist.</div>
       {byNonstop(shop).map((x, k) => (<React.Fragment key={x.n}>{tierHead(shop)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19621,7 +19624,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && fly.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && fly.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Water worth the wading</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Great fisheries where you can also stay somewhere extraordinary. Several of these are sporting lodges rather than hotels — no star rating, and better than most things that have one. Run timing matters, so check the months against your dates.</div>
       {byNonstop(fly).map((x, k) => (<React.Fragment key={x.n}>{tierHead(fly)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19637,7 +19640,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && fish.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && fish.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Water worth the crossing</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Not simply where you can fish — where you can have one of the great days at sea without giving up the way you like to travel. Season matters more than fame here, so check the months against your dates, and we will match the boat to the water.</div>
       {byNonstop(fish).map((x, k) => (<React.Fragment key={x.n}>{tierHead(fish)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19653,7 +19656,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && ski.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && ski.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Mountains worth the winter</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Judged on the whole week, not the mountain alone — a famous peak does not qualify unless there is somewhere of ours to sleep. We confirm the ski-in access, the transfer and the season before anything is held.</div>
       {byNonstop(ski).map((x, k) => (<React.Fragment key={x.n}>{tierHead(ski)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19668,7 +19671,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && wine.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && wine.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Estates worth the detour</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Wine estates you can actually get into, each with somewhere of ours to stay. We confirm the visit, the private tasting and whether lunch can be part of it.</div>
       {byNonstop(wine).map((x, k) => (<React.Fragment key={x.n}>{tierHead(wine)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19683,7 +19686,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && golf.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && golf.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Courses worth the journey</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Only courses you can genuinely arrange to play, each with a house of ours to sleep in. We handle the ballot, the tee times and the caddies.</div>
       {byNonstop(golf).map((x, k) => (<React.Fragment key={x.n}>{tierHead(golf)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19698,7 +19701,7 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {!onPlace && tennis.length > 0 && (<div style={{ marginTop: 24 }}>
+    {!onPlace && soloAct && tennis.length > 0 && (<div style={{ marginTop: 24 }}>
       <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, marginBottom: 4 }}>Where tennis is the reason to go</div>
       <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.5, marginBottom: 12, maxWidth: 460 }}>Not hotels that happen to have a court — courts worth the journey. Tell us which appeals and we will confirm the surface, the coaching and whether you can get on before anything is booked.</div>
       {byNonstop(tennis).map((x, k) => (<React.Fragment key={x.n}>{tierHead(tennis)(x, k)}<div style={{ background: t.white, border: `1px solid ${x.hero ? t.brass : t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
@@ -19713,17 +19716,21 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div></React.Fragment>))}
     </div>)}
-    {flyStep && fromCity && departDate && (<div style={{ marginTop: 26, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 14 }}>
-      <div style={{ fontFamily: font.display, fontSize: 20 }}>Nonstops first — then the ones worth an extra leg</div>
-      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 3 }}>Each place is checked against real fares from {bareCity(fromCity)} on {departDate}. Nonstops rise to the top of every list; the rest follow with the fewest stops found.</div>
-      {checkable > 0 ? (<div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: checked < checkable ? t.pine : t.inkSoft, fontWeight: 600, marginTop: 10 }}>
-        {checked < checkable ? <span className="vo-spin sm" aria-hidden="true" /> : null}
-        {checked < checkable ? `Checking real fares — ${checked} of ${checkable} places done, ${nonstops} nonstop so far` : `${nonstops} of ${checkable} places have a nonstop from ${fromCode} on your date`}
-      </div>) : null}
+    {flyStep && (<div style={{ marginTop: 26 }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 9 }}>Flights{fromCode ? ` from ${fromCode}` : ""}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {[["direct", "Direct flight"], ["onestop", "One stop is fine"], ["any", "Don't mind"]].map(([v, label]) => { const on = flyPref === v; return (
+          <button key={v} type="button" onClick={() => setSel({ ...sel, fly: v })} style={{ padding: "9px 15px", borderRadius: 999, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : t.white, color: on ? t.paper : t.ink, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer" }}>{on ? "✓ " : ""}{label}</button>); })}
+      </div>
+      {flyPref !== "any" && (!fromCity || !departDate) ? <div style={{ fontSize: 12, color: t.brass, marginTop: 6 }}>{!fromCity ? "Add your departure city on Basics and each place is checked for flights." : "Add your dates on Basics and each place is checked for flights on your day."}</div>
+        : flyPref !== "any" && checkable > 0 ? (<div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: checked < checkable ? t.pine : t.inkSoft, fontWeight: 600, marginTop: 8 }}>
+          {checked < checkable ? <span className="vo-spin sm" aria-hidden="true" /> : null}
+          {checked < checkable ? `Checking real fares from ${bareCity(fromCity)} on ${departDate} — ${checked} of ${checkable} done` : `${nonstops} of ${checkable} have a nonstop from ${fromCode} on ${departDate}`}
+        </div>) : null}
     </div>)}
     {!onPlace && any && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length} {matches.length === 1 ? "place" : "places"} · {fromCity && departDate ? "nonstops first" : "closest first"}</div>
-      {matches.map((x, k) => (<React.Fragment key={x.n}>{tierHead(matches)(x, k)}<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : "best fit first"}</div>
+      {(moreIdeas ? matches : matches.slice(0, SHOW_N)).map((x, k) => (<React.Fragment key={x.n}>{tierHead(matches)(x, k)}<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
@@ -19737,6 +19744,7 @@ function IdeasPicker({ d, i, p }) {
           <button onClick={() => p.setDest(i, { city: x.n, mode: regionStops(x.n).length ? "open" : "full" })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}><Plus size={15} /> Choose</button>
         </div>
       </div></React.Fragment>))}
+      {matches.length > SHOW_N ? <button type="button" onClick={() => setMoreIdeas(!moreIdeas)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer", marginBottom: 12 }}>{moreIdeas ? `Back to our best ${SHOW_N}` : `See all ${matches.length}`}</button> : null}
       {matches.length === 0 && (<div style={{ background: t.white, border: `1px solid ${t.brassLight}`, borderRadius: 14, padding: "16px 18px" }}>
         <div style={{ fontFamily: font.display, fontSize: 19 }}>Nothing fits all of that.</div>
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>
