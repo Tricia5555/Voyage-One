@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M996";
+const BUILD = "M997";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -2755,7 +2755,9 @@ function isUpcoming(h) { if (!h || !h.opening) return false; if (!h.opensOn) ret
 // "Gleneagles" is. A hotel named here is pinned to the tier given, whatever the lists say.
 // (Tricia, 17 Oct 2026.)
 const TIER_PIN = { "Gleneagles Townhouse": "Luxury", "Hotel d'Angleterre Geneva": "Luxury", "Museum Hotel": "Luxury" };   // exact-name pins: a shorter Ultra Luxury name sitting inside a different hotel's name ("Gleneagles" in "Gleneagles Townhouse", Copenhagen's "Hotel d'Angleterre" in the Geneva one) must not promote it
+const BRAND_CAP = [/^six senses\b/i];   // brands never shown above Luxury (Tricia, 27 Oct 2026)
 function tierOf(name) {
+  if (BRAND_CAP.some((re) => re.test(String(name || "").trim()))) return "Luxury";
   const pin = Object.keys(TIER_PIN).find((k) => dnrm(k) === dnrm(name || "")); if (pin) return TIER_PIN[pin];
   if (strictCanon(name, ULX_ALNUM)) return "UltraLux";
   if (strictCanon(name, EXP_ALNUM)) return "ExpLux";
@@ -2962,7 +2964,7 @@ const HOTELS = {
   "Óbidos": { Luxury: [["Pousada Castelo de Óbidos", 350, "Sleep inside the medieval castle walls."]], Refined: [["The Literary Man", 170, "Book-filled boutique in a former convent."]], Essential: [["Casa das Senhoras Rainhas", 150, "Cozy inn within the town walls."]] },
   "Comporta": { UltraLux: [["Sublime Comporta", 700, "Cabanas hidden in umbrella pines, a black pool, and a long sandy track down to an empty Atlantic beach."]], Luxury: [["Quinta da Comporta", 450, "Whitewashed wellness retreat with a pool that looks out over the water meadows — the view Lisbon weekends here for."]], Refined: [["Casa da Comporta", 250, "Simple, bright rooms a short walk from the sand."]] },
   "Évora": { Luxury: [["Convento do Espinheiro", 350, "15th-century convent with a spa just outside town."], ["M'AR De AR Aqueduto", 300, "Sleek hotel beside the Roman aqueduct."]], Refined: [["Vitória Stone Hotel", 160, "Contemporary comfort in the old town."]] },
-  "Douro Valley": { UltraLux: [["Six Senses Douro Valley", 700, "Hilltop wellness estate over the terraced river."]], Luxury: [["Quinta do Vallado", 400, "Working wine estate with river-view rooms."], ["The Vintage House", 350, "Riverbank classic in Pinhão."]], Refined: [["Quinta Nova", 300, "Vineyard manor with sweeping valley views."]] },
+  "Douro Valley": { UltraLux: [], Luxury: [["Six Senses Douro Valley", 700, "Hilltop wellness estate over the terraced river."], ["Quinta do Vallado", 400, "Working wine estate with river-view rooms."], ["The Vintage House", 350, "Riverbank classic in Pinhão."]], Refined: [["Quinta Nova", 300, "Vineyard manor with sweeping valley views."]] },
   "Algarve": { Luxury: [["Bela Vista Hotel & Spa", 420, "Belle-époque palace above a Portimão beach."], ["Cascade Wellness Resort", 350, "Clifftop resort near Lagos with a large spa."]], Refined: [["Tivoli Carvoeiro", 280, "Modern cliffside hotel over the coves."]], Essential: [["Marina Club Lagos", 150, "Bright rooms by the Lagos marina."]] },
 };
 // Our own hand-picked favorites for a city, pinned to the TOP of the hotel picker above the
