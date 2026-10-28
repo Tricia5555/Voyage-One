@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023; store trail + background failures noted M1024; one browser session per request M1025, 27 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023; store trail + background failures noted M1024; one browser session per request M1025; one store key per hotel + trust cutoff M1027, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -251,13 +251,27 @@ export default async function handler(req, res) {
 // (table hotel_rooms, 30-day freshness), written by the server with the service key and read
 // before any site is touched. Env in Vercel: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Without
 // them the store is simply skipped.
+// ONE KEY PER HOTEL (M1027). Google hands the card a tracking-tagged address
+// (https://www.fourseasons.com/newyork/?utm_source=google…) while the tests used the bare one;
+// two keys, two store entries, and the card kept serving the older. The store key is the address
+// with scheme, www., tracking parameters, fragments and trailing slashes removed, lower-cased.
+function siteKey(site) {
+  let s = String(site || "").trim();
+  try {
+    const u = new URL(/^https?:\/\//.test(s) ? s : "https://" + s);
+    const keep = [...u.searchParams.entries()].filter(([k]) => !/^(utm_|gclid|fbclid|mc_|ref$|source$|campaign|medium|cid$|icid|sc_)/i.test(k));
+    const q = keep.length ? "?" + keep.map(([k, v]) => `${k}=${v}`).join("&") : "";
+    return (u.hostname.replace(/^www\./i, "") + u.pathname.replace(/\/+$/, "") + q).toLowerCase();
+  } catch (e) { return s.replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/[?#].*$/, "").replace(/\/+$/, "").toLowerCase(); }
+}
 const STORE_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
 const STORE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 const FRESH_MS = 30 * 86400000;
+const STORE_TRUST_FROM = "2026-10-27T22:00:00Z";   // entries older than this were written by readers before M1020–M1025; step this forward whenever the reader's results change
 async function storeRead(site) {
   if (!STORE_URL || !STORE_KEY) return null;
   try {
-    const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&select=hotel,source,booking,rooms,fetched_at`, { headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } });
+    const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(siteKey(site))}&select=hotel,source,booking,rooms,fetched_at`, { headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } });
     STORE_LOG.push({ store: "read", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
     if (!r.ok) return null;
     const rows = await r.json(); const row = rows && rows[0];
@@ -265,6 +279,7 @@ async function storeRead(site) {
     if (row.source === "reading") return (Date.now() - Date.parse(row.fetched_at) < 120000) ? { reading: true } : null;   // M1023: a read in progress elsewhere
     if (row.source === "failed") return { failed: row.rooms && row.rooms[0] ? row.rooms[0] : { failed: "unknown" }, at: row.fetched_at };   // M1024: what went wrong last time
     if (Date.now() - Date.parse(row.fetched_at) > FRESH_MS) return null;
+    if (Date.parse(row.fetched_at) < Date.parse(STORE_TRUST_FROM)) return null;   // M1027: written by an older reader — read afresh
     return row;
   } catch (e) { return null; }
 }
@@ -273,21 +288,21 @@ const STORE_LOG = [];
 async function markReading(site, hotel) {
   READING[site] = Date.now();
   if (!STORE_URL || !STORE_KEY) { STORE_LOG.push({ store: "off", url: !!STORE_URL, key: !!STORE_KEY }); return; }
-  try { const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); STORE_LOG.push({ store: "mark", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) }); } catch (e) { STORE_LOG.push({ store: "mark", error: String(e && e.message || e).slice(0, 120) }); }
+  try { const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); STORE_LOG.push({ store: "mark", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) }); } catch (e) { STORE_LOG.push({ store: "mark", error: String(e && e.message || e).slice(0, 120) }); }
 }
 async function noteFailure(site, msg) {
   if (!STORE_URL || !STORE_KEY || !site) return;
-  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel: "", source: "failed", booking: null, rooms: [{ failed: msg, log: STORE_LOG.slice(-6), tried: TRIED.slice(-12) }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel: "", source: "failed", booking: null, rooms: [{ failed: msg, log: STORE_LOG.slice(-6), tried: TRIED.slice(-12) }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
 }
 async function clearReading(site) {
   delete READING[site];
   if (!STORE_URL || !STORE_KEY) return;
-  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(site)}&source=in.(reading,failed)`, { method: "DELETE", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } }); } catch (e) {}
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(siteKey(site))}&source=in.(reading,failed)`, { method: "DELETE", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } }); } catch (e) {}
 }
 async function storeWrite(site, hotel, source, booking, rooms) {
   if (!STORE_URL || !STORE_KEY) return false;
   try {
-    const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site, hotel, source, booking, rooms, fetched_at: new Date().toISOString() }) });
+    const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel, source, booking, rooms, fetched_at: new Date().toISOString() }) });
     STORE_LOG.push({ store: "write", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
     return r.ok;
   } catch (e) { STORE_LOG.push({ store: "write", error: String(e && e.message || e).slice(0, 120) }); return false; }
