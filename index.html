@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1003";
+const BUILD = "M1005";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -10701,15 +10701,28 @@ function bestListsFor(city) {
   return _bestLists[key(city)] || [];
 }
 let _ideaPool = null;
+const KNOWN_ACT = {   // destination → activities that are plain fact there (M1005)
+  "Boca Raton": ["Golf · play or watch", "Tennis · play or watch"], "Sea Island": ["Golf · play or watch", "Tennis · play or watch"], "Kiawah Island": ["Golf · play or watch", "Tennis · play or watch"], "Palm Beach": ["Golf · play or watch", "Tennis · play or watch"],
+  "Antigua": ["Golf · play or watch", "Tennis · play or watch"], "Bermuda": ["Golf · play or watch", "Tennis · play or watch"], "Anguilla": ["Golf · play or watch", "Tennis · play or watch"], "Mauritius": ["Golf · play or watch", "Tennis · play or watch"],
+  "Algarve": ["Golf · play or watch", "Tennis · play or watch"], "Marbella": ["Golf · play or watch", "Tennis · play or watch"], "Sotogrande": ["Golf · play or watch", "Tennis · play or watch"], "Porto Cervo": ["Golf · play or watch", "Tennis · play or watch"],
+  "Punta Mita": ["Golf · play or watch", "Tennis · play or watch"], "Los Cabos": ["Golf · play or watch", "Tennis · play or watch"], "San Jose del Cabo": ["Golf · play or watch", "Tennis · play or watch"], "Cabo San Lucas": ["Golf · play or watch", "Tennis · play or watch"],
+  "Lanai City": ["Golf · play or watch", "Tennis · play or watch"], "Kailua-Kona": ["Golf · play or watch", "Tennis · play or watch"], "Waimea": ["Golf · play or watch", "Tennis · play or watch"],
+  "Fiji": ["Golf · play or watch", "Tennis · play or watch"], "Seychelles": ["Golf · play or watch", "Tennis · play or watch"], "Bali": ["Golf · play or watch", "Tennis · play or watch"], "Phuket": ["Golf · play or watch", "Tennis · play or watch"], "Langkawi": ["Golf · play or watch", "Tennis · play or watch"],
+  "Punta Cana": ["Golf · play or watch", "Tennis · play or watch"], "La Romana": ["Golf · play or watch", "Tennis · play or watch"], "Grand Cayman": ["Golf · play or watch", "Tennis · play or watch"], "Montego Bay": ["Golf · play or watch", "Tennis · play or watch"],
+  "St Lucia": ["Golf · play or watch", "Tennis · play or watch"], "Cap Estate": ["Golf · play or watch", "Tennis · play or watch"], "Nassau": ["Golf · play or watch", "Tennis · play or watch"], "Abaco": ["Golf · play or watch", "Tennis · play or watch"],
+  "Turks & Caicos": ["Golf · play or watch", "Tennis · play or watch"], "Providenciales": ["Golf · play or watch", "Tennis · play or watch"], "Maldives": ["Tennis · play or watch"], "Mallorca": ["Golf · play or watch", "Tennis · play or watch"],
+  "Porto Heli": ["Tennis · play or watch"], "Savelletri": ["Golf · play or watch", "Tennis · play or watch"], "Riviera Nayarit": ["Golf · play or watch", "Tennis · play or watch"], "Papagayo": ["Golf · play or watch", "Tennis · play or watch"], "Playa Grande": ["Golf · play or watch", "Tennis · play or watch"],
+};
+const SEASIDE = ["Beach", "Islands", "Coastal & seaside"];
 function ideaPool() {
   if (_ideaPool) return _ideaPool;
   const by = {};
   const key = (x) => String(x || "").toLowerCase().replace(/\s+/g, " ").trim();
-  IDEAS.forEach((x) => { by[key(x.n)] = { ...x, src: [] }; });
+  IDEAS.forEach((x) => { by[key(x.n)] = { ...x, src: [], ownAct: (x.act || []).slice(), ownSet: (x.set || []).slice() }; });
   sportLayers().forEach((L) => (L.list || []).forEach((e) => {
     const k = key(e.city);
     if (!k) return;
-    if (!by[k]) by[k] = { n: e.city, set: [], act: [], w: [], best: e.best || "", why: "", src: [], derived: true };
+    if (!by[k]) by[k] = { n: e.city, set: [], act: [], w: [], best: e.best || "", why: "", src: [], derived: true, ownAct: [], ownSet: [] };
     const t = by[k];
     (e.set || []).forEach((v) => { if (!t.set.includes(v)) t.set.push(v); });
     (e.act || []).forEach((v) => { if (!t.act.includes(v)) t.act.push(v); });
@@ -10719,6 +10732,11 @@ function ideaPool() {
   }));
   _ideaPool = Object.keys(by).map((k) => {
     const x = by[k];
+    const add = (v) => { if (!x.act.includes(v)) x.act.push(v); };
+    if ((x.set || []).some((v) => SEASIDE.includes(v))) add("Beach & pool");
+    const golfTownOnly = x.derived && (x.src || []).length === 1 && /golf/i.test(x.src[0]) && !(x.set || []).some((v) => SEASIDE.includes(v));
+    if (!golfTownOnly) add("Wellness & spa");
+    const known = Object.keys(KNOWN_ACT).find((n) => key(n) === k); if (known) KNOWN_ACT[known].forEach(add);
     if (x.derived && !x.why) {
       const l = x.src.length > 1 ? x.src.slice(0, -1).join(", ") + " and " + x.src[x.src.length - 1] : x.src[0];
       x.why = "On our best-of list for " + l + ".";
@@ -10729,14 +10747,23 @@ function ideaPool() {
 }
 function ideaScore(idea, sel) {
   const sets = sel.set || [], acts = sel.act || [], ws = sel.w || [];
-  const okSet = sets.length === 0 || sets.some((x) => idea.set.includes(x));
+  const character = idea.ownSet && idea.ownSet.length ? idea.ownSet.slice(0, 2) : idea.set;   // what the place IS
+  const okSet = sets.length === 0 || sets.some((x) => character.includes(x));
   const okW = ws.length === 0 || ws.some((x) => idea.w.includes(x));
   if (!okSet || !okW) return null;
   const hits = acts.filter((x) => idea.act.includes(x));
   const missed = acts.filter((x) => !idea.act.includes(x));
   if (acts.length && hits.length === 0) return null; // nothing at all in common: not a match
+  if (acts.length >= 2 && hits.length * 2 < acts.length) return null; // less than half of what was asked: not a recommendation
   const setHits = sets.filter((x) => idea.set.includes(x)).length;
-  return { hits: hits.length, missed, setHits, total: acts.length };
+  // character: where the chosen type of place sits in what this place is known for (0 = first), and
+  // how many chosen activities are its own signature (listed on the place itself, not borrowed)
+  const ownSet = idea.ownSet && idea.ownSet.length ? idea.ownSet : idea.set;
+  const ranks = sets.map((x) => ownSet.indexOf(x)).filter((i) => i >= 0);
+  const setRank = ranks.length ? Math.min(...ranks) : 99;
+  const ownAct = idea.ownAct || [];
+  const ownHits = acts.filter((x) => ownAct.includes(x)).length;
+  return { hits: hits.length, missed, setHits, total: acts.length, setRank, ownHits };
 }
 function matchIdea(idea, sel) { return ideaScore(idea, sel) !== null; }
 // Tennis places, narrowed by the settings already chosen and led by the heroes. Kept short on
@@ -10768,7 +10795,10 @@ function sportFor(list, sel, trigger) {
 function rankIdeas(sel) {
   return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel) }))
     .filter((r) => r.s !== null)
-    .sort((a, b) => (b.s.hits - a.s.hits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n));
+    // A place where the chosen type of place is incidental (third or later in what it is known for —
+    // Dubai is a big city first, a desert second, a beach third) gives up one activity point to the
+    // places that ARE that type. Then character breaks the remaining ties; never the alphabet.
+    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (fit(b) - fit(a)) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
 }
 function nearMiss(sel) {
   const acts = sel.act || [];
@@ -19734,8 +19764,8 @@ function IdeasPicker({ d, i, p }) {
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
-            <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{[...x.set, ...x.act].slice(0, 3).join(" · ")}{x.best ? " \u00b7 best " + x.best : ""}</div>
+            <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase()))) ? `${[...(sel.act || []).filter((a) => x.act.includes(a))].map((a) => a.split(" · ")[0].toLowerCase()).join(", ") || "what you asked for"} — ${(x.set || []).slice(0, 2).join(" and ").toLowerCase()}.` : x.why}</div>
+            <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{[...x.set, ...x.act].slice(0, 3).join(" · ")}{x.best && !(x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase())))) ? " \u00b7 best " + x.best : ""}</div>
             {nonstopBadge(x)}
             {missFor[x.n] && missFor[x.n].total > 0 && (missFor[x.n].missed.length === 0
               ? <div style={{ fontSize: 11.5, color: t.pine, marginTop: 4 }}>Everything you asked for.</div>
