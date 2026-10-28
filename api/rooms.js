@@ -1,4 +1,4 @@
-// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023; store trail + background failures noted M1024, 27 Oct 2026).
+// api/rooms.js — the hotel's own rooms, drawn from the hotel's own website (M972; browser fallback M974; puppeteer pairing M976; hosted browser M977; token diagnostics M978; longer answers + salvage M979; numbered images M980; booking link M985; the hotel's own menu first + a real rooms-page test M995; www-blind hostnames + redirect-to-home means no page M996; a hollow page is read again in the browser M997; own /reservations/ booking link M1002; big-group booking links M1011; hollow menu pages opened in the browser before judging M1013; hard 50 s answer + browser budget M1014; the hotel's own pages before the group's M1015; the parent list page first + straight to the browser on a 403 site M1016; SynXis links by signature M1018; the Supabase rooms store M1019; list pages first on a refusing site M1020; the menu's list page before guesses M1021; finishes in the background after answering M1022; reading marker + the rooms stretch of a big page M1023; store trail + background failures noted M1024; one browser session per request M1025, 27 Oct 2026).
 //
 // M974: plain requests from our server were refused by Four Seasons and the Lotte alike
 // ("unreachable") — luxury hotel sites sit behind bot protection that turns away anything that
@@ -46,24 +46,33 @@ async function openBrowser() {
 }
 
 // The same page, fetched by a real browser. Used whenever the plain request is refused.
+// ONE BROWSER SESSION PER REQUEST (M1025). Each browser read used to connect, open, read and close
+// (~8 s of overhead each); a site that refuses plain requests needed three of them and the read
+// no longer fit inside one call. The session is opened once and reused; closed at the end.
+let SESSION = null;
+async function sessionPage() {
+  if (SESSION && SESSION.page) return SESSION;
+  const opened = await openBrowser();
+  const page = await opened.browser.newPage();
+  await page.setUserAgent(UA);
+  await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
+  SESSION = { browser: opened.browser, page, via: opened.via };
+  return SESSION;
+}
+async function closeSession() { if (SESSION) { try { await SESSION.browser.close(); } catch (e) {} SESSION = null; } }
 async function getWithBrowser(url) {
-  let browser = null;
   try {
-    const opened = await openBrowser(); browser = opened.browser;
-    const page = await browser.newPage();
-    await page.setUserAgent(UA);
-    await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
-    const resp = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
-    try { await page.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
-    await new Promise((r) => setTimeout(r, 1500));
-    const html = await page.content();
-    const finalUrl = page.url();
-    TRIED.push({ url, via: "browser:" + opened.via, status: resp ? resp.status() : null, bytes: html.length });
-    await browser.close();
+    const s = await sessionPage();
+    const resp = await s.page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
+    try { await s.page.waitForNetworkIdle({ idleTime: 600, timeout: 6000 }); } catch (e) {}
+    await new Promise((r) => setTimeout(r, 800));
+    const html = await s.page.content();
+    const finalUrl = s.page.url();
+    TRIED.push({ url, via: "browser:" + s.via, status: resp ? resp.status() : null, bytes: html.length });
     return html && html.length > 500 ? { url: finalUrl, html, via: "browser" } : null;
   } catch (e) {
     TRIED.push({ url, via: "browser", hosted: !!(process.env.BROWSERLESS_TOKEN || "").trim(), error: String(e && e.message || e).slice(0, 700) });
-    if (browser) { try { await browser.close(); } catch (x) {} }
+    await closeSession();
     return null;
   }
 }
@@ -230,6 +239,7 @@ export default async function handler(req, res) {
   const site = String((req.query || {}).site || "").slice(0, 300).trim();
   const job = work(req, res).then(() => "done").catch(async (e) => { const msg = "error:" + String(e && e.message || e).slice(0, 300); try { await noteFailure(site, msg); } catch (x) {} return msg; });
   try { outcome = await Promise.race([job, timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
+  if (outcome !== "timeout") await closeSession();
   if (!sent) {
     res.setHeader("Cache-Control", "no-store");
     if (outcome === "timeout") { try { waitUntil(job); } catch (e) {} res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", store: STORE_LOG.slice(-6), tried: TRIED.slice(-40) }); }
@@ -312,6 +322,7 @@ async function work(req, res) {
     try { const again = await getWithBrowser(page.url); if (again && roomSignals(again.html) > roomSignals(page.html)) page = again; } catch (e) {}
   }
   if (!page) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
+  await closeSession();   // M1025: the browser is not needed past this point
   // The hotel's own "Check Rates" link, from the page we already hold, so the rates reader need
   // not open the site again to find it (M985). Prefer the link that names the hotel.
   const booking = (() => {
