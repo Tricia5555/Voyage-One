@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1022";
+const BUILD = "M1024";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -1981,6 +1981,17 @@ const LEVELS = ["UltraLux", "Luxury", "ExpLux", "ExpLodge", "Best"];
 // for "when is this place good" — it is the thing an agent knows and a database does not. An
 // entry appears only where someone has decided it. Everywhere else stays silent, which is honest.
 const SEASON = {
+  // Hero places from the sport lists that had no window (M1023): without one they ranked as "unknown"
+  // and either leapt a Caribbean January or lost a Riviera June.
+  "Antibes": { window: "May to October", note: "The Cap in its season \u2014 Eden-Roc opens mid-April and closes mid-October; July and August are the crush." },
+  "Portofino": { window: "April to October", note: "Splendido opens for the season in spring and closes after October; May, June and September are the months." },
+  "Positano": { window: "April to October", note: "The hotels open at Easter and close at the start of November; May, June and September are the months." },
+  "Marbella": { window: "March to November", note: "Mild all year, but the beach clubs and the Costa del Sol season run spring to autumn; golf is year-round." },
+  "Kiawah Island": { window: "March to November", note: "Lowcountry spring and autumn are the prize; summer is hot and humid, winter cool \u2014 the Ocean Course plays year-round but the beach does not." },
+  "Porto Heli": { window: "May to October", note: "Amanzoe\u2019s season; the Peloponnese coast is quiet outside it." },
+  "Rancho Santa Fe": { window: "Any month", note: "San Diego County\u2019s climate \u2014 tennis every month of the year." },
+  "Big Sky": { window: "June to September, or December to April", note: "Two seasons and two different trips: the rivers and the trails in summer, Lone Peak in winter. May and October are between." },
+  "Auchterarder": { window: "April to October", note: "Gleneagles\u2019 season for the courses, the river and the estate; the hotel is open all year and winter has its own charm." },
   "Punta del Este": { window: "December to February", note: "Punta is a summer town and it is emphatic about it. From December the crowd arrives, the restaurants open and American flies its Miami nonstop into Montevideo. Outside those months the town is quiet and pretty, but flights thin out to a connection through Panama — the same trip takes eight hours longer." },
   "José Ignacio": { window: "December to February", note: "The season is short and it is the point. In January the village is at its best and the Miami nonstop into Montevideo is running; in the shoulder months many of the good tables close and the flights get considerably worse." },
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
@@ -11019,6 +11030,200 @@ function golfLine(city, months) {
   if (g.own.length) return `Golf: on the property at ${g.own[0].hotel}${g.near.length ? ` — and ${g.near.length} more course${g.near.length === 1 ? "" : "s"} within 90 minutes` : ""}`;
   return `Golf: ${g.near.length} course${g.near.length === 1 ? "" : "s"} within 90 minutes`;
 }
+// US hotel amenities, verified from the hotels’ own sites 29 Oct 2026 and struck by Tricia the same day.
+// Tennis: three or more courts, a named tennis facility or pro, or the hotel is on our tennis list;
+// spa: a named full spa; fishing: the hotel’s own program or charters. A hotel absent here
+// qualifies its place for none of them.
+const HOTEL_AMENITY = {
+  "1 Hotel Hanalei Bay": { tennis: "3 outdoor hard courts", spa: "Bamford Wellness Spa" },
+  "1 Hotel South Beach": { spa: "Bamford Wellness Spa" },
+  "ARIA Sky Suites": { spa: "The Spa at ARIA" },
+  "Acqualina Resort & Residences": { spa: "Acqualina Spa" },
+  "Aman New York": { spa: "Aman Spa New York" },
+  "Amangani": { spa: "Aman Spa" },
+  "Amangiri": { spa: "Aman Spa" },
+  "Auberge du Soleil": { tennis: "courts (number not stated)", spa: "The Spa at Auberge du Soleil" },
+  "Baccarat Hotel New York": { spa: "Spa de La Mer" },
+  "Bardessono Hotel and Spa": { spa: "B Spa" },
+  "Beach Club at The Boca Raton": { tennis: "16 Hydro-Grid clay courts", spa: "Spa Palmera" },
+  "Beverly Wilshire, A Four Seasons Hotel": { spa: "The Spa at Beverly Wilshire" },
+  "Bishop’s Lodge, Auberge Collection": { spa: "Stream Dance, Wellbeing by Auberge", fishing: "fly" },
+  "Blackberry Farm": { spa: "Wellhouse Spa", fishing: "fly" },
+  "Caldera House": { fishing: "fly" },
+  "Canyon Ranch Lenox": { spa: "Canyon Ranch Spa" },
+  "Casa Cipriani New York": { spa: "The Spa at Casa Cipriani" },
+  "Casa Palmero at Pebble Beach": { spa: "The Spa at Pebble Beach" },
+  "Chatham Bars Inn": { spa: "The Spa at Chatham Bars Inn", fishing: "deep sea" },
+  "Condado Vanderbilt Hotel": { spa: "The Spa at Condado Vanderbilt" },
+  "Dorado Beach, a Ritz-Carlton Reserve": { tennis: "5 Har-Tru clay courts", spa: "Spa Botanico", fishing: "deep sea" },
+  "Eau Palm Beach Resort & Spa": { spa: "Eau Spa" },
+  "Edgewood Tahoe Resort": { spa: "The Spa at Edgewood Tahoe", fishing: "deep sea" },
+  "Encore Tower Suites": { spa: "The Spa at Encore" },
+  "Faena New York": { spa: "Tierra Santa Healing House" },
+  "Fairmont El San Juan Hotel": { spa: "Well & Being Spa" },
+  "Fairmont Olympic Hotel": { spa: "Penelope and The Beauty Bar" },
+  "Falling Rock at Nemacolin": { spa: "The Woodlands Spa", fishing: "fly" },
+  "Farmhouse Inn": { spa: "The Wellness Barn" },
+  "Fouquet's New York": { spa: "Spa Fouquet's New York" },
+  "Four Seasons Hotel Atlanta": { spa: "The Spa at Four Seasons Hotel Atlanta" },
+  "Four Seasons Hotel Baltimore": { spa: "The Spa at Four Seasons Baltimore" },
+  "Four Seasons Hotel Chicago": { spa: "The Spa at Four Seasons Hotel Chicago" },
+  "Four Seasons Hotel Denver": { spa: "The Spa at Four Seasons Hotel Denver" },
+  "Four Seasons Hotel Las Vegas": { spa: "The Spa at Four Seasons Hotel Las Vegas" },
+  "Four Seasons Hotel Los Angeles at Beverly Hills": { spa: "The Spa at Four Seasons Los Angeles at Beverly Hills" },
+  "Four Seasons Hotel Minneapolis": { spa: "The Spa at Four Seasons Hotel Minneapolis" },
+  "Four Seasons Hotel Nashville": { spa: "The Spa at Four Seasons Hotel Nashville" },
+  "Four Seasons Hotel New Orleans": { spa: "The Spa at Four Seasons Hotel New Orleans" },
+  "Four Seasons Hotel One Dalton Street, Boston": { spa: "The Spa at Four Seasons One Dalton" },
+  "Four Seasons Hotel Philadelphia at Comcast Center": { spa: "The Spa at Four Seasons Hotel Philadelphia" },
+  "Four Seasons Hotel Seattle": { spa: "The Spa at Four Seasons Hotel Seattle" },
+  "Four Seasons Hotel St. Louis": { spa: "The Spa at Four Seasons Hotel St. Louis" },
+  "Four Seasons Hotel Washington, D.C.": { spa: "The Spa at Four Seasons Washington, DC" },
+  "Four Seasons Hotel at The Surf Club": { spa: "The Spa at Four Seasons Hotel at The Surf Club" },
+  "Four Seasons Resort Hualalai": { tennis: "7 courts", spa: "Hualalai Spa", fishing: "deep sea" },
+  "Four Seasons Resort Lanai": { tennis: "3 courts", spa: "Hawanawana Spa" },
+  "Four Seasons Resort Maui at Wailea": { spa: "The Spa at Four Seasons Resort Maui" },
+  "Four Seasons Resort Oahu at Ko Olina": { tennis: "5 Plexipave rooftop courts", spa: "Naupaka Spa & Wellness Centre", fishing: "deep sea" },
+  "Four Seasons Resort Orlando at Walt Disney World Resort": { spa: "The Spa at Four Seasons Orlando" },
+  "Four Seasons Resort Palm Beach": { spa: "The Spa at Four Seasons Palm Beach" },
+  "Four Seasons Resort Rancho Encantado Santa Fe": { spa: "The Spa at Four Seasons Resort Rancho Encantado", fishing: "fly" },
+  "Four Seasons Resort and Residences Jackson Hole": { spa: "The Spa at Four Seasons Jackson Hole", fishing: "fly" },
+  "Four Seasons Resort and Residences Napa Valley": { spa: "Spa Talisa" },
+  "Grand Bohemian Hotel Mountain Brook": { spa: "Poseidon Spa" },
+  "Grand Wailea, A Waldorf Astoria Resort": { spa: "Kilolani Spa & Salon" },
+  "Halekulani": { spa: "SpaHalekulani" },
+  "Hotel Bardo Savannah": { spa: "Saltgrass Spa" },
+  "Hotel Bel-Air": { spa: "The Spa at Hotel Bel-Air" },
+  "Hotel Bennett": { spa: "The Spa at Hotel Bennett" },
+  "Hotel Jerome, Auberge Collection": { spa: "Yarrow" },
+  "Inn at Perry Cabin": { tennis: "3 Har-Tru courts, lit", spa: "Spa at Perry Cabin" },
+  "Keswick Hall": { spa: "The Spa at Keswick Hall" },
+  "Kona Village, A Rosewood Resort": { spa: "Asaya Spa" },
+  "Lake Placid Lodge": { fishing: "fly" },
+  "Little Palm Island Resort & Spa": { spa: "SpaTerre", fishing: "both" },
+  "Lotte Hotel Seattle": { spa: "Le SPA de l'hôtel LOTTE" },
+  "Mandarin Oriental, Boston": { spa: "The Spa at Mandarin Oriental, Boston" },
+  "Mandarin Oriental, New York": { spa: "The Spa at Mandarin Oriental, New York" },
+  "Mauna Lani, Auberge Collection": { spa: "Auberge Spa" },
+  "Maybourne Beverly Hills": { spa: "The Spa at The Maybourne" },
+  "Mayflower Inn & Spa, Auberge Resorts Collection": { spa: "The Retreat at Mayflower Inn" },
+  "Meadowood Napa Valley": { tennis: "5 outdoor courts", spa: "The Meadowood Spa" },
+  "Mii amo": { spa: "Mii amo" },
+  "Montage Big Sky": { spa: "Spa Montage Big Sky", fishing: "fly" },
+  "Montage Deer Valley": { spa: "Spa Montage Deer Valley", fishing: "fly" },
+  "Montage Healdsburg": { spa: "Spa Montage Healdsburg" },
+  "Montage Laguna Beach": { spa: "Spa Montage Laguna Beach" },
+  "Montage Palmetto Bluff": { tennis: "8 Har-Tru courts (Wilson Lawn & Racquet Club)", spa: "Spa Montage Palmetto Bluff", fishing: "both" },
+  "Naples Beach Club, A Four Seasons Resort": { tennis: "courts at The Racquet Club (number not stated)", spa: "The Sanctuary", fishing: "deep sea" },
+  "Ocean House": { spa: "OH! Spa" },
+  "Ojai Valley Inn": { tennis: "4 lighted hard courts", spa: "Spa Ojai" },
+  "Omni Louisville": { spa: "Mokara Salon & Spa" },
+  "One&Only Moonlight Basin": { spa: "One&Only Spa", fishing: "fly" },
+  "Pendry Natirar": { spa: "Spa Pendry" },
+  "Posthotel Leavenworth": { spa: "Posthotel Spa" },
+  "Primland, Auberge Resorts Collection": { spa: "The Spa at Primland", fishing: "fly" },
+  "Raffles Boston": { spa: "Guerlain Spa" },
+  "Rancho Valencia Resort & Spa": { tennis: "courts (number not stated on page)", spa: "The Spa at Rancho Valencia" },
+  "RiverView Ranch": { fishing: "fly" },
+  "Rosewood Miramar Beach": { spa: "Sense, A Rosewood Spa" },
+  "Rosewood Sand Hill": { spa: "Asaya Spa" },
+  "Sage Lodge": { spa: "The Spa at Sage Lodge", fishing: "fly" },
+  "Salamander Middleburg": { spa: "Salamander Spa" },
+  "Salish Lodge & Spa": { spa: "The Spa at Salish Lodge" },
+  "San Ysidro Ranch": { spa: "The Salon & Spa at San Ysidro Ranch" },
+  "Sensei Lanai, a Four Seasons Resort": { spa: "Sensei Spa" },
+  "Skylofts at MGM Grand": { spa: "MGM Grand Spa & Salon" },
+  "Southall Farm & Inn": { spa: "The Spa at Southall", fishing: "fly" },
+  "Stein Eriksen Lodge Deer Valley": { spa: "The Spa at Stein Eriksen Lodge", fishing: "fly" },
+  "Stephanie Inn": { spa: "Spa Stephanie" },
+  "The Allison Inn & Spa": { spa: "The Allison Spa" },
+  "The American Club": { tennis: "6 courts at Sports Core racquet club", spa: "Kohler Waters Spa" },
+  "The Beverly Hills Hotel": { spa: "The Beverly Hills Hotel Spa" },
+  "The Breakers Palm Beach": { tennis: "12 courts (4 hydro-grass, 6 clay, 2 cushioned hard)", spa: "The Spa at The Breakers" },
+  "The Canyon Suites at The Phoenician": { tennis: "7 courts (Phoenician Athletic Club), surface not stated", spa: "The Phoenician Spa" },
+  "The Carlyle": { spa: "Valmont Spa at The Carlyle" },
+  "The Cloister at Sea Island": { tennis: "yes, Har-Tru (Cloister Tennis Center incl. stadium court), count not stated", spa: "The Spa at Sea Island", fishing: "both" },
+  "The Cooper": { spa: "The Spa at The Cooper" },
+  "The Dunlin, Auberge Resorts Collection": { spa: "Aster Spa" },
+  "The Greenwich Hotel": { spa: "Shibui Spa" },
+  "The Hermitage Hotel": { spa: "The Spa at The Hermitage" },
+  "The Inn of the Five Graces": { spa: "Spa of The Five Graces" },
+  "The Joule": { spa: "The Spa at The Joule" },
+  "The Little Nell": { spa: "The Spa at The Little Nell", fishing: "fly" },
+  "The Lodge at Blue Sky, Auberge Collection": { spa: "EDGE Spa", fishing: "fly" },
+  "The Lodge at Pebble Beach": { spa: "The Spa at Pebble Beach" },
+  "The Lodge at Sea Island": { tennis: "yes, Har-Tru (Sea Island tennis centers), count not stated", spa: "The Spa at Sea Island", fishing: "both" },
+  "The Lowell": { spa: "Dior Spa at The Lowell" },
+  "The Mark": { spa: "The Mark Wellness & Longevity Spa by Augustinus Bader" },
+  "The Peninsula Chicago": { spa: "The Peninsula Spa & Wellness Center" },
+  "The Peninsula New York": { spa: "The Peninsula Spa New York" },
+  "The Post Oak Hotel at Uptown Houston": { spa: "The Spa at The Post Oak Hotel" },
+  "The Ranch at Rock Creek": { spa: "Granite Spa", fishing: "fly" },
+  "The Resort at Kapalua Bay, Maui": { spa: "Spa Montage Kapalua Bay" },
+  "The Resort at Pelican Hill": { spa: "The Spa at Pelican Hill" },
+  "The Ritz-Carlton Bacara, Santa Barbara": { spa: "The Ritz-Carlton Spa Bacara" },
+  "The Ritz-Carlton Coconut Grove, Miami": { spa: "The Ritz-Carlton Spa Coconut Grove" },
+  "The Ritz-Carlton Key Biscayne, Miami": { tennis: "10 soft-clay courts", spa: "The Ritz-Carlton Spa, Key Biscayne" },
+  "The Ritz-Carlton Maui, Kapalua": { spa: "The Ritz-Carlton Maui Spa, Kapalua" },
+  "The Ritz-Carlton Naples, Tiburón": { tennis: "Mouratoglou Tennis Center (number not stated)" },
+  "The Ritz-Carlton Orlando, Grande Lakes": { spa: "The Ritz-Carlton Spa, Orlando, Grande Lakes" },
+  "The Ritz-Carlton Residences, Waikiki Beach": { spa: "The Ritz-Carlton Spa, Waikiki Beach" },
+  "The Ritz-Carlton Reynolds, Lake Oconee": { spa: "The Ritz-Carlton Spa, Reynolds Lake Oconee", fishing: "fly" },
+  "The Ritz-Carlton, Chicago": { spa: "The Ritz-Carlton Spa, Chicago" },
+  "The Ritz-Carlton, Dallas": { spa: "The Ritz-Carlton Spa, Dallas" },
+  "The Ritz-Carlton, Denver": { spa: "The Ritz-Carlton Spa, Denver" },
+  "The Ritz-Carlton, Dove Mountain": { spa: "The Ritz-Carlton Spa, Dove Mountain" },
+  "The Ritz-Carlton, Naples": { tennis: "courts at Tiburon sister resort (number not stated)", spa: "The Ritz-Carlton Spa, Naples", fishing: "deep sea" },
+  "The Ritz-Carlton, Portland": { spa: "The Ritz-Carlton Spa, Portland" },
+  "The Ritz-Carlton, Rancho Mirage": { spa: "The Ritz-Carlton Spa, Rancho Mirage" },
+  "The Ritz-Carlton, San Francisco": { spa: "Spa L'OCCITANE by the Bay" },
+  "The Ritz-Carlton, St. Louis": { spa: "The Spa at The Ritz-Carlton, St. Louis" },
+  "The Ritz-Carlton, St. Thomas": { spa: "The Ritz-Carlton Spa, St. Thomas" },
+  "The Sanctuary at Kiawah Island Golf Resort": { tennis: "22 courts (19 Har-Tru, 3 hard) at Roy Barth Tennis Center", spa: "The Spa at The Sanctuary", fishing: "both" },
+  "The Setai Miami Beach": { spa: "Valmont for The Spa at The Setai" },
+  "The St. Regis Aspen Resort": { spa: "RAKxa Wellness Spa" },
+  "The St. Regis Atlanta": { spa: "Remède Spa Atlanta" },
+  "The St. Regis Bahia Beach Resort": { spa: "Iridium Spa" },
+  "The St. Regis Chicago": { spa: "The St. Regis Spa" },
+  "The St. Regis Deer Valley": { spa: "The St. Regis Spa", fishing: "fly" },
+  "The St. Regis Longboat Key Resort": { spa: "The St. Regis Spa" },
+  "The Umstead Hotel and Spa": { spa: "The Umstead Spa" },
+  "Tributary Hotel": { spa: "Tributary Hotel & Spa" },
+  "Triple Creek Ranch": { spa: "Mountain Wellness", fishing: "fly" },
+  "Tu Tu' Tun Lodge": { spa: "Hive + Honey Spa" },
+  "Twin Farms": { spa: "Bridge House Spa", fishing: "fly" },
+  "Waldorf Astoria Chicago": { spa: "Waldorf Astoria Spa & Health Club" },
+  "Waldorf Astoria Washington, D.C.": { spa: "Waldorf Astoria Spa" },
+  "Wequassett Resort and Golf Club": { tennis: "4 courts, surface not stated" },
+  "White Barn Inn, Auberge Resorts Collection": { spa: "Saltwood Spa" },
+  "Willows Lodge": { spa: "The Spa at Willows Lodge" },
+  "Wynn Tower Suites": { spa: "The Spa at Wynn" },
+  "Yacht Club at The Boca Raton": { tennis: "16 Hydro-Grid clay courts", spa: "Spa Palmera" },
+};
+const AMENITY_CITIES = new Set(["Chicago","St Louis","Birmingham, Alabama","Minneapolis","Kohler","Boston","St Michaels","Baltimore","Washington DC","Middleburg","Primland","Keswick","Washington, Virginia","Philipsburg, Montana","Darby, Montana","Alberton, Montana","Montana","Laguna Beach","Honolulu","Savannah","Charleston","Menlo Park","San Juan","Dorado","Río Grande, Puerto Rico","St Thomas","The Hamptons","New York City","Los Angeles","Santa Barbara","Beverly Hills","Ojai","Pebble Beach","Healdsburg","Palm Springs","San Francisco","Napa Valley","San Diego","Miami","Florida Keys","Palm Beach","Boca Raton","Naples, Florida","Orlando","Sarasota","Maui","Big Island","Kauai","Denali","Lanai","Aspen","Jackson Hole","Big Sky","Park City","New Orleans","Austin","Dallas","Houston","San Antonio","Santa Fe","Scottsdale","Sedona","Tucson","Portland, Oregon","Willamette Valley","Cannon Beach","Gold Beach","Seattle","Woodinville","Snoqualmie","Leavenworth","Lake Tahoe","Las Vegas","Utah","Philadelphia","Nemacolin","Peapack","Blackberry Farm","Franklin, Tennessee","Nashville","Kiawah Island","Palmetto Bluff","Raleigh","Atlanta","Lake Oconee","Sea Island","Vermont","Chatham","Harwich","Lenox","Washington, Connecticut","Kennebunk","Newport","Watch Hill","Adirondacks","Louisville","Denver"]);   // cities with an amenity sheet: here the sheet decides, not the old blanket spa
+
+// What the curated hotels in a place offer (M1024): tennis, a real spa, the hotel's own fishing.
+function amenitiesAt(city) {
+  const hotels = lookup(FAVORITES, city) || [];
+  const out = { tennis: [], spa: [], fly: [], deep: [] };
+  hotels.forEach((h) => { const a = h && h.name && HOTEL_AMENITY[h.name]; if (!a) return;
+    if (a.tennis) out.tennis.push({ hotel: h.name, what: a.tennis });
+    if (a.spa) out.spa.push({ hotel: h.name, what: a.spa });
+    if (a.fishing === "fly" || a.fishing === "both") out.fly.push({ hotel: h.name });
+    if (a.fishing === "deep sea" || a.fishing === "both") out.deep.push({ hotel: h.name }); });
+  return out;
+}
+function hasAmenitySheet(city) { const k = bareCity(city || ""); return AMENITY_CITIES.has(k) || AMENITY_CITIES.has(resolvePlace(city) || ""); }
+// One line per tapped activity the hotels answer: "Tennis: 12 courts at The Breakers".
+function amenityLines(city, acts) {
+  const a = amenitiesAt(city); const out = [];
+  const tidy = (w) => String(w || "").replace(/^yes,?\s*/i, "").replace(/,?\s*\(?(count|number)[^)]*not stated\)?/i, "").replace(/\s*\(hotel site[^)]*\)/i, "").trim();
+  if (acts.includes("Tennis") && a.tennis.length) { const w = tidy(a.tennis[0].what); out.push(`Tennis: ${w && !/^courts?$/i.test(w) ? w + " at " : "at "}${a.tennis[0].hotel}${a.tennis.length > 1 ? ` (+${a.tennis.length - 1} more)` : ""}`); }
+  if (acts.includes("Wellness & spa") && a.spa.length) { const w = a.spa[0].what; out.push(`Spa: ${/^full spa$/i.test(w) ? "at " + a.spa[0].hotel : w}${a.spa.length > 1 ? ` (+${a.spa.length - 1} more)` : ""}`); }
+  if (acts.includes("Fly fishing") && a.fly.length) out.push(`Fly fishing from ${a.fly.map((x) => x.hotel).join(", ")}`);
+  if (acts.includes("Deep sea fishing") && a.deep.length) out.push(`Sportfishing from ${a.deep.map((x) => x.hotel).join(", ")}`);
+  return out;
+}
 const SEASIDE = ["Beach", "Islands", "Coastal & seaside"];
 function ideaPool() {
   if (_ideaPool) return _ideaPool;
@@ -11033,6 +11238,8 @@ function ideaPool() {
     (e.set || []).forEach((v) => { if (!t.set.includes(v)) t.set.push(v); });
     (e.act || []).forEach((v) => { if (!t.act.includes(v)) t.act.push(v); });
     if (!t.act.includes(L.act)) t.act.push(L.act);
+    if (!t.ownAct.includes(L.act)) t.ownAct.push(L.act);   // on our list for it: it OWNS that activity (M1023)
+    if (e.hero) { if (!t.heroAct) t.heroAct = []; if (!t.heroAct.includes(L.act)) t.heroAct.push(L.act); }
     if (!t.src.includes(L.label)) t.src.push(L.label);
     if (t.derived && !t.best && e.best) t.best = e.best;
   }));
@@ -11046,12 +11253,18 @@ function ideaPool() {
     if (big && !x.set.includes("Big city")) { x.set.push("Big city"); }
     if (!big) { x.set = x.set.filter((v) => v !== "Big city"); if (x.ownSet) x.ownSet = x.ownSet.filter((v) => v !== "Big city"); }
     if (big && x.ownSet && !x.ownSet.includes("Big city")) x.ownSet.push("Big city"); });
+  Object.keys(FAVORITES).forEach((c) => { if (!hasAmenitySheet(c)) return; const am = amenitiesAt(c); if (!(am.tennis.length || am.fly.length || am.deep.length)) return;
+    const kk = key(c); if (by[kk] || Object.values(by).some((e) => same(e.n, c))) return;
+    by[kk] = { n: c, city: c, set: [], act: [], w: [], best: "", why: "", src: [], derived: true, ownAct: [], ownSet: [] }; });   // M1024
   _ideaPool = Object.keys(by).map((k) => {
     const x = by[k];
     const add = (v) => { if (!x.act.includes(v)) x.act.push(v); };
     if ((x.set || []).some((v) => SEASIDE.includes(v))) add("Beach & pool");
     const golfTownOnly = x.derived && (x.src || []).length === 1 && /golf/i.test(x.src[0]) && !(x.set || []).some((v) => SEASIDE.includes(v));
-    if (!golfTownOnly) add("Wellness & spa");
+    const am = amenitiesAt(x.city || x.n);
+    if (hasAmenitySheet(x.city || x.n)) { if (am.spa.length || (x.ownAct || []).includes("Wellness & spa")) add("Wellness & spa"); else x.act = x.act.filter((v) => v !== "Wellness & spa"); }   // M1024: the sheet decides
+    else if (!golfTownOnly) add("Wellness & spa");
+    if (am.tennis.length) add("Tennis"); if (am.fly.length) add("Fly fishing"); if (am.deep.length) add("Deep sea fishing");
     const known = Object.keys(KNOWN_ACT).find((n) => key(n) === k); if (known) KNOWN_ACT[known].forEach(add);
     if (!x.act.includes("Golf") && golfAt(x.city || x.n, null)) { add("Golf"); x.golfRule = true; }   // rule 1 or rule 2 (M1022); re-checked against the trip's months when scoring
     if (x.derived && !x.why) {
@@ -11083,7 +11296,8 @@ function ideaScore(idea, sel, months) {
   const setRank = ranks.length ? Math.min(...ranks) : 99;
   const ownAct = idea.ownAct || [];
   const ownHits = acts.filter((x) => ownAct.includes(x)).length;
-  return { hits: hits.length, missed, setHits, total: acts.length, setRank, ownHits };
+  const heroHits = acts.filter((x) => (idea.heroAct || []).includes(x)).length;   // a rock star for what was tapped (M1023)
+  return { hits: hits.length, missed, setHits, total: acts.length, setRank, ownHits, heroHits };
 }
 function matchIdea(idea, sel) { return ideaScore(idea, sel) !== null; }
 // Tags under an idea: what was tapped and the place has, in the order tapped, then the place's own
@@ -11171,7 +11385,7 @@ function rankIdeas(sel, months) {
     // A place where the chosen type of place is incidental (third or later in what it is known for —
     // Dubai is a big city first, a desert second, a beach third) gives up one activity point to the
     // places that ARE that type. Then character breaks the remaining ties; never the alphabet.
-    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (fit(b) - fit(a)) || (a.season - b.season) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
+    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (fit(b) - fit(a)) || (a.season - b.season) || (b.s.heroHits - a.s.heroHits) || (b.s.ownHits - a.s.ownHits) || (a.s.setRank - b.s.setRank) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
 }
 function nearMiss(sel) {
   const acts = sel.act || [];
@@ -20170,6 +20384,7 @@ function IdeasPicker({ d, i, p }) {
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{ideaTags(x, sel).join(" · ")}{x.best && !(x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase())))) ? " \u00b7 best " + x.best : ""}</div>
             {nonstopBadge(x)}
             {(sel.act || []).includes("Golf") && golfLine(x.city || x.n, tripMs) ? <GolfNear city={x.city || x.n} months={tripMs} /> : null}
+            {amenityLines(x.city || x.n, sel.act || []).map((l) => <div key={l} style={{ fontSize: 11.5, color: t.pine, fontWeight: 600, marginTop: 4 }}>{l}</div>)}
             {seasonOf[x.n] === 2 ? <div style={{ fontSize: 11.5, color: t.brass, marginTop: 4 }}>Not its season in {monthName}{(() => { const w = String(ideaSeasonText(x)).split(/\s+[\u2014\u2013]\s+|, and |, or /)[0]; return w ? ` \u00b7 best ${w}` : ""; })()}</div> : null}
             {missFor[x.n] && missFor[x.n].total > 0 && missFor[x.n].missed.length > 0
               ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div> : null}
