@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1021";
+const BUILD = "M1022";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -10809,6 +10809,216 @@ function isBigCity(city) {
   const k = Object.keys(METRO).find((x) => x.toLowerCase() === bareCity(city || "").toLowerCase());
   return !!k && (METRO[k] >= BIG_CITY_MIN || BIG_CITY_EXCEPTIONS.includes(k));
 }
+// ── GOLF, THE WAY TRICIA WANTS IT CHOSEN (29 Oct 2026) ─────────────────────────────────────────
+// Rule 1: a five-star hotel with a course of its own satisfies golf — "the hotel is five star, the golf
+// will be nice." Rule 2: a big city shows the notable courses a client can actually play within about
+// 90 minutes, with the drive — several, so the client sees how much is there. Private clubs are never
+// listed: people cannot get on. US first; verified from the hotels’ and courses’ own pages, 29 Oct 2026.
+// Drive times are off-peak estimates from the hotel district; seasons are typical ranges.
+const HOTEL_GOLF = {
+  "1 Hotel Hanalei Bay": { courses: "Princeville Makai Golf Club (18, par 72, Robert Trent Jones Jr., Troon-managed) in Princeville", access: "resort guests & public" },
+  "ARIA Sky Suites": { courses: "Shadow Creek (18, Tom Fazio), MGM Resorts' course about 20 min north of the Strip", access: "resort guests", standing: "Hosted the PGA TOUR CJ Cup (2020)" },
+  "Beach Club at The Boca Raton": { courses: "The Golf Club at The Boca Raton (18, Donald Ross 1926, reimagined)", access: "resort guests", standing: "Donald Ross original, 1926" },
+  "Casa Palmero at Pebble Beach": { courses: "Pebble Beach Golf Links (18), Spyglass Hill (18), The Links at Spanish Bay (18), Del Monte (18), The Hay (9-hole par-3)", access: "resort guests & public", standing: "Pebble Beach Golf Links: Golf Digest No. 1 public course in America; U.S. Open venue" },
+  "Dorado Beach, a Ritz-Carlton Reserve": { courses: "TPC Dorado Beach East Course (18) and Sugarcane Course (18), both Robert Trent Jones Sr.", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World" },
+  "Edgewood Tahoe Resort": { courses: "Edgewood Tahoe Golf Course (18, par 72, George Fazio 1968, Tom Fazio renovations)", access: "resort guests & public", standing: "Hosts the American Century Championship celebrity event each July" },
+  "Encore Tower Suites": { courses: "Wynn Golf Club (18, par 70, Tom and Logan Fazio, 2019)", access: "resort guests & public", standing: "The only golf course on the Las Vegas Strip" },
+  "Falling Rock at Nemacolin": { courses: "Mystic Rock (18, Pete Dye) and Shepherd's Rock (18, Tim Liddy, 2017)", access: "resort guests & public", standing: "Mystic Rock hosted the PGA TOUR 84 Lumber Classic; GOLF Top 100 Resorts" },
+  "Four Seasons Resort Hualalai": { courses: "Hualalai Golf Course (18, par 72, Jack Nicklaus); Ke'olu Course (members only)", access: "resort guests", standing: "Hosts the PGA TOUR Champions Mitsubishi Electric Championship since 1997" },
+  "Four Seasons Resort Lanai": { courses: "Manele Golf Course (18, Jack Nicklaus)", access: "resort guests" },
+  "Four Seasons Resort Maui at Wailea": { courses: "Wailea Golf Club: Gold (18) and Emerald (18), Robert Trent Jones II; Blue (18)", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World (Four Seasons Maui)" },
+  "Four Seasons Resort Oahu at Ko Olina": { courses: "Ko Olina Golf Club (18, Ted Robinson, 1990) within the Ko Olina resort community", access: "resort guests & public", standing: "LPGA LOTTE Championship 2012-2019" },
+  "Four Seasons Resort Orlando at Walt Disney World Resort": { courses: "Tranquilo Golf Course (18, par 71, Tom Fazio)", access: "resort guests" },
+  "Grand Wailea, A Waldorf Astoria Resort": { courses: "Wailea Golf Club: Gold (18), Emerald (18), Blue (18)", access: "resort guests & public" },
+  "Inn at Perry Cabin": { courses: "Links at Perry Cabin (18, par 72, Pete Dye with Alice and P.B. Dye, 2018), a short drive from the Inn", access: "resort guests", standing: "Pete Dye's final design" },
+  "Keswick Hall": { courses: "Full Cry (18, Pete Dye, 2014)", access: "resort guests", standing: "Pete Dye design; Keswick Club members and hotel guests" },
+  "Mauna Lani, Auberge Collection": { courses: "Mauna Lani Golf South Course (18, 1981), North Course (18), Wikiwiki (9)", access: "resort guests & public", standing: "South Course: GolfPass Golfers' Choice No. 1 course in the U.S. (2023)" },
+  "Meadowood Napa Valley": { courses: "Meadowood golf course (9-hole walking course)", access: "resort guests" },
+  "Mii amo": { courses: "Seven Canyons (18, Tom Weiskopf), adjacent to Enchantment Resort in Boynton Canyon", access: "resort guests" },
+  "Montage Big Sky": { courses: "Spanish Peaks Mountain Club Championship Course (18, Tom Weiskopf); Tom's 10 (10-hole par-3)", access: "resort guests" },
+  "Montage Palmetto Bluff": { courses: "May River Golf Club (18, par 72, Jack Nicklaus Signature); Crossroads (9, King-Collins)", access: "resort guests & public", standing: "May River: GOLF Top 100 Courses You Can Play" },
+  "Naples Beach Club, A Four Seasons Resort": { courses: "The Gardens (18, par 70, Tom Fazio)", access: "resort guests" },
+  "Ojai Valley Inn": { courses: "Ojai Valley Inn course (18, George C. Thomas Jr., 1923)", access: "resort guests & public", standing: "Historic George Thomas layout; former Senior PGA Tour venue" },
+  "Primland, Auberge Resorts Collection": { courses: "The Highland Course (18, Donald Steel, 2006)", access: "resort guests & public", standing: "No. 1 public course in Virginia (Golf Digest and Golfweek); Golf Digest America's 100 Greatest Public Courses" },
+  "Sensei Lanai, a Four Seasons Resort": { courses: "Manele Golf Course (18, Jack Nicklaus) above Hulopo'e Bay, about 20 min from the uplands", access: "resort guests" },
+  "Skylofts at MGM Grand": { courses: "Shadow Creek (18, Tom Fazio), MGM Resorts' course about 20 min north of the Strip", access: "resort guests", standing: "Hosted the PGA TOUR CJ Cup (2020)" },
+  "The American Club": { courses: "Blackwolf Run River Course (18) and Meadow Valleys (18) in Kohler village; Whistling Straits Straits Course (18) and Irish Course (18), about 10 min away on Lake Michigan, all Destination Kohler-owned; The Baths (10-hole par-3)", access: "resort guests & public", standing: "Straits Course: 2021 Ryder Cup, PGA Championships 2004/2010/2015, six majors in all; Destination Kohler: GOLF Top 100 Golf Resorts in the World" },
+  "The Breakers Palm Beach": { courses: "Ocean Course (18, par 70, on property, 1897, Rees Jones renovation 2018); The Breakers Rees Jones Course (18, par 72, about 10 miles off-site, resort-owned)", access: "resort guests", standing: "Ocean Course is Florida's oldest golf course" },
+  "The Canyon Suites at The Phoenician": { courses: "The Phoenician Golf Club (18, par 71, Phil Smith redesign 2018)", access: "resort guests & public" },
+  "The Cloister at Sea Island": { courses: "Seaside (18, Colt & Alison 1929, Fazio redesign), Plantation (18, Love), Retreat (18), all Sea Island-owned on St Simons Island across the causeway", access: "resort guests", standing: "Seaside and Plantation host the PGA TOUR RSM Classic; GOLF Top 100 Resorts" },
+  "The Lodge at Pebble Beach": { courses: "Pebble Beach Golf Links (18), Spyglass Hill (18), The Links at Spanish Bay (18), Del Monte (18), The Hay (9-hole par-3, Tiger Woods)", access: "resort guests & public", standing: "Pebble Beach Golf Links: Golf Digest No. 1 public course in America; U.S. Open venue; AT&T Pebble Beach Pro-Am" },
+  "The Lodge at Sea Island": { courses: "Seaside (18, Colt & Alison 1929, Fazio redesign), Plantation (18, Love), Retreat (18)", access: "resort guests", standing: "Seaside and Plantation host the PGA TOUR RSM Classic; GOLF Top 100 Resorts" },
+  "The Resort at Kapalua Bay, Maui": { courses: "Kapalua Golf: Plantation Course (18, Coore & Crenshaw) and Bay Course (18, Arnold Palmer), within Kapalua Resort", access: "resort guests & public", standing: "Plantation Course hosts the PGA TOUR's The Sentry each January" },
+  "The Resort at Pelican Hill": { courses: "Ocean North (18) and Ocean South (18), both Tom Fazio", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World" },
+  "The Ritz-Carlton Maui, Kapalua": { courses: "Kapalua Golf: Plantation Course (18, par 73, Coore & Crenshaw) and Bay Course (18, Arnold Palmer, 1975), within Kapalua Resort", access: "resort guests & public", standing: "Plantation Course hosts the PGA TOUR's The Sentry; Bay Course hosted 20+ pro events" },
+  "The Ritz-Carlton Naples, Tiburón": { courses: "Tiburón Golf Club Gold (18, 7,382 yds) and Black (18, 6,949 yds), both Greg Norman", access: "resort guests", standing: "Hosts PGA and LPGA events, including the LPGA CME Group Tour Championship" },
+  "The Ritz-Carlton Orlando, Grande Lakes": { courses: "The Ritz-Carlton Golf Club, Grande Lakes (18, par 72, Greg Norman)", access: "resort guests & public", standing: "Host of the PNC Championship; Audubon Cooperative Sanctuary, GEO Certified" },
+  "The Ritz-Carlton Reynolds, Lake Oconee": { courses: "Reynolds Lake Oconee: Great Waters (Nicklaus), The Oconee (Rees Jones), The National (Fazio), The Landing and The Preserve (Bob Cupp), all 18", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World" },
+  "The Ritz-Carlton, Dove Mountain": { courses: "The Golf Club at Dove Mountain: Saguaro, Tortolita and Wild Burro nines (27, Jack Nicklaus)", access: "resort guests", standing: "Hosted the WGC-Accenture Match Play Championship" },
+  "The Ritz-Carlton, Naples": { courses: "Tiburón Golf Club Gold (18) and Black (18), Greg Norman, at the sister Ritz-Carlton Naples, Tiburón, about 3 miles inland", access: "resort guests", standing: "Gold Course hosts the LPGA CME Group Tour Championship" },
+  "The Ritz-Carlton, Sarasota": { courses: "The Ritz-Carlton Members Golf Club (18, Tom Fazio), about 19 miles inland, resort-operated", access: "resort guests" },
+  "The Sanctuary at Kiawah Island Golf Resort": { courses: "The Ocean Course (18, Pete Dye), Osprey Point (18, Fazio), Turtle Point (18, Nicklaus), Cougar Point (18, Player), Oak Point (18)", access: "resort guests & public", standing: "Ocean Course: 1991 Ryder Cup, 2012 and 2021 PGA Championships" },
+  "The St. Regis Bahia Beach Resort": { courses: "Bahia Beach Golf Club (18, Robert Trent Jones Jr., managed by Troon)", access: "resort guests & public", standing: "Audubon-certified; named best golf course in Puerto Rico (RTJ II)" },
+  "Wequassett Resort and Golf Club": { courses: "Cape Cod National Golf Club (18, par 72, Brian Silva), private, in Brewster a short drive away", access: "resort guests", standing: "Golf Digest top-20 private course list (per resort)" },
+  "Wynn Tower Suites": { courses: "Wynn Golf Club (18, par 70, Tom and Logan Fazio, 2019)", access: "resort guests & public", standing: "The only golf course on the Las Vegas Strip" },
+  "Yacht Club at The Boca Raton": { courses: "The Golf Club at The Boca Raton (18, Donald Ross 1926, reimagined)", access: "resort guests", standing: "Donald Ross original, 1926" },
+};
+const CITY_GOLF = {
+  "New York City": [
+    { course: "Bethpage State Park — Black Course", where: "Farmingdale, Long Island", drive: "55 min from Midtown Manhattan (off-peak; allow 1 hr 15 in traffic)", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest America's 100 Greatest #38; Golf Digest Best in NY #7; 2002 & 2009 U.S. Opens, 2019 PGA Championship, 2025 Ryder Cup" },
+    { course: "Bethpage State Park — Red Course", where: "Farmingdale, Long Island", drive: "55 min from Midtown Manhattan", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in NY T-6; Golf Digest calls it Bethpage's second-best layout" },
+    { course: "Bally's Golf Links at Ferry Point", where: "The Bronx", drive: "25 min from Midtown Manhattan", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in NY #3; Golf Digest Best in NY #39" },
+  ],
+  "Los Angeles": [
+    { course: "Rustic Canyon Golf Course", where: "Moorpark, Ventura County", drive: "55 min from Beverly Hills", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA #5; Golf Digest Best in State" },
+    { course: "Trump National Golf Club Los Angeles", where: "Rancho Palos Verdes", drive: "50 min from Beverly Hills", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA #18; Golf Digest Best in State" },
+    { course: "Rancho Park Golf Course", where: "Cheviot Hills, Los Angeles", drive: "10 min from Beverly Hills", access: "public", season: "Year round", standing: "Historic muni; hosted the Los Angeles Open in the late 1950s–60s and the 1949 U.S. Amateur Public Links" },
+    { course: "Pelican Hill Golf Club — Ocean South", where: "Newport Coast, Orange County", drive: "1 hr 15 min from Beverly Hills", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in CA #13 (Ocean North is #14)" },
+  ],
+  "Chicago": [
+    { course: "Cog Hill Golf & Country Club — No. 4 (Dubsdread)", where: "Lemont", drive: "45 min from the Magnificent Mile", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest 100 Greatest Public #76; Golfweek Best Public-Access in IL #1; Golf Digest Best in IL #14; long-time Western Open / BMW Championship host" },
+    { course: "Harborside International — Starboard", where: "South Side, Chicago", drive: "25 min from the Magnificent Mile", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in IL #10" },
+    { course: "The Glen Club", where: "Glenview", drive: "40 min from the Magnificent Mile", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in IL #5; Golf Digest Best in IL #32" },
+  ],
+  "Dallas": [
+    { course: "Omni PGA Frisco — Fields Ranch East", where: "Frisco", drive: "40 min from Uptown Dallas", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #34; Golfweek Best Public-Access in TX #2; GOLF Best in TX #9; 2023 Senior PGA, 2025 KPMG Women's PGA, 2027 PGA Championship" },
+    { course: "Omni PGA Frisco — Fields Ranch West", where: "Frisco", drive: "40 min from Uptown Dallas", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #77; Golfweek Best Public-Access in TX #3" },
+    { course: "Cowboys Golf Club", where: "Grapevine", drive: "30 min from Uptown Dallas", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in TX #13" },
+    { course: "TPC Four Seasons Las Colinas", where: "Irving", drive: "25 min from Uptown Dallas", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in TX #12; AT&T Byron Nelson host 1983–2017" },
+  ],
+  "Houston": [
+    { course: "Memorial Park Golf Course", where: "Memorial Park, Houston", drive: "10 min from the Galleria", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in TX #7; GOLF Best in TX #16; PGA Tour Houston Open host since 2020" },
+    { course: "Golf Club of Houston — Tournament Course", where: "Humble", drive: "40 min from the Galleria", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in TX #11; Houston Open host 2006–2019" },
+  ],
+  "Washington DC": [
+    { course: "Laurel Hill Golf Club", where: "Lorton, VA", drive: "35 min from downtown DC", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best Public in DC area (panel score 3.8); 2013 U.S. Amateur Public Links" },
+    { course: "Potomac Shores Golf Club", where: "Dumfries, VA", drive: "40 min from downtown DC", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best Public in DC area (panel score 3.6); only public Nicklaus design in Northern Virginia" },
+    { course: "Bulle Rock Golf Course", where: "Havre de Grace, MD", drive: "1 hr 20 min from downtown DC", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #9; Pete Dye design; LPGA Championship host 2005–2009" },
+    { course: "The Golf Club at Creighton Farms", where: "Aldie, VA", drive: "55 min from downtown DC", access: "hotel-guest arrangement", season: "Apr–Nov (closed in winter)", standing: "Jack Nicklaus Signature private club; accessible through Salamander Resort's Signature Golf Package (Sun–Thu, two-night minimum)" },
+  ],
+  "Atlanta": [
+    { course: "Bear's Best Atlanta", where: "Suwanee", drive: "45 min from Buckhead", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in GA T-7" },
+    { course: "Reynolds Lake Oconee — Great Waters", where: "Eatonton", drive: "1 hr 30 min from Buckhead", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #99; Golfweek Best Public-Access in GA #2" },
+    { course: "Reynolds Lake Oconee — The Oconee", where: "Greensboro", drive: "1 hr 30 min from Buckhead", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in GA T-4" },
+  ],
+  "Miami": [
+    { course: "Trump National Doral — Blue Monster", where: "Doral", drive: "30 min from Miami Beach", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #86; Golf Digest Best in FL #30; Golfweek Best Public-Access in FL #6; PGA Tour host 1962–2016, LIV Golf Miami" },
+    { course: "Crandon Golf at Key Biscayne", where: "Key Biscayne", drive: "20 min from Brickell", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in FL T-25; former PGA Tour Champions host" },
+    { course: "JW Marriott Miami Turnberry — Soffer Course", where: "Aventura", drive: "30 min from Miami Beach", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in FL #12" },
+    { course: "The Park at West Palm Beach", where: "West Palm Beach", drive: "1 hr 20 min from Miami Beach", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #89; Golf Digest Best in FL #31" },
+    { course: "PGA National Resort — The Champion", where: "Palm Beach Gardens", drive: "1 hr 30 min from Miami Beach", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in FL #7 (and #100 U.S. public-access); Cognizant (Honda) Classic host" },
+  ],
+  "Philadelphia": [
+    { course: "The Golf Course at Glen Mills", where: "Glen Mills", drive: "40 min from Rittenhouse Square", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in PA #3; Golf Digest Best in PA #43" },
+    { course: "Jeffersonville Golf Club", where: "Jeffersonville", drive: "40 min from Rittenhouse Square", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in PA T-7" },
+    { course: "Cobbs Creek Golf Course (Olde Course)", where: "West Philadelphia", drive: "20 min from Rittenhouse Square", access: "public", season: "Apr–Nov (closed in winter)", standing: "Historic 1916 Hugh Wilson muni under full Hanse/Wagner restoration; 18 holes expected to reopen spring 2027" },
+  ],
+  "Scottsdale": [
+    { course: "TPC Scottsdale — Stadium Course", where: "North Scottsdale", drive: "20 min from Old Town Scottsdale", access: "public", season: "Year round (closed ~3 weeks for overseeding in Oct and around the Open in Feb)", standing: "Golfweek Best Public-Access in AZ #4; WM Phoenix Open host" },
+    { course: "We-Ko-Pa Golf Club — Saguaro", where: "Fort McDowell", drive: "35 min from Old Town Scottsdale", access: "public", season: "Year round (brief overseeding closure in autumn)", standing: "Golfweek Best Public-Access in AZ #1" },
+    { course: "Troon North — Monument", where: "North Scottsdale", drive: "30 min from Old Town Scottsdale", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in AZ T-9" },
+    { course: "Grayhawk Golf Club — Raptor", where: "North Scottsdale", drive: "20 min from Old Town Scottsdale", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in AZ T-11; NCAA Championships host 2021–2023" },
+    { course: "The Boulders — South", where: "Carefree", drive: "35 min from Old Town Scottsdale", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in AZ #17 (North is T-15)" },
+    { course: "Quintero Golf Club", where: "Peoria", drive: "1 hr 5 min from Old Town Scottsdale", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #93; Golfweek Best Public-Access in AZ #2" },
+  ],
+  "Boston": [
+    { course: "George Wright Golf Course", where: "Hyde Park, Boston", drive: "25 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA #7; Donald Ross municipal, hosted 2018 Massachusetts Amateur" },
+    { course: "Granite Links Golf Club", where: "Quincy", drive: "20 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA #10" },
+    { course: "Pinehills Golf Club — Nicklaus Course", where: "Plymouth", drive: "55 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA T-8" },
+    { course: "Red Tail Golf Club", where: "Devens", drive: "50 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA #4" },
+  ],
+  "San Francisco": [
+    { course: "TPC Harding Park", where: "San Francisco (Lake Merced)", drive: "25 min from Union Square", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA T-20; 2020 PGA Championship, 2009 Presidents Cup, WGC Match Play host" },
+    { course: "Presidio Golf Course", where: "The Presidio, San Francisco", drive: "15 min from Union Square", access: "public", season: "Year round", standing: "Historic 1895 course in a national park; GOLF's pick for visitors staying downtown" },
+    { course: "Pasatiempo Golf Club", where: "Santa Cruz", drive: "1 hr 25 min from Union Square", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #15; Golf Digest America's 100 Greatest #93; Golfweek Best Public-Access in CA #2" },
+    { course: "CordeValle", where: "San Martin", drive: "1 hr 20 min from Union Square", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #52; Golfweek Best Public-Access in CA T-7; 2016 U.S. Women's Open" },
+    { course: "Half Moon Bay Golf Links — Ocean Course", where: "Half Moon Bay", drive: "45 min from Union Square", access: "resort guests", season: "Year round", standing: "Famous resort course at the Ritz-Carlton Half Moon Bay; Arthur Hills design (the Old Course is Arnold Palmer's)" },
+  ],
+  "Seattle": [
+    { course: "Chambers Bay", where: "University Place (Tacoma)", drive: "50 min from downtown Seattle", access: "public", season: "Year round (walking only; wet Nov–Mar)", standing: "Golf Digest 100 Greatest Public #19; Golfweek Best Public-Access in WA #1; 2015 U.S. Open, 2010 U.S. Amateur" },
+    { course: "Salish Cliffs Golf Club", where: "Shelton", drive: "1 hr 30 min from downtown Seattle", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in WA T-6" },
+    { course: "Gold Mountain Golf Club — Olympic Course", where: "Bremerton", drive: "1 hr 15 min from downtown Seattle (via Tacoma Narrows or ferry)", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in WA #4; 2006 U.S. Amateur Public Links, 2011 U.S. Junior Amateur" },
+    { course: "Suncadia Resort — Prospector", where: "Cle Elum", drive: "1 hr 30 min from downtown Seattle", access: "resort guests", season: "Apr–Oct (mountain snow closes it in winter)", standing: "Golfweek Best Public-Access in WA T-10 (Rope Rider also T-10)" },
+  ],
+  "Minneapolis": [
+    { course: "Chaska Town Course", where: "Chaska", drive: "35 min from downtown Minneapolis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #6" },
+    { course: "The Meadows at Mystic Lake", where: "Prior Lake", drive: "35 min from downtown Minneapolis", access: "resort guests", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #7" },
+    { course: "StoneRidge Golf Club", where: "Stillwater", drive: "30 min from downtown Minneapolis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #8" },
+    { course: "Rush Creek Golf Club", where: "Maple Grove", drive: "25 min from downtown Minneapolis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #10; former LPGA and PGA Tour Champions host" },
+  ],
+  "San Diego": [
+    { course: "Torrey Pines — South Course", where: "La Jolla", drive: "20 min from downtown San Diego (10 min from La Jolla)", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #40; Golfweek Best Public-Access in CA #4; 2008 & 2021 U.S. Opens; Farmers Insurance Open host" },
+    { course: "Torrey Pines — North Course", where: "La Jolla", drive: "20 min from downtown San Diego", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA #11; co-host of the Farmers Insurance Open" },
+    { course: "Fairmont Grand Del Mar — The Grand", where: "Carmel Valley, San Diego", drive: "25 min from downtown San Diego", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in CA #22" },
+    { course: "Park Hyatt Aviara Golf Club", where: "Carlsbad", drive: "40 min from downtown San Diego", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in CA #27; long-time LPGA Kia Classic host" },
+    { course: "Maderas Golf Club", where: "Poway", drive: "40 min from downtown San Diego", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA T-20" },
+  ],
+  "Denver": [
+    { course: "The Broadmoor — East Course", where: "Colorado Springs", drive: "1 hr 15 min from downtown Denver", access: "resort guests", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golf Digest 100 Greatest Public #47; Golfweek Best Public-Access in CO #3; 2008 & 2018 U.S. Senior Opens, 2011 U.S. Women's Open, 2025 U.S. Senior Open" },
+    { course: "TPC Colorado", where: "Berthoud", drive: "55 min from downtown Denver", access: "public", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golfweek Best Public-Access in CO T-8; Korn Ferry Tour TPC Colorado Championship host" },
+    { course: "CommonGround Golf Course", where: "Aurora", drive: "20 min from downtown Denver", access: "public", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golfweek Best Public-Access in CO #7" },
+    { course: "RainDance National Golf Club", where: "Windsor", drive: "1 hr 5 min from downtown Denver", access: "public", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golfweek Best Public-Access in CO T-4" },
+  ],
+  "Baltimore": [
+    { course: "Bulle Rock Golf Course", where: "Havre de Grace", drive: "45 min from Harbor East", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #9; Pete Dye design; LPGA Championship host 2005–2009" },
+    { course: "Links at Perry Cabin", where: "St. Michaels (Eastern Shore)", drive: "1 hr 30 min from Harbor East", access: "resort guests", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #14; Pete Dye design opened 2018" },
+    { course: "Whiskey Creek Golf Club", where: "Ijamsville", drive: "1 hr from Harbor East", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #15; Ernie Els/J. Michael Poellot design" },
+  ],
+  "St Louis": [
+    { course: "The Missouri Bluffs Golf Club", where: "St. Charles", drive: "35 min from downtown St. Louis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MO #9" },
+  ],
+  "Orlando": [
+    { course: "Arnold Palmer's Bay Hill Club & Lodge", where: "Bay Hill, Orlando", drive: "15 min from Lake Buena Vista hotels", access: "hotel-guest arrangement", season: "Year round (closed to guests for several weeks around the API in March)", standing: "Golfweek Best Public-Access in FL #5 (T-70 U.S. public-access); Golf Digest Best in FL #36; Arnold Palmer Invitational host" },
+    { course: "Streamsong Resort — Red", where: "Bowling Green", drive: "1 hr 20 min from Lake Buena Vista hotels", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #20; Golf Digest Best in FL #6; Golfweek Best Public-Access in FL #2" },
+    { course: "Streamsong Resort — Blue", where: "Bowling Green", drive: "1 hr 20 min from Lake Buena Vista hotels", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #26; Golf Digest Best in FL #9; Golfweek Best Public-Access in FL #3" },
+    { course: "Streamsong Resort — Black", where: "Bowling Green", drive: "1 hr 20 min from Lake Buena Vista hotels", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #33; Golf Digest Best in FL #11; Golfweek Best Public-Access in FL #4" },
+    { course: "Orange County National — Panther Lake", where: "Winter Garden", drive: "15 min from Lake Buena Vista hotels", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in FL #20 (Crooked Cat T-22); former PGA Tour Q-School finals site" },
+    { course: "Tranquilo Golf Club at Four Seasons Resort Orlando", where: "Lake Buena Vista", drive: "5 min from the Four Seasons", access: "resort guests", season: "Year round", standing: "Tom Fazio design (formerly Disney's Osprey Ridge); Audubon-certified; resort guests and club members only" },
+  ],
+  "San Antonio": [
+    { course: "TPC San Antonio — Oaks Course", where: "Cibolo Canyons, San Antonio", drive: "30 min from the River Walk", access: "hotel-guest arrangement", season: "Year round", standing: "Golf Digest 100 Greatest Public #95; Golfweek Best Public-Access in TX #6; Valero Texas Open host since 2010" },
+    { course: "TPC San Antonio — Canyons Course", where: "Cibolo Canyons, San Antonio", drive: "30 min from the River Walk", access: "hotel-guest arrangement", season: "Year round", standing: "Golfweek Best Public-Access in TX #10; PGA Tour Champions host 2011–2015" },
+    { course: "La Cantera Golf Club", where: "The Rim, San Antonio", drive: "25 min from the River Walk", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in TX #15; Golf Digest Best New Public Course of 1995; Texas Open host 1995–2009" },
+    { course: "Brackenridge Park Golf Course", where: "Brackenridge Park, San Antonio", drive: "5 min from the River Walk", access: "public", season: "Year round", standing: "1916 A.W. Tillinghast muni; hosted the first Texas Open in 1922; home of the Texas Golf Hall of Fame" },
+    { course: "The Quarry Golf Course", where: "Alamo Heights, San Antonio", drive: "15 min from the River Walk", access: "public", season: "Year round", standing: "Keith Foster 1993 design in a 1908 cement quarry (Golf Digest panel 3.4)" },
+  ],
+  "Portland, Oregon": [
+    { course: "Pumpkin Ridge — Ghost Creek", where: "North Plains", drive: "35 min from downtown Portland", access: "public", season: "Year round (wet and soft Nov–Mar)", standing: "Golfweek Best Public-Access in OR #9; 1994 Nike Tour Championship, LPGA Safeway Classic 2009–2012" },
+    { course: "Langdon Farms Golf Club", where: "Aurora", drive: "30 min from downtown Portland", access: "public", season: "Year round (wet and soft Nov–Mar)", standing: "Golfweek Best Public-Access in OR #14" },
+  ],
+  "Las Vegas": [
+    { course: "Shadow Creek", where: "North Las Vegas", drive: "25 min from the Strip", access: "hotel-guest arrangement", season: "Year round (overseeding closure in autumn)", standing: "Golf Digest America's 100 Greatest #24; Golfweek Best Public-Access in NV #1 (No. 8 U.S. public-access); 2020 CJ Cup, Tiger v Phil 2018" },
+    { course: "Wynn Golf Club", where: "Las Vegas Strip", drive: "On the Strip (at Wynn)", access: "hotel-guest arrangement", season: "Year round", standing: "Golf Digest 100 Greatest Public #67; Golfweek Best Public-Access in NV #5" },
+    { course: "Cascata", where: "Boulder City", drive: "35 min from the Strip", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #74; Golfweek Best Public-Access in NV #2" },
+    { course: "Rio Secco Golf Club", where: "Henderson", drive: "25 min from the Strip", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in NV #11; home of the Butch Harmon School of Golf" },
+    { course: "Las Vegas Paiute Golf Resort — Wolf", where: "Las Vegas (north)", drive: "40 min from the Strip", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in NV #8 (Sun Mountain #10, Snow Mountain #12)" },
+    { course: "Reflection Bay Golf Club", where: "Lake Las Vegas, Henderson", drive: "35 min from the Strip", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in NV #15" },
+    { course: "TPC Las Vegas", where: "Summerlin", drive: "25 min from the Strip", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in NV #13; former Shriners Children's Open co-host" },
+  ],
+};
+
+// Golf for a place, by the two rules: the curated hotel with its own course (rule 1), or the courses a
+// client can play nearby (rule 2) — only those in season for the trip when the months are known.
+function hotelGolfAt(city) {
+  const hotels = lookup(FAVORITES, city) || [];
+  return hotels.filter((h) => h && h.name && HOTEL_GOLF[h.name]).map((h) => ({ hotel: h.name, ...HOTEL_GOLF[h.name] }));
+}
+function coursesNear(city, months) {
+  const k = Object.keys(CITY_GOLF).find((x) => x.toLowerCase() === bareCity(city || "").toLowerCase() || (resolvePlace(city) || "").toLowerCase() === x.toLowerCase());
+  const list = k ? CITY_GOLF[k] : [];
+  if (!months) return list;
+  return list.filter((c) => { const m = seasonMonths(c.season); return !m || [...months].some((x) => m.has(x)); });
+}
+function golfAt(city, months) {
+  const own = hotelGolfAt(city), near = coursesNear(city, months);
+  return (own.length || near.length) ? { own, near } : null;
+}
+// The one line on an idea card: "Golf: on the property at The Breakers" or "Golf: 6 courses within 90 minutes".
+function golfLine(city, months) {
+  const g = golfAt(city, months); if (!g) return "";
+  if (g.own.length) return `Golf: on the property at ${g.own[0].hotel}${g.near.length ? ` — and ${g.near.length} more course${g.near.length === 1 ? "" : "s"} within 90 minutes` : ""}`;
+  return `Golf: ${g.near.length} course${g.near.length === 1 ? "" : "s"} within 90 minutes`;
+}
 const SEASIDE = ["Beach", "Islands", "Coastal & seaside"];
 function ideaPool() {
   if (_ideaPool) return _ideaPool;
@@ -10843,6 +11053,7 @@ function ideaPool() {
     const golfTownOnly = x.derived && (x.src || []).length === 1 && /golf/i.test(x.src[0]) && !(x.set || []).some((v) => SEASIDE.includes(v));
     if (!golfTownOnly) add("Wellness & spa");
     const known = Object.keys(KNOWN_ACT).find((n) => key(n) === k); if (known) KNOWN_ACT[known].forEach(add);
+    if (!x.act.includes("Golf") && golfAt(x.city || x.n, null)) { add("Golf"); x.golfRule = true; }   // rule 1 or rule 2 (M1022); re-checked against the trip's months when scoring
     if (x.derived && !x.why) {
       const l = x.src.length > 1 ? x.src.slice(0, -1).join(", ") + " and " + x.src[x.src.length - 1] : x.src[0];
       x.why = "On our best-of list for " + l + ".";
@@ -10851,14 +11062,17 @@ function ideaPool() {
   });
   return _ideaPool;
 }
-function ideaScore(idea, sel) {
+function ideaScore(idea, sel, months) {
   const sets = sel.set || [], acts = sel.act || [], ws = sel.w || [];
+  // Golf that came in by the rules (a hotel's own course, or courses nearby) counts only when a course
+  // is in season for the trip — Chicago is not a golf answer in January (M1022).
+  const ideaActs = idea.golfRule && months && !golfAt(idea.city || idea.n, months) ? idea.act.filter((a) => a !== "Golf") : idea.act;
   const character = idea.ownSet && idea.ownSet.length ? idea.ownSet.slice(0, 2) : idea.set;   // what the place IS
   const okSet = sets.length === 0 || sets.some((x) => character.includes(x));
   const okW = ws.length === 0 || ws.some((x) => idea.w.includes(x));
   if (!okSet || !okW) return null;
-  const hits = acts.filter((x) => idea.act.includes(x));
-  const missed = acts.filter((x) => !idea.act.includes(x));
+  const hits = acts.filter((x) => ideaActs.includes(x));
+  const missed = acts.filter((x) => !ideaActs.includes(x));
   if (acts.length && hits.length === 0) return null; // nothing at all in common: not a match
   if (acts.length >= 2 && hits.length * 2 < acts.length) return null; // less than half of what was asked: not a recommendation
   const setHits = sets.filter((x) => idea.set.includes(x)).length;
@@ -10952,7 +11166,7 @@ function seasonRank(idea, months) {
 // closest fit on the kind of place. (M1020: match moved ahead of season; a 2-of-3 in season no
 // longer outranks a 3-of-3.)
 function rankIdeas(sel, months) {
-  return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel), season: seasonRank(x, months) }))
+  return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel, months), season: seasonRank(x, months) }))
     .filter((r) => r.s !== null)
     // A place where the chosen type of place is incidental (third or later in what it is known for —
     // Dubai is a big city first, a desert second, a beach third) gives up one activity point to the
@@ -19947,7 +20161,7 @@ function IdeasPicker({ d, i, p }) {
         </div>) : null}
     </div>)}
     {!onPlace && any && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : tripMs ? `in season for ${monthName} first` : "best fit first"}</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : tripMs ? `best match, in season for ${monthName}` : "best match first"}</div>
       {(moreIdeas ? matches : matches.slice(0, SHOW_N)).map((x, k) => (<React.Fragment key={x.n}>{tierHead(matches)(x, k)}<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
@@ -19955,6 +20169,7 @@ function IdeasPicker({ d, i, p }) {
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase()))) ? `${[...(sel.act || []).filter((a) => x.act.includes(a))].map((a) => a.split(" · ")[0].toLowerCase()).join(", ") || "what you asked for"} — ${(x.set || []).slice(0, 2).join(" and ").toLowerCase()}.` : x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{ideaTags(x, sel).join(" · ")}{x.best && !(x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase())))) ? " \u00b7 best " + x.best : ""}</div>
             {nonstopBadge(x)}
+            {(sel.act || []).includes("Golf") && golfLine(x.city || x.n, tripMs) ? <GolfNear city={x.city || x.n} months={tripMs} /> : null}
             {seasonOf[x.n] === 2 ? <div style={{ fontSize: 11.5, color: t.brass, marginTop: 4 }}>Not its season in {monthName}{(() => { const w = String(ideaSeasonText(x)).split(/\s+[\u2014\u2013]\s+|, and |, or /)[0]; return w ? ` \u00b7 best ${w}` : ""; })()}</div> : null}
             {missFor[x.n] && missFor[x.n].total > 0 && missFor[x.n].missed.length > 0
               ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div> : null}
@@ -19970,6 +20185,18 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div>)}
     </div>)}
+  </div>);
+}
+// The golf line on an idea card, with the courses underneath on a tap (M1022).
+function GolfNear({ city, months }) {
+  const [open, setOpen] = useState(false);
+  const g = golfAt(city, months); if (!g) return null;
+  return (<div style={{ marginTop: 4 }}>
+    <button type="button" onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, fontSize: 11.5, color: t.pine, fontWeight: 600, cursor: "pointer", textAlign: "left" }}>{golfLine(city, months)}{g.near.length ? (open ? " ▴" : " ▾") : ""}</button>
+    {open && g.near.length ? (<div style={{ marginTop: 6, display: "grid", gap: 4 }}>
+      {g.own.map((h) => <div key={h.hotel} style={{ fontSize: 11.5, color: t.inkSoft }}><strong style={{ color: t.ink }}>{h.hotel}</strong> · {h.courses}</div>)}
+      {g.near.map((c) => <div key={c.course} style={{ fontSize: 11.5, color: t.inkSoft }}><strong style={{ color: t.ink }}>{c.course}</strong> · {c.where} · {c.drive} · {c.access}{c.standing ? ` · ${c.standing}` : ""}</div>)}
+    </div>) : null}
   </div>);
 }
 function DestCard({ d, i, p }) {
