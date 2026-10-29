@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1017";
+const BUILD = "M1021";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -10776,6 +10776,39 @@ const KNOWN_ACT = {   // destination → activities that are plain fact there (M
   "Turks & Caicos": ["Golf", "Tennis"], "Providenciales": ["Golf", "Tennis"], "Maldives": ["Tennis"], "Mallorca": ["Golf", "Tennis"],
   "Porto Heli": ["Tennis"], "Savelletri": ["Golf", "Tennis"], "Riviera Nayarit": ["Golf", "Tennis"], "Papagayo": ["Golf", "Tennis"], "Playa Grande": ["Golf", "Tennis"],
 };
+// ── BIG CITY, BY THE NUMBERS (Tricia, 29 Oct 2026) ─────────────────────────────────────────────
+// "Big city" used to be a hand-placed tag (Beverly Hills had it; Atlanta did not exist). Now it is a
+// rule: a metro area of 2.5 million or more where we hold curated hotels. Atlanta, Washington, New
+// York, Charlotte and Miami are in; Nashville, Birmingham and Palm Beach are out — her examples.
+// Las Vegas (2.3M) is the one named exception: a big city by every measure but the census.
+// Figures are metro-area populations in millions (US Census 2023 MSA estimates; UN World
+// Urbanization Prospects for the rest), used only to decide which side of 2.5 a place falls.
+const METRO = {
+  "New York City": 19.5, "New York": 19.5, "Los Angeles": 12.8, "Chicago": 9.3, "Dallas": 8.1, "Houston": 7.5, "Washington DC": 6.3, "Atlanta": 6.3,
+  "Miami": 6.2, "Philadelphia": 6.2, "Scottsdale": 5.0, "Boston": 4.9, "San Francisco": 4.6, "Seattle": 4.0, "Minneapolis": 3.7,
+  "San Diego": 3.3, "Denver": 3.0, "Baltimore": 2.8, "St Louis": 2.8, "Orlando": 2.8, "San Antonio": 2.7, "Portland, Oregon": 2.5,
+  "Las Vegas": 2.3, "Austin": 2.4, "Nashville": 2.1, "Raleigh": 1.5, "Louisville": 1.4, "New Orleans": 1.3, "Birmingham, Alabama": 1.1,
+  "Tucson": 1.1, "Honolulu": 1.0, "Charleston": 0.8, "Savannah": 0.4, "Palm Beach": 1.5, "Beverly Hills": 0.03,
+  "Toronto": 6.7, "Montreal": 4.4, "Vancouver": 2.8,
+  "Mexico City": 22.0, "São Paulo": 22.0, "Sao Paulo": 22.0, "Buenos Aires": 15.0, "Rio de Janeiro": 13.0, "Lima": 11.0, "Bogotá": 11.0, "Santiago": 7.0,
+  "Salvador": 3.9, "Medellín": 4.0, "Guayaquil": 3.0, "Quito": 2.8, "Panama City": 2.0, "Montevideo": 1.8, "Cartagena": 1.1,
+  "Cairo": 22.0, "Nairobi": 5.0, "Cape Town": 4.8, "Casablanca": 3.7, "Marrakech": 1.0,
+  "Istanbul": 15.0, "London": 14.0, "Paris": 12.0, "Madrid": 6.7, "Barcelona": 5.6, "Milan": 4.3, "Rome": 4.3, "Berlin": 3.7, "Athens": 3.6,
+  "Warsaw": 3.1, "Budapest": 3.0, "Naples": 3.0, "Lisbon": 2.9, "Vienna": 2.9, "Munich": 2.9, "Prague": 2.7, "Amsterdam": 2.5,
+  "Brussels": 2.1, "Copenhagen": 2.1, "Dublin": 2.1, "Glasgow": 1.9, "Kraków": 1.8, "Oslo": 1.7, "Porto": 1.7, "Seville": 1.5,
+  "Zurich": 1.5, "Edinburgh": 0.9, "Geneva": 1.0, "Nice": 1.0, "Antwerp": 1.2, "Florence": 1.0, "Monaco": 0.04,
+  "Riyadh": 7.6, "Jeddah": 4.7, "Amman": 4.5, "Tel Aviv": 4.0, "Dubai": 3.6, "Kuwait City": 3.1, "Doha": 2.4, "Abu Dhabi": 1.5, "Jerusalem": 1.3, "Manama": 0.7,
+  "Tokyo": 37.0, "Shanghai": 29.0, "Seoul": 25.0, "Beijing": 21.0, "Guangzhou": 18.0, "Hangzhou": 12.0, "Bangkok": 11.0, "Hong Kong": 7.5,
+  "Singapore": 6.0, "Jaipur": 4.0, "Phnom Penh": 2.3, "Agra": 2.0, "Kyoto": 1.5, "Jodhpur": 1.5, "Chiang Mai": 1.2, "Udaipur": 0.5,
+  "Sydney": 5.3, "Melbourne": 5.2,
+};
+const BIG_CITY_MIN = 2.5;
+const BIG_CITY_EXCEPTIONS = ["Las Vegas"];
+function isBigCity(city) {
+  // Exact names only: Rancho Santa Fe resolves to San Diego's metro, but it is not itself a big city.
+  const k = Object.keys(METRO).find((x) => x.toLowerCase() === bareCity(city || "").toLowerCase());
+  return !!k && (METRO[k] >= BIG_CITY_MIN || BIG_CITY_EXCEPTIONS.includes(k));
+}
 const SEASIDE = ["Beach", "Islands", "Coastal & seaside"];
 function ideaPool() {
   if (_ideaPool) return _ideaPool;
@@ -10793,6 +10826,16 @@ function ideaPool() {
     if (!t.src.includes(L.label)) t.src.push(L.label);
     if (t.derived && !t.best && e.best) t.best = e.best;
   }));
+  // Big city by the rule (M1021): the hand-placed tag goes where the numbers say no, and every
+  // curated city over the line that no list ever mentioned joins the pool as a big city with what
+  // every big city has — food, art, shopping, spa.
+  const bigKeys = Object.keys(FAVORITES).filter((c) => isBigCity(c) && Array.isArray(FAVORITES[c]) && FAVORITES[c].length);
+  const same = (a, b) => { const ra = resolvePlace(a) || a, rb = resolvePlace(b) || b; return key(ra) === key(rb); };
+  bigKeys.forEach((c) => { const kk = key(c); if (!by[kk] && !Object.values(by).some((e) => same(e.n, c))) by[kk] = { n: c, city: c, set: ["Big city"], act: ["Food & wine", "Art & history", "Shopping", "Wellness & spa"], w: [], best: "", why: "", src: [], derived: true, ownAct: [], ownSet: ["Big city"] }; });
+  Object.keys(by).forEach((kk) => { const x = by[kk]; const big = isBigCity(x.city || x.n);
+    if (big && !x.set.includes("Big city")) { x.set.push("Big city"); }
+    if (!big) { x.set = x.set.filter((v) => v !== "Big city"); if (x.ownSet) x.ownSet = x.ownSet.filter((v) => v !== "Big city"); }
+    if (big && x.ownSet && !x.ownSet.includes("Big city")) x.ownSet.push("Big city"); });
   _ideaPool = Object.keys(by).map((k) => {
     const x = by[k];
     const add = (v) => { if (!x.act.includes(v)) x.act.push(v); };
@@ -10905,15 +10948,16 @@ function seasonRank(idea, months) {
   if (!have) return 1;
   return [...months].some((m) => have.has(m)) ? 0 : 2;
 }
-// Best first: in season for the trip's dates, then most of what you asked for, then the closest fit
-// on the kind of place.
+// Best match first — most of what you asked for — then in season for the trip's dates, then the
+// closest fit on the kind of place. (M1020: match moved ahead of season; a 2-of-3 in season no
+// longer outranks a 3-of-3.)
 function rankIdeas(sel, months) {
   return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel), season: seasonRank(x, months) }))
     .filter((r) => r.s !== null)
     // A place where the chosen type of place is incidental (third or later in what it is known for —
     // Dubai is a big city first, a desert second, a beach third) gives up one activity point to the
     // places that ARE that type. Then character breaks the remaining ties; never the alphabet.
-    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (a.season - b.season) || (fit(b) - fit(a)) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
+    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (fit(b) - fit(a)) || (a.season - b.season) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
 }
 function nearMiss(sel) {
   const acts = sel.act || [];
@@ -19709,9 +19753,11 @@ function IdeasPicker({ d, i, p }) {
   const direct = useDirectFlights(fromCity, departDate, [...new Set(soloAct ? [...specialtyCities, ...rankedCities] : rankedCities)], flyPref !== "any" && !onPlaceNow(sel));
   const directOf = (x) => direct[x.city || x.n];
   // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
-  // Direct flight wanted: confirmed nonstops rise to the top; everything else — a connection, still
-  // checking, or not checked — keeps its fit order. (M1010: this used to be upside down.)
-  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => (directOf(x.idea) === 0 ? 0 : 1); return r(a) - r(b); }) : ranked).map((r) => r.idea);
+  // Direct flight wanted: within each level of match, confirmed nonstops first; everything else — a
+  // connection, still checking, or not checked — keeps its order. (M1020: a nonstop no longer lifts a
+  // 2-of-3 above a 3-of-3; M1010: this used to be upside down.)
+  const fitOf = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0);
+  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => (directOf(x.idea) === 0 ? 0 : 1); return (fitOf(b) - fitOf(a)) || (r(a) - r(b)); }) : ranked).map((r) => r.idea);
   const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
   const [moreIdeas, setMoreIdeas] = useState(false);
   const SHOW_N = 12;
@@ -19913,7 +19959,7 @@ function IdeasPicker({ d, i, p }) {
             {missFor[x.n] && missFor[x.n].total > 0 && missFor[x.n].missed.length > 0
               ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div> : null}
           </div>
-          <button onClick={() => p.setDest(i, { city: x.n, mode: regionStops(x.n).length ? "open" : "full" })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}><Plus size={15} /> Choose</button>
+          <button onClick={() => { const found = DIRECT_DETAIL[`${fromCity}|${x.city || x.n}|${departDate}`.toLowerCase()]; p.setDest(i, { city: x.n, mode: regionStops(x.n).length ? "open" : "full", nonstop: found && stopsOf(x) === 0 ? { ...found, from: fromCode, date: departDate } : null }); }} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}><Plus size={15} /> Choose</button>
         </div>
       </div></React.Fragment>))}
       {matches.length > SHOW_N ? <button type="button" onClick={() => setMoreIdeas(!moreIdeas)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", color: t.inkSoft, fontSize: 13.5, fontFamily: font.ui, cursor: "pointer", marginBottom: 12 }}>{moreIdeas ? `Back to our best ${SHOW_N}` : `See all ${matches.length}`}</button> : null}
@@ -20198,8 +20244,13 @@ function directFlightsUrl(from, to, date) {
   const q = `Nonstop flights from ${bareCity(from)} to ${bareCity(to)}${date ? " on " + date : ""}`;
   return `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
 }
-function FlightPicker({ from, to, pick, upd, date, pax }) {
+// "14:55" → "2:55 PM", the way the jot fields and the itinerary read.
+function clock12(hhmm) { const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm || ""); if (!m) return hhmm || ""; const h = parseInt(m[1], 10); return `${((h + 11) % 12) + 1}:${m[2]} ${h >= 12 ? "PM" : "AM"}`; }
+function FlightPicker({ from, to, pick, upd, date, pax, found }) {
   const seats = Math.max(1, pax || 1);
+  // The nonstop found on the ideas screen when this place was chosen (M1019): offered first, one tap
+  // to keep it, and the Delta jot fields start filled in. Only for the day it was found for.
+  const useFound = () => { if (!found) return; upd({ flight: { cabin: "Economy", price: null, airline: found.airline || "", flightNo: found.flightNo || "", depart: clock12(found.depart), arrive: clock12(found.arrive), depAirport: iataFor(from) || bareCity(from), arrAirport: iataFor(to) || bareCity(to), stops: 0, chosen: true, real: false, source: "schedule" } }); };
   useGeoTick(); // a coordinate arriving late must repaint this panel, so the too-close-to-fly note can appear
   const f = pick.flight || null;
   // A ground-access origin (Positano, a lake town) has no airport of its own, so "fly from
@@ -20238,9 +20289,9 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
   // of the screen so the notes panel can be reopened from anywhere in the plan — otherwise the
   // traveller comes back from Delta, has scrolled, and cannot find where to write the flight down.
   const [launched, setLaunched] = useState("");
-  const [dNo, setDNo] = useState("");
-  const [dDep, setDDep] = useState("");
-  const [dArr, setDArr] = useState("");
+  const [dNo, setDNo] = useState(found && /^DL/i.test(found.flightNo || "") ? found.flightNo : "");
+  const [dDep, setDDep] = useState(found && /^DL/i.test(found.flightNo || "") ? clock12(found.depart) : "");
+  const [dArr, setDArr] = useState(found && /^DL/i.test(found.flightNo || "") ? clock12(found.arrive) : "");
   const [dPrice, setDPrice] = useState("");
   const [dCabin, setDCabin] = useState("Economy");
   const saveDelta = () => {
@@ -20307,6 +20358,14 @@ function FlightPicker({ from, to, pick, upd, date, pax }) {
     </div>) : null}
   </div>);
   return (<>
+    {found && !(f && f.chosen) ? (<div style={{ background: t.white, border: `1px solid ${t.pine}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.pine, fontWeight: 600, marginBottom: 4 }}>The nonstop we found</div>
+      <div style={{ fontSize: 14.5, color: t.ink, fontWeight: 600 }}>{found.airline || ""} {found.flightNo || ""} · nonstop{found.depart ? ` · departs ${clock12(found.depart)}` : ""}{found.arrive ? ` · arrives ${clock12(found.arrive)}` : ""}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+        <button type="button" onClick={useFound} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Keep this flight</button>
+        {/^DL/i.test(found.flightNo || "") ? <a href={deltaSearchUrl(from, to, date)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", padding: "9px 16px", borderRadius: 999, border: `1px solid ${t.pine}`, color: t.ink, fontSize: 13, textDecoration: "none" }}>Book on Delta ↗</a> : null}
+      </div>
+    </div>) : null}
     {ticketedDay ? (<div style={{ display: "flex", gap: 10, alignItems: "flex-start", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 14px", marginBottom: 12 }}><span style={{ fontSize: 15, lineHeight: 1.3 }}>✈</span><span style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5 }}>You hold tickets on this trip — arrive at least the day before your first event day so you're settled, never on the day itself. We've set your dates to land you ahead; keep it that way as you choose your flight.</span></div>) : null}
     <div style={{ background: t.card, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
       {/* Show the bare town plus one code. The city string often already carries its code —
@@ -21860,7 +21919,7 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     </div>) : null}
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
-      : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} />)
+      : <FlightPicker from={from} to={to} pick={pick} upd={upd} date={flightDate} pax={pax} found={dHere && dHere.nonstop && dHere.nonstop.date === flightDate ? dHere.nonstop : null} />)
       : (inHand && legHere && legHere.crossing ? null : <OptionRow selected onClick={() => upd({ ground: o })} title={`${arriveBy} · ${from || "start"} → ${to || "here"}`} sub={o.label ? o.label + " · door to door" : (grounds.includes(arriveBy) ? "estimated, door to door" : "")} price={o.price != null ? fmt(o.price) : ""} />)}
     {vettedDriver(to) ? (() => { const vd = vettedDriver(to); return (
       <div style={{ marginTop: 12, background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "12px 14px" }}>
