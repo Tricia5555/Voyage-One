@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1009";
+const BUILD = "M1014";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -1780,6 +1780,8 @@ const VIRTUOSO_EVIDENCE = {
 };
 function virtuosoEvidence(name) { const k = Object.keys(VIRTUOSO_EVIDENCE).find((x) => dnrm(x) === dnrm(name || "")); return k ? VIRTUOSO_EVIDENCE[k] : null; }
 const NEARBY_CITIES = {
+  // Sport-list towns that sit beside a curated city (M1011): the stay is there.
+  "Manacor": ["Mallorca"], "Deia": ["Mallorca"], "Portmarnock": ["Dublin"], "Biot": ["Antibes", "Nice"],
   // Oxford shows the Cotswolds' hotels as NEARBY (Estelle Manor is twenty minutes west of the
   // city) without a second record. One property, one entry.
   "Oxford": ["Cotswolds"],
@@ -3523,6 +3525,7 @@ const FAVORITES = {
     { name: "Castello di Reschio", area: "Lisciano Niccone · Umbria", rate: null, ourTake: "A 1,000-year-old castle estate, exquisitely restored — a world unto itself." },
   ],
   "Tuscany": [
+    { name: "Castelfalfi", area: "Montaione, between Florence and Pisa", rate: null, ourTake: "A medieval borgo on 2,700 Tuscan acres of vines and olive groves \u2014 tastings of the estate\u2019s own wines and oil, cooking in the kitchens, two courses, and a spa. Forbes Five-Star 2026. Added 28 Oct 2026 from Tricia\u2019s food & wine spec.", contact: { addr: "Localit\u00e0 Castelfalfi, Montaione", web: "castelfalfi.com" } },
     { name: "Rosewood Castiglion del Bosco", area: "Montalcino", rate: null, ourTake: "A 5,000-acre estate in Val d'Orcia with its own Brunello vineyards and golf." },
     { name: "Borgo Santo Pietro", area: "Chiusdino", rate: null, ourTake: "A romantic farm-to-table hideaway with a celebrated kitchen garden." },
     { name: "Hotel Il Pellicano", area: "Porto Ercole", rate: null, ourTake: "The chic seaside icon of the Argentario, dolce-vita glamour by the rocks." },
@@ -3802,6 +3805,14 @@ const FAVORITES = {
   "Costa Navarino": [
     { name: "Mandarin Oriental Costa Navarino", area: "Messinia", rate: null, ourTake: "A beachfront sanctuary on the unspoiled Messinian coast, with dune-framed golf." },
     { name: "The Romanos, a Luxury Collection Resort", area: "Navarino Dunes · Messinia", rate: null, ourTake: "The original Costa Navarino resort on the dunes — 321 rooms and villas, the 4,000 m² Anazoe spa, two championship golf courses at the door and the bay of Navarino beyond. Family-friendly and big; the Mandarin Oriental is the quieter neighbour.", contact: { addr: "Navarino Dunes, Messinia, 240 01 Costa Navarino", web: "marriott.com" } },
+  ],
+  // Castlemartyr (County Cork) and Portrush — added 28 Oct 2026 from Tricia's five-star golf & tennis
+  // spec. Castlemartyr is the nearby base for Old Head (about an hour and a quarter), not an on-course hotel.
+  "Castlemartyr": [
+    { name: "Castlemartyr Resort", area: "Castlemartyr, County Cork", rate: null, ourTake: "A 17th-century manor on 220 acres in East Cork \u2014 its own Ron Kirby course, floodlit tennis, a serious spa and dining. The base for Old Head, about an hour and a quarter south-west.", contact: { addr: "Castlemartyr, Co. Cork", web: "castlemartyrresort.ie" } },
+  ],
+  "Portrush": [
+    { name: "Dunluce Lodge", area: "Beside Royal Portrush", rate: null, ourTake: "Thirty-five suites looking over the Dunluce links and the Causeway Coast, Tourism Northern Ireland five-star \u2014 the place to stay for the Open\u2019s Irish home.", contact: { addr: "Dunluce Rd, Portrush", web: "dunlucelodge.com" } },
   ],
   "Ireland": [
     { name: "Adare Manor", area: "Adare", rate: null, ourTake: "A neo-Gothic manor on 840 acres, host to the Ryder Cup — Ireland's grandest stay." },
@@ -4537,6 +4548,13 @@ const FAVORITES = {
   // level of the three above), Rufflets St Andrews (attractive country house, not needed at this
   // level), and SEATON HOUSE — promising and new, and Voyage One waits for an established
   // independent track record before loading it. Do not add hotels to create inventory.
+  // Dornoch and Inverness — added 28 Oct 2026 from Tricia's five-star golf spec, both VisitScotland five-star.
+  "Dornoch": [
+    { name: "Links House at Royal Dornoch", area: "Beside the first tee", rate: null, ourTake: "A Georgian manse and its neighbours turned into a country house of fifteen rooms a short walk from Royal Dornoch\u2019s first tee, VisitScotland five-star.", contact: { addr: "Golf Rd, Dornoch", web: "linkshousedornoch.com" } },
+  ],
+  "Inverness": [
+    { name: "Ness Walk", area: "On the River Ness, Inverness", rate: null, ourTake: "A Victorian house on the river in the Highland capital, VisitScotland five-star \u2014 a nearby base for Cabot Highlands (Castle Stuart), about twenty minutes east, not an on-course hotel.", contact: { addr: "12 Ness Walk, Inverness", web: "nesswalk.com" } },
+  ],
   "St Andrews": [
     { name: "Old Course Hotel, Golf Resort & Spa", area: "Beside the Road Hole \u00b7 Edinburgh (EDI)", rate: null, ourTake: "THE PRIMARY RECOMMENDATION FOR SERIOUS GOLFERS, and not a close call. It stands directly over the seventeenth \u2014 the Road Hole \u2014 with the Old Course beneath the windows, and it is a full-service resort behind that: Kohler Waters Spa, several restaurants, and a further substantial refurbishment completed in 2026. If golf is the reason for the trip, this is the hotel." },
     { name: "Rusacks St Andrews", area: "Overlooking the 1st and 18th \u00b7 Edinburgh (EDI)", rate: null, ourTake: "One of the best-positioned golf hotels anywhere \u2014 looking straight down the first and eighteenth fairways, with the R&A clubhouse beside it. Smaller, more stylish and far more personality-driven than the Old Course Hotel. THE CHOICE FOR CLIENTS WHO WANT THE POSITION WITHOUT THE RESORT." },
@@ -6045,6 +6063,14 @@ const FAVORITES = {
   "Scottsdale": [
     { name: "The Canyon Suites at The Phoenician", area: "Camelback Mountain, Scottsdale", rate: null, ourTake: "A hotel within the hotel: a few dozen suites and villas on their own private ground at the Phoenician, with their own pool, a house car, a dedicated team and the resort's golf and spa behind them. Forbes Five-Star for the enclave alone \u2014 the main resort is not, and is not on this list." },
   ],
+  // Sedona — added 28 Oct 2026, File 3. The Five-Star is Mii amo itself, not the resort beside it.
+  "Sedona": [
+    { name: "Mii amo", area: "Boynton Canyon, Sedona", rate: null, ourTake: "A destination spa of its own inside Boynton Canyon \u2014 three-, four- and seven-night journeys, guided canyon hikes, and the red rock from every window. Forbes Five-Star 2026, and the accreditation belongs to Mii amo\u2019s own rooms.", contact: { addr: "525 Boynton Canyon Rd, Sedona", web: "miiamo.com" } },
+  ],
+  // Herceg Novi (Montenegro) — added 28 Oct 2026, File 3.
+  "Herceg Novi": [
+    { name: "One&Only Portonovi", area: "Boka Bay, Herceg Novi", rate: null, ourTake: "The first One&Only in Europe, at the mouth of the Bay of Kotor \u2014 a marina at the door, its own boats for the bay, and a Chenot spa. Forbes Five-Star 2026. Tivat airport is twenty minutes; Dubrovnik about an hour.", contact: { addr: "Portonovi, Herceg Novi", web: "oneandonlyresorts.com" } },
+  ],
   "Tucson": [
     { name: "The Ritz-Carlton, Dove Mountain", area: "Marana, north of Tucson", rate: null, ourTake: "A Forbes Five-Star hotel in the Tortolita foothills with twenty miles of trails, twenty-seven holes of Nicklaus golf and a serious spa \u2014 the complete desert resort, done properly. Luxury by instruction." },
   ],
@@ -6296,6 +6322,7 @@ const FAVORITES = {
     { name: "Four Seasons Bora Bora", area: "Bora Bora", rate: null, ourTake: "Overwater bungalows in the world's most famous turquoise lagoon." },
   ],
   "Fiji": [
+    { name: "Dolphin Island", area: "Rakiraki, northern Viti Levu", rate: null, ourTake: "A fourteen-acre private island taken whole by one party of up to eight \u2014 lagoon, reef and boat at the door, staff to match. Forbes Five-Star 2026; Fiji\u2019s only one. Reached by road from Nadi then a short boat, or by helicopter. Added 28 Oct 2026, File 3.", contact: { addr: "Rakiraki, Fiji", web: "dolphinislandfiji.com" } },
     { name: "Kokomo Private Island Fiji", area: "Kadavu", rate: null, ourTake: "A private-island resort with a great reef and a farm-to-table soul." },
     { name: "COMO Laucala Island", area: "Laucala", rate: null, ourTake: "One of the world's most exclusive private islands, twenty-five villas only." },
   ],
@@ -10170,7 +10197,7 @@ const WINE = [
   { n: "VIK", city: "Millahue", set: ["Wine country","Countryside","Mountains & alpine"], act: ["Architecture & design","Art & history","Wellness & spa"], acc: "Estate guests & reservation", stay: "VIK Chile, on the estate", hero: 1, why: "A titanium roof floating over a valley, art in every room, and the wine made underneath it." },
   { n: "Opus One", city: "Napa Valley", set: ["Wine country","Countryside"], act: ["Architecture & design","Food & wine"], acc: "Advance reservation", stay: "Auberge du Soleil · Meadowood", hero: 1, why: "Mondavi and Rothschild's estate at Oakville — polished reserved tastings and the terrace over the vines." },
   { n: "Promontory", city: "Napa Valley", set: ["Wine country","Countryside"], act: ["Photography & scenery"], acc: "Private appointment", stay: "Meadowood Napa Valley", hero: 1, why: "The Harlan family's wild ground above Oakville. Appointment only, and all the better for it." },
-  { n: "Château Mouton Rothschild", city: "Pauillac", set: ["Wine country","Countryside"], act: ["Art & history","Architecture & design"], acc: "Advance reservation essential", stay: "Château Cordeillan-Bages", hero: 1, why: "A First Growth with a museum of label art — Picasso, Bacon, Warhol — and cellars to match the name." },
+  { n: "Château Mouton Rothschild", city: "Pauillac", set: ["Wine country","Countryside"], act: ["Art & history","Architecture & design"], acc: "Advance reservation essential", stay: "Les Sources de Caudalie, about an hour and a quarter", hero: 1, why: "A First Growth with a museum of label art — Picasso, Bacon, Warhol — and cellars to match the name." },
   { n: "Ruinart", city: "Reims", set: ["Wine country","Historic towns & villages"], act: ["Art & history","Architecture & design"], acc: "Advance reservation", stay: "Domaine Les Crayères", hero: 1, why: "The oldest Champagne house, and its Roman chalk crayères are among the great cellar visits on earth." },
   { n: "Zuccardi Valle de Uco", city: "Uco Valley", set: ["Wine country","Mountains & alpine","Countryside"], act: ["Architecture & design","Photography & scenery"], acc: "Advance reservation", stay: "The Vines Resort & Spa", hero: 1, why: "Stone and concrete set against the Andes, high-altitude Malbec, and one of Argentina's best lunches." },
   { n: "Quinta do Crasto", city: "Douro Valley", set: ["Wine country","River & waterfront","Countryside"], act: ["Photography & scenery"], acc: "Advance reservation", stay: "Six Senses Douro Valley", hero: 1, why: "Terraces falling to the river and the famous infinity pool on the ridge. The Douro at its most spectacular." },
@@ -10180,16 +10207,20 @@ const WINE = [
   { n: "Palmaz Vineyards", city: "Napa Valley", set: ["Wine country","Countryside"], act: ["Architecture & design"], acc: "Advance reservation", stay: "Stanly Ranch, Auberge Resorts", why: "An entire winery built eighteen storeys down inside Mount George. Napa's great engineering marvel." },
   { n: "Quintessa", city: "Napa Valley", set: ["Wine country","Countryside"], act: ["Architecture & design","Photography & scenery"], acc: "Advance reservation", stay: "Auberge du Soleil · Meadowood", why: "Biodynamic Rutherford estate with private vineyard walks and Napa's most graceful tasting." },
   { n: "Jarvis Estate", city: "Napa Valley", set: ["Wine country","Countryside"], act: ["Architecture & design"], acc: "Private appointment", stay: "Stanly Ranch, Auberge Resorts", why: "Everything underground: vast caves, an interior waterfall, and a tasting you will not forget." },
-  { n: "Château Lynch-Bages", city: "Pauillac", set: ["Wine country","Countryside"], act: ["Art & history","Architecture & design"], acc: "Public reservation", stay: "Château Cordeillan-Bages", why: "Classed-growth Pauillac with a strikingly modern winery, and the hotel is a two-minute walk." },
-  { n: "Château Troplong Mondot", city: "Saint-Émilion", set: ["Wine country","Historic towns & villages"], act: ["Food & wine","Photography & scenery"], acc: "Advance reservation", stay: "Hôtel de Pavie, Saint-Émilion", why: "Premier Grand Cru on the hill above Saint-Émilion, with a kitchen worth the table on its own." },
-  { n: "Château d'Yquem", city: "Sauternes", set: ["Wine country","Countryside"], act: ["Art & history"], acc: "Confirm availability", stay: "Lafaurie-Peyraguey, Lalique", why: "The most legendary sweet wine in the world, made grape by grape. Access is confirmed before it is offered." },
+  { n: "Château Lynch-Bages", city: "Pauillac", set: ["Wine country","Countryside"], act: ["Art & history","Architecture & design"], acc: "Public reservation", stay: "Les Sources de Caudalie, about an hour and a quarter", why: "Classed-growth Pauillac with a strikingly modern winery." },
+  { n: "Château Troplong Mondot", city: "Saint-Émilion", set: ["Wine country","Historic towns & villages"], act: ["Food & wine","Photography & scenery"], acc: "Advance reservation", stay: "Les Sources de Caudalie, about fifty minutes", why: "Premier Grand Cru on the hill above Saint-Émilion, with a kitchen worth the table on its own." },
+  { n: "Château d'Yquem", city: "Sauternes", set: ["Wine country","Countryside"], act: ["Art & history"], acc: "Confirm availability", stay: "Les Sources de Caudalie, about forty minutes", why: "The most legendary sweet wine in the world, made grape by grape. Access is confirmed before it is offered." },
   { n: "Veuve Clicquot", city: "Reims", set: ["Wine country","Historic towns & villages"], act: ["Art & history"], acc: "Advance reservation", stay: "Domaine Les Crayères", why: "The chalk cellars and the story of the widow who invented much of modern Champagne." },
   { n: "Taittinger", city: "Reims", set: ["Wine country","Historic towns & villages"], act: ["Art & history","Architecture & design"], acc: "Public reservation", stay: "Domaine Les Crayères", why: "Cellars cut into Roman chalk quarries beneath a thirteenth-century abbey." },
   { n: "Bollinger", city: "Aÿ", set: ["Wine country","Historic towns & villages"], act: ["Art & history"], acc: "Private arrangement", stay: "Royal Champagne Hotel & Spa", why: "One of the great houses, still family-held, in a village that has made wine since the Romans." },
   { n: "Château de Pommard", city: "Pommard", set: ["Wine country","Countryside"], act: ["Food & wine","Art & history"], acc: "Public reservation", stay: "COMO Le Montrachet", why: "The clearest way into Burgundy — a walled clos, and a tasting that finally explains terroir." },
   { n: "Maison Joseph Drouhin", city: "Beaune", set: ["Wine country","Historic towns & villages"], act: ["Art & history"], acc: "Advance reservation", stay: "Hostellerie de Levernois", why: "Cellars running beneath Beaune from the Roman era onward, without needing impossible domaine access." },
   { n: "Château de Meursault", city: "Meursault", set: ["Wine country","Countryside"], act: ["Art & history"], acc: "Public reservation", stay: "COMO Le Montrachet", why: "Great white Burgundy and centuries-old cellars under one of the most famous names on a wine list." },
-  { n: "Castello Banfi", city: "Montalcino", set: ["Wine country","Countryside","Historic towns & villages"], act: ["Art & history","Food & wine"], acc: "Public reservation", stay: "Castello Banfi Il Borgo, on the estate", why: "A medieval castle, serious Brunello and rooms inside the walls." },
+  { n: "Castelfalfi", city: "Montaione", set: ["Wine country","Countryside","Historic towns & villages"], act: ["Food & wine","Golf","Wellness & spa"], acc: "Hotel guests & reservation", stay: "Castelfalfi, on the estate", why: "A whole medieval village on 2,700 acres of vines and olives between Florence and Pisa \u2014 tastings, the kitchens, and two courses." },
+  { n: "Ch\u00e2teau La Coste", city: "Le Puy-Sainte-R\u00e9parade", set: ["Wine country","Countryside"], act: ["Food & wine","Art & history","Architecture & design"], acc: "Public reservation", stay: "Villa La Coste, on the estate", why: "Organic vines walked between Louise Bourgeois, Tadao Ando and Frank Gehry, with the villa and its tables at the top of the hill." },
+  { n: "Elusa Winery \u00b7 Four Seasons Napa Valley", city: "Napa Valley", set: ["Wine country","Countryside"], act: ["Food & wine","Wellness & spa"], acc: "Hotel guests & reservation", stay: "Four Seasons Resort and Residences Napa Valley, in the vines", why: "The only Napa resort inside a working winery \u2014 Calistoga cabernet made yards from the rooms, and tastings that start at the door." },
+  { n: "Montage Healdsburg \u00b7 Sonoma", city: "Healdsburg", set: ["Wine country","Countryside"], act: ["Food & wine","Wellness & spa"], acc: "Hotel guests & reservation", stay: "Montage Healdsburg, on the estate", why: "Hillside bungalows on 258 acres above the Alexander and Russian River valleys, estate wine at Hazel Hill, and the Sonoma tasting rooms ten minutes down the hill." },
+  { n: "Castello Banfi", city: "Montalcino", set: ["Wine country","Countryside","Historic towns & villages"], act: ["Art & history","Food & wine"], acc: "Public reservation", stay: "Rosewood Castiglion del Bosco, about half an hour", why: "A medieval castle and serious Brunello." },
   { n: "Ornellaia", city: "Bolgheri", set: ["Wine country","Coastal & seaside","Countryside"], act: ["Art & history"], acc: "Private reservation", stay: "Il Pellicano · Bolgheri luxury", why: "The Super Tuscan that changed Italian wine, on the cypress avenue behind the Tyrrhenian coast." },
   { n: "Ca' del Bosco", city: "Erbusco", set: ["Wine country","Lakes","Countryside"], act: ["Art & history","Architecture & design"], acc: "Advance reservation", stay: "L'Albereta", why: "Franciacorta's finest, and a sculpture collection you walk through to reach the cellar." },
   { n: "Ceretto", city: "Alba", set: ["Wine country","Countryside","Mountains & alpine"], act: ["Architecture & design","Art & history"], acc: "Public reservation", stay: "Casa di Langa", why: "Barolo and Barbaresco, a glass cube over the vines, and the painted chapel at La Morra." },
@@ -10214,12 +10245,42 @@ const WINE = [
   { n: "Château Mukhrani", city: "Tbilisi", set: ["Wine country","Countryside","Historic towns & villages"], act: ["Art & history","Architecture & design"], acc: "Public reservation", stay: "Tbilisi five-star", why: "Georgia is where wine began. Qvevri buried in the ground, indigenous Saperavi, and a restored royal estate." },
 ];
 
+// ── THE 5-STAR GATE (Tricia, 28 Oct 2026) ─────────────────────────────────────────────────────
+// "No place shows up as a top anything if there is no five-star accommodation nearby. We do not
+// make money unless they stay somewhere five star." One rule for every sport list: an entry is
+// shown only if we can sell a luxury stay there — a hotel in our curation for its city (or a city
+// we treat as nearby), or a stay we recognise as a luxury property (a name on any of our luxury
+// tables, or a luxury brand). Bandon Dunes' resort lodging is neither, so Bandon is gone.
+const LUX_BRANDS = /(?:^|[\s(])(four seasons|aman(?:[a-z]+)?|rosewood|belmond|one ?& ?only|ritz[- ]carlton|mandarin oriental|six senses|oberoi|taj\b|park hyatt|airelles|cheval blanc|auberge|montage|como\b|lefay|oetker|dorchester|peninsula|st\.? regis|waldorf astoria|bulgari|raffles|fairmont|edition\b|soneva|singita|&beyond|andbeyond|eleven\b|explora|awasi|tierra\b|vik\b|nihi|capella|kempinski|jumeirah|shangri-la|anantara|banyan tree|relais & ch[aâ]teaux|rocco forte|maybourne|langham|so\/|gleneagles|turnberry|adare manor|dromoland|ashford castle|old course hotel|fancourt|archerfield|sandy lane|jumby bay|luxury lodges of australia|baillie lodges|maisons pariente|ted turner reserves|ett hem|grand h[oô]tel stockholm)/i;
+let _luxNames = null;
+function luxNames() {
+  if (_luxNames) return _luxNames;
+  const out = new Set();
+  [...ULTRA_LUX, ...EXPERIENCE_LUX, ...BEST_AVAILABLE, ...EXPERIENCE_LODGING, ...Object.keys(VIRTUOSO_EVIDENCE)].forEach((n) => out.add(String(n)));
+  Object.values(FAVORITES).forEach((arr) => (arr || []).forEach((h) => { if (h && h.name) out.add(h.name); }));
+  return (_luxNames = [...out]);
+}
+function luxuryStay(text) {
+  return String(text || "").split(/\s*[·,]\s*|\s+or\s+/).some((s) => {
+    s = s.replace(/\(.*?\)/g, "").trim();
+    if (!s) return false;
+    if (LUX_BRANDS.test(s)) return true;
+    return luxNames().some((k) => nameMatch(k, s));
+  });
+}
+function cityHasStay(city) {
+  const h = lookup(FAVORITES, city);
+  if (Array.isArray(h) && h.length) return true;
+  const near = lookup(NEARBY_CITIES, city);
+  return Array.isArray(near) && near.some((c) => { const g = lookup(FAVORITES, c); return Array.isArray(g) && g.length > 0; });
+}
+function fiveStarStay(e) { return !!e && (cityHasStay(e.city) || luxuryStay(e.stay) || luxuryStay(e.n)); }
 const GOLF = [
   { n: "The Old Course at St Andrews", city: "St Andrews", set: ["Coastal & seaside","Historic towns & villages"], acc: "Ballot or visitor tee time", stay: "Old Course Hotel · Rusacks", hero: 1, why: "The origin of the game. The ballot decides most tee times, so we enter it for you and build the week around what comes back." },
   { n: "Royal County Down", city: "Newcastle, County Down", set: ["Coastal & seaside","Mountains & alpine"], acc: "Visitor access", stay: "Slieve Donard", hero: 1, why: "Gorse, blind drives and the Mourne Mountains behind every shot. Regularly called the finest links on earth." },
   { n: "Royal Dornoch", city: "Dornoch", set: ["Coastal & seaside"], acc: "Visitor tee time", stay: "Links House at Royal Dornoch", hero: 1, why: "Far north and worth every mile — the course that shaped Donald Ross, with the Dornoch Firth alongside." },
   { n: "Pebble Beach Golf Links", city: "Pebble Beach", set: ["Coastal & seaside"], acc: "Resort guests get priority", stay: "The Lodge at Pebble Beach · Inn at Spanish Bay", hero: 1, why: "Staying at the Lodge is how you get on. The seventh and the eighteenth need no introduction." },
-  { n: "Royal Portrush · Dunluce", city: "Portrush", set: ["Coastal & seaside"], acc: "Visitor access", stay: "Confirm luxury base on the Causeway Coast", why: "The Open's Irish home, with Calamity Corner and the dunes above the Atlantic." },
+  { n: "Royal Portrush · Dunluce", city: "Portrush", set: ["Coastal & seaside"], acc: "Visitor access", stay: "Dunluce Lodge, beside the course", why: "The Open's Irish home, with Calamity Corner and the dunes above the Atlantic." },
   { n: "Muirfield", city: "Gullane", set: ["Coastal & seaside"], acc: "Limited visitor days", stay: "Greywalls, beside the course", hero: 1, why: "The Honourable Company's course, and Greywalls sits on its edge — the tidiest pairing in golf." },
   { n: "Royal Melbourne · West", city: "Melbourne", set: ["Big city","Coastal & seaside"], acc: "Limited visitor access", stay: "Melbourne city luxury, about half an hour", why: "Alister MacKenzie on the Sandbelt — the best strategic golf in the southern hemisphere." },
   { n: "Turnberry · Ailsa", city: "Turnberry", set: ["Coastal & seaside"], acc: "Resort guests", stay: "The hotel above the course", hero: 1, why: "The lighthouse, Ailsa Craig, and the run of holes along the shore that decided the Duel in the Sun." },
@@ -10240,7 +10301,7 @@ const GOLF = [
   { n: "Whistling Straits · Straits", city: "Kohler", set: ["Lakes"], acc: "Resort guests", stay: "The American Club", why: "A thousand bunkers along Lake Michigan, built to look like Ireland and playing like it in wind." },
   { n: "Cabot Saint Lucia · Point Hardy", city: "Cap Estate", set: ["Islands","Coastal & seaside","Beach"], acc: "Resort", stay: "Cabot Saint Lucia", why: "Eight holes on the headland above the Caribbean — the most dramatic new course in the world." },
   { n: "Adare Manor", city: "Adare", set: ["Countryside","Historic towns & villages"], acc: "Resort guests & members", stay: "Adare Manor", hero: 1, why: "The 2027 Ryder Cup course, on a neo-Gothic estate of 840 acres. Ireland's grandest stay by some distance." },
-  { n: "Old Head Golf Links", city: "Kinsale", set: ["Coastal & seaside"], acc: "Visitor or resort", stay: "Old Head lodges · Kinsale luxury", why: "A promontory jutting two miles into the Atlantic, cliffs on both sides of you the whole way round." },
+  { n: "Old Head Golf Links", city: "Kinsale", set: ["Coastal & seaside"], acc: "Visitor or resort", stay: "Castlemartyr Resort, about an hour and a quarter", why: "A promontory jutting two miles into the Atlantic, cliffs on both sides of you the whole way round." },
   { n: "Teeth of the Dog", city: "La Romana", set: ["Coastal & seaside","Beach"], acc: "Resort or public", stay: "Casa de Campo", why: "Pete Dye cut seven holes into the coral shoreline by hand. The best course in the Caribbean." },
   { n: "Fancourt · The Links", city: "George", set: ["Countryside","Coastal & seaside"], acc: "Resort guests", stay: "Fancourt", why: "A links conjured out of flat South African farmland, and a proper test on the Garden Route." },
   { n: "New South Wales Golf Club", city: "Sydney", set: ["Coastal & seaside","Big city"], acc: "Limited visitor access", stay: "Sydney harbour luxury", why: "MacKenzie again, on the headland at La Perouse where Botany Bay meets the Pacific." },
@@ -10252,7 +10313,7 @@ const GOLF = [
   { n: "Kawana · Fuji Course", city: "Ito", set: ["Coastal & seaside"], acc: "Resort", stay: "Kawana Hotel", why: "C. H. Alison on the Izu Peninsula, cherry blossom and the Pacific, with Fuji behind on a clear day." },
   { n: "Bandon Dunes", city: "Bandon", set: ["Coastal & seaside"], acc: "Resort guests", stay: "Bandon Dunes Resort lodging", why: "The course that started it all, high on the bluff. Walking only, caddie recommended." },
   { n: "Bandon Trails", city: "Bandon", set: ["Coastal & seaside","Countryside"], acc: "Resort guests", stay: "Bandon Dunes Resort lodging", why: "Inland through dune, meadow and forest — the change of scene that completes the trip." },
-  { n: "Cabot Highlands · Castle Stuart", city: "Inverness", set: ["Coastal & seaside"], acc: "Resort or public", stay: "Ness Walk · Rocpool Reserve, Inverness", why: "Terraced along the Moray Firth with the castle and the water in view from nearly every tee." },
+  { n: "Cabot Highlands · Castle Stuart", city: "Inverness", set: ["Coastal & seaside"], acc: "Resort or public", stay: "Ness Walk, Inverness, about twenty minutes", why: "Terraced along the Moray Firth with the castle and the water in view from nearly every tee." },
   { n: "Valderrama", city: "Sotogrande", set: ["Countryside","Coastal & seaside"], acc: "Limited visitor access", stay: "SO/ Sotogrande", why: "Trent Jones through cork oaks, Ryder Cup 1997, and the seventeenth that ruined a hundred cards." },
 ];
 
@@ -10263,6 +10324,7 @@ const TENNIS = [
   { n: "Rafa Nadal Academy", city: "Manacor", set: ["Islands"], kind: "Elite academy", surf: "Clay, hard & indoor", acc: "Programs & camps", hero: 1, why: "Adult programs from a day's training to a full week, on the methodology and the courts that made him." },
   { n: "Puente Romano Tennis Club", city: "Marbella", set: ["Coastal & seaside","Beach"], kind: "Elite club", surf: "Clay", acc: "Guests, booking or academy", hero: 1, why: "Eight floodlit clay courts with Becker, McEnroe, Djokovic and Murray in the history, and serious adult coaching now." },
   { n: "Amanzoe", city: "Porto Heli", set: ["Coastal & seaside"], kind: "Ultra-luxury resort", surf: "Hard", acc: "Hotel guests", hero: 1, why: "Tennis among olive groves above the Peloponnese and the Aegean." },
+  { n: "Castlemartyr Resort", city: "Castlemartyr", set: ["Countryside","Historic towns & villages"], kind: "Country resort", surf: "Hard, floodlit", acc: "Hotel guests", why: "Floodlit courts on a 220-acre East Cork estate with its own course \u2014 the Irish base that covers both games." },
   { n: "Rancho Valencia", city: "Rancho Santa Fe", set: ["Countryside"], kind: "Elite tennis resort", surf: "Hard", acc: "Guests & programs", hero: 1, why: "America's most tennis-centred luxury resort — the sport is the point of the place, not a facility." },
   { n: "One&Only Reethi Rah", city: "Maldives", set: ["Islands","Beach"], kind: "Private island", surf: "Hard", acc: "Resort guests", hero: 1, why: "Playing on a private Maldivian island is its own reason to have come." },
   { n: "Mouratoglou Academy", city: "Biot", set: ["Coastal & seaside"], kind: "Elite academy", surf: "Clay & hard", acc: "Camps & private programs", why: "Patrick Mouratoglou's academy on the Riviera — a genuine professional training environment." },
@@ -10337,6 +10399,7 @@ const IDEAS = [
   { n: "Bordeaux", set: ["Wine country","Countryside","River & waterfront"], act: ["Food & wine","Art & history","Architecture & design"], w: ["Warm & mild"], best: "Jun–Oct", why: "Grand châteaux and the world's most famous cellars." },
   { n: "Marrakech", set: ["Desert","Big city","Historic towns & villages"], act: ["Shopping","Wellness & spa","Food & wine","Art & history","Architecture & design","Adventure","Culture & festivals"], w: ["Hot & sunny","Warm & mild"], best: "Oct–Apr", why: "Souks, hidden riads and hammams at the edge of the Atlas." },
   { n: "Dubai", set: ["Desert","Big city","Coastal & seaside","Beach"], act: ["Shopping","Wellness & spa","Golf","Diving & water","Beach & pool","Architecture & design","Sailing & yachting","Sports & sporting events","Cars & motorsports","Family","Tennis"], w: ["Hot & sunny"], best: "Nov–Mar", why: "Desert glamour, record towers, beach clubs and relentless retail." },
+  { n: "Herceg Novi", set: ["Coastal & seaside","Beach","Historic towns & villages"], act: ["Sailing & yachting","Wellness & spa","Beach & pool","Diving & water","Art & history"], w: ["Hot & sunny","Warm & mild"], best: "May\u2013Oct", why: "The Bay of Kotor from the water \u2014 Perast, the island churches and the old walled towns by boat, with the Adriatic outside." },
   { n: "Sedona", set: ["Desert","Ranch & wilderness"], act: ["Hiking & nature","Wellness & spa","Golf","Adventure","Photography & scenery","Equestrian & polo","Fly fishing","Ranches & riding"], w: ["Warm & mild","Cool & crisp"], best: "Mar–May, Sep–Nov", why: "Red-rock cathedrals, a deep wellness scene and canyon golf." },
   { n: "Lake Como", set: ["Lakes","Mountains & alpine","Historic towns & villages"], act: ["Food & wine","Wellness & spa","Hiking & nature","Shopping","Sailing & yachting","Deep sea fishing","Photography & scenery"], w: ["Warm & mild"], best: "May–Sep", why: "Villa gardens and steep green shores an hour from Milan." },
   { n: "Serengeti", set: ["Safari & wild","Ranch & wilderness"], act: ["Wildlife","Hiking & nature","Photography & scenery","Adventure"], w: ["Warm & mild"], best: "Jun–Oct", why: "The great migration thundering across endless plains." },
@@ -10370,7 +10433,7 @@ function sportLayers() {
     { list: typeof FLY !== "undefined" ? FLY : [], act: "Fly fishing", label: "fly fishing" },
     { list: typeof SHOP !== "undefined" ? SHOP : [], act: "Shopping", label: "shopping" },
     { list: typeof RANCH !== "undefined" ? RANCH : [], act: "Ranches & riding", label: "ranches & riding" },
-  ];
+  ].map((L) => ({ ...L, list: L.list.filter(fiveStarStay) }));   // the 5-star gate (M1011)
 }
 // What a city is on our lists FOR. Once a place has earned its way onto a best-of list, that
 // should follow it everywhere — so someone who simply types "Paris" is told it is one of our
@@ -10424,7 +10487,7 @@ const PLACE_REGION = {
   "newcastle, county down": "Northern Ireland", "portrush": "Northern Ireland",
   "sunningdale": "Surrey, England", "ascot": "Berkshire, England", "new milton": "Hampshire, England",
   "leatherhead": "Surrey, England", "hampshire": "England", "southport": "England",
-  "adare": "County Limerick, Ireland", "lahinch": "County Clare, Ireland", "kinsale": "County Cork, Ireland",
+  "adare": "County Limerick, Ireland", "lahinch": "County Clare, Ireland", "kinsale": "County Cork, Ireland", "castlemartyr": "County Cork, Ireland", "herceg novi": "Montenegro", "rakiraki": "Fiji", "montaione": "Tuscany, Italy", "le puy-sainte-r\u00e9parade": "Provence, France",
   "portmarnock": "County Dublin, Ireland", "rosapenna": "County Donegal, Ireland",
   "manacor": "Mallorca, Spain", "deia": "Mallorca, Spain", "elciego": "Rioja, Spain",
   "briones": "Rioja, Spain", "laguardia": "Rioja, Spain", "haro": "Rioja, Spain",
@@ -10795,7 +10858,7 @@ function sportFor(list, sel, trigger) {
   // The chip that opened this list is the reason it is here, not a way of telling one estate
   // from another — every one of them is a wine estate. Rank on everything else that was tapped.
   const acts = (sel.act || []).filter((x) => !trigger || x.indexOf(trigger) !== 0);
-  const hit = (list || []).filter((x) => sets.length === 0 || sets.some((y) => x.set.includes(y)));
+  const hit = (list || []).filter(fiveStarStay).filter((x) => sets.length === 0 || sets.some((y) => x.set.includes(y)));   // the 5-star gate (M1011)
   // A hero gets a thumb on the scale, not the whole hand: enough to win a tie, not enough to
   // outrank an estate that genuinely matches two or three of the things actually asked for.
   const score = (x) => (x.hero ? 12 : 0) + acts.filter((a) => (x.act || []).includes(a)).length * 10;
@@ -10862,6 +10925,10 @@ function nearMiss(sel) {
   return null;
 }
 const GATEWAY = {
+  "Herceg Novi": { air: "Tivat", note: "Fly to Tivat (TIV), twenty minutes away, or to Dubrovnik (DBV), about an hour with the border crossing." },
+  "Portrush": { air: "Belfast", note: "Portrush has no airport \u2014 fly to Belfast (BFS or BHD), then about an hour and a quarter north by car." },
+  "Dornoch": { air: "Inverness", note: "Fly to Inverness (INV), then about an hour north by car along the Dornoch Firth." },
+  "Castlemartyr": { air: "Cork", note: "Fly to Cork (ORK), then about half an hour east by car." },
   "Portugal": { air: "Lisbon", note: "Lisbon (LIS) is the gateway — hire a car there and the country opens up." },
   "Blue Lagoon": { air: "Reykjavik", note: "Keflavík (KEF) is twenty minutes away — the Retreat is the first or last night of any Iceland trip." },
   "Reykjanes Peninsula": { air: "Reykjavik", note: "Keflavík (KEF) sits on the peninsula itself; the Blue Lagoon is twenty minutes from the terminal." },
@@ -11515,7 +11582,7 @@ const AIRPORTS = {
   "Seville": { code: "SVQ", scale: "regional" }, "Granada": { code: "GRX", scale: "regional" },
   "Bilbao": { code: "BIO", scale: "regional" }, "San Sebastián": { code: "EAS", scale: "regional" },
   "Edinburgh": { code: "EDI", scale: "regional" }, "Dublin": { code: "DUB", scale: "intercontinental" },
-  "Manchester": { code: "MAN", scale: "intercontinental" }, "Glasgow": { code: "GLA", scale: "regional" }, "Belfast": { code: "BFS", scale: "regional" }, "Inverness": { code: "INV", scale: "regional" }, "Aberdeen": { code: "ABZ", scale: "regional" },
+  "Manchester": { code: "MAN", scale: "intercontinental" }, "Glasgow": { code: "GLA", scale: "regional" }, "Belfast": { code: "BFS", scale: "regional" }, "Cork": { code: "ORK", scale: "regional" }, "Tivat": { code: "TIV", scale: "regional" }, "Inverness": { code: "INV", scale: "regional" }, "Aberdeen": { code: "ABZ", scale: "regional" },
   "Phoenix": { code: "PHX", scale: "intercontinental" }, "Calgary": { code: "YYC", scale: "intercontinental" },
   "Sapporo": { code: "CTS", scale: "regional" }, "Kilimanjaro": { code: "JRO", scale: "regional" },
   "Aspen": { code: "ASE", scale: "regional" }, "Denver": { code: "DEN", scale: "intercontinental" },
@@ -12451,7 +12518,7 @@ const COORDS = {
   "Montana": [45.44,-110.71], "St-Tropez": [43.27,6.64], "Antibes": [43.55,7.12], "Taormina": [37.85,15.29],
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
   "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
-  "Ireland": [52.56,-8.79], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
+  "Ireland": [52.56,-8.79], "Castlemartyr": [51.91,-8.05], "Herceg Novi": [42.45,18.53], "Montaione": [43.55,10.91], "Le Puy-Sainte-R\u00e9parade": [43.65,5.44], "Portrush": [55.20,-6.65], "Dornoch": [57.88,-4.03], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
   "Abu Dhabi": [24.45,54.38], "Liwa Desert": [23.12,54.08], "Ras Al Khaimah": [25.79,55.94], "Ajman": [25.41,55.44], "Manama": [26.22,50.58], "Kuwait City": [29.37,47.98], "Tel Aviv": [32.08,34.78], "Herzliya": [32.17,34.80], "Jerusalem": [31.77,35.22], "Negev Desert": [29.92,35.05], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
   "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
   "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
@@ -19562,7 +19629,7 @@ function MultiChips({ options, values, onToggle }) {
 const DIRECT_CACHE = {};   // "from|to|date" → nonstop count (number) or null when the search failed
 function useDirectFlights(fromCity, date, cities, enabled) {
   const [tick, setTick] = useState(0);
-  const want = enabled && fromCity && date ? cities.slice(0, 12) : [];
+  const want = enabled && fromCity && date ? cities.slice(0, 16) : [];   // M1010: 16 — covers the dozen on screen
   const keyOf = (c) => `${fromCity}|${c}|${date}`.toLowerCase();
   useEffect(() => {
     if (!want.length) return;
@@ -19626,10 +19693,15 @@ function IdeasPicker({ d, i, p }) {
   const fromCity = (p && p.fromCity) || "";
   const departDate = (p && p.dates && p.dates.depart) || "";
   const specialtyCities = [...tennis, ...golf, ...wine, ...ski, ...fish, ...fly, ...shop, ...ranch].map((x) => x.city || x.n);
-  const direct = useDirectFlights(fromCity, departDate, [...new Set([...specialtyCities, ...ranked.map((r) => r.idea.city || r.idea.n)])], flyPref !== "any" && !onPlaceNow(sel));
+  // Check the places that are actually on screen: the specialist lists only when one thing is tapped
+  // alone (that is when they show), then the ranked ideas in order (M1010).
+  const rankedCities = ranked.map((r) => r.idea.city || r.idea.n);
+  const direct = useDirectFlights(fromCity, departDate, [...new Set(soloAct ? [...specialtyCities, ...rankedCities] : rankedCities)], flyPref !== "any" && !onPlaceNow(sel));
   const directOf = (x) => direct[x.city || x.n];
   // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
-  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => { const v = directOf(x.idea); return typeof v === "number" ? (v > 0 ? 0 : 2) : 1; }; return r(a) - r(b); }) : ranked).map((r) => r.idea);
+  // Direct flight wanted: confirmed nonstops rise to the top; everything else — a connection, still
+  // checking, or not checked — keeps its fit order. (M1010: this used to be upside down.)
+  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => (directOf(x.idea) === 0 ? 0 : 1); return r(a) - r(b); }) : ranked).map((r) => r.idea);
   const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
   const [moreIdeas, setMoreIdeas] = useState(false);
   const SHOW_N = 12;
