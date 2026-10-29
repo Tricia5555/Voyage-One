@@ -5,7 +5,8 @@
 // Amadeus's self-service API, the obvious fare source, was decommissioned on 17 July 2026. The
 // question the ideas screen asks is a schedule question — who flies it, what time — and the
 // airlines' published schedules answer it for every carrier. Fares come from Duffel today and
-// Sabre when it arrives. Added 29 Oct 2026 (M1017).
+// Sabre when it arrives. Added 29 Oct 2026 (M1017). M1018: the live answer carried no carrier
+// field, only "DL1944" — so the airline is read from the flight number when the field is missing.
 //
 // Runs on Vercel with AEROAPI_KEY (never in the browser).
 //
@@ -69,8 +70,9 @@ export default async function handler(req, res) {
         const sign = m[3][0] === "-" ? -1 : 1; const off = sign * (parseInt(m[3].slice(1, 3)) * 60 + parseInt(m[3].slice(4, 6)));
         return new Date(t.getTime() + off * 60000).toISOString().slice(0, 10); })();
       if (localDay && localDay !== date) continue;
-      const code = (f.operator_iata || f.operator || "").toUpperCase();
-      const flightNo = f.ident_iata || f.ident || `${code}${f.flight_number || ""}`;
+      const flightNo = f.ident_iata || f.ident || `${f.operator_iata || ""}${f.flight_number || ""}`;
+      const fromNo = (/^([A-Z0-9]{2})\d/.exec(String(flightNo).toUpperCase()) || [])[1] || "";
+      const code = (f.operator_iata || fromNo || f.operator || "").toUpperCase();
       const k = `${flightNo}|${out}`;
       if (seen.has(k)) continue;
       const mins = (out && inn) ? Math.round((new Date(inn) - new Date(out)) / 60000) : null;
