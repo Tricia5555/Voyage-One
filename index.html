@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1029";
+const BUILD = "M1030";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -14219,8 +14219,8 @@ const MARQUEE_EVENTS = [
   ["The Open Championship", "Southport", "2026-07-12", "2026-07-19", "Golf's oldest major, at Royal Birkdale."],
   ["Spanish Grand Prix", "Madrid", "2026-09-11", "2026-09-13", "Formula 1's new Madring circuit brings F1 to Madrid."],
   ["US Open Tennis", "New York City", "2026-08-31", "2026-09-13", "The final Grand Slam of the year, in Flushing Meadows — night sessions under lights are the ticket."],
-  ["Monaco Grand Prix", "Monte Carlo", "2027-05-20", "2027-05-23", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets. Book a terrace a year out."],
-  ["Monaco Grand Prix", "Monaco", "2027-05-20", "2027-05-23", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets."],
+  ["Monaco Grand Prix", "Monte Carlo", "2027-06-04", "2027-06-06", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets. Monaco's first sprint weekend."],
+  ["Monaco Grand Prix", "Monaco", "2027-06-04", "2027-06-06", "The jewel of the F1 calendar — yachts in the harbour, the race through the streets. Monaco's first sprint weekend."],
   ["Super Bowl LX", "San Francisco", "2026-02-08", "2026-02-08", "The NFL championship, at Levi's Stadium in the Bay Area."],
   ["Ryder Cup", "New York City", "2025-09-26", "2025-09-28", "USA v Europe at Bethpage Black."],
   ["Roland-Garros (French Open)", "Paris", "2026-05-24", "2026-06-07", "The clay-court Grand Slam at Roland-Garros — Parisian spring at its most stylish."],
@@ -15800,7 +15800,9 @@ function VoyageOne() {
   // journeys land on Basics so you choose your week within the season.
   const seedFromEvent = (ev) => {
     const seededStay = ev.stay ? { level: "UltraLux", name: ev.stay.name, nightly: ev.stay.rate || null, band: null, estimated: true, id: null, contact: ev.stay.contact || null } : null;
-    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date, evening: !!d.evening }));
+    // EVERY CHOICE ENDS IN SOMETHING TO DO (M1030): a level that names its seller (book) or its
+    // broker (via) carries that into the trip, where the tickets panel turns it into the button.
+    const seededSports = (ev.aecDays || []).map((d) => ({ name: (ev.title ? ev.title + " · " : "") + d.label, price: null, date: d.date, evening: !!d.evening, ...(d.book ? { book: d.book, bookLabel: d.bookLabel || null } : {}), ...(d.via ? { via: d.via } : {}) }));
     // Never fly in on the day of a fixed, ticketed event. When the client has chosen specific
     // event days, land them a set number of full days ahead so there is time to cross, settle
     // and — where the experience needs it, like a Carnival costume fitting — get ready before
@@ -16460,34 +16462,39 @@ function Planner(p) {
 const ONE_LIST = {
   "Sport": {
     "Motorsport": [
-      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-03", end: "2027-06-07", dateLabel: "June 3–6, 2027", nights: 4, arriveDaysBefore: 3, blurb: "The crown jewel of Formula 1, watched from a yacht in the harbour — barriers inches from the water, the Riviera at full glamour.", photo: "/images/monaco-harbour-f1.jpg", gallery: ["/images/monaco-harbour-f1.jpg", "/images/monaco-bay.jpg", "/images/monaco-passage.jpg", "Monte Carlo Monaco harbour"], galleryW: { 2: "min(46vw, 340px)" }, guide: {
+      { title: "Monaco Grand Prix", city: "Monaco", airport: "NCE", airportName: "Nice Côte d'Azur", start: "2027-06-04", end: "2027-06-07", dateLabel: "June 4–6, 2027 · Monaco's first sprint weekend", nights: 4, arriveDaysBefore: 3, blurb: "The crown jewel of Formula 1, perhaps watched from a yacht in the harbour, barriers inches from the water, the Riviera at full glamour.", photo: "/images/monaco-harbour-f1.jpg", gallery: ["/images/monaco-harbour-f1.jpg", "/images/monaco-bay.jpg", "/images/monaco-passage.jpg", "Monte Carlo Monaco harbour"], galleryW: { 2: "min(46vw, 340px)" }, guide: {
         daysTitle: "How you'll watch",
         pickStep: "Step one · choose how you watch",
-        pickPrompt: "Which level?",
-        pickHelp: "Lock the way you want to watch — this is what we secure first, and everything else is built around it.",
-        pickSettle: "You'll set your nights and arrival next — Saturday's qualifying is the real event here (pole usually wins), so plan the weekend rather than arriving on race day itself.",
+        pickPrompt: "Which way?",
+        pickHelp: "Choose the way you want to watch — everything else is built around it.",
+        pickSettle: "You'll set your nights and arrival next. Saturday has the sprint and qualifying — pole usually wins here — so plan the whole weekend.",
         recapLabel: "Your race",
-        ticketsTitle: "Securing your place",
+        ticketsTitle: "Your place for the race",
         beyondTitle: "Beyond the race",
         cur: "€",
-        daysIntro: "Monaco comes down to where you watch from. The harbour sits inside the circuit, so a yacht is quite simply the best seat in the sport; a great VIP is the strong alternative; and one land terrace is genuinely worth it. Here are the exciting options — each chosen for how much of the race you actually see.",
+        // MONACO, 31 Oct 2026 (Tricia, M1030). Two ways in, each ending in something the client can
+        // DO: the yacht through our broker in Monaco (a ready-written e-mail, via: "broker"), and
+        // F1's own hospitality booked direct with Formula 1 (book: the official page). The Yacht
+        // Club de Monaco and the reseller Ermanno-terrace prices are gone — nobody we know could
+        // promise the first, and the second was a different seller's product. 2027 is June 4–6,
+        // Monaco's first sprint weekend (F1 calendar, 16 Sept 2026; F1 Experiences lists 4–6 June).
+        daysIntro: "Monaco comes down to where you watch from. The harbour sits inside the circuit, so a yacht is quite simply the best seat in the sport; Formula 1's own hospitality is the strong alternative. Each is chosen for how much of the race you actually see.",
         dayPicks: [
-          { label: "A yacht in the harbour", dates: "Race weekend · early June 2027", band: "The best seat in the sport", note: "The harbour is inside the circuit — a trackside berth in Port Hercule puts you meters from the Nouvelle Chicane, Rascasse and the swimming-pool section, champagne in hand, the cars at the corners that matter. The berth is the hard part, allocated by application months ahead — which is exactly where a broker earns their keep.", date: "2027-06-06", tiers: [
-            { tier: "Whole-boat charter", label: "Charter the whole yacht for the week · ≈ €150k–€1M+ plus fees & the berth" },
-            { tier: "A VIP deck", label: "A deck on a chartered yacht, by the day · ≈ £2,000 Sat · £3,100–£4,700 Sun" },
+          { label: "A yacht in the harbour", dates: "Race weekend · June 4–6, 2027", band: "The best seat in the sport", note: "The harbour is inside the circuit — a trackside berth in Port Hercule puts you meters from the Nouvelle Chicane, Rascasse and the swimming-pool section, the cars at the corners that matter. Berths are allocated months ahead, which is why the yacht goes through our broker in Monaco: anything from a yacht of your own to a place on one with other guests.", date: "2027-06-06", tiers: [
+            { tier: "A yacht of your own", label: "Charter the whole yacht for race week, berth and crew included", via: "broker" },
+            { tier: "A place on a yacht", label: "A day or the weekend aboard a yacht shared with other guests", via: "broker" },
           ] },
-          { label: "VIP hospitality", dates: "Race weekend · early June 2027", band: "Access & champagne, trackside", note: "The strong alternative to a yacht — trackside catering, open bar and, in one case, the only real access to the pit lane.", date: "2027-06-06", tiers: [
-            { tier: "Yacht Club de Monaco", label: "The members' clubhouse terrace · by invitation — we arrange it" },
-            { tier: "F1 Paddock Club · La Rascasse", label: "Official F1 hospitality, pit-lane access · ≈ $14,500–$24,000 pp" },
-          ] },
-          { label: "The Ermanno terrace", date: "2027-06-06", dates: "Race weekend · early June 2027", band: "The one land view worth it — over half the lap", note: "A residential-tower terrace whose sweep takes in the tunnel exit, the chicane, Tabac, the pool section and start/finish — over half the lap — with a buffet and open bar. The land option that truly sees the race.", tiers: [
-            { tier: "Saturday · qualifying", label: "Saturday, the qualifying (the real event) · ≈ €2,000 pp" },
-            { tier: "Sunday · the race", label: "Sunday, race day · ≈ €4,000 pp" },
-            { tier: "Both days", label: "Saturday and Sunday · the full weekend" },
+          { label: "Formula 1's own hospitality", dates: "Race weekend · June 4–6, 2027", band: "Booked direct with Formula 1", note: "The official way in, sold by Formula 1 itself — one with the best land view of the race, one with the only real access to the pit lane.", date: "2027-06-06", tiers: [
+            { tier: "Champions Club · Ermanno Penthouse", label: "Twelfth floor above Turn 1, Sainte-Dévote — covered, with an open balcony over most of the circuit and the harbour · lunch and an open bar · Saturday and Sunday", book: "https://f1experiences.com/2027-monaco-grand-prix/champions-club-ermanno-penthouse", bookLabel: "See it and book with F1 Experiences" },
+            { tier: "F1 Paddock Club", label: "The only pit-lane access, on the harbour front · 2027 is by waitlist", book: "https://ticketing.formula1.com/hospitality/monaco/", bookLabel: "Join the official waitlist" },
           ] },
         ],
-        tickets: "Everything here is secured, not clicked. A yacht berth in Port Hercule is allocated by hard-copy application on an unforgiving deadline (2027 applications closed around late February) — book 9–12 months ahead through a broker who holds a trackside berth. Yacht decks and the Ermanno terrace sell by the day; the Paddock Club is official F1 hospitality, currently by waitlist; and the Yacht Club de Monaco is a relationship, not a checkout. An optional after-dark add-on is the Amber Lounge — the F1 party, rather than a place to watch the race.",
-        ticketNote: "Prices are approximate, per person, largely reseller-quoted for recent editions — the whole-charter figure excludes VAT, provisioning and the berth fee. We confirm exact cost before anything is committed.",
+        tickets: "Harbour berths are allocated months ahead, so the yacht goes through our broker in Monaco — from a yacht of your own to a place on one with other guests. Formula 1's own hospitality is booked directly with Formula 1: the Ermanno Penthouse on F1 Experiences, and the Paddock Club by its official waitlist. An after-dark add-on is the Amber Lounge — the F1 party rather than a place to watch the race.",
+        ticketNote: "Prices come from the seller: F1 Experiences shows them when you book, and our broker quotes the yacht for your dates.",
+        broker: { who: "our yacht broker in Monaco", city: "Monaco", email: null, title: "Request your yacht", unit: "a yacht", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,", only: "broker",
+          intro: "The yacht is arranged by our yacht broker in Monaco — from a yacht of your own to a place on one with other guests. Choose here; once you build your trip, one tap sends the request with everything filled in.",
+          replyLine: "Our yacht broker in Monaco replies with what is available for your dates and the price.",
+          closing: "Please let me know what is available and the price." },
         stayNote: "Two philosophies, both good. Stay IN Monaco to be on the action (wonderful hotels — but book the stay, never their overpriced rooftop race package). Or stay OFF-CAMPUS up the coast in Èze, Cap-Ferrat or Beaulieu: outside the road closures, calm at night, and a 7-minute helicopter or train into the circus by day — for many, the better move.",
         stay: [
           { name: "Hôtel de Paris Monte-Carlo", area: "Monte-Carlo · on the circuit", rate: 3200, note: "The 1864 grande dame on Place du Casino, literally on the track, home to Le Louis XV — the most storied address in the principality.", contact: { addr: "Place du Casino, 98000 Monaco", tel: "+377 98 06 30 00", web: "montecarlosbm.com" } },
@@ -16499,32 +16506,32 @@ const ONE_LIST = {
         ],
         stayMore: "Choose any, or type another. Contact details are indicative — you click thru to book, direct with the hotel.",
         beyond: [
-          { name: "Getting in — never drive on race day", note: "Fly into Nice (NCE), then the glamorous move is the helicopter to Monaco: about 7 minutes, roughly €180–195 per person on the scheduled line or from ~€750 to charter privately. From an Èze or Beaulieu hotel, the concierge's trick is the 7-minute train straight into Monaco-Monte-Carlo. On Saturday and Sunday the streets and tunnels close — a car only gets you to the fringe." },
+          { name: "Getting in", note: "Nice Côte d'Azur (NCE) is Monaco's airport, for scheduled flights and private aircraft alike. From there the helicopter takes about seven minutes; from an Èze or Beaulieu hotel, the train runs straight into Monaco-Monte-Carlo in seven. Over the race weekend the streets and tunnels close, so a car only reaches the edge of town." },
           { name: "The great tables", note: "Le Louis XV – Alain Ducasse (three stars) and Le Grill on the Hôtel de Paris rooftop, Pavyllon by Yannick Alléno at the Hermitage, Blue Bay at Monte-Carlo Bay; and up the coast, La Chèvre d'Or in Èze and Le Cap at Cap-Ferrat. Booked weeks ahead — GP weekend fills them." },
           { name: "Amber Lounge, after dark", note: "The F1 party institution — the driver fashion show, DJs, the scene. A night add-on, never a way to watch the race." },
-          { name: "The days that matter", note: "Friday to settle in and take the tender out; Saturday for qualifying, the real sport here; Sunday for the race and the harbour at full tilt." },
+          { name: "The days that matter", note: "Friday for practice and sprint qualifying, and to settle in; Saturday for the sprint and qualifying, the real sport here; Sunday for the race and the harbour at full tilt." },
         ],
         notes: [
-          "Every way in we offer is chosen for the view — a yacht deck and the Ermanno terrace put you at the corners that matter, so you watch the race unfold rather than catch a single flash of it.",
-          "Saturday qualifying decides it — overtaking is near-impossible on these streets, so pole usually wins the race. Many regulars rate Saturday above Sunday.",
+          "Every way in we offer is chosen for the view — a yacht in the harbour and the Ermanno Penthouse put you over the corners that matter, so you watch the race unfold rather than catch a single flash of it.",
+          "Saturday decides it — the sprint and then qualifying, and overtaking is near-impossible on these streets, so pole usually wins the race. Many regulars rate Saturday above Sunday.",
           "Stay off-campus to sleep in peace: Èze and Cap-Ferrat sit outside the road closures — drop into the circuit by helicopter or a 7-minute train, and retreat to calm at night.",
           "Book early: yacht berths are allocated by application months ahead, and the best tables and helicopter slots go fast.",
-          "Dates: 2027 is early June — race Sunday 6 June — pending the FIA's final sign-off on the calendar.",
+          "Dates: June 4–6, 2027, race Sunday June 6 — Monaco's first sprint weekend, on Formula 1's 2027 calendar.",
         ],
           bookOrder: [
-            { what: "Grandstand, terrace or yacht", when: "Nine to twelve months ahead", why: "The scarce thing, and the one that sets the budget. Balcony terraces on the circuit and berths in the harbour are contracted long before the season starts; what is left in the spring is the expensive remainder." },
+            { what: "The yacht, or Formula 1's hospitality", when: "Nine to twelve months ahead", why: "The scarce thing, and the one that sets the budget. Harbour berths are allocated long before the season starts, and F1's own hospitality sells down early; what is left in the spring is the expensive remainder." },
             { what: "The hotel", when: "Immediately after, twelve months out", why: "Monaco has about two thousand hotel rooms and race weekend needs far more. Everything goes to minimum-stay contracts early \u2014 and remember the Riviera hotels twenty to thirty minutes along the coast, which are often available when the principality is not." },
             { what: "Restaurants and the helicopter transfer", when: "Three to six months out", why: "Both sell out for the weekend specifically. The Nice helicopter shuttle is the civilised way in and is booked like a seat, not a taxi." },
             { what: "Flights", when: "About eleven months out, when schedules open", why: "LAST. Nice is well served from everywhere and is not what will stop this trip happening." },
           ],
         stepsTitle: "Building your dream Monaco, step by step",
         steps: [
-          { h: "Choose how you watch", b: "a yacht, a VIP, or the Ermanno terrace — locked above. This is the anchor for everything else." },
+          { h: "Choose how you watch", b: "a yacht in the harbour, or Formula 1's own hospitality — chosen above. This is the anchor for everything else." },
           { h: "Choose your hotel", b: "in Monaco to be on the action, or off-campus in Èze or Cap-Ferrat for calm and no crowds." },
-          { h: "Set your nights & arrival", b: "the weekend, Friday to Sunday; we land you before qualifying and never on race day itself." },
-          { h: "And the flights follow", b: "into Nice (NCE), then the helicopter or the 7-minute train into Monaco — set from your arrival." },
+          { h: "Set your nights & arrival", b: "the weekend, Friday to Sunday — arrive by Friday, before Saturday's sprint and qualifying." },
+          { h: "And the flights follow", b: "into Nice (NCE), scheduled or private, then the helicopter or the 7-minute train into Monaco — set from your arrival." },
           { h: "The tables and the transfer", b: "Le Louis XV and the great rooms booked weeks out; your helicopter or car legs locked to the session times." },
-          { h: "Race weekend", b: "Saturday's qualifying, Sunday's race, the harbour in full glamour — the best moment in the sport." },
+          { h: "Race weekend", b: "Saturday's sprint and qualifying, Sunday's race, the harbour in full glamour — the best moment in the sport." },
         ],
       } },
       { title: "Singapore Grand Prix", city: "Singapore", airport: "SIN", airportName: "Singapore Changi", start: "2027-10-06", end: "2027-10-11", dateLabel: "Oct 8\u201310, 2027 \u00b7 Round 18", nights: 5, photo: "Marina Bay Sands Singapore night", gallery: ["Raffles Singapore", "Marina Bay Street Circuit Singapore", "Capella Singapore Sentosa"],
@@ -19635,7 +19642,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
     const selDays = multiMode
       ? Object.keys(multiSel).sort().map((date) => ({ date, label: multiSel[date].label, evening: /night/i.test(multiSel[date].tier || "") }))
       : tierMode
-      ? (ballTier ? [{ date: aecPick.date, tierName: ballTier.match || ballTier.tier, label: aecPick.label + " · " + ballTier.tier, evening: !/lunch|beach club|day bed|daytime/i.test((ballTier.tier || "") + " " + (ballTier.label || "")) }] : [])
+      ? (ballTier ? [{ date: aecPick.date, tierName: ballTier.match || ballTier.tier, label: aecPick.label + " · " + ballTier.tier, evening: !/lunch|beach club|day bed|daytime/i.test((ballTier.tier || "") + " " + (ballTier.label || "")), book: ballTier.book || null, bookLabel: ballTier.bookLabel || null, via: ballTier.via || null }] : [])
       : (aecPick && aecPick.days ? aecPick.days.filter((d) => aecDays.includes(d.date)).map((d) => {
           // THE COURT TRAVELS WITH THE DAY. Picking Centre for Saturday and No.1 for Sunday was
           // only true on this page; the trip itself still carried the raw label with both prices
@@ -19779,8 +19786,8 @@ function OneList({ onPick, onBack, onHome, initial }) {
               <Ship size={15} /> {aecPick.link.label}
             </a>) : null}
             {aecPick && aecPick.tiers ? (<div style={{ marginTop: 16, background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "16px 17px" }}>
-              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>{aecPick.tiers.length > 1 ? "Which level?" : "Lock it in"}</div>
-              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{aecPick.tiers.length > 1 ? "Choose the level you want — this is the ticket we secure, and it sets your date." : "Confirm the ticket we'll secure — this sets your date."}</div>
+              <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 4 }}>{aecPick.tiers.length > 1 ? ((g && g.pickPrompt) || "Which level?") : "Lock it in"}</div>
+              <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55, marginBottom: 12 }}>{aecPick.tiers.length > 1 ? "Choose the one you want — it sets your date." : "Confirm your choice — it sets your date."}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {aecPick.tiers.map((tr, ti) => { const on = ballTier && ballTier.tier === tr.tier; return (
                   // THE NAME WAS NEVER ON SCREEN. Only tr.label rendered, so a list of five
@@ -24699,7 +24706,13 @@ function findExperience(title) {
 // is the action. Universal: any experience whose guide carries a `broker` gets this panel.
 function BrokerRequest({ ev, g, d, tk, set }) {
   const b = g.broker; const pk = d.pick || {};
-  const days = (pk.sports || []).filter((x) => x && x.date).slice().sort((a, c) => String(a.date).localeCompare(String(c.date)));
+  // A guide whose broker handles only some choices (b.only = "broker": Monaco's yacht, not F1's own
+  // hospitality) shows this panel only when one of those was chosen, and lists only those (M1030).
+  const all = (pk.sports || []).filter((x) => x && x.date);
+  const days = (b.only ? all.filter((x) => x.via === b.only) : all).slice().sort((a, c) => String(a.date).localeCompare(String(c.date)));
+  if (b.only && !days.length) return null;
+  // Until the broker's own address is in, the request comes to Voyage One and is passed on.
+  const to = b.email || VO_REQUESTS_EMAIL;
   const seats = Number(tk.seats) || b.seatsDefault || 2;
   const name = tk.name || "";
   // The request is about the seats and nothing else — not the hotel, not the rest of the trip
@@ -24709,25 +24722,25 @@ function BrokerRequest({ ev, g, d, tk, set }) {
   const dayLine = (x) => "\u2022 " + String(x.name || "").replace(new RegExp("^" + esc(ev.title) + "\\s*\u00b7\\s*"), "").replace(/\s*\u00a3[\d,]+/g, "").trim();
   const lines = days.map(dayLine);
   const body = [
-    `Hello ${b.first || b.who},`, "",
+    b.greet || `Hello ${b.first || b.who},`, "",
     `I'm planning ${ev.title}${year ? " " + year : ""} through Voyage One and would like to request ${b.unit || "tickets"} for:`, "",
     ...(lines.length ? lines : ["\u2022 (days to be confirmed)"]), "",
-    `Seats: ${seats}${b.pairs ? " (I understand they are sold in pairs)" : ""}`,
+    `${b.seatsLabel || "Seats"}: ${seats}${b.pairs ? " (I understand they are sold in pairs)" : ""}`,
     `Name: ${name}`, "",
     b.closing || "Please confirm availability and the price.", "",
     "Thank you,", name, "",
     "\u2014 sent from Voyage One \u00b7 voyageoneworld.com",
   ].join("\n");
   const subject = `${ev.title}${year ? " " + year : ""} \u2014 ${b.unit || "ticket"} request via Voyage One`;
-  const href = `mailto:${b.email}?cc=${encodeURIComponent(VO_REQUESTS_EMAIL)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`.replace(/'/g, "%27");   // apostrophes encoded too — some mail apps cut the body at a bare one
+  const href = `mailto:${to}?${to === VO_REQUESTS_EMAIL ? "" : `cc=${encodeURIComponent(VO_REQUESTS_EMAIL)}&`}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`.replace(/'/g, "%27");   // apostrophes encoded too — some mail apps cut the body at a bare one
   const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
   const stepBtn = { width: 34, height: 34, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 18, cursor: "pointer" };
   return (<div style={{ marginBottom: 14, padding: "14px 16px", background: t.card, borderLeft: `3px solid ${t.pine}`, borderRadius: 12 }}>
-    <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Request your {b.unit || "tickets"}</div>
+    <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>{b.title || `Request your ${b.unit || "tickets"}`}</div>
     {lines.length ? (<div style={{ fontSize: 14, color: t.ink, lineHeight: 1.7 }}>{lines.map((l, k) => <div key={k}>{l}</div>)}</div>)
       : <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>Choose your days on the {ev.title} page and they appear here, ready to send.</div>}
     <div className="vo-noprint" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
-      <span style={{ fontSize: 13.5, color: t.inkSoft }}>Seats</span>
+      <span style={{ fontSize: 13.5, color: t.inkSoft }}>{b.seatsLabel || "Seats"}</span>
       <button onClick={() => set({ seats: Math.max(1, seats - (b.pairs ? 2 : 1)) })} style={stepBtn}>{"\u2212"}</button>
       <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink, minWidth: 22, textAlign: "center" }}>{seats}</span>
       <button onClick={() => set({ seats: Math.min(20, seats + (b.pairs ? 2 : 1)) })} style={stepBtn}>+</button>
@@ -24738,9 +24751,9 @@ function BrokerRequest({ ev, g, d, tk, set }) {
       {tk.requested ? <span style={{ fontSize: 12.5, color: t.pine, fontWeight: 600 }}>{"Requested \u00b7 awaiting confirmation"}</span> : null}
     </div>
     <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.6, marginTop: 10 }}>
-      Your mail opens with the request written {"\u2014"} send it as it is, or add anything you like. <strong style={{ color: t.ink }}>{b.who}</strong> at {b.firm}, {b.city}, confirms what is available and invoices you directly.
+      Your mail opens with the request written {"\u2014"} send it as it is, or add anything you like. {b.replyLine ? b.replyLine : <><strong style={{ color: t.ink }}>{b.who}</strong> at {b.firm}, {b.city}, confirms what is available and invoices you directly.</>}
     </div>
-    <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.6, marginTop: 4 }}>{b.email}{b.phone ? ` \u00b7 ${b.phone}` : ""}{b.phoneUS ? ` \u00b7 ${b.phoneUS}` : ""}{b.site ? ` \u00b7 ${b.site}` : ""}</div>
+    {b.email ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.6, marginTop: 4 }}>{b.email}{b.phone ? ` \u00b7 ${b.phone}` : ""}{b.phoneUS ? ` \u00b7 ${b.phoneUS}` : ""}{b.site ? ` \u00b7 ${b.site}` : ""}</div> : null}
   </div>);
 }
 function EventTicketsPanel({ d, upd, p }) {
@@ -24761,6 +24774,12 @@ function EventTicketsPanel({ d, upd, p }) {
   const pill = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" });
   return (<Panel icon={Ticket} title={`${ev.title} \u00b7 tickets`}>
     {g.broker ? <BrokerRequest ev={ev} g={g} d={d} tk={tk} set={set} /> : null}
+    {((d.pick && d.pick.sports) || []).filter((x) => x && x.book).map((x, k) => (<div key={"bk" + k} style={{ marginBottom: 14, padding: "14px 16px", background: t.card, borderLeft: `3px solid ${t.pine}`, borderRadius: 12 }}>
+      <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Your choice</div>
+      <div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.55 }}>{String(x.name || "").replace(ev.title + " \u00b7 ", "")}</div>
+      <div className="vo-noprint" style={{ marginTop: 10 }}><a href={brandedLink(x.book, { kind: "tickets", name: ev.title, city: d.city })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "11px 20px", fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{x.bookLabel || "Book with the official seller"}</a></div>
+      <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.6, marginTop: 8 }}>You book this directly with the seller; record it below once it is confirmed.</div>
+    </div>))}
     {rec ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}><strong>The ticket you need:</strong> {rec.label}{rec.price ? <span style={{ color: t.inkSoft }}> — {rec.price}</span> : null}</div> : (g.ticketBands && g.ticketBands.length ? <div style={{ fontSize: 14, color: t.ink, lineHeight: 1.6 }}>{g.ticketBands.slice(0, 3).map((b, k) => <div key={k}><strong>{b.label}</strong>{b.price ? <span style={{ color: t.inkSoft }}> — {b.price}</span> : null}</div>)}</div> : null)}
     {g.ticketNote ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 6 }}>{g.ticketNote}</div> : null}
     {g.sale ? <TicketSale sale={g.sale} title={ev.title} compact /> : null}
