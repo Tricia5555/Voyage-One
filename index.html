@@ -47,7 +47,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1028";
+const BUILD = "M1019";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -1981,17 +1981,6 @@ const LEVELS = ["UltraLux", "Luxury", "ExpLux", "ExpLodge", "Best"];
 // for "when is this place good" — it is the thing an agent knows and a database does not. An
 // entry appears only where someone has decided it. Everywhere else stays silent, which is honest.
 const SEASON = {
-  // Hero places from the sport lists that had no window (M1023): without one they ranked as "unknown"
-  // and either leapt a Caribbean January or lost a Riviera June.
-  "Antibes": { window: "May to October", note: "The Cap in its season \u2014 Eden-Roc opens mid-April and closes mid-October; July and August are the crush." },
-  "Portofino": { window: "April to October", note: "Splendido opens for the season in spring and closes after October; May, June and September are the months." },
-  "Positano": { window: "April to October", note: "The hotels open at Easter and close at the start of November; May, June and September are the months." },
-  "Marbella": { window: "March to November", note: "Mild all year, but the beach clubs and the Costa del Sol season run spring to autumn; golf is year-round." },
-  "Kiawah Island": { window: "March to November", note: "Lowcountry spring and autumn are the prize; summer is hot and humid, winter cool \u2014 the Ocean Course plays year-round but the beach does not." },
-  "Porto Heli": { window: "May to October", note: "Amanzoe\u2019s season; the Peloponnese coast is quiet outside it." },
-  "Rancho Santa Fe": { window: "Any month", note: "San Diego County\u2019s climate \u2014 tennis every month of the year." },
-  "Big Sky": { window: "June to September, or December to April", note: "Two seasons and two different trips: the rivers and the trails in summer, Lone Peak in winter. May and October are between." },
-  "Auchterarder": { window: "April to October", note: "Gleneagles\u2019 season for the courses, the river and the estate; the hotel is open all year and winter has its own charm." },
   "Punta del Este": { window: "December to February", note: "Punta is a summer town and it is emphatic about it. From December the crowd arrives, the restaurants open and American flies its Miami nonstop into Montevideo. Outside those months the town is quiet and pretty, but flights thin out to a connection through Panama — the same trip takes eight hours longer." },
   "José Ignacio": { window: "December to February", note: "The season is short and it is the point. In January the village is at its best and the Miami nonstop into Montevideo is running; in the shoulder months many of the good tables close and the flights get considerably worse." },
   // ── SOUTH AMERICA. Drafted Sept 2026 — these are mine, not Tricia's, and should be read as a
@@ -10032,6 +10021,7 @@ const SHOP = [
   { n: "Milan", city: "Milan", set: ["Big city"], act: ["Architecture & design","Food & wine","Art & history"], area: "Via Montenapoleone · Via della Spiga · Brera", spec: "Italian fashion, shoes, leather, design, interiors", best: "Fashion Week · Design Week in April", stay: "Bulgari · Four Seasons · Mandarin Oriental · Portrait", hero: 1, why: "Fashion at its source, and during Salone the whole city turns into the world's design fair." },
   { n: "Tokyo", city: "Tokyo", set: ["Big city"], act: ["Food & wine","Art & history","Architecture & design"], area: "Ginza · Omotesando · Aoyama · Daikanyama", spec: "Japanese designers, watches, vintage, beauty, ceramics", best: "Year round", stay: "Aman · Bulgari · Mandarin Oriental · Four Seasons Otemachi", hero: 1, why: "Service unlike anywhere else, the best vintage in the world, and specialist shops that have done one thing for two hundred years." },
   { n: "London", city: "London", set: ["Big city","River & waterfront"], act: ["Art & history","Food & wine","Music & performing arts"], area: "Bond Street · Mount Street · Savile Row · Knightsbridge", spec: "Tailoring, jewelry, antiques, interiors, department stores", best: "Year round", stay: "Claridge's · The Connaught · The Berkeley · The Peninsula", hero: 1, why: "The only city where you can be measured for a suit in the morning and buy a Georgian commode in the afternoon." },
+  { n: "New York City", city: "New York", set: ["Big city"], act: ["Art & history","Food & wine","Music & performing arts"], area: "Madison Avenue · Fifth Avenue · SoHo · Meatpacking", spec: "Luxury fashion, jewelry, department stores, vintage", best: "Year round", stay: "Aman · The Carlyle · The Mark · The Peninsula", hero: 1, why: "Unmatched breadth and the best personal-shopping culture in America." },
   { n: "Florence", city: "Florence", set: ["Big city","Historic towns & villages"], act: ["Art & history","Food & wine","Architecture & design"], area: "Via de' Tornabuoni · Oltrarno · Ponte Vecchio", spec: "Leather, jewelry, paper, bespoke craftsmanship", best: "Year round", stay: "Four Seasons Firenze · Portrait · Hotel Savoy", hero: 1, why: "The rare city where the luxury houses and the workshops that supply them are a ten-minute walk apart. The Oltrarno is the point." },
   { n: "Geneva", city: "Geneva", set: ["Big city","Lakes","Mountains & alpine"], act: ["Food & wine","Wellness & spa"], area: "Rue du Rhône · Quai des Bergues", spec: "Watches and high jewelry", best: "Watches & Wonders in April", stay: "Four Seasons des Bergues · The Woodward · Beau-Rivage", hero: 1, why: "The place to buy a serious watch, with manufacture visits arrangeable that no shop anywhere else can offer." },
   { n: "Istanbul", city: "Istanbul", set: ["Big city","Historic towns & villages","Coastal & seaside"], act: ["Art & history","Food & wine","Architecture & design"], area: "Nişantaşı · Grand Bazaar · Arasta Bazaar", spec: "Carpets, textiles, ceramics, leather, jewelry", best: "Year round", stay: "Four Seasons Bosphorus · Mandarin Oriental · The Peninsula", hero: 1, why: "Global luxury on one side of the city and a five-hundred-year-old bazaar on the other. Go with a guide and it is extraordinary." },
@@ -10040,11 +10030,15 @@ const SHOP = [
   { n: "Dubai", city: "Dubai", set: ["Big city","Desert","Beach"], act: ["Wellness & spa","Family","Architecture & design"], area: "Dubai Mall Fashion Avenue · Mall of the Emirates", spec: "Luxury fashion, jewelry, watches, beauty", best: "Nov–Mar", stay: "Bulgari · Mandarin Oriental Jumeira · Four Seasons", hero: 1, why: "Every brand in one place, with VIP shopping infrastructure more polished than anywhere in Europe." },
   { n: "Hong Kong", city: "Hong Kong", set: ["Big city","Coastal & seaside","Islands"], act: ["Food & wine","Art & history"], area: "Central · Landmark · Canton Road", spec: "Watches, jewelry, luxury fashion", best: "Oct–Dec", stay: "Rosewood · The Peninsula · Four Seasons · Mandarin Oriental", hero: 1, why: "Asia's watch and jewelry market, and the auction season makes autumn the time to be there." },
   { n: "Seoul", city: "Seoul", set: ["Big city"], act: ["Food & wine","Architecture & design","Culture & festivals"], area: "Cheongdam · Apgujeong · Garosu-gil", spec: "Korean fashion, beauty, eyewear, emerging designers", best: "Year round", stay: "Four Seasons Seoul · Josun Palace · Signiel", hero: 1, why: "The most exciting shopping city in the world right now, and the beauty halls alone justify the flight." },
+  { n: "Miami", city: "Miami", set: ["Big city","Beach","Coastal & seaside"], act: ["Art & history","Food & wine","Architecture & design"], area: "Design District · Bal Harbour Shops", spec: "Luxury fashion, jewelry, art, watches", best: "Art Basel in December", stay: "Four Seasons Surf Club · Faena · The Setai", hero: 1, why: "The Design District is architecture as much as retail, and during Art Basel the whole city is buying something." },
+  { n: "Palm Beach", city: "Palm Beach", set: ["Beach","Coastal & seaside"], act: ["Golf","Wellness & spa","Food & wine"], area: "Worth Avenue and the vias", spec: "Resortwear, jewelry, home, specialty boutiques", best: "Dec–Apr", stay: "The Breakers · Four Seasons Palm Beach", hero: 1, why: "Four blocks, and better than cities twenty times the size. The vias off Worth Avenue are the whole charm." },
   { n: "Rome", city: "Rome", set: ["Big city","Historic towns & villages"], act: ["Art & history","Food & wine","Architecture & design"], area: "Via dei Condotti · Piazza di Spagna", spec: "Italian fashion, leather, shoes, jewelry", best: "Year round", stay: "Hotel de Russie · Bulgari Roma · Hassler", why: "The great Italian houses at the foot of the Spanish Steps — the most beautiful shopping street in the world." },
   { n: "Madrid", city: "Madrid", set: ["Big city"], act: ["Art & history","Food & wine"], area: "Barrio de Salamanca · Calle Serrano", spec: "Spanish designers, leather, jewelry", best: "Year round", stay: "Rosewood Villa Magna · Four Seasons · Mandarin Oriental Ritz", why: "Salamanca is a whole quarter of it, and Spanish leather is still made by people who learned it from their fathers." },
   { n: "Barcelona", city: "Barcelona", set: ["Big city","Coastal & seaside","Beach"], act: ["Architecture & design","Art & history","Food & wine"], area: "Passeig de Gràcia · Eixample", spec: "Spanish design, local designers, jewelry", best: "Year round", stay: "Mandarin Oriental Barcelona · Hotel Arts", why: "Shopping along a street with two Gaudí houses on it. Catalan design is its own tradition and worth seeking out." },
   { n: "Vienna", city: "Vienna", set: ["Big city","Historic towns & villages"], act: ["Music & performing arts","Art & history","Food & wine"], area: "Kohlmarkt · Graben · Kärntner Straße", spec: "Jewelry, watches, crystal, traditional luxury", best: "Year round", stay: "Rosewood Vienna · Hotel Sacher · Park Hyatt", why: "Old-European shopping that has barely changed — the imperial jewellers and porcelain houses are still where they were." },
   { n: "Zurich", city: "Zurich", set: ["Big city","Lakes"], act: ["Food & wine","Art & history"], area: "Bahnhofstrasse · Old Town", spec: "Watches, jewelry, luxury fashion", best: "Year round", stay: "Baur au Lac · Mandarin Oriental Savoy · The Dolder Grand", why: "Bahnhofstrasse is the most concentrated luxury street in Switzerland, and the watch dealers are the real draw." },
+  { n: "Beverly Hills", city: "Beverly Hills", set: ["Big city"], act: ["Wellness & spa","Food & wine"], area: "Rodeo Drive · Beverly Drive", spec: "Luxury fashion, jewelry, beauty", best: "Year round", stay: "Beverly Hills Hotel · Maybourne · Waldorf Astoria", why: "The most famous shopping street in America, and personal shopping here is a profession rather than a service." },
+  { n: "Los Angeles", city: "Los Angeles", set: ["Big city","Coastal & seaside","Beach"], act: ["Food & wine","Art & history","Music & performing arts"], area: "Melrose Place · West Hollywood · Robertson", spec: "Contemporary designers, vintage, celebrity style", best: "Year round", stay: "Hotel Bel-Air · Maybourne · Four Seasons LA", why: "The best contemporary and vintage buying in America, and Melrose Place is a genuinely lovely hour." },
   { n: "Monaco", city: "Monaco", set: ["Coastal & seaside","Big city"], act: ["Cars & motorsports","Sailing & yachting","Food & wine"], area: "Carré d'Or · Métropole Shopping", spec: "Luxury fashion, watches, jewelry", best: "Year round", stay: "Hôtel de Paris · Hôtel Hermitage", why: "Every house within four walkable blocks, and during the Grand Prix the shopping is half the spectacle." },
   { n: "Cannes", city: "Cannes", set: ["Coastal & seaside","Beach"], act: ["Culture & festivals","Food & wine","Sailing & yachting"], area: "La Croisette · Rue d'Antibes", spec: "Luxury fashion, jewelry, resortwear", best: "May–Sep", stay: "Hôtel Martinez · Carlton Cannes", why: "Riviera shopping at its most glamorous, and during the festival the windows are dressed for the cameras." },
   { n: "St-Tropez", city: "St-Tropez", set: ["Coastal & seaside","Beach","Historic towns & villages"], act: ["Sailing & yachting","Beach & pool","Food & wine"], area: "The village centre · Rue François Sibilli", spec: "Resortwear, sandals, seasonal pop-ups", best: "May–Sep", stay: "Cheval Blanc St-Tropez · Airelles Château de la Messardière", why: "Fashion is the culture here rather than an activity — the pop-ups exist for eight weeks and then vanish." },
@@ -10053,6 +10047,7 @@ const SHOP = [
   { n: "Gstaad", city: "Gstaad", set: ["Mountains & alpine","Historic towns & villages"], act: ["Skiing","Wellness & spa","Food & wine"], area: "The Promenade", spec: "Ski fashion, jewelry, cashmere", best: "Dec–Mar", stay: "Gstaad Palace · The Alpina Gstaad", why: "A traffic-free promenade of chalets, and the most sophisticated Alpine shopping there is." },
   { n: "St. Moritz", city: "St Moritz", set: ["Mountains & alpine","Lakes"], act: ["Skiing","Sports & sporting events","Wellness & spa"], area: "Via Serlas", spec: "Watches, jewelry, ski luxury", best: "Dec–Mar", stay: "Badrutt's Palace · Kulm · Carlton", why: "The highest concentration of watch and jewelry houses in the Alps, on one short street." },
   { n: "Courchevel 1850", city: "Courchevel", set: ["Mountains & alpine"], act: ["Skiing","Wellness & spa","Food & wine"], area: "The village boutiques", spec: "Fashion, jewelry, watches, ski luxury", best: "Dec–Apr", stay: "Cheval Blanc · Les Airelles · Aman Le Mélézin", why: "More luxury houses than most capital cities, at 1,850 meters, with your skis leaning against the window." },
+  { n: "Aspen", city: "Aspen", set: ["Mountains & alpine","Historic towns & villages"], act: ["Skiing","Food & wine","Fly fishing"], area: "Downtown Aspen", spec: "Ski fashion, jewelry, western luxury", best: "Dec–Mar & Jul–Aug", stay: "The Little Nell · Hotel Jerome", why: "A walkable Victorian grid of luxury boutiques, and the western pieces are the ones you will actually keep." },
   { n: "Kyoto", city: "Kyoto", set: ["Big city","Historic towns & villages"], act: ["Art & history","Culture & festivals","Food & wine"], area: "Gion · Teramachi · Nishijin workshops", spec: "Ceramics, lacquerware, textiles, knives, tea ware", best: "Year round", stay: "Aman Kyoto · Four Seasons Kyoto · Six Senses", why: "The finest traditional craftsmanship in the world, and with a specialist guide you meet the makers." },
   { n: "Copenhagen", city: "Copenhagen", set: ["Big city","Coastal & seaside","River & waterfront"], act: ["Architecture & design","Food & wine"], area: "Strøget · Frederiksstaden · design showrooms", spec: "Interiors, furniture, Scandinavian design", best: "3daysofdesign in June", stay: "Hotel d'Angleterre · Villa Copenhagen", why: "The most important city in the world for interiors, and the showrooms will crate and ship without blinking." },
   { n: "Stockholm", city: "Stockholm", set: ["Big city","Islands","River & waterfront"], act: ["Architecture & design","Food & wine"], area: "Bibliotekstan · Östermalm", spec: "Scandinavian fashion, interiors, design", best: "Year round", stay: "Grand Hôtel Stockholm · Ett Hem", why: "A quieter Copenhagen with the same eye, and Östermalm's food hall is worth the trip on its own." },
@@ -10072,34 +10067,6 @@ const SHOP = [
   { n: "Delhi", city: "Delhi", set: ["Big city","Historic towns & villages"], act: ["Art & history","Architecture & design"], area: "Khan Market · Mehrauli · private ateliers", spec: "Textiles, carpets, jewelry, Indian designers", best: "Oct–Mar", stay: "The Lodhi · The Oberoi New Delhi", why: "The strongest destination anywhere for high-end Indian craft, and Mehrauli's ateliers are worth a whole day." },
   { n: "Doha", city: "Doha", set: ["Big city","Desert","Coastal & seaside"], act: ["Art & history","Architecture & design","Family"], area: "Place Vendôme · The Pearl · Msheireb", spec: "Luxury fashion, watches, jewelry", best: "Nov–Mar", stay: "Mandarin Oriental Doha · Four Seasons · Raffles", why: "Extremely polished, and the museums make it a real city break rather than a mall trip." },
   { n: "Antibes", city: "Antibes", set: ["Coastal & seaside","Historic towns & villages"], act: ["Sailing & yachting","Food & wine","Art & history"], area: "Vieil Antibes · the Provençal market", spec: "Antiques, Provençal linens, art, ceramics", best: "May–Sep", stay: "Hôtel du Cap-Eden-Roc", why: "The covered market and the antiques dealers of the old town — the Riviera's best buying that is not a fashion house." },
-  // ── TOP 25 US LUXURY SHOPPING DESTINATIONS — Tricia's ranking, 30 Oct 2026. Order is hers and is not
-  // changed without her say-so (`rank`). Designers and boutiques are from her sheet; the specific
-  // claims were checked against the brands' own store directories the same day (see verification note).
-  { rank: 1, n: "New York City", city: "New York", set: ["Big city"], act: ["Art & history","Food & wine","Music & performing arts"], area: "Madison Avenue · Fifth Avenue · SoHo", spec: "Hermès, Chanel, Cartier and every house · Bergdorf Goodman · the best independent designer boutiques in America", best: "Year round", stay: "Aman · The Mark · The Carlyle · The Peninsula", hero: 1, why: "America’s premier luxury shopping destination: every house, both great department stores, and the best personal-shopping culture in the country." },
-  { rank: 2, n: "Beverly Hills", city: "Beverly Hills", set: ["Coastal & seaside"], act: ["Wellness & spa","Food & wine"], area: "Rodeo Drive and the Golden Triangle", spec: "Hermès, Chanel, Dior, Cartier and the Rodeo Drive flagships", best: "Year round", stay: "Beverly Hills Hotel · Maybourne Beverly Hills · L’Ermitage", hero: 1, why: "Iconic international luxury shopping — the most famous street in America, where personal shopping is a profession." },
-  { rank: 3, n: "Miami", city: "Miami", set: ["Big city","Beach","Coastal & seaside"], act: ["Art & history","Food & wine","Architecture & design"], area: "Miami Design District", spec: "Hermès, Chanel, Dior, Loewe and the international houses · contemporary art and architecture between the shops", best: "Art Basel in December", stay: "Four Seasons Surf Club · The Setai · Acqualina", hero: 1, why: "Luxury fashion, art and the most innovative retail architecture in America, in a district built for walking." },
-  { rank: 4, n: "Palm Beach", city: "Palm Beach", set: ["Beach","Coastal & seaside"], act: ["Golf","Tennis","Wellness & spa","Food & wine"], area: "Worth Avenue and its historic vias", spec: "Chanel, Gucci, Akris · fine jewelry · elegant independent boutiques in the Mediterranean vias", best: "Dec–Apr", stay: "The Breakers · Four Seasons Palm Beach · The Colony", hero: 1, why: "One of America’s most elegant luxury shopping experiences — four blocks and the vias, better than cities twenty times the size." },
-  { rank: 5, n: "Bal Harbour", city: "Miami", set: ["Beach","Coastal & seaside"], act: ["Food & wine","Wellness & spa"], area: "Bal Harbour Shops", spec: "Chanel, Prada, Valentino, Bottega Veneta · the major international jewelry houses", best: "Nov–Apr", stay: "Four Seasons Surf Club · Acqualina", hero: 1, why: "The most concentrated collection of luxury designers in America, in a tropical open-air setting ten minutes from the Surf Club." },
-  { rank: 6, n: "Los Angeles", city: "Los Angeles", set: ["Big city","Coastal & seaside","Beach"], act: ["Food & wine","Art & history","Music & performing arts"], area: "Melrose Place · West Hollywood · selected designer boutiques", spec: "The Row, Maxfield · independent designers · contemporary and exclusive collections", best: "Year round", stay: "Hotel Bel-Air · Maybourne Beverly Hills", why: "Fashion-forward, influential, sophisticated — the contemporary and vintage buying that Beverly Hills does not do. Kept distinct from Rodeo Drive on purpose." },
-  { rank: 7, n: "Chicago", city: "Chicago", set: ["Big city","Lakes"], act: ["Art & history","Food & wine","Architecture & design"], area: "Oak Street · Michigan Avenue", spec: "Hermès, Chanel, Dior, Cartier on Oak Street · the department stores on the Avenue", best: "May–Oct", stay: "The Peninsula Chicago · Four Seasons Chicago", why: "The Midwest’s leading luxury fashion destination — Oak Street for the houses, the Avenue for the department stores." },
-  { rank: 8, n: "San Francisco", city: "San Francisco", set: ["Big city","Coastal & seaside"], act: ["Food & wine","Art & history","Architecture & design"], area: "Union Square · Jackson Square", spec: "The major international houses and designer flagships · fine jewelry · distinctive independent boutiques · art and design shopping", best: "Sep–Oct", stay: "Four Seasons San Francisco · The Ritz-Carlton San Francisco", why: "Luxury designer retail around Union Square with the city’s sophisticated independent shopping in Jackson Square." },
-  { rank: 9, n: "Dallas", city: "Dallas", set: ["Big city"], act: ["Food & wine","Art & history"], area: "Highland Park Village", spec: "Hermès, Chanel, Dior, Loro Piana, Cartier · designer boutiques under the 1931 Spanish-Mediterranean arcades", best: "Oct–May", stay: "Rosewood Mansion on Turtle Creek · The Ritz-Carlton Dallas", why: "One of America’s finest luxury shopping villages — the houses under one set of 1931 arches, and the hotel is five minutes away." },
-  { rank: 11, n: "Aspen", city: "Aspen", set: ["Mountains & alpine","Historic towns & villages"], act: ["Skiing","Food & wine","Fly fishing"], area: "Downtown Aspen", spec: "Prada, Loro Piana, Brunello Cucinelli · luxury skiwear · fine jewelry · independent designer boutiques", best: "Dec–Mar & Jul–Aug", stay: "The Little Nell · Hotel Jerome · St. Regis Aspen", why: "Exclusive mountain resort shopping on a walkable Victorian grid — the houses between the ski runs." },
-  { rank: 12, n: "Boston", city: "Boston", set: ["Big city","Coastal & seaside"], act: ["Art & history","Food & wine"], area: "Copley Place · Newbury Street", spec: "Dior, Celine, Loewe, Saint Laurent at Copley · Newbury Street independent boutiques", best: "May–Oct", stay: "Four Seasons One Dalton · Raffles Boston · The Newbury", why: "Exceptional designer shopping at Copley with the brownstone charm of Newbury Street a block away." },
-  { rank: 13, n: "Las Vegas", city: "Las Vegas", set: ["Big city","Desert"], act: ["Food & wine","Music & performing arts","Golf"], area: "Wynn Plaza · The Shops at Crystals · Bellagio", spec: "Hermès, Chanel, Dior, Cartier and the international houses · the major watch and jewelry boutiques", best: "Oct–May", stay: "Encore Tower Suites · Four Seasons Las Vegas · ARIA Sky Suites", why: "An extraordinary collection of international luxury brands within a few hundred yards of the room." },
-  { rank: 14, n: "Greenwich", city: "Greenwich", set: ["Coastal & seaside","Historic towns & villages"], act: ["Food & wine"], area: "Greenwich Avenue", spec: "Hermès · Richards · Tiffany & Co. · fine watches and jewelry · independent fashion boutiques on an elegant, walkable avenue", best: "Apr–Dec", stay: "The Mark, New York, about an hour", why: "Refined luxury shopping with exceptional independent retailers and personal service — Richards is the reason to make the drive." },
-  { rank: 15, n: "Washington DC", city: "Washington DC", set: ["Big city","River & waterfront"], act: ["Art & history","Food & wine","Architecture & design"], area: "CityCenterDC · Georgetown", spec: "Hermès, Chanel, Dior, Loro Piana at CityCenter · Georgetown specialty boutiques", best: "Mar–May, Sep–Nov", stay: "Four Seasons Washington · Rosewood Washington · The Jefferson", why: "An excellent luxury designer selection in an elegant urban setting, with Georgetown’s boutiques for the afternoon." },
-  { rank: 16, n: "Houston", city: "Houston", set: ["Big city"], act: ["Food & wine","Art & history"], area: "River Oaks District · the Galleria", spec: "Hermès, Dior, Van Cleef & Arpels, Harry Winston, Loro Piana · important independent boutiques", best: "Oct–Apr", stay: "The Post Oak Hotel", why: "Sophisticated international luxury shopping — River Oaks District is the address, the Galleria the depth." },
-  { rank: 17, n: "Scottsdale", city: "Scottsdale", set: ["Desert"], act: ["Golf","Wellness & spa","Food & wine"], area: "Scottsdale Fashion Square", spec: "Dior, Celine, Bottega Veneta, Cartier · luxury resort shopping", best: "Oct–Apr", stay: "The Canyon Suites at The Phoenician", why: "Strong luxury designer shopping in a premier desert resort destination — a morning on the courses, an afternoon at Fashion Square." },
-  { rank: 18, n: "Honolulu", city: "Honolulu", set: ["Islands","Beach","Big city"], act: ["Beach & pool","Food & wine","Diving & water"], area: "Luxury Row, Waikiki · Ala Moana Center", spec: "Hermès, Chanel, Dior, Cartier on Luxury Row · international designer boutiques", best: "Year round", stay: "Halekulani · Four Seasons Ko Olina", why: "Excellent international luxury shopping in a tropical destination — the houses on Kalakaua, the beach across the road." },
-  { rank: 19, n: "Newport Beach", city: "Newport Beach", set: ["Coastal & seaside","Beach"], act: ["Golf","Food & wine","Beach & pool"], area: "Fashion Island · Corona del Mar", spec: "Neiman Marcus · designer boutiques · fine jewelry · California lifestyle brands · attractive outdoor shopping", best: "Year round", stay: "The Resort at Pelican Hill · Montage Laguna Beach", why: "Upscale coastal shopping with the Southern California atmosphere — open air, ocean light, and Pelican Hill ten minutes away." },
-  { rank: 20, n: "Naples, Florida", city: "Naples, Florida", set: ["Beach","Coastal & seaside"], act: ["Golf","Tennis","Food & wine"], area: "Fifth Avenue South · Third Street South · Waterside Shops", spec: "Upscale specialty boutiques · fine jewelry · designer fashion · luxury accessories · elegant resort shopping", best: "Nov–Apr", stay: "Naples Beach Club, A Four Seasons Resort · The Ritz-Carlton Naples", why: "Sophisticated Florida coastal shopping, particularly for the independent-boutique shopper — Third Street South is the find." },
-  { rank: 21, n: "Charleston", city: "Charleston", set: ["Historic towns & villages","Coastal & seaside"], act: ["Food & wine","Art & history","Architecture & design"], area: "King Street", spec: "Hampden Clothing, Veronica Beard · distinctive independent boutiques · antiques and home furnishings", best: "Mar–May, Oct–Nov", stay: "Hotel Bennett · The Dunlin · The Cooper", why: "An exceptional historic shopping atmosphere — independent boutiques, antiques and fashion along one of the prettiest streets in America. Not the designer depth of Palm Beach or Miami, and not trying to be." },
-  { rank: 22, n: "Nantucket", city: "Nantucket", set: ["Islands","Coastal & seaside","Historic towns & villages"], act: ["Beach & pool","Food & wine","Sailing & yachting"], area: "Main Street · Centre Street and the downtown streets", spec: "Distinctive independent boutiques · elegant coastal fashion · jewelry and accessories · home furnishings · locally curated merchandise", best: "Jun–Sep", stay: "The Wauwinet, Relais & Châteaux · White Elephant", why: "Charming, sophisticated island boutique shopping — the appeal is the unique boutiques and the atmosphere, not international flagships." },
-  { rank: 23, n: "East Hampton", city: "The Hamptons", set: ["Coastal & seaside","Beach","Historic towns & villages"], act: ["Beach & pool","Food & wine","Art & history"], area: "Main Street · Newtown Lane", spec: "Luxury seasonal boutiques · designer fashion · fine jewelry · contemporary resort clothing · home and lifestyle boutiques", best: "Jun–Sep", stay: "Topping Rose House", why: "Exclusive Hamptons summer shopping — many of the best boutiques are seasonal, so the season is the point." },
-  { rank: 24, n: "Philadelphia", city: "Philadelphia", set: ["Big city","Historic towns & villages"], act: ["Art & history","Food & wine"], area: "Rittenhouse Square · Walnut Street — and King of Prussia, outside the city", spec: "Boyds · Joan Shepp · Sophy Curson · Hermès and the international houses at King of Prussia", best: "Apr–Jun, Sep–Nov", stay: "Four Seasons Philadelphia at Comcast Center", why: "Distinguished independent fashion shopping in Center City, with the designer depth at King of Prussia — half an hour outside the city, so it needs a car." },
-  { rank: 25, n: "Seattle", city: "Seattle", set: ["Big city","Coastal & seaside"], act: ["Food & wine","Architecture & design"], area: "Downtown Seattle · University Village · selected independent boutiques", spec: "Nordstrom flagship · designer fashion · independent boutiques · contemporary clothing · fine jewelry and accessories", best: "Jun–Sep", stay: "Four Seasons Seattle · Fairmont Olympic", why: "Sophisticated Pacific Northwest shopping — the Nordstrom flagship at its source, and specialty retailers worth the detour." },
-  { rank: 10, n: "Atlanta", city: "Atlanta", set: ["Big city"], act: ["Food & wine","Art & history"], area: "Buckhead Village · Westside Provisions District · ADAC for home", spec: "Jeffrey (reopened 2026 at Buckhead Village) · Sid Mashburn · Ann Mashburn · ADAC, the Southeast\u2019s design center for home and interiors · selected designer boutiques", best: "Mar–May, Oct–Nov", stay: "The St. Regis Atlanta · Four Seasons Atlanta", why: "Curated Buckhead designer boutiques, distinctive independent fashion and the best home shopping in the South \u2014 Jeffrey, back on Bolling Way, the Mashburns at Westside, and ADAC\u2019s showrooms. Not the mall." },
 ];
 
 const FLY = [
@@ -10520,7 +10487,7 @@ const PLACE_REGION = {
   "newcastle, county down": "Northern Ireland", "portrush": "Northern Ireland",
   "sunningdale": "Surrey, England", "ascot": "Berkshire, England", "new milton": "Hampshire, England",
   "leatherhead": "Surrey, England", "hampshire": "England", "southport": "England",
-  "adare": "County Limerick, Ireland", "lahinch": "County Clare, Ireland", "kinsale": "County Cork, Ireland", "castlemartyr": "County Cork, Ireland", "greenwich": "Connecticut", "nantucket": "Massachusetts", "newport beach": "California", "bal harbour": "Florida", "herceg novi": "Montenegro", "rakiraki": "Fiji", "montaione": "Tuscany, Italy", "le puy-sainte-r\u00e9parade": "Provence, France",
+  "adare": "County Limerick, Ireland", "lahinch": "County Clare, Ireland", "kinsale": "County Cork, Ireland", "castlemartyr": "County Cork, Ireland", "herceg novi": "Montenegro", "rakiraki": "Fiji", "montaione": "Tuscany, Italy", "le puy-sainte-r\u00e9parade": "Provence, France",
   "portmarnock": "County Dublin, Ireland", "rosapenna": "County Donegal, Ireland",
   "manacor": "Mallorca, Spain", "deia": "Mallorca, Spain", "elciego": "Rioja, Spain",
   "briones": "Rioja, Spain", "laguardia": "Rioja, Spain", "haro": "Rioja, Spain",
@@ -10809,443 +10776,6 @@ const KNOWN_ACT = {   // destination → activities that are plain fact there (M
   "Turks & Caicos": ["Golf", "Tennis"], "Providenciales": ["Golf", "Tennis"], "Maldives": ["Tennis"], "Mallorca": ["Golf", "Tennis"],
   "Porto Heli": ["Tennis"], "Savelletri": ["Golf", "Tennis"], "Riviera Nayarit": ["Golf", "Tennis"], "Papagayo": ["Golf", "Tennis"], "Playa Grande": ["Golf", "Tennis"],
 };
-// ── BIG CITY, BY THE NUMBERS (Tricia, 29 Oct 2026) ─────────────────────────────────────────────
-// "Big city" used to be a hand-placed tag (Beverly Hills had it; Atlanta did not exist). Now it is a
-// rule: a metro area of 2.5 million or more where we hold curated hotels. Atlanta, Washington, New
-// York, Charlotte and Miami are in; Nashville, Birmingham and Palm Beach are out — her examples.
-// Las Vegas (2.3M) is the one named exception: a big city by every measure but the census.
-// Figures are metro-area populations in millions (US Census 2023 MSA estimates; UN World
-// Urbanization Prospects for the rest), used only to decide which side of 2.5 a place falls.
-const METRO = {
-  "New York City": 19.5, "New York": 19.5, "Los Angeles": 12.8, "Chicago": 9.3, "Dallas": 8.1, "Houston": 7.5, "Washington DC": 6.3, "Atlanta": 6.3,
-  "Miami": 6.2, "Philadelphia": 6.2, "Scottsdale": 5.0, "Boston": 4.9, "San Francisco": 4.6, "Seattle": 4.0, "Minneapolis": 3.7,
-  "San Diego": 3.3, "Denver": 3.0, "Baltimore": 2.8, "St Louis": 2.8, "Orlando": 2.8, "San Antonio": 2.7, "Portland, Oregon": 2.5,
-  "Las Vegas": 2.3, "Austin": 2.4, "Nashville": 2.1, "Raleigh": 1.5, "Louisville": 1.4, "New Orleans": 1.3, "Birmingham, Alabama": 1.1,
-  "Tucson": 1.1, "Honolulu": 1.0, "Charleston": 0.8, "Savannah": 0.4, "Palm Beach": 1.5, "Beverly Hills": 0.03,
-  "Toronto": 6.7, "Montreal": 4.4, "Vancouver": 2.8,
-  "Mexico City": 22.0, "São Paulo": 22.0, "Sao Paulo": 22.0, "Buenos Aires": 15.0, "Rio de Janeiro": 13.0, "Lima": 11.0, "Bogotá": 11.0, "Santiago": 7.0,
-  "Salvador": 3.9, "Medellín": 4.0, "Guayaquil": 3.0, "Quito": 2.8, "Panama City": 2.0, "Montevideo": 1.8, "Cartagena": 1.1,
-  "Cairo": 22.0, "Nairobi": 5.0, "Cape Town": 4.8, "Casablanca": 3.7, "Marrakech": 1.0,
-  "Istanbul": 15.0, "London": 14.0, "Paris": 12.0, "Madrid": 6.7, "Barcelona": 5.6, "Milan": 4.3, "Rome": 4.3, "Berlin": 3.7, "Athens": 3.6,
-  "Warsaw": 3.1, "Budapest": 3.0, "Naples": 3.0, "Lisbon": 2.9, "Vienna": 2.9, "Munich": 2.9, "Prague": 2.7, "Amsterdam": 2.5,
-  "Brussels": 2.1, "Copenhagen": 2.1, "Dublin": 2.1, "Glasgow": 1.9, "Kraków": 1.8, "Oslo": 1.7, "Porto": 1.7, "Seville": 1.5,
-  "Zurich": 1.5, "Edinburgh": 0.9, "Geneva": 1.0, "Nice": 1.0, "Antwerp": 1.2, "Florence": 1.0, "Monaco": 0.04,
-  "Riyadh": 7.6, "Jeddah": 4.7, "Amman": 4.5, "Tel Aviv": 4.0, "Dubai": 3.6, "Kuwait City": 3.1, "Doha": 2.4, "Abu Dhabi": 1.5, "Jerusalem": 1.3, "Manama": 0.7,
-  "Tokyo": 37.0, "Shanghai": 29.0, "Seoul": 25.0, "Beijing": 21.0, "Guangzhou": 18.0, "Hangzhou": 12.0, "Bangkok": 11.0, "Hong Kong": 7.5,
-  "Singapore": 6.0, "Jaipur": 4.0, "Phnom Penh": 2.3, "Agra": 2.0, "Kyoto": 1.5, "Jodhpur": 1.5, "Chiang Mai": 1.2, "Udaipur": 0.5,
-  "Sydney": 5.3, "Melbourne": 5.2,
-};
-const BIG_CITY_MIN = 2.5;
-const BIG_CITY_EXCEPTIONS = ["Las Vegas"];
-function isBigCity(city) {
-  // Exact names only: Rancho Santa Fe resolves to San Diego's metro, but it is not itself a big city.
-  const k = Object.keys(METRO).find((x) => x.toLowerCase() === bareCity(city || "").toLowerCase());
-  return !!k && (METRO[k] >= BIG_CITY_MIN || BIG_CITY_EXCEPTIONS.includes(k));
-}
-// ── GOLF, THE WAY TRICIA WANTS IT CHOSEN (29 Oct 2026) ─────────────────────────────────────────
-// Rule 1: a five-star hotel with a course of its own satisfies golf — "the hotel is five star, the golf
-// will be nice." Rule 2: a big city shows the notable courses a client can actually play within about
-// 90 minutes, with the drive — several, so the client sees how much is there. Private clubs are never
-// listed: people cannot get on. US first; verified from the hotels’ and courses’ own pages, 29 Oct 2026.
-// Drive times are off-peak estimates from the hotel district; seasons are typical ranges.
-const HOTEL_GOLF = {
-  "1 Hotel Hanalei Bay": { courses: "Princeville Makai Golf Club (18, par 72, Robert Trent Jones Jr., Troon-managed) in Princeville", access: "resort guests & public" },
-  "ARIA Sky Suites": { courses: "Shadow Creek (18, Tom Fazio), MGM Resorts' course about 20 min north of the Strip", access: "resort guests", standing: "Hosted the PGA TOUR CJ Cup (2020)" },
-  "Beach Club at The Boca Raton": { courses: "The Golf Club at The Boca Raton (18, Donald Ross 1926, reimagined)", access: "resort guests", standing: "Donald Ross original, 1926" },
-  "Casa Palmero at Pebble Beach": { courses: "Pebble Beach Golf Links (18), Spyglass Hill (18), The Links at Spanish Bay (18), Del Monte (18), The Hay (9-hole par-3)", access: "resort guests & public", standing: "Pebble Beach Golf Links: Golf Digest No. 1 public course in America; U.S. Open venue" },
-  "Dorado Beach, a Ritz-Carlton Reserve": { courses: "TPC Dorado Beach East Course (18) and Sugarcane Course (18), both Robert Trent Jones Sr.", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World" },
-  "Edgewood Tahoe Resort": { courses: "Edgewood Tahoe Golf Course (18, par 72, George Fazio 1968, Tom Fazio renovations)", access: "resort guests & public", standing: "Hosts the American Century Championship celebrity event each July" },
-  "Encore Tower Suites": { courses: "Wynn Golf Club (18, par 70, Tom and Logan Fazio, 2019)", access: "resort guests & public", standing: "The only golf course on the Las Vegas Strip" },
-  "Falling Rock at Nemacolin": { courses: "Mystic Rock (18, Pete Dye) and Shepherd's Rock (18, Tim Liddy, 2017)", access: "resort guests & public", standing: "Mystic Rock hosted the PGA TOUR 84 Lumber Classic; GOLF Top 100 Resorts" },
-  "Four Seasons Resort Hualalai": { courses: "Hualalai Golf Course (18, par 72, Jack Nicklaus); Ke'olu Course (members only)", access: "resort guests", standing: "Hosts the PGA TOUR Champions Mitsubishi Electric Championship since 1997" },
-  "Four Seasons Resort Lanai": { courses: "Manele Golf Course (18, Jack Nicklaus)", access: "resort guests" },
-  "Four Seasons Resort Maui at Wailea": { courses: "Wailea Golf Club: Gold (18) and Emerald (18), Robert Trent Jones II; Blue (18)", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World (Four Seasons Maui)" },
-  "Four Seasons Resort Oahu at Ko Olina": { courses: "Ko Olina Golf Club (18, Ted Robinson, 1990) within the Ko Olina resort community", access: "resort guests & public", standing: "LPGA LOTTE Championship 2012-2019" },
-  "Four Seasons Resort Orlando at Walt Disney World Resort": { courses: "Tranquilo Golf Course (18, par 71, Tom Fazio)", access: "resort guests" },
-  "Grand Wailea, A Waldorf Astoria Resort": { courses: "Wailea Golf Club: Gold (18), Emerald (18), Blue (18)", access: "resort guests & public" },
-  "Inn at Perry Cabin": { courses: "Links at Perry Cabin (18, par 72, Pete Dye with Alice and P.B. Dye, 2018), a short drive from the Inn", access: "resort guests", standing: "Pete Dye's final design" },
-  "Keswick Hall": { courses: "Full Cry (18, Pete Dye, 2014)", access: "resort guests", standing: "Pete Dye design; Keswick Club members and hotel guests" },
-  "Mauna Lani, Auberge Collection": { courses: "Mauna Lani Golf South Course (18, 1981), North Course (18), Wikiwiki (9)", access: "resort guests & public", standing: "South Course: GolfPass Golfers' Choice No. 1 course in the U.S. (2023)" },
-  "Meadowood Napa Valley": { courses: "Meadowood golf course (9-hole walking course)", access: "resort guests" },
-  "Mii amo": { courses: "Seven Canyons (18, Tom Weiskopf), adjacent to Enchantment Resort in Boynton Canyon", access: "resort guests" },
-  "Montage Big Sky": { courses: "Spanish Peaks Mountain Club Championship Course (18, Tom Weiskopf); Tom's 10 (10-hole par-3)", access: "resort guests" },
-  "Montage Palmetto Bluff": { courses: "May River Golf Club (18, par 72, Jack Nicklaus Signature); Crossroads (9, King-Collins)", access: "resort guests & public", standing: "May River: GOLF Top 100 Courses You Can Play" },
-  "Naples Beach Club, A Four Seasons Resort": { courses: "The Gardens (18, par 70, Tom Fazio)", access: "resort guests" },
-  "Ojai Valley Inn": { courses: "Ojai Valley Inn course (18, George C. Thomas Jr., 1923)", access: "resort guests & public", standing: "Historic George Thomas layout; former Senior PGA Tour venue" },
-  "Primland, Auberge Resorts Collection": { courses: "The Highland Course (18, Donald Steel, 2006)", access: "resort guests & public", standing: "No. 1 public course in Virginia (Golf Digest and Golfweek); Golf Digest America's 100 Greatest Public Courses" },
-  "Sensei Lanai, a Four Seasons Resort": { courses: "Manele Golf Course (18, Jack Nicklaus) above Hulopo'e Bay, about 20 min from the uplands", access: "resort guests" },
-  "Skylofts at MGM Grand": { courses: "Shadow Creek (18, Tom Fazio), MGM Resorts' course about 20 min north of the Strip", access: "resort guests", standing: "Hosted the PGA TOUR CJ Cup (2020)" },
-  "The American Club": { courses: "Blackwolf Run River Course (18) and Meadow Valleys (18) in Kohler village; Whistling Straits Straits Course (18) and Irish Course (18), about 10 min away on Lake Michigan, all Destination Kohler-owned; The Baths (10-hole par-3)", access: "resort guests & public", standing: "Straits Course: 2021 Ryder Cup, PGA Championships 2004/2010/2015, six majors in all; Destination Kohler: GOLF Top 100 Golf Resorts in the World" },
-  "The Breakers Palm Beach": { courses: "Ocean Course (18, par 70, on property, 1897, Rees Jones renovation 2018); The Breakers Rees Jones Course (18, par 72, about 10 miles off-site, resort-owned)", access: "resort guests", standing: "Ocean Course is Florida's oldest golf course" },
-  "The Canyon Suites at The Phoenician": { courses: "The Phoenician Golf Club (18, par 71, Phil Smith redesign 2018)", access: "resort guests & public" },
-  "The Cloister at Sea Island": { courses: "Seaside (18, Colt & Alison 1929, Fazio redesign), Plantation (18, Love), Retreat (18), all Sea Island-owned on St Simons Island across the causeway", access: "resort guests", standing: "Seaside and Plantation host the PGA TOUR RSM Classic; GOLF Top 100 Resorts" },
-  "The Lodge at Pebble Beach": { courses: "Pebble Beach Golf Links (18), Spyglass Hill (18), The Links at Spanish Bay (18), Del Monte (18), The Hay (9-hole par-3, Tiger Woods)", access: "resort guests & public", standing: "Pebble Beach Golf Links: Golf Digest No. 1 public course in America; U.S. Open venue; AT&T Pebble Beach Pro-Am" },
-  "The Lodge at Sea Island": { courses: "Seaside (18, Colt & Alison 1929, Fazio redesign), Plantation (18, Love), Retreat (18)", access: "resort guests", standing: "Seaside and Plantation host the PGA TOUR RSM Classic; GOLF Top 100 Resorts" },
-  "The Resort at Kapalua Bay, Maui": { courses: "Kapalua Golf: Plantation Course (18, Coore & Crenshaw) and Bay Course (18, Arnold Palmer), within Kapalua Resort", access: "resort guests & public", standing: "Plantation Course hosts the PGA TOUR's The Sentry each January" },
-  "The Resort at Pelican Hill": { courses: "Ocean North (18) and Ocean South (18), both Tom Fazio", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World" },
-  "The Ritz-Carlton Maui, Kapalua": { courses: "Kapalua Golf: Plantation Course (18, par 73, Coore & Crenshaw) and Bay Course (18, Arnold Palmer, 1975), within Kapalua Resort", access: "resort guests & public", standing: "Plantation Course hosts the PGA TOUR's The Sentry; Bay Course hosted 20+ pro events" },
-  "The Ritz-Carlton Naples, Tiburón": { courses: "Tiburón Golf Club Gold (18, 7,382 yds) and Black (18, 6,949 yds), both Greg Norman", access: "resort guests", standing: "Hosts PGA and LPGA events, including the LPGA CME Group Tour Championship" },
-  "The Ritz-Carlton Orlando, Grande Lakes": { courses: "The Ritz-Carlton Golf Club, Grande Lakes (18, par 72, Greg Norman)", access: "resort guests & public", standing: "Host of the PNC Championship; Audubon Cooperative Sanctuary, GEO Certified" },
-  "The Ritz-Carlton Reynolds, Lake Oconee": { courses: "Reynolds Lake Oconee: Great Waters (Nicklaus), The Oconee (Rees Jones), The National (Fazio), The Landing and The Preserve (Bob Cupp), all 18", access: "resort guests & public", standing: "GOLF Top 100 Golf Resorts in the World" },
-  "The Ritz-Carlton, Dove Mountain": { courses: "The Golf Club at Dove Mountain: Saguaro, Tortolita and Wild Burro nines (27, Jack Nicklaus)", access: "resort guests", standing: "Hosted the WGC-Accenture Match Play Championship" },
-  "The Ritz-Carlton, Naples": { courses: "Tiburón Golf Club Gold (18) and Black (18), Greg Norman, at the sister Ritz-Carlton Naples, Tiburón, about 3 miles inland", access: "resort guests", standing: "Gold Course hosts the LPGA CME Group Tour Championship" },
-  "The Ritz-Carlton, Sarasota": { courses: "The Ritz-Carlton Members Golf Club (18, Tom Fazio), about 19 miles inland, resort-operated", access: "resort guests" },
-  "The Sanctuary at Kiawah Island Golf Resort": { courses: "The Ocean Course (18, Pete Dye), Osprey Point (18, Fazio), Turtle Point (18, Nicklaus), Cougar Point (18, Player), Oak Point (18)", access: "resort guests & public", standing: "Ocean Course: 1991 Ryder Cup, 2012 and 2021 PGA Championships" },
-  "The St. Regis Bahia Beach Resort": { courses: "Bahia Beach Golf Club (18, Robert Trent Jones Jr., managed by Troon)", access: "resort guests & public", standing: "Audubon-certified; named best golf course in Puerto Rico (RTJ II)" },
-  "Wequassett Resort and Golf Club": { courses: "Cape Cod National Golf Club (18, par 72, Brian Silva), private, in Brewster a short drive away", access: "resort guests", standing: "Golf Digest top-20 private course list (per resort)" },
-  "Wynn Tower Suites": { courses: "Wynn Golf Club (18, par 70, Tom and Logan Fazio, 2019)", access: "resort guests & public", standing: "The only golf course on the Las Vegas Strip" },
-  "Yacht Club at The Boca Raton": { courses: "The Golf Club at The Boca Raton (18, Donald Ross 1926, reimagined)", access: "resort guests", standing: "Donald Ross original, 1926" },
-};
-const CITY_GOLF = {
-  "New York City": [
-    { course: "Bethpage State Park — Black Course", where: "Farmingdale, Long Island", drive: "55 min from Midtown Manhattan (off-peak; allow 1 hr 15 in traffic)", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest America's 100 Greatest #38; Golf Digest Best in NY #7; 2002 & 2009 U.S. Opens, 2019 PGA Championship, 2025 Ryder Cup" },
-    { course: "Bethpage State Park — Red Course", where: "Farmingdale, Long Island", drive: "55 min from Midtown Manhattan", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in NY T-6; Golf Digest calls it Bethpage's second-best layout" },
-    { course: "Bally's Golf Links at Ferry Point", where: "The Bronx", drive: "25 min from Midtown Manhattan", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in NY #3; Golf Digest Best in NY #39" },
-  ],
-  "Los Angeles": [
-    { course: "Rustic Canyon Golf Course", where: "Moorpark, Ventura County", drive: "55 min from Beverly Hills", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA #5; Golf Digest Best in State" },
-    { course: "Trump National Golf Club Los Angeles", where: "Rancho Palos Verdes", drive: "50 min from Beverly Hills", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA #18; Golf Digest Best in State" },
-    { course: "Rancho Park Golf Course", where: "Cheviot Hills, Los Angeles", drive: "10 min from Beverly Hills", access: "public", season: "Year round", standing: "Historic muni; hosted the Los Angeles Open in the late 1950s–60s and the 1949 U.S. Amateur Public Links" },
-    { course: "Pelican Hill Golf Club — Ocean South", where: "Newport Coast, Orange County", drive: "1 hr 15 min from Beverly Hills", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in CA #13 (Ocean North is #14)" },
-  ],
-  "Chicago": [
-    { course: "Cog Hill Golf & Country Club — No. 4 (Dubsdread)", where: "Lemont", drive: "45 min from the Magnificent Mile", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest 100 Greatest Public #76; Golfweek Best Public-Access in IL #1; Golf Digest Best in IL #14; long-time Western Open / BMW Championship host" },
-    { course: "Harborside International — Starboard", where: "South Side, Chicago", drive: "25 min from the Magnificent Mile", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in IL #10" },
-    { course: "The Glen Club", where: "Glenview", drive: "40 min from the Magnificent Mile", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in IL #5; Golf Digest Best in IL #32" },
-  ],
-  "Dallas": [
-    { course: "Omni PGA Frisco — Fields Ranch East", where: "Frisco", drive: "40 min from Uptown Dallas", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #34; Golfweek Best Public-Access in TX #2; GOLF Best in TX #9; 2023 Senior PGA, 2025 KPMG Women's PGA, 2027 PGA Championship" },
-    { course: "Omni PGA Frisco — Fields Ranch West", where: "Frisco", drive: "40 min from Uptown Dallas", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #77; Golfweek Best Public-Access in TX #3" },
-    { course: "Cowboys Golf Club", where: "Grapevine", drive: "30 min from Uptown Dallas", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in TX #13" },
-    { course: "TPC Four Seasons Las Colinas", where: "Irving", drive: "25 min from Uptown Dallas", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in TX #12; AT&T Byron Nelson host 1983–2017" },
-  ],
-  "Houston": [
-    { course: "Memorial Park Golf Course", where: "Memorial Park, Houston", drive: "10 min from the Galleria", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in TX #7; GOLF Best in TX #16; PGA Tour Houston Open host since 2020" },
-    { course: "Golf Club of Houston — Tournament Course", where: "Humble", drive: "40 min from the Galleria", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in TX #11; Houston Open host 2006–2019" },
-  ],
-  "Washington DC": [
-    { course: "Laurel Hill Golf Club", where: "Lorton, VA", drive: "35 min from downtown DC", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best Public in DC area (panel score 3.8); 2013 U.S. Amateur Public Links" },
-    { course: "Potomac Shores Golf Club", where: "Dumfries, VA", drive: "40 min from downtown DC", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best Public in DC area (panel score 3.6); only public Nicklaus design in Northern Virginia" },
-    { course: "Bulle Rock Golf Course", where: "Havre de Grace, MD", drive: "1 hr 20 min from downtown DC", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #9; Pete Dye design; LPGA Championship host 2005–2009" },
-    { course: "The Golf Club at Creighton Farms", where: "Aldie, VA", drive: "55 min from downtown DC", access: "hotel-guest arrangement", season: "Apr–Nov (closed in winter)", standing: "Jack Nicklaus Signature private club; accessible through Salamander Resort's Signature Golf Package (Sun–Thu, two-night minimum)" },
-  ],
-  "Atlanta": [
-    { course: "Bear's Best Atlanta", where: "Suwanee", drive: "45 min from Buckhead", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in GA T-7" },
-    { course: "Reynolds Lake Oconee — Great Waters", where: "Eatonton", drive: "1 hr 30 min from Buckhead", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #99; Golfweek Best Public-Access in GA #2" },
-    { course: "Reynolds Lake Oconee — The Oconee", where: "Greensboro", drive: "1 hr 30 min from Buckhead", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in GA T-4" },
-  ],
-  "Miami": [
-    { course: "Trump National Doral — Blue Monster", where: "Doral", drive: "30 min from Miami Beach", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #86; Golf Digest Best in FL #30; Golfweek Best Public-Access in FL #6; PGA Tour host 1962–2016, LIV Golf Miami" },
-    { course: "Crandon Golf at Key Biscayne", where: "Key Biscayne", drive: "20 min from Brickell", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in FL T-25; former PGA Tour Champions host" },
-    { course: "JW Marriott Miami Turnberry — Soffer Course", where: "Aventura", drive: "30 min from Miami Beach", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in FL #12" },
-    { course: "The Park at West Palm Beach", where: "West Palm Beach", drive: "1 hr 20 min from Miami Beach", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #89; Golf Digest Best in FL #31" },
-    { course: "PGA National Resort — The Champion", where: "Palm Beach Gardens", drive: "1 hr 30 min from Miami Beach", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in FL #7 (and #100 U.S. public-access); Cognizant (Honda) Classic host" },
-  ],
-  "Philadelphia": [
-    { course: "The Golf Course at Glen Mills", where: "Glen Mills", drive: "40 min from Rittenhouse Square", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in PA #3; Golf Digest Best in PA #43" },
-    { course: "Jeffersonville Golf Club", where: "Jeffersonville", drive: "40 min from Rittenhouse Square", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in PA T-7" },
-    { course: "Cobbs Creek Golf Course (Olde Course)", where: "West Philadelphia", drive: "20 min from Rittenhouse Square", access: "public", season: "Apr–Nov (closed in winter)", standing: "Historic 1916 Hugh Wilson muni under full Hanse/Wagner restoration; 18 holes expected to reopen spring 2027" },
-  ],
-  "Scottsdale": [
-    { course: "TPC Scottsdale — Stadium Course", where: "North Scottsdale", drive: "20 min from Old Town Scottsdale", access: "public", season: "Year round (closed ~3 weeks for overseeding in Oct and around the Open in Feb)", standing: "Golfweek Best Public-Access in AZ #4; WM Phoenix Open host" },
-    { course: "We-Ko-Pa Golf Club — Saguaro", where: "Fort McDowell", drive: "35 min from Old Town Scottsdale", access: "public", season: "Year round (brief overseeding closure in autumn)", standing: "Golfweek Best Public-Access in AZ #1" },
-    { course: "Troon North — Monument", where: "North Scottsdale", drive: "30 min from Old Town Scottsdale", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in AZ T-9" },
-    { course: "Grayhawk Golf Club — Raptor", where: "North Scottsdale", drive: "20 min from Old Town Scottsdale", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in AZ T-11; NCAA Championships host 2021–2023" },
-    { course: "The Boulders — South", where: "Carefree", drive: "35 min from Old Town Scottsdale", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in AZ #17 (North is T-15)" },
-    { course: "Quintero Golf Club", where: "Peoria", drive: "1 hr 5 min from Old Town Scottsdale", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #93; Golfweek Best Public-Access in AZ #2" },
-  ],
-  "Boston": [
-    { course: "George Wright Golf Course", where: "Hyde Park, Boston", drive: "25 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA #7; Donald Ross municipal, hosted 2018 Massachusetts Amateur" },
-    { course: "Granite Links Golf Club", where: "Quincy", drive: "20 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA #10" },
-    { course: "Pinehills Golf Club — Nicklaus Course", where: "Plymouth", drive: "55 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA T-8" },
-    { course: "Red Tail Golf Club", where: "Devens", drive: "50 min from Back Bay", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MA #4" },
-  ],
-  "San Francisco": [
-    { course: "TPC Harding Park", where: "San Francisco (Lake Merced)", drive: "25 min from Union Square", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA T-20; 2020 PGA Championship, 2009 Presidents Cup, WGC Match Play host" },
-    { course: "Presidio Golf Course", where: "The Presidio, San Francisco", drive: "15 min from Union Square", access: "public", season: "Year round", standing: "Historic 1895 course in a national park; GOLF's pick for visitors staying downtown" },
-    { course: "Pasatiempo Golf Club", where: "Santa Cruz", drive: "1 hr 25 min from Union Square", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #15; Golf Digest America's 100 Greatest #93; Golfweek Best Public-Access in CA #2" },
-    { course: "CordeValle", where: "San Martin", drive: "1 hr 20 min from Union Square", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #52; Golfweek Best Public-Access in CA T-7; 2016 U.S. Women's Open" },
-    { course: "Half Moon Bay Golf Links — Ocean Course", where: "Half Moon Bay", drive: "45 min from Union Square", access: "resort guests", season: "Year round", standing: "Famous resort course at the Ritz-Carlton Half Moon Bay; Arthur Hills design (the Old Course is Arnold Palmer's)" },
-  ],
-  "Seattle": [
-    { course: "Chambers Bay", where: "University Place (Tacoma)", drive: "50 min from downtown Seattle", access: "public", season: "Year round (walking only; wet Nov–Mar)", standing: "Golf Digest 100 Greatest Public #19; Golfweek Best Public-Access in WA #1; 2015 U.S. Open, 2010 U.S. Amateur" },
-    { course: "Salish Cliffs Golf Club", where: "Shelton", drive: "1 hr 30 min from downtown Seattle", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in WA T-6" },
-    { course: "Gold Mountain Golf Club — Olympic Course", where: "Bremerton", drive: "1 hr 15 min from downtown Seattle (via Tacoma Narrows or ferry)", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in WA #4; 2006 U.S. Amateur Public Links, 2011 U.S. Junior Amateur" },
-    { course: "Suncadia Resort — Prospector", where: "Cle Elum", drive: "1 hr 30 min from downtown Seattle", access: "resort guests", season: "Apr–Oct (mountain snow closes it in winter)", standing: "Golfweek Best Public-Access in WA T-10 (Rope Rider also T-10)" },
-  ],
-  "Minneapolis": [
-    { course: "Chaska Town Course", where: "Chaska", drive: "35 min from downtown Minneapolis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #6" },
-    { course: "The Meadows at Mystic Lake", where: "Prior Lake", drive: "35 min from downtown Minneapolis", access: "resort guests", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #7" },
-    { course: "StoneRidge Golf Club", where: "Stillwater", drive: "30 min from downtown Minneapolis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #8" },
-    { course: "Rush Creek Golf Club", where: "Maple Grove", drive: "25 min from downtown Minneapolis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MN #10; former LPGA and PGA Tour Champions host" },
-  ],
-  "San Diego": [
-    { course: "Torrey Pines — South Course", where: "La Jolla", drive: "20 min from downtown San Diego (10 min from La Jolla)", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #40; Golfweek Best Public-Access in CA #4; 2008 & 2021 U.S. Opens; Farmers Insurance Open host" },
-    { course: "Torrey Pines — North Course", where: "La Jolla", drive: "20 min from downtown San Diego", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA #11; co-host of the Farmers Insurance Open" },
-    { course: "Fairmont Grand Del Mar — The Grand", where: "Carmel Valley, San Diego", drive: "25 min from downtown San Diego", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in CA #22" },
-    { course: "Park Hyatt Aviara Golf Club", where: "Carlsbad", drive: "40 min from downtown San Diego", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in CA #27; long-time LPGA Kia Classic host" },
-    { course: "Maderas Golf Club", where: "Poway", drive: "40 min from downtown San Diego", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in CA T-20" },
-  ],
-  "Denver": [
-    { course: "The Broadmoor — East Course", where: "Colorado Springs", drive: "1 hr 15 min from downtown Denver", access: "resort guests", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golf Digest 100 Greatest Public #47; Golfweek Best Public-Access in CO #3; 2008 & 2018 U.S. Senior Opens, 2011 U.S. Women's Open, 2025 U.S. Senior Open" },
-    { course: "TPC Colorado", where: "Berthoud", drive: "55 min from downtown Denver", access: "public", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golfweek Best Public-Access in CO T-8; Korn Ferry Tour TPC Colorado Championship host" },
-    { course: "CommonGround Golf Course", where: "Aurora", drive: "20 min from downtown Denver", access: "public", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golfweek Best Public-Access in CO #7" },
-    { course: "RainDance National Golf Club", where: "Windsor", drive: "1 hr 5 min from downtown Denver", access: "public", season: "Mar–Nov typically; Front Range courses open on dry winter days", standing: "Golfweek Best Public-Access in CO T-4" },
-  ],
-  "Baltimore": [
-    { course: "Bulle Rock Golf Course", where: "Havre de Grace", drive: "45 min from Harbor East", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #9; Pete Dye design; LPGA Championship host 2005–2009" },
-    { course: "Links at Perry Cabin", where: "St. Michaels (Eastern Shore)", drive: "1 hr 30 min from Harbor East", access: "resort guests", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #14; Pete Dye design opened 2018" },
-    { course: "Whiskey Creek Golf Club", where: "Ijamsville", drive: "1 hr from Harbor East", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golf Digest Best in MD #15; Ernie Els/J. Michael Poellot design" },
-  ],
-  "St Louis": [
-    { course: "The Missouri Bluffs Golf Club", where: "St. Charles", drive: "35 min from downtown St. Louis", access: "public", season: "Apr–Nov (closed in winter)", standing: "Golfweek Best Public-Access in MO #9" },
-  ],
-  "Orlando": [
-    { course: "Arnold Palmer's Bay Hill Club & Lodge", where: "Bay Hill, Orlando", drive: "15 min from Lake Buena Vista hotels", access: "hotel-guest arrangement", season: "Year round (closed to guests for several weeks around the API in March)", standing: "Golfweek Best Public-Access in FL #5 (T-70 U.S. public-access); Golf Digest Best in FL #36; Arnold Palmer Invitational host" },
-    { course: "Streamsong Resort — Red", where: "Bowling Green", drive: "1 hr 20 min from Lake Buena Vista hotels", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #20; Golf Digest Best in FL #6; Golfweek Best Public-Access in FL #2" },
-    { course: "Streamsong Resort — Blue", where: "Bowling Green", drive: "1 hr 20 min from Lake Buena Vista hotels", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #26; Golf Digest Best in FL #9; Golfweek Best Public-Access in FL #3" },
-    { course: "Streamsong Resort — Black", where: "Bowling Green", drive: "1 hr 20 min from Lake Buena Vista hotels", access: "resort guests", season: "Year round", standing: "Golf Digest 100 Greatest Public #33; Golf Digest Best in FL #11; Golfweek Best Public-Access in FL #4" },
-    { course: "Orange County National — Panther Lake", where: "Winter Garden", drive: "15 min from Lake Buena Vista hotels", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in FL #20 (Crooked Cat T-22); former PGA Tour Q-School finals site" },
-    { course: "Tranquilo Golf Club at Four Seasons Resort Orlando", where: "Lake Buena Vista", drive: "5 min from the Four Seasons", access: "resort guests", season: "Year round", standing: "Tom Fazio design (formerly Disney's Osprey Ridge); Audubon-certified; resort guests and club members only" },
-  ],
-  "San Antonio": [
-    { course: "TPC San Antonio — Oaks Course", where: "Cibolo Canyons, San Antonio", drive: "30 min from the River Walk", access: "hotel-guest arrangement", season: "Year round", standing: "Golf Digest 100 Greatest Public #95; Golfweek Best Public-Access in TX #6; Valero Texas Open host since 2010" },
-    { course: "TPC San Antonio — Canyons Course", where: "Cibolo Canyons, San Antonio", drive: "30 min from the River Walk", access: "hotel-guest arrangement", season: "Year round", standing: "Golfweek Best Public-Access in TX #10; PGA Tour Champions host 2011–2015" },
-    { course: "La Cantera Golf Club", where: "The Rim, San Antonio", drive: "25 min from the River Walk", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in TX #15; Golf Digest Best New Public Course of 1995; Texas Open host 1995–2009" },
-    { course: "Brackenridge Park Golf Course", where: "Brackenridge Park, San Antonio", drive: "5 min from the River Walk", access: "public", season: "Year round", standing: "1916 A.W. Tillinghast muni; hosted the first Texas Open in 1922; home of the Texas Golf Hall of Fame" },
-    { course: "The Quarry Golf Course", where: "Alamo Heights, San Antonio", drive: "15 min from the River Walk", access: "public", season: "Year round", standing: "Keith Foster 1993 design in a 1908 cement quarry (Golf Digest panel 3.4)" },
-  ],
-  "Portland, Oregon": [
-    { course: "Pumpkin Ridge — Ghost Creek", where: "North Plains", drive: "35 min from downtown Portland", access: "public", season: "Year round (wet and soft Nov–Mar)", standing: "Golfweek Best Public-Access in OR #9; 1994 Nike Tour Championship, LPGA Safeway Classic 2009–2012" },
-    { course: "Langdon Farms Golf Club", where: "Aurora", drive: "30 min from downtown Portland", access: "public", season: "Year round (wet and soft Nov–Mar)", standing: "Golfweek Best Public-Access in OR #14" },
-  ],
-  "Las Vegas": [
-    { course: "Shadow Creek", where: "North Las Vegas", drive: "25 min from the Strip", access: "hotel-guest arrangement", season: "Year round (overseeding closure in autumn)", standing: "Golf Digest America's 100 Greatest #24; Golfweek Best Public-Access in NV #1 (No. 8 U.S. public-access); 2020 CJ Cup, Tiger v Phil 2018" },
-    { course: "Wynn Golf Club", where: "Las Vegas Strip", drive: "On the Strip (at Wynn)", access: "hotel-guest arrangement", season: "Year round", standing: "Golf Digest 100 Greatest Public #67; Golfweek Best Public-Access in NV #5" },
-    { course: "Cascata", where: "Boulder City", drive: "35 min from the Strip", access: "public", season: "Year round", standing: "Golf Digest 100 Greatest Public #74; Golfweek Best Public-Access in NV #2" },
-    { course: "Rio Secco Golf Club", where: "Henderson", drive: "25 min from the Strip", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in NV #11; home of the Butch Harmon School of Golf" },
-    { course: "Las Vegas Paiute Golf Resort — Wolf", where: "Las Vegas (north)", drive: "40 min from the Strip", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in NV #8 (Sun Mountain #10, Snow Mountain #12)" },
-    { course: "Reflection Bay Golf Club", where: "Lake Las Vegas, Henderson", drive: "35 min from the Strip", access: "resort guests", season: "Year round", standing: "Golfweek Best Public-Access in NV #15" },
-    { course: "TPC Las Vegas", where: "Summerlin", drive: "25 min from the Strip", access: "public", season: "Year round", standing: "Golfweek Best Public-Access in NV #13; former Shriners Children's Open co-host" },
-  ],
-};
-
-// Golf for a place, by the two rules: the curated hotel with its own course (rule 1), or the courses a
-// client can play nearby (rule 2) — only those in season for the trip when the months are known.
-function hotelGolfAt(city) {
-  const hotels = lookup(FAVORITES, city) || [];
-  return hotels.filter((h) => h && h.name && HOTEL_GOLF[h.name]).map((h) => ({ hotel: h.name, ...HOTEL_GOLF[h.name] }));
-}
-function coursesNear(city, months) {
-  const k = Object.keys(CITY_GOLF).find((x) => x.toLowerCase() === bareCity(city || "").toLowerCase() || (resolvePlace(city) || "").toLowerCase() === x.toLowerCase());
-  const list = k ? CITY_GOLF[k] : [];
-  if (!months) return list;
-  return list.filter((c) => { const m = seasonMonths(c.season); return !m || [...months].some((x) => m.has(x)); });
-}
-function golfAt(city, months) {
-  const own = hotelGolfAt(city), near = coursesNear(city, months);
-  return (own.length || near.length) ? { own, near } : null;
-}
-// The one line on an idea card: "Golf: on the property at The Breakers" or "Golf: 6 courses within 90 minutes".
-function golfLine(city, months) {
-  const g = golfAt(city, months); if (!g) return "";
-  if (g.own.length) return `Golf: on the property at ${g.own[0].hotel}${g.near.length ? ` — and ${g.near.length} more course${g.near.length === 1 ? "" : "s"} within 90 minutes` : ""}`;
-  return `Golf: ${g.near.length} course${g.near.length === 1 ? "" : "s"} within 90 minutes`;
-}
-// US hotel amenities, verified from the hotels’ own sites 29 Oct 2026 and struck by Tricia the same day.
-// Tennis: three or more courts, a named tennis facility or pro, or the hotel is on our tennis list;
-// spa: a named full spa; fishing: the hotel’s own program or charters. A hotel absent here
-// qualifies its place for none of them.
-const HOTEL_AMENITY = {
-  "1 Hotel Hanalei Bay": { tennis: "3 outdoor hard courts", spa: "Bamford Wellness Spa" },
-  "1 Hotel South Beach": { spa: "Bamford Wellness Spa" },
-  "ARIA Sky Suites": { spa: "The Spa at ARIA" },
-  "Acqualina Resort & Residences": { spa: "Acqualina Spa" },
-  "Aman New York": { spa: "Aman Spa New York" },
-  "Amangani": { spa: "Aman Spa" },
-  "Amangiri": { spa: "Aman Spa" },
-  "Auberge du Soleil": { tennis: "courts (number not stated)", spa: "The Spa at Auberge du Soleil" },
-  "Baccarat Hotel New York": { spa: "Spa de La Mer" },
-  "Bardessono Hotel and Spa": { spa: "B Spa" },
-  "Beach Club at The Boca Raton": { tennis: "16 Hydro-Grid clay courts", spa: "Spa Palmera" },
-  "Beverly Wilshire, A Four Seasons Hotel": { spa: "The Spa at Beverly Wilshire" },
-  "Bishop’s Lodge, Auberge Collection": { spa: "Stream Dance, Wellbeing by Auberge", fishing: "fly" },
-  "Blackberry Farm": { spa: "Wellhouse Spa", fishing: "fly" },
-  "Caldera House": { fishing: "fly" },
-  "Canyon Ranch Lenox": { spa: "Canyon Ranch Spa" },
-  "Casa Cipriani New York": { spa: "The Spa at Casa Cipriani" },
-  "Casa Palmero at Pebble Beach": { spa: "The Spa at Pebble Beach" },
-  "Chatham Bars Inn": { spa: "The Spa at Chatham Bars Inn", fishing: "deep sea" },
-  "Condado Vanderbilt Hotel": { spa: "The Spa at Condado Vanderbilt" },
-  "Dorado Beach, a Ritz-Carlton Reserve": { tennis: "5 Har-Tru clay courts", spa: "Spa Botanico", fishing: "deep sea" },
-  "Eau Palm Beach Resort & Spa": { spa: "Eau Spa" },
-  "Edgewood Tahoe Resort": { spa: "The Spa at Edgewood Tahoe", fishing: "deep sea" },
-  "Encore Tower Suites": { spa: "The Spa at Encore" },
-  "Faena New York": { spa: "Tierra Santa Healing House" },
-  "Fairmont El San Juan Hotel": { spa: "Well & Being Spa" },
-  "Fairmont Olympic Hotel": { spa: "Penelope and The Beauty Bar" },
-  "Falling Rock at Nemacolin": { spa: "The Woodlands Spa", fishing: "fly" },
-  "Farmhouse Inn": { spa: "The Wellness Barn" },
-  "Fouquet's New York": { spa: "Spa Fouquet's New York" },
-  "Four Seasons Hotel Atlanta": { spa: "The Spa at Four Seasons Hotel Atlanta" },
-  "Four Seasons Hotel Baltimore": { spa: "The Spa at Four Seasons Baltimore" },
-  "Four Seasons Hotel Chicago": { spa: "The Spa at Four Seasons Hotel Chicago" },
-  "Four Seasons Hotel Denver": { spa: "The Spa at Four Seasons Hotel Denver" },
-  "Four Seasons Hotel Las Vegas": { spa: "The Spa at Four Seasons Hotel Las Vegas" },
-  "Four Seasons Hotel Los Angeles at Beverly Hills": { spa: "The Spa at Four Seasons Los Angeles at Beverly Hills" },
-  "Four Seasons Hotel Minneapolis": { spa: "The Spa at Four Seasons Hotel Minneapolis" },
-  "Four Seasons Hotel Nashville": { spa: "The Spa at Four Seasons Hotel Nashville" },
-  "Four Seasons Hotel New Orleans": { spa: "The Spa at Four Seasons Hotel New Orleans" },
-  "Four Seasons Hotel One Dalton Street, Boston": { spa: "The Spa at Four Seasons One Dalton" },
-  "Four Seasons Hotel Philadelphia at Comcast Center": { spa: "The Spa at Four Seasons Hotel Philadelphia" },
-  "Four Seasons Hotel Seattle": { spa: "The Spa at Four Seasons Hotel Seattle" },
-  "Four Seasons Hotel St. Louis": { spa: "The Spa at Four Seasons Hotel St. Louis" },
-  "Four Seasons Hotel Washington, D.C.": { spa: "The Spa at Four Seasons Washington, DC" },
-  "Four Seasons Hotel at The Surf Club": { spa: "The Spa at Four Seasons Hotel at The Surf Club" },
-  "Four Seasons Resort Hualalai": { tennis: "7 courts", spa: "Hualalai Spa", fishing: "deep sea" },
-  "Four Seasons Resort Lanai": { tennis: "3 courts", spa: "Hawanawana Spa" },
-  "Four Seasons Resort Maui at Wailea": { spa: "The Spa at Four Seasons Resort Maui" },
-  "Four Seasons Resort Oahu at Ko Olina": { tennis: "5 Plexipave rooftop courts", spa: "Naupaka Spa & Wellness Centre", fishing: "deep sea" },
-  "Four Seasons Resort Orlando at Walt Disney World Resort": { spa: "The Spa at Four Seasons Orlando" },
-  "Four Seasons Resort Palm Beach": { spa: "The Spa at Four Seasons Palm Beach" },
-  "Four Seasons Resort Rancho Encantado Santa Fe": { spa: "The Spa at Four Seasons Resort Rancho Encantado", fishing: "fly" },
-  "Four Seasons Resort and Residences Jackson Hole": { spa: "The Spa at Four Seasons Jackson Hole", fishing: "fly" },
-  "Four Seasons Resort and Residences Napa Valley": { spa: "Spa Talisa" },
-  "Grand Bohemian Hotel Mountain Brook": { spa: "Poseidon Spa" },
-  "Grand Wailea, A Waldorf Astoria Resort": { spa: "Kilolani Spa & Salon" },
-  "Halekulani": { spa: "SpaHalekulani" },
-  "Hotel Bardo Savannah": { spa: "Saltgrass Spa" },
-  "Hotel Bel-Air": { spa: "The Spa at Hotel Bel-Air" },
-  "Hotel Bennett": { spa: "The Spa at Hotel Bennett" },
-  "Hotel Jerome, Auberge Collection": { spa: "Yarrow" },
-  "Inn at Perry Cabin": { tennis: "3 Har-Tru courts, lit", spa: "Spa at Perry Cabin" },
-  "Keswick Hall": { spa: "The Spa at Keswick Hall" },
-  "Kona Village, A Rosewood Resort": { spa: "Asaya Spa" },
-  "Lake Placid Lodge": { fishing: "fly" },
-  "Little Palm Island Resort & Spa": { spa: "SpaTerre", fishing: "both" },
-  "Lotte Hotel Seattle": { spa: "Le SPA de l'hôtel LOTTE" },
-  "Mandarin Oriental, Boston": { spa: "The Spa at Mandarin Oriental, Boston" },
-  "Mandarin Oriental, New York": { spa: "The Spa at Mandarin Oriental, New York" },
-  "Mauna Lani, Auberge Collection": { spa: "Auberge Spa" },
-  "Maybourne Beverly Hills": { spa: "The Spa at The Maybourne" },
-  "Mayflower Inn & Spa, Auberge Resorts Collection": { spa: "The Retreat at Mayflower Inn" },
-  "Meadowood Napa Valley": { tennis: "5 outdoor courts", spa: "The Meadowood Spa" },
-  "Mii amo": { spa: "Mii amo" },
-  "Montage Big Sky": { spa: "Spa Montage Big Sky", fishing: "fly" },
-  "Montage Deer Valley": { spa: "Spa Montage Deer Valley", fishing: "fly" },
-  "Montage Healdsburg": { spa: "Spa Montage Healdsburg" },
-  "Montage Laguna Beach": { spa: "Spa Montage Laguna Beach" },
-  "Montage Palmetto Bluff": { tennis: "8 Har-Tru courts (Wilson Lawn & Racquet Club)", spa: "Spa Montage Palmetto Bluff", fishing: "both" },
-  "Naples Beach Club, A Four Seasons Resort": { tennis: "courts at The Racquet Club (number not stated)", spa: "The Sanctuary", fishing: "deep sea" },
-  "Ocean House": { spa: "OH! Spa" },
-  "Ojai Valley Inn": { tennis: "4 lighted hard courts", spa: "Spa Ojai" },
-  "Omni Louisville": { spa: "Mokara Salon & Spa" },
-  "One&Only Moonlight Basin": { spa: "One&Only Spa", fishing: "fly" },
-  "Pendry Natirar": { spa: "Spa Pendry" },
-  "Posthotel Leavenworth": { spa: "Posthotel Spa" },
-  "Primland, Auberge Resorts Collection": { spa: "The Spa at Primland", fishing: "fly" },
-  "Raffles Boston": { spa: "Guerlain Spa" },
-  "Rancho Valencia Resort & Spa": { tennis: "courts (number not stated on page)", spa: "The Spa at Rancho Valencia" },
-  "RiverView Ranch": { fishing: "fly" },
-  "Rosewood Miramar Beach": { spa: "Sense, A Rosewood Spa" },
-  "Rosewood Sand Hill": { spa: "Asaya Spa" },
-  "Sage Lodge": { spa: "The Spa at Sage Lodge", fishing: "fly" },
-  "Salamander Middleburg": { spa: "Salamander Spa" },
-  "Salish Lodge & Spa": { spa: "The Spa at Salish Lodge" },
-  "San Ysidro Ranch": { spa: "The Salon & Spa at San Ysidro Ranch" },
-  "Sensei Lanai, a Four Seasons Resort": { spa: "Sensei Spa" },
-  "Skylofts at MGM Grand": { spa: "MGM Grand Spa & Salon" },
-  "Southall Farm & Inn": { spa: "The Spa at Southall", fishing: "fly" },
-  "Stein Eriksen Lodge Deer Valley": { spa: "The Spa at Stein Eriksen Lodge", fishing: "fly" },
-  "Stephanie Inn": { spa: "Spa Stephanie" },
-  "The Allison Inn & Spa": { spa: "The Allison Spa" },
-  "The American Club": { tennis: "6 courts at Sports Core racquet club", spa: "Kohler Waters Spa" },
-  "The Beverly Hills Hotel": { spa: "The Beverly Hills Hotel Spa" },
-  "The Breakers Palm Beach": { tennis: "12 courts (4 hydro-grass, 6 clay, 2 cushioned hard)", spa: "The Spa at The Breakers" },
-  "The Canyon Suites at The Phoenician": { tennis: "7 courts (Phoenician Athletic Club), surface not stated", spa: "The Phoenician Spa" },
-  "The Carlyle": { spa: "Valmont Spa at The Carlyle" },
-  "The Cloister at Sea Island": { tennis: "yes, Har-Tru (Cloister Tennis Center incl. stadium court), count not stated", spa: "The Spa at Sea Island", fishing: "both" },
-  "The Cooper": { spa: "The Spa at The Cooper" },
-  "The Dunlin, Auberge Resorts Collection": { spa: "Aster Spa" },
-  "The Greenwich Hotel": { spa: "Shibui Spa" },
-  "The Hermitage Hotel": { spa: "The Spa at The Hermitage" },
-  "The Inn of the Five Graces": { spa: "Spa of The Five Graces" },
-  "The Joule": { spa: "The Spa at The Joule" },
-  "The Little Nell": { spa: "The Spa at The Little Nell", fishing: "fly" },
-  "The Lodge at Blue Sky, Auberge Collection": { spa: "EDGE Spa", fishing: "fly" },
-  "The Lodge at Pebble Beach": { spa: "The Spa at Pebble Beach" },
-  "The Lodge at Sea Island": { tennis: "yes, Har-Tru (Sea Island tennis centers), count not stated", spa: "The Spa at Sea Island", fishing: "both" },
-  "The Lowell": { spa: "Dior Spa at The Lowell" },
-  "The Mark": { spa: "The Mark Wellness & Longevity Spa by Augustinus Bader" },
-  "The Peninsula Chicago": { spa: "The Peninsula Spa & Wellness Center" },
-  "The Peninsula New York": { spa: "The Peninsula Spa New York" },
-  "The Post Oak Hotel at Uptown Houston": { spa: "The Spa at The Post Oak Hotel" },
-  "The Ranch at Rock Creek": { spa: "Granite Spa", fishing: "fly" },
-  "The Resort at Kapalua Bay, Maui": { spa: "Spa Montage Kapalua Bay" },
-  "The Resort at Pelican Hill": { spa: "The Spa at Pelican Hill" },
-  "The Ritz-Carlton Bacara, Santa Barbara": { spa: "The Ritz-Carlton Spa Bacara" },
-  "The Ritz-Carlton Coconut Grove, Miami": { spa: "The Ritz-Carlton Spa Coconut Grove" },
-  "The Ritz-Carlton Key Biscayne, Miami": { tennis: "10 soft-clay courts", spa: "The Ritz-Carlton Spa, Key Biscayne" },
-  "The Ritz-Carlton Maui, Kapalua": { spa: "The Ritz-Carlton Maui Spa, Kapalua" },
-  "The Ritz-Carlton Naples, Tiburón": { tennis: "Mouratoglou Tennis Center (number not stated)" },
-  "The Ritz-Carlton Orlando, Grande Lakes": { spa: "The Ritz-Carlton Spa, Orlando, Grande Lakes" },
-  "The Ritz-Carlton Residences, Waikiki Beach": { spa: "The Ritz-Carlton Spa, Waikiki Beach" },
-  "The Ritz-Carlton Reynolds, Lake Oconee": { spa: "The Ritz-Carlton Spa, Reynolds Lake Oconee", fishing: "fly" },
-  "The Ritz-Carlton, Chicago": { spa: "The Ritz-Carlton Spa, Chicago" },
-  "The Ritz-Carlton, Dallas": { spa: "The Ritz-Carlton Spa, Dallas" },
-  "The Ritz-Carlton, Denver": { spa: "The Ritz-Carlton Spa, Denver" },
-  "The Ritz-Carlton, Dove Mountain": { spa: "The Ritz-Carlton Spa, Dove Mountain" },
-  "The Ritz-Carlton, Naples": { tennis: "courts at Tiburon sister resort (number not stated)", spa: "The Ritz-Carlton Spa, Naples", fishing: "deep sea" },
-  "The Ritz-Carlton, Portland": { spa: "The Ritz-Carlton Spa, Portland" },
-  "The Ritz-Carlton, Rancho Mirage": { spa: "The Ritz-Carlton Spa, Rancho Mirage" },
-  "The Ritz-Carlton, San Francisco": { spa: "Spa L'OCCITANE by the Bay" },
-  "The Ritz-Carlton, St. Louis": { spa: "The Spa at The Ritz-Carlton, St. Louis" },
-  "The Ritz-Carlton, St. Thomas": { spa: "The Ritz-Carlton Spa, St. Thomas" },
-  "The Sanctuary at Kiawah Island Golf Resort": { tennis: "22 courts (19 Har-Tru, 3 hard) at Roy Barth Tennis Center", spa: "The Spa at The Sanctuary", fishing: "both" },
-  "The Setai Miami Beach": { spa: "Valmont for The Spa at The Setai" },
-  "The St. Regis Aspen Resort": { spa: "RAKxa Wellness Spa" },
-  "The St. Regis Atlanta": { spa: "Remède Spa Atlanta" },
-  "The St. Regis Bahia Beach Resort": { spa: "Iridium Spa" },
-  "The St. Regis Chicago": { spa: "The St. Regis Spa" },
-  "The St. Regis Deer Valley": { spa: "The St. Regis Spa", fishing: "fly" },
-  "The St. Regis Longboat Key Resort": { spa: "The St. Regis Spa" },
-  "The Umstead Hotel and Spa": { spa: "The Umstead Spa" },
-  "Tributary Hotel": { spa: "Tributary Hotel & Spa" },
-  "Triple Creek Ranch": { spa: "Mountain Wellness", fishing: "fly" },
-  "Tu Tu' Tun Lodge": { spa: "Hive + Honey Spa" },
-  "Twin Farms": { spa: "Bridge House Spa", fishing: "fly" },
-  "Waldorf Astoria Chicago": { spa: "Waldorf Astoria Spa & Health Club" },
-  "Waldorf Astoria Washington, D.C.": { spa: "Waldorf Astoria Spa" },
-  "Wequassett Resort and Golf Club": { tennis: "4 courts, surface not stated" },
-  "White Barn Inn, Auberge Resorts Collection": { spa: "Saltwood Spa" },
-  "Willows Lodge": { spa: "The Spa at Willows Lodge" },
-  "Wynn Tower Suites": { spa: "The Spa at Wynn" },
-  "Yacht Club at The Boca Raton": { tennis: "16 Hydro-Grid clay courts", spa: "Spa Palmera" },
-};
-const AMENITY_CITIES = new Set(["Chicago","St Louis","Birmingham, Alabama","Minneapolis","Kohler","Boston","St Michaels","Baltimore","Washington DC","Middleburg","Primland","Keswick","Washington, Virginia","Philipsburg, Montana","Darby, Montana","Alberton, Montana","Montana","Laguna Beach","Honolulu","Savannah","Charleston","Menlo Park","San Juan","Dorado","Río Grande, Puerto Rico","St Thomas","The Hamptons","New York City","Los Angeles","Santa Barbara","Beverly Hills","Ojai","Pebble Beach","Healdsburg","Palm Springs","San Francisco","Napa Valley","San Diego","Miami","Florida Keys","Palm Beach","Boca Raton","Naples, Florida","Orlando","Sarasota","Maui","Big Island","Kauai","Denali","Lanai","Aspen","Jackson Hole","Big Sky","Park City","New Orleans","Austin","Dallas","Houston","San Antonio","Santa Fe","Scottsdale","Sedona","Tucson","Portland, Oregon","Willamette Valley","Cannon Beach","Gold Beach","Seattle","Woodinville","Snoqualmie","Leavenworth","Lake Tahoe","Las Vegas","Utah","Philadelphia","Nemacolin","Peapack","Blackberry Farm","Franklin, Tennessee","Nashville","Kiawah Island","Palmetto Bluff","Raleigh","Atlanta","Lake Oconee","Sea Island","Vermont","Chatham","Harwich","Lenox","Washington, Connecticut","Kennebunk","Newport","Watch Hill","Adirondacks","Louisville","Denver"]);   // cities with an amenity sheet: here the sheet decides, not the old blanket spa
-
-// What the curated hotels in a place offer (M1024): tennis, a real spa, the hotel's own fishing.
-function amenitiesAt(city) {
-  const hotels = lookup(FAVORITES, city) || [];
-  const out = { tennis: [], spa: [], fly: [], deep: [] };
-  hotels.forEach((h) => { const a = h && h.name && HOTEL_AMENITY[h.name]; if (!a) return;
-    if (a.tennis) out.tennis.push({ hotel: h.name, what: a.tennis });
-    if (a.spa) out.spa.push({ hotel: h.name, what: a.spa });
-    if (a.fishing === "fly" || a.fishing === "both") out.fly.push({ hotel: h.name });
-    if (a.fishing === "deep sea" || a.fishing === "both") out.deep.push({ hotel: h.name }); });
-  return out;
-}
-function hasAmenitySheet(city) { const k = bareCity(city || ""); return AMENITY_CITIES.has(k) || AMENITY_CITIES.has(resolvePlace(city) || ""); }
-// One line per tapped activity the hotels answer: "Tennis: 12 courts at The Breakers".
-function amenityLines(city, acts) {
-  const a = amenitiesAt(city); const out = [];
-  const tidy = (w) => String(w || "").replace(/^yes,?\s*/i, "").replace(/,?\s*\(?(count|number)[^)]*not stated\)?/i, "").replace(/\s*\(hotel site[^)]*\)/i, "").trim();
-  if (acts.includes("Tennis") && a.tennis.length) { const w = tidy(a.tennis[0].what); out.push(`Tennis: ${w && !/^courts?$/i.test(w) ? w + " at " : "at "}${a.tennis[0].hotel}${a.tennis.length > 1 ? ` (+${a.tennis.length - 1} more)` : ""}`); }
-  if (acts.includes("Wellness & spa") && a.spa.length) { const w = a.spa[0].what; out.push(`Spa: ${/^full spa$/i.test(w) ? "at " + a.spa[0].hotel : w}${a.spa.length > 1 ? ` (+${a.spa.length - 1} more)` : ""}`); }
-  if (acts.includes("Fly fishing") && a.fly.length) out.push(`Fly fishing from ${a.fly.map((x) => x.hotel).join(", ")}`);
-  if (acts.includes("Deep sea fishing") && a.deep.length) out.push(`Sportfishing from ${a.deep.map((x) => x.hotel).join(", ")}`);
-  return out;
-}
 const SEASIDE = ["Beach", "Islands", "Coastal & seaside"];
 function ideaPool() {
   if (_ideaPool) return _ideaPool;
@@ -11260,35 +10790,16 @@ function ideaPool() {
     (e.set || []).forEach((v) => { if (!t.set.includes(v)) t.set.push(v); });
     (e.act || []).forEach((v) => { if (!t.act.includes(v)) t.act.push(v); });
     if (!t.act.includes(L.act)) t.act.push(L.act);
-    if (!t.ownAct.includes(L.act)) t.ownAct.push(L.act);   // on our list for it: it OWNS that activity (M1023)
-    if (e.hero) { if (!t.heroAct) t.heroAct = []; if (!t.heroAct.includes(L.act)) t.heroAct.push(L.act); }
     if (!t.src.includes(L.label)) t.src.push(L.label);
     if (t.derived && !t.best && e.best) t.best = e.best;
   }));
-  // Big city by the rule (M1021): the hand-placed tag goes where the numbers say no, and every
-  // curated city over the line that no list ever mentioned joins the pool as a big city with what
-  // every big city has — food, art, shopping, spa.
-  const bigKeys = Object.keys(FAVORITES).filter((c) => isBigCity(c) && Array.isArray(FAVORITES[c]) && FAVORITES[c].length);
-  const same = (a, b) => { const ra = resolvePlace(a) || a, rb = resolvePlace(b) || b; return key(ra) === key(rb); };
-  bigKeys.forEach((c) => { const kk = key(c); if (!by[kk] && !Object.values(by).some((e) => same(e.n, c))) by[kk] = { n: c, city: c, set: ["Big city"], act: ["Food & wine", "Art & history", "Shopping", "Wellness & spa"], w: [], best: "", why: "", src: [], derived: true, ownAct: [], ownSet: ["Big city"] }; });
-  Object.keys(by).forEach((kk) => { const x = by[kk]; const big = isBigCity(x.city || x.n);
-    if (big && !x.set.includes("Big city")) { x.set.push("Big city"); }
-    if (!big) { x.set = x.set.filter((v) => v !== "Big city"); if (x.ownSet) x.ownSet = x.ownSet.filter((v) => v !== "Big city"); }
-    if (big && x.ownSet && !x.ownSet.includes("Big city")) x.ownSet.push("Big city"); });
-  Object.keys(FAVORITES).forEach((c) => { if (!hasAmenitySheet(c)) return; const am = amenitiesAt(c); if (!(am.tennis.length || am.fly.length || am.deep.length)) return;
-    const kk = key(c); if (by[kk] || Object.values(by).some((e) => same(e.n, c))) return;
-    by[kk] = { n: c, city: c, set: [], act: [], w: [], best: "", why: "", src: [], derived: true, ownAct: [], ownSet: [] }; });   // M1024
   _ideaPool = Object.keys(by).map((k) => {
     const x = by[k];
     const add = (v) => { if (!x.act.includes(v)) x.act.push(v); };
     if ((x.set || []).some((v) => SEASIDE.includes(v))) add("Beach & pool");
     const golfTownOnly = x.derived && (x.src || []).length === 1 && /golf/i.test(x.src[0]) && !(x.set || []).some((v) => SEASIDE.includes(v));
-    const am = amenitiesAt(x.city || x.n);
-    if (hasAmenitySheet(x.city || x.n)) { if (am.spa.length || (x.ownAct || []).includes("Wellness & spa")) add("Wellness & spa"); else x.act = x.act.filter((v) => v !== "Wellness & spa"); }   // M1024: the sheet decides
-    else if (!golfTownOnly) add("Wellness & spa");
-    if (am.tennis.length) add("Tennis"); if (am.fly.length) add("Fly fishing"); if (am.deep.length) add("Deep sea fishing");
+    if (!golfTownOnly) add("Wellness & spa");
     const known = Object.keys(KNOWN_ACT).find((n) => key(n) === k); if (known) KNOWN_ACT[known].forEach(add);
-    if (!x.act.includes("Golf") && golfAt(x.city || x.n, null)) { add("Golf"); x.golfRule = true; }   // rule 1 or rule 2 (M1022); re-checked against the trip's months when scoring
     if (x.derived && !x.why) {
       const l = x.src.length > 1 ? x.src.slice(0, -1).join(", ") + " and " + x.src[x.src.length - 1] : x.src[0];
       x.why = "On our best-of list for " + l + ".";
@@ -11297,17 +10808,14 @@ function ideaPool() {
   });
   return _ideaPool;
 }
-function ideaScore(idea, sel, months) {
+function ideaScore(idea, sel) {
   const sets = sel.set || [], acts = sel.act || [], ws = sel.w || [];
-  // Golf that came in by the rules (a hotel's own course, or courses nearby) counts only when a course
-  // is in season for the trip — Chicago is not a golf answer in January (M1022).
-  const ideaActs = idea.golfRule && months && !golfAt(idea.city || idea.n, months) ? idea.act.filter((a) => a !== "Golf") : idea.act;
   const character = idea.ownSet && idea.ownSet.length ? idea.ownSet.slice(0, 2) : idea.set;   // what the place IS
   const okSet = sets.length === 0 || sets.some((x) => character.includes(x));
   const okW = ws.length === 0 || ws.some((x) => idea.w.includes(x));
   if (!okSet || !okW) return null;
-  const hits = acts.filter((x) => ideaActs.includes(x));
-  const missed = acts.filter((x) => !ideaActs.includes(x));
+  const hits = acts.filter((x) => idea.act.includes(x));
+  const missed = acts.filter((x) => !idea.act.includes(x));
   if (acts.length && hits.length === 0) return null; // nothing at all in common: not a match
   if (acts.length >= 2 && hits.length * 2 < acts.length) return null; // less than half of what was asked: not a recommendation
   const setHits = sets.filter((x) => idea.set.includes(x)).length;
@@ -11318,8 +10826,7 @@ function ideaScore(idea, sel, months) {
   const setRank = ranks.length ? Math.min(...ranks) : 99;
   const ownAct = idea.ownAct || [];
   const ownHits = acts.filter((x) => ownAct.includes(x)).length;
-  const heroHits = acts.filter((x) => (idea.heroAct || []).includes(x)).length;   // a rock star for what was tapped (M1023)
-  return { hits: hits.length, missed, setHits, total: acts.length, setRank, ownHits, heroHits };
+  return { hits: hits.length, missed, setHits, total: acts.length, setRank, ownHits };
 }
 function matchIdea(idea, sel) { return ideaScore(idea, sel) !== null; }
 // Tags under an idea: what was tapped and the place has, in the order tapped, then the place's own
@@ -11351,18 +10858,11 @@ function sportFor(list, sel, trigger) {
   // The chip that opened this list is the reason it is here, not a way of telling one estate
   // from another — every one of them is a wine estate. Rank on everything else that was tapped.
   const acts = (sel.act || []).filter((x) => !trigger || x.indexOf(trigger) !== 0);
-  // Big city by the rule, not the hand tag (M1025): Florence and Geneva are not big cities whatever the list says.
-  const setOf = (x) => { const big = isBigCity(x.city || x.n); const base = (x.set || []).filter((v) => v !== "Big city"); return big ? [...base, "Big city"] : base; };
-  const hit = (list || []).filter(fiveStarStay).filter((x) => sets.length === 0 || sets.some((y) => setOf(x).includes(y)));   // the 5-star gate (M1011)
+  const hit = (list || []).filter(fiveStarStay).filter((x) => sets.length === 0 || sets.some((y) => x.set.includes(y)));   // the 5-star gate (M1011)
   // A hero gets a thumb on the scale, not the whole hand: enough to win a tie, not enough to
   // outrank an estate that genuinely matches two or three of the things actually asked for.
   const score = (x) => (x.hero ? 12 : 0) + acts.filter((a) => (x.act || []).includes(a)).length * 10;
-  // Order within a tier: Tricia's rank where she gave one, otherwise the place's position on the curated
-  // list (the list is written in order of importance), the two interleaved — so New York and Paris
-  // lead a shopping list together rather than the alphabet deciding (M1025).
-  const pos = new Map((list || []).map((x, i) => [x, i + 1]));
-  const ord = (x) => x.rank || pos.get(x) || 99;
-  return hit.sort((a, b) => score(b) - score(a) || ord(a) - ord(b) || a.n.localeCompare(b.n)).slice(0, 8);
+  return hit.sort((a, b) => score(b) - score(a) || a.n.localeCompare(b.n)).slice(0, 8);
 }
 const MONTH_IDX = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11, christmas: 11, easter: 3 };
 const MONTH_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|christmas|easter)";
@@ -11405,16 +10905,15 @@ function seasonRank(idea, months) {
   if (!have) return 1;
   return [...months].some((m) => have.has(m)) ? 0 : 2;
 }
-// Best match first — most of what you asked for — then in season for the trip's dates, then the
-// closest fit on the kind of place. (M1020: match moved ahead of season; a 2-of-3 in season no
-// longer outranks a 3-of-3.)
+// Best first: in season for the trip's dates, then most of what you asked for, then the closest fit
+// on the kind of place.
 function rankIdeas(sel, months) {
-  return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel, months), season: seasonRank(x, months) }))
+  return ideaPool().map((x) => ({ idea: x, s: ideaScore(x, sel), season: seasonRank(x, months) }))
     .filter((r) => r.s !== null)
     // A place where the chosen type of place is incidental (third or later in what it is known for —
     // Dubai is a big city first, a desert second, a beach third) gives up one activity point to the
     // places that ARE that type. Then character breaks the remaining ties; never the alphabet.
-    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (fit(b) - fit(a)) || (a.season - b.season) || (b.s.heroHits - a.s.heroHits) || (b.s.ownHits - a.s.ownHits) || (a.s.setRank - b.s.setRank) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
+    .sort((a, b) => { const fit = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0); return (a.season - b.season) || (fit(b) - fit(a)) || (a.s.setRank - b.s.setRank) || (b.s.ownHits - a.s.ownHits) || (b.s.setHits - a.s.setHits) || a.idea.n.localeCompare(b.idea.n); });
 }
 function nearMiss(sel) {
   const acts = sel.act || [];
@@ -11426,7 +10925,6 @@ function nearMiss(sel) {
   return null;
 }
 const GATEWAY = {
-  "Greenwich": { air: "New York City", note: "Fly to New York \u2014 JFK, LaGuardia or Westchester (HPN) is closest \u2014 then about an hour by car, or the train from Grand Central." },
   "Herceg Novi": { air: "Tivat", note: "Fly to Tivat (TIV), twenty minutes away, or to Dubrovnik (DBV), about an hour with the border crossing." },
   "Portrush": { air: "Belfast", note: "Portrush has no airport \u2014 fly to Belfast (BFS or BHD), then about an hour and a quarter north by car." },
   "Dornoch": { air: "Inverness", note: "Fly to Inverness (INV), then about an hour north by car along the Dornoch Firth." },
@@ -12084,7 +11582,7 @@ const AIRPORTS = {
   "Seville": { code: "SVQ", scale: "regional" }, "Granada": { code: "GRX", scale: "regional" },
   "Bilbao": { code: "BIO", scale: "regional" }, "San Sebastián": { code: "EAS", scale: "regional" },
   "Edinburgh": { code: "EDI", scale: "regional" }, "Dublin": { code: "DUB", scale: "intercontinental" },
-  "Manchester": { code: "MAN", scale: "intercontinental" }, "Glasgow": { code: "GLA", scale: "regional" }, "Belfast": { code: "BFS", scale: "regional" }, "Cork": { code: "ORK", scale: "regional" }, "Tivat": { code: "TIV", scale: "regional" }, "Nantucket": { code: "ACK", scale: "regional" }, "Newport Beach": { code: "SNA", scale: "regional" }, "Inverness": { code: "INV", scale: "regional" }, "Aberdeen": { code: "ABZ", scale: "regional" },
+  "Manchester": { code: "MAN", scale: "intercontinental" }, "Glasgow": { code: "GLA", scale: "regional" }, "Belfast": { code: "BFS", scale: "regional" }, "Cork": { code: "ORK", scale: "regional" }, "Tivat": { code: "TIV", scale: "regional" }, "Inverness": { code: "INV", scale: "regional" }, "Aberdeen": { code: "ABZ", scale: "regional" },
   "Phoenix": { code: "PHX", scale: "intercontinental" }, "Calgary": { code: "YYC", scale: "intercontinental" },
   "Sapporo": { code: "CTS", scale: "regional" }, "Kilimanjaro": { code: "JRO", scale: "regional" },
   "Aspen": { code: "ASE", scale: "regional" }, "Denver": { code: "DEN", scale: "intercontinental" },
@@ -13020,7 +12518,7 @@ const COORDS = {
   "Montana": [45.44,-110.71], "St-Tropez": [43.27,6.64], "Antibes": [43.55,7.12], "Taormina": [37.85,15.29],
   "Puglia": [40.85,17.38], "St Moritz": [46.50,9.84], "Gstaad": [46.47,7.29], "Baden-Baden": [48.76,8.24],
   "Marbella": [36.51,-4.89], "Porto Heli": [37.33,23.15], "Kea": [37.62,24.33], "Costa Navarino": [36.99,21.66],
-  "Ireland": [52.56,-8.79], "Castlemartyr": [51.91,-8.05], "Greenwich": [41.03,-73.63], "Newport Beach": [33.62,-117.93], "Herceg Novi": [42.45,18.53], "Montaione": [43.55,10.91], "Le Puy-Sainte-R\u00e9parade": [43.65,5.44], "Portrush": [55.20,-6.65], "Dornoch": [57.88,-4.03], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
+  "Ireland": [52.56,-8.79], "Castlemartyr": [51.91,-8.05], "Herceg Novi": [42.45,18.53], "Montaione": [43.55,10.91], "Le Puy-Sainte-R\u00e9parade": [43.65,5.44], "Portrush": [55.20,-6.65], "Dornoch": [57.88,-4.03], "England": [51.45,-0.85], "Somerset": [51.11,-2.45], "Bath": [51.38,-2.36], "Windsor": [51.48,-0.61], "Berkshire": [51.40,-1.33], "New Forest": [50.87,-1.57], "Hampshire": [51.28,-0.96], "Sussex": [51.08,-0.06], "Surrey": [51.28,-0.35], "Cornwall": [50.22,-4.93], "Devon": [50.60,-3.75], "Lake District": [54.37,-2.92], "Yorkshire": [54.05,-1.55], "Gleneagles": [56.28,-3.75], "Braemar": [57.00,-3.40], "Loch Lomond": [56.00,-4.58], "Glasgow": [55.86,-4.25], "Wales": [52.50,-3.50], "Belfast": [54.60,-5.93], "Scotland": [56.50,-4.00], "Northern Ireland": [54.60,-5.93], "Manchester": [53.48,-2.24], "Inverness": [57.48,-4.22], "Aberdeen": [57.15,-2.09], "Rio de Janeiro": [-22.97,-43.18], "São Paulo": [-23.55,-46.63],
   "Abu Dhabi": [24.45,54.38], "Liwa Desert": [23.12,54.08], "Ras Al Khaimah": [25.79,55.94], "Ajman": [25.41,55.44], "Manama": [26.22,50.58], "Kuwait City": [29.37,47.98], "Tel Aviv": [32.08,34.78], "Herzliya": [32.17,34.80], "Jerusalem": [31.77,35.22], "Negev Desert": [29.92,35.05], "Red Sea": [25.55,36.85], "Riyadh": [24.71,46.68], "Jeddah": [21.54,39.17], "Udaipur": [24.58,73.68], "Agra": [27.18,78.02],
   "Jaipur": [26.91,75.79], "Jodhpur": [26.30,73.02], "Ranthambore": [26.02,76.50], "Alwar": [27.55,76.63],
   "Bhutan": [27.43,89.42], "Sri Lanka": [6.03,80.22], "Sumba": [-9.77,119.36], "Java": [-7.61,110.20],
@@ -20211,11 +19709,9 @@ function IdeasPicker({ d, i, p }) {
   const direct = useDirectFlights(fromCity, departDate, [...new Set(soloAct ? [...specialtyCities, ...rankedCities] : rankedCities)], flyPref !== "any" && !onPlaceNow(sel));
   const directOf = (x) => direct[x.city || x.n];
   // With a direct flight required: nonstops first, then unchecked, then those needing a connection.
-  // Direct flight wanted: within each level of match, confirmed nonstops first; everything else — a
-  // connection, still checking, or not checked — keeps its order. (M1020: a nonstop no longer lifts a
-  // 2-of-3 above a 3-of-3; M1010: this used to be upside down.)
-  const fitOf = (r) => r.s.hits - (r.s.setRank >= 2 ? 1 : 0);
-  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => (directOf(x.idea) === 0 ? 0 : 1); return (fitOf(b) - fitOf(a)) || (r(a) - r(b)); }) : ranked).map((r) => r.idea);
+  // Direct flight wanted: confirmed nonstops rise to the top; everything else — a connection, still
+  // checking, or not checked — keeps its fit order. (M1010: this used to be upside down.)
+  const matches = (wantsDirect ? [...ranked].sort((a, b) => { const r = (x) => (directOf(x.idea) === 0 ? 0 : 1); return r(a) - r(b); }) : ranked).map((r) => r.idea);
   const flyStep = !onPlaceNow(sel) && any && ranked.length > 0;
   const [moreIdeas, setMoreIdeas] = useState(false);
   const SHOW_N = 12;
@@ -20294,7 +19790,6 @@ function IdeasPicker({ d, i, p }) {
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{x.spec}{x.best ? " \u00b7 best " + x.best : ""}</div>
             <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 2 }}>{x.area}</div>
-            {x.rank ? <div style={{ fontSize: 11.5, color: t.pine, fontWeight: 600, marginTop: 4 }}>No. {x.rank} of our Top 25 in the US</div> : null}
             {nonstopBadge(x)}
           </div>
           <button onClick={() => p.setDest(i, { city: x.city, mode: regionStops(x.city).length ? "open" : "full", pick: { stay: stayFromLayer(x, "shopping") } })} style={{ flexShrink: 0, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "10px 18px", fontSize: 13.5 }}>Take me there</button>
@@ -20406,7 +19901,7 @@ function IdeasPicker({ d, i, p }) {
         </div>) : null}
     </div>)}
     {!onPlace && any && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : tripMs ? `best match, in season for ${monthName}` : "best match first"}</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 12 }}>{matches.length > SHOW_N && !moreIdeas ? `Our best ${SHOW_N} of ${matches.length}` : `${matches.length} ${matches.length === 1 ? "place" : "places"}`} · {wantsDirect && fromCity && departDate ? "nonstops first" : tripMs ? `in season for ${monthName} first` : "best fit first"}</div>
       {(moreIdeas ? matches : matches.slice(0, SHOW_N)).map((x, k) => (<React.Fragment key={x.n}>{tierHead(matches)(x, k)}<div style={{ background: t.white, border: `1px solid ${t.line}`, borderRadius: 14, padding: "10px 10px 16px", marginBottom: 12, overflow: "hidden" }}>
         <CityHero query={x.n} title={x.n} label={placeLine(x.city || x.n)} h={130} />
         <div style={{ padding: "8px 6px 0", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12 }}>
@@ -20414,8 +19909,6 @@ function IdeasPicker({ d, i, p }) {
             <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.45, maxWidth: 400 }}>{x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase()))) ? `${[...(sel.act || []).filter((a) => x.act.includes(a))].map((a) => a.split(" · ")[0].toLowerCase()).join(", ") || "what you asked for"} — ${(x.set || []).slice(0, 2).join(" and ").toLowerCase()}.` : x.why}</div>
             <div style={{ fontSize: 11.5, color: t.brass, marginTop: 6 }}>{ideaTags(x, sel).join(" · ")}{x.best && !(x.derived && !(sel.act || []).some((a) => (x.src || []).some((l) => l.toLowerCase().includes(a.split(" ")[0].toLowerCase())))) ? " \u00b7 best " + x.best : ""}</div>
             {nonstopBadge(x)}
-            {(sel.act || []).includes("Golf") && golfLine(x.city || x.n, tripMs) ? <GolfNear city={x.city || x.n} months={tripMs} /> : null}
-            {amenityLines(x.city || x.n, sel.act || []).map((l) => <div key={l} style={{ fontSize: 11.5, color: t.pine, fontWeight: 600, marginTop: 4 }}>{l}</div>)}
             {seasonOf[x.n] === 2 ? <div style={{ fontSize: 11.5, color: t.brass, marginTop: 4 }}>Not its season in {monthName}{(() => { const w = String(ideaSeasonText(x)).split(/\s+[\u2014\u2013]\s+|, and |, or /)[0]; return w ? ` \u00b7 best ${w}` : ""; })()}</div> : null}
             {missFor[x.n] && missFor[x.n].total > 0 && missFor[x.n].missed.length > 0
               ? <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{missFor[x.n].hits} of {missFor[x.n].total} — not for {missFor[x.n].missed.join(", ").toLowerCase()}</div> : null}
@@ -20431,18 +19924,6 @@ function IdeasPicker({ d, i, p }) {
         </div>
       </div>)}
     </div>)}
-  </div>);
-}
-// The golf line on an idea card, with the courses underneath on a tap (M1022).
-function GolfNear({ city, months }) {
-  const [open, setOpen] = useState(false);
-  const g = golfAt(city, months); if (!g) return null;
-  return (<div style={{ marginTop: 4 }}>
-    <button type="button" onClick={() => setOpen(!open)} style={{ background: "none", border: "none", padding: 0, fontSize: 11.5, color: t.pine, fontWeight: 600, cursor: "pointer", textAlign: "left" }}>{golfLine(city, months)}{g.near.length ? (open ? " ▴" : " ▾") : ""}</button>
-    {open && g.near.length ? (<div style={{ marginTop: 6, display: "grid", gap: 4 }}>
-      {g.own.map((h) => <div key={h.hotel} style={{ fontSize: 11.5, color: t.inkSoft }}><strong style={{ color: t.ink }}>{h.hotel}</strong> · {h.courses}</div>)}
-      {g.near.map((c) => <div key={c.course} style={{ fontSize: 11.5, color: t.inkSoft }}><strong style={{ color: t.ink }}>{c.course}</strong> · {c.where} · {c.drive} · {c.access}{c.standing ? ` · ${c.standing}` : ""}</div>)}
-    </div>) : null}
   </div>);
 }
 function DestCard({ d, i, p }) {
