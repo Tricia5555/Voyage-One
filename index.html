@@ -38,6 +38,9 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Voyage One" />
+<!-- OFFLINE (M1033, 1 Nov 2026): sw.js keeps a copy of Voyage One on the device so it opens with no
+     signal and saved journeys can be read on a plane. A missing sw.js simply does nothing. -->
+<script>if ("serviceWorker" in navigator) { window.addEventListener("load", function () { navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" }).catch(function () {}); setTimeout(function () { navigator.serviceWorker.ready.then(function (reg) { var hosts = ["esm.sh", "unpkg.com", "fonts.googleapis.com", "fonts.gstatic.com"]; var urls = performance.getEntriesByType("resource").map(function (e) { return e.name; }).filter(function (u) { try { return hosts.indexOf(new URL(u).hostname) >= 0; } catch (e) { return false; } }); if (reg.active && urls.length) reg.active.postMessage({ type: "vo-store", urls: urls }); }); }, 8000); }); }</script>
 </head>
 <body>
 <div id="root"></div>
@@ -47,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1032";
+const BUILD = "M1033";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -15190,7 +15193,30 @@ async function supa() {
 
 // Cloud reads return null to mean "could not reach the account", never an empty list —
 // an empty shelf and an unreachable one must not look the same to the caller.
+// THE DEVICE COPY OF ACCOUNT JOURNEYS (M1033). Every successful read of the account's shelf or a
+// journey also keeps a copy on this device, so a signed-in traveller with no signal still sees and
+// opens their trips. Cleared on sign-out. Separate from this browser's own journeys, so it never
+// shows up in "copy these journeys into your account".
+const MIRROR_INDEX_KEY = "voyage-one:acct-index";
+const mirrorKey = (id) => `voyage-one:acct-trip:${id}`;
+const isOffline = () => typeof navigator !== "undefined" && navigator.onLine === false;
+function mirrorList() { try { const a = JSON.parse(window.localStorage.getItem(MIRROR_INDEX_KEY) || "null"); return Array.isArray(a) ? a : null; } catch (e) { return null; } }
+function mirrorRead(id) { try { return JSON.parse(window.localStorage.getItem(mirrorKey(id)) || "null"); } catch (e) { return null; } }
+function mirrorPut(list, id, data) { try { if (list) window.localStorage.setItem(MIRROR_INDEX_KEY, JSON.stringify(list)); if (id && data) window.localStorage.setItem(mirrorKey(id), JSON.stringify(data)); } catch (e) {} }
+function mirrorClear() { try { const l = mirrorList() || []; l.forEach((x) => x && x.id && window.localStorage.removeItem(mirrorKey(x.id))); window.localStorage.removeItem(MIRROR_INDEX_KEY); } catch (e) {} }
 async function cloudList() {
+  if (isOffline()) return mirrorList();
+  const r = await cloudListLive();
+  if (r) { mirrorPut(r); return r; }
+  return mirrorList();
+}
+async function cloudRead(id) {
+  if (isOffline()) return mirrorRead(id);
+  const r = await cloudReadLive(id);
+  if (r) { mirrorPut(null, id, r); return r; }
+  return mirrorRead(id);
+}
+async function cloudListLive() {
   const sb = await supa(); if (!sb) return null;
   try {
     const r = await sb.from("trips").select("id,name,cities,updated_at").order("updated_at", { ascending: false });
@@ -15198,7 +15224,7 @@ async function cloudList() {
     return (r.data || []).map((x) => ({ id: x.id, name: x.name || "", where: x.cities || "", updated: x.updated_at ? Date.parse(x.updated_at) : 0 }));
   } catch (e) { return null; }
 }
-async function cloudRead(id) {
+async function cloudReadLive(id) {
   const sb = await supa(); if (!sb) return null;
   try {
     const r = await sb.from("trips").select("data").eq("id", id).maybeSingle();
@@ -15213,6 +15239,7 @@ async function cloudWrite(id, userId, data, where) {
       id, user_id: userId, name: data.tripName || "", cities: where || "",
       schema_version: SCHEMA, data, updated_at: new Date().toISOString(),
     });
+    if (!r.error) mirrorPut(null, id, data);
     return !r.error;
   } catch (e) { return false; }
 }
@@ -15755,7 +15782,8 @@ function VoyageOne() {
         if (!alive) return;
         setTrips(list || []); setCloudErr("");
       } else {
-        setTrips(canSave ? readIndex() : []);
+        const acct = isOffline() ? (mirrorList() || []) : [];
+        setTrips(canSave ? [...readIndex(), ...acct.filter((a) => !readIndex().some((x) => x && x.id === a.id))] : []);
         setCloudErr("");
       }
       if (alive) setHydrated(true);
@@ -15787,7 +15815,7 @@ function VoyageOne() {
     setDests([]); setReturnFrom(""); setReturnMode(""); setReturnPick({}); setStale(false); setStep(0);
   };
   const openTrip = async (id) => {
-    const s = user ? await cloudRead(id) : readTrip(id);
+    const s = user ? await cloudRead(id) : (readTrip(id) || mirrorRead(id));
     // A journey saved by an older version has a different shape. Loading it produces
     // nonsense — duplicated cities, lost order. Better to say so than to corrupt it.
     if (!s || s.v !== SCHEMA) { setStale(true); return; }
@@ -16048,6 +16076,7 @@ function VoyageOne() {
   };
   const doSignOut = async () => {
     const sb = await supa();
+    mirrorClear();
     if (sb) { try { await sb.auth.signOut(); } catch (e) {} }
     blankTrip(); setTripId(null); setScreen("landing");
   };
@@ -16084,6 +16113,8 @@ function VoyageOne() {
       user={user} authReady={authReady} cloudErr={cloudErr} onSignOut={doSignOut} onOpenAuth={() => setAuthPanel(true)}
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
     {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
+      <OfflineLine />
+      {screen === "landing" ? <HomeScreenPrompt /> : null}
       <HelpPanel screen={screen} step={step} hideButton={screen === "landing"} />
       <TravellerPanel user={user} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
@@ -24754,6 +24785,63 @@ function BrokerRequest({ ev, g, d, tk, set }) {
       Your mail opens with the request written {"\u2014"} send it as it is, or add anything you like. {b.replyLine ? b.replyLine : <><strong style={{ color: t.ink }}>{b.who}</strong> at {b.firm}, {b.city}, confirms what is available and invoices you directly.</>}
     </div>
     {b.email ? <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.6, marginTop: 4 }}>{b.email}{b.phone ? ` \u00b7 ${b.phone}` : ""}{b.phoneUS ? ` \u00b7 ${b.phoneUS}` : ""}{b.site ? ` \u00b7 ${b.site}` : ""}</div> : null}
+  </div>);
+}
+
+// OFFLINE (M1033). One line at the top when the device has no connection — saved journeys still
+// open from the copy kept on the device; live searches come back with the signal.
+function OfflineLine() {
+  const [off, setOff] = useState(typeof navigator !== "undefined" && navigator.onLine === false);
+  useEffect(() => {
+    const on = () => setOff(false), offf = () => setOff(true);
+    window.addEventListener("online", on); window.addEventListener("offline", offf);
+    return () => { window.removeEventListener("online", on); window.removeEventListener("offline", offf); };
+  }, []);
+  if (!off) return null;
+  return (<div className="vo-noprint" style={{ position: "sticky", top: 0, zIndex: 50, background: t.pine, color: t.paper, fontSize: 13, letterSpacing: ".02em", textAlign: "center", padding: "9px 16px" }}>
+    You're offline — your saved journeys are all here. Live searches return with the signal.
+  </div>);
+}
+// ADD TO HOME SCREEN (M1033). Only on an iPhone or iPad, only in the browser (not once installed),
+// and not again for 30 days after "Not now". Installed, Voyage One opens like an app, keeps its
+// saved journeys (Safari clears a website's data after about a week unused; home-screen apps are
+// exempt), and works without signal.
+const A2HS_KEY = "voyage-one:a2hs-snooze";
+function isAppleTouch() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && (navigator.maxTouchPoints || 0) > 1);
+}
+function isInstalled() {
+  try { return window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches); } catch (e) { return false; }
+}
+function HomeScreenPrompt() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (!isAppleTouch() || isInstalled()) return;
+    let until = 0; try { until = Number(window.localStorage.getItem(A2HS_KEY) || 0); } catch (e) {}
+    if (Date.now() < until) return;
+    const tm = setTimeout(() => setShow(true), 1500);
+    return () => clearTimeout(tm);
+  }, []);
+  if (!show) return null;
+  const snooze = () => { try { window.localStorage.setItem(A2HS_KEY, String(Date.now() + 30 * 864e5)); } catch (e) {} setShow(false); };
+  const step = { display: "flex", gap: 10, alignItems: "baseline", fontSize: 14, color: t.inkSoft, lineHeight: 1.5 };
+  const n = { fontFamily: font.display, fontSize: 18, color: t.brass, minWidth: 14 };
+  const shareIcon = (<svg width="15" height="18" viewBox="0 0 15 18" aria-label="Share" style={{ verticalAlign: "-3px" }}><path d="M7.5 1v10M4 4.5 7.5 1 11 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 7H2.5A1.5 1.5 0 0 0 1 8.5v7A1.5 1.5 0 0 0 2.5 17h10a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 7H10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>);
+  return (<div className="vo-noprint" role="dialog" aria-label="Add Voyage One to your Home Screen" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 60, display: "flex", justifyContent: "center", padding: "0 12px calc(12px + env(safe-area-inset-bottom, 0px))", pointerEvents: "none" }}>
+    <div style={{ pointerEvents: "auto", width: "100%", maxWidth: 460, background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, boxShadow: "0 12px 40px rgba(34,29,25,.18)", padding: "18px 20px 16px" }}>
+      <div style={{ fontFamily: font.display, fontSize: 22, color: t.ink, lineHeight: 1.2 }}>Keep Voyage One on your Home Screen</div>
+      <div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>It opens like an app, and your saved journeys stay with you — even with no signal.</div>
+      <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
+        <div style={step}><span style={n}>1</span><span>Tap Share {shareIcon} in Safari</span></div>
+        <div style={step}><span style={n}>2</span><span>Choose <strong style={{ color: t.ink }}>Add to Home Screen</strong></span></div>
+        <div style={step}><span style={n}>3</span><span>Tap <strong style={{ color: t.ink }}>Add</strong></span></div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+        <button onClick={snooze} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", fontSize: 13, color: t.ink, cursor: "pointer" }}>Not now</button>
+      </div>
+    </div>
   </div>);
 }
 function EventTicketsPanel({ d, upd, p }) {
