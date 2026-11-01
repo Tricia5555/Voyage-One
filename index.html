@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1033";
+const BUILD = "M1034";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -16114,7 +16114,6 @@ function VoyageOne() {
       migratable={migratable} migrating={migrating} onMigrate={doMigrate} />}
     {screen === "start" && <StartChooser onKnow={() => setScreen("plan")} onOpen={() => { addIdeas(); setScreen("plan"); }} onInspire={() => setScreen("oneList")} onGuide={() => setScreen("guide")} onHome={() => { setScreen("landing"); setStep(0); }} />}
       <OfflineLine />
-      {screen === "landing" ? <HomeScreenPrompt /> : null}
       <HelpPanel screen={screen} step={step} hideButton={screen === "landing"} />
       <TravellerPanel user={user} />
       {screen === "guide" && <GuideWizard onBuild={seedFromGuide} onBack={() => setScreen("start")} onHome={() => { setScreen("landing"); setStep(0); }} />}
@@ -16478,6 +16477,7 @@ function Planner(p) {
       {p.step === 2 && <StepDestinations {...p} />}
       {p.step === 3 && <StepBuild {...p} />}
       {p.step === 3 && !p.user && <SaveJourneyPrompt onOpen={p.onOpenAuth} />}
+      {p.step === 3 ? <HomeScreenLine /> : null}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 44 }}>
         <button onClick={() => p.setStep(Math.max(0, p.step - 1))} style={{ visibility: p.step === 0 ? "hidden" : "visible", background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "13px 24px", color: t.ink, display: "flex", alignItems: "center", gap: 8 }}><ArrowLeft size={16} /> Back</button>
         {p.step < 3 && <button onClick={() => { p.pruneEmptyDests(); p.setStep(p.step + 1); }} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "13px 30px", display: "flex", alignItems: "center", gap: 8 }}>{p.step === 2 ? "Start building" : "Continue"} <ArrowRight size={16} /></button>}
@@ -24802,11 +24802,13 @@ function OfflineLine() {
     You're offline — your saved journeys are all here. Live searches return with the signal.
   </div>);
 }
-// ADD TO HOME SCREEN (M1033). Only on an iPhone or iPad, only in the browser (not once installed),
-// and not again for 30 days after "Not now". Installed, Voyage One opens like an app, keeps its
-// saved journeys (Safari clears a website's data after about a week unused; home-screen apps are
-// exempt), and works without signal.
-const A2HS_KEY = "voyage-one:a2hs-snooze";
+// SAVE TO HOME SCREEN (M1034, Tricia 1 Nov 2026). Not on the landing page — people should like the
+// app before we ask. One quiet line at the end of a built trip and on the finished itinerary:
+// "Save Voyage One on your Home Screen", the three steps opening beneath it on a tap. iPhone and
+// iPad only, never once opened from the Home Screen icon, and gone for good on this device once the
+// steps have been opened or the line dismissed. (Safari cannot tell a page it has been added to the
+// Home Screen, so this is the only honest way not to ask twice.)
+const A2HS_KEY = "voyage-one:a2hs-done";
 function isAppleTouch() {
   if (typeof navigator === "undefined") return false;
   const ua = navigator.userAgent || "";
@@ -24815,33 +24817,20 @@ function isAppleTouch() {
 function isInstalled() {
   try { return window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches); } catch (e) { return false; }
 }
-function HomeScreenPrompt() {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    if (!isAppleTouch() || isInstalled()) return;
-    let until = 0; try { until = Number(window.localStorage.getItem(A2HS_KEY) || 0); } catch (e) {}
-    if (Date.now() < until) return;
-    const tm = setTimeout(() => setShow(true), 1500);
-    return () => clearTimeout(tm);
-  }, []);
-  if (!show) return null;
-  const snooze = () => { try { window.localStorage.setItem(A2HS_KEY, String(Date.now() + 30 * 864e5)); } catch (e) {} setShow(false); };
-  const step = { display: "flex", gap: 10, alignItems: "baseline", fontSize: 14, color: t.inkSoft, lineHeight: 1.5 };
-  const n = { fontFamily: font.display, fontSize: 18, color: t.brass, minWidth: 14 };
-  const shareIcon = (<svg width="15" height="18" viewBox="0 0 15 18" aria-label="Share" style={{ verticalAlign: "-3px" }}><path d="M7.5 1v10M4 4.5 7.5 1 11 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 7H2.5A1.5 1.5 0 0 0 1 8.5v7A1.5 1.5 0 0 0 2.5 17h10a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 7H10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>);
-  return (<div className="vo-noprint" role="dialog" aria-label="Add Voyage One to your Home Screen" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 60, display: "flex", justifyContent: "center", padding: "0 12px calc(12px + env(safe-area-inset-bottom, 0px))", pointerEvents: "none" }}>
-    <div style={{ pointerEvents: "auto", width: "100%", maxWidth: 460, background: t.white, border: `1px solid ${t.line}`, borderRadius: 16, boxShadow: "0 12px 40px rgba(34,29,25,.18)", padding: "18px 20px 16px" }}>
-      <div style={{ fontFamily: font.display, fontSize: 22, color: t.ink, lineHeight: 1.2 }}>Keep Voyage One on your Home Screen</div>
-      <div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>It opens like an app, and your saved journeys stay with you — even with no signal.</div>
-      <div style={{ display: "grid", gap: 6, marginTop: 12 }}>
-        <div style={step}><span style={n}>1</span><span>Tap Share {shareIcon} in Safari</span></div>
-        <div style={step}><span style={n}>2</span><span>Choose <strong style={{ color: t.ink }}>Add to Home Screen</strong></span></div>
-        <div style={step}><span style={n}>3</span><span>Tap <strong style={{ color: t.ink }}>Add</strong></span></div>
-      </div>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-        <button onClick={snooze} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 16px", fontSize: 13, color: t.ink, cursor: "pointer" }}>Not now</button>
-      </div>
+function HomeScreenLine() {
+  const [open, setOpen] = useState(false);
+  const [gone, setGone] = useState(() => { try { return !isAppleTouch() || isInstalled() || !!window.localStorage.getItem(A2HS_KEY); } catch (e) { return !isAppleTouch() || isInstalled(); } });
+  if (gone && !open) return null;
+  const done = () => { try { window.localStorage.setItem(A2HS_KEY, String(Date.now())); } catch (e) {} };
+  const shareIcon = (<svg width="12" height="15" viewBox="0 0 15 18" aria-label="Share" style={{ verticalAlign: "-2px" }}><path d="M7.5 1v10M4 4.5 7.5 1 11 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 7H2.5A1.5 1.5 0 0 0 1 8.5v7A1.5 1.5 0 0 0 2.5 17h10a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 7H10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>);
+  return (<div className="vo-noprint" style={{ marginTop: 18, borderTop: `1px solid ${t.line}`, paddingTop: 12, fontSize: 13.5, color: t.inkSoft }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <button onClick={() => { setOpen(!open); done(); }} style={{ background: "none", border: "none", padding: 0, color: t.pine, fontSize: 13.5, letterSpacing: ".02em", cursor: "pointer", textAlign: "left" }}>Save Voyage One on your Home Screen {open ? "⌄" : "›"}</button>
+      {!open ? <button aria-label="Hide" onClick={() => { done(); setGone(true); }} style={{ marginLeft: "auto", background: "none", border: "none", color: t.inkFaint, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>{"×"}</button> : null}
     </div>
+    {open ? (<div style={{ marginTop: 8, lineHeight: 1.7 }}>
+      In Safari, tap Share {shareIcon}, then <strong style={{ color: t.ink, fontWeight: 600 }}>Add to Home Screen</strong>, then <strong style={{ color: t.ink, fontWeight: 600 }}>Add</strong>. It opens like an app, and your journeys stay with you even with no signal.
+    </div>) : null}
   </div>);
 }
 function EventTicketsPanel({ d, upd, p }) {
@@ -26567,6 +26556,7 @@ function ItineraryView(p) {
         <div style={{ fontFamily: font.display, fontSize: 46, lineHeight: 1 }}>{fmt(grand)}</div>
       </div>
       {!p.user && <SaveJourneyPrompt onOpen={p.onOpenAuth} />}
+      <HomeScreenLine />
       <LegDiagnostic p={p} />
       <div style={{ textAlign: "center", marginTop: 26, fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint }}>Voyage One · Private Travel Atelier</div>
     </div>
