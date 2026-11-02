@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1036";
+const BUILD = "M1037";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -14470,8 +14470,18 @@ function useRemote(kind, city) {
 const ROUTE_CACHE = {};
 // Real flights from Duffel — a list you can pick from, each with airline, time and price.
 const FARE_CACHE = {};
+// A "NO" MUST BE A REAL NO (M1037, Tricia 2 Nov 2026). Miami to Madrid in business on 5 Feb 2027
+// came back at once with "No live business fares" while Kayak showed dozens. Two faults here made a
+// failure look like an answer: (1) a search that FAILED — the server erred, timed out, or the
+// connection dropped — was shown with the same words as "the airlines have no fares"; (2) an empty
+// or failed result was remembered for the whole visit, so every later look at that leg returned the
+// same "no" instantly without asking again. Now only a search that found fares is remembered; an
+// empty or failed one is asked again once, on its own, a moment later; a failure says plainly that
+// we could not get an answer, with a Try again button; and only a completed search that truly came
+// back empty says there are none. Universal: every route, every cabin.
 function useLiveFlights(from, to, date, cabin, stops, when) {
   const [state, setState] = useState({ loading: false, offers: null, tried: false, meta: null });
+  const [again, setAgain] = useState(0);
   useEffect(() => {
     let dead = false;
     if (!from || !to || !cabin) { setState({ loading: false, offers: null, tried: false, meta: null }); return; }
@@ -14495,18 +14505,32 @@ function useLiveFlights(from, to, date, cabin, stops, when) {
       + (date ? "&date=" + encodeURIComponent(date) : "")
       + (stops ? "&stops=" + encodeURIComponent(stops) : "")
       + (when ? "&when=" + encodeURIComponent(when) : "");
-    fetch(`/api/flights?${qs}`)
-      .then((r) => (r.ok ? r.json() : null))
+    let timer = null;
+    const ask = (round) => fetch(`/api/flights?${qs}`)
+      .then((r) => (r.ok ? r.json() : { ok: false, reason: `server-${r.status}` }))
       .then((j) => {
+        if (dead) return;
         const offers = j && j.ok && j.offers && j.offers.length ? j.offers : null;
-        const meta = j && j.ok ? { totalFound: j.totalFound, nonstopCount: j.nonstopCount, narrowedToNothing: j.narrowedToNothing, cabinsFound: j.cabinsFound } : null;
-        FARE_CACHE[key] = { offers, meta };
-        if (!dead) setState({ loading: false, offers, tried: true, meta });
+        if (offers) {
+          const meta = { totalFound: j.totalFound, nonstopCount: j.nonstopCount, narrowedToNothing: j.narrowedToNothing, cabinsFound: j.cabinsFound };
+          FARE_CACHE[key] = { offers, meta };
+          setState({ loading: false, offers, tried: true, meta });
+          return;
+        }
+        // Empty or failed: ask once more before saying anything — airline systems are slow to wake.
+        if (round === 0) { timer = setTimeout(() => ask(1), 1500); return; }
+        const failed = !(j && j.ok);
+        setState({ loading: false, offers: null, tried: true, meta: failed ? { failed: true, reason: (j && j.reason) || "no-answer" } : { totalFound: 0, cabinsFound: j.cabinsFound } });
       })
-      .catch(() => { FARE_CACHE[key] = { offers: null, meta: null }; if (!dead) setState({ loading: false, offers: null, tried: true, meta: null }); });
-    return () => { dead = true; };
-  }, [from, to, date, cabin, stops, when]);
-  return state;
+      .catch(() => {
+        if (dead) return;
+        if (round === 0) { timer = setTimeout(() => ask(1), 1500); return; }
+        setState({ loading: false, offers: null, tried: true, meta: { failed: true, reason: "connection" } });
+      });
+    ask(0);
+    return () => { dead = true; if (timer) clearTimeout(timer); };
+  }, [from, to, date, cabin, stops, when, again]);
+  return { ...state, retry: () => setAgain((a) => a + 1) };
 }
 function useRoute(from, to) {
   const [state, setState] = useState({ loading: false, modes: null, tried: false });
@@ -21176,6 +21200,10 @@ function FlightPicker({ from, to, pick, upd, date, pax, found }) {
         <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{noAirportHere
           ? `There's no airport in ${bareCity(from)} — you can't fly out from here directly. Head overland to the nearest airport first (the arrival panel shows which), then fly from there.`
           : (() => {
+              // THE SEARCH FAILED — SAY SO, AND OFFER IT AGAIN (M1037). Not "no fares": we do not know.
+              if (live.meta && live.meta.failed) return (<>We couldn't get an answer from the airlines just now — this is <strong style={{ color: t.ink }}>not</strong> a "no". The {cabin.toLowerCase()} fares for {bareCity(from)} to {bareCity(to)} {date ? "on this date " : ""}may well exist.{" "}
+                <button onClick={live.retry} style={{ background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "7px 15px", fontSize: 13, fontWeight: 600, fontFamily: font.ui, cursor: "pointer", margin: "6px 6px 0 0" }}>Try again</button>
+                <a href={flightSearchUrl(from, to, date, cabin)} target="_blank" rel="noopener noreferrer" style={{ color: t.pine, fontWeight: 600 }}>Compare on Google ↗</a></>);
               // "No fares in this cabin" and "no fares at all" are different facts, and only
               // one of them is the traveller's to fix. The API now reports which cabins the
               // route actually sells, so say that instead of an empty shrug — Birmingham to
