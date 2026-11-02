@@ -228,7 +228,14 @@ export default async function handler(req, res) {
     // route that reaches this call (i.e. any real airport) was affected; airport-less towns
     // returned earlier, above, and so never tripped it. 7000ms leaves headroom for our own two
     // city lookups plus network on the tightest common function budget.
-    const r = await fetch("https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=7000", {
+    // WAIT AS LONG AS THE AIRLINES NEED (2 Nov 2026). At 7 seconds, business-class searches across
+    // the Atlantic came back EMPTY — Miami to Madrid on 5 Feb 2027, a route American and Iberia fly
+    // nonstop every day, answered "no business fares" quickly while Kayak showed dozens. The big
+    // carriers' own systems (American, Iberia, BA) are the slow ones, and premium cabins slowest of
+    // all; Duffel stops waiting at supplier_timeout and returns whoever answered in time. 20 s is
+    // Duffel's own default. The old crash at 15 s came from the function's time limit, not from
+    // Duffel — vercel.json now gives this function 60 s, so the wait no longer kills it.
+    const r = await fetch("https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=20000", {
       method: "POST",
       headers: {
         "Accept": "application/json",
