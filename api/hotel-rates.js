@@ -143,6 +143,16 @@ function synxisFrom(urls) {
   for (const u of list) { if (!/synxis/i.test(u)) continue; const m = /[?&](?:pid|hotel|hotelid|propertyid)=(\d{3,7})(?:[&#]|$)/i.exec(u); if (m) { hotel = m[1]; break; } }
   return chain && hotel ? `https://be.synxis.com/?chain=${chain}&hotel=${hotel}` : null;
 }
+// THE HOTEL'S OWN PRICE CALENDAR (M1040). Where the hotel's site fills its date picker from its own
+// calendar service (Mandarin Oriental: /api/v1/synxis/get-calendar-month-year → { daysRange: [
+// { startDay "12/14/2026", endDay, price, priceWithTaxes, status "Open", minStay, currencyCode } ] }),
+// that service is the hotel's own published lowest price for each night. It is read for the client's
+// nights and given as a stay total — "from", the lowest available room, taxes included — instead of
+// opening the booking engine, which for SynXis sits behind a human-verification wall we do not cross.
+const CAL_SRC = {};   // hotel site → the calendar address its own page asked for
+function calNights(ci, co) { const out = []; for (let t = Date.parse(ci + "T00:00:00Z"); t < Date.parse(co + "T00:00:00Z"); t += 864e5) out.push(new Date(t).toISOString().slice(0, 10)); return out; }
+function calMonths(nights) { const seen = new Set(); return nights.map((d) => d.slice(0, 7)).filter((m) => !seen.has(m) && seen.add(m)); }
+function calDay(mdyStr) { const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(mdyStr || "").trim()); return m ? `${m[3]}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}` : null; }
 function linkIn(html, baseUrl) {
   const re = /href\s*=\s*["']([^"']+)["']/gi; let m; const urls = [];
   while ((m = re.exec(html))) { try { urls.push(new URL(m[1].replace(/&amp;/g, "&"), baseUrl).toString()); } catch (e) {} }
@@ -252,7 +262,11 @@ async function findBookingLink(site, page, via, LOG) {
           }
           if (!found) {
             const composed = synxisFrom([...hrefs, ...inner, ...heard]);
-            if (composed) { found = composed; LOG.push({ step: "synxis-composed", link: composed }); }
+            if (composed) {
+              found = composed; LOG.push({ step: "synxis-composed", link: composed });
+              const cal = heard.find((x) => /synxis/i.test(x) && /calendar/i.test(x) && /[?&]monthNumber=\d+/i.test(x) && /[?&]year=\d{4}/i.test(x));
+              if (cal) CAL_SRC[site] = cal;
+            }
           }
           if (tab) { try { await tab.close(); } catch (e) {} }
           if (found) { page.off("request", onReq); LINK_CACHE[site] = found; if (STAGE !== "engine") return found; }
@@ -404,7 +418,7 @@ export default async function handler(req, res) {
   let out = first;
   const a = first.answer || {};
   const elapsed = Date.now() - t0;
-  if (canRetry && !forced && !NEEDS_RESIDENTIAL[hostOf(site)] && a.ok === false && (first.refused || RETRYABLE.test(String(a.reason || ""))) ) {
+  if (canRetry && !forced && !NEEDS_RESIDENTIAL[hostOf(site)] && a.ok === false && a.reason !== "security-check" && a.reason !== "not-available" && (first.refused || RETRYABLE.test(String(a.reason || ""))) ) {
     NEEDS_RESIDENTIAL[hostOf(site)] = true;   // next request goes straight to the residential road
     if (elapsed < 22000) { out = await runOnce(true, 50000 - elapsed - 1500); if (out.answer) out.answer.retried = "residential"; }
     else if (out.answer) out.answer.nextTime = "residential";
@@ -465,6 +479,46 @@ async function work(req, res, S) {
     LOG.push({ step: "browser-open", via, ms: ms() });
     try { link = stage === "engine" ? await findBookingLink(site, page, via, LOG) : (LINK_CACHE[site] || await linkFromRooms(req, hotel, site, LOG) || await findBookingLink(site, page, via, LOG)); if (link) LINK_CACHE[site] = link; } catch (e) { link = null; }
     LOG.push({ step: "link", link, ms: ms() });
+    if (CAL_SRC[site] && !stage) {
+      const nights = calNights(checkIn, checkOut);
+      const byDay = {}; const asked = [];
+      try {
+        const calOrigin = new URL(CAL_SRC[site]).origin;
+        try { if (new URL(page.url()).origin !== calOrigin) await page.goto(/^https?:\/\//.test(site) ? site : "https://" + site, { waitUntil: "domcontentloaded", timeout: 20000 }); } catch (e) {}
+        for (const ym of calMonths(nights)) {
+          const [y, m] = ym.split("-");
+          const u = new URL(CAL_SRC[site]);
+          for (const k of Array.from(u.searchParams.keys())) {
+            if (/^monthnumber$/i.test(k)) u.searchParams.set(k, m);
+            else if (/^year$/i.test(k)) u.searchParams.set(k, y);
+            else if (/^adult(guest)?count$/i.test(k)) u.searchParams.set(k, String(pax));
+          }
+          // Asked from inside the hotel's own page, exactly as its date picker asks.
+          const j = await page.evaluate(async (x) => { try { const r = await fetch(x, { headers: { accept: "application/json" }, credentials: "include" }); return r.ok ? await r.json() : { httpStatus: r.status }; } catch (e) { return { error: String(e && e.message || e) }; } }, u.toString());
+          asked.push({ u: u.toString().slice(0, 200), ok: !!(j && Array.isArray(j.daysRange)), status: j && j.httpStatus, error: j && j.error });
+          for (const r of (j && Array.isArray(j.daysRange) ? j.daysRange : [])) {
+            const a = calDay(r.startDay), b = calDay(r.endDay || r.startDay); if (!a || !b) continue;
+            for (let t = Date.parse(a + "T00:00:00Z"); t <= Date.parse(b + "T00:00:00Z"); t += 864e5) {
+              byDay[new Date(t).toISOString().slice(0, 10)] = { price: Number(r.price), withTax: Number(r.priceWithTaxes), status: String(r.status || ""), minStay: r.minStay == null ? null : Number(r.minStay), currency: r.currencyCode || (j && j.currencyCode) || null };
+            }
+          }
+        }
+      } catch (e) { asked.push({ error: String(e && e.message || e).slice(0, 160) }); }
+      LOG.push({ step: "hotel-calendar", asked, ms: ms() });
+      const got = nights.map((d) => ({ date: d, ...(byDay[d] || {}) }));
+      if (got.length && got.every((n) => n.status)) {
+        await browser.close();
+        const shut = got.filter((n) => !/^open$/i.test(n.status) || (n.minStay && n.minStay > nights.length));
+        if (shut.length) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "not-available", detail: `the hotel shows ${shut.map((n) => n.date).join(", ")} as ${shut[0].status}${shut[0].minStay ? ` (minimum stay ${shut[0].minStay})` : ""}`, source: "hotel-calendar", log: debug ? LOG : undefined }); }
+        const taxed = got.every((n) => Number.isFinite(n.withTax) && n.withTax > 0);
+        const each = got.map((n) => ({ date: n.date, price: taxed ? n.withTax : n.price }));
+        const total = Math.round(each.reduce((x, n) => x + n.price, 0) * 100) / 100;
+        res.setHeader("Cache-Control", "public, s-maxage=7200, stale-while-revalidate=3600");
+        return res.status(200).json({ ok: true, hotel, checkIn, checkOut, source: "hotel-calendar", rates: {},
+          from: { total, perNight: Math.round(total / each.length), currency: got[0].currency || "EUR", taxesIncluded: taxed, nights: each, what: "the hotel's own lowest available rate for each night" },
+          log: debug ? LOG : undefined });
+      }
+    }
     if (stage === "calendar") {
       // ASK THE ENGINE DIRECTLY (M1007): open the rooms step of the hotel's own booking flow, then,
       // from inside that page (its cookies, its key), call its calendar service several ways and
@@ -598,6 +652,10 @@ async function work(req, res, S) {
   try { await browser.close(); } catch (e) {}
   text = String(text || "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 30000);
   if (stage === "page") { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: true, stage, url: finalUrl, chars: text.length, priced: looksPriced(text), log: LOG, sample: text.slice(0, 4000), htmlPeek: text.length < 200 ? htmlPeek : undefined, net: S.net, api: S.api, console: S.console }); }
+  // A HUMAN-VERIFICATION WALL IS A "NO", NOT A PUZZLE (M1040). Imperva/Incapsula, captchas and
+  // "are you human" pages are a site's rule against automated visitors; we stop, say so, and never
+  // retry by another road.
+  if (/incapsula incident|additional security check is required|captcha|are you a robot|verify (that )?you are (a )?human|press (&|and) hold|px-captcha|perimeterx/i.test(text)) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "security-check", url: finalUrl, log: debug ? LOG : undefined }); }
   if (text.length < 200) return res.status(200).json({ ok: false, reason: "empty-page", url, log: debug ? LOG : undefined, sample: debug ? text : undefined });
   // THE PAGE MUST SHOW THE CLIENT'S DATES (M1001). A date parameter the engine ignored would leave
   // the page on its default dates and the prices would be for the wrong stay. The check-in date
