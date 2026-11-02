@@ -137,7 +137,24 @@ function looksLikeRooms(got, wanted) {
   const heads = (html.match(/<h[1-4][^>]*>[\s\S]*?<\/h[1-4]>/gi) || []).map((x) => x.replace(/<[^>]+>/g, " ").trim()).filter((x) => /\b(room|suite|villa|residence|tent|penthouse|apartment|bungalow|cabin|lodge)\b/i.test(x));
   const sizes = (text.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft|square (?:feet|metres|meters))/gi) || []).length;
   const beds = (text.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length;
-  return heads.length >= 3 || (heads.length >= 1 && (sizes >= 2 || beds >= 2)) || sizes >= 4;
+  // A LIST THAT LINKS TO ITS ROOMS (M1042, 2 Nov 2026). Mandarin Oriental's /stay names its rooms on
+  // cards, not in headings, and shows no sizes or beds on the list — so it was judged "not a rooms
+  // page" while linking straight to /stay/deluxe-prado-view-room, /stay/junior-suite,
+  // /stay/two-bedroom-royal-suite… A page that links to three or more pages BENEATH ITS OWN ADDRESS
+  // whose names are rooms or suites is the hotel's rooms list. Universal: any hotel that gives each
+  // room its own page under the list (most brand sites do).
+  const here = (() => { try { return new URL(got.url || wanted).pathname.replace(/\/+$/, "").toLowerCase(); } catch (e) { return ""; } })();
+  const children = new Set();
+  if (here && here !== "/") {
+    const re = /href\s*=\s*["']([^"'#?]+)/gi; let m;
+    while ((m = re.exec(html))) {
+      try {
+        const p = new URL(m[1].replace(/&amp;/g, "&"), got.url || wanted).pathname.replace(/\/+$/, "").toLowerCase();
+        if (p.startsWith(here + "/") && /(^|[-_])(room|rooms|suite|suites|villa|villas|residence|penthouse|apartment|bungalow|cabin|tent)([-_]|$)/.test(p.slice(here.length + 1))) children.add(p);
+      } catch (e) {}
+    }
+  }
+  return heads.length >= 3 || (heads.length >= 1 && (sizes >= 2 || beds >= 2)) || sizes >= 4 || children.size >= 3;
 }
 // Find the accommodation page: THE HOTEL'S OWN MENU FIRST (the link it calls Accommodation, Rooms,
 // Suites, Stay, Villas…), then the usual addresses, and only a page that looks like a rooms page.
