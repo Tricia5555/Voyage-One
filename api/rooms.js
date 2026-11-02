@@ -217,8 +217,13 @@ async function findRoomsPage(site) {
     }
     for (const u of ranked.slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
+  // A GUESSED ADDRESS THAT EXISTS BUT ARRIVES HOLLOW IS OPENED IN THE BROWSER TOO (M1041). Mandarin
+  // Oriental's home page draws its menu with JavaScript, so no menu link was found; the guess
+  // /stay — the right page — answered 200 as an empty shell and was judged "not a rooms page" on
+  // that shell. A real page (200) that is hollow now gets the same browser look a menu page gets,
+  // within the same browser budget. Addresses that do not exist (404) still cost nothing.
   for (const p of ROOM_PATHS) {
-    for (const cand of [root + p, origin + p]) { const got = await attempt(cand); if (got) return got; }
+    for (const cand of [root + p, origin + p]) { const got = await attempt(cand, true); if (got) return got; }
   }
   return home;   // better than nothing: the reader may still find a rooms section, or say no-rooms-found
 }
@@ -233,6 +238,14 @@ async function findRoomsPage(site) {
 import { waitUntil } from "@vercel/functions";
 export default async function handler(req, res) {
   let sent = false; const json = res.json.bind(res); res.json = (b) => { if (sent) return res; sent = true; return json(b); };
+  // FINISHING IN THE BACKGROUND MUST NOT TOUCH THE ANSWER ALREADY SENT (M1041, 2 Nov 2026). After the
+  // 45-second "still reading" answer, the background read went on to set a header for its own answer —
+  // and Node refuses headers once an answer has gone ("Cannot set headers after they are sent"). That
+  // error was recorded as the read's failure and the rooms were never stored, so EVERY hotel whose
+  // read took longer than 45 seconds failed, however well the read itself went (Mandarin Oriental
+  // Ritz Madrid, 2 Nov). Once an answer is sent, headers and status are left alone.
+  const setHeader = res.setHeader.bind(res); res.setHeader = (k, v) => { if (sent || res.headersSent) return res; return setHeader(k, v); };
+  const status = res.status.bind(res); res.status = (c) => { if (sent || res.headersSent) return res; return status(c); };
   const timer = new Promise((r) => setTimeout(r, 45000, "timeout"));
   let outcome = "done";
   STORE_LOG.length = 0;
