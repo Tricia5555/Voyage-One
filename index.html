@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1038";
+const BUILD = "M1039";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -23047,9 +23047,11 @@ function useRoomRates(hotel, site, checkIn, checkOut, pax, enabled) {
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (dead) return;
-        if (j && j.ok && j.rates) { const rec = { rates: j.rates, status: "ok" }; RATES_CACHE[key] = rec; setState(rec); return; }
+        // "rates" (room by room) or "from" (the hotel's own lowest rate for each night — M1039,
+        // Mandarin Oriental's calendar). An empty room list with a "from" is still an answer.
+        if (j && j.ok && j.rates) { const rec = { rates: Object.keys(j.rates).length ? j.rates : null, from: j.from || null, status: "ok" }; RATES_CACHE[key] = rec; setState(rec); return; }
         if (j && /^(timeout|reading)$/.test(String(j.reason || "")) && tries < 1) { tries++; timer = setTimeout(ask, 3000); return; }
-        const rec = { rates: null, status: "none" }; RATES_CACHE[key] = rec; setState(rec);
+        const rec = { rates: null, status: "none", unavailable: j && j.reason === "not-available" ? (j.detail || "not available") : null }; RATES_CACHE[key] = rec; setState(rec);
       })
       .catch(() => { if (!dead) { const rec = { rates: null, status: "none" }; RATES_CACHE[key] = rec; setState(rec); } });
     ask();
@@ -23104,22 +23106,36 @@ function RoomTile({ r, chosen, onChoose, rates, ratesStatus, chosenPlan }) {
 }
 function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax, onStatus }) {
   const { rooms, status, retry } = useHotelRooms(hotel, site);
-  const { rates, status: ratesStatus } = useRoomRates(hotel, site, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax, status === "ok");
+  // Prices are asked for once the rooms are in — or once the rooms have failed, because a hotel whose
+  // room pages cannot be read may still publish its own nightly prices (M1039).
+  const { rates, from, unavailable, status: ratesStatus } = useRoomRates(hotel, site, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax, status === "ok" || status === "failed");
   const [all, setAll] = useState(false);
   useEffect(() => { if (onStatus) onStatus(status); }, [status]);
+  // THE HOTEL'S OWN "FROM" PRICE (M1039). What the hotel itself publishes as its lowest available
+  // rate for each of the client's nights, added up — labelled for exactly what it is, never shown
+  // as a particular room's price. Dollars beside it where the day's exchange rate is known.
+  const fromLine = from && from.total ? (() => {
+    const n = (from.nights || []).length || 1;
+    const usd = toUSD(from.total, from.currency);
+    return (<div style={{ marginTop: 12, padding: "12px 14px", background: t.mist, borderRadius: 12, border: `1px solid ${t.pineSoft}` }}>
+      <div style={{ fontFamily: font.display, fontSize: 19, color: t.ink, lineHeight: 1.3 }}>From <strong style={{ color: t.pine }}>{fmtIn(from.total, from.currency)}</strong> for your {n} {n === 1 ? "night" : "nights"}{from.taxesIncluded ? ", taxes included" : ""}{usd != null && String(from.currency || "").toUpperCase() !== "USD" ? <span style={{ fontFamily: font.ui, fontSize: 13, color: t.inkSoft }}> · about {fmt(Math.round(usd))}</span> : null}</div>
+      <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 4 }}>{hotel}'s own lowest available rate for each of your nights (about {fmtIn(from.perNight, from.currency)} a night). The price for a particular room is confirmed when you reserve.</div>
+    </div>);
+  })() : unavailable ? (<div style={{ marginTop: 12, padding: "12px 14px", background: t.mist, borderRadius: 12, fontSize: 13.5, color: t.ink }}>{hotel} shows these dates as unavailable — {unavailable}. Try nearby dates.</div>) : null;
   if (status === "loading") return (<div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12, padding: "14px 16px", background: t.mist, borderRadius: 12 }}>
     <span className="vo-spin" aria-hidden="true" />
     <div><div style={{ fontSize: 14, fontWeight: 700, color: t.pine }}>Bringing in the rooms from {hotel}</div><div style={{ fontSize: 12, color: t.inkSoft, marginTop: 2 }}>Working — please don't refresh. The rooms, photographs and rates come from the hotel itself.</div></div>
   </div>);
-  if (status === "failed") return (<div style={{ marginTop: 12, padding: "12px 14px", background: t.mist, borderRadius: 12, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+  if (status === "failed") return (<div>{fromLine}{ratesStatus === "loading" ? <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: t.pine, fontWeight: 600, marginTop: 10 }}><span className="vo-spin sm" aria-hidden="true" />Checking prices with the hotel</div> : null}<div style={{ marginTop: 12, padding: "12px 14px", background: t.mist, borderRadius: 12, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
     <div style={{ fontSize: 13, color: t.ink }}>The rooms could not be brought in from {hotel} just now.</div>
     <button type="button" onClick={retry} style={{ background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 13, fontWeight: 700, padding: "9px 16px", borderRadius: 999, cursor: "pointer" }}>Try again</button>
-  </div>);
+  </div></div>);
   if (!rooms) return null;
   const chosenName = chosen && chosen.name ? dnrm(chosen.name) : "";
   const show = all || rooms.length <= 6 ? rooms : rooms.slice(0, 6);
   const cats = [...new Set(show.map((r) => r.category).filter(Boolean))];
   return (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 14 }}>
+    {fromLine ? <div style={{ marginBottom: 12 }}>{fromLine}</div> : null}
     <div style={{ fontFamily: font.display, fontSize: 20, color: t.ink, marginBottom: 10 }}>Rooms & suites <span style={{ fontFamily: font.ui, fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginLeft: 8 }}>choose yours</span></div>
     <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {show.map((r, k) => <RoomTile key={k} r={r} chosen={chosenName && dnrm(r.name) === chosenName} onChoose={onChoose} rates={rates} ratesStatus={ratesStatus} chosenPlan={chosen && chosen.plan} />)}
