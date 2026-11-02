@@ -352,10 +352,21 @@ export default async function handler(req, res) {
       // Every distinct carrier that actually flies you, for filtering and for display.
       const carriers = Array.from(new Set(segments.map((s) => s.marketingCarrier).filter(Boolean)));
 
+      // THE AIRLINE IS THE ONE WHOSE FLIGHT IT IS (2 Nov 2026). Duffel names the SELLER of a fare
+      // (the offer's "owner"), and a seller is not always the airline you fly: British Airways sells
+      // seats on Iberia's IB0338, so the card read "British Airways · IB0338" while the button said
+      // "Book with Iberia". No one booking travel treats BA and Iberia as interchangeable (Tricia).
+      // So `airline` is the airline whose flight number is on the first leg — the one that matches
+      // the flight number, the booking button, the loyalty programme and the itinerary — and the
+      // seller is kept as `soldBy` only when it is a different airline. Universal: every codeshare
+      // and every group (IAG, Air France–KLM, Lufthansa Group, joint ventures).
+      const owner = (o.owner && o.owner.name) || null;
+      const flier = (segments[0] && segments[0].marketingCarrier) || owner || "Airline";
       return {
         price: o.total_amount ? Math.round(parseFloat(o.total_amount)) : null,
         currency: o.total_currency || "USD",
-        airline: (o.owner && o.owner.name) || "Airline",
+        airline: flier,
+        soldBy: owner && owner !== flier ? owner : null,
         carriers,                 // all airlines on this itinerary, in leg order
         interline: carriers.length > 1,
         depart: timeOf(first.departing_at),
@@ -406,11 +417,25 @@ export default async function handler(req, res) {
     // Left alone, eight slots fill with five copies of one departure and the traveller never
     // sees the 8am they actually wanted. Collapse to one row per real flight (airline +
     // flight number + departure), keeping the lowest fare found for it.
+    // ONE ROW PER REAL JOURNEY, WHOEVER SELLS IT (2 Nov 2026). The key describes EVERY segment —
+    // flight number, date and time of each leg — and no longer includes the seller, so Iberia's
+    // IB0338 sold by Iberia and the same IB0338 sold by British Airways are one row, not two. Of the
+    // copies, the airline's OWN offer wins, because the booking button sends the client to that
+    // airline and its price is the one they will see there; another seller's offer is used only
+    // when the airline itself returned none, and then it says who sells it (soldBy). Among offers
+    // of the same kind, the lowest fare wins.
+    const journeyKey = (o) => (o.segments && o.segments.length
+      ? o.segments.map((s) => `${s.flightNo || ""}@${s.departDate || ""}T${s.depart || ""}`).join(">")
+      : `${o.flightNo || ""}@${o.depart || ""}`);
+    const better = (a, b) => {   // is a better than b?
+      if (!a.soldBy !== !b.soldBy) return !a.soldBy;            // the airline's own offer first
+      return a.price != null && (b.price == null || a.price < b.price);
+    };
     const seen = new Map();
     for (const o of parsed) {
-      const k = `${o.airline}|${o.flightNo || ""}|${o.depart || ""}`;
+      const k = journeyKey(o);
       const prev = seen.get(k);
-      if (!prev || (o.price != null && o.price < prev.price)) seen.set(k, o);
+      if (!prev || better(o, prev)) seen.set(k, o);
     }
     const distinct = Array.from(seen.values());
     distinct.sort(byRank);
@@ -461,7 +486,7 @@ export default async function handler(req, res) {
     const termList = (s) => s.split(",").map((x) => x.trim().toLowerCase()).filter(Boolean);
     const wantAirline = termList((req.query.airline || "").toString());
     const notAirline = termList((req.query.exclude || "").toString());
-    const namesOf = (o) => [o.airline, ...o.carriers].filter(Boolean).map((x) => x.toLowerCase());
+    const namesOf = (o) => [o.airline, o.soldBy, ...o.carriers].filter(Boolean).map((x) => x.toLowerCase());
     if (wantAirline.length) {
       filtered = filtered.filter((o) => namesOf(o).some((n) => wantAirline.some((w) => n.includes(w))));
     }
