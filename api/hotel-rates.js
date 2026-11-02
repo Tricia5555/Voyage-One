@@ -128,6 +128,21 @@ function bestLink(urls) {
   const eng = urls.filter((u) => ENGINES.some((e) => e.test.test(u)) && !/\/(?:profile|signin|sign-in|login|findreservation|find-reservation|itinerary)/i.test(u));
   return eng.find((u) => CODED.test(u)) || eng[0] || null;
 }
+// THE HOTEL'S SYNXIS NUMBERS, READ FROM WHAT ITS OWN PAGE ASKS FOR (M1040, 2 Nov 2026). Mandarin
+// Oriental's Book panel never leaves the page: it opens a price calendar that the page fills by
+// calling its own SynXis service — mandarinoriental.com/api/v1/synxis/get-calendar-month-year?…
+// &pid=65443 — while the page's own "Modify/Cancel" link names the group: be.synxis.com/signin?
+// chain=507. Those two numbers ARE the hotel's booking address on SynXis (chain + hotel), so the
+// address is composed from them. Universal: any hotel whose site carries a SynXis chain number and
+// whose page asks a SynXis-named service for a numbered property (pid, hotel, hotelId, propertyId).
+// Numbers are read, never guessed; with either missing nothing is composed.
+function synxisFrom(urls) {
+  const list = (urls || []).filter((u) => typeof u === "string");
+  let chain = null, hotel = null;
+  for (const u of list) { const m = /[?&]chain=(\d{2,6})(?:[&#]|$)/i.exec(u); if (m) { chain = m[1]; break; } }
+  for (const u of list) { if (!/synxis/i.test(u)) continue; const m = /[?&](?:pid|hotel|hotelid|propertyid)=(\d{3,7})(?:[&#]|$)/i.exec(u); if (m) { hotel = m[1]; break; } }
+  return chain && hotel ? `https://be.synxis.com/?chain=${chain}&hotel=${hotel}` : null;
+}
 function linkIn(html, baseUrl) {
   const re = /href\s*=\s*["']([^"']+)["']/gi; let m; const urls = [];
   while ((m = re.exec(html))) { try { urls.push(new URL(m[1].replace(/&amp;/g, "&"), baseUrl).toString()); } catch (e) {} }
@@ -234,6 +249,10 @@ async function findBookingLink(site, page, via, LOG) {
             } else {
               LOG.push({ step: "book-button-2", pressed: null, panelButtons: panel, heard: heard.slice(0, 8) });
             }
+          }
+          if (!found) {
+            const composed = synxisFrom([...hrefs, ...inner, ...heard]);
+            if (composed) { found = composed; LOG.push({ step: "synxis-composed", link: composed }); }
           }
           if (tab) { try { await tab.close(); } catch (e) {} }
           if (found) { page.off("request", onReq); LINK_CACHE[site] = found; if (STAGE !== "engine") return found; }
