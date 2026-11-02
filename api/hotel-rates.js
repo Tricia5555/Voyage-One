@@ -97,8 +97,17 @@ const ENGINES = [
   // (reservations.dorchestercollection.com/?chain=5310&hotel=60011), so the engine is recognised
   // by its chain= and hotel= numbers, not by be.synxis.com alone. A promo rate code in the link
   // (rate=…) is dropped so every rate shows, not one offer.
-  { name: "synxis", test: /be\.synxis\.com|[?&]chain=\d+(?:&|$).*[?&]hotel=\d+|[?&]hotel=\d+(?:&|$).*[?&]chain=\d+/i, build: (u, ci, co, pax) => {
-      const x = new URL(u); x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1"); x.searchParams.delete("rate"); if (x.searchParams.get("hotel")) x.searchParams.set("level", "hotel"); return x.toString();
+  // M1039 (2 Nov 2026): the test missed the commonest SynXis address of all — chain and hotel side
+  // by side, "?Chain=507&Hotel=12345" — because the "&" between them was used up by the first half
+  // of the pattern. Each number is now looked for on its own, in any order, in any letter case.
+  // And SynXis takes its parameter names in any case (its own linking guide writes Hotel, Arrive,
+  // Depart), so the dates and party replace the hotel's own whatever their case, never sit beside them.
+  { name: "synxis", test: /be\.synxis\.com|^(?=.*[?&]chain=\d+(?:[&#]|$))(?=.*[?&]hotel=\d+(?:[&#]|$))/i, build: (u, ci, co, pax) => {
+      const x = new URL(u);
+      for (const k of Array.from(x.searchParams.keys())) if (/^(arrive|depart|adult|child|rooms|rate|level)$/i.test(k)) x.searchParams.delete(k);
+      x.searchParams.set("arrive", mdy(ci)); x.searchParams.set("depart", mdy(co)); x.searchParams.set("adult", String(pax)); x.searchParams.set("child", "0"); x.searchParams.set("rooms", "1");
+      if (Array.from(x.searchParams.keys()).some((k) => /^hotel$/i.test(k))) x.searchParams.set("level", "hotel");
+      return x.toString();
     } },
   { name: "travelclick", test: /reservations\.travelclick\.com|ihotelier/i, build: (u, ci, co, pax) => {
       const x = new URL(u); x.searchParams.set("datein", mdy(ci)); x.searchParams.set("dateout", mdy(co)); x.searchParams.set("adults", String(pax)); x.searchParams.set("children", "0"); x.searchParams.set("rooms", "1"); return x.toString();
@@ -170,6 +179,11 @@ async function findBookingLink(site, page, via, LOG) {
       // engine on press (Mandarin Oriental, 26 Oct 2026). Press it as a guest would, follow it into
       // the same tab, a new tab or an overlay, and read the address it lands on. If that address
       // belongs to a known engine, it is the booking link; otherwise stage=link reports it.
+      // Every address the page asks for while the buttons are pressed is watched too (M1039): a
+      // booking panel often loads its engine in the background without changing the address bar.
+      const heard = [];
+      const onReq = (r) => { try { const x = r.url(); if (heard.length < 40 && /^https?:/.test(x) && (ENGINES.some((e) => e.test.test(x)) || /synxis|travelclick|ihotelier|[?&]chain=\d+/i.test(x))) heard.push(x); } catch (e) {} };
+      page.on("request", onReq);
       try {
         const before = page.url();
         const newTab = new Promise((resolve) => { const t = setTimeout(() => resolve(null), 9000); page.browser().once("targetcreated", async (tg) => { clearTimeout(t); try { const p2 = await tg.page(); resolve(p2 || null); } catch (e) { resolve(null); } }); });
@@ -189,14 +203,46 @@ async function findBookingLink(site, page, via, LOG) {
           const frames = target.frames().map((f) => f.url()).filter((x) => x && x !== "about:blank" && !/doubleclick|google|facebook|triptease|onetrust|cookielaw/i.test(x)).slice(0, 8);
           const inner = await target.evaluate(() => Array.from(document.querySelectorAll("a[href]")).map((a) => a.href).filter((x) => /book|reserv|avail|synxis|travelclick|ihotelier|fourseasons|hyatt|hilton|accor|marriott/i.test(x)).slice(0, 10)).catch(() => []);
           LOG.push({ step: "book-button", pressed, from: before, landed, newTab: !!tab, frames, links: inner });
-          const found = bestLink([landed, ...frames, ...inner]);
+          let found = bestLink([landed, ...frames, ...inner, ...heard]);
+          // THE SECOND PRESS (M1039, 2 Nov 2026). Many Book buttons do not leave the page: they open
+          // a booking panel — dates, guests — with its own "Check availability" button, and only that
+          // second button goes to the engine. Mandarin Oriental's "Book Stay" did exactly this: the
+          // address never changed, nothing opened, and the reader stopped. If the first press stayed
+          // on the page, press the panel's own search button as a guest would and read where it goes.
+          // Universal: any brand whose booking starts in a panel (Mandarin Oriental, and very likely
+          // Belmond, Aman, Peninsula, Oetker and many independents).
+          if (!found && !tab && landed === before) {
+            const panel = await page.evaluate(() => Array.from(document.querySelectorAll("button, a, [role=button], input[type=submit]")).filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; }).map((el) => (el.innerText || el.value || el.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim()).filter((x) => x && x.length < 40).slice(0, 60)).catch(() => []);
+            const tab2p = new Promise((resolve) => { const t = setTimeout(() => resolve(null), 9000); page.browser().once("targetcreated", async (tg) => { clearTimeout(t); try { const p2 = await tg.page(); resolve(p2 || null); } catch (e) { resolve(null); } }); });
+            const pressed2 = await (async () => {
+              const jh = await page.evaluateHandle((first) => { const els = Array.from(document.querySelectorAll("button, a, [role=button], input[type=submit]")); const vis = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !el.disabled; }; const txt = (el) => (el.innerText || el.value || el.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim(); return els.find((el) => vis(el) && txt(el) !== first && /^(check availability|check rates|check room availability|search|search availability|search rooms|find|find rooms|find a room|view rates|see rates|show rates|view availability|see availability|book now|continue|check|go)$/i.test(txt(el))) || null; }, pressed);
+              const el = jh.asElement(); if (!el) return null;
+              const label = await el.evaluate((n) => (n.innerText || n.value || n.getAttribute("aria-label") || "").trim().slice(0, 40));
+              try { await el.click({ delay: 40 }); } catch (e) { await el.evaluate((n) => n.click()); }
+              return label;
+            })();
+            if (pressed2) {
+              const tab2 = await tab2p; const target2 = tab2 || page;
+              try { await target2.waitForNetworkIdle({ idleTime: 800, timeout: 10000 }); } catch (e) {}
+              await new Promise((r) => setTimeout(r, 1500));
+              const landed2 = target2.url();
+              const frames2 = target2.frames().map((f) => f.url()).filter((x) => x && x !== "about:blank" && !/doubleclick|google|facebook|triptease|onetrust|cookielaw/i.test(x)).slice(0, 8);
+              LOG.push({ step: "book-button-2", pressed: pressed2, landed: landed2, newTab: !!tab2, frames: frames2, heard: heard.slice(0, 8) });
+              found = bestLink([landed2, ...frames2, ...heard]);
+              if (tab2) { try { await tab2.close(); } catch (e) {} }
+              if (!found && landed2 !== before && !tab2) { try { await page.goto(p, { waitUntil: "domcontentloaded", timeout: 15000 }); } catch (e) {} }
+            } else {
+              LOG.push({ step: "book-button-2", pressed: null, panelButtons: panel, heard: heard.slice(0, 8) });
+            }
+          }
           if (tab) { try { await tab.close(); } catch (e) {} }
-          if (found) { LINK_CACHE[site] = found; if (STAGE !== "engine") return found; }
+          if (found) { page.off("request", onReq); LINK_CACHE[site] = found; if (STAGE !== "engine") return found; }
           if (landed !== before && !tab) { try { await page.goto(p, { waitUntil: "domcontentloaded", timeout: 15000 }); } catch (e) {} }
         }
       } catch (e) { LOG.push({ step: "book-button", error: String(e && e.message || e).slice(0, 160) }); }
+      page.off("request", onReq);
       // No known engine: show what looked like a booking link, so the engine can be added.
-      const bookish = [...new Set(hrefs.filter((x) => /book|reserv|availability|stay|rates|checkin|check-in/i.test(x) && !/blog|press|news|career|gift|shop|restaurant|dining|spa|event|wedding|meeting|offer|privacy|terms/i.test(x)))].slice(0, 15);
+      const bookish = [...new Set(hrefs.filter((x) => /^https?:/i.test(x) && /book|reserv|availability|stay|rates|checkin|check-in/i.test(x) && !/blog|press|news|career|gift|shop|restaurant|dining|spa|event|wedding|meeting|offer|privacy|terms/i.test(x)))].slice(0, 15);
       if (bookish.length) LOG.push({ step: "find-link", url: p, unmatched: bookish });
       // stage=engine (M999): open the hotel's own reservations page and report where it lands, what
       // it embeds and what date fields it shows — so an unknown engine can be added as one line.
