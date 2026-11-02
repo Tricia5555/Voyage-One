@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1034";
+const BUILD = "M1035";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -24802,7 +24802,8 @@ function OfflineLine() {
     You're offline — your saved journeys are all here. Live searches return with the signal.
   </div>);
 }
-// SAVE TO HOME SCREEN (M1034, Tricia 1 Nov 2026). Not on the landing page — people should like the
+// SAVE TO HOME SCREEN (M1034, Tricia 1 Nov 2026; M1035 2 Nov: the line set in the display face at
+// 24px, the size of "Before you leave", so it reads as a heading rather than small print). Not on the landing page — people should like the
 // app before we ask. One quiet line at the end of a built trip and on the finished itinerary:
 // "Save Voyage One on your Home Screen", the three steps opening beneath it on a tap. iPhone and
 // iPad only, never once opened from the Home Screen icon, and gone for good on this device once the
@@ -24825,10 +24826,10 @@ function HomeScreenLine() {
   const shareIcon = (<svg width="12" height="15" viewBox="0 0 15 18" aria-label="Share" style={{ verticalAlign: "-2px" }}><path d="M7.5 1v10M4 4.5 7.5 1 11 4.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/><path d="M5 7H2.5A1.5 1.5 0 0 0 1 8.5v7A1.5 1.5 0 0 0 2.5 17h10a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 12.5 7H10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg>);
   return (<div className="vo-noprint" style={{ marginTop: 18, borderTop: `1px solid ${t.line}`, paddingTop: 12, fontSize: 13.5, color: t.inkSoft }}>
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <button onClick={() => { setOpen(!open); done(); }} style={{ background: "none", border: "none", padding: 0, color: t.pine, fontSize: 13.5, letterSpacing: ".02em", cursor: "pointer", textAlign: "left" }}>Save Voyage One on your Home Screen {open ? "⌄" : "›"}</button>
-      {!open ? <button aria-label="Hide" onClick={() => { done(); setGone(true); }} style={{ marginLeft: "auto", background: "none", border: "none", color: t.inkFaint, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>{"×"}</button> : null}
+      <button onClick={() => { setOpen(!open); done(); }} style={{ background: "none", border: "none", padding: 0, color: t.pine, fontFamily: font.display, fontSize: 24, fontWeight: 600, lineHeight: 1.25, cursor: "pointer", textAlign: "left" }}>Save Voyage One on your Home Screen <span style={{ fontFamily: font.ui, fontSize: 18, fontWeight: 400, color: t.brass }}>{open ? "⌄" : "›"}</span></button>
+      {!open ? <button aria-label="Hide" onClick={() => { done(); setGone(true); }} style={{ marginLeft: "auto", background: "none", border: "none", color: t.inkFaint, fontSize: 22, lineHeight: 1, cursor: "pointer", padding: "4px 6px" }}>{"×"}</button> : null}
     </div>
-    {open ? (<div style={{ marginTop: 8, lineHeight: 1.7 }}>
+    {open ? (<div style={{ marginTop: 8, fontSize: 15, color: t.ink, lineHeight: 1.7 }}>
       In Safari, tap Share {shareIcon}, then <strong style={{ color: t.ink, fontWeight: 600 }}>Add to Home Screen</strong>, then <strong style={{ color: t.ink, fontWeight: 600 }}>Add</strong>. It opens like an app, and your journeys stay with you even with no signal.
     </div>) : null}
   </div>);
