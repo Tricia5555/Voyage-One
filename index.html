@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1037";
+const BUILD = "M1038";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -24694,6 +24694,20 @@ function LiveRoute({ from, to, fallbackKnown, driveOnly, driveTo }) {
 // coordinates and real airport data — so a ground-access town we never listed still gets the
 // right "fly to the nearest airport, then overland" treatment. No place is special-cased.
 const GATEWAY_CACHE = {};
+// AN ISLAND IS NOT A GATEWAY TO ITSELF (M1038, Tricia 2 Nov 2026 — "that is impossible"). The
+// panel "Getting from Palma de Mallorca to Mallorca" came back on the live site after three fixes,
+// each of which hid it only when a longer chain of look-ups (place name → coordinates → airport
+// city → island) all agreed — and on the live site one link in that chain did not, for reasons we
+// could not reproduce. This test uses only the two names that are printed in the panel itself: if
+// the airport stands on an island, and the destination's own name IS that island, the airport is
+// the destination's airport and there is no "getting from" to show. Nothing else has to agree.
+// Universal: Mallorca, Ibiza, Menorca, Bermuda, Capri, Santorini, Sicily… A TOWN on an island
+// ("Deià, Mallorca", "Sciacca, Sicily") is not the island, so its drive from the airport stays.
+function isTheIslandItself(place, airportCity) {
+  const isl = islandOf(airportCity); if (!isl || !place) return false;
+  const head = String(bareCity(place)).split(",")[0].trim();
+  return dnrm(isl) === dnrm(head) || dnrm(isl) === dnrm(resolvePlace(place) || "");
+}
 function useGateway(city) {
   const [live, setLive] = useState(undefined);
   const bare = bareCity(city);
@@ -24747,7 +24761,8 @@ function useGateway(city) {
         // airportServes (the airport's city is the place, or stands on the same island the place IS),
         // not by the endpoint's proximity flag alone. (Tricia, 16 Oct 2026.)
         const ownHere = reachable.find((o) => airportServes(o.code, bare) || (o.isOwn && sameCity(o.city, bare)));
-        if (!ownHere && reachable.length) {
+        const islandItself = reachable.length && isTheIslandItself(bare, (reachable.find((o) => o.hasService) || reachable[0]).city);
+        if (!ownHere && !islandItself && reachable.length) {
           const opts2 = reachable;
           // Prefer nearest option that actually has service; else nearest.
           const best = opts2.find((o) => o.hasService) || opts2[0];
@@ -25000,7 +25015,7 @@ function CitySection({ d, i, p, from, legSched }) {
   // destination — its own city, or the island the destination IS — is not a gateway, and no
   // "getting from X to Y" panel is drawn for it. (Tricia, 16 Oct 2026.)
   const dName = d.city ? (resolvePlace(d.city) || bareCity(d.city)) : "";
-  const gwOwn = !!(gwRaw && d.city && (sameCity(gwRaw.air, dName) || airportServes(gwRaw.code || iataFor(gwRaw.air), d.city) || (islandOf(gwRaw.air) && islandOf(gwRaw.air) === islandOf(d.city) && dnrm(islandOf(d.city)) === dnrm(dName))));
+  const gwOwn = !!(gwRaw && d.city && (isTheIslandItself(d.city, gwRaw.air) || sameCity(gwRaw.air, dName) || airportServes(gwRaw.code || iataFor(gwRaw.air), d.city) || (islandOf(gwRaw.air) && islandOf(gwRaw.air) === islandOf(d.city) && dnrm(islandOf(d.city)) === dnrm(dName))));
   const gw = gwRaw && !gwOwn ? gwRaw : null;
   // Curated-airport safety net: if the destination genuinely can't be placed on the map (a venue
   // the geocoder has never heard of), fall back to the airport we pinned on the One List card.
@@ -25153,7 +25168,7 @@ function ReturnSection({ p, rc, blocked }) {
   const lastStay = p.dests.length ? bareCity(p.dests[p.dests.length - 1].city || "") : "";
   const homeGw = useGateway(lastStay);
   // Null whenever the last stop can be flown from directly, so this costs nothing elsewhere.
-  const gwHome = homeGw && !sameCity(homeGw.air, lastStay) ? homeGw : null;
+  const gwHome = homeGw && !sameCity(homeGw.air, lastStay) && !isTheIslandItself(lastStay, homeGw.air) ? homeGw : null;
   // Only offer the hop while the client is still leaving from that stop — if they have named a
   // different airport city entirely, this leg is not theirs. The auto-filled value IS the
   // gateway, so that counts as unchanged.
