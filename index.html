@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1039";
+const BUILD = "M1040";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -23087,7 +23087,11 @@ function RoomTile({ r, chosen, onChoose, rates, ratesStatus, chosenPlan }) {
   const spec = [r.size, r.beds, r.occupancy].filter(Boolean).join(" · ");
   return (<button type="button" onClick={() => onChoose(chosen ? null : r, plans && plans.length && !soldOut ? plans[0] : null)} style={{ textAlign: "left", background: chosen ? t.mist : t.white, border: `2px solid ${chosen ? t.pine : t.line}`, borderRadius: 14, padding: 0, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: "column", fontFamily: font.ui, opacity: soldOut ? 0.6 : 1 }}>
     <div style={{ height: 130, background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", overflow: "hidden" }}>
-      {img && !bad ? <img src={img} alt="" loading="lazy" onError={() => setBad(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+      {/* THE HOTEL'S PHOTOGRAPH, ASKED FOR WITHOUT NAMING US (3 Nov 2026). Mandarin's pictures opened on
+          their own but stayed blank on the card: hotel photo servers often refuse a picture shown on
+          another site, and the browser tells them which site is asking. no-referrer stops it saying.
+          Universal: every room photograph, every hotel. */}
+      {img && !bad ? <img src={img} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
     </div>
     <div style={{ padding: "10px 12px 12px" }}>
       <div style={{ fontFamily: font.display, fontSize: 17, color: t.ink, lineHeight: 1.15 }}>{r.name}</div>
