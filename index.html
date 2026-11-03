@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1040";
+const BUILD = "M1044";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -14066,21 +14066,45 @@ function nightlyByName(name) {
   return hit == null ? null : hit;
 }
 const FX = { perUSD: null, date: null };   // units of each currency per 1 USD, from the ECB via frankfurter.app
+// MORE THAN ONE SOURCE FOR THE DAY'S RATES (M1044, 3 Nov 2026). Mandarin Oriental Ritz Madrid's
+// "From EUR 4,127" showed no dollar figure beside it: the one exchange-rate address the app used
+// gave nothing back, so no euro price anywhere could be turned into dollars. Frankfurter (the
+// European Central Bank's published rates) has moved to api.frankfurter.dev; the old address is
+// kept as a second try and open.er-api.com as a third. The first that answers is used.
 async function loadFx() {
   if (FX.perUSD) return FX;
-  try {
-    const r = await fetch("https://api.frankfurter.app/latest?from=USD");
-    const j = r.ok ? await r.json() : null;
-    if (j && j.rates) { FX.perUSD = { ...j.rates, USD: 1 }; FX.date = j.date || null; }
-  } catch (e) {}
+  const sources = [
+    ["https://api.frankfurter.dev/v1/latest?base=USD", (j) => j && j.rates ? { rates: j.rates, date: j.date } : null],
+    ["https://api.frankfurter.app/latest?from=USD", (j) => j && j.rates ? { rates: j.rates, date: j.date } : null],
+    ["https://open.er-api.com/v6/latest/USD", (j) => j && j.result === "success" && j.rates ? { rates: j.rates, date: (j.time_last_update_utc || "").slice(5, 16) || null } : null],
+  ];
+  for (const [url, read] of sources) {
+    try {
+      const r = await fetch(url);
+      const got = r.ok ? read(await r.json()) : null;
+      if (got && got.rates && got.rates.EUR) { FX.perUSD = { ...got.rates, USD: 1 }; FX.date = got.date || null; break; }
+    } catch (e) {}
+  }
   return FX;
 }
 const toUSD = (n, cur) => { if (n == null || isNaN(n)) return null; if (!cur || cur === "USD" || cur === "$") return n; const k = FX.perUSD && FX.perUSD[String(cur).toUpperCase()]; return k ? n / k : null; };
 const fmtIn = (n, cur) => !cur || cur === "USD" || cur === "$" ? fmt(n) : `${String(cur).toUpperCase()} ${Math.round(n || 0).toLocaleString()}`;
 // One stay, one price. Returns an explicit estimate flag so the interface can say so, and
 // `foreign` when the hotel's own currency could not be converted (shown as is, left out of totals).
+// THE HOTEL'S OWN PRICE IN THE TOTAL (M1044, 3 Nov 2026). Mandarin Oriental Ritz Madrid showed
+// "From EUR 4,127 for your 3 nights" on its card while the running total said $3,300 — our old
+// nightly guide ($1,100 × 3), not the hotel's price at all, so it looked like a backwards exchange.
+// Order now: a price for the room the client chose; otherwise the hotel's own lowest rate for
+// these exact nights, converted at the day's rate; only then our guide, marked as an estimate.
+// Universal — every hotel whose own site gives a "from" price.
 function stayPrice(st, nights) {
   if (!st) return { price: null, est: false };
+  const roomPriced = st.room && st.room.plan && st.room.plan.perNight && st.nightly != null && !isNaN(st.nightly);
+  const hf = st.hotelFrom;
+  if (!roomPriced && hf && hf.total && hf.nights === nights) {
+    const usd = toUSD(hf.total, hf.currency);
+    if (usd != null) return { price: usd, est: false, hotelFrom: true, converted: hf.currency && String(hf.currency).toUpperCase() !== "USD" ? { total: hf.total, currency: hf.currency, date: FX.date } : null };
+  }
   if (st.nightly != null && !isNaN(st.nightly)) {
     const usd = toUSD(st.nightly, st.currency);
     if (usd == null) return { price: null, est: false, foreign: { nightly: st.nightly, currency: st.currency, total: st.nightly * nights } };
@@ -14112,6 +14136,7 @@ function PerPersonNote({ price, pax }) {
   if (!price || isNaN(n) || n <= 0) return (<div style={{ fontSize: 12.5, color: t.inkFaint, marginBottom: 8, lineHeight: 1.5 }}>Enter the fare for <strong>one person</strong> — we multiply by the {pax > 1 ? `${pax} travellers` : "travellers"} you have named.</div>);
   return (<div style={{ fontSize: 12.5, color: t.pine, marginBottom: 8, lineHeight: 1.5 }}>{fmt(n)} per person × {pax} {pax === 1 ? "traveller" : "travellers"} = <strong>{fmt(n * pax)}</strong> for this flight.</div>);
 }
+const stayNote = (sp) => sp && sp.hotelFrom ? ` · hotel's lowest rate${sp.converted ? ` (${fmtIn(sp.converted.total, sp.converted.currency)})` : ""}` : "";
 function destCost(d, from, pax) {
   const seats = Math.max(1, pax || 1);
   const p = d.pick || {}; let total = 0; let onRequest = 0; let estimated = 0; const items = [];
@@ -14128,7 +14153,7 @@ function destCost(d, from, pax) {
     const days = d.days;
     if (p.exploreMode === "base") {
       if (p.transfer) add(`${p.transfer.mode}, both ways`, p.transfer.price * 2);
-      if (p.stay) { const sp = stayPrice(p.stay, days); add(`${p.stay.name || p.stay.level} · ${days}n`, sp.price, sp.est); }
+      if (p.stay) { const sp = stayPrice(p.stay, days); add(`${p.stay.name || p.stay.level} · ${days}n${stayNote(sp)}`, sp.price, sp.est); }
       (p.days || []).forEach((x) => { add(x.name, x.price); });
     } else if (p.exploreMode === "roam") {
       (p.stops || []).forEach((st) => {
@@ -14141,7 +14166,7 @@ function destCost(d, from, pax) {
   const nights = destNights(d);
   if (p.onward) add(`${p.onward.mode} from ${p.hub || "the hub"}`, p.onward.price);
   if (p.transfer) add(`${p.transfer.mode}, both ways`, p.transfer.price * 2);
-  if (p.stay) { const sp = stayPrice(p.stay, nights); add(`${p.stay.name || p.stay.level} · ${nights}n`, sp.price, sp.est); }
+  if (p.stay) { const sp = stayPrice(p.stay, nights); add(`${p.stay.name || p.stay.level} · ${nights}n${stayNote(sp)}`, sp.price, sp.est); }
   (p.spas || []).forEach((x) => add(x.name, x.price));
   // things to do are never counted: their prices were estimates, and most are free or priced on the site
   (p.sports || []).forEach((x) => add(x.name, x.price));
@@ -23108,13 +23133,14 @@ function RoomTile({ r, chosen, onChoose, rates, ratesStatus, chosenPlan }) {
     </div>
   </button>);
 }
-function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax, onStatus }) {
+function RoomPicker({ hotel, site, chosen, onChoose, stayDates, pax, onStatus, onFrom }) {
   const { rooms, status, retry } = useHotelRooms(hotel, site);
   // Prices are asked for once the rooms are in — or once the rooms have failed, because a hotel whose
   // room pages cannot be read may still publish its own nightly prices (M1039).
   const { rates, from, unavailable, status: ratesStatus } = useRoomRates(hotel, site, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax, status === "ok" || status === "failed");
   const [all, setAll] = useState(false);
   useEffect(() => { if (onStatus) onStatus(status); }, [status]);
+  useEffect(() => { if (onFrom && from && from.total && stayDates) onFrom({ total: from.total, currency: from.currency || null, perNight: from.perNight || null, taxesIncluded: !!from.taxesIncluded, nights: (from.nights || []).length || null, checkIn: stayDates.checkIn, checkOut: stayDates.checkOut }); }, [from && from.total, from && from.currency, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut]);
   // THE HOTEL'S OWN "FROM" PRICE (M1039). What the hotel itself publishes as its lowest available
   // rate for each of the client's nights, added up — labelled for exactly what it is, never shown
   // as a particular room's price. Dollars beside it where the day's exchange rate is known.
@@ -23233,7 +23259,7 @@ function useScrollWhenOpened(ref, open) {
     return () => clearTimeout(id);
   }, [open]);
 }
-function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested, room, onRoom, stayDates, pax }) {
+function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested, room, onRoom, onFrom, stayDates, pax }) {
   const cardRef = useRef(null);
   useScrollWhenOpened(cardRef, !!sel);
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
@@ -23289,7 +23315,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
     </div>
     {sel ? (<div style={{ flexBasis: "100%", padding: "0 16px 16px", borderTop: `1px solid ${t.line}` }}>
-      {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} onStatus={setRoomsStatus} /> : null}
+      {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} onStatus={setRoomsStatus} onFrom={onFrom} /> : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
           : (<div ref={reserveBox} onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "16px 18px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12 }}>
             <div style={{ fontFamily: font.display, fontSize: 22, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>Reserve through Voyage One</div>
@@ -23312,6 +23338,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   // What the reservation sheet opens with: the leg's dates, the party, the lead traveller.
   const prefill = { checkIn: stayDates && stayDates.checkIn || "", checkOut: stayDates && stayDates.checkOut || "", guests: pax || 2, first: lead && lead.first || "", last: lead && lead.last || "" };
   const onRequested = (req) => upd({ stay: { ...(pick.stay || {}), requested: req } });
+  const onFrom = (f) => { const cur = pick.stay && pick.stay.hotelFrom; if (!pick.stay || (cur && cur.total === f.total && cur.currency === f.currency && cur.checkIn === f.checkIn && cur.checkOut === f.checkOut)) return; upd({ stay: { ...pick.stay, hotelFrom: f } }); };
   const onRoom = (r) => upd({ stay: { ...(pick.stay || {}), room: r ? { name: r.name, size: r.size || null, beds: r.beds || null, plan: r.plan || null } : null, nightly: r && r.plan && r.plan.perNight ? r.plan.price : (pick.stay && pick.stay.nightly) || null, currency: r && r.plan && r.plan.perNight ? (r.plan.currency || null) : (pick.stay && pick.stay.currency) || null, estimated: !(r && r.plan && r.plan.perNight) } });
   const favs = lookup(FAVORITES, city) || [];
   // OPEN ON THE FIRST TAB THAT HAS SOMETHING IN IT. The default used to be Ultra Luxury,
@@ -23442,7 +23469,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
     {collapsed && (<div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
       {(() => {
         const f = favs.find((x) => x.name === chosen.name);
-        return f ? <FavHotelCard s={f} city={city} cur={favCur} sel={true} onClick={() => upd({ stay: null })} nights={nights} prefill={prefill} requested={pick.stay && pick.stay.requested} onRequested={onRequested} room={pick.stay && pick.stay.room} onRoom={onRoom} stayDates={stayDates} pax={pax} />
+        return f ? <FavHotelCard s={f} city={city} cur={favCur} sel={true} onClick={() => upd({ stay: null })} nights={nights} prefill={prefill} requested={pick.stay && pick.stay.requested} onRequested={onRequested} room={pick.stay && pick.stay.room} onRoom={onRoom} onFrom={onFrom} stayDates={stayDates} pax={pax} />
           : <div style={{ gridColumn: "1 / -1", background: "#fff", border: `2px solid ${t.brass}`, borderRadius: 16, padding: "16px 18px" }}>
               <div style={{ fontFamily: font.display, fontSize: 22, color: t.ink }}>{chosen.name || chosen.level}</div>
               {chosen.band ? <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 3 }}>{chosen.band}</div> : null}
@@ -23457,7 +23484,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {favOrdered.map((s, k) => { const sel = chosenName && dnrm(s.name) === chosenName; return (
-          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested} room={sel && pick.stay ? pick.stay.room : null} onRoom={sel ? onRoom : null} stayDates={stayDates} pax={pax}
+          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested} room={sel && pick.stay ? pick.stay.room : null} onRoom={sel ? onRoom : null} onFrom={sel ? onFrom : null} stayDates={stayDates} pax={pax}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} /></div>); })}
       </div>
       {fromExperience && favChosen.length && favRest.length ? (
