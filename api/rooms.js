@@ -159,9 +159,22 @@ function pagePhotos(html, base) {
   return out;
 }
 const PHOTO_PASS = 2;   // raised whenever the way room photographs are read changes, so stored hotels are read again once
-async function roomPagePhotos(rooms, budgetMs) {
+// A ROOM'S OWN PAGE MUST BE ITS OWN (3 Nov 2026). Belmond La Residencia lists room TYPES — Signature
+// Suites & Villas, Suites, Junior Suites, Deluxe Rooms — and they can all point to one page, or to
+// the list page itself with a #section. Treated as four "own pages", every photo appeared on all of
+// them, was judged site furniture, and every photograph was thrown away. A page counts as a room's
+// own only when no other room points to it and it is not the list page; any other room keeps the
+// photographs it already had. Universal — every hotel that lists room types.
+const pageOf = (u) => { try { const x = new URL(u); return (x.hostname.replace(/^www\./, "") + x.pathname.replace(/\/+$/, "")).toLowerCase(); } catch (e) { return ""; } };
+function ownPages(rooms, listUrl) {
+  const n = {}; rooms.forEach((r) => { const k = r && r.url ? pageOf(r.url) : ""; if (k) n[k] = (n[k] || 0) + 1; });
+  const list = listUrl ? pageOf(listUrl) : "";
+  return (r) => { const k = r && r.url ? pageOf(r.url) : ""; return !!k && n[k] === 1 && k !== list; };
+}
+async function roomPagePhotos(rooms, budgetMs, listUrl) {
   const until = Date.now() + budgetMs;
-  const list = rooms.map((r) => ({ r, url: r && typeof r.url === "string" && /^https?:\/\//.test(r.url) ? r.url : null, photo: null, ok: false }));
+  const own = ownPages(rooms, listUrl);
+  const list = rooms.map((r) => ({ r, url: own(r) ? r.url : null, photo: null, ok: false }));
   const plain = async (it) => {
     try {
       const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 9000);
@@ -172,7 +185,7 @@ async function roomPagePhotos(rooms, budgetMs) {
     } catch (e) { it.error = String(e && e.message || e).slice(0, 80); }
   };
   const todo = list.filter((it) => it.url);
-  for (let i = 0; i < todo.length; i += 6) await Promise.all(todo.slice(i, i + 6).map(plain));
+  for (let i = 0; i < todo.length && Date.now() < until - 3000; i += 6) await Promise.all(todo.slice(i, i + 6).map(plain));
   // A site that refuses plain requests: the same pages in the one browser session, while time allows.
   for (const it of todo) {
     if (it.ok || Date.now() > until - 6000) continue;
@@ -190,6 +203,7 @@ async function roomPagePhotos(rooms, budgetMs) {
   const read = list.filter((it) => it.ok).length;
   return list.map((it) => {
     const r = it.r; if (!r || !it.url) return r;
+    if (Date.now() > until && !it.ok && !it.status && !it.error) return r;   // never reached for lack of time: next visit
     if (!it.ok) return { ...r, photoTried: Date.now() };      // page not reached: left as it was, tried again after a day
     const own = (it.photos || []).filter((u) => read < 3 || counts[u] === 1).slice(0, 2);
     return { ...r, images: own, photoChecked: PHOTO_PASS };
@@ -437,6 +451,9 @@ async function storeRead(site) {
     // photographs at all. A saved list from before then with not one photograph is read again, once;
     // lists read after the fix are trusted as they are. Universal — every hotel.
     if (Date.parse(row.fetched_at) < Date.parse("2026-11-03T01:30:00Z") && !row.rooms.some((x) => x && Array.isArray(x.images) && x.images.length)) return null;
+    // PHOTOGRAPHS WRONGLY CLEARED (3 Nov 2026): a room checked against a page it shared with other
+    // rooms, or against the list page itself, lost its photographs. Such a list is read afresh, once.
+    { const own = ownPages(row.rooms, row.source); if (row.rooms.some((x) => x && x.photoChecked && !own(x))) return null; }
     return row;
   } catch (e) { return null; }
 }
@@ -465,6 +482,7 @@ async function storeWrite(site, hotel, source, booking, rooms) {
   } catch (e) { STORE_LOG.push({ store: "write", error: String(e && e.message || e).slice(0, 120) }); return false; }
 }
 async function work(req, res) {
+  const T0 = Date.now();
   res.setHeader("Access-Control-Allow-Origin", "*");
   const key = process.env.ANTHROPIC_API_KEY;
   res.setHeader("Cache-Control", "no-store");
@@ -483,8 +501,9 @@ async function work(req, res) {
     if (kept) {
       let rooms = Array.isArray(kept.rooms) ? kept.rooms.map(unGarbleRoom) : kept.rooms;
       let via = "store";
-      if (Array.isArray(rooms) && rooms.some((x) => x && x.url && x.photoChecked !== PHOTO_PASS && !(x.photoTried > Date.now() - 864e5))) {
-        rooms = await roomPagePhotos(rooms, 30000);
+      const own = ownPages(rooms || [], kept.source);
+      if (Array.isArray(rooms) && rooms.some((x) => x && own(x) && x.photoChecked !== PHOTO_PASS && !(x.photoTried > Date.now() - 864e5))) {
+        rooms = await roomPagePhotos(rooms, 30000, kept.source);
         await closeSession();
         await storeWrite(site, kept.hotel || hotel, kept.source, kept.booking || null, rooms);
         via = "store+room-pages";
@@ -574,10 +593,18 @@ ${text}`;
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
     if (!rooms.length) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
-    const checked = await roomPagePhotos(rooms, 25000);
-    await closeSession();
-    rooms.splice(0, rooms.length, ...checked);
-    const stored = await storeWrite(site, hotel, page.url, booking, rooms);
+    // THE READ IS KEPT FIRST (3 Nov 2026). A long read (Belmond, through the browser) plus the room
+    // pages ran past the function's 90 seconds and was cut off before anything was saved — so the
+    // card asked forever and was told "still reading". The rooms are saved the moment they are read;
+    // the photo pass then uses only the time left, and saves again if it changed anything.
+    let stored = await storeWrite(site, hotel, page.url, booking, rooms);
+    const left = 80000 - (Date.now() - T0);
+    if (left > 8000) {
+      const checked = await roomPagePhotos(rooms, Math.min(25000, left - 5000), page.url);
+      await closeSession();
+      rooms.splice(0, rooms.length, ...checked);
+      stored = (await storeWrite(site, hotel, page.url, booking, rooms)) || stored;
+    }
     return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
     await noteFailure(site, "model:" + String(e && e.message || e).slice(0, 300));
