@@ -65,6 +65,19 @@ async function getWithBrowser(url) {
     const s = await sessionPage();
     const resp = await s.page.goto(url, { waitUntil: "domcontentloaded", timeout: 25000 });
     try { await s.page.waitForNetworkIdle({ idleTime: 600, timeout: 6000 }); } catch (e) {}
+    // SCROLL THE PAGE AS A GUEST WOULD (M1043, 2 Nov 2026). Mandarin Oriental's /stay read back
+    // 21 rooms with good descriptions and not one photograph: its pictures load only as they come
+    // into view, so a page read at the top holds placeholders. Scrolling to the end in screen-sized
+    // steps lets every lazy picture load before the page is read. Universal: most hotel sites load
+    // photographs this way. Capped at 30 steps and a few seconds.
+    try {
+      await s.page.evaluate(async () => {
+        const step = Math.max(400, window.innerHeight * 0.9);
+        for (let i = 0; i < 30; i++) { const before = window.scrollY; window.scrollBy(0, step); await new Promise((r) => setTimeout(r, 180)); if (window.scrollY === before) break; }
+        window.scrollTo(0, 0);
+      });
+      try { await s.page.waitForNetworkIdle({ idleTime: 500, timeout: 4000 }); } catch (e) {}
+    } catch (e) {}
     await new Promise((r) => setTimeout(r, 800));
     const html = await s.page.content();
     const finalUrl = s.page.url();
@@ -97,13 +110,33 @@ const IMAGES = [];
 function distill(html, base) {
   IMAGES.length = 0;
   let h = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<!--[\s\S]*?-->/g, " ").replace(/<svg[\s\S]*?<\/svg>/gi, " ").replace(/<noscript>/gi, "").replace(/<\/noscript>/gi, "");
+  // A PICTURE IS ITS BEST REAL ADDRESS (M1043). Lazy pages put a placeholder in src
+  // (data:image/gif…, a 1-pixel blank) and the real photograph in data-src / data-srcset / srcset,
+  // or in a <picture>'s <source>. The first REAL address among them is the photograph; a
+  // <picture> becomes one image; a CSS background-image on a card counts as an image too.
+  const realOf = (tag) => {
+    const attrs = []; const re = /\b(data-src|data-lazy-src|data-original|data-lazy|data-srcset|srcset|src)\s*=\s*["']([^"']+)["']/gi; let m;
+    while ((m = re.exec(tag))) attrs.push([m[1].toLowerCase(), m[2].trim()]);
+    const order = ["data-src", "data-lazy-src", "data-original", "data-lazy", "src", "data-srcset", "srcset"];
+    attrs.sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
+    for (const [k, v] of attrs) {
+      const u = /srcset$/.test(k) ? v.split(/\s+\d+[wx]\s*,?\s*|,\s+(?=\S+\s+\d+[wx])/)[0].trim().split(/\s+/)[0] : v;
+      if (u && !/^data:|^about:|blank\.(gif|png)|placeholder|spacer|1x1/i.test(u)) return u;
+    }
+    return "";
+  };
+  h = h.replace(/<picture\b[\s\S]*?<\/picture>/gi, (blk) => {
+    const img = /<img\b[^>]*>/i.exec(blk); const fromImg = img ? realOf(img[0]) : "";
+    let u = fromImg; if (!u) { const srcs = blk.match(/<source\b[^>]*>/gi) || []; for (const t of srcs) { u = realOf(t); if (u) break; } }
+    const alt = img ? /\balt\s*=\s*["']([^"']*)["']/i.exec(img[0]) : null;
+    return u ? `<img src="${u.replace(/"/g, "&quot;")}"${alt ? ` alt="${alt[1].replace(/"/g, "&quot;")}"` : ""}>` : " ";
+  });
+  h = h.replace(/<(div|section|figure|a|span|li)\b([^>]*style\s*=\s*["'][^"']*background(?:-image)?\s*:[^"']*url\(\s*['"]?([^'")]+)['"]?\s*\)[^"']*["'][^>]*)>/gi, (tag, el, rest, u) => `<${el}${rest}><img src="${u}">`);
   h = h.replace(/<img\b[^>]*>/gi, (tag) => {
     // Prefer a plain src; fall back to a srcset. A srcset is a comma-separated LIST, so only
     // there is a comma a separator — an address itself may contain commas (Four Seasons' do).
-    const plain = /\b(?:data-src|data-lazy-src|src)\s*=\s*["']([^"']+)["']/i.exec(tag);
-    const set = /\b(?:srcset|data-srcset)\s*=\s*["']([^"']+)["']/i.exec(tag);
     const alt = /\balt\s*=\s*["']([^"']*)["']/i.exec(tag);
-    let u = plain ? plain[1].trim() : set ? set[1].trim().split(/\s+\d+[wx]\s*,?\s*|,\s+(?=\S+\s+\d+[wx])/)[0].trim().split(/\s+/)[0] : "";
+    let u = realOf(tag);
     if (!u || /^data:/.test(u)) return " ";
     u = abs(base, u); if (!u) return " ";
     if (/\.svg(\?|$)|\/icons?\/|logo|sprite|pixel|tracking/i.test(u)) return " ";
