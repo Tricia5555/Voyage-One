@@ -168,6 +168,44 @@ function pagePhotos(html, base) {
   while ((m = re.exec(html)) && out.length < 400) push(m[0]);
   return out;
 }
+
+// PHOTOGRAPHS FROM THE PAGE'S OWN DATA, BY ROOM NAME (3 Nov 2026). Belmond's rooms arrive on its
+// booking page (/en/booking/select-accommodation?productId=LRS): every room named with its size,
+// beds and view — and not one photograph, because the pictures are drawn from data inside the page,
+// not from <img> tags the reader could number. For a room with no photograph, every picture address
+// in the page's data is tied to the room whose name comes closest before it; a picture is kept only
+// when one room alone claims it, and only the first two. A room that claims none stays blank.
+// Universal — any hotel whose rooms page carries its photographs as data.
+function photosByName(html, rooms) {
+  const low = html.toLowerCase();
+  const marks = [];
+  rooms.forEach((r, i) => {
+    const n = String(r && r.name || "").toLowerCase().trim(); if (n.length < 4) return;
+    for (const v of [n, n.replace(/&/g, "&amp;"), n.replace(/&/g, "\\u0026")]) { let at = low.indexOf(v); while (at >= 0) { marks.push([at, i]); at = low.indexOf(v, at + v.length); } }
+  });
+  if (!marks.length) return { rooms, found: 0 };
+  marks.sort((a, b) => a[0] - b[0]);
+  const claims = {}; const order = {};
+  const re = /https?:(?:\/\/|\\\/\\\/|\\u002F\\u002F)[^"'\s<>()]+/gi; let m;
+  while ((m = re.exec(html))) {
+    let u = cleanUrl(m[0].replace(/\\u002F/gi, "/").replace(/\\\//g, "/"));
+    if (!PIC.test(u) || NOT_PIC.test(u)) continue;
+    let lo = 0, hi = marks.length - 1, best = -1;
+    while (lo <= hi) { const mid = (lo + hi) >> 1; if (marks[mid][0] <= m.index) { best = mid; lo = mid + 1; } else hi = mid - 1; }
+    if (best < 0 || m.index - marks[best][0] > 1500) continue;
+    const i = marks[best][1];
+    (claims[u] = claims[u] || new Set()).add(i);
+    (order[i] = order[i] || []).includes(u) || order[i].push(u);
+  }
+  let found = 0;
+  const out = rooms.map((r, i) => {
+    if (!r || (Array.isArray(r.images) && r.images.length)) return r;
+    const own = (order[i] || []).filter((u) => claims[u].size === 1).slice(0, 2);
+    if (own.length) found++;
+    return own.length ? { ...r, images: own } : r;
+  });
+  return { rooms: out, found };
+}
 const PHOTO_PASS = 2;   // raised whenever the way room photographs are read changes, so stored hotels are read again once
 // A ROOM'S OWN PAGE MUST BE ITS OWN (3 Nov 2026). Belmond La Residencia lists room TYPES — Signature
 // Suites & Villas, Suites, Junior Suites, Deluxe Rooms — and they can all point to one page, or to
@@ -445,7 +483,7 @@ function siteKey(site) {
 const STORE_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
 const STORE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 const FRESH_MS = 30 * 86400000;
-const STORE_TRUST_FROM = "2026-11-03T22:00:00Z";   // 3 Nov 2026: lists read before each request had its own notebook may hold another hotel's photographs — every hotel is read afresh once. Step this forward whenever the reader's results change.
+const STORE_TRUST_FROM = "2026-11-03T23:30:00Z";   // 3 Nov 2026 (photos by room name, and before that each request its own notebook): lists read before each request had its own notebook may hold another hotel's photographs — every hotel is read afresh once. Step this forward whenever the reader's results change.
 async function storeRead(site) {
   if (!STORE_URL || !STORE_KEY) return null;
   try {
@@ -608,6 +646,7 @@ ${text}`;
     // pages ran past the function's 90 seconds and was cut off before anything was saved — so the
     // card asked forever and was told "still reading". The rooms are saved the moment they are read;
     // the photo pass then uses only the time left, and saves again if it changed anything.
+    if (rooms.some((r) => !r.images || !r.images.length)) { const by = photosByName(page.html, rooms); rooms.splice(0, rooms.length, ...by.rooms); C().tried.push({ note: "photos by room name", rooms: by.found }); }
     let stored = await storeWrite(site, hotel, page.url, booking, rooms);
     const left = 80000 - (Date.now() - T0);
     if (left > 8000) {
