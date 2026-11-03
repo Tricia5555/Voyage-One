@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1044";
+const BUILD = "M1045";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -21774,6 +21774,21 @@ const CONNECT_VIA = {
   "Kefalonia": { hub: "Athens (ATH)", note: "Kefalonia (EFL) is seasonal and European — summer flights from London and the big European hubs; intercontinental connects at Athens, then a short domestic hop." },
   "Rwanda": { hub: "Kigali (KGL)", note: "RwandAir, Qatar, Turkish, KLM and Brussels all serve Kigali. Land the day before your first trek at the latest — never the same morning." },
 };
+// NEVER CONNECT THROUGH THE TOWN YOU ARE LEAVING (Tricia, M1045, 3 Nov 2026). "Connect through Madrid
+// (MAD) or Barcelona (BCN)" appeared on the Madrid → Palma leg, to a traveller already in Madrid. The
+// rule is where from, to where: the leg starts at the traveller's last stop (or home), and when that
+// place is one of the hubs the note names, there is no connection to make — the note is not shown.
+// Matched by airport code and by city, so "Madrid", "Madrid (MAD)" and a stop whose airport is MAD
+// all count. Universal — every place with a connection note, every leg.
+function connectNote(from, to) {
+  const cv = connectVia(to);
+  if (!cv) return null;
+  const hubs = String(cv.hub || "").match(/\(([A-Z]{3})\)/g) || [];
+  const fc = from ? iataFor(from) : null;
+  if (fc && hubs.some((h) => h.slice(1, 4) === fc)) return null;
+  if (from && hubs.some((h) => { const c = airportCity(h.slice(1, 4)); return c && sameCity(c, from); })) return null;
+  return cv;
+}
 function connectVia(city) {
   if (!city) return null;
   const key = resolvePlace(city) || bareCity(city);
@@ -22535,9 +22550,9 @@ function ArrivalPanel({ from, to, arriveBy, pick, upd, setMode, firstLabel, hide
     </div>) : <div style={{ marginBottom: 12 }}><Chips options={options} value={arriveBy} onChange={chooseMode} />{noFlight ? <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 8 }}>There is no flight: {dHere ? bareCity(dHere.city) : bareCity(to)} is reached through {airportCityOf(iataFor(from), null) || bareCity(from)}’s airport, and you are already there. Rail or the road.</div> : null}</div>}
     {inHand && legHere && legHere.crossings && legHere.crossings.length ? legHere.crossings.map((x, k, all) => <CarFerryPanel key={k} c={x} from={k ? all[k - 1].to.name : from} to={k === all.length - 1 ? to : all[k + 1].from.name} />) : null}
     {!acrossWater && ground && ground.note && !/no road|no way to drive|no land route|not connected by land|must (be )?fl(y|own)|best flown|not drivable|a flight away|across (the |an )?ocean|by sea only|no overland/i.test(ground.note) && <div style={{ fontSize: 12.5, color: t.inkSoft, lineHeight: 1.55, margin: "-4px 0 12px" }}>{ground.note}</div>}
-    {arriveBy === "Flight" && connectVia(to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Connect through {connectVia(to).hub}</div>
-      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{connectVia(to).note}</div>
+    {arriveBy === "Flight" && connectNote(from, to) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderLeft: `3px solid ${t.brass}`, borderRadius: 10, padding: "11px 13px", marginBottom: 12 }}>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 5 }}>Connect through {connectNote(from, to).hub}</div>
+      <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{connectNote(from, to).note}</div>
     </div>) : null}
     {arriveBy === "Flight" ? (hidePicker
       ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>Choose your hub above, and the transatlantic fares to it appear here.</div>
