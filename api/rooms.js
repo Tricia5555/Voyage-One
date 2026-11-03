@@ -106,6 +106,23 @@ function abs(base, href) { try { return new URL(href, base).toString(); } catch 
 // HTML → readable text keeping image addresses and links, so the reader can tie photos to rooms.
 // Images are numbered as they are kept, so the reader can refer to "image 7" and the server
 // restores the exact address — long addresses were being abbreviated when copied (M980).
+// GARBLED ACCENTS REPAIRED (3 Nov 2026). Mandarin Oriental Ritz Madrid came back with "CÃ©sar Ritz",
+// "dÃ©cor" and "frontâ€‘row": the hotel's UTF-8 text had been read somewhere as Windows-1252. Any
+// string that carries those tell-tale pairs is turned back into its bytes and read again as UTF-8;
+// if that does not give clean text, the string is left exactly as it was. Universal — every hotel,
+// every field, including rooms already in the store.
+const CP1252 = { "€": 0x80, "‚": 0x82, "ƒ": 0x83, "„": 0x84, "…": 0x85, "†": 0x86, "‡": 0x87, "ˆ": 0x88, "‰": 0x89, "Š": 0x8a, "‹": 0x8b, "Œ": 0x8c, "Ž": 0x8e, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "•": 0x95, "–": 0x96, "—": 0x97, "˜": 0x98, "™": 0x99, "š": 0x9a, "›": 0x9b, "œ": 0x9c, "ž": 0x9e, "Ÿ": 0x9f };
+const MOJIBAKE = /[Â-ô][\u0080-¿ŒœŠšŸŽžƒˆ˜–—‘-„†-•…‰‹›€™]/;
+function unGarble(v) {
+  if (typeof v !== "string" || !MOJIBAKE.test(v)) return v;
+  const bytes = [];
+  for (const ch of v) {
+    const c = ch.codePointAt(0);
+    if (c <= 0xff) bytes.push(c); else if (CP1252[ch] != null) bytes.push(CP1252[ch]); else return v;
+  }
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bytes)); } catch (e) { return v; }
+}
+const unGarbleRoom = (r) => (r && typeof r === "object" ? Object.fromEntries(Object.entries(r).map(([k, x]) => [k, Array.isArray(x) ? x : unGarble(x)])) : r);
 const IMAGES = [];
 function distill(html, base) {
   IMAGES.length = 0;
@@ -386,7 +403,7 @@ async function work(req, res) {
     const kept = await storeRead(site);
     if (kept && kept.failed) { await clearReading(site); if (debug) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "last-read-failed", at: kept.at, failed: kept.failed, note: "the note is cleared; this request is reading afresh — run again" }); } }
     if (kept && kept.reading) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", via: "store" }); }
-    if (kept) { res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800"); return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms: kept.rooms, via: "store" }); }
+    if (kept) { res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800"); return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms: Array.isArray(kept.rooms) ? kept.rooms.map(unGarbleRoom) : kept.rooms, via: "store" }); }
   }
   await markReading(site, hotel);
   let page = null;
@@ -461,7 +478,7 @@ ${text}`;
       parsed = objs.length ? { rooms: objs, truncated: true } : null;
     }
     if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url, textLength: text.length, tried: debug ? TRIED : undefined, answer: debug ? out.slice(0, 1500) : undefined, sample: debug ? text.slice(0, 2000) : undefined });
-    const S = (v, n = 300) => (v == null || v === "" ? null : String(v).trim().slice(0, n));
+    const S = (v, n = 300) => (v == null || v === "" ? null : unGarble(String(v)).trim().slice(0, n));
     const rooms = parsed.rooms.filter((x) => x && x.name).slice(0, 40).map((x) => ({
       name: S(x.name, 120), category: S(x.category, 80), size: S(x.size, 80), beds: S(x.beds, 120), occupancy: S(x.occupancy, 120), view: S(x.view, 120), description: S(x.description, 600),
       images: (Array.isArray(x.images) ? x.images : []).map((v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10); return n >= 1 && n <= IMAGES.length ? IMAGES[n - 1] : (typeof v === "string" && /^https?:\/\//.test(v) ? v : null); }).filter(Boolean).slice(0, 2),
