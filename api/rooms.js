@@ -138,16 +138,27 @@ const unGarbleRoom = (r) => (r && typeof r === "object" ? Object.fromEntries(Obj
 // gives no photograph keeps no guessed photograph either: a blank tile is honest, a wrong picture
 // is not. Universal — every hotel whose rooms have their own pages. Each room carries
 // photoChecked once this has run, so it runs once per stored hotel.
-function pagePhoto(html, base) {
+// Every photograph a room page carries, in page order: its sharing photo first (og:image /
+// twitter:image), then real <img>/<source> addresses, then picture addresses written inside the
+// page's own data (Mandarin Oriental's room pages carry no sharing photo and draw their gallery
+// from data embedded in the page — 1.5 MB of it, 3 Nov 2026).
+const PIC = /\.(?:jpe?g|webp|png|avif)(?:[?#]|$)|\/is\/image\/|\/images?\/|[?&](?:wid|width|w|cover|quality|fit|crop)=/i;
+const NOT_PIC = /\.(?:svg|js|css|json|woff2?|ttf|ico|gif)(?:[?#]|$)|logo|sprite|icon|favicon|placeholder|pixel|tracking|badge|flag|social|share-default|default[-_]?(?:share|og)/i;
+function pagePhotos(html, base) {
+  const out = []; const seen = new Set();
+  const push = (u) => { if (!u) return; u = cleanUrl(String(u).replace(/\\u002F/gi, "/").replace(/\\\//g, "/").trim()); const a = abs(base, u); if (!a || !/^https?:\/\//.test(a) || !PIC.test(a) || NOT_PIC.test(a) || seen.has(a)) return; seen.add(a); out.push(a); };
   const metas = html.match(/<meta\b[^>]*>/gi) || [];
-  for (const want of ["og:image:secure_url", "og:image", "twitter:image", "twitter:image:src"]) {
-    for (const m of metas) {
-      const k = /\b(?:property|name)\s*=\s*["']([^"']+)["']/i.exec(m); const c = /\bcontent\s*=\s*["']([^"']+)["']/i.exec(m);
-      if (k && c && k[1].toLowerCase() === want) { const u = abs(base, cleanUrl(c[1].trim())); if (u && !/\.svg(\?|$)|logo|sprite|placeholder|default[-_]?(?:share|og)/i.test(u)) return u; }
-    }
+  for (const want of ["og:image:secure_url", "og:image", "twitter:image", "twitter:image:src"]) for (const m of metas) {
+    const k = /\b(?:property|name)\s*=\s*["']([^"']+)["']/i.exec(m); const c = /\bcontent\s*=\s*["']([^"']+)["']/i.exec(m);
+    if (k && c && k[1].toLowerCase() === want) push(c[1]);
   }
-  return null;
+  const tags = html.match(/<(?:img|source)\b[^>]*>/gi) || [];
+  for (const t of tags) { const re = /\b(?:data-src|data-lazy-src|data-original|src|data-srcset|srcset)\s*=\s*["']([^"']+)["']/gi; let m; while ((m = re.exec(t))) push(m[1].split(/\s*,\s*/)[0].split(/\s+/)[0]); }
+  const re = /https?:(?:\/\/|\\\/\\\/|\\u002F\\u002F)[^"'\s<>()]+/gi; let m;
+  while ((m = re.exec(html)) && out.length < 400) push(m[0]);
+  return out;
 }
+const PHOTO_PASS = 2;   // raised whenever the way room photographs are read changes, so stored hotels are read again once
 async function roomPagePhotos(rooms, budgetMs) {
   const until = Date.now() + budgetMs;
   const list = rooms.map((r) => ({ r, url: r && typeof r.url === "string" && /^https?:\/\//.test(r.url) ? r.url : null, photo: null, ok: false }));
@@ -157,7 +168,7 @@ async function roomPagePhotos(rooms, budgetMs) {
       const r = await fetch(it.url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow", signal: ctl.signal });
       clearTimeout(tm);
       TRIED.push({ url: it.url, via: "room-page", status: r.status });
-      if (r.ok) { it.ok = true; it.photo = pagePhoto(await r.text(), r.url); } else it.status = r.status;
+      if (r.ok) { it.ok = true; it.photos = pagePhotos(await r.text(), r.url); } else it.status = r.status;
     } catch (e) { it.error = String(e && e.message || e).slice(0, 80); }
   };
   const todo = list.filter((it) => it.url);
@@ -168,17 +179,20 @@ async function roomPagePhotos(rooms, budgetMs) {
     try {
       const sess = await sessionPage();
       await sess.page.goto(it.url, { waitUntil: "domcontentloaded", timeout: 12000 });
-      it.ok = true; it.photo = pagePhoto(await sess.page.content(), sess.page.url());
+      it.ok = true; it.photos = pagePhotos(await sess.page.content(), sess.page.url());
       TRIED.push({ url: it.url, via: "room-page:browser" });
     } catch (e) { TRIED.push({ url: it.url, via: "room-page:browser", error: String(e && e.message || e).slice(0, 80) }); }
   }
-  const counts = {}; list.forEach((it) => { if (it.photo) counts[it.photo] = (counts[it.photo] || 0) + 1; });
+  // A picture on more than one room's page is the site's own furniture — the header, the
+  // "other rooms" carousel, the footer — not this room. A room's photographs are the ones only its
+  // own page carries, in the order the page shows them; the first two are kept.
+  const counts = {}; list.forEach((it) => (it.photos || []).forEach((u) => { counts[u] = (counts[u] || 0) + 1; }));
   const read = list.filter((it) => it.ok).length;
   return list.map((it) => {
     const r = it.r; if (!r || !it.url) return r;
     if (!it.ok) return { ...r, photoTried: Date.now() };      // page not reached: left as it was, tried again after a day
-    const shared = it.photo && read > 2 && counts[it.photo] > 1;
-    return { ...r, images: it.photo && !shared ? [it.photo] : [], photoChecked: true };
+    const own = (it.photos || []).filter((u) => read < 3 || counts[u] === 1).slice(0, 2);
+    return { ...r, images: own, photoChecked: PHOTO_PASS };
   });
 }
 const IMAGES = [];
@@ -469,7 +483,7 @@ async function work(req, res) {
     if (kept) {
       let rooms = Array.isArray(kept.rooms) ? kept.rooms.map(unGarbleRoom) : kept.rooms;
       let via = "store";
-      if (Array.isArray(rooms) && rooms.some((x) => x && x.url && !x.photoChecked && !(x.photoTried > Date.now() - 864e5))) {
+      if (Array.isArray(rooms) && rooms.some((x) => x && x.url && x.photoChecked !== PHOTO_PASS && !(x.photoTried > Date.now() - 864e5))) {
         rooms = await roomPagePhotos(rooms, 30000);
         await closeSession();
         await storeWrite(site, kept.hotel || hotel, kept.source, kept.booking || null, rooms);
