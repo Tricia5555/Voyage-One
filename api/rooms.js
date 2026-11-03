@@ -364,6 +364,11 @@ async function storeRead(site) {
     if (row.source === "failed") return { failed: row.rooms && row.rooms[0] ? row.rooms[0] : { failed: "unknown" }, at: row.fetched_at };   // M1024: what went wrong last time
     if (Date.now() - Date.parse(row.fetched_at) > FRESH_MS) return null;
     if (Date.parse(row.fetched_at) < Date.parse(STORE_TRUST_FROM)) return null;   // M1027: written by an older reader — read afresh
+    // NO PHOTOGRAPHS, READ BEFORE THE PHOTO FIX (3 Nov 2026). Until M1043 (2 Nov, 20:27 ET) pictures that
+    // load as you scroll came back as placeholders, so Mandarin Oriental's rooms were saved with no
+    // photographs at all. A saved list from before then with not one photograph is read again, once;
+    // lists read after the fix are trusted as they are. Universal — every hotel.
+    if (Date.parse(row.fetched_at) < Date.parse("2026-11-03T01:30:00Z") && !row.rooms.some((x) => x && Array.isArray(x.images) && x.images.length)) return null;
     return row;
   } catch (e) { return null; }
 }
