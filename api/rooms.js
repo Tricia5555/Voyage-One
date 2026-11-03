@@ -26,18 +26,7 @@ import chromiumPkg from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
 const MODEL = "claude-haiku-4-5-20251001";
-// ONE READ, ONE NOTEBOOK (3 Nov 2026). The list of addresses tried, the numbered photographs, the
-// browser session and the store log were shared by every request the function was handling at once.
-// Vercel keeps a function warm and runs requests side by side, and since M1022 a read also carries on
-// in the background after answering — so two hotels were read in the same notebook. La Residencia's
-// "tried" list came back full of The Dorchester's room pages, and a photograph numbered on one
-// hotel's page could be handed to a room of another (Mandarin Oriental Ritz Madrid's Presidential
-// Suite showed a train compartment — Belmond runs trains). Each request now has its own, kept by
-// Node's AsyncLocalStorage and carried into its background work. Universal — every hotel, every read.
-import { AsyncLocalStorage } from "node:async_hooks";
-const ALS = new AsyncLocalStorage();
-const SPARE = { tried: [], images: [], session: null, log: [] };
-const C = () => ALS.getStore() || SPARE;
+const TRIED = [];
 // WHERE THE BROWSER RUNS (M977, 25 Oct 2026). Vercel's function image lacks a system library the
 // bundled Chromium needs ("libnss3.so"), so the browser is hosted: with BROWSERLESS_TOKEN set in
 // Vercel, the readers connect to Browserless (plumbing, like Vercel or Supabase — nothing a
@@ -60,16 +49,17 @@ async function openBrowser() {
 // ONE BROWSER SESSION PER REQUEST (M1025). Each browser read used to connect, open, read and close
 // (~8 s of overhead each); a site that refuses plain requests needed three of them and the read
 // no longer fit inside one call. The session is opened once and reused; closed at the end.
+let SESSION = null;
 async function sessionPage() {
-  if (C().session && C().session.page) return C().session;
+  if (SESSION && SESSION.page) return SESSION;
   const opened = await openBrowser();
   const page = await opened.browser.newPage();
   await page.setUserAgent(UA);
   await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
-  C().session = { browser: opened.browser, page, via: opened.via };
-  return C().session;
+  SESSION = { browser: opened.browser, page, via: opened.via };
+  return SESSION;
 }
-async function closeSession() { if (C().session) { try { await C().session.browser.close(); } catch (e) {} C().session = null; } }
+async function closeSession() { if (SESSION) { try { await SESSION.browser.close(); } catch (e) {} SESSION = null; } }
 async function getWithBrowser(url) {
   try {
     const s = await sessionPage();
@@ -91,10 +81,10 @@ async function getWithBrowser(url) {
     await new Promise((r) => setTimeout(r, 800));
     const html = await s.page.content();
     const finalUrl = s.page.url();
-    C().tried.push({ url, via: "browser:" + s.via, status: resp ? resp.status() : null, bytes: html.length });
+    TRIED.push({ url, via: "browser:" + s.via, status: resp ? resp.status() : null, bytes: html.length });
     return html && html.length > 500 ? { url: finalUrl, html, via: "browser" } : null;
   } catch (e) {
-    C().tried.push({ url, via: "browser", hosted: !!(process.env.BROWSERLESS_TOKEN || "").trim(), error: String(e && e.message || e).slice(0, 700) });
+    TRIED.push({ url, via: "browser", hosted: !!(process.env.BROWSERLESS_TOKEN || "").trim(), error: String(e && e.message || e).slice(0, 700) });
     await closeSession();
     return null;
   }
@@ -106,10 +96,10 @@ async function get(url) {
   try {
     const r = await fetch(url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow" });
     const ct = r.headers.get("content-type") || "";
-    C().tried.push({ url, via: "fetch", status: r.status, type: ct.slice(0, 40) });
+    TRIED.push({ url, via: "fetch", status: r.status, type: ct.slice(0, 40) });
     if (r.ok && /html/i.test(ct)) { const html = await r.text(); if (html.length > 500) return { url: r.url, html, via: "fetch" }; }
     if (r.status === 404) return null;              // a real "no such page": no point opening a browser on it
-  } catch (e) { C().tried.push({ url, via: "fetch", error: String(e && e.message || e).slice(0, 120) }); }
+  } catch (e) { TRIED.push({ url, via: "fetch", error: String(e && e.message || e).slice(0, 120) }); }
   return await getWithBrowser(url);
 }
 function abs(base, href) { try { return new URL(href, base).toString(); } catch (e) { return null; } }
@@ -168,44 +158,6 @@ function pagePhotos(html, base) {
   while ((m = re.exec(html)) && out.length < 400) push(m[0]);
   return out;
 }
-
-// PHOTOGRAPHS FROM THE PAGE'S OWN DATA, BY ROOM NAME (3 Nov 2026). Belmond's rooms arrive on its
-// booking page (/en/booking/select-accommodation?productId=LRS): every room named with its size,
-// beds and view — and not one photograph, because the pictures are drawn from data inside the page,
-// not from <img> tags the reader could number. For a room with no photograph, every picture address
-// in the page's data is tied to the room whose name comes closest before it; a picture is kept only
-// when one room alone claims it, and only the first two. A room that claims none stays blank.
-// Universal — any hotel whose rooms page carries its photographs as data.
-function photosByName(html, rooms) {
-  const low = html.toLowerCase();
-  const marks = [];
-  rooms.forEach((r, i) => {
-    const n = String(r && r.name || "").toLowerCase().trim(); if (n.length < 4) return;
-    for (const v of [n, n.replace(/&/g, "&amp;"), n.replace(/&/g, "\\u0026")]) { let at = low.indexOf(v); while (at >= 0) { marks.push([at, i]); at = low.indexOf(v, at + v.length); } }
-  });
-  if (!marks.length) return { rooms, found: 0 };
-  marks.sort((a, b) => a[0] - b[0]);
-  const claims = {}; const order = {};
-  const re = /https?:(?:\/\/|\\\/\\\/|\\u002F\\u002F)[^"'\s<>()]+/gi; let m;
-  while ((m = re.exec(html))) {
-    let u = cleanUrl(m[0].replace(/\\u002F/gi, "/").replace(/\\\//g, "/"));
-    if (!PIC.test(u) || NOT_PIC.test(u)) continue;
-    let lo = 0, hi = marks.length - 1, best = -1;
-    while (lo <= hi) { const mid = (lo + hi) >> 1; if (marks[mid][0] <= m.index) { best = mid; lo = mid + 1; } else hi = mid - 1; }
-    if (best < 0 || m.index - marks[best][0] > 1500) continue;
-    const i = marks[best][1];
-    (claims[u] = claims[u] || new Set()).add(i);
-    (order[i] = order[i] || []).includes(u) || order[i].push(u);
-  }
-  let found = 0;
-  const out = rooms.map((r, i) => {
-    if (!r || (Array.isArray(r.images) && r.images.length)) return r;
-    const own = (order[i] || []).filter((u) => claims[u].size === 1).slice(0, 2);
-    if (own.length) found++;
-    return own.length ? { ...r, images: own } : r;
-  });
-  return { rooms: out, found };
-}
 const PHOTO_PASS = 2;   // raised whenever the way room photographs are read changes, so stored hotels are read again once
 // A ROOM'S OWN PAGE MUST BE ITS OWN (3 Nov 2026). Belmond La Residencia lists room TYPES — Signature
 // Suites & Villas, Suites, Junior Suites, Deluxe Rooms — and they can all point to one page, or to
@@ -228,7 +180,7 @@ async function roomPagePhotos(rooms, budgetMs, listUrl) {
       const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 9000);
       const r = await fetch(it.url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow", signal: ctl.signal });
       clearTimeout(tm);
-      C().tried.push({ url: it.url, via: "room-page", status: r.status });
+      TRIED.push({ url: it.url, via: "room-page", status: r.status });
       if (r.ok) { it.ok = true; it.photos = pagePhotos(await r.text(), r.url); } else it.status = r.status;
     } catch (e) { it.error = String(e && e.message || e).slice(0, 80); }
   };
@@ -241,8 +193,8 @@ async function roomPagePhotos(rooms, budgetMs, listUrl) {
       const sess = await sessionPage();
       await sess.page.goto(it.url, { waitUntil: "domcontentloaded", timeout: 12000 });
       it.ok = true; it.photos = pagePhotos(await sess.page.content(), sess.page.url());
-      C().tried.push({ url: it.url, via: "room-page:browser" });
-    } catch (e) { C().tried.push({ url: it.url, via: "room-page:browser", error: String(e && e.message || e).slice(0, 80) }); }
+      TRIED.push({ url: it.url, via: "room-page:browser" });
+    } catch (e) { TRIED.push({ url: it.url, via: "room-page:browser", error: String(e && e.message || e).slice(0, 80) }); }
   }
   // A picture on more than one room's page is the site's own furniture — the header, the
   // "other rooms" carousel, the footer — not this room. A room's photographs are the ones only its
@@ -257,8 +209,9 @@ async function roomPagePhotos(rooms, budgetMs, listUrl) {
     return { ...r, images: own, photoChecked: PHOTO_PASS };
   });
 }
+const IMAGES = [];
 function distill(html, base) {
-  C().images.length = 0;
+  IMAGES.length = 0;
   let h = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<!--[\s\S]*?-->/g, " ").replace(/<svg[\s\S]*?<\/svg>/gi, " ").replace(/<noscript>/gi, "").replace(/<\/noscript>/gi, "");
   // A PICTURE IS ITS BEST REAL ADDRESS (M1043). Lazy pages put a placeholder in src
   // (data:image/gif…, a 1-pixel blank) and the real photograph in data-src / data-srcset / srcset,
@@ -290,8 +243,8 @@ function distill(html, base) {
     if (!u || /^data:/.test(u)) return " ";
     u = abs(base, u.replace(/&amp;/gi, "&")); if (!u) return " ";
     if (/\.svg(\?|$)|\/icons?\/|logo|sprite|pixel|tracking/i.test(u)) return " ";
-    C().images.push(u);
-    return ` [IMG#${C().images.length}${alt && alt[1] ? " | " + alt[1].trim() : ""}] `;
+    IMAGES.push(u);
+    return ` [IMG#${IMAGES.length}${alt && alt[1] ? " | " + alt[1].trim() : ""}] `;
   });
   h = h.replace(/<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>/gi, (tag, href) => { const u = abs(base, href); return u ? ` [LINK ${u}] ` : " "; });
   h = h.replace(/<(?:br|\/p|\/div|\/li|\/h[1-6]|\/tr|\/section|\/article)\b[^>]*>/gi, "\n").replace(/<[^>]+>/g, " ");
@@ -364,20 +317,20 @@ async function findRoomsPage(site) {
         // M1020: on a site that refuses plain requests, a browser read is spent only on an address
         // that looks like a rooms LIST (not a single room's page), and a 404 refunds it.
         const listLike = !/\/(?:guest_rooms|rooms-suites|accommodations?|suites)\/[^/?#]+\/?$/i.test(new URL(u).pathname) || /\/(?:accommodations?|rooms(?:-and-suites|-suites)?|suites|stay|villas)\/?$/i.test(new URL(u).pathname);
-        if (!listLike) { C().tried.push({ url: u, skipped: "a single room's page" }); return null; }
-        if (browserReads < 3 && Date.now() - T0 < 35000) { browserReads++; got = await getWithBrowser(u); if (!got && C().tried.length && C().tried[C().tried.length - 1].url === u && C().tried[C().tried.length - 1].status === 404) browserReads--; }
-        else { C().tried.push({ url: u, skipped: "browser budget spent" }); return null; }
+        if (!listLike) { TRIED.push({ url: u, skipped: "a single room's page" }); return null; }
+        if (browserReads < 3 && Date.now() - T0 < 35000) { browserReads++; got = await getWithBrowser(u); if (!got && TRIED.length && TRIED[TRIED.length - 1].url === u && TRIED[TRIED.length - 1].status === 404) browserReads--; }
+        else { TRIED.push({ url: u, skipped: "browser budget spent" }); return null; }
       }
-      else { got = await get(u); if (!got && C().tried.length && C().tried[C().tried.length - 1].url === u && C().tried[C().tried.length - 1].status === 403) { refusesFetch = true; if (browserReads < 3) { browserReads++; got = await getWithBrowser(u); } } }
+      else { got = await get(u); if (!got && TRIED.length && TRIED[TRIED.length - 1].url === u && TRIED[TRIED.length - 1].status === 403) { refusesFetch = true; if (browserReads < 3) { browserReads++; got = await getWithBrowser(u); } } }
       if (got && looksLikeRooms(got, u)) return got;
       if (got && fromMenu && hollow(got) && !/^browser/.test(got.via || "") && browserReads < 2 && Date.now() - T0 < 30000) {
         browserReads++;
-        C().tried.push({ url: u, note: "menu page arrived hollow — opening in the browser" });
+        TRIED.push({ url: u, note: "menu page arrived hollow — opening in the browser" });
         const again = await getWithBrowser(u);
         if (again && looksLikeRooms(again, u)) return again;
         got = again || got;
       }
-      C().tried.push({ url: u, verdict: got ? "not a rooms page" : "no page" });
+      TRIED.push({ url: u, verdict: got ? "not a rooms page" : "no page" });
     } catch (e) {}
     return null;
   };
@@ -405,7 +358,7 @@ async function findRoomsPage(site) {
     const parents = {}; for (const u of ranked) { try { const x = new URL(u); const segs = x.pathname.replace(/\/+$/, "").split("/"); if (segs.length > 2) { const p = x.origin + segs.slice(0, -1).join("/"); parents[p] = (parents[p] || 0) + 1; } } catch (e) {} }
     const lists = Object.keys(parents).filter((p) => parents[p] >= 2 && /room|suite|accommodation|stay|villa|residence/i.test(p)).sort((a, b) => parents[b] - parents[a]);
     ranked = [...lists, ...ranked.filter((u) => !lists.includes(u))];
-    C().tried.push({ note: "menu candidates", ownPath: ownPath || null, candidates: ranked.slice(0, 8) });
+    TRIED.push({ note: "menu candidates", ownPath: ownPath || null, candidates: ranked.slice(0, 8) });
     // M1021: the menu's own LIST page (a parent of several room pages) goes first — the menu knows;
     // guessed addresses are the fallback and stop after two misses. (Hotel Eden: /accommodations/
     // 404 twice, then the clock ran out on /rooms-suites, which was right there at the top.)
@@ -413,7 +366,7 @@ async function findRoomsPage(site) {
     for (const u of menuLists.slice(0, 2)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 40000) break; }
     if (refusesFetch) {
       let misses = 0;
-      for (const p of ["/accommodations/", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay"]) { const before = C().tried.length; const got = await attempt(root + p, false); if (got) return got; if (C().tried.slice(before).some((x) => x.status === 404 || x.verdict === "no page")) misses++; if (misses >= 2 || browserReads >= 3 || Date.now() - T0 > 35000) break; }
+      for (const p of ["/accommodations/", "/rooms-suites", "/rooms-and-suites", "/rooms", "/accommodation", "/stay"]) { const before = TRIED.length; const got = await attempt(root + p, false); if (got) return got; if (TRIED.slice(before).some((x) => x.status === 404 || x.verdict === "no page")) misses++; if (misses >= 2 || browserReads >= 3 || Date.now() - T0 > 35000) break; }
     }
     for (const u of ranked.slice(0, 6)) { const got = await attempt(u.split("#")[0], true); if (got) return got; if (Date.now() - T0 > 60000) break; }
   }
@@ -436,10 +389,7 @@ async function findRoomsPage(site) {
 // (Vercel's waitUntil; the rooms function has 90 s), the result lands in the store, and the card,
 // which polls every few seconds on "reading", picks it up. The client never sees a timeout.
 import { waitUntil } from "@vercel/functions";
-export default function handler(req, res) {
-  return ALS.run({ tried: [], images: [], session: null, log: [] }, () => handleOne(req, res));
-}
-async function handleOne(req, res) {
+export default async function handler(req, res) {
   let sent = false; const json = res.json.bind(res); res.json = (b) => { if (sent) return res; sent = true; return json(b); };
   // FINISHING IN THE BACKGROUND MUST NOT TOUCH THE ANSWER ALREADY SENT (M1041, 2 Nov 2026). After the
   // 45-second "still reading" answer, the background read went on to set a header for its own answer —
@@ -451,15 +401,15 @@ async function handleOne(req, res) {
   const status = res.status.bind(res); res.status = (c) => { if (sent || res.headersSent) return res; return status(c); };
   const timer = new Promise((r) => setTimeout(r, 45000, "timeout"));
   let outcome = "done";
-  C().log.length = 0;
+  STORE_LOG.length = 0;
   const site = String((req.query || {}).site || "").slice(0, 300).trim();
   const job = work(req, res).then(() => "done").catch(async (e) => { const msg = "error:" + String(e && e.message || e).slice(0, 300); try { await noteFailure(site, msg); } catch (x) {} return msg; });
   try { outcome = await Promise.race([job, timer]); } catch (e) { outcome = "error:" + String(e && e.message || e).slice(0, 200); }
   if (outcome !== "timeout") await closeSession();
   if (!sent) {
     res.setHeader("Cache-Control", "no-store");
-    if (outcome === "timeout") { try { waitUntil(job); } catch (e) {} res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", store: C().log.slice(-6), tried: C().tried.slice(-40) }); }
-    else res.status(200).json({ ok: false, reason: "error", detail: outcome, tried: C().tried.slice(-40) });
+    if (outcome === "timeout") { try { waitUntil(job); } catch (e) {} res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", store: STORE_LOG.slice(-6), tried: TRIED.slice(-40) }); }
+    else res.status(200).json({ ok: false, reason: "error", detail: outcome, tried: TRIED.slice(-40) });
   }
 }
 // THE ROOMS STORE (M1019). Vercel's cache is wiped by every deploy, so the first open of every
@@ -483,12 +433,12 @@ function siteKey(site) {
 const STORE_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
 const STORE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 const FRESH_MS = 30 * 86400000;
-const STORE_TRUST_FROM = "2026-11-03T23:30:00Z";   // 3 Nov 2026 (photos by room name, and before that each request its own notebook): lists read before each request had its own notebook may hold another hotel's photographs — every hotel is read afresh once. Step this forward whenever the reader's results change.
+const STORE_TRUST_FROM = "2026-10-27T22:00:00Z";   // entries older than this were written by readers before M1020–M1025; step this forward whenever the reader's results change
 async function storeRead(site) {
   if (!STORE_URL || !STORE_KEY) return null;
   try {
     const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?site=eq.${encodeURIComponent(siteKey(site))}&select=hotel,source,booking,rooms,fetched_at`, { headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}` } });
-    C().log.push({ store: "read", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
+    STORE_LOG.push({ store: "read", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
     if (!r.ok) return null;
     const rows = await r.json(); const row = rows && rows[0];
     if (!row || !Array.isArray(row.rooms) || !row.rooms.length) return null;
@@ -508,14 +458,15 @@ async function storeRead(site) {
   } catch (e) { return null; }
 }
 const READING = {};   // site → started-at (this instance); the store carries a marker for other instances
+const STORE_LOG = [];
 async function markReading(site, hotel) {
   READING[site] = Date.now();
-  if (!STORE_URL || !STORE_KEY) { C().log.push({ store: "off", url: !!STORE_URL, key: !!STORE_KEY }); return; }
-  try { const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); C().log.push({ store: "mark", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) }); } catch (e) { C().log.push({ store: "mark", error: String(e && e.message || e).slice(0, 120) }); }
+  if (!STORE_URL || !STORE_KEY) { STORE_LOG.push({ store: "off", url: !!STORE_URL, key: !!STORE_KEY }); return; }
+  try { const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel, source: "reading", booking: null, rooms: [{ reading: true }], fetched_at: new Date().toISOString() }) }); STORE_LOG.push({ store: "mark", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) }); } catch (e) { STORE_LOG.push({ store: "mark", error: String(e && e.message || e).slice(0, 120) }); }
 }
 async function noteFailure(site, msg) {
   if (!STORE_URL || !STORE_KEY || !site) return;
-  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel: "", source: "failed", booking: null, rooms: [{ failed: msg, log: C().log.slice(-6), tried: C().tried.slice(-12) }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
+  try { await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel: "", source: "failed", booking: null, rooms: [{ failed: msg, log: STORE_LOG.slice(-6), tried: TRIED.slice(-12) }], fetched_at: new Date().toISOString() }) }); } catch (e) {}
 }
 async function clearReading(site) {
   delete READING[site];
@@ -526,9 +477,9 @@ async function storeWrite(site, hotel, source, booking, rooms) {
   if (!STORE_URL || !STORE_KEY) return false;
   try {
     const r = await fetch(`${STORE_URL}/rest/v1/hotel_rooms?on_conflict=site`, { method: "POST", headers: { apikey: STORE_KEY, Authorization: `Bearer ${STORE_KEY}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ site: siteKey(site), hotel, source, booking, rooms, fetched_at: new Date().toISOString() }) });
-    C().log.push({ store: "write", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
+    STORE_LOG.push({ store: "write", status: r.status, body: r.ok ? undefined : (await r.text()).slice(0, 200) });
     return r.ok;
-  } catch (e) { C().log.push({ store: "write", error: String(e && e.message || e).slice(0, 120) }); return false; }
+  } catch (e) { STORE_LOG.push({ store: "write", error: String(e && e.message || e).slice(0, 120) }); return false; }
 }
 async function work(req, res) {
   const T0 = Date.now();
@@ -536,7 +487,7 @@ async function work(req, res) {
   const key = process.env.ANTHROPIC_API_KEY;
   res.setHeader("Cache-Control", "no-store");
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
-  C().tried.length = 0;
+  TRIED.length = 0;
   const debug = String(req.query.debug || "") === "1";
   const hotel = String(req.query.hotel || "").slice(0, 120).trim();
   const site = String(req.query.site || "").slice(0, 300).trim();
@@ -558,7 +509,7 @@ async function work(req, res) {
         via = "store+room-pages";
       }
       res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
-      return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms, via, tried: debug ? C().tried : undefined });
+      return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms, via, tried: debug ? TRIED : undefined });
     }
   }
   await markReading(site, hotel);
@@ -569,10 +520,10 @@ async function work(req, res) {
   // never sees them. If the page we hold shows few room signals, open it in the browser.
   const roomSignals = (html) => { const t = String(html || "").replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " "); return (t.match(/\b\d{2,4}\s?(?:m²|m2|sq\.?\s?m|sq\.?\s?ft)/gi) || []).length + (t.match(/\b(king|queen|twin|double)\s+bed/gi) || []).length; };
   if (page && !/^browser/.test(page.via || "") && roomSignals(page.html) < 2) {
-    C().tried.push({ url: page.url, note: "hollow — reading again in the browser", signals: roomSignals(page.html) });
+    TRIED.push({ url: page.url, note: "hollow — reading again in the browser", signals: roomSignals(page.html) });
     try { const again = await getWithBrowser(page.url); if (again && roomSignals(again.html) > roomSignals(page.html)) page = again; } catch (e) {}
   }
-  if (!page) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: C().tried }); }
+  if (!page) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "unreachable", hotel, site, node: process.version, hostedBrowser: !!(process.env.BROWSERLESS_TOKEN || "").trim(), tokenLength: (process.env.BROWSERLESS_TOKEN || "").trim().length, tried: TRIED }); }
   await closeSession();   // M1025: the browser is not needed past this point
   // The hotel's own "Check Rates" link, from the page we already hold, so the rates reader need
   // not open the site again to find it (M985). Prefer the link that names the hotel.
@@ -597,7 +548,7 @@ async function work(req, res) {
     for (let i = 0; i + span <= n; i++) { const s = score.slice(i, i + span).reduce((a, b) => a + b, 0); if (s > bestSum) { bestSum = s; best = i; } }
     return whole.slice(best * W, best * W + 45000);
   })();
-  if (text.length < 300) { await clearReading(site); return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? C().tried : undefined }); }
+  if (text.length < 300) { await clearReading(site); return res.status(200).json({ ok: false, reason: "empty", hotel, source: page.url, tried: debug ? TRIED : undefined }); }
 
   const prompt = `Below is the text of a hotel's own website page, with its images shown as [IMG#n | alt] (n is the image number) and links as [LINK url]. The hotel is "${hotel}". Extract the hotel's ROOM AND SUITE CATEGORIES exactly as the hotel names them.
 
@@ -633,20 +584,19 @@ ${text}`;
       while ((m = re.exec(out))) { try { objs.push(JSON.parse(m[0])); } catch (e) {} }
       parsed = objs.length ? { rooms: objs, truncated: true } : null;
     }
-    if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url, textLength: text.length, tried: debug ? C().tried : undefined, answer: debug ? out.slice(0, 1500) : undefined, sample: debug ? text.slice(0, 2000) : undefined });
+    if (!parsed || !Array.isArray(parsed.rooms)) return res.status(200).json({ ok: false, reason: "unreadable", hotel, source: page.url, textLength: text.length, tried: debug ? TRIED : undefined, answer: debug ? out.slice(0, 1500) : undefined, sample: debug ? text.slice(0, 2000) : undefined });
     const S = (v, n = 300) => (v == null || v === "" ? null : unGarble(String(v)).trim().slice(0, n));
     const rooms = parsed.rooms.filter((x) => x && x.name).slice(0, 40).map((x) => ({
       name: S(x.name, 120), category: S(x.category, 80), size: S(x.size, 80), beds: S(x.beds, 120), occupancy: S(x.occupancy, 120), view: S(x.view, 120), description: S(x.description, 600),
-      images: (Array.isArray(x.images) ? x.images : []).map(cleanUrl).map((v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10); return n >= 1 && n <= C().images.length ? C().images[n - 1] : (typeof v === "string" && /^https?:\/\//.test(v) ? v : null); }).filter(Boolean).slice(0, 2),
+      images: (Array.isArray(x.images) ? x.images : []).map(cleanUrl).map((v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10); return n >= 1 && n <= IMAGES.length ? IMAGES[n - 1] : (typeof v === "string" && /^https?:\/\//.test(v) ? v : null); }).filter(Boolean).slice(0, 2),
       url: typeof x.url === "string" && /^https?:\/\//.test(x.url) ? x.url : null,
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
-    if (!rooms.length) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? C().tried : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
+    if (!rooms.length) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
     // THE READ IS KEPT FIRST (3 Nov 2026). A long read (Belmond, through the browser) plus the room
     // pages ran past the function's 90 seconds and was cut off before anything was saved — so the
     // card asked forever and was told "still reading". The rooms are saved the moment they are read;
     // the photo pass then uses only the time left, and saves again if it changed anything.
-    if (rooms.some((r) => !r.images || !r.images.length)) { const by = photosByName(page.html, rooms); rooms.splice(0, rooms.length, ...by.rooms); C().tried.push({ note: "photos by room name", rooms: by.found }); }
     let stored = await storeWrite(site, hotel, page.url, booking, rooms);
     const left = 80000 - (Date.now() - T0);
     if (left > 8000) {
@@ -655,7 +605,7 @@ ${text}`;
       rooms.splice(0, rooms.length, ...checked);
       stored = (await storeWrite(site, hotel, page.url, booking, rooms)) || stored;
     }
-    return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? C().tried : undefined });
+    return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
     await noteFailure(site, "model:" + String(e && e.message || e).slice(0, 300));
     return res.status(200).json({ ok: false, reason: "fetch", detail: String(e && e.message || e).slice(0, 200) });
