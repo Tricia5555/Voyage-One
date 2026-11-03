@@ -127,6 +127,60 @@ function unGarble(v) {
 // here for new reads and for rooms already in the store. Universal.
 const cleanUrl = (u) => (typeof u === "string" ? u.replace(/&amp;/gi, "&") : u);
 const unGarbleRoom = (r) => (r && typeof r === "object" ? Object.fromEntries(Object.entries(r).map(([k, x]) => [k, k === "images" && Array.isArray(x) ? x.map(cleanUrl) : Array.isArray(x) ? x : k === "url" ? cleanUrl(x) : unGarble(x)])) : r);
+
+// EACH ROOM'S PHOTO FROM ITS OWN PAGE (3 Nov 2026). On a list page the reader can only guess which
+// picture sits nearest which name, and it guessed wrong: Mandarin Oriental Ritz Madrid's
+// Two-Bedroom Presidential Suite came back with a photograph of a train compartment, and most rooms
+// with none. Almost every brand site gives each room its own page, and that page names its own
+// photograph for sharing (og:image / twitter:image) — the hotel's own choice of picture for that
+// room. Whenever a room has its own page, that photograph replaces the guess. A picture that every
+// room page shares is the site's general image, not the room's, and is ignored. A room whose page
+// gives no photograph keeps no guessed photograph either: a blank tile is honest, a wrong picture
+// is not. Universal — every hotel whose rooms have their own pages. Each room carries
+// photoChecked once this has run, so it runs once per stored hotel.
+function pagePhoto(html, base) {
+  const metas = html.match(/<meta\b[^>]*>/gi) || [];
+  for (const want of ["og:image:secure_url", "og:image", "twitter:image", "twitter:image:src"]) {
+    for (const m of metas) {
+      const k = /\b(?:property|name)\s*=\s*["']([^"']+)["']/i.exec(m); const c = /\bcontent\s*=\s*["']([^"']+)["']/i.exec(m);
+      if (k && c && k[1].toLowerCase() === want) { const u = abs(base, cleanUrl(c[1].trim())); if (u && !/\.svg(\?|$)|logo|sprite|placeholder|default[-_]?(?:share|og)/i.test(u)) return u; }
+    }
+  }
+  return null;
+}
+async function roomPagePhotos(rooms, budgetMs) {
+  const until = Date.now() + budgetMs;
+  const list = rooms.map((r) => ({ r, url: r && typeof r.url === "string" && /^https?:\/\//.test(r.url) ? r.url : null, photo: null, ok: false }));
+  const plain = async (it) => {
+    try {
+      const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 9000);
+      const r = await fetch(it.url, { headers: { "User-Agent": UA, "Accept": "text/html,application/xhtml+xml", "Accept-Language": "en-US,en;q=0.9" }, redirect: "follow", signal: ctl.signal });
+      clearTimeout(tm);
+      TRIED.push({ url: it.url, via: "room-page", status: r.status });
+      if (r.ok) { it.ok = true; it.photo = pagePhoto(await r.text(), r.url); } else it.status = r.status;
+    } catch (e) { it.error = String(e && e.message || e).slice(0, 80); }
+  };
+  const todo = list.filter((it) => it.url);
+  for (let i = 0; i < todo.length; i += 6) await Promise.all(todo.slice(i, i + 6).map(plain));
+  // A site that refuses plain requests: the same pages in the one browser session, while time allows.
+  for (const it of todo) {
+    if (it.ok || Date.now() > until - 6000) continue;
+    try {
+      const sess = await sessionPage();
+      await sess.page.goto(it.url, { waitUntil: "domcontentloaded", timeout: 12000 });
+      it.ok = true; it.photo = pagePhoto(await sess.page.content(), sess.page.url());
+      TRIED.push({ url: it.url, via: "room-page:browser" });
+    } catch (e) { TRIED.push({ url: it.url, via: "room-page:browser", error: String(e && e.message || e).slice(0, 80) }); }
+  }
+  const counts = {}; list.forEach((it) => { if (it.photo) counts[it.photo] = (counts[it.photo] || 0) + 1; });
+  const read = list.filter((it) => it.ok).length;
+  return list.map((it) => {
+    const r = it.r; if (!r || !it.url) return r;
+    if (!it.ok) return { ...r, photoTried: Date.now() };      // page not reached: left as it was, tried again after a day
+    const shared = it.photo && read > 2 && counts[it.photo] > 1;
+    return { ...r, images: it.photo && !shared ? [it.photo] : [], photoChecked: true };
+  });
+}
 const IMAGES = [];
 function distill(html, base) {
   IMAGES.length = 0;
@@ -412,7 +466,18 @@ async function work(req, res) {
     const kept = await storeRead(site);
     if (kept && kept.failed) { await clearReading(site); if (debug) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "last-read-failed", at: kept.at, failed: kept.failed, note: "the note is cleared; this request is reading afresh — run again" }); } }
     if (kept && kept.reading) { res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "reading", detail: "still reading the hotel's site — ask again in a few seconds", via: "store" }); }
-    if (kept) { res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800"); return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms: Array.isArray(kept.rooms) ? kept.rooms.map(unGarbleRoom) : kept.rooms, via: "store" }); }
+    if (kept) {
+      let rooms = Array.isArray(kept.rooms) ? kept.rooms.map(unGarbleRoom) : kept.rooms;
+      let via = "store";
+      if (Array.isArray(rooms) && rooms.some((x) => x && x.url && !x.photoChecked && !(x.photoTried > Date.now() - 864e5))) {
+        rooms = await roomPagePhotos(rooms, 30000);
+        await closeSession();
+        await storeWrite(site, kept.hotel || hotel, kept.source, kept.booking || null, rooms);
+        via = "store+room-pages";
+      }
+      res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
+      return res.status(200).json({ ok: true, hotel: kept.hotel || hotel, source: kept.source, booking: kept.booking || null, fetched: kept.fetched_at, rooms, via, tried: debug ? TRIED : undefined });
+    }
   }
   await markReading(site, hotel);
   let page = null;
@@ -495,6 +560,9 @@ ${text}`;
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
     if (!rooms.length) { await clearReading(site); res.setHeader("Cache-Control", "no-store"); return res.status(200).json({ ok: false, reason: "no-rooms-found", hotel, source: page.url, tried: debug ? TRIED : undefined, sample: debug ? text.slice(0, 2000) : undefined }); }
+    const checked = await roomPagePhotos(rooms, 25000);
+    await closeSession();
+    rooms.splice(0, rooms.length, ...checked);
     const stored = await storeWrite(site, hotel, page.url, booking, rooms);
     return res.status(200).json({ ok: true, hotel, source: page.url, booking, stored, fetched: new Date().toISOString(), rooms, truncated: parsed.truncated ? true : undefined, tried: debug ? TRIED : undefined });
   } catch (e) {
