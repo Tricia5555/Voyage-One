@@ -122,7 +122,11 @@ function unGarble(v) {
   }
   try { return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bytes)); } catch (e) { return v; }
 }
-const unGarbleRoom = (r) => (r && typeof r === "object" ? Object.fromEntries(Object.entries(r).map(([k, x]) => [k, Array.isArray(x) ? x : unGarble(x)])) : r);
+// A PHOTO ADDRESS IS A REAL ADDRESS (3 Nov 2026). Mandarin's pages write "&amp;" inside image addresses
+// (…cover=624x300&amp;quality=75); passed on as written, every photograph failed to load. Decoded
+// here for new reads and for rooms already in the store. Universal.
+const cleanUrl = (u) => (typeof u === "string" ? u.replace(/&amp;/gi, "&") : u);
+const unGarbleRoom = (r) => (r && typeof r === "object" ? Object.fromEntries(Object.entries(r).map(([k, x]) => [k, k === "images" && Array.isArray(x) ? x.map(cleanUrl) : Array.isArray(x) ? x : k === "url" ? cleanUrl(x) : unGarble(x)])) : r);
 const IMAGES = [];
 function distill(html, base) {
   IMAGES.length = 0;
@@ -155,7 +159,7 @@ function distill(html, base) {
     const alt = /\balt\s*=\s*["']([^"']*)["']/i.exec(tag);
     let u = realOf(tag);
     if (!u || /^data:/.test(u)) return " ";
-    u = abs(base, u); if (!u) return " ";
+    u = abs(base, u.replace(/&amp;/gi, "&")); if (!u) return " ";
     if (/\.svg(\?|$)|\/icons?\/|logo|sprite|pixel|tracking/i.test(u)) return " ";
     IMAGES.push(u);
     return ` [IMG#${IMAGES.length}${alt && alt[1] ? " | " + alt[1].trim() : ""}] `;
@@ -481,7 +485,7 @@ ${text}`;
     const S = (v, n = 300) => (v == null || v === "" ? null : unGarble(String(v)).trim().slice(0, n));
     const rooms = parsed.rooms.filter((x) => x && x.name).slice(0, 40).map((x) => ({
       name: S(x.name, 120), category: S(x.category, 80), size: S(x.size, 80), beds: S(x.beds, 120), occupancy: S(x.occupancy, 120), view: S(x.view, 120), description: S(x.description, 600),
-      images: (Array.isArray(x.images) ? x.images : []).map((v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10); return n >= 1 && n <= IMAGES.length ? IMAGES[n - 1] : (typeof v === "string" && /^https?:\/\//.test(v) ? v : null); }).filter(Boolean).slice(0, 2),
+      images: (Array.isArray(x.images) ? x.images : []).map(cleanUrl).map((v) => { const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10); return n >= 1 && n <= IMAGES.length ? IMAGES[n - 1] : (typeof v === "string" && /^https?:\/\//.test(v) ? v : null); }).filter(Boolean).slice(0, 2),
       url: typeof x.url === "string" && /^https?:\/\//.test(x.url) ? x.url : null,
     }));
     res.setHeader("Cache-Control", "public, s-maxage=2592000, stale-while-revalidate=604800");
