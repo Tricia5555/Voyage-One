@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1045";
+const BUILD = "M1047";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -12270,12 +12270,16 @@ const SPORTS = {
   "Palermo": [["Sail out of Mondello", 480, "The bay, the cliffs and a swim off the boat."], ["Dive the Capo Gallo reserve", 140, "Clear water and walls, twenty minutes from town."], ["Fishing with a Sferracavallo crew", 260, "Out with the boats that supply the markets."]],
   "New York City": [["John McEnroe Tennis Academy", 120, "Play at John McEnroe's academy at SPORTIME on Randall's Island.", { find: "John McEnroe Tennis Academy SPORTIME Randall's Island" }], ["USTA Billie Jean King Tennis Center", 90, "Hit where the US Open is played, in Flushing Meadows.", { find: "USTA Billie Jean King National Tennis Center" }], ["Padel Haus (Williamsburg)", 70, "The Brooklyn club that brought padel to the city.", { find: "Padel Haus Williamsburg Brooklyn" }]],
   "Évora": [["Horse riding in the Alentejo", 100, "Lusitanos, cork oaks and long empty country."]],
-  "Mallorca": [["Cycle the Tramuntana", 140, "The climbs the professionals use for winter training."], ["Golf at Son Gual", 200, "The island's best-regarded modern course."], ["Sail the west coast", 620, "Out of Port d'Andratx to the coves."]],
+  // RAFA NADAL IS SPORT IN MALLORCA (Tricia, M1046, 3 Nov 2026): his academy in Manacor, his home town,
+  // leads the island's sport — adult programmes from a single day's training to a full week.
+  "Mallorca": [["Train at the Rafa Nadal Academy, Manacor", null, "Rafa's own academy in his home town — adult tennis programmes from a day's training to a full week, on the courts and the method that made him. The Rafa Nadal Museum Xperience is on the same campus.", { find: "Rafa Nadal Academy Manacor", book: "https://rafanadalacademy.com/en/" }], ["Cycle the Tramuntana", 140, "The climbs the professionals use for winter training."], ["Golf at Son Gual", 200, "The island's best-regarded modern course."], ["Sail the west coast", 620, "Out of Port d'Andratx to the coves."]],
   "Santorini": [["Sail the caldera", 480, "Catamaran to the hot springs and Red Beach, sunset return."], ["Dive the caldera wall", 150, "Volcanic rock, straight down into blue."]],
   "Mykonos": [["Windsurf at Kalafatis", 90, "The reliable Meltemi wind, boards and lessons."], ["Sail to Delos and Rhenia", 520, "The sacred island, then a swim off Rhenia."]],
   "Barcelona": [["Padel in Barcelona", 50, "Indoor courts in the middle of the city.", { find: "padel club" }], ["Sail the Mediterranean at sunset", 130, "Two hours out of Port Vell."]],
 };
-function sportsFor(city) { if (!city) return []; const k = Object.keys(SPORTS).find((x) => x.toLowerCase() === bareCity(city).toLowerCase()); return k ? SPORTS[k] : []; }
+// Found the way every other city list is found (M1046): "Mallorca, Spain", "Palma" and "Mallorca" are one
+// place. An exact-name match missed "Mallorca, Spain", and the island's whole Sport panel vanished.
+function sportsFor(city) { if (!city) return []; const r = lookup(SPORTS, city); return Array.isArray(r) ? r : []; }
 const DAYTRIPS = {
   "Amalfi Coast": [
     ["Capri for the day", "Ferry · ~40 min each way", "The Blue Grotto, the piazzetta and Monte Solaro — back before dinner.", 190, "Capri"],
@@ -14097,11 +14101,12 @@ const fmtIn = (n, cur) => !cur || cur === "USD" || cur === "$" ? fmt(n) : `${Str
 // Order now: a price for the room the client chose; otherwise the hotel's own lowest rate for
 // these exact nights, converted at the day's rate; only then our guide, marked as an estimate.
 // Universal — every hotel whose own site gives a "from" price.
+const HOTEL_FROM_LIVE = false;   // M1047: no longer read on the card; a price saved earlier would go stale in the total
 function stayPrice(st, nights) {
   if (!st) return { price: null, est: false };
   const roomPriced = st.room && st.room.plan && st.room.plan.perNight && st.nightly != null && !isNaN(st.nightly);
   const hf = st.hotelFrom;
-  if (!roomPriced && hf && hf.total && hf.nights === nights) {
+  if (HOTEL_FROM_LIVE && !roomPriced && hf && hf.total && hf.nights === nights) {
     const usd = toUSD(hf.total, hf.currency);
     if (usd != null) return { price: usd, est: false, hotelFrom: true, converted: hf.currency && String(hf.currency).toUpperCase() !== "USD" ? { total: hf.total, currency: hf.currency, date: FX.date } : null };
   }
@@ -22928,8 +22933,8 @@ function ReserveSheet({ s, city, site, onClose, prefill, onRequested }) {
           {field("Depart", <input type="date" value={f.checkOut} min={f.checkIn || undefined} onChange={set("checkOut")} style={inp} />)}
           {field("Guests", <input type="number" min="1" max="12" value={f.guests} onChange={set("guests")} inputMode="numeric" style={inp} />)}
         </div>
-        {field("Room or suite", <input value={f.room} onChange={set("room")} placeholder="Choose a room on the card, or name one" style={inp} />)}
-        {field("Rate and offer", <input value={f.offer} onChange={set("offer")} placeholder="As shown beside the room, or one you would like us to ask for" style={inp} />)}
+        {field("Room or suite", <input value={f.room} onChange={set("room")} placeholder="The room or suite you chose on the hotel's site" style={inp} />)}
+        {field("Rate and offer", <input value={f.offer} onChange={set("offer")} placeholder="The rate you saw, e.g. EUR 1,250 a night, breakfast included" style={inp} />)}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {field("First name", <input value={f.first} onChange={set("first")} autoComplete="given-name" style={inp} />)}
           {field("Last name", <input value={f.last} onChange={set("last")} autoComplete="family-name" style={inp} />)}
@@ -23290,12 +23295,12 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
   const [roomsStatus, setRoomsStatus] = useState("loading"); // "loading" until the picker reports — the rooms go first
   const roomChosen = room || localRoom;
   const reserveBox = useRef(null);
-  const barWanted = !!(sel && roomChosen && roomChosen.name && !requested && !reserve && !isUpcoming(s));
+  const barWanted = false;   // M1047: the bar followed a room chosen on the card; it also showed on the wrong leg
   const boxOnScreen = useOnScreen(reserveBox, barWanted);
   const chooseRoom = (r, pl) => { const v = r ? { ...r, plan: pl && !pl.soldOut ? { plan: pl.plan, price: pl.price, currency: pl.currency, perNight: !!pl.perNight, cancel: pl.cancel || null } : null } : null; setLocalRoom(v); if (onRoom) onRoom(v); };
   const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
   const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
-  useEffect(() => { if (!sel && site && !isUpcoming(s)) warmRooms(s.name, site); }, [site, sel]);
+  // M1047: rooms are no longer read in advance — the client sees them on the hotel's own site.
   const rating = null;   // Google crowd rating — deliberately not shown. See note above.
   const tier = tierProp || tierOf(s.name);
   const showImg = photo && bad !== photo;
@@ -23330,22 +23335,28 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
     </div>
     {sel ? (<div style={{ flexBasis: "100%", padding: "0 16px 16px", borderTop: `1px solid ${t.line}` }}>
-      {!isUpcoming(s) && site ? <RoomPicker hotel={s.name} site={site} chosen={roomChosen} onChoose={chooseRoom} stayDates={stayDates} pax={pax} onStatus={setRoomsStatus} onFrom={onFrom} /> : null}
+      {/* THE HOTEL'S OWN SITE FOR ROOMS (Tricia, M1047, 3 Nov 2026). Reading every hotel group's site for
+          its rooms, photographs and prices did not scale — each brand is its own puzzle and any redesign
+          breaks it. Until rooms and rates come from Sabre, the client sees the rooms where the hotel
+          shows them best, on its own site, chooses there, and comes back to reserve through Voyage One
+          with the room and rate they chose. RoomPicker and api/rooms.js stay in the code, unused here,
+          for the Sabre build. Universal — every hotel. */}
+      {!isUpcoming(s) && site ? (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 12 }}>
+        <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ fontFamily: font.display, fontSize: 20, fontWeight: 700, color: t.pine, textDecoration: "none" }}>See the rooms and suites at {s.name} →</a>
+        <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}>Opens {s.name}'s own site. Choose your room and note its rate, then come back here to reserve it through Voyage One.</div>
+      </div>) : null}
         {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
           : (<div ref={reserveBox} onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "16px 18px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12 }}>
             <div style={{ fontFamily: font.display, fontSize: 22, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>Reserve through Voyage One</div>
             <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE(s.name)}</div>
             {requested ? <div style={{ fontSize: 13.5, color: t.pine, fontWeight: 700, lineHeight: 1.5, marginTop: 10 }}>{RESERVE_WAIT_LINE(s.name)}</div> : null}
             {roomChosen && roomChosen.name ? <div style={{ fontSize: 13.5, color: t.ink, marginTop: 10 }}><span style={{ color: t.inkSoft }}>Your room:</span> <strong>{roomChosen.name}</strong>{roomChosen.plan ? <span> · {fmtRate(roomChosen.plan)}{roomChosen.plan.plan ? ` · ${roomChosen.plan.plan}` : ""}</span> : null}</div> : null}
-            {roomsStatus === "loading"
-              ? <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 12 }}>Choose your room above, then reserve here.</div>
+            {false
+              ? null
               : <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setReserve(true); }} style={{ display: "inline-block", marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 24px", borderRadius: 999, cursor: "pointer" }}>{requested ? "Change the request" : roomChosen && roomChosen.name ? `Reserve the ${roomChosen.name}` : "Reserve it through Voyage One"}</button>}
             {reserve ? <ReserveSheet s={s} city={city} site={site} prefill={{ ...(prefill || {}), room: roomChosen && roomChosen.name ? roomChosen.name : "", offer: roomChosen && roomChosen.plan ? `${roomChosen.plan.plan || "Rate"} · ${fmtRate(roomChosen.plan)}${roomChosen.plan.cancel ? " · " + roomChosen.plan.cancel : ""}` : "" }} onRequested={onRequested} onClose={() => setReserve(false)} /> : null}
             {barWanted && !boxOnScreen ? <ReserveBar hotel={s.name} room={roomChosen} onOpen={() => { setReserve(true); try { reserveBox.current && reserveBox.current.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {} }} /> : null}
           </div>)}
-      {!isUpcoming(s) && site ? (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 14 }}>
-        <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ fontFamily: font.display, fontSize: 19, fontWeight: 700, color: t.pine, textDecoration: "none" }}>Tour {s.name} →</a>
-      </div>) : null}
     </div>) : null}
   </div>);
 }
