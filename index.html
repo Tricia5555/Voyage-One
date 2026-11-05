@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1047";
+const BUILD = "M1048";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -16382,7 +16382,7 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
         <Panel icon={BedDouble} title={`Where to stay in ${bareCity(chosen)}`}>
           <HotelPicker city={chosen} nights={2} pick={pick} upd={upd} fromExperience={false} />
         </Panel>
-        <Panel icon={Utensils} title={`Dining in ${bareCity(chosen)}`}><DinePicker city={chosen} pick={pick} upd={upd} nights={[]} /></Panel>
+        <Panel icon={Utensils} title={`Dining in ${bareCity(chosen)}`}><DinePicker city={chosen} pick={pick} upd={upd} nights={[]} hotel={pick.stay && pick.stay.name} /></Panel>
         <SportsPanel city={chosen} from={null} to={null} />
       </div>
       <div style={{ marginTop: 26, textAlign: "center" }}>
@@ -23768,7 +23768,65 @@ function accoladeBadge(r) {
   if (r.lf) return "Local Favorite";
   return "Recommended";
 }
-function DinePicker({ city, pick, upd, nights, dayLabel }) {
+// ASK THE HOTEL'S CONCIERGE (Tricia, M1048, 5 Nov 2026). For the table the client cannot get on the
+// night they want, and for the one we do not list — new, talked about, not yet in any guide. A good
+// concierge can often secure what no booking site can. The client writes to the concierge
+// themselves: their own e-mail opens with the request written out, addressed to the hotel when we
+// hold its address. Without a hotel chosen, the same box says why choosing one matters. Universal —
+// every city with restaurants, every hotel.
+function favHotel(city, name) {
+  if (!name) return null;
+  const list = [].concat(lookup(FAVORITES, city) || [], typeof nearbyFavs === "function" ? nearbyFavs(city) || [] : []);
+  return list.find((x) => x && dnrm(x.name) === dnrm(name)) || null;
+}
+function ConciergeAsk({ city, hotel }) {
+  const [open, setOpen] = useState(false);
+  const [f, setF] = useState({ place: "", date: "", time: "", party: "2", flex: true });
+  const set = (k) => (e) => setF((x) => ({ ...x, [k]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
+  const h = favHotel(city, hotel);
+  const email = h && ((h.contact && h.contact.email) || h.resEmail) || "";
+  const tel = h && h.contact && h.contact.tel ? h.contact.tel : "";
+  const box = { marginTop: 18, padding: "16px 18px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12 };
+  const head = <div style={{ fontFamily: font.display, fontSize: 20, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>A table you can't get, or one we don't list?</div>;
+  if (!hotel) return (<div style={box}>{head}
+    <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 5 }}>A great hotel's concierge can often secure the tables that are fully booked online, and the new places too young for any guide. Choose your hotel in {bareCity(city || "")} above, and you can ask its concierge from here.</div>
+  </div>);
+  const when = f.date ? new Date(f.date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) : "";
+  const subject = `Restaurant request${f.place.trim() ? `: ${f.place.trim()}` : ""}${when ? `, ${when}` : ""}`;
+  const body = [
+    "Dear Concierge,",
+    "",
+    `I will be staying at ${hotel}, and I would be grateful for your help with a restaurant reservation.`,
+    "",
+    `Restaurant: ${f.place.trim() || "(your recommendation)"}`,
+    when ? `Date: ${when}` : "",
+    f.time.trim() ? `Time: ${f.time.trim()}` : "",
+    `Party: ${f.party || 2}`,
+    "",
+    f.flex ? "If that is not possible, I would welcome your recommendation for something comparable nearby." : "",
+    "",
+    "Thank you very much.",
+  ].filter((x, k, a) => !(x === "" && a[k - 1] === "")).join("\n");
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const lab = { display: "block", fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600, marginBottom: 4 };
+  const inp = { width: "100%", boxSizing: "border-box", font: "inherit", fontSize: 15, padding: "10px 12px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink };
+  return (<div style={box} onClick={(e) => e.stopPropagation()}>{head}
+    <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 5 }}>The concierge at {hotel} can often secure a table that is fully booked online, or one too new to be in any guide. Ask them directly.</div>
+    {!open ? <button type="button" onClick={() => setOpen(true)} style={{ marginTop: 12, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "12px 22px", borderRadius: 999, cursor: "pointer" }}>Ask the concierge at {hotel}</button>
+    : (<div style={{ marginTop: 12 }}>
+      <div style={{ marginBottom: 10 }}><label style={lab}>Restaurant</label><input value={f.place} onChange={set("place")} placeholder="The name, or leave blank for their recommendation" style={inp} /></div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 10, marginBottom: 10 }}>
+        <div><label style={lab}>Date</label><input type="date" value={f.date} onChange={set("date")} style={inp} /></div>
+        <div><label style={lab}>Time</label><input value={f.time} onChange={set("time")} placeholder="e.g. 8:30 pm" style={inp} /></div>
+        <div><label style={lab}>Party</label><input type="number" min="1" value={f.party} onChange={set("party")} style={inp} /></div>
+      </div>
+      <label style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: t.ink, lineHeight: 1.5, marginBottom: 12 }}><input type="checkbox" checked={f.flex} onChange={set("flex")} style={{ marginTop: 3 }} />If it is not possible, ask for their recommendation instead</label>
+      <a href={mailto} style={{ display: "inline-block", background: t.pine, color: t.paper, textDecoration: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "12px 22px", borderRadius: 999 }}>Write to the concierge</a>
+      <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 8 }}>{email ? `Opens your e-mail, addressed to ${hotel}, with the request written out.` : `Opens your e-mail with the request written out. Add the concierge's address from your ${hotel} confirmation.`}{tel ? <> Or call the hotel on <a href={"tel:" + String(tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{tel}</a>.</> : null}</div>
+    </div>)}
+  </div>);
+}
+function DinePicker({ city, pick, upd, nights, dayLabel, hotel }) {
   // WHERE THE LODGE IS THE RESTAURANT, DO NOT OFFER A RESTAURANT PICKER. Showing tabs of tables
   // to a client at Awasi or EOLO invites them to drive an hour each way for something worse than
   // what is already included. Say so once, plainly, and give the screen back.
@@ -23885,6 +23943,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel }) {
           onDate={(dt) => setDate(r.n, level, dt)} onSet={(patch) => setField(r.n, level, patch)} nights={nights} />); })}
     </div> : <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.5 }}>{empty[level] || ""}</div>}
     <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 8, lineHeight: 1.5 }}>Destination = Michelin star · James Beard · World's 50 Best · La Liste 95+ · Gault&Millau 19+ · Recommended = Michelin Bib Gourmand · Michelin Recommended · Local Favorite = our own picks · click thru to book.</div>
+    <ConciergeAsk city={city} hotel={hotel} />
   </>);
 }
 function DateChips({ nights, value, onPick, label }) {
@@ -24380,7 +24439,7 @@ function StopCard({ stop, idx, stops, setStops, prevPlace, sched, setUndo }) {
     {stop.why && <div style={{ fontSize: 12.5, color: t.inkSoft, margin: "6px 6px 0", lineHeight: 1.45 }}>{stop.why}</div>}
     <div style={{ marginTop: 14, padding: "0 6px" }}><Stepper value={s.nights || 1} onChange={(v) => set({ nights: v })} unit="night" max={10} onRemove={remove} removeLabel={`one more minus drops ${stop.name}`} /></div>
     <Panel icon={BedDouble} title={`Where to stay in ${stop.name}`}><HotelPicker city={stop.name} nights={s.nights || 1} pick={{ stay: s.stay }} upd={(patch) => set(patch)} /></Panel>
-    <Panel icon={Utensils} title={`Dining in ${stop.name}`}><DinePicker city={stop.name} pick={{ dines: s.dines || [] }} upd={(patch) => set(patch)} nights={sched ? nightsIn(sched) : []} /></Panel>
+    <Panel icon={Utensils} title={`Dining in ${stop.name}`}><DinePicker city={stop.name} pick={{ dines: s.dines || [] }} upd={(patch) => set(patch)} nights={sched ? nightsIn(sched) : []} hotel={s.stay && s.stay.name} /></Panel>
   </div>);
 }
 function ExploreSection({ d, i, p, from, legSched }) {
@@ -24492,7 +24551,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
         {transferOptions(gwNote.air, baseTown).map((o) => { const sel = pick.transfer && pick.transfer.mode === o.mode; return <OptionRow key={o.mode} selected={sel} onClick={() => upd({ transfer: sel ? null : o })} title={o.mode} desc={o.why} sub="each way, indicative" price={fmt(o.price)} link={o.link} linkLabel={o.linkLabel} />; })}
       </Panel>}
       {baseTown && <GettingAroundPanel city={baseTown} />}
-      {baseTown && <Panel icon={Utensils} title={`Dining in ${baseTown}`}><DinePicker city={baseTown} pick={pick} upd={upd} nights={legSched ? nightsIn(legSched) : []} /></Panel>}
+      {baseTown && <Panel icon={Utensils} title={`Dining in ${baseTown}`}><DinePicker city={baseTown} pick={pick} upd={upd} nights={legSched ? nightsIn(legSched) : []} hotel={pick.stay && pick.stay.name} /></Panel>}
       {baseTown && sportsFor(baseTown).length > 0 && <Panel icon={Trophy} title={`Sport in ${baseTown}`}><ListPicker city={baseTown} rows={sportsFor(baseTown)} chosen={pick.sports || []} onToggle={(name, price, sel) => upd({ sports: sel ? (pick.sports || []).filter((x) => x.name !== name) : [...(pick.sports || []), { name, price, date: "" }] })} nights={legSched ? daysIn(legSched) : []} label="Which day?" onDate={(name, dt) => upd({ sports: (pick.sports || []).map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       {baseTown && outTrips.length > 0 && (<Panel icon={Compass} title={`Days out from ${baseTown}`}>
         <div style={{ fontSize: 13, color: t.inkFaint, marginBottom: 10 }}>Out and back the same day — your room at {pick.stay ? pick.stay.name || baseTown : baseTown} stays yours.</div>
@@ -24502,7 +24561,7 @@ function ExploreSection({ d, i, p, from, legSched }) {
             <OptionRow selected={!!sel} onClick={() => toggleDay(name, price, town, !!sel)} title={name} desc={why} sub={note} price={fmt(price)} />
             {sel && town && lookup(EATS, town) && (<div style={{ margin: "-2px 0 14px 28px", paddingLeft: 14, borderLeft: `1px solid ${t.line}` }}>
               <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, margin: "8px 0 8px" }}>Lunch or dinner in {town} — if you like</div>
-              <DinePicker city={town} pick={{ dines: sel.dines || [] }} upd={(patch) => setDayDines(name, patch.dines)} nights={legSched ? daysIn(legSched) : []} dayLabel="Which day?" />
+              <DinePicker city={town} pick={{ dines: sel.dines || [] }} upd={(patch) => setDayDines(name, patch.dines)} nights={legSched ? daysIn(legSched) : []} dayLabel="Which day?" hotel={pick.stay && pick.stay.name} />
             </div>)}
           </div>);
         })}
@@ -25222,7 +25281,7 @@ function CitySection({ d, i, p, from, legSched }) {
               <strong>{(pick.stay && pick.stay.name) || "Your camp"}</strong> looks after all of it — meals, drinks, guides and the activities that are the reason you are going. There is nothing to book nearby because there is no nearby, and we will confirm exactly what the rate covers before anything is held.
             </div>
           </Panel>
-        : <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} /></Panel>}
+        : <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} hotel={pick.stay && pick.stay.name} /></Panel>}
       {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
       {d.city ? <SportsPanel city={d.city} from={legSched && legSched.arrive ? ymd(legSched.arrive) : null} to={legSched && legSched.depart ? ymd(legSched.depart) : null} /> : null}
       <ThingsPanel city={d.city} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} />
