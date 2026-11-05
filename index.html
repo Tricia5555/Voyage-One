@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1049";
+const BUILD = "M1050";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -22692,7 +22692,7 @@ function PlaceRow({ item, selected, onClick, sub, price }) {
 // the browse list for everyone (double the API calls, every city, every client, to serve a
 // case that only arises when someone has a name in mind), we ask Google for the name itself.
 // One call, only when used. Works for any property in any city; nothing is hard-coded.
-function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
+function FindPlace({ city, kind, onPick, selectedName, selectedNames, nights, label, pickedNote }) {
   const [q, setQ] = useState("");
   const [state, setState] = useState({ loading: false, matches: null, tried: false, failed: false });
   const run = async () => {
@@ -22720,13 +22720,14 @@ function FindPlace({ city, kind, onPick, selectedName, nights, label }) {
       <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 10, lineHeight: 1.5 }}>Nothing found for “{q.trim()}” near {city}. Try the full name, or a different spelling.</div>)}
     {state.matches && state.matches.length > 0 && (<div style={{ marginTop: 10 }}>
       {state.matches.map((r, k) => {
-        const sel = selectedName && selectedName === r.name;
+        const sel = (selectedName && selectedName === r.name) || (Array.isArray(selectedNames) && selectedNames.some((n) => dnrm(n) === dnrm(r.name)));
         const per = r.estRate || null;
         const priceBit = kind === "hotels" ? (SHOW_RATES && per ? "~" + fmt(per) + "/night est." : "") : "";
         return <PlaceRow key={r.id || k} item={r} selected={!!sel} onClick={() => onPick(r, sel)}
           sub={`${kind === "hotels" ? (tierOf(r.name) === "UltraLux" ? "Ultra Luxury" : tierOf(r.name) === "Best" ? "Best available" : "Luxury") : r.level}${r.band ? " · " + r.band : ""}${priceBit ? " · " + priceBit : ""}${kind === "hotels" && nights ? ` · ${nights} ${nights === 1 ? "night" : "nights"}` : ""}`}
           price={kind === "hotels" ? (SHOW_RATES && per && nights ? fmt(per * nights) : "") : ""} />;
       })}
+      {pickedNote && state.matches.some((r) => Array.isArray(selectedNames) && selectedNames.some((n) => dnrm(n) === dnrm(r.name))) ? <div style={{ fontSize: 13, color: t.pine, fontWeight: 600, margin: "2px 0 8px", lineHeight: 1.5 }}>{pickedNote}</div> : null}
       <div style={{ fontSize: 10.5, color: t.inkFaint, letterSpacing: "0.06em", marginTop: 2, lineHeight: 1.5 }}>Powered by Google · the level shown is our own reading of price band and reputation.</div>
     </div>)}
   </div>);
@@ -23948,14 +23949,17 @@ function DinePicker({ city, pick, upd, nights, dayLabel, hotel }) {
         swears by, the old favourite no guide lists — and planned like any other table: a night,
         the itinerary, the reminder to book. Found through Google, never priced by us. Universal. */}
     {city ? (<>
-      <FindPlace city={city} kind="restaurants" label="A restaurant you know and want? Search for it by name." selectedName={null}
-        onPick={(r) => { if (dines.some((x) => dnrm(x.name) === dnrm(r.name))) return; upd({ dines: [...dines, { name: r.name, price: null, level: "Yours", own: true, date: "", site: r.site || null, id: r.id || null }] }); }} />
+      {/* M1050: tapping a found restaurant adds it, shows it chosen, and says where it went — Scarpetta
+          was tapped and looked as though nothing happened. Tap again to take it off. */}
+      <FindPlace city={city} kind="restaurants" label="A restaurant you know and want? Search for it by name." selectedNames={dines.filter((x) => x && x.own).map((x) => x.name)}
+        pickedNote="✓ Added below under Your own choices — choose the night, and open their site from there to book."
+        onPick={(r, sel) => upd({ dines: sel ? dines.filter((x) => !(x.own && dnrm(x.name) === dnrm(r.name))) : dines.some((x) => dnrm(x.name) === dnrm(r.name)) ? dines : [...dines, { name: r.name, price: null, level: "Yours", own: true, date: "", site: r.site || null, id: r.id || null }] })} />
       {dines.filter((x) => x && x.own).length ? (<div style={{ marginTop: 12 }}>
         <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Your own choices</div>
         {dines.filter((x) => x && x.own).map((x, k) => (<div key={k} style={{ padding: "10px 0", borderTop: k ? `1px solid ${t.line}` : "none" }}>
           <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
             <span style={{ fontFamily: font.display, fontSize: 18, color: t.ink, flex: 1, minWidth: 0 }}>{x.name}</span>
-            {x.site ? <a href={x.site} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: t.pine, fontWeight: 600 }}>Their site →</a> : null}
+            {x.site ? <a href={brandedLink(x.site, { kind: "restaurant", name: x.name, city })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: t.pine, fontWeight: 700 }}>Book on their site →</a> : <span style={{ fontSize: 12.5, color: t.inkFaint }}>No website listed — call to book</span>}
             <button type="button" onClick={() => upd({ dines: dines.filter((y) => !(y.own && dnrm(y.name) === dnrm(x.name))) })} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "5px 12px", fontSize: 12.5, color: t.inkFaint }}>Remove</button>
           </div>
           <DateChips nights={nights} value={x.date} label={dayLabel} onPick={(dt) => upd({ dines: dines.map((y) => (y.own && dnrm(y.name) === dnrm(x.name) ? { ...y, date: dt } : y)) })} />
