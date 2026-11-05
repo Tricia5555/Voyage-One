@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1050";
+const BUILD = "M1051";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -24187,6 +24187,8 @@ const TEAMS = {
     { team: "New York Knicks", sport: "Basketball", league: "NBA", venue: "Madison Square Garden", site: "https://www.nba.com/knicks/tickets" },
     { team: "Brooklyn Nets", sport: "Basketball", league: "NBA", venue: "Barclays Center", site: "https://www.nba.com/nets/tickets" },
     { team: "New York Rangers", sport: "Hockey", league: "NHL", venue: "Madison Square Garden", site: "https://www.nhl.com/rangers/tickets" },
+    { team: "New York Islanders", sport: "Hockey", league: "NHL", venue: "UBS Arena, Elmont, Long Island", site: "https://www.nhl.com/islanders/tickets" },
+    { team: "New Jersey Devils", sport: "Hockey", league: "NHL", venue: "Prudential Center, Newark", site: "https://www.nhl.com/devils/tickets" },
     { team: "New York Giants", sport: "Football", league: "NFL", venue: "MetLife Stadium", site: "https://www.giants.com/tickets" },
     { team: "New York Jets", sport: "Football", league: "NFL", venue: "MetLife Stadium", site: "https://www.newyorkjets.com/tickets" },
   ],
@@ -24352,7 +24354,8 @@ const TEAMS = {
   ],
 };
 function ymd(d) { if (!d) return null; if (typeof d === "string") return d.slice(0, 10); try { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; } catch (e) { return null; } }
-function teamsFor(city) { const k = Object.keys(TEAMS).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? TEAMS[k] : []; }
+// Found the way every other city list is found (M1051): "New York", "NYC" and "New York City" are one place.
+function teamsFor(city) { const r = lookup(TEAMS, city); if (Array.isArray(r)) return r; const k = Object.keys(TEAMS).find((c) => sameCity(c, city) || dnrm(bareCity(city || "")) === dnrm(c)); return k ? TEAMS[k] : []; }
 const SPORT_ORDER = ["Football", "Soccer", "Baseball", "Basketball", "Hockey", "Rugby", "Cricket"];
 // Live home games for a team within the trip's dates, from /api/sports (see api/sports.js).
 const SPORTS_CACHE = {};
@@ -24381,16 +24384,20 @@ function TeamRow({ t: tm, from, to }) {
       : <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 4 }}>No home game on your dates.</div>) : null}
   </div>);
 }
-function SportsPanel({ city, from, to }) {
+function SportsGames({ city, from, to }) {
   const teams = teamsFor(city); if (!teams.length) return null;
   const groups = SPORT_ORDER.filter((sp) => teams.some((x) => x.sport === sp)).concat(teams.map((x) => x.sport).filter((sp, i, a) => !SPORT_ORDER.includes(sp) && a.indexOf(sp) === i));
-  return (<Panel icon={Trophy} title={`Sports in ${bareCity(city)}`} collapsed>
+  return (<>
     {groups.map((sp) => (<div key={sp} style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase", color: t.brass, fontWeight: 700, marginBottom: 2 }}>{sp}</div>
       {teams.filter((x) => x.sport === sp).map((tm) => <TeamRow key={tm.team} t={tm} from={from} to={to} />)}
     </div>))}
     <div style={{ fontSize: 11.5, color: t.inkFaint, lineHeight: 1.5 }}>Official ticket sites only. Schedules are live and change; confirm on the team’s site before you plan a day around a game.</div>
-  </Panel>);
+  </>);
+}
+function SportsPanel({ city, from, to }) {
+  if (!teamsFor(city).length) return null;
+  return (<Panel icon={Trophy} title={`Sports in ${bareCity(city)}`} collapsed><SportsGames city={city} from={from} to={to} /></Panel>);
 }
 const WINE_REGIONS = ["Napa Valley", "Sonoma", "Sonoma County", "Healdsburg", "Paso Robles", "Santa Barbara Wine Country", "Willamette Valley", "Walla Walla", "Finger Lakes", "Bordeaux", "Burgundy", "Beaune", "Champagne", "Reims", "Épernay", "Alsace", "Loire Valley", "Rhône Valley", "Tuscany", "Chianti", "Montalcino", "Montepulciano", "Piedmont", "Barolo", "Alba", "Langhe", "Douro Valley", "Alentejo", "Rioja", "Ribera del Duero", "Priorat", "Jerez", "Mendoza", "Valle de Uco", "Colchagua", "Casablanca Valley", "Stellenbosch", "Franschhoek", "Cape Winelands", "Barossa Valley", "Hunter Valley", "Margaret River", "Yarra Valley", "Marlborough", "Hawke’s Bay", "Central Otago", "Okanagan", "Mosel", "Rheingau", "Wachau", "Santorini", "Tokaj"];
 function isWineRegion(city) { const b = dnrm(bareCity(city || "")); return WINE_REGIONS.some((w) => dnrm(w) === b || b.includes(dnrm(w))); }
@@ -25305,8 +25312,15 @@ function CitySection({ d, i, p, from, legSched }) {
             </div>
           </Panel>
         : <Panel icon={Utensils} title={`Dining in ${d.city || "this city"}`}><DinePicker city={d.city} pick={pick} upd={upd} nights={legNightsList} hotel={pick.stay && pick.stay.name} /></Panel>}
-      {sportsFor(d.city).length > 0 && <Panel icon={Trophy} title={`Sport in ${d.city}`}><ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></Panel>}
-      {d.city ? <SportsPanel city={d.city} from={legSched && legSched.arrive ? ymd(legSched.arrive) : null} to={legSched && legSched.depart ? ymd(legSched.depart) : null} /> : null}
+      {/* ONE SPORT PANEL (Tricia, M1051, 5 Nov 2026). New York showed "Sport in New York City" with
+          tennis and padel, and the Rangers, Knicks, Giants and the rest sat in a second panel, "Sports
+          in", folded shut — so the city of every major league looked as if it had no games at all.
+          Now one panel, open: the games to go to first, with the live home-game check on the trip's
+          dates, then the sport to play. Universal — every city with teams or sport to play. */}
+      {d.city && (teamsFor(d.city).length > 0 || sportsFor(d.city).length > 0) ? <Panel icon={Trophy} title={`Sport in ${d.city}`}>
+        {teamsFor(d.city).length > 0 ? <><div style={{ fontFamily: font.display, fontSize: 19, color: t.ink, margin: "0 0 6px" }}>Games to go to</div><SportsGames city={d.city} from={legSched && legSched.arrive ? ymd(legSched.arrive) : null} to={legSched && legSched.depart ? ymd(legSched.depart) : null} /></> : null}
+        {sportsFor(d.city).length > 0 ? <>{teamsFor(d.city).length > 0 ? <div style={{ fontFamily: font.display, fontSize: 19, color: t.ink, margin: "18px 0 6px", paddingTop: 14, borderTop: `1px solid ${t.line}` }}>To play</div> : null}<ListPicker city={d.city} rows={sportsFor(d.city)} chosen={sports} onToggle={(name, price, sel) => upd({ sports: sel ? sports.filter((x) => x.name !== name) : [...sports, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ sports: sports.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} /></> : null}
+      </Panel> : null}
       <ThingsPanel city={d.city} chosen={tours} onToggle={(name, price, sel) => upd({ tours: sel ? tours.filter((x) => x.name !== name) : [...tours, { name, price, date: "" }] })} nights={legDaysList} label="Which day?" onDate={(name, dt) => upd({ tours: tours.map((x) => (x.name === name ? { ...x, date: dt } : x)) })} />
     </>}
     </div>
