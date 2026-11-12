@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1054";
+const BUILD = "M1055";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -9879,6 +9879,16 @@ function localFavFor(city){
   return out.filter((x) => x.us === undefined ? true : dineGeoOk(city, !!x.us)).map((x) => ({ ...x, lf: 1 }));
 }
 const TOURS = {
+  // BASEL (M1055, 12 Nov 2026) — the museums and the river, for every trip that stops in Basel,
+  // and the add-ons on the Art Basel page. Prices are the institutions' own, in francs, written into
+  // the description; the price column stays empty because trip totals are in dollars.
+  "Basel": [
+    ["Fondation Beyeler", null, "Renzo Piano's museum in a park in Riehen, with one of the great private collections of modern art and new Peter Zumthor buildings. CHF 30 per adult, sold online with a timed entry; open daily 10 to 6, Wednesdays to 8.", { inTown: true, find: "Fondation Beyeler Riehen", book: "https://www.fondationbeyeler.ch/en/visit/tickets" }],
+    ["Kunstmuseum Basel", null, "One of the oldest public art collections in the world, from Holbein to the present, across two buildings facing each other. CHF 39 per adult.", { inTown: true, find: "Kunstmuseum Basel", book: "https://kunstmuseumbasel.ch/en/visit/ticketsprices" }],
+    ["Kunsthalle Basel", null, "Contemporary art since 1872 \u2014 small, serious, and a step ahead of the market.", { inTown: true, find: "Kunsthalle Basel", book: "https://www.kunsthallebasel.ch/en/" }],
+    ["Vitra Campus", null, "Buildings by Frank Gehry, Zaha Hadid, Tadao Ando, Herzog & de Meuron and SANAA, the Vitra Design Museum and the Schaudepot \u2014 fifteen minutes away in Weil am Rhein, Germany, by bus 55 from Badischer Bahnhof. Open daily 10 to 6.", { mi: 4, find: "Vitra Campus Weil am Rhein", book: "https://vitra.com/en-fr/campus/visit" }],
+    ["The Rhine, the Basel way", null, "In summer Basel floats down its river with its clothes in a Wickelfisch bag; the buvettes along the bank serve an evening drink.", { inTown: true, find: "Rheinufer Basel" }],
+  ],
   // The estate pursuits at Estelle Manor, with the property's own pages. Nothing priced.
   "Cotswolds": [
     ["Eynsham Baths at Estelle Manor", null, "The Roman-inspired bathhouse on the estate — 3,000 square metres, five thermal pools, treatments. For hotel guests and members; access depends on the room and rate, so confirm it when booking.", { inTown: true, find: "Estelle Manor", book: "https://estellemanor.com/wellness/", bookLabel: "Wellness at Estelle Manor →" }],
@@ -15914,7 +15924,13 @@ function VoyageOne() {
     // A chosen costume house becomes a dated line the day before the first event day — the fitting.
     const seedKind = (ev.aecDays || []).length ? ((ev.guide && ev.guide.seedAs) || ev.seedAs || "sports") : "sports";
     const seededDines = seedKind === "dine" ? (ev.aecDays || []).map((d) => ({ name: d.tierName || d.label, level: "Destination", date: d.date, price: null })) : [];
-    const seededTours = (ev.costume && evDates.length) ? [{ name: "Costume fitting · " + ev.costume.name, price: null, date: iso(addDays(new Date(evDates[0] + "T00:00:00"), -1)) }] : [];
+    const seededTours = ((ev.costume && evDates.length) ? [{ name: "Costume fitting · " + ev.costume.name, price: null, date: iso(addDays(new Date(evDates[0] + "T00:00:00"), -1)) }] : [])
+      // M1055: the add-ons chosen on the experience page arrive as days out, ready to be dated.
+      .concat((ev.addOns || []).filter((a) => a && a.kind !== "dine").map((a) => ({ name: a.name, price: null, date: "" })));   // prices on the page are in the venue's currency; the trip total is in dollars, so none is carried
+    // M1055: THE TABLES CHOSEN ON AN EXPERIENCE PAGE NOW REACH THE TRIP. The page's own shortlist
+    // (Cannes, the Palio, Art Basel\u2026) was shown in "Your package so far" and then dropped at
+    // Plan this trip. Universal: every experience with a dine list.
+    const pageDines = (ev.dining || []).concat((ev.addOns || []).filter((a) => a && a.kind === "dine")).filter((x) => x && x.name && !seededDines.some((y) => y.name === x.name)).map((x) => ({ name: x.name, level: "Destination", date: "", price: null }));
     if (depart && ret) setDates({ depart, ret });
     // SEARCHING THE WHOLE JOURNEY AS ONE FLIGHT COLLAPSES THE CHOICE OF AIRLINE. Miami to El
     // Calafate returns Aerolíneas and almost nothing else, because Aerolíneas is the only carrier
@@ -15926,7 +15942,7 @@ function VoyageOne() {
     const viaStop = ev.via ? [{ id: newId(), city: ev.via.city, air: ev.via.air, fromExperience: true, mode: "full", nights: ev.via.nights || 1, days: 2, arriveBy: "Flight",
       pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }] : [];
     const mainNights = ev.via ? Math.max(1, nights - (ev.via.nights || 1)) : nights;
-    setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, event: ev.title, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines, tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
+    setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, event: ev.title, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines.concat(pageDines), tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
     setScreen("plan"); setStep(0);
   };
   // THE SHAPED TRIP BECOMES A REAL ONE. Each leg becomes a destination with its nights and its
@@ -17604,63 +17620,102 @@ const ONE_LIST = {
       // alone; Basel is the original, and most Americans have never been. Miami as a destination,
       // with its hotels and restaurants, is unchanged. Nothing here implies Voyage One is affiliated
       // with Art Basel or can give preview invitations or private access.
-      { title: "Art Basel in Basel", city: "Basel", airport: "ZRH", airportName: "Zurich", start: "2027-06-16", end: "2027-06-19", dateLabel: "June 17–20, 2027 · preview days June 15–16 by invitation", nights: 3,
-        blurb: "Where the art world began. Every June since 1970 the leading galleries of the world come to a medieval city on the Rhine — the original Art Basel, and the one most Americans have never seen.",
-        photo: "Messe Basel Art Basel",
-        gallery: ["Fondation Beyeler Riehen", "Basel Old Town Rhine", "Vitra Campus Weil am Rhein"],
+      { title: "Art Basel in Basel", city: "Basel", airport: "ZRH", airportName: "Zurich", start: "2027-06-16", end: "2027-06-19", dateLabel: "June 17\u201320, 2027 \u00b7 preview days June 15\u201316 by invitation", nights: 3,
+        blurb: "Where the art world began. Every June since 1970 the leading galleries of the world come to a medieval city on the Rhine \u2014 the original Art Basel, and the one most Americans have never seen.",
+        photo: "Basel Münster Rhine Old Town",
+        gallery: ["Fondation Beyeler Riehen", "Basel Rhine Mittlere Brücke", "Vitra Campus Weil am Rhein"],
         guide: {
-          cur: "CHF",
+          cur: "CHF ",
+          multiPick: true,
           daysTitle: "Art Basel: where the art world began",
-          daysIntro: "Every June, the international art world gathers in Basel, Switzerland, for the original and most important edition of Art Basel. Founded in 1970 by Basel gallerists, the fair brings the world's leading galleries, the great collectors, curators and artists together for four days devoted to modern and contemporary art.\n\nBeyond the halls of Messe Basel, the whole city takes part: museum exhibitions timed to the fair, works installed in the streets and squares, and the best-known private foundation in Europe a tram ride away. Basel itself does the rest — a compact medieval Old Town, a world-class public collection, and the Rhine running green and fast through the middle of it.\n\nMiami's edition is the famous one at home. Basel is the original, and the one the art world itself treats as the year's most serious week.",
+          pickStep: "Step one \u00b7 choose your days at the fair",
+          recapLabel: "Fair day",
+          pickSettle: "We suggest arriving the day before your first fair day \u2014 Basel is half the pleasure. You set your exact nights as you build the trip.",
+          daysIntro: "Every June, the international art world gathers in Basel, Switzerland, for the original and most important edition of Art Basel. Founded in 1970 by Basel gallerists, it brings the world's leading galleries, collectors, curators and artists together for four days devoted to modern and contemporary art \u2014 and the whole city takes part, with museum exhibitions timed to the fair and works installed in its streets and squares.\n\nMiami's edition is the famous one at home. Basel is the original, and the one the art world itself treats as the year's most serious week.\n\nTap any of the four public days to choose a day or an evening ticket and add it; add as many days as you like. The prices are Art Basel's 2026 prices, shown as estimates until the 2027 prices are published.",
+          dayPicks: [
+            { date: "2027-06-17", label: "Thursday June 17", dates: "First public day", band: "Day CHF 70 \u00b7 evening CHF 45 \u00b7 2026 prices, as estimates", tiers: [
+              { tier: "Day ticket", label: "All day \u00b7 CHF 70 (2026 price, as an estimate)" },
+              { tier: "Evening ticket", label: "From 4 pm \u00b7 CHF 45 (2026 price, as an estimate)" } ] },
+            { date: "2027-06-18", label: "Friday June 18", dates: "Public day", band: "Day CHF 70 \u00b7 evening CHF 45 \u00b7 2026 prices, as estimates", tiers: [
+              { tier: "Day ticket", label: "All day \u00b7 CHF 70 (2026 price, as an estimate)" },
+              { tier: "Evening ticket", label: "From 4 pm \u00b7 CHF 45 (2026 price, as an estimate)" } ] },
+            { date: "2027-06-19", label: "Saturday June 19", dates: "Weekend", band: "Day CHF 70 \u00b7 weekend ticket for Saturday and Sunday CHF 125 \u00b7 2026 prices, as estimates", tiers: [
+              { tier: "Day ticket", label: "All day \u00b7 CHF 70 (2026 price, as an estimate)" },
+              { tier: "Weekend ticket", label: "Saturday and Sunday together \u00b7 CHF 125 (2026 price, as an estimate) \u2014 add Sunday too" } ] },
+            { date: "2027-06-20", label: "Sunday June 20", dates: "Final day", band: "Day CHF 70 \u00b7 weekend ticket for Saturday and Sunday CHF 125 \u00b7 2026 prices, as estimates", tiers: [
+              { tier: "Day ticket", label: "All day \u00b7 CHF 70 (2026 price, as an estimate)" },
+              { tier: "Weekend ticket", label: "Saturday and Sunday together \u00b7 CHF 125 (2026 price, as an estimate)" } ] },
+          ],
+          basePicksTitle: "Where to base yourself",
+          basePicksHelp: "Stay in Basel, on the Rhine and a short tram ride from the fair \u2014 or in Zurich, under an hour away by fast train, with more great hotels and the airport on the doorstep. Choose one; the hotels below change with it.",
+          basePicks: [
+            { name: "Basel", sub: "ON THE RHINE \u00b7 TRAM TO THE FAIR", city: "Basel", airport: "ZRH", airportName: "Zurich", note: "The fair, the museums and the Old Town on foot or by tram, and Les Trois Rois on the river. In fair week Basel's few great rooms go a year ahead \u2014 if you have one, this is the base." },
+            { name: "Zurich", sub: "ABOUT 55 MINUTES BY TRAIN \u00b7 TRAINS EVERY HALF HOUR", city: "Zurich", airport: "ZRH", airportName: "Zurich", note: "Switzerland's grandest hotels \u2014 the Dolder Grand, Baur au Lac, La R\u00e9serve Eden au Lac \u2014 the lake, and the airport fifteen minutes away. The fast train to Basel SBB takes about 55 minutes and runs every half hour; from Basel SBB it is a short tram ride to Messe Basel. Many collectors do exactly this." },
+          ],
+          stayFromBase: true,
+          stayWord: "hotel",
+          stayLead: "Where to stay",
+          stayNote: "IN BASEL, Grand Hotel Les Trois Rois is the address \u2014 on the Rhine in the Old Town since 1681. Ask for a Rhine-facing room or suite. IN ZURICH, the choice is wider and every one is an easy morning train from the fair.\n\nA tip most visitors miss: Basel's hotels give their guests the BaselCard, with the city's trams and buses included.",
           ticketsTitle: "Tickets and access",
-          tickets: "GENERAL ADMISSION — open to everyone for the four public days, June 17–20, 2027, bought from Art Basel's own site. Art Basel has not yet published 2027 prices, so the prices shown here are 2026's — a guide to what to expect, clearly marked, and replaced when the 2027 prices are out.\n\nTHE PREVIEW DAYS — June 15–16, 2027, expected and subject to Art Basel's confirmation — are by invitation, extended by the galleries to their collectors and by the fair to qualifying guests. Voyage One does not provide preview invitations or private access. The public days are a wonderful way to see the fair, and the plan below is built around them.\n\nGUIDED TOURS of the fair are offered by Art Basel; the 2027 programme is linked here when it is published.",
+          tickets: "GENERAL ADMISSION \u2014 open to everyone for the four public days, June 17\u201320, 2027, bought from Art Basel's own site. Art Basel has not yet published 2027 prices, so the prices shown are 2026's \u2014 a guide to what to expect, clearly marked, and replaced when the 2027 prices are out.\n\nTHE PREVIEW DAYS \u2014 June 15\u201316, 2027, expected and subject to Art Basel's confirmation \u2014 are by invitation, extended by the galleries to their collectors and by the fair to qualifying guests. Voyage One does not provide preview invitations or private access. The public days are a wonderful way to see the fair, and this plan is built around them.\n\nGUIDED TOURS of the fair are offered by Art Basel; the 2027 programme is linked here when it is published.",
           ticketBands: [
-            { label: "Day ticket · 2026 price, as an estimate", price: "CHF 70" },
-            { label: "Evening ticket, from 4 pm · 2026 price, as an estimate", price: "CHF 45" },
-            { label: "Weekend ticket, Saturday and Sunday · 2026 price, as an estimate", price: "CHF 125" },
+            { label: "Day ticket \u00b7 2026 price, as an estimate", price: "CHF 70" },
+            { label: "Evening ticket, from 4 pm \u00b7 2026 price, as an estimate", price: "CHF 45" },
+            { label: "Weekend ticket, Saturday and Sunday \u00b7 2026 price, as an estimate", price: "CHF 125" },
           ],
           ticketNote: "ESTIMATES FROM 2026. These are the prices Art Basel charged in 2026, shown so you can plan; the 2027 prices are set by Art Basel and appear on its ticket page when published.",
           ticketLink: "https://www.artbasel.com/basel/buy-tickets",
-          ticketLinkLabel: "Art Basel — official tickets",
+          ticketLinkLabel: "Art Basel \u2014 official tickets",
           ticketLinks: [
-            { label: "Art Basel in Basel — official site", url: "https://www.artbasel.com/basel" },
-            { label: "Parcours — the works around the city", url: "https://www.artbasel.com/basel/parcours" },
+            { label: "Art Basel in Basel \u2014 official site", url: "https://www.artbasel.com/basel" },
+            { label: "Parcours \u2014 the works around the city", url: "https://www.artbasel.com/basel/parcours" },
           ],
-          stayWord: "hotel",
-          stayCollection: "Basel",
-          stayLead: "Where to stay",
-          stayNote: "GRAND HOTEL LES TROIS ROIS is the address — on the Rhine in the Old Town since 1681, walking distance to the river and the old city, a short tram ride to the fair. Ask for a Rhine-facing room or suite. It is part of the Virtuoso network, and during Art Basel it is full a year ahead: reserve when you decide to go.\n\nA tip most visitors miss: Basel's hotels give their guests the BaselCard, which includes the city's trams and buses for the length of the stay.",
-          stay: [
-            { name: "Les Trois Rois", area: "Old Town · on the Rhine", rate: null, ourTake: "One of Europe's oldest city hotels, on the Rhine since 1681 — Basel's grand hotel, and the natural base for the fair. Ask for the river side." },
+          addOnsTitle: "Around the fair",
+          addOnsIntro: "The museums and moments that make Basel week more than a fair. Add any of them and they arrive in your trip, ready to put on a day.",
+          addOns: [
+            { name: "Fondation Beyeler", kicker: "Riehen \u00b7 20 minutes by tram from the Old Town", tour: "Fondation Beyeler", price: 30, link: "https://www.fondationbeyeler.ch/en/visit/tickets", linkLabel: "Timed tickets",
+              body: "If you see one museum in Basel, make it this one. Renzo Piano's long, light-filled pavilion sits in a park at the edge of the city, with Monet's water lilies seeming to run into the pond outside the glass. The collection Ernst and Hildy Beyeler built \u2014 C\u00e9zanne, Picasso, Giacometti, Rothko \u2014 is one of the finest of its kind, and the summer exhibition is always timed to the fair. Peter Zumthor's new buildings have now joined it.\n\nGo first thing in the morning on a day you are not at the fair; by midday in Art Basel week it is full.",
+              facts: [["Price", "CHF 30 per adult"], ["Tickets", "Online, with a timed entry"], ["Open", "Daily 10\u20136 \u00b7 Wednesdays to 8"], ["Allow", "Two to three hours, with the park"]] },
+            { name: "Unlimited", kicker: "At the fair \u00b7 Hall 1", kind: "note", tour: "Unlimited at Art Basel",
+              body: "The hall the art world talks about first. Unlimited is where galleries show the works too large for a booth \u2014 monumental sculpture, installations you walk into, films, performances. It is included in your fair ticket. Give it an afternoon of its own rather than the end of a long day in the Galleries.",
+              facts: [["Price", "Included in the fair ticket"], ["Allow", "An afternoon"]] },
+            { name: "Kunstmuseum Basel", kicker: "Old Town \u00b7 St. Alban-Graben", tour: "Kunstmuseum Basel", price: 39, link: "https://kunstmuseumbasel.ch/en/visit/ticketsprices", linkLabel: "Tickets and prices",
+              body: "One of the oldest public art collections in the world, begun in 1661 when the city bought a private cabinet so it would not leave Basel. Holbein's portraits, the great Swiss and German masters, then Picasso, the Cubists and American art after 1950 \u2014 in the main building and the new one facing it across the street.",
+              facts: [["Price", "CHF 39 per adult"], ["Allow", "Two hours"], ["Getting there", "A short walk from Les Trois Rois"]] },
+            { name: "Vitra Campus", kicker: "Weil am Rhein, Germany \u00b7 15 minutes away", tour: "Vitra Campus", link: "https://vitra.com/en-fr/campus/visit", linkLabel: "Plan your visit",
+              body: "The secret of Basel week: fifteen minutes across the border, one furniture company's campus holds buildings by Frank Gehry, Zaha Hadid, Tadao Ando, Herzog & de Meuron and SANAA, the Vitra Design Museum and the Schaudepot, where the collection's chairs fill a whole building. Most Americans at the fair have no idea it is there.\n\nThe architecture tours are the way to see the buildings you cannot simply walk into.",
+              facts: [["Open", "Daily 10\u20136"], ["Getting there", "Bus 55 from Badischer Bahnhof, 15 minutes \u00b7 or a taxi, about 10"], ["Allow", "Half a day"], ["Bring", "Your passport \u2014 it is Germany"]] },
+            { name: "Parcours", kicker: "Around the city \u00b7 free", tour: "Parcours", link: "https://www.artbasel.com/basel/parcours", linkLabel: "This year's Parcours",
+              body: "Art Basel takes over the city itself: works installed in squares, churches, courtyards and shop windows of one Basel neighbourhood, free to anyone who walks by. It is the most relaxed way to see the fair's ambition \u2014 and a fine excuse to get lost in the Old Town between museums.",
+              facts: [["Price", "Free"], ["Allow", "An hour or two, on foot"]] },
+            { name: "Kunsthalle Basel", kicker: "Steinenberg \u00b7 by the theatre", tour: "Kunsthalle Basel", link: "https://www.kunsthallebasel.ch/en/", linkLabel: "Visit",
+              body: "Contemporary art since 1872, and a step ahead of the market downstairs at the fair \u2014 artists shown here often turn up in the big galleries a few years later. Small enough for an hour, with a good bar-restaurant on its terrace.",
+              facts: [["Allow", "An hour"]] },
+            { name: "The Rhine, the Basel way", kicker: "The river through the Old Town", tour: "The Rhine, the Basel way",
+              body: "In summer Basel swims in its river: locals float downstream through the middle of the city with their clothes rolled into a waterproof Wickelfisch bag, then climb out further down. In June the water can still be cool \u2014 but the buvettes along the Kleinbasel bank are open, and an evening drink on the river steps is the best hour of the day in fair week.",
+              facts: [["Price", "Free"], ["Best", "Early evening"]] },
+          ],
+          dineTitle: "Tables to book",
+          dineNote: "Basel is small and fair week fills it: reserve the tables you care about when you reserve the hotel. Tap any to add it to your trip.",
+          dine: [
+            { name: "Cheval Blanc by Peter Knogl", area: "Les Trois Rois \u00b7 on the Rhine", stars: 3, note: "Three Michelin stars at Les Trois Rois \u2014 Peter Knogl's French cooking with a Mediterranean lightness, in the hotel's dining room above the river. The destination table of the week; take a cocktail on the Rhine terrace before." },
+            { name: "Stucki \u2013 Tanja Grandits", area: "Bruderholz", stars: 2, note: "Two Michelin stars in a villa above the city, where Tanja Grandits builds each dish around a colour and an aroma. Lunch in the garden is one of Basel's great pleasures." },
+            { name: "roots", area: "Kleinbasel \u00b7 on the Rhine", stars: 2, note: "Two Michelin stars on the river, with vegetables at the centre of the plate \u2014 modern, relaxed, and a fine contrast to the grand hotel dining room." },
           ],
           stepsTitle: "Four days in Basel",
           steps: [
-            { h: "Day 1 · Arrive", b: "Into Zurich, then the train to Basel, or fly to the EuroAirport just outside the city. Check in at Les Trois Rois, walk the Old Town — the Münster, the red Rathaus on the Marktplatz — and end with a drink on the hotel's terrace over the Rhine." },
-            { h: "Day 2 · The fair", b: "Art Basel at Messe Basel: the Galleries in the main hall in the morning while you are fresh, then Unlimited, the hall of works too large for any booth. Dinner in the city — Cheval Blanc by Peter Knogl at the hotel is the destination table." },
-            { h: "Day 3 · Beyeler and the museums", b: "The Fondation Beyeler in Riehen in the morning, before the crowds, with time in its park. Back into town for the Kunstmuseum Basel or the Kunsthalle, and the Parcours works around the city — or a second visit to the fair." },
-            { h: "Day 4 · Vitra, or onward", b: "Fifteen minutes across the border to the Vitra Campus in Germany, then depart — or go on through Switzerland: Zurich, Lucerne and the lakes, or the mountains." },
-          ],
-          beyondTitle: "What not to miss",
-          beyond: [
-            { name: "The Galleries", note: "The heart of Art Basel: the world's leading modern and contemporary galleries in one hall, the strongest work each brings in the year.", link: "https://www.artbasel.com/basel", linkLabel: "Art Basel" },
-            { name: "Unlimited", note: "The hall the art world talks about first — monumental installations, sculpture, film and works too large for a booth. Allow it a full afternoon." },
-            { name: "Parcours", note: "Works installed through Basel's streets, squares and buildings, free to see — the fair spilling into the city.", link: "https://www.artbasel.com/basel/parcours", linkLabel: "Parcours" },
-            { name: "Fondation Beyeler", note: "Renzo Piano's museum in a park in Riehen, at the edge of the city, with one of the great private collections of modern art. Its summer exhibition is timed to the fair; go first thing.", link: "https://www.fondationbeyeler.ch/en", linkLabel: "Visit and tickets" },
-            { name: "Kunstmuseum Basel", note: "One of the oldest public art collections in the world — from the Holbeins to the twentieth century and beyond, across two buildings facing each other.", link: "https://kunstmuseumbasel.ch/en", linkLabel: "Visit and tickets" },
-            { name: "Kunsthalle Basel", note: "An influential house for contemporary art since 1872 — small, serious, and a step ahead of the market downstairs at the fair.", link: "https://www.kunsthallebasel.ch/en/", linkLabel: "Visit" },
-            { name: "Vitra Campus and the Vitra Design Museum", note: "Fifteen minutes away, across the border in Weil am Rhein, Germany: buildings by Frank Gehry, Zaha Hadid, Tadao Ando, Herzog & de Meuron and SANAA in a single walk. Most Americans at the fair have no idea it is there.", link: "https://www.design-museum.de/en/", linkLabel: "Visit and tickets" },
-            { name: "Liste", note: "The fair where the next generation of galleries shows, during Art Basel week — where collectors go to see who is coming." },
-            { name: "Cheval Blanc by Peter Knogl", note: "Three Michelin stars at Les Trois Rois, and the destination table of the week. Reserve when you reserve the room. The hotel's Rhine terrace is the place for a cocktail before." },
-            { name: "The Rhine", note: "In summer Basel swims in its river: locals float downstream through the city with their clothes in a waterproof bag, the Wickelfisch, and climb out further down. In June the water can still be cool — but the riverbank buvettes are open for an evening drink." },
+            { h: "Day 1 \u00b7 Arrive", b: "Into Zurich, then the train to Basel \u2014 or check in at your Zurich hotel. Walk the Old Town, the M\u00fcnster and the red Rathaus, and end with a drink above the Rhine." },
+            { h: "Day 2 \u00b7 The fair", b: "The Galleries in the morning while you are fresh, then Unlimited in the afternoon. Dinner at Cheval Blanc, Stucki or roots." },
+            { h: "Day 3 \u00b7 Beyeler and the museums", b: "The Fondation Beyeler first thing, then the Kunstmuseum or the Kunsthalle and the Parcours works \u2014 or a second visit to the fair." },
+            { h: "Day 4 \u00b7 Vitra, or onward", b: "Fifteen minutes to the Vitra Campus in Germany, then depart \u2014 or go on to Lucerne, the lakes or the mountains." },
           ],
           notes: [
-            "THE PREVIEW DAYS ARE BY INVITATION. If a gallery invites you, wonderful; if not, the public days are the fair — the same halls, the same works that have not yet sold.",
-            "GO TO THE FAIR EARLY IN THE DAY. The halls are calmest at opening; save the museums and Beyeler for the mornings you are not at the fair.",
-            "ZURICH OR BASEL? Most Americans fly into Zurich (direct flights from many US cities) and take the train to Basel, about an hour and a quarter. The EuroAirport, which sits in France just outside Basel, is fifteen to twenty minutes from the centre by road or bus, but has few long-haul flights.",
-            "NO CAR NEEDED. Basel is compact and its trams go everywhere, including the fair and Riehen; hotel guests ride them free with the BaselCard.",
-            "BOOK EARLY. Basel is a small city during its biggest week: the hotel and the great tables go many months ahead.",
+            "THE PREVIEW DAYS ARE BY INVITATION. If a gallery invites you, wonderful; if not, the public days are the fair \u2014 the same halls, and the works that have not yet sold.",
+            "GO TO THE FAIR EARLY IN THE DAY; save the museums for the mornings you are not at the fair.",
+            "ZURICH OR BASEL? Most Americans fly into Zurich and take the train to Basel, about an hour and a quarter from the airport. The EuroAirport just outside Basel, in France, is 15 to 20 minutes from the centre but has few long-haul flights.",
+            "NO CAR NEEDED. Basel is compact and its trams go everywhere, including the fair and Riehen.",
           ],
-          handoff: "Plan this trip opens Basel for three nights around the fair, with Les Trois Rois, the Basel tables and the flights into Zurich. Fair tickets are bought from Art Basel; everything else you book here. Continue on to Zurich, Lucerne or the mountains by adding them to your trip.",
+          handoff: "Plan this trip opens your base for the fair \u2014 your fair days, your hotel, the tables and the museums you added \u2014 with flights into Zurich. Fair tickets are bought from Art Basel; everything else you book here. Continue to Lucerne or the mountains by adding them to your trip.",
         } },
       { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-05-05", end: "2027-05-10", dateLabel: "Opening week \u00b7 May 6\u20138, 2027", nights: 5, photo: "Venice Biennale Giardini pavilion", gallery: ["Venice Arsenale Biennale", "Venice Giardini Biennale pavilions", "Venice palazzo Grand Canal"],
         blurb: "One city, two extraordinary Biennales \u2014 art or architecture, in alternating years. Go in opening week, when the whole of Venice becomes the exhibition.",
@@ -19610,6 +19665,8 @@ function OneList({ onPick, onBack, onHome, initial }) {
   // dineSel: a shortlist of tables (name -> {name,area,note,stars}); dineType: free-text request.
   const [dineSel, setDineSel] = useState({});
   const [dineType, setDineType] = useState("");
+  // addSel: the "around the event" add-ons the client has chosen on the page (name -> add-on).
+  const [addSel, setAddSel] = useState({});
   const shell = { maxWidth: 940, margin: "0 auto", padding: "36px clamp(20px,5vw,48px) 100px", position: "relative", zIndex: 1 };
   const grid = { display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" };
   const tile = { textAlign: "left", background: t.pine, border: `1px solid ${t.pineSoft}`, borderRadius: 18, padding: "26px 28px", cursor: "pointer", display: "flex", flexDirection: "column", gap: 7 };
@@ -19684,7 +19741,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
     const sortedDays = selDays.map((d) => d.date).sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
     const dineList = Object.keys(dineSel).map((n) => dineSel[n]);
-    const planEv = { ...ev, ...planDates, ...(basePick ? { city: basePick.city, airport: basePick.airport, airportName: basePick.airportName || basePick.name, via: basePick.via || null } : {}), stay: stayPick || null, aecDays: selDays, costume: costumePick || null, dining: dineList };
+    const planEv = { ...ev, ...planDates, ...(basePick ? { city: basePick.city, airport: basePick.airport, airportName: basePick.airportName || basePick.name, via: basePick.via || null } : {}), stay: stayPick || null, aecDays: selDays, costume: costumePick || null, dining: dineList, addOns: Object.keys(addSel).map((n) => addSel[n]) };
     const gg = g || {};
     const L = {
       daysTitle: gg.daysTitle || "The days",
@@ -19720,7 +19777,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
       <span style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{arriveMsg}</span>
     </div>) : null;
     return (<div style={shell}>
-      {back(() => { setSel(null); setAecPick(null); setAecDays([]); setDayCourt({}); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); }, "back to " + type)}
+      {back(() => { setSel(null); setAecPick(null); setAecDays([]); setDayCourt({}); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); setAddSel({}); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
         <div style={{ fontFamily: font.display, fontSize: "clamp(34px,7vw,52px)", color: t.ink, lineHeight: 1.05 }}>{ev.title}</div>
         <div style={{ fontSize: 14.5, color: t.brass, letterSpacing: "0.05em", marginTop: 10 }}>{ev.city || "Venue to be announced"} · {ev.dateLabel}</div>
@@ -19926,6 +19983,30 @@ function OneList({ onPick, onBack, onHome, initial }) {
               </div>
             </div>
             {g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.stayMore}</div> : null}</div>); })() : null}
+          {/* AROUND THE EVENT (M1055, 12 Nov 2026). Each idea told properly on the page \u2014 what it is,
+              how long, how to get there, the price where it is published \u2014 so the client decides here
+              instead of opening a dozen sites, and adds it to the trip with one tap. Alternating
+              green and white so a long list reads as a sequence. Chosen add-ons arrive in the
+              builder as days out, ready to be put on a day. Universal: any experience with addOns. */}
+          {g.addOns && g.addOns.length ? (<div>
+            {secHead(g.addOnsTitle || "Around the event")}
+            {g.addOnsIntro ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 14, textAlign: "center" }}>{g.addOnsIntro}</div> : null}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {g.addOns.map((a, k) => { const on = !!addSel[a.name]; const dark = k % 2 === 0; const fg = dark ? t.paper : t.ink, soft = dark ? "#D8D2C6" : t.inkSoft, accent = dark ? t.brassLight : t.brass; return (
+                <div key={k} style={{ background: dark ? t.pine : t.white, border: `${on ? 2.5 : 1.5}px solid ${on ? t.brass : dark ? t.pine : t.line}`, borderRadius: 18, padding: "22px 24px" }}>
+                  {a.kicker ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: accent, fontWeight: 600, marginBottom: 6 }}>{a.kicker}</div> : null}
+                  <div style={{ fontFamily: font.display, fontSize: 25, color: fg, lineHeight: 1.2 }}>{a.name}</div>
+                  {a.body ? <div style={{ fontSize: 15, color: soft, lineHeight: 1.65, marginTop: 8 }}>{proseBlock(a.body, { fontSize: 15, color: soft, lineHeight: 1.65 })}</div> : null}
+                  {a.facts && a.facts.length ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "8px 18px", marginTop: 12, paddingTop: 12, borderTop: `1px solid ${dark ? "rgba(255,255,255,.14)" : t.line}` }}>
+                    {a.facts.map(([lab, val], j) => (<div key={j}><div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: accent, fontWeight: 600 }}>{lab}</div><div style={{ fontSize: 14, color: fg, marginTop: 2, lineHeight: 1.45 }}>{val}</div></div>))}
+                  </div> : null}
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}>
+                    <button onClick={() => setAddSel((prev) => { const n = { ...prev }; if (on) delete n[a.name]; else n[a.name] = { name: a.tour || a.name, kind: a.kind || "tour", price: a.price || null }; return n; })} style={{ background: on ? t.brass : dark ? t.paper : t.pine, color: on ? t.ink : dark ? t.pine : t.paper, border: "none", borderRadius: 999, padding: "11px 20px", fontSize: 14, fontWeight: 700, letterSpacing: ".03em", cursor: "pointer" }}>{on ? "\u2713 Added to your trip" : "Add to my trip"}</button>
+                    {a.link ? <a href={brandedLink(a.link, { kind: "experience", name: a.name, city: ev.city })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13.5, color: accent, fontWeight: 600, textDecoration: "none" }}>{a.linkLabel || "Official site"} →</a> : null}
+                  </div>
+                </div>); })}
+            </div>
+          </div>) : null}
           {g.dine ? (() => {
             const dineCard = (s, k) => { const on = !!dineSel[s.name]; return (
                 <button key={k} onClick={() => setDineSel((prev) => { const n = { ...prev }; if (on) delete n[s.name]; else n[s.name] = { name: s.name, area: s.area || null, note: s.note || null, stars: s.stars || 0 }; return n; })} style={{ textAlign: "left", background: on ? t.pine : t.white, border: `2px solid ${on ? t.brass : t.line}`, borderRadius: 14, padding: "15px 17px", cursor: "pointer" }}>
@@ -19962,11 +20043,12 @@ function OneList({ onPick, onBack, onHome, initial }) {
           {photoBand(4)}
         </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          {(selDayLabels.length || stayPick || costumePick || Object.keys(dineSel).length) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
+          {(selDayLabels.length || stayPick || costumePick || Object.keys(dineSel).length || Object.keys(addSel).length) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
             <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your package so far</div>
             {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 6 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
             {costumePick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: (stayPick || Object.keys(dineSel).length) ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Costume · </span><strong>{costumePick.name}</strong></div> : null}
             {stayPick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
+            {Object.keys(addSel).length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Also · </span><strong>{Object.keys(addSel).join(" · ")}</strong></div> : null}
             {Object.keys(dineSel).length ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Table{Object.keys(dineSel).length > 1 ? "s" : ""} · </span><strong>{Object.keys(dineSel).join(", ")}</strong></div> : null}
           </div>) : null}
           <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
@@ -19980,7 +20062,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
   if (cat && type) {
     const events = (ONE_LIST[cat] && ONE_LIST[cat][type]) || [];
     const pattern = EVENT_ROWS[type];
-    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setDayCourt({}); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); }} style={{ ...tile, padding: 0, overflow: "hidden", ...(pattern ? { flex: "1 1 300px", maxWidth: 372 } : {}) }}>
+    const evCard = (ev, key) => (<button key={key} onClick={() => { setSel(ev); setAecPick(null); setAecDays([]); setDayCourt({}); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); setAddSel({}); }} style={{ ...tile, padding: 0, overflow: "hidden", ...(pattern ? { flex: "1 1 300px", maxWidth: 372 } : {}) }}>
       {/* Live hero photo. ev.photo lets an event override the query for a truer shot (the Palio's
           flag-lined Campo rather than a generic Siena view); otherwise the title searches well. */}
       <span style={{ position: "relative", display: "block", height: 152 }}>
