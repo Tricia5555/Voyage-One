@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1060";
+const BUILD = "M1061";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -2768,6 +2768,8 @@ function strictCanon(name, alnums) {
 }
 // A confirmed future hotel: `opening` is the label ("2027", "Summer 2027"); `opensOn`, when known,
 // is the date reservations open — reached, the hotel becomes an ordinary one. No guessing dates.
+// `taking: true` — the hotel is not open yet but is already taking reservations: the "Opening …" banner
+// shows AND the ordinary booking flow stays (Cambridge House, M1061).
 function isUpcoming(h) { if (!h || !h.opening) return false; if (!h.opensOn) return true; return new Date().toISOString().slice(0, 10) < h.opensOn; }
 // EXACT NAME BEATS CONTAINMENT. tierOf matches a name sitting whole inside a canon entry, so "Caldera
 // House" finds "Caldera House Jackson Hole" — and Gleneagles Townhouse became Ultra Luxury because
@@ -3090,6 +3092,11 @@ const FAVORITES = {
     { name: "Corinthia London", area: "Whitehall", tier: "Luxury", rate: null, ourTake: "A modern palace by the river with one of the city's great spas.", contact: { addr: "10 Whitehall Place, London SW1A 2BD", web: "corinthia.com" } },
     { name: "Hotel Café Royal", area: "Regent Street", tier: "Luxury", rate: null, ourTake: "A Regent Street landmark with the Akasha spa and a glittering past.", contact: { addr: "68 Regent Street, London W1B 4DY", web: "hotelcaferoyal.com" } },
     { name: "The Chancery Rosewood", area: "Mayfair · Grosvenor Square", rate: null, ourTake: "Rosewood's second London house in the old American embassy on Grosvenor Square, opened in 2025 — all suites, a sunken garden and the square's whole west side.", contact: { addr: "30 Grosvenor Square, London W1K 6AN", web: "rosewoodhotels.com" } },
+    // M1061 (Tricia, 12 Nov 2026): added at her instruction, with a banner saying when it opens. Auberge's
+    // first UK hotel; 102 rooms, 24 suites (auberge.com/cambridgehouse, checked 12 Nov 2026). "February 2027"
+    // is the opening month reported by the trade press (Sept 2026); Auberge's own page says only "2027".
+    // No tier given — it shows as Luxury until she says otherwise. Remove `opening` and `taking` once it is open.
+    { name: "Cambridge House, Auberge Collection", area: "Mayfair · Piccadilly", rate: null, opening: "February 2027", taking: true, ourTake: "The Georgian mansion on Piccadilly that was the In & Out Club, facing Green Park: 102 rooms, 24 of them suites, three restaurants and bars, and Baeden House, three floors of treatment rooms, a bathhouse and a swimming pool.", contact: { addr: "94 Piccadilly, London W1J 7PB", web: "auberge.com/cambridgehouse" } },
     { name: "The Ned", area: "The City · Bank", rate: null, ourTake: "The old Midland Bank on Poultry turned into a hotel, nine restaurants and a members' club, with the rooftop pool looking at St Paul's — the City's liveliest address.", contact: { addr: "27 Poultry, London EC2R 8AJ", web: "thened.com" } },
     // M1060 (Tricia, 12 Nov 2026): WITHHELD — "ditch the Radisson and any others site wide like it". A chain
     // collection house, not Virtuoso. It was the only Radisson in the database. Remove the two slashes to restore.
@@ -23383,11 +23390,11 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
           shows them best, on its own site, chooses there, and comes back to reserve through Voyage One
           with the room and rate they chose. RoomPicker and api/rooms.js stay in the code, unused here,
           for the Sabre build. Universal — every hotel. */}
-      {!isUpcoming(s) && site ? (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 12 }}>
+      {(!isUpcoming(s) || s.taking) && site ? (<div onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "14px 16px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 12 }}>
         <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ fontFamily: font.display, fontSize: 20, fontWeight: 700, color: t.pine, textDecoration: "none" }}>See the rooms and suites at {s.name} →</a>
         <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 6 }}>Opens {s.name}'s own site. Choose your room and note its rate, then come back here to reserve it through Voyage One.</div>
       </div>) : null}
-        {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
+        {isUpcoming(s) && !s.taking ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 10 }}>Confirmed by the brand; reservations are not yet open. It moves into the normal booking flow the day they are.</div>
           : (<div ref={reserveBox} onClick={(e) => e.stopPropagation()} style={{ marginTop: 14, padding: "16px 18px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12 }}>
             <div style={{ fontFamily: font.display, fontSize: 22, fontWeight: 700, color: t.ink, lineHeight: 1.25 }}>Reserve through Voyage One</div>
             <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 5 }}>{RESERVE_LINE(s.name)}</div>
