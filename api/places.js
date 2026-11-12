@@ -111,6 +111,19 @@ function km(a, b) {
 
 
 
+// GOOGLE'S CREDIT TRAVELS WITH THE PHOTO (12 Nov 2026). Places photos may be shown only with their
+// author credited and a link to the photo on Google Maps. The credit rides on the photo's own
+// address (by = the author's name, byu = their profile, gm = the photo on Google Maps), so every
+// place the site shows the photo can show the credit beside it.
+function photoUrl(ph, h) {
+  if (!ph || !ph.name) return null;
+  const a = (ph.authorAttributions || [])[0] || {};
+  return `/api/photo?name=${encodeURIComponent(ph.name)}&h=${h}`
+    + (a.displayName ? `&by=${encodeURIComponent(a.displayName)}` : "")
+    + (a.uri ? `&byu=${encodeURIComponent(a.uri)}` : "")
+    + (ph.googleMapsUri ? `&gm=${encodeURIComponent(ph.googleMapsUri)}` : "");
+}
+
 export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
   const city = (req.query.city || "").toString().trim();
@@ -355,7 +368,7 @@ export default async function handler(req, res) {
     const grouped = { UltraLux: [], Luxury: [], Refined: [], Essential: [] };
     places.forEach((p) => {
       const level = classify(p);
-      const photo = p.photos && p.photos[0] ? p.photos[0].name : null;
+      const photo = p.photos && p.photos[0] ? photoUrl(p.photos[0], 420) : null;
       const band = p.priceLevel && PRICE_TIER[p.priceLevel] ? PRICE_TIER[p.priceLevel].band : null;
       grouped[level].push({
         id: p.id,
@@ -371,7 +384,7 @@ export default async function handler(req, res) {
         desc: (p.editorialSummary && p.editorialSummary.text) || "",
         rating: p.rating || null,
         reviews: p.userRatingCount || null,
-        photo: photo ? `/api/photo?name=${encodeURIComponent(photo)}&h=420` : null,
+        photo: photo || null,
         site: p.websiteUri || null,
         maps: p.googleMapsUri || null,
         area: neighborhoodOf(p),                    // neighbourhood, e.g. "Mayfair"
