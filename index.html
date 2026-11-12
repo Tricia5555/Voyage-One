@@ -50,7 +50,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1055";
+const BUILD = "M1056";
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
@@ -15190,6 +15190,28 @@ const CITY_PHOTO_CACHE = {};
 function isDirectImage(q) {
   return /^(https?:)?\/\//i.test(q) || q.charAt(0) === "/" || /\.(jpe?g|png|webp|avif|gif)(\?.*)?$/i.test(q);
 }
+// GOOGLE'S CREDIT ON EVERY GOOGLE PHOTO (M1056, 12 Nov 2026). Photos from Google Places may be shown
+// on a commercial site only with the photographer credited, a link to the photo on Google Maps,
+// and Google named. api/places.js and api/cityphoto.js now put the credit on the photo's own
+// address; this reads it back wherever the photo is shown. Our own images (/images/...) and the
+// hotels' own photographs carry no credit line here. Universal: every Google photo on the site.
+function photoCredit(src) {
+  try {
+    if (!src || String(src).indexOf("/api/photo") < 0) return null;
+    const u = new URL(src, "https://voyageoneworld.com");
+    return { by: u.searchParams.get("by") || "", byu: u.searchParams.get("byu") || "", gm: u.searchParams.get("gm") || "" };
+  } catch (e) { return null; }
+}
+function PhotoCredit({ src }) {
+  const c = photoCredit(src); if (!c) return null;
+  const a = { color: "#fff", textDecoration: "none" };
+  const stop = (e) => e.stopPropagation();
+  return (<div className="vo-photo-credit" onClick={stop} style={{ position: "absolute", right: 0, bottom: 0, maxWidth: "100%", padding: "3px 8px", background: "rgba(0,0,0,.45)", color: "#fff", fontSize: 10, lineHeight: 1.4, borderTopLeftRadius: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", zIndex: 2 }}>
+    {c.by ? <>Photo: {c.byu ? <a href={c.byu} target="_blank" rel="noopener noreferrer" style={a} onClick={stop}>{c.by}</a> : c.by} · </> : null}
+    <a href={c.gm || "https://maps.google.com"} target="_blank" rel="noopener noreferrer" style={a} onClick={stop}>Google Maps</a>
+  </div>);
+}
+function photoCreditText(src) { const c = photoCredit(src); return c ? (c.by ? `Photo: ${c.by} · Google Maps` : "Photo: Google Maps") : ""; }
 function Photo({ query, h = 180, radius = 0, raw = false, contain = false }) {
   const city = (query || "").trim();
   const direct = isDirectImage(city);
@@ -15213,8 +15235,8 @@ function Photo({ query, h = 180, radius = 0, raw = false, contain = false }) {
   if (!src || bad) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
   // contain: keep the photo's real shape (never crop) — a tall photo stays tall, a wide one
   // stays wide — capped to height h and centred. cover: fill the box and crop (heroes/cards).
-  if (contain) return <img src={src} onError={() => setBad(true)} alt={city} style={{ display: "block", width: "100%", height: "auto", borderRadius: radius, background: t.mist }} />;
-  return <img src={src} onError={() => setBad(true)} alt={city} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} />;
+  if (contain) return <div style={{ position: "relative", width: "100%", borderRadius: radius, overflow: "hidden" }}><img src={src} onError={() => setBad(true)} alt={city} style={{ display: "block", width: "100%", height: "auto", borderRadius: radius, background: t.mist }} /><PhotoCredit src={src} /></div>;
+  return <div style={{ position: "relative", width: "100%", borderRadius: radius, overflow: "hidden" }}><img src={src} onError={() => setBad(true)} alt={city} style={{ width: "100%", height: h, objectFit: "cover", borderRadius: radius, display: "block", background: t.mist }} /><PhotoCredit src={src} /></div>;
 }
 function CityHero({ query, index, title, label, right, h = 180 }) {
   return (<div style={{ position: "relative", height: h, borderRadius: 16, overflow: "hidden", marginBottom: 6 }}>
@@ -22697,6 +22719,7 @@ function PlaceRow({ item, selected, onClick, sub, price }) {
       {null}
       {item.desc ? <span style={{ display: "block", fontSize: 12.5, color: t.inkSoft, marginTop: 4, lineHeight: 1.45 }}>{item.desc}</span> : null}
       <span style={{ display: "block", fontSize: 11.5, color: t.inkFaint, marginTop: 4 }}>{sub}</span>
+      {item.photo && photoCreditText(item.photo) ? <span style={{ display: "block", fontSize: 10, color: t.inkFaint, marginTop: 3 }}>{photoCreditText(item.photo)}</span> : null}
     </span>
   </button>);
 }
@@ -23323,7 +23346,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
   return (<div ref={cardRef} role="button" tabIndex={0} onClick={() => { LAST_TAP = Date.now(); onClick(); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); LAST_TAP = Date.now(); onClick(); } }} style={{ gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", flexWrap: sel ? "wrap" : "nowrap", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)", scrollMarginTop: 92 }}>
     <div style={photoBox}>
       {showImg
-        ? <img src={photo} alt="" loading="lazy" onError={() => setBad(photo)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ? <><img src={photo} alt="" loading="lazy" onError={() => setBad(photo)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /><PhotoCredit src={photo} /></>
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 210 : 152, color: t.inkFaint, fontFamily: font.display, fontSize: 16, padding: 12, textAlign: "center" }}>{s.name}</div>}
       <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(251,250,246,.94)", color: t.pine, fontSize: 10, fontWeight: 600, letterSpacing: ".14em", textTransform: "uppercase", padding: "4px 9px", borderRadius: 999 }}>{tier === "UltraLux" ? "Ultra Luxury" : tier}</span>
       {rating ? <span style={{ position: "absolute", top: 10, right: 10, background: "rgba(34,29,25,.6)", color: t.brassLight, fontSize: 11, fontWeight: 500, padding: "4px 9px", borderRadius: 999 }}>★ {rating}</span> : null}
@@ -23692,7 +23715,7 @@ function DineCard({ r, city, level, found, onToggle, onDate, onSet, nights }) {
     style={{ scrollMarginTop: 92, gridColumn: sel ? "1 / -1" : "auto", textAlign: "left", background: "#fff", border: `2px solid ${sel ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", display: "flex", flexDirection: sel ? "row" : "column", padding: 0, boxShadow: "0 1px 3px rgba(34,29,25,.05)" }}>
     <div style={photoBox}>
       {showImg
-        ? <img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        ? <><img src={photo} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /><PhotoCredit src={photo} /></>
         : <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", minHeight: sel ? 190 : 150, color: t.inkFaint, fontFamily: font.display, fontSize: 15, padding: 12, textAlign: "center" }}>{r.n}</div>}
       <span style={{ position: "absolute", top: 10, left: 10, background: "rgba(34,29,25,.62)", color: t.brassLight, fontSize: 11, fontWeight: 600, letterSpacing: ".06em", padding: "4px 9px", borderRadius: 999 }}>{accoladeBadge(r)}</span>
     </div>
