@@ -17,6 +17,29 @@ input[type="date"]::-webkit-calendar-picker-indicator { width: 24px; height: 24p
    the clock and the battery at the top and the home indicator at the bottom. Keep clear of both. */
 body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 </style>
+<!-- THE ERROR REPORTER (M1062, 14 Nov 2026). Plain script, ahead of everything else, so it is running
+     before the app is even read. It catches a crash in the app, a failed background request, and a page
+     that never appears (still blank 20 seconds after loading), and posts each to /api/errors, which
+     records it and e-mails Voyage One. At most five reports per visit; the same error once. It records
+     no client details. If /api/errors is missing or the device is offline, it does nothing. -->
+<script>(function () {
+  var sent = 0, seen = {};
+  function report(kind, message, stack, source, line, col) {
+    try {
+      message = String(message || "").slice(0, 500);
+      if (!message || seen[message] || sent >= 5) return;
+      seen[message] = 1; sent++;
+      var body = JSON.stringify({ build: window.__VO_BUILD || "", kind: kind, message: message, stack: String(stack || "").slice(0, 4000), source: String(source || "").slice(0, 300), line: line || null, col: col || null, page: (location.pathname + location.search).slice(0, 300) });
+      fetch("/api/errors", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true }).catch(function () {});
+    } catch (e) {}
+  }
+  window.addEventListener("error", function (e) { if (e && e.message) report("error", e.message, e.error && e.error.stack, e.filename, e.lineno, e.colno); });
+  window.addEventListener("unhandledrejection", function (e) {
+    var r = e && e.reason; if (r && r.name === "AbortError") return;
+    report("promise", (r && r.message) || String(r), r && r.stack);
+  });
+  window.addEventListener("load", function () { setTimeout(function () { var root = document.getElementById("root"); if (root && !root.firstChild) report("blank", "The page did not appear: still blank 20 seconds after loading"); }, 20000); });
+})();</script>
 <script type="importmap">
 {
   "imports": {
@@ -50,7 +73,8 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1061";
+const BUILD = "M1062";
+try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
 import { createPortal } from "react-dom";
