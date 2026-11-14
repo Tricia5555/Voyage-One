@@ -1,4 +1,6 @@
 // /api/health — one URL that answers "is anything broken?"
+// (M1063, 14 Nov 2026: the copy of this file on GitHub had been cut off at line 42 since it was first
+// uploaded, so the address answered with an error page and never worked. This is the whole file.)
 //
 // WHY THIS EXISTS
 // On 31 August 2026 the Google Cloud free trial expired. Every Places and Geocoding call started
@@ -36,7 +38,65 @@ async function timedFetch(url, opts) {
   }
 }
 
+
+const trim = (v) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, 200);
+const why = (e) => (e && e.name === "AbortError" ? `no answer in ${TIMEOUT_MS / 1000} seconds` : trim(e && e.message) || "request failed");
+
 // Google Places (New). This is the one that failed silently, so it is checked first and its
-// failure detail is preserved verbatim.
+// failure detail is preserved verbatim. One result, ids only — the cheapest request there is.
 async function checkGoogle() {
-  const key =
+  const key = (process.env.GOOGLE_PLACES_KEY || "").trim();
+  if (!key) return { ok: false, detail: "GOOGLE_PLACES_KEY is not set in Vercel" };
+  try {
+    const r = await timedFetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": "places.id" },
+      body: JSON.stringify({ textQuery: "Claridge's London", maxResultCount: 1 }),
+    });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) return { ok: false, detail: `${r.status} ${trim(j && j.error && (j.error.status + " " + j.error.message))}`.trim() };
+    if (!j || !Array.isArray(j.places) || !j.places.length) return { ok: false, detail: "answered, but found nothing for a hotel that exists" };
+    return { ok: true };
+  } catch (e) { return { ok: false, detail: why(e) }; }
+}
+
+// Duffel — flights and the airport list. A place lookup, which costs nothing.
+async function checkDuffel() {
+  const token = (process.env.DUFFEL_TOKEN || "").trim();
+  if (!token) return { ok: false, detail: "DUFFEL_TOKEN is not set in Vercel" };
+  try {
+    const r = await timedFetch("https://api.duffel.com/places/suggestions?query=London", {
+      headers: { Accept: "application/json", "Duffel-Version": "v2", Authorization: `Bearer ${token}` },
+    });
+    const j = await r.json().catch(() => null);
+    if (!r.ok) return { ok: false, detail: `${r.status} ${trim(j && j.errors && j.errors[0] && (j.errors[0].title || j.errors[0].message))}`.trim() };
+    if (!j || !Array.isArray(j.data) || !j.data.length) return { ok: false, detail: "answered, but found no airports for London" };
+    return { ok: true };
+  } catch (e) { return { ok: false, detail: why(e) }; }
+}
+
+// Supabase — accounts, saved journeys, the Client Book. Reads one id from the error log's own table.
+async function checkSupabase() {
+  const url = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+  if (!url || !key) return { ok: false, detail: "SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not set in Vercel" };
+  try {
+    const r = await timedFetch(`${url}/rest/v1/site_errors?select=id&limit=1`, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+    if (!r.ok) { const j = await r.json().catch(() => null); return { ok: false, detail: `${r.status} ${trim(j && j.message)}`.trim() }; }
+    return { ok: true };
+  } catch (e) { return { ok: false, detail: why(e) }; }
+}
+
+export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+  const [google, duffel, supabase] = await Promise.all([checkGoogle(), checkDuffel(), checkSupabase()]);
+  // Keys that are only checked for presence: calling these services costs money each time.
+  const keys = {
+    anthropic: !!(process.env.ANTHROPIC_API_KEY || "").trim(),
+    mail: !!((process.env.RESEND_API_KEY || "").trim() && (process.env.RESERVE_FROM || "").trim() && (process.env.RESERVE_TO || "").trim()),
+  };
+  const ok = google.ok && duffel.ok && supabase.ok;
+  // "ok" is first on purpose: the monitor looks for the exact text "ok":true at the start of the answer.
+  // Always HTTP 200 — the monitor reads the text, and a 200 with "ok":false says what is wrong.
+  return res.status(200).json({ ok, checked: new Date().toISOString(), google, duffel, supabase, keys });
+}
