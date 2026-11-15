@@ -97,6 +97,8 @@ export default async function handler(req, res) {
   };
   const ok = google.ok && duffel.ok && supabase.ok;
   // "ok" is first on purpose: the monitor looks for the exact text "ok":true at the start of the answer.
-  // Always HTTP 200 — the monitor reads the text, and a 200 with "ok":false says what is wrong.
-  return res.status(200).json({ ok, checked: new Date().toISOString(), google, duffel, supabase, keys });
+  // M1065: HTTP 200 when all is well, 503 when anything is broken — so a plain up/down monitor (the
+  // free kind, which reads only the status and not the text) raises the alarm too. The text still
+  // says what is wrong.
+  return res.status(ok ? 200 : 503).json({ ok, checked: new Date().toISOString(), google, duffel, supabase, keys });
 }
