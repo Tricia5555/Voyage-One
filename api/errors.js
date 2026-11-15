@@ -15,6 +15,10 @@
 //
 // Env in Vercel (all already used elsewhere): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY; and for the
 // e-mail, RESEND_API_KEY, RESERVE_FROM, RESERVE_TO. Without the mail three it still records.
+// THE TEST (M1064): opening voyageoneworld.com/api/errors?test=1 in a browser records one test entry
+// and sends the e-mail, so the whole chain can be proved without breaking anything. It obeys the same
+// rule with a shorter wait (one test e-mail every five minutes at most), so the address cannot be used
+// to flood the inbox.
 // One-time database setup: site-errors.sql, run once in Supabase → SQL Editor.
 
 const URL_ = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -25,9 +29,11 @@ const QUIET_HOURS = 6;
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-  if (req.method !== "POST") return res.status(405).json({ ok: false, reason: "POST only" });
+  const isTest = req.method === "GET" && req.query && req.query.test === "1";
+  if (req.method !== "POST" && !isTest) return res.status(405).json({ ok: false, reason: "POST only" });
   if (!URL_ || !KEY) return res.status(200).json({ ok: false, reason: "not configured" });
   let b = req.body; if (typeof b === "string") { try { b = JSON.parse(b); } catch (e) { b = {}; } } b = b || {};
+  if (isTest) b = { build: "test", kind: "test", message: "Test of the Voyage One error log: nothing is broken", page: "/api/errors?test=1" };
 
   const row = {
     build: s(b.build, 20), kind: s(b.kind, 20), message: s(b.message, 500), stack: s(b.stack, 4000),
@@ -38,7 +44,7 @@ export default async function handler(req, res) {
 
   try {
     // Has this same error already been reported in the quiet period? Then record it, send no mail.
-    const since = new Date(Date.now() - QUIET_HOURS * 3600 * 1000).toISOString();
+    const since = new Date(Date.now() - (isTest ? 5 * 60 : QUIET_HOURS * 3600) * 1000).toISOString();   // a test may be repeated after five minutes
     const seen = await fetch(`${URL_}/rest/v1/site_errors?select=id&message=eq.${encodeURIComponent(row.message)}&created_at=gte.${encodeURIComponent(since)}&limit=1`, { headers: H() });
     const seenRows = seen.ok ? await seen.json() : [];
     const isNew = !(Array.isArray(seenRows) && seenRows.length);
@@ -47,18 +53,20 @@ export default async function handler(req, res) {
     if (!ins.ok) return res.status(200).json({ ok: false, reason: "could not save", status: ins.status });
 
     const key = process.env.RESEND_API_KEY, from = process.env.RESERVE_FROM || "", to = process.env.RESERVE_TO || "";
-    let mailed = false;
+    let mailed = false, mailWhy = null;
     if (isNew && key && from && to) {
       const text = [
         "Voyage One reported an error in a client's browser.", "",
         `Build:    ${row.build || "unknown"}`, `Kind:     ${row.kind || ""}`, `Error:    ${row.message}`,
         `Where:    ${row.source || ""}${row.line ? ` line ${row.line}` : ""}`, `Page:     ${row.page || ""}`, `Browser:  ${row.browser || ""}`, "",
         row.stack || "", "",
-        `The same error will not be e-mailed again for ${QUIET_HOURS} hours. Every occurrence is in Supabase → Table Editor → site_errors.`,
+        isTest ? "This was a test. Every entry" : `The same error will not be e-mailed again for ${QUIET_HOURS} hours. Every occurrence is in Supabase → Table Editor → site_errors.`,
       ].join("\n");
       const out = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" }, body: JSON.stringify({ from, to: [to], subject: `Voyage One error (${row.build || "?"}): ${row.message.slice(0, 80)}`, text }) });
       mailed = out.ok;
+      if (!out.ok) { const j = await out.json().catch(() => null); mailWhy = `${out.status} ${String((j && j.message) || "").slice(0, 200)}`.trim(); }
     }
+    if (isTest) return res.status(200).json({ ok: true, recorded: true, mailed, note: mailed ? "Recorded, and an e-mail was sent to the RESERVE_TO address." : !(key && from && to) ? "Recorded. No e-mail: the mail settings are missing in Vercel." : !isNew ? "Recorded. No e-mail: a test was already sent in the last five minutes. Wait and try again." : "Recorded, but Resend refused the e-mail.", resend: mailWhy });
     return res.status(200).json({ ok: true, mailed });
   } catch (e) {
     return res.status(200).json({ ok: false, reason: "failed" });
