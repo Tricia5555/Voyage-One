@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1075";
+const BUILD = "M1077";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -13247,12 +13247,82 @@ const COORDS = {
   "Sydney": [-33.87,151.21], "Queenstown": [-45.03,168.66], "Cape Town": [-33.92,18.42], "Kruger": [-24.01,31.49],
   "Serengeti": [-2.33,34.83], "Kilimanjaro": [-3.43,37.07],
 };
+// THE TOWNS' COORDINATES, KEPT HERE FOR GOOD (M1077, Tricia, 16 Nov 2026: "NYC is not moving
+// anywhere, nor is anywhere else"). The dining panel works out which towns are near each other,
+// and for 268 of the towns it knows it had no coordinates of its own, so every time the site was
+// opened it asked /api/geocode for all of them, which asks Google at 3.2 cents a place. That was
+// the whole of the November Google bill. Google's coordinates may be kept only 30 days, so these
+// do not come from Google: they are from Wikipedia and Wikidata (free to keep permanently), each
+// looked up by the town's name AND its region in PLACE_REGION, so "lincoln" is Lincoln, Ontario
+// and "jackson" is Jackson, Wyoming. Two the encyclopedia does not place (Greenough, Montana and
+// Savelletri, Puglia) are set by hand. Rounded to two decimals, about a kilometre, like COORDS.
+//
+// Keyed by the town's normalised name (dnrm). This is NOT part of COORDS on purpose: COORDS also
+// decides which places the site carries and offers, and these towns are not being added to that.
+// coordsFor() reads this only for a name that arrives without an airport code; a code still goes
+// to /api/geocode, because the code is what tells the two Birminghams apart.
+const TOWN_COORDS = {
+  "funchal": [32.65, -16.92], "philipsburg": [46.33, -113.3], "saratoga": [41.45, -106.81], "greenough": [46.92, -113.43], "darby": [46.02, -114.18], "granby": [40.06, -105.92],
+  "steamboat springs": [40.47, -106.82], "wickenburg": [34, -112.76], "solvang": [34.59, -120.14], "canyon point": [37.08, -111.66], "meadows of dan": [36.74, -80.39],
+  "raton": [36.87, -104.44], "rancho santa fe": [33.02, -117.2], "la quinta": [33.67, -116.3], "pinehurst": [35.19, -79.47], "bandon": [43.12, -124.42],
+  "waimea": [20.02, -155.67], "kailua kona": [19.65, -155.99], "lanai city": [20.83, -156.92], "beaver creek": [39.6, -106.52], "telluride": [37.94, -107.82],
+  "sun valley": [43.66, -114.41], "vail": [39.64, -106.36], "jackson": [43.47, -110.6], "auchterarder": [56.29, -3.71], "gullane": [56.04, -2.83], "turnberry": [55.31, -4.83],
+  "troon": [55.54, -4.66], "prestwick": [55.5, -4.61], "carnoustie": [56.5, -2.71], "kingsbarns": [56.3, -2.66], "north berwick": [56.06, -2.72],
+  "newcastle county down": [54.22, -5.89], "sunningdale": [51.4, -0.63], "new milton": [50.76, -1.65], "leatherhead": [51.3, -0.33], "southport": [53.65, -3],
+  "adare": [52.56, -8.79], "lahinch": [52.94, -9.35], "kinsale": [51.71, -8.52], "bal harbour": [25.89, -80.12], "rakiraki": [-17.37, 178.15], "portmarnock": [53.42, -6.14],
+  "rosapenna": [55.2, -7.84], "manacor": [39.57, 3.2], "deia": [39.75, 2.65], "elciego": [42.52, -2.62], "briones": [42.54, -2.79], "laguardia": [42.55, -2.58],
+  "haro": [42.58, -2.85], "sardon de duero": [41.6, -4.43], "sotogrande": [36.5, -5.54], "chianti": [43.58, 11.32], "bolgheri": [43.23, 10.62], "chiusdino": [43.15, 11.08],
+  "erbusco": [45.6, 9.97], "alba": [44.7, 8.03], "cernobbio": [45.83, 9.07], "bellagio": [45.98, 9.25], "como": [45.82, 9.08], "tremezzo": [45.98, 9.23], "blevio": [45.84, 9.1],
+  "moltrasio": [45.86, 9.1], "varenna": [46.01, 9.28], "praiano": [40.61, 14.53], "vico equense": [40.67, 14.43], "yountville": [38.4, -122.36], "st helena": [38.5, -122.47],
+  "rutherford": [38.46, -122.42], "napa": [38.3, -122.3], "san casciano dei bagni": [42.87, 11.88], "gaiole in chianti": [43.47, 11.43], "castelnuovo berardenga": [43.35, 11.5],
+  "vila nova de gaia": [41.13, -8.62], "savelletri": [40.87, 17.41], "pauillac": [45.2, -0.75], "saint emilion": [44.89, -0.15], "sauternes": [44.53, -0.34],
+  "pommard": [47.01, 4.8], "meursault": [46.98, 4.77], "beaune": [47.02, 4.84], "ay": [49.06, 4], "biot": [43.63, 7.1], "val d isere": [45.45, 6.98], "val thorens": [45.3, 6.58],
+  "meribel": [45.4, 6.57], "millahue": [-34.44, -71.08], "palena": [-43.62, -71.8], "coyhaique": [-45.57, -72.07], "puerto montt": [-41.47, -72.93], "pucon": [-39.28, -71.97],
+  "junin de los andes": [-39.92, -71.07], "rio grande": [-53.78, -67.7], "san antonio de areco": [-34.25, -59.47], "garzon": [-34.59, -54.55], "colima": [19.24, -103.72],
+  "olafsfjordur": [66.07, -18.65], "murchison": [-41.8, 172.33], "nelson": [-41.27, 173.28], "te arai": [-36.2, 174.58], "wanaka": [-44.7, 169.15], "canterbury": [-43.53, 172.64],
+  "south canterbury": [-44.39, 171.25], "kununurra": [-15.77, 128.74], "flinders ranges": [-31.49, 138.49], "barossa valley": [-34.53, 138.95], "margaret river": [-33.95, 115.08],
+  "thredbo": [-36.51, 148.31], "inverness nova scotia": [46.23, -61.31], "cabo san lucas": [22.89, -109.92], "san jose del cabo": [23.06, -109.71],
+  "el pescadero": [23.36, -110.17], "ensenada": [31.86, -116.61], "san pedro garza garcia": [25.67, -100.3], "atlixco": [18.9, -98.45], "cholula": [19.06, -98.31],
+  "chochola": [20.74, -89.85], "tixkokob": [21, -89.39], "guadalupe etla": [17.17, -96.82], "playa del carmen": [20.63, -87.08], "tulum": [20.21, -87.47],
+  "puerto morelos": [20.85, -86.88], "scarborough": [43.76, -79.23], "mississauga": [43.6, -79.65], "markham": [43.88, -79.26], "oakville": [43.46, -79.71],
+  "lincoln": [43.15, -79.42], "jordan ontario": [43.13, -79.35], "st catharines": [43.16, -79.25], "creemore": [44.32, -80.1], "westmount": [45.48, -73.6],
+  "boisbriand": [45.62, -73.83], "saint eustache": [45.57, -73.9], "sainte anne de beaupre": [47.02, -70.93], "baie saint paul": [47.45, -70.5], "la malbaie": [47.65, -70.15],
+  "saint irenee": [47.57, -70.2], "sherbrooke": [45.4, -71.9], "cookshire eaton": [45.41, -71.63], "piedmont": [45.9, -74.13], "bristol bay": [58.75, -156.83],
+  "lewa": [0.2, 37.42], "windhoek": [-22.57, 17.08], "okavango delta": [-19.4, 22.9], "bazaruto": [-21.75, 35.45], "watamu": [-3.35, 40.02], "somerset west": [-34.08, 18.85],
+  "george": [-33.97, 22.45], "monsaraz": [38.44, -7.38], "boca chica": [8.22, -82.22], "cap estate": [14.08, -60.95], "clawson": [42.53, -83.15], "st paul": [44.95, -93.1],
+  "webster groves": [38.59, -90.35], "mountain brook": [33.49, -86.74], "bessemer": [33.37, -86.97], "cambridge massachusetts": [42.37, -71.11], "brookline": [42.33, -71.12],
+  "newton massachusetts": [42.34, -71.21], "lynn massachusetts": [42.47, -70.95], "farmington": [39.81, -79.57], "cary": [35.78, -78.82], "durham": [35.98, -78.9],
+  "pittsboro": [35.73, -79.17], "spring": [30.05, -95.39], "tomball": [30.1, -95.62], "pearland": [29.56, -95.29], "bellaire": [29.7, -95.47], "katy": [29.79, -95.82],
+  "lockhart": [29.87, -97.67], "seguin": [29.63, -97.96], "plano": [33.05, -96.7], "mckinney": [33.2, -96.64], "arlington texas": [32.7, -97.12], "fort worth": [32.76, -97.33],
+  "davidson": [35.5, -80.85], "concord": [35.41, -80.58], "cornelius": [35.47, -80.88], "marietta": [33.95, -84.54], "avondale estates": [33.77, -84.27],
+  "decatur": [33.77, -84.3], "roswell": [34.04, -84.35], "chamblee": [33.89, -84.31], "doraville": [33.91, -84.27], "duluth": [34.01, -84.15], "johns creek": [34.03, -84.2],
+  "sullivan s island": [32.77, -79.84], "hanahan": [32.92, -80], "knightdale": [35.79, -78.5], "carrboro": [35.91, -79.08], "madison tennessee": [36.26, -86.71],
+  "cordova tennessee": [35.16, -89.78], "maryville": [35.75, -83.98], "loudon": [35.73, -84.35], "winter park": [28.6, -81.35], "boulder": [39.99, -105.25],
+  "aurora": [39.71, -104.72], "paradise valley": [33.53, -111.94], "flagstaff": [35.18, -111.62], "los ranchos de albuquerque": [35.17, -106.65],
+  "south salt lake": [40.71, -111.89], "west valley city": [40.69, -111.99], "avon": [39.63, -106.49], "colorado springs": [38.86, -104.61], "breckenridge": [39.51, -106.04],
+  "abaco": [26.47, -77.08], "providenciales": [21.78, -72.26], "langkawi": [6.35, 99.8], "vinh hy bay": [11.7, 109.15], "galle": [6.03, 80.22], "bumthang": [27.55, 90.73],
+  "punakha": [27.58, 89.86], "ito": [34.97, 139.1], "rusutsu": [42.75, 140.9], "hakuba": [36.7, 137.86], "solden": [46.97, 11], "st anton": [47.12, 10.27], "lech": [47.2, 10.15],
+  "oberlech": [47.2, 10.15], "ischgl": [47.01, 10.29], "kitzbuhel": [47.45, 12.39], "laax": [46.8, 9.25], "chagny": [46.91, 4.75], "joigny": [47.98, 3.4],
+  "puligny montrachet": [46.95, 4.75], "chassagne montrachet": [46.94, 4.73], "pernand vergelesses": [47.08, 4.85], "levernois": [47, 4.87], "saint jean de trezy": [46.84, 4.59],
+  "chablis": [47.82, 3.8], "vougeot": [47.18, 4.96], "gevrey chambertin": [47.23, 4.97], "perugia": [43.11, 12.39], "assisi": [43.07, 12.62], "spoleto": [42.73, 12.74],
+  "todi": [42.78, 12.41], "norcia": [42.79, 13.09], "torridon": [57.55, -5.52], "fort william": [56.82, -5.11], "portree": [57.41, -6.19], "are": [63.4, 13.08],
+  "portofino": [44.3, 9.21], "baqueira beret": [42.7, 0.95],
+};
+let COORDS_BY_DNRM = null;
 function coordsFor(place) {
   if (!place) return null;
   const bare = bareCity(place);
   if (!bare) return null;
   const k = Object.keys(COORDS).find((x) => x.toLowerCase() === bare.toLowerCase());
   if (k) return COORDS[k];
+  // M1077: our own coordinates before anything is asked. First the towns above; then COORDS again
+  // by normalised name, so "megeve" finds "Megève" and "porto vecchio" finds "Porto-Vecchio".
+  if (!codeOf(place)) {
+    const d = dnrm(bare);
+    if (TOWN_COORDS[d]) return TOWN_COORDS[d];
+    if (!COORDS_BY_DNRM) { COORDS_BY_DNRM = {}; Object.keys(COORDS).forEach((x) => { const n = dnrm(x); if (!(n in COORDS_BY_DNRM)) COORDS_BY_DNRM[n] = x; }); }
+    if (COORDS_BY_DNRM[d]) return COORDS[COORDS_BY_DNRM[d]];
+  }
   // Not in the table. GEO_CACHE holds a resolved pair, or null if Google could not find it
   // (which we honor rather than asking again on every render).
   const g = GEO_CACHE[geoKey(place)];
