@@ -147,7 +147,11 @@ async function fromInventory(gkey, kind, city, find) {
     const row = (await r.json())[0];
     if (!row || !row.google_id) return null;
     const ours = !!(row.site && row.address);          // Voyage One holds this restaurant's own details
-    const mask = ours ? "id,photos" : "id,photos,websiteUri,internationalPhoneNumber,formattedAddress,addressComponents";
+    // M1068: with our own details in hand, Google is asked only for the photos and the neighbourhood
+    // ("Tribeca"), which the card shows beside the name. The neighbourhood is in Google's cheapest paid
+    // tier (the first 10,000 a month are free); the web address, telephone and street address, which
+    // sat in a dearer tier, now come from our own table.
+    const mask = ours ? "id,photos,addressComponents" : "id,photos,websiteUri,internationalPhoneNumber,formattedAddress,addressComponents";
     const g = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(row.google_id)}?languageCode=en`, { headers: { "X-Goog-Api-Key": gkey, "X-Goog-FieldMask": mask } });
     if (!g.ok) return null;
     const p = await g.json();
