@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1069";
+const BUILD = "M1075";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -15228,8 +15228,14 @@ function isDirectImage(q) {
 // and Google named. api/places.js and api/cityphoto.js now put the credit on the photo's own
 // address; this reads it back wherever the photo is shown. Our own images (/images/...) and the
 // hotels' own photographs carry no credit line here. Universal: every Google photo on the site.
+// OUR OWN CHOSEN COVERS CARRY THEIR CREDIT TOO (M1075, 16 Nov 2026). A cover Tricia chose from
+// Wikimedia Commons arrives with its credit after "#vo=" on the address: the photographer, the
+// licence and the photograph's page. Those licences ask for exactly that beside the picture, so
+// it is shown the same way Google's is, naming Wikimedia Commons instead of Google Maps.
 function photoCredit(src) {
   try {
+    const own = String(src || "").indexOf("#vo=");
+    if (own >= 0) { const c = JSON.parse(decodeURIComponent(String(src).slice(own + 4))); return { by: c.by || "", byu: "", gm: c.page || "https://commons.wikimedia.org", from: "Wikimedia Commons", lic: c.lic || "" }; }
     if (!src || String(src).indexOf("/api/photo") < 0) return null;
     const u = new URL(src, "https://voyageoneworld.com");
     return { by: u.searchParams.get("by") || "", byu: u.searchParams.get("byu") || "", gm: u.searchParams.get("gm") || "" };
@@ -15241,10 +15247,10 @@ function PhotoCredit({ src }) {
   const stop = (e) => e.stopPropagation();
   return (<div className="vo-photo-credit" onClick={stop} style={{ position: "absolute", right: 0, bottom: 0, maxWidth: "100%", padding: "3px 8px", background: "rgba(0,0,0,.45)", color: "#fff", fontSize: 10, lineHeight: 1.4, borderTopLeftRadius: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", zIndex: 2 }}>
     {c.by ? <>Photo: {c.byu ? <a href={c.byu} target="_blank" rel="noopener noreferrer" style={a} onClick={stop}>{c.by}</a> : c.by} · </> : null}
-    <a href={c.gm || "https://maps.google.com"} target="_blank" rel="noopener noreferrer" style={a} onClick={stop}>Google Maps</a>
+    {c.lic ? <>{c.lic} · </> : null}<a href={c.gm || "https://maps.google.com"} target="_blank" rel="noopener noreferrer" style={a} onClick={stop}>{c.from || "Google Maps"}</a>
   </div>);
 }
-function photoCreditText(src) { const c = photoCredit(src); return c ? (c.by ? `Photo: ${c.by} · Google Maps` : "Photo: Google Maps") : ""; }
+function photoCreditText(src) { const c = photoCredit(src); const from = c ? (c.lic ? c.lic + " · " : "") + (c.from || "Google Maps") : ""; return c ? (c.by ? `Photo: ${c.by} · ${from}` : `Photo: ${from}`) : ""; }
 function Photo({ query, h = 180, radius = 0, raw = false, contain = false }) {
   const city = (query || "").trim();
   const direct = isDirectImage(city);
