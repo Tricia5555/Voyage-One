@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1062";
+const BUILD = "M1069";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -14920,7 +14920,7 @@ function CityBox({ value, onChange, placeholder, inputStyle, curatedOnly }) {
   // fetched by name, remain correctly in Rhode Island. That split is the whole bug.
   const choose = (label, row) => {
     if (row && row.lat != null && row.lng != null) GEO_CACHE[geoKey(label)] = [row.lat, row.lng];
-    onChange(label);
+    onChange(label, true);   // M1069: the second word says "chosen from the list", not typed
     setOpen(false);
   };
   const showAny = open && (matches.length > 0 || live.length > 0);
@@ -16415,6 +16415,13 @@ function AccountPanel({ onSignIn, onSignUp, onReset, onClose }) {
 // there, the hotels by tier, the tables, things to do and nearby, the airport service. Everything
 // here is the same data the builder draws from, shown read-only. One button at the foot opens the
 // builder with the city already in. (Tricia, 4 Oct 2026.)
+// Every name a client can type toward on the Explore page, lower case, worked out once: the places
+// we carry and the other names they answer to (M1069).
+let EXPLORE_NAMES_CACHE = null;
+function EXPLORE_NAMES() {
+  if (!EXPLORE_NAMES_CACHE) EXPLORE_NAMES_CACHE = Array.from(new Set(CITIES.concat(Object.keys(FAVORITES), Object.keys(CITY_ALIASES)).map((c) => String(c || "").toLowerCase())));
+  return EXPLORE_NAMES_CACHE;
+}
 function ExploreScreen({ onPlan, onHome, onBack }) {
   const [city, setCity] = useState("");
   const [open, setOpen] = useState("");
@@ -16438,7 +16445,19 @@ function ExploreScreen({ onPlan, onHome, onBack }) {
     {back()}
     <Eyebrow>Explore a place</Eyebrow>
     <div style={{ fontFamily: font.display, fontSize: 30, color: t.ink, margin: "6px 0 14px" }}>The whole scoop on a city, before you plan anything</div>
-    <div style={{ maxWidth: 620 }}><CityBox value={city} onChange={(v) => { setCity(v); if (carried(v)) setOpen(v); }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly inputStyle={{ fontFamily: font.display, fontSize: 26, padding: "14px 4px", width: "100%", background: "none", border: "none", borderBottom: `2px solid ${t.line}`, color: t.ink, outline: "none" }} /></div>
+    <div style={{ maxWidth: 620 }}><CityBox value={city} onChange={(v, picked) => {
+      // M1069 (Tricia, 16 Nov 2026): TYPING "new y" OPENED NE. The page opened the moment the letters
+      // typed so far named a place we carry — and "Ne" is one (a village in Liguria with a Bib
+      // Gourmand). So a client on the way to New York got Ne, with Nebraska's sights and a photo of
+      // Carhenge, and it stayed there. Now letters still being typed open a place only when no other
+      // place we carry begins with them; a place chosen from the list always opens. Paris typed in
+      // full still opens at once; "ne", "york" or "san" wait for the client to choose.
+      setCity(v);
+      if (!carried(v)) return;
+      const typed = bareCity(String(v || "")).trim().toLowerCase();
+      const startsAnother = !picked && typed && EXPLORE_NAMES().some((c) => c.length > typed.length && c.startsWith(typed));
+      if (!startsAnother) setOpen(v);
+    }} placeholder="Type a city we carry — Florence, Cascais, Niseko…" curatedOnly inputStyle={{ fontFamily: font.display, fontSize: 26, padding: "14px 4px", width: "100%", background: "none", border: "none", borderBottom: `2px solid ${t.line}`, color: t.ink, outline: "none" }} /></div>
     {chosen ? (<div style={{ marginTop: 22 }}>
       <Photo query={chosen} h={260} radius={18} />
       <div style={{ fontFamily: font.display, fontSize: 34, color: t.ink, marginTop: 16 }}>{placeLine(chosen)}</div>
