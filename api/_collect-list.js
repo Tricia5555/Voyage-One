@@ -1,0 +1,6 @@
+// The list the collector works through (M1067). The leading underscore keeps Vercel from serving
+// this file as an address of its own. These are the 76 New York City restaurants exactly as the
+// site asks for them (captured from the running site, build M1062, 16 Nov 2026).
+export const LISTS = {
+  "nyc-restaurants": { kind: "restaurants", city: "New York City", names: ["Eleven Madison Park", "Jungsik New York", "Le Bernardin", "Per Se", "Sushi Sho", "Aquavit", "Aska", "Atera", "Atomix", "César", "Chef's Table at Brooklyn Fare", "Gabriel Kreuther", "Jean-Georges", "Joo Ok", "Masa", "odo", "Saga", "Sushi Noz", "The Modern", "Daniel", "Le Coucou", "Meju", "Semma", "The Four Horsemen", "Blue Hill at Stone Barns", "Lei", "Dhamaka", "Frenchette", "Via Carota", "Hearth", "Lilia", "Sixty Three Clinton", "Bar Miller", "bōm", "Bridges", "Café Boulud at Maison Barnes", "Casa Mono", "Corima", "Cote", "Crown Shy", "Dirt Candy", "Essential by Christophe", "Estela", "Family Meal at Blue Hill", "Francie", "Frevo", "Gramercy Tavern", "Huso", "Icca", "Jeju Noodle Bar", "Jōji", "Jua", "Kochi", "Kosaka", "L'Abeille", "Le Pavillon", "Mari", "Muku", "Noda", "Nōksu", "Noz 17", "Oiji Mi", "Oxomoco", "Restaurant Yuu", "Rezdôra", "Shmoné", "Shota Omakase", "Sushi Nakazawa New York", "Tempura Matsui", "Torien", "Torrisi", "Tsukimi", "Tuome", "Yamada", "YingTao", "Yoshino"] },
+};

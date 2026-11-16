@@ -124,6 +124,46 @@ function photoUrl(ph, h) {
     + (ph.googleMapsUri ? `&gm=${encodeURIComponent(ph.googleMapsUri)}` : "");
 }
 
+// THE INVENTORY (M1067, 16 Nov 2026). A restaurant whose Google ID is already in the `place_ids`
+// table is NOT searched for by name. The search is what costs (about 4 cents a card); the ID is
+// the one thing Google's terms let a site keep, and asking Google "the photos for this ID" is on
+// its free list. So with a row in the table, a card costs the photo and nothing else.
+//
+// The restaurant's own details (web address, street address, telephone, neighbourhood) come from
+// the same row when Voyage One has gathered them. Until it has, they are asked of Google by ID —
+// about 2 cents instead of 4 — so a card is never missing its site link while the table fills.
+// Google's star rating and its one-line description are not asked for at all (Tricia, 15 Nov
+// 2026: "we could care less about Google ratings… we do not want it to show").
+//
+// No row, or any failure here, returns null and the search by name runs exactly as before.
+async function fromInventory(gkey, kind, city, find) {
+  const sb = (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const sbk = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+  if (!sb || !sbk) return null;
+  const norm = (x) => String(x || "").trim().toLowerCase();
+  try {
+    const r = await fetch(`${sb}/rest/v1/place_ids?select=google_id,area,site,address,phone&kind=eq.${kind}&city_key=eq.${encodeURIComponent(norm(city))}&name_key=eq.${encodeURIComponent(norm(find))}&limit=1`, { headers: { apikey: sbk, Authorization: `Bearer ${sbk}` } });
+    if (!r.ok) return null;
+    const row = (await r.json())[0];
+    if (!row || !row.google_id) return null;
+    const ours = !!(row.site && row.address);          // Voyage One holds this restaurant's own details
+    const mask = ours ? "id,photos" : "id,photos,websiteUri,internationalPhoneNumber,formattedAddress,addressComponents";
+    const g = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(row.google_id)}?languageCode=en`, { headers: { "X-Goog-Api-Key": gkey, "X-Goog-FieldMask": mask } });
+    if (!g.ok) return null;
+    const p = await g.json();
+    return {
+      id: row.google_id, name: find, level: null, desc: "", rating: null, reviews: null,
+      photo: p.photos && p.photos[0] ? photoUrl(p.photos[0], 420) : null,
+      site: row.site || p.websiteUri || null,
+      maps: null,
+      area: row.area || neighborhoodOf(p),
+      address: row.address || p.formattedAddress || null,
+      phone: row.phone || p.internationalPhoneNumber || null,
+      inventory: ours ? "ours" : "id",
+    };
+  } catch (e) { return null; }
+}
+
 export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
   const city = (req.query.city || "").toString().trim();
@@ -146,6 +186,15 @@ export default async function handler(req, res) {
   if (!key) return res.status(200).json({ ok: false, reason: "no-key" });
   if (!city) return res.status(200).json({ ok: false, reason: "no-city" });
   if (!["hotels", "restaurants", "place"].includes(kind)) return res.status(200).json({ ok: false, reason: "bad-kind" });
+
+  // M1067: a restaurant already in the inventory is answered from its stored ID — no search.
+  if (find && kind === "restaurants") {
+    const m = await fromInventory(key, kind, city, find);
+    if (m) {
+      res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=86400");
+      return res.status(200).json({ ok: true, city, kind, find, matches: [m], attribution: "Powered by Google" });
+    }
+  }
 
   // The city stays in the query so "Cipriani" finds the Venice one, not the New York one.
   // The kind word keeps a hotel search off restaurants of the same name, and vice versa.
