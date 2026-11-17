@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1086";
+const BUILD = "M1087";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -27059,12 +27059,47 @@ function ClientBook() {
   const [data, setData] = useState(null), [err, setErr] = useState(""), [loading, setLoading] = useState(false);
   const [q, setQ] = useState(""), [kinds, setKinds] = useState(CB_KINDS.map((x) => x.k)), [from, setFrom] = useState(""), [to, setTo] = useState("");
   const [view, setView] = useState("records"), [open, setOpen] = useState(null), [adding, setAdding] = useState(false);
+  // THE SECOND STEP (M1087, 17 Nov 2026). The Client Book holds clients' names, trips and notes, so
+  // a password alone no longer opens it. After the password, staff give a six-digit code from an
+  // authenticator on their own phone (Apple's Passwords app, Google Authenticator and the like).
+  // The first sign-in sets it up: a QR code to scan, or a key to copy when the phone is the only
+  // device to hand. This is Supabase's own multi-factor sign-in; api/console.js refuses to send
+  // any Client Book data to a session that has not passed it, so it cannot be skipped from the page.
+  // mfa: null (passed, or not yet asked) | { stage: "enroll" | "verify", factorId, qr, secret, uri }
+  const [mfa, setMfa] = useState(null), [code, setCode] = useState(""), [mfaErr, setMfaErr] = useState(""), [mfaBusy, setMfaBusy] = useState(false);
   useEffect(() => { (async () => { const sb = await supa(); if (!sb) { setReady(true); return; } const r = await sb.auth.getSession(); setUser(r.data && r.data.session ? r.data.session.user : null); setReady(true); })(); }, []);
   const call = async (body) => { const sb = await supa(); const r = await sb.auth.getSession(); const token = r.data && r.data.session ? r.data.session.access_token : ""; const res = await fetch("/api/console", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, token }) }); return res.json(); };
-  const load = async () => { setLoading(true); setErr(""); try { const j = await call({ action: "load" }); if (!j.ok) setErr(j.reason === "not staff" ? `${j.email} is not on the Voyage One staff list.` : j.reason === "not configured" ? j.detail : `The Client Book could not open (${j.reason}).`); else setData(j); } catch (e) { setErr("The Client Book could not be reached. Check the connection and try again."); } setLoading(false); };
-  useEffect(() => { if (user) load(); }, [user]);
+  const load = async () => { setLoading(true); setErr(""); try { const j = await call({ action: "load" }); if (!j.ok && j.reason === "second step") { setLoading(false); secondStep(); return; } if (!j.ok) setErr(j.reason === "not staff" ? `${j.email} is not on the Voyage One staff list.` : j.reason === "not configured" ? j.detail : `The Client Book could not open (${j.reason}).`); else setData(j); } catch (e) { setErr("The Client Book could not be reached. Check the connection and try again."); } setLoading(false); };
+  const secondStep = async () => {
+    setMfaErr(""); setCode("");
+    try {
+      const sb = await supa(); if (!sb) { setErr("Accounts could not be reached."); return; }
+      const lvl = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (lvl && lvl.data && lvl.data.currentLevel === "aal2") { setMfa(null); load(); return; }
+      const f = await sb.auth.mfa.listFactors();
+      const done = (f && f.data && f.data.totp) || [];
+      if (done.length) { setMfa({ stage: "verify", factorId: done[0].id }); return; }
+      // A set-up that was started and never finished is cleared first, or the new one is refused.
+      const all = (f && f.data && f.data.all) || [];
+      for (const x of all) { if (x.status !== "verified") { try { await sb.auth.mfa.unenroll({ factorId: x.id }); } catch (e) {} } }
+      const e = await sb.auth.mfa.enroll({ factorType: "totp", friendlyName: "Voyage One " + Date.now() });
+      if (e.error || !e.data) { setMfaErr("The second step could not be set up (" + ((e.error && e.error.message) || "no answer") + ")."); setMfa({ stage: "stuck" }); return; }
+      setMfa({ stage: "enroll", factorId: e.data.id, qr: e.data.totp.qr_code, secret: e.data.totp.secret, uri: e.data.totp.uri });
+    } catch (e) { setMfaErr("The second step could not be reached. Check the connection and try again."); setMfa({ stage: "stuck" }); }
+  };
+  const giveCode = async () => {
+    const c = code.replace(/\D/g, ""); if (c.length !== 6 || !mfa || !mfa.factorId) { setMfaErr("Enter the six digits showing in your authenticator."); return; }
+    setMfaBusy(true); setMfaErr("");
+    try {
+      const sb = await supa(); const r = await sb.auth.mfa.challengeAndVerify({ factorId: mfa.factorId, code: c });
+      if (r.error) setMfaErr("That code did not match. Codes change every thirty seconds, so use the one showing now.");
+      else { setMfa(null); setCode(""); load(); }
+    } catch (e) { setMfaErr("The code could not be checked. Check the connection and try again."); }
+    setMfaBusy(false);
+  };
+  useEffect(() => { if (user) secondStep(); }, [user]);
   const signIn = async () => { setAuthErr(""); const sb = await supa(); if (!sb) { setAuthErr("Accounts could not be reached."); return; } const r = await sb.auth.signInWithPassword({ email: email.trim(), password: pw }); if (r.error) setAuthErr("That e-mail and password did not match a Voyage One account."); else setUser(r.data.user); };
-  const signOut = async () => { const sb = await supa(); if (sb) await sb.auth.signOut(); setUser(null); setData(null); };
+  const signOut = async () => { const sb = await supa(); if (sb) await sb.auth.signOut(); setUser(null); setData(null); setMfa(null); setCode(""); setMfaErr(""); };
   const page = { minHeight: "100vh", background: t.paper, color: t.ink, fontFamily: font.ui, padding: "28px clamp(16px,4vw,40px) 80px" };
   const inp = { font: "inherit", fontSize: 16, padding: "11px 13px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink, boxSizing: "border-box", width: "100%" };
   const pill = (on) => ({ fontSize: 13.5, padding: "8px 14px", borderRadius: 999, border: `1px solid ${on ? t.pine : t.line}`, background: on ? t.pine : t.white, color: on ? t.paper : t.ink, cursor: "pointer" });
@@ -27077,6 +27112,27 @@ function ClientBook() {
       <input style={inp} type="password" placeholder="Password" value={pw} onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") signIn(); }} />
       <button onClick={signIn} style={{ ...pill(true), padding: "12px 18px", fontSize: 15, fontWeight: 700 }}>Sign in</button>
       {authErr ? <div style={{ color: "#a33", fontSize: 14 }}>{authErr}</div> : null}
+    </div></div>);
+  if (mfa) return (<div style={page}>{title}
+    <div style={{ maxWidth: 460, marginTop: 24, display: "grid", gap: 12 }}>
+      {mfa.stage === "enroll" ? (<>
+        <div style={{ fontSize: 17, fontWeight: 700 }}>Set up your second step</div>
+        <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6 }}>The Client Book now asks for a six-digit code from your own phone as well as your password. This is done once.</div>
+        <div style={{ fontSize: 14.5, lineHeight: 1.6 }}><b>On a computer or iPad:</b> open the authenticator on your phone (the Passwords app on an iPhone, or Google Authenticator) and scan this.</div>
+        {mfa.qr ? <img src={mfa.qr} alt="QR code for your authenticator" style={{ width: 200, height: 200, background: "#fff", padding: 8, borderRadius: 10, border: `1px solid ${t.line}` }} /> : null}
+        <div style={{ fontSize: 14.5, lineHeight: 1.6 }}><b>On the phone itself:</b> {mfa.uri ? <a href={mfa.uri} style={{ color: t.pine, fontWeight: 700 }}>tap here to add it to your authenticator</a> : null}{mfa.uri ? ", or copy this key into it:" : "copy this key into it:"}</div>
+        <div style={{ fontFamily: "ui-monospace, Menlo, monospace", fontSize: 14, padding: "10px 12px", background: t.white, border: `1px solid ${t.line}`, borderRadius: 10, wordBreak: "break-all", userSelect: "all" }}>{mfa.secret}</div>
+        <div style={{ fontSize: 14.5, lineHeight: 1.6 }}>Then enter the six digits it shows.</div>
+      </>) : mfa.stage === "verify" ? (<>
+        <div style={{ fontSize: 17, fontWeight: 700 }}>Enter your code</div>
+        <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6 }}>Open the authenticator on your phone and enter the six digits showing for Voyage One.</div>
+      </>) : (<div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6 }}>The Client Book is waiting on its second step.</div>)}
+      {mfa.stage === "enroll" || mfa.stage === "verify" ? (<>
+        <input style={{ ...inp, letterSpacing: ".3em", fontSize: 20 }} inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="000000" value={code} onChange={(e2) => setCode(e2.target.value)} onKeyDown={(e2) => { if (e2.key === "Enter") giveCode(); }} />
+        <button onClick={giveCode} disabled={mfaBusy} style={{ ...pill(true), padding: "12px 18px", fontSize: 15, fontWeight: 700 }}>{mfaBusy ? "Checking\u2026" : "Continue"}</button>
+      </>) : <button onClick={secondStep} style={{ ...pill(true), padding: "12px 18px", fontSize: 15, fontWeight: 700 }}>Try again</button>}
+      {mfaErr ? <div style={{ color: "#a33", fontSize: 14 }}>{mfaErr}</div> : null}
+      <button onClick={signOut} style={{ ...pill(false), justifySelf: "start" }}>Sign out</button>
     </div></div>);
   const recs = data ? cbRecords(data) : [];
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
