@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1077";
+const BUILD = "M1086";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -2194,6 +2194,9 @@ const EXPERIENCE_LODGING = [
   "The Dock 69°39 by Scandic", "St. Elisabeth Suites & Spa",
 ];
 const BEST_AVAILABLE = [
+  // THE COTSWOLDS (Tricia, 17 Nov 2026): The Double Red Duke is BEST, the very good alternative
+  // beside the region's Luxury and Ultra Luxury estates. Her tier.
+  "The Double Red Duke",
   // BALTIMORE (Tricia, 31 Oct 2026): Four Seasons Baltimore — Forbes Four-Star, $450–605, rooms under
   // phased renovation — is BEST AVAILABLE, not Luxury. With it, Baltimore is explorable but never suggested.
   "Four Seasons Hotel Baltimore",
@@ -2938,6 +2941,14 @@ function michTier(m, dense) {
   // qualifying recognition enters as RECOMMENDED. The credential is the flagship's, named as such,
   // and op is deliberately ABSENT from the Destination test below.
   const cred = m && typeof m === "object" && (m.dest || m.bob || m.jb || m.f5 || (m.w && m.w <= 100) || m.wa || m.r50 || m.r50a || (m.ll && m.ll >= 95) || (m.gm && m.gm >= 19) || m.gmc);
+  // A CITY TRICIA HAS SET TO "TOP STARS ONLY" (M1083, 16 Nov 2026: Paris had 117 tables, "no one can
+  // look through that many"). In a city marked stars: "top" in DINE_CHOICES, three stars are the
+  // Destinations, two stars are Recommended, and a one-star is not listed. A table holding another
+  // Destination credential (World's 50 Best, La Liste 95+, James Beard and the rest of the test
+  // above) is still a Destination whatever its stars. Nothing is deleted: the one-stars stay in the
+  // file, and a table already chosen on a saved trip still shows. dense arrives as 2 for such a
+  // city (true or false everywhere else).
+  if (dense === 2) { if (s >= 3 || cred) return "Destination"; if (s === 1) return null; return "Recommended"; }
   if (s >= 2 || cred || (s === 1 && !dense)) return "Destination";
   return "Recommended";
 }
@@ -3044,6 +3055,12 @@ const FAVORITES = {
     { name: "Thyme", area: "Southrop · Gloucestershire", rate: null, ourTake: "A village of a hotel on the Southrop Manor estate — the Ox Barn, the Meadow Spa, the cookery school and the gardens — the Cotswolds at their gentlest.", contact: { addr: "Southrop Manor, Southrop GL7 3NX", web: "thyme.co.uk" } },
     { name: "Cowley Manor Experimental", area: "Cowley · near Cheltenham", rate: null, ourTake: "The Experimental Group's take on an Italianate manor in fifty-five acres — Dorothée Meilichzon's rooms, the lake walk and the C-Side spa.", contact: { addr: "Cowley, Cheltenham GL53 9NL", web: "experimentalgroup.com" } },
     { name: "The Lygon Arms", area: "Broadway · Worcestershire", rate: null, ourTake: "The coaching inn on Broadway's high street since the sixteenth century, with the great hall, a spa and the honey-stone village at the door.", contact: { addr: "High Street, Broadway WR12 7DU", web: "lygonarmshotel.co.uk" } },
+    // THE DOUBLE RED DUKE, added 17 Nov 2026 on Tricia's instruction as BEST: "we have a luxury or
+    // ultra luxury choice but if someone wants an alternative that is still very good". The tier is
+    // hers (it is listed in BEST_AVAILABLE). Facts from Mr & Mrs Smith, Country Life and
+    // cotswolds.com the same day: a 17th-century coaching inn, 19 rooms, Sam and Georgie Pearman's
+    // Country Creatures, garden room, chef's table by the grill, a shepherd's hut for treatments.
+    { name: "The Double Red Duke", area: "Clanfield · Oxfordshire", rate: null, ourTake: "A seventeenth-century coaching inn in the village of Clanfield, on the Oxfordshire side of the Cotswolds — nineteen rooms, a restaurant with a chef's table beside the grill, a garden room and a shepherd's hut in the garden for treatments. An inn with rooms rather than a country-house hotel, and the easygoing alternative to the estates.", contact: { addr: "Bourton Road, Clanfield, Bampton OX18 2RB", web: "countrycreatures.com" } },
   ],
   "Somerset": [
     { name: "The Newt in Somerset", area: "Bruton · Hadspen", rate: null, ourTake: "A cider-and-gardens estate hotel, one of Britain's most talked-about country stays — the gardens, the cyder press and the farm, with Bruton's galleries ten minutes away.", contact: { addr: "Hadspen, Bruton BA7 7NG", web: "thenewtinsomerset.com" } },
@@ -7225,7 +7242,13 @@ const DINING = {
   "Palo Alto": [{ n: "Protégé", s: 1 }],
   "Pamplona": [{ n: "Europa", s: 1 }, { n: "Kabo", s: 1 }, { n: "Rodero", s: 1 }],
   "Parañaque, Metro Manila": [{ n: "Linamnam", s: 1 }],
-  "Paris": [{ n: "Alléno Paris au Pavillon Ledoyen", s: 3 }, { n: "Arpège", s: 3 }, { n: "Épicure", s: 3 }, { n: "Kei", s: 3 }, { n: "L'Ambroisie", s: 3 }, { n: "Le Cinq", s: 3 }, { n: "Le Gabriel", s: 3 }, { n: "Le Pré Catelan", s: 3 }, { n: "Pierre Gagnaire", s: 3 }, { n: "Plénitude - Cheval Blanc Paris", s: 3 }, { n: "Table - Bruno Verjus", s: 3 }, { n: "Blanc", s: 2 }, { n: "David Toutain", s: 2 }, { n: "L'Abysse au Pavillon Ledoyen", s: 2 }, { n: "L'Abysse Paris", s: 2 }, { n: "L'Atelier de Joël Robuchon Saint-Germain", s: 2 }, { n: "L'Oiseau Blanc", s: 2 }, { n: "L'Orangerie", s: 2 }, { n: "La Réserve Paris — Le Gabriel", s: 2 }, { n: "La Scène", s: 2 }, { n: "Le Clarence", s: 2 }, { n: "Le Jules Verne", s: 2 }, { n: "Le Meurice Alain Ducasse", s: 2 }, { n: "Le Taillevent", s: 2 }, { n: "Maison Rostang", s: 2 }, { n: "Marsan par Hélène Darroze", s: 2 }, { n: "Restaurant Guy Savoy", s: 2 }, { n: "Sushi Yoshinaga", s: 2 }, { n: "Virtus", s: 2 }, { n: "114 Faubourg", s: 1, so:1 }, { n: "Accents Table Bourse", s: 1, so:1 }, { n: "Aida", s: 1, so:1 }, { n: "Akrame", s: 1, so:1 }, { n: "Aldehyde", s: 1, so:1 }, { n: "Alliance", s: 1, so:1 }, { n: "Amâlia", s: 1, so:1 }, { n: "Anne", s: 1, so:1 }, { n: "Anona", s: 1, so:1 }, { n: "Apicius", s: 1, so:1 }, { n: "Armani Ristorante", s: 1, so:1 }, { n: "AT", s: 1, so:1 }, { n: "Auguste", s: 1, so:1 }, { n: "Automne", s: 1, so:1 }, { n: "Baieta", s: 1, so:1 }, { n: "Benoit", s: 1, so:1 }, { n: "Chakaiseki Akiyoshi", s: 1, so:1 }, { n: "Comice", s: 1, so:1 }, { n: "Contraste", s: 1, so:1 }, { n: "Datil", s: 1, so:1 }, { n: "Divellec", s: 1, so:1 }, { n: "Don Juan II", s: 1, so:1 }, { n: "ES", s: 1, so:1 }, { n: "Espadon", s: 1, so:1 }, { n: "FIEF", s: 1, so:1 }, { n: "Fleur de Pavé", s: 1, so:1 }, { n: "Frédéric Simonin", s: 1, so:1 }, { n: "Frenchie", s: 1, so:1 }, { n: "Gaya par Pierre Gagnaire", s: 1, so:1 }, { n: "Géosmine", s: 1, so:1 }, { n: "Granite", s: 1, so:1 }, { n: "HANADA", s: 1, so:1 }, { n: "Helen", s: 1, so:1 }, { n: "Héritages", s: 1, so:1 }, { n: "Il Carpaccio", s: 1, so:1 }, { n: "Imperial Treasure", s: 1, so:1 }, { n: "Irwin", s: 1, so:1 }, { n: "Jean Imbert au Plaza Athénée", s: 1, so:1 }, { n: "Jin", s: 1, so:1 }, { n: "L'Arôme", s: 1, so:1 }, { n: "L'Atelier de Joël Robuchon - Étoile", s: 1, so:1 }, { n: "L'Écrin", s: 1, so:1 }, { n: "La Dame de Pic", s: 1, so:1 }, { n: "Lasserre", s: 1, so:1 }, { n: "Le Baudelaire", s: 1, so:1 }, { n: "Le George", s: 1, so:1 }, { n: "Le Sergent Recruteur", s: 1, so:1 }, { n: "Le Tout-Paris", s: 1, so:1 }, { n: "Le Violon d'Ingres", s: 1, so:1 }, { n: "Lucas Carton", s: 1, so:1 }, { n: "Maison Dubois", s: 1, so:1 }, { n: "Maison Ruggieri Palais Royal", s: 1, so:1 }, { n: "Mallory Gabsi", s: 1, so:1 }, { n: "Mavrommatis", s: 1, so:1 }, { n: "Monsieur Dior by Yannick Alléno", s: 1, so:1 }, { n: "MoSuke", s: 1, so:1 }, { n: "Nakatani", s: 1, so:1 }, { n: "Neige d'Été", s: 1, so:1 }, { n: "NESO", s: 1, so:1 }, { n: "Nhome", s: 1, so:1 }, { n: "Omar Dhiab", s: 1, so:1 }, { n: "Origines Restaurant", s: 1, so:1 }, { n: "Pantagruel", s: 1, so:1 }, { n: "Pavyllon Paris", s: 1, so:1 }, { n: "Pertinence", s: 1, so:1 }, { n: "Pilgrim", s: 1, so:1 }, { n: "Prévelle", s: 1, so:1 }, { n: "Pur' - Jean-François Rouquette", s: 1, so:1 }, { n: "Qui Plume la Lune", s: 1, so:1 }, { n: "Quinsou", s: 1, so:1 }, { n: "Relais Louis XIII", s: 1, so:1 }, { n: "Restaurant H", s: 1, so:1 }, { n: "Septime", s: 1, so:1 }, { n: "Shabour", s: 1, so:1 }, { n: "Sola", s: 1, so:1 }, { n: "Solstice", s: 1, so:1 }, { n: "Substance", s: 1, so:1 }, { n: "Sushi B", s: 1, so:1 }, { n: "Sushi Shunei", s: 1, so:1 }, { n: "Tomy & Co", s: 1, so:1 }, { n: "Tour d'Argent", s: 1, so:1 }, { n: "Trente-Trois", s: 1, so:1 }, { n: "Vaisseau", s: 1, so:1 }, { n: "Yam'Tcha", s: 1, so:1 }, { n: "Yoshinori", s: 1, so:1 }, { n: "Ze Kitchen Galerie", s: 1, so:1 }],
+  // ONE RESTAURANT, ONE CARD (M1084, Tricia, 16 Nov 2026: "if a restaurant is in 2 places put it in
+  // the higher spot"). Three Paris tables were listed twice under two spellings. Removed: "La
+  // Réserve Paris — Le Gabriel" (2 stars; it is Le Gabriel, which stays as the three-star
+  // Destination), "L'Abysse au Pavillon Ledoyen" (it is L'Abysse Paris, the guide's own name), and,
+  // from the awards list, "Table by Bruno Verjus" (it is Table - Bruno Verjus here, which already
+  // carries its World's 50 Best place through CRED).
+  "Paris": [{ n: "Alléno Paris au Pavillon Ledoyen", s: 3 }, { n: "Arpège", s: 3 }, { n: "Épicure", s: 3 }, { n: "Kei", s: 3 }, { n: "L'Ambroisie", s: 3 }, { n: "Le Cinq", s: 3 }, { n: "Le Gabriel", s: 3 }, { n: "Le Pré Catelan", s: 3 }, { n: "Pierre Gagnaire", s: 3 }, { n: "Plénitude - Cheval Blanc Paris", s: 3 }, { n: "Table - Bruno Verjus", s: 3 }, { n: "Blanc", s: 2 }, { n: "David Toutain", s: 2 }, { n: "L'Abysse Paris", s: 2 }, { n: "L'Atelier de Joël Robuchon Saint-Germain", s: 2 }, { n: "L'Oiseau Blanc", s: 2 }, { n: "L'Orangerie", s: 2 }, { n: "La Scène", s: 2 }, { n: "Le Clarence", s: 2 }, { n: "Le Jules Verne", s: 2 }, { n: "Le Meurice Alain Ducasse", s: 2 }, { n: "Le Taillevent", s: 2 }, { n: "Maison Rostang", s: 2 }, { n: "Marsan par Hélène Darroze", s: 2 }, { n: "Restaurant Guy Savoy", s: 2 }, { n: "Sushi Yoshinaga", s: 2 }, { n: "Virtus", s: 2 }, { n: "114 Faubourg", s: 1, so:1 }, { n: "Accents Table Bourse", s: 1, so:1 }, { n: "Aida", s: 1, so:1 }, { n: "Akrame", s: 1, so:1 }, { n: "Aldehyde", s: 1, so:1 }, { n: "Alliance", s: 1, so:1 }, { n: "Amâlia", s: 1, so:1 }, { n: "Anne", s: 1, so:1 }, { n: "Anona", s: 1, so:1 }, { n: "Apicius", s: 1, so:1 }, { n: "Armani Ristorante", s: 1, so:1 }, { n: "AT", s: 1, so:1 }, { n: "Auguste", s: 1, so:1 }, { n: "Automne", s: 1, so:1 }, { n: "Baieta", s: 1, so:1 }, { n: "Benoit", s: 1, so:1 }, { n: "Chakaiseki Akiyoshi", s: 1, so:1 }, { n: "Comice", s: 1, so:1 }, { n: "Contraste", s: 1, so:1 }, { n: "Datil", s: 1, so:1 }, { n: "Divellec", s: 1, so:1 }, { n: "Don Juan II", s: 1, so:1 }, { n: "ES", s: 1, so:1 }, { n: "Espadon", s: 1, so:1 }, { n: "FIEF", s: 1, so:1 }, { n: "Fleur de Pavé", s: 1, so:1 }, { n: "Frédéric Simonin", s: 1, so:1 }, { n: "Frenchie", s: 1, so:1 }, { n: "Gaya par Pierre Gagnaire", s: 1, so:1 }, { n: "Géosmine", s: 1, so:1 }, { n: "Granite", s: 1, so:1 }, { n: "HANADA", s: 1, so:1 }, { n: "Helen", s: 1, so:1 }, { n: "Héritages", s: 1, so:1 }, { n: "Il Carpaccio", s: 1, so:1 }, { n: "Imperial Treasure", s: 1, so:1 }, { n: "Irwin", s: 1, so:1 }, { n: "Jean Imbert au Plaza Athénée", s: 1, so:1 }, { n: "Jin", s: 1, so:1 }, { n: "L'Arôme", s: 1, so:1 }, { n: "L'Atelier de Joël Robuchon - Étoile", s: 1, so:1 }, { n: "L'Écrin", s: 1, so:1 }, { n: "La Dame de Pic", s: 1, so:1 }, { n: "Lasserre", s: 1, so:1 }, { n: "Le Baudelaire", s: 1, so:1 }, { n: "Le George", s: 1, so:1 }, { n: "Le Sergent Recruteur", s: 1, so:1 }, { n: "Le Tout-Paris", s: 1, so:1 }, { n: "Le Violon d'Ingres", s: 1, so:1 }, { n: "Lucas Carton", s: 1, so:1 }, { n: "Maison Dubois", s: 1, so:1 }, { n: "Maison Ruggieri Palais Royal", s: 1, so:1 }, { n: "Mallory Gabsi", s: 1, so:1 }, { n: "Mavrommatis", s: 1, so:1 }, { n: "Monsieur Dior by Yannick Alléno", s: 1, so:1 }, { n: "MoSuke", s: 1, so:1 }, { n: "Nakatani", s: 1, so:1 }, { n: "Neige d'Été", s: 1, so:1 }, { n: "NESO", s: 1, so:1 }, { n: "Nhome", s: 1, so:1 }, { n: "Omar Dhiab", s: 1, so:1 }, { n: "Origines Restaurant", s: 1, so:1 }, { n: "Pantagruel", s: 1, so:1 }, { n: "Pavyllon Paris", s: 1, so:1 }, { n: "Pertinence", s: 1, so:1 }, { n: "Pilgrim", s: 1, so:1 }, { n: "Prévelle", s: 1, so:1 }, { n: "Pur' - Jean-François Rouquette", s: 1, so:1 }, { n: "Qui Plume la Lune", s: 1, so:1 }, { n: "Quinsou", s: 1, so:1 }, { n: "Relais Louis XIII", s: 1, so:1 }, { n: "Restaurant H", s: 1, so:1 }, { n: "Septime", s: 1, so:1 }, { n: "Shabour", s: 1, so:1 }, { n: "Sola", s: 1, so:1 }, { n: "Solstice", s: 1, so:1 }, { n: "Substance", s: 1, so:1 }, { n: "Sushi B", s: 1, so:1 }, { n: "Sushi Shunei", s: 1, so:1 }, { n: "Tomy & Co", s: 1, so:1 }, { n: "Tour d'Argent", s: 1, so:1 }, { n: "Trente-Trois", s: 1, so:1 }, { n: "Vaisseau", s: 1, so:1 }, { n: "Yam'Tcha", s: 1, so:1 }, { n: "Yoshinori", s: 1, so:1 }, { n: "Ze Kitchen Galerie", s: 1, so:1 }],
   "Parma": [{ n: "Inkiostro", s: 1 }],
   "Paso Robles": [{ n: "Six Test Kitchen", s: 1 }, { n: "The Restaurant at JUSTIN", s: 1 }],
   "Passau": [{ n: "Marcel von Winckelmann", s: 1 }],
@@ -8898,7 +8921,7 @@ const ACCOLADES = {
   "palo alto": [{ n: "iTalico", us:1, bib:1 }],
   "pamplona": [{ n: "El Merca'o", bib:1 }],
   "papendrecht": [{ n: "Bistro De Ertepeller", bib:1 }],
-  "paris": [{ n: "Table by Bruno Verjus", w: 8, wy: 2025 }, { n: "Le Grand Restaurant – Jean-François Piège", ll:97.5, lly:2026, gm:19, gt:5, gy:2026 }],
+  "paris": [{ n: "Le Grand Restaurant – Jean-François Piège", ll:97.5, lly:2026, gm:19, gt:5, gy:2026 }],
   "parma": [{ n: "Brisla Trattoria", bib:1 }, { n: "I Tri Siochètt", bib:1 }],
   "pasadena": [{ n: "Union", us:1, bib:1 }],
   "pau": [{ n: "Omnivore", bib:1 }],
@@ -9694,6 +9717,22 @@ function regionMembers() {
 const DINE_RADIUS_SOME_KM = 16;   // 10 miles, for a town with a few tables of its own
 const DINE_RADIUS_NONE_KM = 32;   // 20 miles, for a town with none
 const DINE_SELF_SUFFICIENT = 5;
+// TRICIA'S OWN DECISIONS, CITY BY CITY (M1083, 16 Nov 2026: "I want to make the restaurant
+// decisions independently and not as a rule"). How long a city's list should be is her call for
+// that city, so it is written here by name and nothing here is worked out from a count. A city
+// that is not listed behaves exactly as it did before. Keyed by the city's normalised name.
+//   stars: "top"  three stars are Destinations, two stars are Recommended, one-stars are not listed
+//                 (a table with another Destination credential stays a Destination whatever its stars)
+//   mr: "off"     Michelin Recommended (no star, no Bib, no other award) is not listed
+// Nothing is deleted from the file: remove a line here and that city's full list is back.
+const DINE_CHOICES = {
+  "paris": { stars: "top" },       // 117 tables became 32
+  "tokyo": { stars: "top" },       // 141 became 46
+  "vancouver": { mr: "off" },      // 72 became 27
+  "atlanta": { mr: "off" },        // 63 became 22
+  "montreal": { mr: "off" },       // 62 became 12
+};
+function dineChoice(city) { return DINE_CHOICES[dnrm(bareCity(String(city || "")))] || {}; }
 const DINE_DENSE_MIN = 15;   // two- and three-star tables that make a city "dense" (see the dine picker)
 const DINE_BIB_CAP = 25;     // Bib Gourmands at which the level below (Michelin Recommended) is no longer shown (see the dine picker)   // at or above this, a place never reaches out
 function dineReachKm(canon) {
@@ -24027,13 +24066,18 @@ function DinePicker({ city, pick, upd, nights, dayLabel, hotel }) {
   // Favorites and anything else with a credential of its own stay. A rule for every city, not a
   // Toronto patch; a dense city has no Bibs loaded and is governed above.
   const bibCount = acc0.filter((r) => r.bib).length;
-  const acc = bibCount >= DINE_BIB_CAP ? acc0.filter((r) => !/^Michelin Recommended/.test(accoladeBadge(r) || "")) : acc0;
   // A DENSE CITY (Tricia, 22 Oct 2026): fifteen or more two- and three-star tables, not twenty. New
   // York has nineteen and sat one short, so all fifty-one of its one-stars were Destinations — "too
   // many". At fifteen the one-stars step down to Recommended there, as they already do in Paris,
   // London, Tokyo and Kyoto; Hong Kong and Osaka join. Beard winners stay Destinations regardless.
   // In a dense city Bib Gourmands are not loaded and Michelin Selected is never loaded anywhere.
-  const dense = !!(michRaw.length && michRaw.filter((m) => m.s >= 2).length >= DINE_DENSE_MIN);
+  const topStars = michRaw.filter((m) => m.s >= 2).length;
+  const choice = dineChoice(city);
+  const dense = choice.stars === "top" ? 2 : !!(michRaw.length && topStars >= DINE_DENSE_MIN);
+  // Michelin Recommended is also left out in a city where Tricia has said so (mr: "off" in
+  // DINE_CHOICES): Vancouver, Atlanta and Montreal, where it made up most of a list of sixty or
+  // seventy. Stars, Bibs, James Beard, 50 Best, La Liste and Local Favorites all stay.
+  const acc = (bibCount >= DINE_BIB_CAP || choice.mr === "off") ? acc0.filter((r) => !/^Michelin Recommended/.test(accoladeBadge(r) || "")) : acc0;
   // RESTAURANTS OPEN CLOSED (Tricia, 6 Oct 2026): the three categories are shown and nothing is
   // listed until one is chosen. A list only ever appears after a tap; one category at a time.
   const [level, setLevel] = useState(null);
@@ -24088,7 +24132,7 @@ function DinePicker({ city, pick, upd, nights, dayLabel, hotel }) {
       // picked is here, full size, with its date and booking — whichever category it came from and
       // whether or not it is one of the two shown for colour. The two teasers follow it, and the
       // count says what else there is. (Tricia, 11 Oct 2026.)
-      const rowOf = (x) => { const lf = localFavRows.find((r) => keyOf(r.n) === keyOf(x.name)); if (lf) return { r: lf, lvl: "Local" }; const pr = pool.find((r) => keyOf(r.n) === keyOf(x.name)); return pr ? { r: pr, lvl: michTier(pr, dense) } : null; };
+      const rowOf = (x) => { const lf = localFavRows.find((r) => keyOf(r.n) === keyOf(x.name)); if (lf) return { r: lf, lvl: "Local" }; const pr = pool.find((r) => keyOf(r.n) === keyOf(x.name)); return pr ? { r: pr, lvl: michTier(pr, dense) || "Recommended" } : null; };
       const chosenRows = dines.map(rowOf).filter(Boolean);
       const isChosen = (r) => chosenRows.some((c) => keyOf(c.r.n) === keyOf(r.n));
       const tease = (teaseLevel === "Local" ? localFavRows : teaseLevel ? pool.filter((r) => michTier(r, dense) === teaseLevel) : []).filter((r) => !isChosen(r)).slice(0, 2);
