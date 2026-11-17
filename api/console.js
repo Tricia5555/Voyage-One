@@ -33,7 +33,12 @@ async function whoIs(token) {
   const r = await fetch(`${URL_}/auth/v1/user`, { headers: { apikey: KEY, Authorization: `Bearer ${token}` } });
   if (!r.ok) return null;
   const u = await r.json();
-  return u && u.email ? { id: u.id, email: String(u.email).toLowerCase() } : null;
+  // The session's assurance level rides in the token: "aal2" once the second step (the six-digit
+  // code) has been passed, "aal1" for a password alone. Supabase has just vouched for this token
+  // in the call above, so its own claims can be read here.
+  let aal = "aal1";
+  try { const part = String(token).split(".")[1] || ""; const claims = JSON.parse(Buffer.from(part.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8")); if (claims && claims.aal) aal = String(claims.aal); } catch (e) {}
+  return u && u.email ? { id: u.id, email: String(u.email).toLowerCase(), aal } : null;
 }
 
 async function isStaff(email) {
@@ -94,6 +99,11 @@ export default async function handler(req, res) {
   if (!me) return res.status(401).json({ ok: false, reason: "signed out" });
   const staff = await isStaff(me.email);
   if (!staff) return res.status(403).json({ ok: false, reason: "not staff", email: me.email });
+  // THE SECOND STEP IS REQUIRED (M1088, 17 Nov 2026). A staff password alone opens nothing: the
+  // Client Book answers only a session that has also given the six-digit code. Checked here, on
+  // the server, so it holds whatever the page does. The page (M1087) reads this reason and asks
+  // for the code, or sets it up on a first sign-in.
+  if (me.aal !== "aal2") return res.status(403).json({ ok: false, reason: "second step", email: me.email });
 
   if (b.action === "load") {
     const notes = [];
