@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1097";
+const BUILD = "M1098";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17349,69 +17349,57 @@ const ONE_LIST = {
         // From-prices: Ascot (Queen Anne, £95) and Racing Breaks' published 2027 list, read 19 Nov 2026.
         multiPick: true,
         daysTitle: "Build your days at Royal Ascot",
-        pickStep: "Pick any days you like \u2014 each with its own enclosure",
+        tierStep: "Step 2 \u00b7 where would you like to be?",
+        pickStep: "Step 1 \u00b7 tap a day",
         recapLabel: "Your day",
         pickSettle: "We suggest arriving in England a day or two ahead — time to settle, collect the morning dress and the hat, and be unhurried on the morning of the races. You'll set your exact nights next.",
-        daysIntro: "Royal Ascot runs five days, Tuesday to Saturday, and they are not equal \u2014 Thursday is Ladies' Day and the Gold Cup, the grandest of them all. Tap a day to open it, choose how you want to spend it, and add it; many take Thursday and one other. THE ROYAL ENCLOSURE is for Members and their guests, and is not a ticket anyone can buy \u2014 a visitor's way in is one of Ascot's own restaurants inside it, each of which carries a Royal Enclosure guest badge for the day. THE QUEEN ANNE ENCLOSURE is the premier public enclosure, with or without a restaurant. Prices are per person, from 2027 published rates; they vary by day and are confirmed for your date.",
+        daysIntro: "Five days, Tuesday to Saturday. Tap a day and choose where you would like to be; tap another day to add it. Thursday is Ladies' Day and the Gold Cup, the grandest of the five. Prices are per person and are confirmed for your date.",
         dayPicks: [
           { label: "Tuesday \u00b7 Opening Day", dates: "Tue 15 Jun 2027", date: "2027-06-15", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The week begins \u2014 the first Royal Procession up the straight, the Queen Anne Stakes and the St James's Palace Stakes. The purest racing crowd of the five.", tiers: [
-            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
-            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
-            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp", note: "The restaurant of the Queen Anne Enclosure, the premier public enclosure." },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp", note: "The premier public enclosure: the Grandstand, the Parade Ring and the singing after racing. No restaurant." },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request", note: "A box of your own for your party for the day." },
           ] },
           { label: "Wednesday", dates: "Wed 16 Jun 2027", date: "2027-06-16", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The Prince of Wales's Stakes, one of the finest middle-distance races in the world \u2014 a connoisseur's day, a little quieter than Thursday.", tiers: [
-            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
-            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
-            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp", note: "The restaurant of the Queen Anne Enclosure, the premier public enclosure." },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp", note: "The premier public enclosure: the Grandstand, the Parade Ring and the singing after racing. No restaurant." },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request", note: "A box of your own for your party for the day." },
           ] },
           { label: "Thursday \u00b7 Ladies' Day & the Gold Cup", dates: "Thu 17 Jun 2027", date: "2027-06-17", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The marquee. The Gold Cup, the great hats, the fashion \u2014 the day the whole week is built around. If you go once, go Thursday.", tiers: [
-            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
-            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
-            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp", note: "The restaurant of the Queen Anne Enclosure, the premier public enclosure." },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp", note: "The premier public enclosure: the Grandstand, the Parade Ring and the singing after racing. No restaurant." },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request", note: "A box of your own for your party for the day." },
           ] },
           { label: "Friday", dates: "Fri 18 Jun 2027", date: "2027-06-18", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The Coronation Stakes and the Commonwealth Cup \u2014 brilliant racing, a lighter, celebratory mood as the week nears its close.", tiers: [
-            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
-            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
-            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp", note: "The restaurant of the Queen Anne Enclosure, the premier public enclosure." },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp", note: "The premier public enclosure: the Grandstand, the Parade Ring and the singing after racing. No restaurant." },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request", note: "A box of your own for your party for the day." },
           ] },
           { label: "Saturday \u00b7 Finale", dates: "Sat 19 Jun 2027", date: "2027-06-19", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The Diamond Jubilee Stakes closes the week, and the crowd gathers at the bandstand to sing \u2014 the most festive day of the five.", tiers: [
-            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
-            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
-            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
-            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp", note: "Inside the Royal Enclosure. Your Royal Enclosure guest badge is included." },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp", note: "The restaurant of the Queen Anne Enclosure, the premier public enclosure." },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp", note: "The premier public enclosure: the Grandstand, the Parade Ring and the singing after racing. No restaurant." },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request", note: "A box of your own for your party for the day." },
           ] },
         ],
         daysSubTitle: "The week",
         days: "Five days, Tuesday to Saturday, each opened at two o'clock by the Royal Procession — the King and the royal party in horse-drawn landaus up the straight mile. Thursday is Ladies' Day and the Gold Cup, the grandest; Saturday the most festive, ending with the singing round the bandstand. The racing is Flat racing at its highest level, but Ascot is as much occasion as sport.",
-        ticketsTitle: "Your way in \u2014 what each choice is",
-        tickets: "THE ROYAL ENCLOSURE is Royal Ascot's most exclusive, reserved for Royal Enclosure Members and their invited guests. If you are a Member's guest, your badges are booked directly with Ascot from January. Otherwise, the way in is Ascot's fine dining there: the PARADE RING RESTAURANT, the SANDRINGHAM and the WYNDHAM CLUB each include a Royal Enclosure guest badge with the day's dining. THE QUEEN ANNE ENCLOSURE is the premier public enclosure: the Grandstand, the Parade Ring, excellent race viewing and the singing after racing; ON 5 is its restaurant. A PRIVATE BOX takes a party of your own for the day. Royal Enclosure dress applies to every Royal Enclosure restaurant.",
-        ticketBands: [
-          { label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u2014 guest badge included", price: "From about \u00a32,940 pp" },
-          { label: "Royal Enclosure \u00b7 Sandringham Restaurant \u2014 guest badge included", price: "From about \u00a31,260 pp" },
-          { label: "Royal Enclosure \u00b7 Wyndham Club \u2014 guest badge included", price: "From about \u00a31,020 pp" },
-          { label: "Queen Anne Enclosure \u00b7 On 5 restaurant", price: "From about \u00a31,260 pp" },
-          { label: "Queen Anne Enclosure \u00b7 admission", price: "From \u00a395 pp" },
-          { label: "A private box for your party", price: "Price on request" },
-        ],
-        ticketLinks: [
-          { label: "Book Queen Anne / Grandstand tickets", url: "https://www.eticketing.co.uk/ascotracecourse/EDP/Event/Index/605" },
-          { label: "Explore the Royal Enclosure", url: "https://www.ascot.com/royal-ascot/royal-enclosure" },
-          { label: "Explore private boxes & hospitality", url: "https://www.ascot.com/hospitality/fine-dining-hospitality-royal-ascot" },
-        ],
+        ticketsTitle: "How the Royal Enclosure works",
+        tickets: "The Royal Enclosure is reserved for its Members and their invited guests; it is not a ticket anyone can buy. A visitor's way in is one of Ascot's own restaurants inside it \u2014 the Parade Ring Restaurant, the Sandringham or the Wyndham Club \u2014 each of which includes a Royal Enclosure guest badge for the day. Royal Enclosure dress applies in all three. If you are the guest of a Member, your badges are booked directly with Ascot from January.",
         // M1095 (20 Nov 2026): the request goes straight to Ascot's own hospitality desk (address read on
         // ascot.com's hospitality page, 20 Nov 2026), Voyage One copied as on every broker request.
         broker: { who: "Ascot Hospitality", firm: "Ascot Racecourse", city: "Ascot", email: "hospitality@ascot.com", title: "Request your days at Royal Ascot", unit: "places", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,",
@@ -17420,7 +17408,7 @@ const ONE_LIST = {
           closing: "Please let me know availability and the confirmed price." },
         ticketLink: "https://www.ascot.com/royal-ascot",
         ticketLinkLabel: "Explore Royal Ascot",
-        ticketNote: "From-prices are 2027 published rates and are estimates until confirmed for your day; Thursday is the dearest. Ascot calls it the Queen Anne Enclosure; it is never the Queen's Enclosure.",
+        ticketNote: "From-prices are 2027 published rates and are estimates until confirmed for your day; Thursday is the dearest.",
         stayNote: "Two ways to do it, and London makes a strong case: your morning dress and top hat are fitted in central London — Chelsea and Mayfair — so a London base puts you right by the tailor, with a car out to Ascot each day (about 50 minutes). The alternative is a country house near the course, for those who want the full estate week around the racing. Both are lovely; it comes down to whether you'd rather have the city or the countryside on either side of the races.",
         stay: [
           { name: "The Berkeley", area: "Belgravia, London · walk to the tailors", rate: 800, note: "A short stroll from the Lower Sloane Street morning-dress houses, in the heart of Belgravia — the natural London base for Ascot week, with a car out each day. (Estimated.)" },
@@ -20109,10 +20097,11 @@ function OneList({ onPick, onBack, onHome, initial }) {
                     {chosen ? <span style={{ fontSize: 13.5, color: t.brassLight, fontWeight: 600 }}>✓ {chosen.tierLabel}</span> : <span style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.5 }}>{p.band}{open ? "" : " · tap to choose"}</span>}
                   </button>
                   {open ? (<div style={{ padding: "2px 12px 12px", display: "flex", flexDirection: "column", gap: 7, background: chosen ? t.pine : t.card }}>
+                    {g.tierStep ? <div style={{ fontSize: 11.5, letterSpacing: "0.16em", textTransform: "uppercase", color: chosen ? t.brassLight : t.brass, fontWeight: 600, padding: "6px 4px 2px" }}>{g.tierStep}</div> : null}
                     {p.tiers.map((tr, ti) => { const on = chosen && chosen.tier === tr.tier; return (
                       <button key={ti} onClick={() => setMultiSel((prev) => { const n = { ...prev }; if (on) delete n[p.date]; else n[p.date] = { tier: tr.tier, tierLabel: tr.label, label: p.label + " · " + tr.tier }; return n; })} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textAlign: "left", background: on ? t.brass : t.white, border: `1.5px solid ${on ? t.brass : t.line}`, borderRadius: 11, padding: "11px 13px", cursor: "pointer" }}>
-                        <span style={{ fontSize: 14, color: t.ink }}>{tr.label}</span>
-                        <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? t.ink : t.brass }}>{on ? "✓ Added" : "Add"}</span>
+                        <span style={{ fontSize: 14, color: t.ink }}>{tr.label}{tr.note ? <span style={{ display: "block", fontSize: 12.5, color: on ? t.ink : t.inkSoft, lineHeight: 1.45, marginTop: 2 }}>{tr.note}</span> : null}</span>
+                        <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? t.ink : t.brass, whiteSpace: "nowrap" }}>{on ? "✓ Added" : "Add"}</span>
                       </button>); })}
                   </div>) : null}
                 </div>); })}
