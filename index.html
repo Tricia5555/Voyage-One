@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1101";
+const BUILD = "M1102";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -16113,6 +16113,8 @@ function VoyageOne() {
       pick: { flight: null, ff: "", stay: null, dines: [], tours: [], spas: [], sports: [], exploreMode: "", stops: [] } }] : [];
     const mainNights = ev.via ? Math.max(1, nights - (ev.via.nights || 1)) : nights;
     setDests([...viaStop, { id: newId(), city: ev.city, air: ev.airport, fromExperience: true, event: ev.title, mode: "full", nights: mainNights, days: 5, arriveBy: "Flight", pick: { flight: null, ff: "", stay: seededStay, dines: seededDines.concat(pageDines), tours: seededTours, spas: [], sports: seedKind === "dine" ? [] : seededSports, exploreMode: "", stops: [] } }]);
+    // M1102 (20 Nov 2026): a journey that began as an experience is named for it, not left for the client to name.
+    setTripName(ev.tripName || ev.title || "");
     setScreen("plan"); setStep(0);
   };
   // THE SHAPED TRIP BECOMES A REAL ONE. Each leg becomes a destination with its nights and its
@@ -16739,7 +16741,6 @@ function Planner(p) {
       {p.step === 2 && <StepDestinations {...p} />}
       {p.step === 3 && <StepBuild {...p} />}
       {p.step === 3 && !p.user && <SaveJourneyPrompt onOpen={p.onOpenAuth} />}
-      {p.step === 3 && expOnly ? <div style={{ marginTop: 26, fontSize: 14, color: t.inkSoft, textAlign: "center" }}>Want to add another place to this journey? <button onClick={() => p.setStep(2)} style={{ background: "none", border: "none", padding: 0, color: t.brass, fontSize: 14, textDecoration: "underline", cursor: "pointer" }}>Add a destination</button></div> : null}
       {p.step === 3 ? <HomeScreenLine /> : null}
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 44 }}>
         {/* M1101 (20 Nov 2026): a trip that began as an experience already has its place, so it goes
@@ -17346,7 +17347,7 @@ const ONE_LIST = {
           ],
           handoff: "Plan this trip opens LOUISVILLE for four nights, Wednesday to Sunday, with flights into Louisville. The lodging is booked by you direct \u2014 or availability requested at Hermitage Farm. Tickets are official, from Churchill Downs or through Derby Experiences. Barnstable Brown is a request, never a promise.",
         } },
-      { title: "London - A Royal Ascot Experience", slug: "royal-ascot", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", heroContain: true, bandW: "min(74vw, 640px)", guide: {
+      { title: "London - A Royal Ascot Experience", tripName: "Royal Ascot Experience", slug: "royal-ascot", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", heroContain: true, bandW: "min(74vw, 640px)", guide: {
         cur: "£",
         // M1094 (19 Nov 2026): Ascot ends in a written request like the French Open. Any number of days,
         // each with its own way in. The Royal Enclosure is offered only as Ascot's own restaurants there,
@@ -20978,12 +20979,14 @@ function StepBuild(p) {
   let estimated = 0;
   const lines = p.dests.map((d, i) => { const from = legStart(p, i); const { total, items, onRequest: or, estimated: es } = destCost(d, from, partySize(p)); grand += total; onRequest += or || 0; estimated += es || 0; return { city: d.city || `Stop ${i + 1}`, total, items }; });
   const rc = returnCost(p); grand += rc.total;
+  const expOnly = (p.dests || []).length > 0 && p.dests.every((d) => d && d.fromExperience && d.city);
+  const homeName = bareCity(String(p.homeCity || p.fromCity || "")) || "home";
   return (<div>
     <SectionHead eyebrow="Build your trip" title="Decide as you go" sub="Move down the journey one city at a time. Dates fill in as you set nights, so every table and tour can be booked for a real day." />
     <div style={{ maxWidth: 520, margin: "0 0 26px" }}>
-      <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>Name this trip</div>
+      <div style={{ fontSize: 11.5, letterSpacing: "0.14em", textTransform: "uppercase", color: t.inkFaint, marginBottom: 4 }}>{expOnly && p.tripName ? "Your journey" : "Name this trip"}</div>
       <TripName p={p} />
-      <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5 }}>Named from your route unless you type your own.</div>
+      {expOnly && p.tripName ? null : <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 5 }}>Named from your route unless you type your own.</div>}
     </div>
     {sch.valid && p.dests.length > 0 && (() => {
       // A running tally of nights, editable in place. This is the "fix it here, don't walk
@@ -21033,6 +21036,14 @@ function StepBuild(p) {
       <div className="vo-main" style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         {p.dests.length === 0 && <div style={{ color: t.inkFaint, padding: "30px 0" }}>Go back and add at least one destination to start pricing.</div>}
         {p.dests.map((d, i) => <CitySection key={d.id || i} d={d} i={i} p={p} from={legStart(p, i)} legSched={sch.legs[i]} />)}
+        {expOnly ? (<div style={{ background: t.white, border: `1.5px solid ${t.brassLight}`, borderRadius: 18, padding: "22px", textAlign: "center" }}>
+          <div style={{ fontFamily: font.display, fontSize: 26, color: t.ink }}>What next?</div>
+          <div style={{ fontSize: 14, color: t.inkSoft, lineHeight: 1.55, marginTop: 6 }}>{p.dests[p.dests.length - 1].city} is organized. Add another destination to this journey, or fly home to {homeName}.</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", marginTop: 16 }}>
+            <button onClick={() => { p.addDest(); p.setStep(2); }} style={{ background: "none", border: `1.5px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 500, cursor: "pointer" }}>Add another destination</button>
+            <button onClick={() => { const el = document.getElementById("vo-heading-home"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }} style={{ background: t.pine, border: `1.5px solid ${t.pine}`, color: t.paper, borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 500, cursor: "pointer" }}>Fly home to {homeName}</button>
+          </div>
+        </div>) : null}
         {p.dests.length > 0 && <ReturnSection p={p} rc={rc} blocked={datesBroken} />}
         {p.dests.length > 0 && (datesBroken ? (<div style={{ marginTop: 6, background: "#FBEEE9", border: "1px solid #D9A08B", borderRadius: 16, padding: "18px 20px", display: "flex", gap: 11, alignItems: "flex-start" }}>
           <AlertTriangle size={17} color="#B0563A" style={{ marginTop: 2, flexShrink: 0 }} />
@@ -25671,7 +25682,7 @@ function ReturnSection({ p, rc, blocked }) {
   // The airport we depart the country from: the chosen airport city, or the resolved gateway.
   const departAirport = p.returnFrom || lastCity;
   const homeGround = groundOption(p.returnMode, "", p.returnFrom);
-  return (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 18, padding: "22px" }}>
+  return (<div id="vo-heading-home" style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 18, padding: "22px", scrollMarginTop: 80 }}>
     <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}><span style={{ fontFamily: font.display, fontSize: 28 }}>Heading home</span><span style={{ fontSize: 13, color: t.inkFaint }}>the last piece</span></div>
     <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 6, maxWidth: 520, lineHeight: 1.5 }}>Flying out of {lastCity || "your last stop"}? Just say where you land. If you travel on to a different airport city first, name it here.</div>
     <div style={{ display: "flex", flexWrap: "wrap", gap: "20px 32px", alignItems: "flex-end", marginTop: 18 }}>
