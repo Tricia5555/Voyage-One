@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1092";
+const BUILD = "M1097";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17343,50 +17343,84 @@ const ONE_LIST = {
         } },
       { title: "Royal Ascot", city: "Ascot, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", heroContain: true, bandW: "min(74vw, 640px)", guide: {
         cur: "£",
-        daysTitle: "Choose your day & your enclosure",
-        pickStep: "Step one · choose your day & your enclosure",
+        // M1094 (19 Nov 2026): Ascot ends in a written request like the French Open. Any number of days,
+        // each with its own way in. The Royal Enclosure is offered only as Ascot's own restaurants there,
+        // which carry a guest badge for the day — the one route open to a visitor who is not a Member's guest.
+        // From-prices: Ascot (Queen Anne, £95) and Racing Breaks' published 2027 list, read 19 Nov 2026.
+        multiPick: true,
+        daysTitle: "Build your days at Royal Ascot",
+        pickStep: "Pick any days you like \u2014 each with its own enclosure",
         recapLabel: "Your day",
         pickSettle: "We suggest arriving in England a day or two ahead — time to settle, collect the morning dress and the hat, and be unhurried on the morning of the races. You'll set your exact nights next.",
-        daysIntro: "First, the day. Royal Ascot runs five days, Tuesday to Saturday, and they are not equal — Thursday is Ladies' Day and the Gold Cup, the grandest of them all. Choose your day, then the enclosure: for our clientele that means the Royal Enclosure, with the Queen Anne as the alternative when Royal Enclosure sponsorship can't be arranged in time. Prices are estimates; we confirm before anything is committed.",
+        daysIntro: "Royal Ascot runs five days, Tuesday to Saturday, and they are not equal \u2014 Thursday is Ladies' Day and the Gold Cup, the grandest of them all. Tap a day to open it, choose how you want to spend it, and add it; many take Thursday and one other. THE ROYAL ENCLOSURE is for Members and their guests, and is not a ticket anyone can buy \u2014 a visitor's way in is one of Ascot's own restaurants inside it, each of which carries a Royal Enclosure guest badge for the day. THE QUEEN ANNE ENCLOSURE is the premier public enclosure, with or without a restaurant. Prices are per person, from 2027 published rates; they vary by day and are confirmed for your date.",
         dayPicks: [
-          { label: "Tuesday · Opening Day", dates: "Tue 15 Jun 2027", date: "2027-06-15", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The week begins — the first Royal Procession up the straight, the Queen Anne Stakes and the St James's Palace Stakes. The purest racing crowd of the five.", tiers: [
-            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
-            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          { label: "Tuesday \u00b7 Opening Day", dates: "Tue 15 Jun 2027", date: "2027-06-15", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The week begins \u2014 the first Royal Procession up the straight, the Queen Anne Stakes and the St James's Palace Stakes. The purest racing crowd of the five.", tiers: [
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
           ] },
-          { label: "Wednesday", dates: "Wed 16 Jun 2027", date: "2027-06-16", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The Prince of Wales's Stakes, one of the finest middle-distance races in the world — a connoisseur's day, a little quieter than Thursday.", tiers: [
-            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
-            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          { label: "Wednesday", dates: "Wed 16 Jun 2027", date: "2027-06-16", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The Prince of Wales's Stakes, one of the finest middle-distance races in the world \u2014 a connoisseur's day, a little quieter than Thursday.", tiers: [
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
           ] },
-          { label: "Thursday · Ladies' Day & the Gold Cup", dates: "Thu 17 Jun 2027", date: "2027-06-17", band: "Royal Enclosure ≈ £115–£135 · est.", note: "The marquee. The Gold Cup, the great hats, the fashion — the day the whole week is built around. If you go once, go Thursday.", tiers: [
-            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £115–£135 pp est." },
-            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          { label: "Thursday \u00b7 Ladies' Day & the Gold Cup", dates: "Thu 17 Jun 2027", date: "2027-06-17", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The marquee. The Gold Cup, the great hats, the fashion \u2014 the day the whole week is built around. If you go once, go Thursday.", tiers: [
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
           ] },
-          { label: "Friday", dates: "Fri 18 Jun 2027", date: "2027-06-18", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The Coronation Stakes and the Commonwealth Cup — brilliant racing, a lighter, celebratory mood as the week nears its close.", tiers: [
-            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
-            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          { label: "Friday", dates: "Fri 18 Jun 2027", date: "2027-06-18", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The Coronation Stakes and the Commonwealth Cup \u2014 brilliant racing, a lighter, celebratory mood as the week nears its close.", tiers: [
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
           ] },
-          { label: "Saturday · Finale", dates: "Sat 19 Jun 2027", date: "2027-06-19", band: "Royal Enclosure ≈ £105–£125 · est.", note: "The Diamond Jubilee Stakes closes the week, and the crowd gathers at the bandstand to sing — the most festive day of the five.", tiers: [
-            { tier: "Royal Enclosure — the tradition", label: "Royal Enclosure · badge ≈ £105–£125 pp est." },
-            { tier: "Queen Anne Enclosure — grandstand & lawns", label: "Queen Anne · ≈ £99 pp est." },
+          { label: "Saturday \u00b7 Finale", dates: "Sat 19 Jun 2027", date: "2027-06-19", band: "Royal Enclosure from about \u00a31,020 \u00b7 Queen Anne from \u00a395 \u00b7 pp", note: "The Diamond Jubilee Stakes closes the week, and the crowd gathers at the bandstand to sing \u2014 the most festive day of the five.", tiers: [
+            { tier: "Royal Enclosure \u00b7 Parade Ring Restaurant", label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u00b7 from about \u00a32,940 pp" },
+            { tier: "Royal Enclosure \u00b7 Sandringham Restaurant", label: "Royal Enclosure \u00b7 Sandringham Restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Royal Enclosure \u00b7 Wyndham Club", label: "Royal Enclosure \u00b7 Wyndham Club \u00b7 from about \u00a31,020 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 On 5 restaurant", label: "Queen Anne Enclosure \u00b7 On 5 restaurant \u00b7 from about \u00a31,260 pp" },
+            { tier: "Queen Anne Enclosure \u00b7 admission", label: "Queen Anne Enclosure \u00b7 admission \u00b7 from \u00a395 pp" },
+            { tier: "A private box", label: "A private box for your party \u00b7 price on request" },
           ] },
         ],
         daysSubTitle: "The week",
         days: "Five days, Tuesday to Saturday, each opened at two o'clock by the Royal Procession — the King and the royal party in horse-drawn landaus up the straight mile. Thursday is Ladies' Day and the Gold Cup, the grandest; Saturday the most festive, ending with the singing round the bandstand. The racing is Flat racing at its highest level, but Ascot is as much occasion as sport.",
-        ticketsTitle: "Tickets and hospitality \u2014 choose your Ascot",
-        tickets: "ASCOT DIRECTLY, FIRST. Royal Ascot\u2019s tickets and hospitality are sold by the racecourse itself, and that is where we send you; no reseller is offered anything Ascot sells. Three ways in. THE QUEEN ANNE ENCLOSURE is the premier public enclosure and the best standard ticket for a Voyage One client: the Grandstand, the Parade Ring, excellent race viewing, the Bandstand and the traditional singing after racing, and restaurants, bars and upgraded experiences within it. THE ROYAL ENCLOSURE is Royal Ascot\u2019s most exclusive, and it is not a ticket you buy: access is reserved for Royal Enclosure Members and their invited guests, and if you have access through a Member the badges are booked directly with Ascot from January. HOSPITALITY \u2014 fine dining, restaurants, private boxes, reserved seating, premium viewing and the clubs \u2014 is sold by Ascot with the current year\u2019s exact packages, prices and availability on its own site, which is why we link to it rather than keep a list that goes stale.",
+        ticketsTitle: "Your way in \u2014 what each choice is",
+        tickets: "THE ROYAL ENCLOSURE is Royal Ascot's most exclusive, reserved for Royal Enclosure Members and their invited guests. If you are a Member's guest, your badges are booked directly with Ascot from January. Otherwise, the way in is Ascot's fine dining there: the PARADE RING RESTAURANT, the SANDRINGHAM and the WYNDHAM CLUB each include a Royal Enclosure guest badge with the day's dining. THE QUEEN ANNE ENCLOSURE is the premier public enclosure: the Grandstand, the Parade Ring, excellent race viewing and the singing after racing; ON 5 is its restaurant. A PRIVATE BOX takes a party of your own for the day. Royal Enclosure dress applies to every Royal Enclosure restaurant.",
         ticketBands: [
-          { label: "Queen Anne Enclosure \u2014 premier public enclosure, the Grandstand and the Parade Ring", price: "Book directly with Ascot" },
-          { label: "Royal Enclosure \u2014 Members and invited guests only; badges booked through Ascot from January", price: "Learn about access" },
-          { label: "Hospitality \u2014 fine dining, premium viewing and private boxes", price: "Explore with Ascot" },
+          { label: "Royal Enclosure \u00b7 Parade Ring Restaurant \u2014 guest badge included", price: "From about \u00a32,940 pp" },
+          { label: "Royal Enclosure \u00b7 Sandringham Restaurant \u2014 guest badge included", price: "From about \u00a31,260 pp" },
+          { label: "Royal Enclosure \u00b7 Wyndham Club \u2014 guest badge included", price: "From about \u00a31,020 pp" },
+          { label: "Queen Anne Enclosure \u00b7 On 5 restaurant", price: "From about \u00a31,260 pp" },
+          { label: "Queen Anne Enclosure \u00b7 admission", price: "From \u00a395 pp" },
+          { label: "A private box for your party", price: "Price on request" },
         ],
         ticketLinks: [
           { label: "Book Queen Anne / Grandstand tickets", url: "https://www.eticketing.co.uk/ascotracecourse/EDP/Event/Index/605" },
           { label: "Explore the Royal Enclosure", url: "https://www.ascot.com/royal-ascot/royal-enclosure" },
           { label: "Explore private boxes & hospitality", url: "https://www.ascot.com/hospitality/fine-dining-hospitality-royal-ascot" },
         ],
+        // M1095 (20 Nov 2026): the request goes straight to Ascot's own hospitality desk (address read on
+        // ascot.com's hospitality page, 20 Nov 2026), Voyage One copied as on every broker request.
+        broker: { who: "Ascot Hospitality", firm: "Ascot Racecourse", city: "Ascot", email: "hospitality@ascot.com", title: "Request your days at Royal Ascot", unit: "places", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,",
+          intro: "Your days are requested directly from Ascot Racecourse\u2019s own hospitality team. Choose your days and your enclosure here; once you build your trip, one tap sends them the request with everything filled in.",
+          replyLine: "Your request goes to Ascot\u2019s hospitality team, who reply with availability and the confirmed price for your party.",
+          closing: "Please let me know availability and the confirmed price." },
         ticketLink: "https://www.ascot.com/royal-ascot",
         ticketLinkLabel: "Explore Royal Ascot",
-        ticketNote: "A third-party specialist is considered only for something Ascot itself cannot provide \u2014 sold-out inventory, a hosted package, transport combined with other services. For admission, Queen Anne and official hospitality: Ascot direct. Ascot calls it the Queen Anne Enclosure; it is never the Queen\u2019s Enclosure.",
+        ticketNote: "From-prices are 2027 published rates and are estimates until confirmed for your day; Thursday is the dearest. Ascot calls it the Queen Anne Enclosure; it is never the Queen's Enclosure.",
         stayNote: "Two ways to do it, and London makes a strong case: your morning dress and top hat are fitted in central London — Chelsea and Mayfair — so a London base puts you right by the tailor, with a car out to Ascot each day (about 50 minutes). The alternative is a country house near the course, for those who want the full estate week around the racing. Both are lovely; it comes down to whether you'd rather have the city or the countryside on either side of the races.",
         stay: [
           { name: "The Berkeley", area: "Belgravia, London · walk to the tailors", rate: 800, note: "A short stroll from the Lower Sloane Street morning-dress houses, in the heart of Belgravia — the natural London base for Ascot week, with a car out each day. (Estimated.)" },
@@ -17401,11 +17435,19 @@ const ONE_LIST = {
           { name: "Windsor & the Thames", note: "Windsor Castle and the river are minutes away — an easy, beautiful afternoon on either side of the racing days." },
           { name: "Car Park No. 1", note: "Ascot's most storied picnic. The regulars keep the same patch year after year — tables, cloths and chairs out of the Range Rover, champagne from the boot, morning dress worn to the tailgate. As much a fixture as the racing; just never let your chairs stray onto a neighbour's grass." },
         ],
+        // M1096 (20 Nov 2026): the two London houses for morning dress, each with a written request.
+        // Addresses and what each offers read on their own sites, 20 Nov 2026.
+        dressTitle: "Morning dress & top hat",
+        dress: [
+          { name: "Oliver Brown", tag: "75 Lower Sloane Street, Chelsea · hire", note: "Hires morning suits and top hats for the races. A Royal Ascot hire is ready to collect the day before your race day and goes back the day after. The button opens an e-mail already written \u2014 add your days, how many gentlemen, and your name.",
+            links: [{ label: "E-mail Oliver Brown about hire", mail: { to: "customer.care@oliverbrownlondon.com", subject: "Royal Ascot 2027 — morning dress hire", body: "Hello,\n\nI am attending Royal Ascot in June 2027 and would like to hire morning dress and a top hat.\n\nRace day(s): [YOUR DAYS]\nGentlemen to be dressed: [NUMBER]\nIn London from: [DATE]\n\nPlease let me know how to arrange the fitting, the hire price, and how far ahead I should reserve.\n\nThank you,\n[YOUR NAME]\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com" } }, { label: "Oliver Brown hire", url: "https://www.oliverbrownlondon.com/pages/premium-forwalwear-hire" }] },
+          { name: "Ede & Ravenscroft", tag: "8 Burlington Gardens, by Savile Row", note: "Robemakers since 1689, selling morning coats and top hats ready-to-wear and made-to-measure. They ask clients to arrange fittings well ahead of the meeting. The button opens an e-mail already written \u2014 add your days, how many gentlemen, and your name.",
+            links: [{ label: "E-mail Ede & Ravenscroft about a fitting", mail: { to: "burlington@edeandravenscroft.com", subject: "Royal Ascot 2027 — morning dress fitting", body: "Hello,\n\nI am attending Royal Ascot in June 2027 and would like to arrange a fitting for morning dress and a top hat.\n\nRace day(s): [YOUR DAYS]\nGentlemen to be dressed: [NUMBER]\nIn London from: [DATE]\n\nPlease let me know what you offer \u2014 ready-to-wear and made-to-measure \u2014 the prices, and when I should come in.\n\nThank you,\n[YOUR NAME]\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com" } }, { label: "Their Royal Ascot guide", url: "https://shop.edeandravenscroft.com/pages/royal-ascot-guide" }] },
+        ],
         notes: [
           "Dress is half the occasion. Royal Enclosure men wear morning dress — a black, gray or navy morning coat with waistcoat and tie, and a black or gray top hat. Women wear formal daywear with the hemline just above the knee or longer, straps at least one inch wide (no strapless, off-the-shoulder, halterneck or spaghetti straps), midriff covered, and a hat — or a headpiece with a solid base of at least four inches (10cm). There is no closed-toe shoe rule, but a block heel saves you on the grass.",
-          "Where to be fitted: for the men's morning dress and top hat, Ede & Ravenscroft (robemakers since 1689) and Oliver Brown on Lower Sloane Street are the London houses — hire or made-to-measure. We book the fitting for your first day so nothing is a scramble.",
           "Thursday is the day if you go once — Ladies' Day and the Gold Cup. Tuesday is the purest for the racing itself; Saturday the most festive.",
-          "Royal Enclosure access is the long-lead item — sponsorship (or the embassy route for overseas guests) must be arranged months ahead. It's the piece to lock first.",
+          "The Royal Enclosure restaurants are the long-lead item \u2014 the piece to settle first.",
         ],
         stepsTitle: "The ideal days",
         steps: [
@@ -17414,7 +17456,7 @@ const ONE_LIST = {
           { h: "Day 3 · A second day, or the country", b: "A second day at the races — many take Thursday and one other — or a day at Windsor, on the Thames, or in London before dinner." },
           { h: "Day 4 · Depart", b: "A last English breakfast and home, or on to another stop in Europe." },
         ],
-        handoff: "Next, in the trip builder: we'll set your dates around your Ascot days, arrange the Royal Enclosure badges and dining, book your hotel, and sort the morning dress — every detail confirmed with you.",
+        handoff: "Next, in the trip builder: your dates around your Ascot days, your hotel in London or the country, and the request for your days at the races, written for you and ready to send.",
       } },
       { title: "Argentine Open Polo", city: "Buenos Aires", airport: "EZE", airportName: "Buenos Aires Ezeiza", start: "2026-12-09", end: "2026-12-14", dateLabel: "Final Saturday December 12, 2026 \u00b7 Nov 10\u2013Dec 12", nights: 5, photo: "Campo Argentino de Polo Palermo final", gallery: ["Palermo polo Cathedral grandstand", "Adolfo Cambiaso La Dolfina polo", "Recoleta Buenos Aires Alvear"],
         blurb: "The Cathedral of Polo. The Argentine Open at Palermo is the sport at its absolute summit \u2014 the best players and horses on earth, in the middle of Buenos Aires, on a spring Saturday.",
@@ -18411,7 +18453,7 @@ notes: [
         pickStep: "Step one · choose your race & your balcony",
         recapLabel: "Your balcony",
         pickSettle: "Be in Siena for the days around the race — the trials and the contrada dinner are the heart of it, and never arrive on race day itself. You'll set your exact nights next.",
-        daysIntro: "First, choose the race and your position on the Campo — that sets your date and your view. Prices are per person and estimated; we confirm exact figures with our Siena contacts when we hold the balcony. How many nights in Siena is a separate question we ask next.",
+        daysIntro: "First, choose the race and your position on the Campo — that sets your date and your view. Prices are per person and estimated; Paolo at InTuscany confirms the exact figures and what is available. How many nights in Siena is a separate question we ask next.",
         dayPicks: [
           { label: "Palio di Provenzano · July", dates: "July 2, 2027", date: "2027-07-02", note: "Our slightly preferred date — kinder weather, fits a broader European summer, less August congestion.", tiers: [
               { tier: "Mossa premier balcony \u2014 seated", label: "The start and finish, seated \u00b7 Voyage One favorite \u00b7 estimated from \u20ac690 pp, 2026" },
@@ -18440,6 +18482,13 @@ notes: [
           { label: "Contrada evening \u2014 the Prova Generale, the contrada dinner and the contrada museum, the night before", price: "Estimated from \u20ac285 pp" },
           { label: "Private balcony or window \u2014 families, groups, privacy", price: "Price on current availability" },
         ],
+        // M1093 (19 Nov 2026): the Palio ends in a written request like every brokered experience.
+        // The race and balcony chosen above travel into the trip and onto an e-mail to Paolo at
+        // InTuscany, Voyage One copied as on every broker request. Sofia stays on the page as the guide.
+        broker: { who: "Paolo", first: "Paolo", firm: "InTuscany", city: "Siena", email: "info@intuscany.net", title: "Request your balcony", unit: "a balcony over the Campo", seatsLabel: "Guests", pairs: false, seatsDefault: 2,
+          intro: "Balconies over the Campo are arranged by PAOLO at InTuscany in Siena. Choose your race and your balcony above; once you build your trip, one tap sends him the request with everything filled in. ON THE GROUND IN SIENA, our guide is SOFIA SALETTI \u2014 +39 339 7842696 \u00b7 sofiavanni@alice.it \u2014 for the contrade, the trials, the dinners and the day itself; book her months ahead for Palio week.",
+          replyLine: "Your request goes to Paolo at InTuscany in Siena, who replies with what is available for your race and the price.",
+          closing: "Please let me know what is available and the price." },
         ticketLink: "https://paliodisiena.tickets/",
         ticketLinkLabel: "View current Palio tickets & prices",
         ticketContact: "Need help with a private balcony or a special arrangement? Contact PAOLO at InTuscany \u2014 info@intuscany.net ON THE GROUND IN SIENA, our guide is SOFIA SALETTI \u2014 +39 339 7842696 \u00b7 sofiavanni@alice.it \u2014 for the contrade, the trials, the dinners and the day itself; book her months ahead for Palio week.",
@@ -18482,7 +18531,7 @@ notes: [
           { h: "Day 4 · Palio day — in your seat by 4:45", b: "A late breakfast, a walk through your contrada, the blessing of the horse, the Corteo Storico procession, and the race itself from a private first-floor balcony over the Campo — then follow the winning contrada into the streets. Be in place by about 4:45 pm. The Corteo Storico \u2014 the historic procession \u2014 enters the Campo shortly after five and runs close to two hours; the Palio follows, and the whole thing is usually over by a quarter past eight. Times move." },
           { h: "Day 5 · Depart", b: "DO NOT LEAVE THE MORNING AFTER. Weather or the state of the track can postpone the race, and your ticket stays valid for the rescheduled day \u2014 but only if you are still in Siena. Keep at least one extra night after the scheduled date, two if the itinerary allows. A late breakfast and a last walk through a quieter Siena before you go." },
         ],
-        handoff: "Next, in the trip builder: we'll set your dates around the Palio, add your Siena hotel, and arrange the balcony, the contrada dinner and your local expert — every detail confirmed with you.",
+        handoff: "Next, in the trip builder: your dates around the Palio, your Siena hotel, and the request for your balcony, written for you and ready to send to Paolo at InTuscany.",
       } },
       { title: "Venice Carnival", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-02-04", end: "2027-02-07", dateLabel: "Jan 23–Feb 9, 2027", nights: 4, arriveDaysBefore: 2, blurb: "A masked ball in a Grand Canal palazzo, a whole city dressed for the 18th century — Carnival at its most mysterious and theatrical.", guide: {
         daysTitle: "Your evening",
@@ -19926,7 +19975,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
   const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
   const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div></div>))}</div>);
   const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong>{b.tag ? <span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 700, marginLeft: 8 }}>{b.tag}</span> : null} — {b.note}{b.link ? <> <a href={b.link} target="_blank" rel="noopener noreferrer" style={{ color: t.brass, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>{b.linkLabel || "Visit the site"} →</a></> : null}
-    {b.links && b.links.length ? <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>{b.links.map((l, i2) => l.ics ? <CalendarButton key={i2} label={l.label} event={l.ics} filename={l.filename} /> : (<a key={i2} href={/^mailto:/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "experience", name: b.name, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div> : null}</div>))}</div>);
+    {b.links && b.links.length ? <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>{b.links.map((l, i2) => l.ics ? <CalendarButton key={i2} label={l.label} event={l.ics} filename={l.filename} /> : (<a key={i2} href={l.mail ? `mailto:${l.mail.to}?cc=${encodeURIComponent(VO_REQUESTS_EMAIL)}&subject=${encodeURIComponent(l.mail.subject)}&body=${encodeURIComponent(l.mail.body)}`.replace(/'/g, "%27") : /^mailto:/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "experience", name: b.name, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div> : null}</div>))}</div>);
   // daysIntro and the pick notes are WRITTEN IN PARAGRAPHS and were being poured into a single
   // div, so every blank line collapsed and the reader got a wall of text. Split on blank lines,
   // and give "Plan this trip" the house green wherever it falls so the eye finds the way out of
@@ -20263,6 +20312,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
             {g.dineMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.dineMore}</div> : null}</div>); })() : null}
           {g.beyond ? (<div>{secHead(L.beyondTitle)}{beyondList(g.beyond)}</div>) : null}
           {photoBand(3)}
+          {g.dress ? (<div>{secHead(g.dressTitle || "Dressing for the day")}{beyondList(g.dress)}</div>) : null}
           {g.notes ? (<div>{secHead("Insider notes")}{bul(g.notes)}</div>) : null}
           {g.bookOrder ? (<div>{secHead("What to book, and in what order")}
             <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>The app builds a trip flights-first, which is right for an ordinary journey and wrong for this one. FOR AN EVENT, THE SCARCE THING GOES FIRST. Work down this list; the flights will still be there.</div>
