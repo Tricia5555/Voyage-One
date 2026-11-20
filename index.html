@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1099";
+const BUILD = "M1100";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17341,7 +17341,7 @@ const ONE_LIST = {
           ],
           handoff: "Plan this trip opens LOUISVILLE for four nights, Wednesday to Sunday, with flights into Louisville. The lodging is booked by you direct \u2014 or availability requested at Hermitage Farm. Tickets are official, from Churchill Downs or through Derby Experiences. Barnstable Brown is a request, never a promise.",
         } },
-      { title: "Royal Ascot", city: "Ascot, England", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", heroContain: true, bandW: "min(74vw, 640px)", guide: {
+      { title: "London: A Royal Ascot Experience", slug: "royal-ascot", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-06-15", end: "2027-06-20", dateLabel: "June 15–19, 2027", nights: 5, photo: "/images/ascot-gate.jpg", gallery: ["/images/ascot-gate.jpg", "/images/ascot-parade-ring.jpg", "/images/ascot-ladies-day.jpg", "/images/ascot-carriage.jpg"], blurb: "Morning coats and the Royal Enclosure — Britain's grandest week of racing, the King up the straight in the Royal Procession.", heroContain: true, bandW: "min(74vw, 640px)", guide: {
         cur: "£",
         // M1094 (19 Nov 2026): Ascot ends in a written request like the French Open. Any number of days,
         // each with its own way in. The Royal Enclosure is offered only as Ascot's own restaurants there,
@@ -17409,7 +17409,7 @@ const ONE_LIST = {
         tickets: "The Royal Enclosure is reserved for its Members and their invited guests; it is not a ticket anyone can buy. A visitor's way in is one of Ascot's own restaurants inside it \u2014 the Parade Ring Restaurant, the Sandringham or the Wyndham Club \u2014 each of which includes a Royal Enclosure guest badge for the day. Royal Enclosure dress applies in all three. If you are the guest of a Member, your badges are booked directly with Ascot from January.",
         // M1095 (20 Nov 2026): the request goes straight to Ascot's own hospitality desk (address read on
         // ascot.com's hospitality page, 20 Nov 2026), Voyage One copied as on every broker request.
-        broker: { who: "Ascot Hospitality", firm: "Ascot Racecourse", city: "Ascot", email: "hospitality@ascot.com", title: "Request your days at Royal Ascot", unit: "places", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,",
+        broker: { eventName: "Royal Ascot", who: "Ascot Hospitality", firm: "Ascot Racecourse", city: "Ascot", email: "hospitality@ascot.com", title: "Request your days at Royal Ascot", unit: "places", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,",
           intro: "Your days are requested directly from Ascot Racecourse\u2019s own hospitality team. Choose your days and your enclosure here; once you build your trip, one tap sends them the request with everything filled in.",
           replyLine: "Your request goes to Ascot\u2019s hospitality team, who reply with availability and the confirmed price for your party.",
           closing: "Please let me know availability and the confirmed price." },
@@ -25310,7 +25310,7 @@ function BrokerRequest({ ev, g, d, tk, set, p }) {
   const lines = days.map(dayLine).concat(extras.map((x) => "\u2022 " + x.name + (x.date ? " \u2014 " + fmtDay(new Date(x.date + "T00:00:00")) : " \u2014 day to be agreed")));
   const body = [
     b.greet || `Hello ${b.first || b.who},`, "",
-    `I'm planning ${ev.title}${year ? " " + year : ""} through Voyage One and would like to request ${b.unit || "tickets"} for:`, "",
+    `I'm planning ${b.eventName || ev.title}${year ? " " + year : ""} through Voyage One and would like to request ${b.unit || "tickets"} for:`, "",
     ...(lines.length ? lines : ["\u2022 (days to be confirmed)"]), "",
     ...(stay === null ? [] : [`In ${bareCity(d.city)}: ${stay || "dates to be confirmed"}`, ""]),
     `${b.seatsLabel || "Seats"}: ${seats}${b.pairs ? " (I understand they are sold in pairs)" : ""}`,
@@ -25319,7 +25319,7 @@ function BrokerRequest({ ev, g, d, tk, set, p }) {
     "Thank you,", name, "",
     "\u2014 sent from Voyage One \u00b7 voyageoneworld.com",
   ].join("\n");
-  const subject = `${ev.title}${year ? " " + year : ""} \u2014 ${b.unit || "ticket"} request via Voyage One`;
+  const subject = `${b.eventName || ev.title}${year ? " " + year : ""} \u2014 ${b.unit || "ticket"} request via Voyage One`;
   const href = `mailto:${to}?${to === VO_REQUESTS_EMAIL ? "" : `cc=${encodeURIComponent(VO_REQUESTS_EMAIL)}&`}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`.replace(/'/g, "%27");   // apostrophes encoded too — some mail apps cut the body at a bare one
   const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
   const stepBtn = { width: 34, height: 34, borderRadius: 999, border: `1px solid ${t.line}`, background: t.white, color: t.ink, fontSize: 18, cursor: "pointer" };
