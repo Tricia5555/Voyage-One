@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1098";
+const BUILD = "M1099";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17348,6 +17348,13 @@ const ONE_LIST = {
         // which carry a guest badge for the day — the one route open to a visitor who is not a Member's guest.
         // From-prices: Ascot (Queen Anne, £95) and Racing Breaks' published 2027 list, read 19 Nov 2026.
         multiPick: true,
+        flow: "steps",
+        arriveNote: "Plan to arrive in England at least the day before your first day at the races. From New York and Boston there are morning flights that land at Heathrow the same evening \u2014 dinner, then to bed on London time, with far less jet lag than the overnight. You choose your flights in the trip builder, and your days are built around them.",
+        dressStep: "Step 3 \u00b7 do the gentlemen need to be fitted?",
+        dressNote: "In the Royal Enclosure and its restaurants, gentlemen wear morning dress and a top hat. If you need them, write to one of the two London houses here. If you have your own, go on to the hotel.",
+        stayStep: "Step 4 \u00b7 choose your hotel",
+        planStep: "Step 5 \u00b7 build your trip",
+        moreTitle: "Good to know",
         daysTitle: "Build your days at Royal Ascot",
         tierStep: "Step 2 \u00b7 where would you like to be?",
         pickStep: "Step 1 \u00b7 tap a day",
@@ -20045,6 +20052,26 @@ function OneList({ onPick, onBack, onHome, initial }) {
       <span style={{ fontSize: 16, lineHeight: 1.3 }}>✈</span>
       <span style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{arriveMsg}</span>
     </div>) : null;
+    // M1099 (20 Nov 2026): the tickets section and the plan button are named pieces, so a guide
+    // marked flow: "steps" can run days → dress → hotel → build, with the reading after.
+    const ticketsSec = g && (g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.reminders && g.reminders.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.reminders.map((r, k) => <CalendarButton key={k} label={r.label} event={r.ics} filename={r.filename} />)}</div>) : null}{g.pricing ? <PricingGuide pricing={g.pricing} /> : null}{g.sale && (!g.buildOnly || g.accessOnPage) ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && (!g.buildOnly || g.accessOnPage) ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
+            <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
+            <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
+          </div>) : null}{g.broker ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.broker.intro}</div> : g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null;
+    const planBlock = (<div style={{ textAlign: "center", marginTop: 8 }}>
+          {(selDayLabels.length || stayPick || costumePick || Object.keys(dineSel).length || Object.keys(addSel).length) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your package so far</div>
+            {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 6 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
+            {costumePick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: (stayPick || Object.keys(dineSel).length) ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Costume · </span><strong>{costumePick.name}</strong></div> : null}
+            {stayPick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
+            {Object.keys(addSel).length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Also · </span><strong>{Object.keys(addSel).join(" · ")}</strong></div> : null}
+            {Object.keys(dineSel).length ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Table{Object.keys(dineSel).length > 1 ? "s" : ""} · </span><strong>{Object.keys(dineSel).join(", ")}</strong></div> : null}
+          </div>) : null}
+          <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
+          {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
+          {!ready && venueTBA ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{g.venueTBAText || "The host city has not been announced. When it is, this becomes a trip you can build; until then, set the reminder above."}</div> : null}
+          {!ready && !venueTBA ? <div style={{ fontSize: 13.5, color: t.ink, fontWeight: 600, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}><Hint text="This experience needs a choice first — which day, which seat — so the builder knows what to carry in. Make it above and the button turns green." />Plan this trip goes live once you have chosen {multiMode ? "your days above — tap a day, then its session and restaurant" : (aecPick ? "your exact days above" : "a day above")}.</div> : null}
+        </div>);
     return (<div style={shell}>
       {back(() => { setSel(null); setAecPick(null); setAecDays([]); setDayCourt({}); setBallTier(null); setMultiSel({}); setOpenDay(null); setCostumePick(null); setStayPick(null); setStayType(""); setDineSel({}); setDineType(""); setAddSel({}); }, "back to " + type)}
       <div style={{ textAlign: "center", marginBottom: 26 }}>
@@ -20175,14 +20202,11 @@ function OneList({ onPick, onBack, onHome, initial }) {
               <div style={{ fontSize: 12.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 12, fontStyle: "italic" }}>{L.pickSettle}</div>
             </div>) : null)}
           </div>) : (g.days ? (<div>{secHead(L.daysTitle)}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.days}</div></div>) : null)}
-          {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
+          {picks && g.days && g.flow !== "steps" ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
           {g.broker && !(g.tickets || g.ticketNote) ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.broker.intro}</div> : null}
-          {photoBand(1)}
-          {(g.tickets || g.ticketNote) ? (<div>{secHead(L.ticketsTitle)}{aecPick ? <div style={{ fontSize: 14, color: t.pine, fontWeight: 600, textAlign: "center", marginBottom: 12 }}>Your choice: {aecPick.label} · {aecPick.dates} — {aecPick.band}</div> : null}<div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{g.tickets}</div>{g.ticketBands ? bandTable(g.ticketBands) : null}{g.reminders && g.reminders.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.reminders.map((r, k) => <CalendarButton key={k} label={r.label} event={r.ics} filename={r.filename} />)}</div>) : null}{g.pricing ? <PricingGuide pricing={g.pricing} /> : null}{g.sale && (!g.buildOnly || g.accessOnPage) ? <TicketSale sale={g.sale} title={L.title || "Tickets"} /> : null}{g.access && (!g.buildOnly || g.accessOnPage) ? <AccessLayer items={g.access} year={g.sale && g.sale.year} /> : null}{g.ticketLinks && g.ticketLinks.length && !g.buildOnly ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>{g.ticketLinks.map((l, i2) => (<a key={i2} href={brandedLink(l.url, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "9px 16px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div>) : null}{g.ticketLink && !g.sale && !g.buildOnly ? (<div style={{ marginTop: 14 }}>
-            <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
-            <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
-          </div>) : null}{g.broker ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.broker.intro}</div> : g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null}
-          {photoBand(2)}
+          {g.flow === "steps" ? null : photoBand(1)}
+          {g.flow === "steps" ? null : ticketsSec}
+          {g.flow === "steps" ? null : photoBand(2)}
           {g.costumes ? (<div>{secHead(g.costumesTitle || "Costumes & masks")}{g.costumeNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.costumeNote}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {g.costumes.map((s, k) => { const on = costumePick && costumePick.name === s.name; return (
@@ -20196,6 +20220,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
                 </button>); })}
             </div>
             {g.costumeMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.costumeMore}</div> : null}</div>) : null}
+          {g.dress ? (<div>{secHead(g.dressTitle || "Dressing for the day")}{g.dressStep ? <div style={secTitle}>{g.dressStep}</div> : null}{g.dressNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.dressNote}</div> : null}{beyondList(g.dress)}</div>) : null}
           {(g.stay || (g.stayFromBase && basePick)) ? (() => {
             const stayCard = (s, k) => { const on = stayPick && stayPick.name === s.name; return (
                 <button key={k} onClick={() => setStayPick({ name: s.name, area: s.area, rate: s.rate, note: s.note, contact: s.contact || null })} style={{ textAlign: "left", background: t.pine, border: `${on ? 2.5 : 2}px solid ${on ? t.brass : "transparent"}`, borderRadius: 14, padding: on ? "22px 24px" : "16px 18px", cursor: "pointer", boxShadow: on ? "0 6px 24px rgba(0,0,0,0.14)" : "none" }}>
@@ -20231,7 +20256,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
             // The selected hotel always renders FIRST — a big card at the very top of the list.
             const featOrdered = inFeat ? [feat.find((s) => s.name === selName), ...feat.filter((s) => s.name !== selName)] : feat;
             const collOrdered = inColl ? [collection.find((s) => s.name === selName), ...collection.filter((s) => s.name !== selName)] : collection;
-            return (<div>{secHead("Where to stay")}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
+            return (<div>{secHead("Where to stay")}{g.stayStep ? <div style={secTitle}>{g.stayStep}</div> : null}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             {isCustom ? <div style={{ marginBottom: 16 }}>{stayCard({ name: stayPick.name, area: stayPick.area, rate: stayPick.rate, note: stayPick.note, contact: stayPick.contact }, "custom")}</div> : null}
             {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>{g.stayLead || "Closest to the courts"}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -20253,6 +20278,15 @@ function OneList({ onPick, onBack, onHome, initial }) {
               </div>
             </div>
             {g.stayMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.stayMore}</div> : null}</div>); })() : null}
+          {g.flow === "steps" ? (<>
+            {g.planStep ? <div style={{ ...secTitle, textAlign: "center", marginBottom: 0 }}>{g.planStep}</div> : null}
+            {planBlock}
+            {g.moreTitle ? <div style={{ borderTop: `1px solid ${t.line}`, paddingTop: 26, marginTop: 8 }}>{secHead(g.moreTitle)}</div> : null}
+            {picks && g.days ? <div style={{ fontSize: 14.5, color: t.inkFaint, lineHeight: 1.6, fontStyle: "italic", textAlign: "center" }}>{g.days}</div> : null}
+            {photoBand(1)}
+            {ticketsSec}
+            {photoBand(2)}
+          </>) : null}
           {/* AROUND THE EVENT (M1055, 12 Nov 2026). Each idea told properly on the page \u2014 what it is,
               how long, how to get there, the price where it is published \u2014 so the client decides here
               instead of opening a dozen sites, and adds it to the trip with one tap. Alternating
@@ -20301,7 +20335,6 @@ function OneList({ onPick, onBack, onHome, initial }) {
             {g.dineMore ? <div style={{ fontSize: 13.5, color: t.inkFaint, lineHeight: 1.55, marginTop: 14 }}>{g.dineMore}</div> : null}</div>); })() : null}
           {g.beyond ? (<div>{secHead(L.beyondTitle)}{beyondList(g.beyond)}</div>) : null}
           {photoBand(3)}
-          {g.dress ? (<div>{secHead(g.dressTitle || "Dressing for the day")}{beyondList(g.dress)}</div>) : null}
           {g.notes ? (<div>{secHead("Insider notes")}{bul(g.notes)}</div>) : null}
           {g.bookOrder ? (<div>{secHead("What to book, and in what order")}
             <div style={{ fontSize: 14.5, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>The app builds a trip flights-first, which is right for an ordinary journey and wrong for this one. FOR AN EVENT, THE SCARCE THING GOES FIRST. Work down this list; the flights will still be there.</div>
@@ -20313,20 +20346,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
           {g.steps ? (<div>{secHead(g.stepsTitle || "Your trip, step by step")}<ol style={{ margin: 0, paddingLeft: 22, color: t.inkSoft, fontSize: 15, lineHeight: 1.6 }}>{g.steps.map((s, k) => (<li key={k} style={{ marginBottom: 9 }}><strong style={{ color: t.ink }}>{s.h}</strong>{s.h && s.b ? " — " : ""}{s.b}</li>))}</ol></div>) : null}
           {photoBand(4)}
         </>) : (<div style={{ fontSize: 15, color: t.inkFaint, lineHeight: 1.65 }}>A full insider guide for this experience is coming — the days, the hotels, the access, and the details only we know.</div>)}
-        <div style={{ textAlign: "center", marginTop: 8 }}>
-          {(selDayLabels.length || stayPick || costumePick || Object.keys(dineSel).length || Object.keys(addSel).length) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your package so far</div>
-            {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 6 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
-            {costumePick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: (stayPick || Object.keys(dineSel).length) ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Costume · </span><strong>{costumePick.name}</strong></div> : null}
-            {stayPick ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Hotel · </span><strong>{stayPick.name}</strong></div> : null}
-            {Object.keys(addSel).length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: Object.keys(dineSel).length ? 6 : 0 }}><span style={{ color: t.inkFaint }}>Also · </span><strong>{Object.keys(addSel).join(" · ")}</strong></div> : null}
-            {Object.keys(dineSel).length ? <div style={{ fontSize: 14.5, color: t.ink }}><span style={{ color: t.inkFaint }}>Table{Object.keys(dineSel).length > 1 ? "s" : ""} · </span><strong>{Object.keys(dineSel).join(", ")}</strong></div> : null}
-          </div>) : null}
-          <button onClick={() => ready && onPick(planEv)} disabled={!ready} style={{ background: ready ? t.pine : t.mist, color: ready ? t.paper : t.inkFaint, border: "none", borderRadius: 999, padding: "15px 36px", fontSize: 16, fontWeight: 500, cursor: ready ? "pointer" : "default" }}>Plan this trip →</button>
-          {ready ? <div style={{ fontSize: 13, color: t.inkSoft, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{L.handoff}</div> : null}
-          {!ready && venueTBA ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}>{g.venueTBAText || "The host city has not been announced. When it is, this becomes a trip you can build; until then, set the reminder above."}</div> : null}
-          {!ready && !venueTBA ? <div style={{ fontSize: 13.5, color: t.ink, fontWeight: 600, lineHeight: 1.55, marginTop: 12, maxWidth: 470, marginLeft: "auto", marginRight: "auto" }}><Hint text="This experience needs a choice first — which day, which seat — so the builder knows what to carry in. Make it above and the button turns green." />Plan this trip goes live once you have chosen {multiMode ? "your days above — tap a day, then its session and restaurant" : (aecPick ? "your exact days above" : "a day above")}.</div> : null}
-        </div>
+        {planBlock}
       </div>
     </div>);
   }
