@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1104";
+const BUILD = "M1105";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17906,13 +17906,14 @@ const ONE_LIST = {
           // then the base and the hotel. Ticket prices are said once, small.
           flow: "steps",
           addOnsFirst: true,
-          aboutTitle: "The whole city is the fair",
+          aboutTitle: "The private week",
           about: [
-            "The fair halls are only the centre of it. For one week in June Basel's museums time their major exhibitions to it, works are installed in the squares and courtyards of the Old Town, a second fair for the youngest galleries runs alongside, and the art world stays out late. Most visitors see the halls and go home; the week is the city.",
-            "Founded in 1970 by Basel gallerists, this is the original Art Basel. Miami's edition is the famous one at home \u2014 Basel is the one the art world itself treats as the year's most serious week.",
-            "Start with what you would love to see. Then choose your days at the fair, and where to base yourself.",
+            "The fair the public sees opens on Thursday. The art world's week starts on Monday. Collectors holding Art Basel's First Choice cards walk Unlimited on Monday afternoon and the galleries from Tuesday morning, two days before the doors open to everyone else.",
+            "Around those days runs a private programme. In 2026 Art Basel's own included lunches honoring artists, one of them at a collector's home in Riehen; a breakfast and collection visit at a private house in Basel; a tour of the Kunstmuseum's exhibition with its director; and a country dinner at Haus zum Raben hosted by Basel collectors.",
+            "None of this is sold. Invitations come from Art Basel to its patrons, and from the galleries to the collectors who buy from them. If you buy from a gallery showing at the fair, ask them now; it is the surest way in. The one programme that can be requested is Art Basel's own PREMIUM+ DISCOVERY, first on the list here.",
+            "And the city joins in. Basel's museums time their major exhibitions to the week, works go up in the squares and courtyards of the Old Town, and a second fair for young galleries runs alongside.",
           ],
-          addOnsStep: "Step 1 \u00b7 choose what you would love to see",
+          addOnsStep: "Step 1 \u00b7 choose what you would love to do",
           baseStep: "Step 3 \u00b7 Basel or Zurich",
           stayStep: "Step 4 \u00b7 choose your hotel",
           planStep: "Step 5 \u00b7 build your trip",
@@ -17956,38 +17957,28 @@ const ONE_LIST = {
             { label: "Parcours \u2014 the works around the city", url: "https://www.artbasel.com/basel/parcours" },
           ],
           addOnsTitle: "Around the fair",
-          addOnsIntro: "Add anything here and it arrives in your trip, ready to put on a day.",
+          addOnsIntro: "Add anything here and it arrives in your trip.",
           addOns: [
-            { name: "Unlimited", kicker: "At the fair \u00b7 Hall 1", kind: "note", tour: "Unlimited at Art Basel",
-              body: "The hall the art world talks about first. Unlimited is where galleries show the works too large for a booth \u2014 monumental sculpture, installations you walk into, films, performances. It is included in your fair ticket. Give it an afternoon of its own rather than the end of a long day in the Galleries.",
-              facts: [["Price", "Included in the fair ticket"], ["Allow", "An afternoon"]] },
-            { name: "Parcours", kicker: "Around the city \u00b7 free", tour: "Parcours", link: "https://www.artbasel.com/basel/parcours", linkLabel: "This year's Parcours",
-              body: "Art Basel takes over the city itself: works installed in squares, churches, courtyards and shop windows of one Basel neighbourhood, free to anyone who walks by. It is the most relaxed way to see the fair's ambition \u2014 and a fine excuse to get lost in the Old Town between museums.",
-              facts: [["Price", "Free"], ["Allow", "An hour or two, on foot"]] },
-            { name: "Fondation Beyeler", kicker: "Riehen \u00b7 20 minutes by tram from the Old Town", tour: "Fondation Beyeler", price: 30, link: "https://www.fondationbeyeler.ch/en/visit/tickets", linkLabel: "Timed tickets",
-              body: "If you see one museum in Basel, make it this one. Renzo Piano's long, light-filled pavilion sits in a park at the edge of the city, with Monet's water lilies seeming to run into the pond outside the glass. The collection Ernst and Hildy Beyeler built \u2014 C\u00e9zanne, Picasso, Giacometti, Rothko \u2014 is one of the finest of its kind, and the summer exhibition is always timed to the fair. Peter Zumthor's new buildings have now joined it.\n\nGo first thing in the morning on a day you are not at the fair; by midday in Art Basel week it is full.",
-              facts: [["Price", "CHF 30 per adult"], ["Tickets", "Online, with a timed entry"], ["Open", "Daily 10\u20136 \u00b7 Wednesdays to 8"], ["Allow", "Two to three hours, with the park"]] },
-            { name: "Vitra Campus", kicker: "Weil am Rhein, Germany \u00b7 15 minutes away", tour: "Vitra Campus", link: "https://vitra.com/en-fr/campus/visit", linkLabel: "Plan your visit",
-              body: "The secret of Basel week: fifteen minutes across the border, one furniture company's campus holds buildings by Frank Gehry, Zaha Hadid, Tadao Ando, Herzog & de Meuron and SANAA, the Vitra Design Museum and the Schaudepot, where the collection's chairs fill a whole building. Most Americans at the fair have no idea it is there.\n\nThe architecture tours are the way to see the buildings you cannot simply walk into.",
-              facts: [["Open", "Daily 10\u20136"], ["Getting there", "Bus 55 from Badischer Bahnhof, 15 minutes \u00b7 or a taxi, about 10"], ["Allow", "Half a day"], ["Bring", "Your passport \u2014 it is Germany"]] },
-            { name: "Liste Art Fair Basel", kicker: "At Messe Basel \u00b7 the fair for the youngest galleries", tour: "Liste Art Fair Basel", link: "https://www.myswitzerland.com/en/experiences/events/liste-art-fair-basel/", linkLabel: "About Liste",
-              body: "Where the art world looks for who is next. Liste runs alongside the main fair with around a hundred young galleries from across the world and the artists they are betting on. It is smaller and looser than the main halls.\n\nIn 2026 entry was free after 7 pm from Tuesday to Friday, when the bar is at its liveliest.",
-              facts: [["Price", "About CHF 25 \u00b7 2026"], ["Allow", "Two hours"]] },
-            { name: "Basel Social Club", kicker: "Central Basel \u00b7 free \u00b7 open late", tour: "Basel Social Club",
-              body: "The week's open secret. Each year a group of galleries and artists takes over an unexpected building \u2014 in 2026 an empty office block \u2014 and fills it with exhibitions, performances, food and a night programme that runs into the small hours. Entry is free. The address is announced only shortly before it opens.",
-              facts: [["Price", "Free"], ["Best", "Late evening"]] },
-            { name: "Kunstmuseum Basel", kicker: "Old Town \u00b7 St. Alban-Graben", tour: "Kunstmuseum Basel", price: 39, link: "https://kunstmuseumbasel.ch/en/visit/ticketsprices", linkLabel: "Tickets and prices",
-              body: "One of the oldest public art collections in the world, begun in 1661 when the city bought a private cabinet so it would not leave Basel. Holbein's portraits, the great Swiss and German masters, then Picasso, the Cubists and American art after 1950 \u2014 in the main building and the new one facing it across the street.",
-              facts: [["Price", "CHF 39 per adult"], ["Allow", "Two hours"], ["Getting there", "A short walk from Les Trois Rois"]] },
-            { name: "Museum Tinguely", kicker: "On the Rhine \u00b7 Solitude Park", tour: "Museum Tinguely", link: "https://www.tinguely.ch/en/information/admission/tickets.html", linkLabel: "Tickets",
-              body: "Jean Tinguely's clanking, whirring machine sculptures in a building by Mario Botta on the river \u2014 the most joyful hour in Basel, and a relief after a day of serious looking. Book ahead in fair week.",
-              facts: [["Allow", "An hour or two"]] },
-            { name: "Kunsthalle Basel", kicker: "Steinenberg \u00b7 by the theatre", tour: "Kunsthalle Basel", link: "https://www.kunsthallebasel.ch/en/", linkLabel: "Visit",
-              body: "Contemporary art since 1872, and a step ahead of the market downstairs at the fair \u2014 artists shown here often turn up in the big galleries a few years later. Small enough for an hour, with a good bar-restaurant on its terrace.",
-              facts: [["Allow", "An hour"]] },
-            { name: "The Rhine, the Basel way", kicker: "The river through the Old Town", tour: "The Rhine, the Basel way",
-              body: "In summer Basel swims in its river: locals float downstream through the middle of the city with their clothes rolled into a waterproof Wickelfisch bag, then climb out further down. In June the water can still be cool \u2014 but the buvettes along the Kleinbasel bank are open, and an evening drink on the river steps is the best hour of the day in fair week.",
-              facts: [["Price", "Free"], ["Best", "Early evening"]] },
+            { name: "Premium+ Discovery", kicker: "Art Basel's own VIP programme \u00b7 by request", tour: "Premium+ Discovery", noAdd: true, link: "https://www.artbasel.com/basel/premium-discovery", linkLabel: "Art Basel's page",
+              mail: { label: "Request Premium+ Discovery", subject: "Art Basel 2027 \u2014 Premium+ Discovery request", body: "Hello,\n\nI would like to request Art Basel's Premium+ Discovery programme for Art Basel in Basel, June 2027.\n\nGuests: [NUMBER]\nNames: [NAMES]\nArriving in Basel: [DATE]\nGalleries I buy from, if any: [OPTIONAL]\n\nPlease let me know whether it can be arranged, and the price.\n\nThank you,\n[YOUR NAME]" },
+              body: "The one way into the private week that can be asked for. In 2024 it included entry to the Vernissage on the Wednesday evening, a four-day pass with the Collectors Lounge, a VIP guided tour and private walk-throughs of the fair, visits to artists' studios and to a private collection, and an invitation to an Art Basel evening.\n\nArt Basel publishes no price and takes requests only through its own VIP team. Send your request from here and Voyage One puts it to them; the answer is Art Basel's to give.",
+              facts: [["Price", "On request"], ["2027", "To be confirmed by Art Basel"]] },
+            { name: "Unlimited Night", kicker: "Thursday evening \u00b7 ticketed", tour: "Unlimited Night",
+              body: "An evening opening of the fair's most spectacular hall: Unlimited, where the galleries show works too large for a booth, from 7 pm. It is ticketed separately by Art Basel. In 2026 it fell on Thursday, June 18.",
+              facts: [["When", "Thursday from 7 pm \u00b7 2026"], ["Tickets", "From Art Basel"]] },
+            { name: "The Saturday night", kicker: "2026 \u00b7 Messe Basel, then Nordstern", tour: "The Saturday night",
+              body: "In 2026 the fair's last Saturday ended with Warehouse Artefacts: an evening in Hall 1.1 from 6 pm by Thomas Bangalter, Julian Charri\u00e8re and Rampa, produced by the club Nordstern with Art Basel and the Fondation Beyeler, and an after-party at Nordstern until 6 am. It was ticketed. Whether 2027 has its equivalent has not been announced.",
+              facts: [["When", "Saturday from 6 pm \u00b7 2026"], ["Tickets", "Sold separately"]] },
+            { name: "Unlimited", tour: "Unlimited", compact: true, groupTitle: "Also on, all week", line: "The hall of works too large for a booth. Included in your fair ticket; give it an afternoon." },
+            { name: "Parcours", tour: "Parcours", compact: true, link: "https://www.artbasel.com/basel/parcours", linkLabel: "Parcours", line: "Works installed in the squares, churches and courtyards of the Old Town. Free." },
+            { name: "Fondation Beyeler", tour: "Fondation Beyeler", compact: true, price: 30, link: "https://www.fondationbeyeler.ch/en/visit/tickets", linkLabel: "Timed tickets", line: "The one museum to see: Renzo Piano's pavilion in a park, 20 minutes by tram. Go first thing." },
+            { name: "Vitra Campus", tour: "Vitra Campus", compact: true, link: "https://vitra.com/en-fr/campus/visit", linkLabel: "Plan your visit", line: "Gehry, Hadid, Ando and Herzog & de Meuron on one campus, fifteen minutes across the German border." },
+            { name: "Liste Art Fair Basel", tour: "Liste Art Fair Basel", compact: true, link: "https://www.myswitzerland.com/en/experiences/events/liste-art-fair-basel/", linkLabel: "About Liste", line: "The fair for the youngest galleries, alongside the main fair at Messe Basel." },
+            { name: "Basel Social Club", tour: "Basel Social Club", compact: true, line: "Free and open late, in a building announced shortly before it opens." },
+            { name: "Kunstmuseum Basel", tour: "Kunstmuseum Basel", compact: true, price: 39, link: "https://kunstmuseumbasel.ch/en/visit/ticketsprices", linkLabel: "Tickets", line: "One of the oldest public collections in the world: Holbein to Picasso, in the Old Town." },
+            { name: "Museum Tinguely", tour: "Museum Tinguely", compact: true, link: "https://www.tinguely.ch/en/information/admission/tickets.html", linkLabel: "Tickets", line: "Jean Tinguely's whirring machine sculptures, in Mario Botta's building on the Rhine." },
+            { name: "Kunsthalle Basel", tour: "Kunsthalle Basel", compact: true, link: "https://www.kunsthallebasel.ch/en/", linkLabel: "Visit", line: "Contemporary art since 1872, with a good bar-restaurant on its terrace." },
+            { name: "The Rhine, the Basel way", tour: "The Rhine, the Basel way", compact: true, line: "An evening drink on the river steps in Kleinbasel, where the city floats past." },
           ],
           dineTitle: "Tables to book",
           dineNote: "Basel is small and fair week fills it: reserve the tables you care about when you reserve the hotel. Tap any to add it to your trip.",
@@ -18009,7 +18000,7 @@ const ONE_LIST = {
             "ZURICH OR BASEL? Most Americans fly into Zurich and take the train to Basel, about an hour and a quarter from the airport. The EuroAirport just outside Basel, in France, is 15 to 20 minutes from the centre but has few long-haul flights.",
             "NO CAR NEEDED. Basel is compact and its trams go everywhere, including the fair and Riehen.",
           ],
-          handoff: "Plan this trip opens your base for the fair \u2014 your fair days, your hotel, the tables and the museums you added \u2014 with flights into Zurich. Fair tickets are bought from Art Basel; everything else you book here. Continue to Lucerne or the mountains by adding them to your trip.",
+          handoff: "Plan this trip opens your base for the fair \u2014 your fair days, your hotel, the tables and the museums you added \u2014 with flights into Zurich. Fair tickets are bought from Art Basel; everything else you book here.",
         } },
       { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-05-05", end: "2027-05-10", dateLabel: "Opening week \u00b7 May 6\u20138, 2027", nights: 5, photo: "Venice Biennale Giardini pavilion", gallery: ["Venice Arsenale Biennale", "Venice Giardini Biennale pavilions", "Venice palazzo Grand Canal"],
         blurb: "One city, two extraordinary Biennales \u2014 art or architecture, in alternating years. Go in opening week, when the whole of Venice becomes the exhibition.",
@@ -20100,7 +20091,17 @@ function OneList({ onPick, onBack, onHome, initial }) {
             {g.addOnsStep ? <div style={secTitle}>{g.addOnsStep}</div> : null}
             {g.addOnsIntro ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 14, textAlign: "center" }}>{g.addOnsIntro}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {g.addOns.map((a, k) => { const on = !!addSel[a.name]; const dark = k % 2 === 0; const fg = dark ? t.paper : t.ink, soft = dark ? "#D8D2C6" : t.inkSoft, accent = dark ? t.brassLight : t.brass; return (
+              {g.addOns.map((a, k) => { const on = !!addSel[a.name]; const dark = k % 2 === 0; const fg = dark ? t.paper : t.ink, soft = dark ? "#D8D2C6" : t.inkSoft, accent = dark ? t.brassLight : t.brass;
+                // M1105 (21 Nov 2026): compact — one line and an Add button, for the things that need no selling.
+                if (a.compact) return (<div key={k}>
+                  {a.groupTitle ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, margin: "14px 0 10px" }}>{a.groupTitle}</div> : null}
+                  <div style={{ display: "flex", gap: 14, alignItems: "center", justifyContent: "space-between", background: t.white, border: `${on ? 2 : 1}px solid ${on ? t.brass : t.line}`, borderRadius: 12, padding: "12px 16px" }}>
+                    <span style={{ minWidth: 0 }}><span style={{ fontFamily: font.display, fontSize: 18.5, color: t.ink }}>{a.name}</span><span style={{ display: "block", fontSize: 13.5, color: t.inkSoft, lineHeight: 1.5, marginTop: 2 }}>{a.line}{a.link ? <> <a href={brandedLink(a.link, { kind: "experience", name: a.name, city: ev.city })} target="_blank" rel="noopener noreferrer" style={{ color: t.brass, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>{a.linkLabel || "Site"} →</a></> : null}</span></span>
+                    <button onClick={() => setAddSel((prev) => { const n = { ...prev }; if (on) delete n[a.name]; else n[a.name] = { name: a.tour || a.name, kind: a.kind || "tour", price: a.price || null }; return n; })} style={{ background: on ? t.brass : "none", color: on ? t.ink : t.pine, border: `1.5px solid ${on ? t.brass : t.pine}`, borderRadius: 999, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{on ? "\u2713 Added" : "Add"}</button>
+                  </div>
+                </div>);
+                const mailHref = a.mail ? `mailto:${a.mail.to || VO_REQUESTS_EMAIL}?${a.mail.to ? "cc=" + encodeURIComponent(VO_REQUESTS_EMAIL) + "&" : ""}subject=${encodeURIComponent(a.mail.subject)}&body=${encodeURIComponent(a.mail.body)}`.replace(/'/g, "%27") : null;
+                return (
                 <div key={k} style={{ background: dark ? t.pine : t.white, border: `${on ? 2.5 : 1}px solid ${on ? t.brass : t.pine}`, borderRadius: 18, padding: "22px 24px" }}>
                   {a.kicker ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: accent, fontWeight: 600, marginBottom: 6 }}>{a.kicker}</div> : null}
                   <div style={{ fontFamily: font.display, fontSize: 25, color: fg, lineHeight: 1.2 }}>{a.name}</div>
@@ -20109,7 +20110,8 @@ function OneList({ onPick, onBack, onHome, initial }) {
                     {a.facts.map(([lab, val], j) => (<div key={j}><div style={{ fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: accent, fontWeight: 600 }}>{lab}</div><div style={{ fontSize: 14, color: fg, marginTop: 2, lineHeight: 1.45 }}>{val}</div></div>))}
                   </div> : null}
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 14 }}>
-                    <button onClick={() => setAddSel((prev) => { const n = { ...prev }; if (on) delete n[a.name]; else n[a.name] = { name: a.tour || a.name, kind: a.kind || "tour", price: a.price || null }; return n; })} style={{ background: on ? t.brass : dark ? t.paper : t.pine, color: on ? t.ink : dark ? t.pine : t.paper, border: "none", borderRadius: 999, padding: "11px 20px", fontSize: 14, fontWeight: 700, letterSpacing: ".03em", cursor: "pointer" }}>{on ? "\u2713 Added to your trip" : "Add to my trip"}</button>
+                    {mailHref ? <a href={mailHref} style={{ background: dark ? t.paper : t.pine, color: dark ? t.pine : t.paper, borderRadius: 999, padding: "11px 20px", fontSize: 14, fontWeight: 700, letterSpacing: ".03em", textDecoration: "none" }}>{a.mail.label || "E-mail the request"}</a> : null}
+                    {a.noAdd ? null : <button onClick={() => setAddSel((prev) => { const n = { ...prev }; if (on) delete n[a.name]; else n[a.name] = { name: a.tour || a.name, kind: a.kind || "tour", price: a.price || null }; return n; })} style={{ background: on ? t.brass : dark ? t.paper : t.pine, color: on ? t.ink : dark ? t.pine : t.paper, border: "none", borderRadius: 999, padding: "11px 20px", fontSize: 14, fontWeight: 700, letterSpacing: ".03em", cursor: "pointer" }}>{on ? "\u2713 Added to your trip" : "Add to my trip"}</button>}
                     {a.link ? <a href={brandedLink(a.link, { kind: "experience", name: a.name, city: ev.city })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13.5, color: accent, fontWeight: 600, textDecoration: "none" }}>{a.linkLabel || "Official site"} →</a> : null}
                   </div>
                 </div>); })}
