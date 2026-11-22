@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1106";
+const BUILD = "M1107";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -18009,6 +18009,29 @@ const ONE_LIST = {
         blurb: "One city, two extraordinary Biennales \u2014 art or architecture, in alternating years. Go in opening week, when the whole of Venice becomes the exhibition.",
         guide: {
           cur: "\u20ac",
+          // M1107 (22 Nov 2026, Tricia): lead with the balls. Venetian Heritage's Biennale ball (Art years)
+          // and Save Venice's Venice gala (15–17 Oct 2027, inside this Biennale's run). Facts read
+          // 22 Nov 2026 on venetianheritage.eu (2024 press release), savevenice.org/events, Cabana, Elle.
+          aboutTitle: "The balls",
+          about: [
+            "Venice's two great preservation charities give the city's grandest evenings, and both offer places to those who give. It is how a visitor comes to dine in black tie in a palazzo on the same trip as the Biennale.",
+            "VENETIAN HERITAGE holds its Biennale Gala Weekend every two years at the opening of the Art Biennale, with Dior as its partner. In 2024 it ran four days: breakfast at the Ca' d'Oro, a dinner with Schiaparelli at Palazzo Contarini degli Scrigni, a concert in St Mark's Basilica followed by dinner at Diane von Furstenberg's, and on the Saturday THE NAUMACHIA BALL in the Arsenale Vecchio, the Italian Navy's headquarters, opened for the night. Dior hung the walls in ruby and emerald velvet, swagged the ceiling like sails, and set three long tables under gold-dusted Murano chandeliers, with wooden gondolas crossing mirrors down the middle. There were 460 guests, among them Delphine Arnault, Maria Grazia Chiuri, Peter Marino, Beatrice Borromeo and Pierre Casiraghi.",
+            "In 2026 THE VENETIAN HERITAGE BALL, again supported by Dior, fell on the Saturday of opening week: a room of deep green, gold and candlelight, metallic palms rising over the long tables, and \u20ac1.7 million raised in one evening. Before those came the Opera Ball at La Fenice in 2022 and the Tiepolo Ball at Palazzo Labia in 2019.",
+            "WHERE THE MONEY GOES: into Venice itself. The 2024 and 2026 balls paid toward the restoration of the Ca' d'Oro, the Gothic palace and museum on the Grand Canal; 2024's also toward the Porta Magna, the great gate of the Arsenale. In 2024 a place was a donation from \u20ac2,000 for the ball alone to \u20ac10,000 for the whole weekend.",
+            "IN ARCHITECTURE YEARS THE EVENING IS SMALLER. In 2023 Venetian Heritage held a sculpture prize and a fundraising evening, not a ball. Nothing is announced for May 2027. The balls have come with the Art Biennale, which returns in 2028; its date and chair are not yet announced.",
+            "SO PAIR THIS BIENNALE WITH THE SAVE VENICE GALA. Save Venice is the American charity that has paid for more than 550 restorations in the city since 1971, among them Titian's Assumption at the Frari, Carpaccio's Saint Ursula cycle and Tintoretto's Paradise. Every two years it holds a gala in Venice: a long weekend of private palaces, lectures and receptions that ends in a black-tie dinner dance. In 2017 the ball was A Midsummer Night's Dream, at Palazzo Pisani Moretta on the Grand Canal. THE 2027 GALA IS 15\u201317 OCTOBER, and the Architecture Biennale is still open then; it runs to 21 November. Members hear first and book first.",
+          ],
+          addOnsFirst: true,
+          addOnsTitle: "Ask for a place",
+          addOns: [
+            { name: "Save Venice · the 2027 Venice Gala", kicker: "15\u201317 October 2027 \u00b7 black tie", tour: "Save Venice Gala", noAdd: true, link: "https://www.savevenice.org/events", linkLabel: "Save Venice events",
+              mail: { to: "venice@savevenice.org", label: "E-mail Save Venice", subject: "2027 Venice Gala \u2014 enquiry", body: "Hello,\n\nI would like to attend Save Venice's 2027 Venice Gala, 15\u201317 October 2027, and to visit the Architecture Biennale on the same trip.\n\nGuests: [NUMBER]\n\nPlease let me know the programme, the price of a place, and whether membership is needed to book.\n\nThank you,\n[YOUR NAME]" },
+              body: "The black-tie weekend that can be asked for now. The button opens an e-mail to Save Venice's office in Venice, already written. To go, build this trip and set your dates to October; the Biennale is open until 21 November.",
+              facts: [["When", "15\u201317 October 2027"], ["Price", "Not yet published"]] },
+            { name: "Venetian Heritage · the Biennale ball", kicker: "Every two years, with the Art Biennale \u00b7 with Dior", tour: "Venetian Heritage ball", noAdd: true, link: "https://www.venetianheritage.eu/", linkLabel: "Venetian Heritage",
+              body: "Nothing is announced for 2027, and the next ball is not yet dated. Venetian Heritage's own site is where it is announced and where a place is asked for.",
+              facts: [["In 2024", "\u20ac2,000 the ball \u00b7 \u20ac10,000 the weekend"], ["Next", "Not yet announced"]] },
+          ],
           daysTitle: "Which Biennale is yours?",
           daysIntro: "Venice holds two great exhibitions in alternating years, built the same way: countries make their own national pavilions, a major curator makes the central exhibition, and palazzi, foundations and churches across the city fill with official Collateral Events. In opening week the whole city is the experience.\n\nTHE ART BIENNALE is for contemporary art, collecting, galleries and the more glamorous opening week \u2014 next in 2028, DATES TO BE ANNOUNCED. THE ARCHITECTURE BIENNALE is a world\u2019s fair for ideas about how we will build and live, for anyone who loves buildings and cities \u2014 THE 20TH OPENS MAY 2027: pre-opening 6\u20137 May, public 8 May to 21 November, curated by Wang Shu and Lu Wenyu. Neither is better; go to the one that fascinates you, in opening week if you can, for four or five nights. Everything below is about making that easy.",
 
@@ -20158,11 +20181,11 @@ function OneList({ onPick, onBack, onHome, initial }) {
           {/* An optional narrative opener: what this event actually IS, before we ask anyone to
               choose anything. Only renders when the event supplies it, so nothing else changes. */}
           {g.about ? (<div>{secHead(g.aboutTitle || "The festival")}<div style={{ display: "flex", flexDirection: "column", gap: 13 }}>{g.about.map((x, k) => (<div key={k} style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.68 }}>{x}</div>))}</div></div>) : null}
+          {g.addOnsFirst ? addOnsSec : null}
             {/* An experience with no day picks still has an argument to make. Branches A and B
                 render daysIntro themselves; this covers the third, where it used to vanish. */}
             {!picks && g.daysIntro ? (<div style={{ marginBottom: 18 }}>{secHead(L.daysTitle)}{proseBlock(g.daysIntro, { fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 })}</div>) : null}
             {g.flow === "steps" ? null : baseSec}
-          {g.addOnsFirst ? addOnsSec : null}
           {picks && multiMode ? (<div>
             {secHead(L.daysTitle)}
             <div style={secTitle}>{L.pickStep}</div>
