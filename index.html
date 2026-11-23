@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1110";
+const BUILD = "M1112";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17599,11 +17599,12 @@ const ONE_LIST = {
             { h: "Sunday 21 July \u00b7 THE WORLD CUP FINAL", b: "Breakfast or brunch; prepare for the match; the matchday transfer; official FIFA hospitality; the final; the post-match celebration; the return to the hotel." },
             { h: "Monday 22 July \u00b7 Depart", b: "The celebration lunch, the private transfer, home." },
           ],
-          beyondTitle: "The direct-first rule",
+          beyondTitle: "How you get in",
           beyond: [
+            { name: "Chris Jones @ Sporting Agenda, London", tag: "Register your interest now", note: "Nothing for 2030 is on sale yet. The button opens an e-mail already written, asking Chris to put you on his list for the final; add your name and how many guests.",
+              links: [{ label: "E-mail Chris Jones @ Sporting Agenda", mail: { to: "ChrisJones@sportingagenda.co.uk", subject: "FIFA World Cup Final 2030 \u2014 register my interest", body: "Hello Chris,\n\nI would like to attend the FIFA World Cup Final on Sunday 21 July 2030 and am planning the trip through Voyage One. Please put me on your list for tickets and hospitality when they are released.\n\nGuests: [NUMBER]\nName: [YOUR NAME]\n\nThank you,\n[YOUR NAME]\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com" } }] },
             { name: "FIFA direct", tag: "First", note: "Official hospitality and official tickets from FIFA\u2019s own channels." },
             { name: "FIFA\u2019s official hospitality provider or authorised sales agent", tag: "Second", note: "Appointed for 2030 when FIFA announces it; not assumed to be 2026\u2019s." },
-            { name: "Anything else", tag: "Only if official inventory cannot solve it", note: "No unofficial source while official FIFA access exists." },
           ],
           notes: [
             "THE FINAL VENUE IS NOT ANNOUNCED. Nothing here guesses at Madrid, Casablanca, Lisbon or anywhere else; the city appears when FIFA names it.",
@@ -17643,6 +17644,11 @@ const ONE_LIST = {
             positioning: "FOR THE VOYAGE ONE EXPERIENCE: for a client who wants certainty, excellent seating and a more complete matchday, official UEFA hospitality is generally the strongest option. Based on 2026 pricing, plan on about \u20ac7,000\u2013\u20ac8,000+ per person for hospitality alone, and about \u20ac10,000\u2013\u20ac15,000+ per person for a complete hospitality travel package with hotel and services.",
             disclaimer: "2027 Madrid prices have not yet been announced. These figures are planning estimates based on official 2026 UEFA and authorised hospitality pricing and may change materially for 2027." },
           sale: { status: "unknown", year: "2027", by: "UEFA", city: "Madrid, Spain", slug: "champions-league-final-2027-hospitality", remindDate: "2026-12-01", remindWhy: "UEFA says 2027 hospitality sales are expected to open at the end of 2026", infoUrl: "https://hospitality.uefa.com/", buyUrl: "", remindNote: "UEFA Champions League Final 2027, Madrid \u2014 check whether official hospitality sales have opened. Hospitality is first come, first served; the standard-ticket application comes later. A Voyage One reminder." },
+          // M1111 (23 Nov 2026, Tricia): the final is requested from Chris Jones at Sporting Agenda. The
+          // client answers the question on the trip page and the request carries the answer.
+          broker: { who: "Chris Jones", first: "Chris", firm: "Sporting Agenda", city: "London", email: "ChrisJones@sportingagenda.co.uk", profile: true, title: "Request your place at the final", unit: "tickets and hospitality", seatsLabel: "Guests", pairs: false, seatsDefault: 2,
+            replyLine: "Your request goes to Chris Jones @ Sporting Agenda in London, who replies with what is available and the price.",
+            closing: "Please let me know what is available and the price." },
           profile: [
             { key: "route", q: "How would you like to experience the final?", options: [["hospitality", "Official UEFA hospitality \u2014 certainty and a premium night"], ["programme", "The official travel programme \u2014 hospitality with transfers and more"], ["standard", "A standard ticket \u2014 apply, and hope"]] },
           ],
@@ -17678,26 +17684,27 @@ const ONE_LIST = {
             { h: "Sunday 6 June \u00b7 The morning after", b: "A late breakfast. A Madrid cultural experience. The celebration dinner." },
             { h: "Monday 7 June \u00b7 Depart", b: "The private transfer to Barajas, timed to the flight. Or depart Sunday, if the trip is three nights." },
           ],
-          beyondTitle: "The two official routes, and the rule",
+          beyondTitle: "How you get in",
           beyond: [
+            { name: "Chris Jones @ Sporting Agenda, London", tag: "Your request", note: "Choose how you want to experience the final on the trip page, and one tap sends him the request. He replies with what is available and the price." },
             { name: "UEFA direct", tag: "First", note: "Official hospitality, bought from UEFA\u2019s own platform, first come, first served, from the end of 2026. The Voyage One recommendation." },
             { name: "BEYOND Hospitality", tag: "UEFA\u2019s authorised agent", note: "The official hospitality travel programme through 2027 \u2014 hospitality with accommodation, matchday transfers, pre-travel assistance, a personalised itinerary, a celebration dinner. Used where it adds real value or inventory; not sent to automatically." },
-            { name: "Standard tickets", tag: "Official only", note: "The general-public allocation through UEFA\u2019s ticketing, by application, close to the match. No secondary-market seller while the official routes remain." },
+            { name: "Standard tickets", tag: "Official only", note: "The general-public allocation through UEFA\u2019s ticketing, by application, close to the match." },
           ],
           notes: [
             "ARRIVE AT LEAST ONE DAY BEFORE THE FINAL. Match day is fixed; nothing about it moves for a late flight.",
             "HOSPITALITY IS FIRST COME, FIRST SERVED. The end-of-2026 opening is the moment; the reminder is set.",
             "MATCHDAY TRANSPORT WAITS FOR UEFA\u2019S EVENT GUIDE. Road closures and drop-off zones are published as the final approaches; the driver\u2019s plan follows them.",
             "SATURDAY BELONGS TO THE MATCH. No formal dinner, no elaborate lunch, nothing that fights the hospitality timing.",
-            "UEFA DIRECTLY, THEN UEFA\u2019S AUTHORISED PARTNER, THEN NOTHING ELSE while official inventory can solve it.",
+            "YOUR REQUEST GOES TO CHRIS JONES @ SPORTING AGENDA from the trip page; he replies with what is available and the price.",
           ],
-          handoff: "Plan this trip opens MADRID for four nights, Thursday to Monday, with our Madrid hotels, our tables, flights into Barajas and Aena\u2019s VIP service. Hospitality is bought from UEFA when sales open; the reminder is on the card. Matchday transport is arranged once access is confirmed.",
+          handoff: "Plan this trip opens MADRID for four nights, Thursday to Monday, with our Madrid hotels, our tables, flights into Barajas and Aena\u2019s VIP service. On the trip page you choose how you want to experience the final, and one tap sends the request to Chris Jones @ Sporting Agenda in London. Matchday transport is arranged once access is confirmed.",
         } },
       { title: "The FA Cup Final 2027", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-05-22", end: "2027-05-23", dateLabel: "Saturday May 22, 2027", nights: 3, photo: "Wembley Stadium arch London", blurb: "The FA Cup Final — a British sporting tradition. The oldest national football competition in the world, resolved each May beneath the arch at Wembley, before some 90,000 spectators.", guide: {
         // THE FA CUP FINAL 2027 (Tricia, M1052, 6 Nov 2026): one event, two hospitality packages,
         // indicative prices in pounds, every inclusion exactly as the package states it. Taphouse
         // food and drink are bought separately; the Bobby Moore meal, beer and wine are included.
-        // Nothing else is implied. Enquiries use the Voyage One request.
+        // Nothing else is implied. Requests go to Chris Jones @ Sporting Agenda in London.
         cur: "£",
         daysTitle: "The FA Cup Final — a British sporting tradition",
         pickStep: "Step one · choose your hospitality",
@@ -17720,9 +17727,9 @@ const ONE_LIST = {
           { label: "Taphouse Social (per person)", price: "≈ £1,200, indicative" },
         ],
         ticketNote: "Prices are indicative and subject to final confirmation. Both packages are subject to availability. The participating teams, kick-off time and remaining booking terms are confirmed as the competition progresses.",
-        broker: { who: "Voyage One", city: "London", email: null, title: "Enquire about this experience", unit: "FA Cup Final hospitality", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,", only: "broker",
-          intro: "Choose your hospitality here; once you build your trip, one tap sends the enquiry with everything filled in.",
-          replyLine: "We reply with availability and the confirmed price for your party.",
+        broker: { who: "Chris Jones", first: "Chris", firm: "Sporting Agenda", city: "London", email: "ChrisJones@sportingagenda.co.uk", eventName: "The FA Cup Final", title: "Request your hospitality", unit: "hospitality", seatsLabel: "Guests", pairs: false, seatsDefault: 2,
+          intro: "Your hospitality is arranged by Chris Jones @ Sporting Agenda in London. Choose it here; once you build your trip, one tap sends him the request with everything filled in.",
+          replyLine: "Your request goes to Chris Jones @ Sporting Agenda in London, who replies with availability and the confirmed price for your party.",
           closing: "Please let me know availability and the confirmed price." },
         stayNote: "Wembley sits in north-west London, but the joy is a proper London stay — a base in the heart of the city and a driver out (about 30–45 minutes). Three London favorites; keep any, or search a hotel you love by name. Hotels are chosen separately and are not part of either package.",
         stay: [
@@ -25358,7 +25365,7 @@ function findExperience(title) {
 // opens their mail with the request written, addressed to the broker, with the days, the court,
 // the number of seats, their name and their hotel. The phone numbers are information; the e-mail
 // is the action. Universal: any experience whose guide carries a `broker` gets this panel.
-function BrokerRequest({ ev, g, d, tk, set, p }) {
+function BrokerRequest({ ev, g, d, tk, set, p, prof }) {
   const b = g.broker; const pk = d.pick || {};
   // A guide whose broker handles only some choices (b.only = "broker": Monaco's yacht, not F1's own
   // hospitality) shows this panel only when one of those was chosen, and lists only those (M1030).
@@ -25383,11 +25390,14 @@ function BrokerRequest({ ev, g, d, tk, set, p }) {
   const year = String(ev.start || "").slice(0, 4);
   const esc = (x) => String(x).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const dayLine = (x) => "\u2022 " + String(x.name || "").replace(new RegExp("^" + esc(ev.title) + "\\s*\u00b7\\s*"), "").replace(/\s*\u00a3[\d,]+/g, "").trim();
-  const lines = days.map(dayLine).concat(extras.map((x) => "\u2022 " + x.name + (x.date ? " \u2014 " + fmtDay(new Date(x.date + "T00:00:00")) : " \u2014 day to be agreed")));
+  // M1111 (23 Nov 2026): a guide with a question and no days to pick (b.profile: the two finals) puts
+  // the client's answer on the request, so the broker reads what was chosen.
+  const profLines = b.profile ? (g.profile || []).map((q) => { const o = (q.options || []).find((x) => x[0] === (prof || {})[q.key]); return o ? "\u2022 " + o[1] : null; }).filter(Boolean) : [];
+  const lines = profLines.concat(days.map(dayLine)).concat(extras.map((x) => "\u2022 " + x.name + (x.date ? " \u2014 " + fmtDay(new Date(x.date + "T00:00:00")) : " \u2014 day to be agreed")));
   const body = [
     b.greet || `Hello ${b.first || b.who},`, "",
     `I'm planning ${b.eventName || ev.title}${year ? " " + year : ""} through Voyage One and would like to request ${b.unit || "tickets"} for:`, "",
-    ...(lines.length ? lines : ["\u2022 (days to be confirmed)"]), "",
+    ...(lines.length ? lines : [b.profile ? "\u2022 (choice to be confirmed)" : "\u2022 (days to be confirmed)"]), "",
     ...(stay === null ? [] : [`In ${bareCity(d.city)}: ${stay || "dates to be confirmed"}`, ""]),
     `${b.seatsLabel || "Seats"}: ${seats}${b.pairs ? " (I understand they are sold in pairs)" : ""}`,
     `Name: ${name}`, "",
@@ -25402,7 +25412,7 @@ function BrokerRequest({ ev, g, d, tk, set, p }) {
   return (<div style={{ marginBottom: 14, padding: "14px 16px", background: t.card, borderLeft: `3px solid ${t.pine}`, borderRadius: 12 }}>
     <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>{b.title || `Request your ${b.unit || "tickets"}`}</div>
     {lines.length ? (<div style={{ fontSize: 14, color: t.ink, lineHeight: 1.7 }}>{lines.map((l, k) => <div key={k}>{l}</div>)}{stay === null ? null : <div style={{ marginTop: 4, color: stay ? t.ink : t.inkSoft }}>{stay ? `In ${bareCity(d.city)}: ${stay}` : "Choose your trip dates first, so the request can say when you are in " + bareCity(d.city) + "."}</div>}</div>)
-      : <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>Choose your days on the {ev.title} page and they appear here, ready to send.</div>}
+      : <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.55 }}>{b.profile ? "Answer the question below and your choice appears here, ready to send." : `Choose your days on the ${ev.title} page and they appear here, ready to send.`}</div>}
     <div className="vo-noprint" style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 10 }}>
       <span style={{ fontSize: 13.5, color: t.inkSoft }}>{b.seatsLabel || "Seats"}</span>
       <button onClick={() => set({ seats: Math.max(1, seats - (b.pairs ? 2 : 1)) })} style={stepBtn}>{"\u2212"}</button>
@@ -25484,7 +25494,7 @@ function EventTicketsPanel({ d, upd, p }) {
   const inp = { fontSize: 14, padding: "8px 10px", border: `1px solid ${t.line}`, borderRadius: 8, background: t.white, color: t.ink };
   const pill = (on) => ({ background: on ? t.pine : t.white, color: on ? t.paper : t.ink, border: `1px solid ${on ? t.pine : t.line}`, borderRadius: 999, padding: "8px 14px", fontSize: 13, cursor: "pointer" });
   return (<Panel icon={Ticket} title={g.panelTitle || `${ev.title} \u00b7 tickets`}>
-    {g.broker ? <BrokerRequest ev={ev} g={g} d={d} tk={tk} set={set} p={p} /> : null}
+    {g.broker ? <BrokerRequest ev={ev} g={g} d={d} tk={tk} set={set} p={p} prof={prof} /> : null}
     {((d.pick && d.pick.sports) || []).filter((x) => x && x.book).map((x, k) => (<div key={"bk" + k} style={{ marginBottom: 14, padding: "14px 16px", background: t.card, borderLeft: `3px solid ${t.pine}`, borderRadius: 12 }}>
       <div style={{ fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 6 }}>Your choice</div>
       <div style={{ fontSize: 14.5, color: t.ink, lineHeight: 1.55 }}>{String(x.name || "").replace(ev.title + " \u00b7 ", "")}</div>
