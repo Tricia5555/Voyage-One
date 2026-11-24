@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1113";
+const BUILD = "M1115";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -15365,7 +15365,7 @@ function PhotoCredit({ src }) {
   </div>);
 }
 function photoCreditText(src) { const c = photoCredit(src); const from = c ? (c.lic ? c.lic + " · " : "") + (c.from || "Google Maps") : ""; return c ? (c.by ? `Photo: ${c.by} · ${from}` : `Photo: ${from}`) : ""; }
-function Photo({ query, h = 180, radius = 0, raw = false, contain = false }) {
+function Photo({ query, h = 180, radius = 0, raw = false, contain = false, hideEmpty = false }) {
   const city = (query || "").trim();
   const direct = isDirectImage(city);
   const [src, setSrc] = useState(direct ? city : null);
@@ -15385,6 +15385,9 @@ function Photo({ query, h = 180, radius = 0, raw = false, contain = false }) {
       .catch(() => {});
     return () => { alive = false; };
   }, [city, raw]);
+  // M1114 (23 Nov 2026): a body photo (hideEmpty) that finds nothing shows nothing, rather than an empty
+  // coloured box in the middle of the page. Heroes and cards keep the placeholder, which holds their shape.
+  if ((!src || bad) && hideEmpty) return null;
   if (!src || bad) return <div style={{ width: "100%", height: h, borderRadius: radius, background: `linear-gradient(135deg, ${t.pineSoft}, ${t.brass})` }} />;
   // contain: keep the photo's real shape (never crop) — a tall photo stays tall, a wide one
   // stays wide — capped to height h and centred. cover: fill the box and crop (heroes/cards).
@@ -16808,6 +16811,19 @@ const ONE_LIST = {
           { name: "La Réserve de Beaulieu", area: "Beaulieu · ~15–20 min", rate: 1500, note: "A Belle Époque seafront icon between Nice and Monaco, with its own train station a few minutes into the principality — relaxed grandeur outside the crush.", contact: { addr: "5 Bd du Général Leclerc, 06310 Beaulieu-sur-Mer", tel: "+33 4 93 01 00 01", web: "lareservebeaulieu.com" } },
         ],
         stayMore: "Choose any, or type another. Contact details are indicative — you click thru to book, direct with the hotel.",
+        // M1115 (23 Nov 2026, Tricia): the two race-night parties Cornucopia Events offers, from their own
+        // pages read 23 Nov 2026. Both are Sunday 6 June 2027, 7:30 pm. Their e-mail address is hidden on
+        // their site, so each card links to their page and gives their telephone.
+        addOnsTitle: "Race night · Sunday June 6",
+        addOnsIntro: "Two parties after the chequered flag. Add one and it arrives in your trip.",
+        addOns: [
+          { name: "TAG Heuer Grand Prix Yacht Party", kicker: "Sunday June 6, 2027 \u00b7 aboard Bougainville, Port of Monaco", tour: "TAG Heuer Grand Prix Yacht Party", link: "https://www.cornucopia-events.co.uk/tag-heur-f1-monaco-grand-prix-yacht-party/", linkLabel: "See it at Cornucopia Events",
+            body: "Race night aboard Bougainville, the watchmaker's yacht in the Port of Monaco, among guests from sport, fashion and entertainment. A cocktail reception and red carpet from 7:30 pm, and dinner from 8:30. Dress is Riviera chic: summer evening wear.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
+            facts: [["Price", "\u00a34,999 per person plus VAT"], ["Ask for", "Mini Vohra \u00b7 +44 7863 240 513"]] },
+          { name: "Heavensake Grand Prix Party", kicker: "Sunday June 6, 2027 \u00b7 Monaco", tour: "Heavensake Grand Prix Party", link: "https://www.cornucopia-events.co.uk/heavensake-monaco-grand-prix-party/", linkLabel: "See it at Cornucopia Events",
+            body: "The sake house's race-night party in the heart of the principality, with a guest list drawn from sport, fashion and entertainment. Cocktails and a red carpet from 7:30 pm, and dinner from 8:30. Dress is Riviera chic: summer evening wear.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
+            facts: [["Price", "\u00a34,999 per person plus VAT"], ["Ask for", "Mini Vohra \u00b7 +44 7863 240 513"]] },
+        ],
         beyond: [
           { name: "Getting in", note: "Nice Côte d'Azur (NCE) is Monaco's airport, for scheduled flights and private aircraft alike. From there the helicopter takes about seven minutes; from an Èze or Beaulieu hotel, the train runs straight into Monaco-Monte-Carlo in seven. Over the race weekend the streets and tunnels close, so a car only reaches the edge of town." },
           { name: "The great tables", note: "Le Louis XV – Alain Ducasse (three stars) and Le Grill on the Hôtel de Paris rooftop, Pavyllon by Yannick Alléno at the Hermitage, Blue Bay at Monte-Carlo Bay; and up the coast, La Chèvre d'Or in Èze and Le Cap at Cap-Ferrat. Booked weeks ahead — GP weekend fills them." },
@@ -17696,7 +17712,7 @@ const ONE_LIST = {
           ],
           handoff: "Plan this trip opens MADRID for four nights, Thursday to Monday, with our Madrid hotels, our tables, flights into Barajas and Aena\u2019s VIP service. On the trip page you choose how you want to experience the final, and one tap sends the request to Chris Jones @ Sporting Agenda in London. Matchday transport is arranged once access is confirmed.",
         } },
-      { title: "The FA Cup Final 2027", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-05-22", end: "2027-05-23", dateLabel: "Saturday May 22, 2027", nights: 3, photo: "Wembley Stadium arch London", blurb: "The FA Cup Final — a British sporting tradition. The oldest national football competition in the world, resolved each May beneath the arch at Wembley, before some 90,000 spectators.", guide: {
+      { title: "The FA Cup Final 2027", city: "London", airport: "LHR", airportName: "London Heathrow", start: "2027-05-22", end: "2027-05-23", dateLabel: "Saturday May 22, 2027", nights: 3, photo: "Wembley Stadium arch London", gallery: ["Wembley Stadium arch London", "Olympic Way Wembley Park", "Wembley Stadium"], blurb: "The FA Cup Final — a British sporting tradition. The oldest national football competition in the world, resolved each May beneath the arch at Wembley, before some 90,000 spectators.", guide: {
         // THE FA CUP FINAL 2027 (Tricia, M1052, 6 Nov 2026): one event, two hospitality packages,
         // indicative prices in pounds, every inclusion exactly as the package states it. Taphouse
         // food and drink are bought separately; the Bobby Moore meal, beer and wine are included.
@@ -20091,7 +20107,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
     const bandH = (ev && ev.bandH) || 540;
     // Per-photo width overrides by gallery index (e.g. Monaco keeps its corner shot small).
     const galW = (ev && ev.galleryW) || {};
-    const photoBand = (i, h = bandH) => (gal[i] ? (<div style={{ alignSelf: "center", width: (galW[i] || bandW), maxWidth: "94vw", margin: "8px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain /></div>) : null);
+    const photoBand = (i, h = bandH) => (gal[i] ? (<div style={{ alignSelf: "center", width: (galW[i] || bandW), maxWidth: "94vw", margin: "8px 0" }}><Photo query={gal[i]} h={h} radius={16} raw contain hideEmpty /></div>) : null);
     // Never fly in on a day you hold tickets. Shown above the day list and again at the flights
     // step, so the client sets an arrival day before their first event day.
     // M1113 (23 Nov 2026, Tricia): no advice about not arriving on the day; clients know. What stays is
