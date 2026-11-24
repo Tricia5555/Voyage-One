@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1115";
+const BUILD = "M1116";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -17740,12 +17740,11 @@ const ONE_LIST = {
           intro: "Your hospitality is arranged by Chris Jones @ Sporting Agenda in London. Choose it here; once you build your trip, one tap sends him the request with everything filled in.",
           replyLine: "Your request goes to Chris Jones @ Sporting Agenda in London, who replies with availability and the confirmed price for your party.",
           closing: "Please let me know availability and the confirmed price." },
-        stayNote: "Wembley sits in north-west London, but the joy is a proper London stay — a base in the heart of the city and a driver out (about 30–45 minutes). Three London favorites; keep any, or search a hotel you love by name. Hotels are chosen separately and are not part of either package.",
-        stay: [
-          { name: "Claridge's", area: "Mayfair", rate: 1200, note: "The Art Deco grande dame of Mayfair — the most quintessentially London address, and flawless for an occasion. (Estimated.)" },
-          { name: "The Berkeley", area: "Belgravia / Knightsbridge", rate: 1000, note: "Sleek and stylish on the edge of Hyde Park, with a rooftop pool — a beautiful base close to the shops. (Estimated.)" },
-          { name: "The Savoy", area: "The Strand / Covent Garden", rate: 1050, note: "The riverside legend by the West End and Covent Garden — theater, the Thames and the City on your doorstep. (Estimated.)" },
-        ],
+        stayNote: "Wembley sits in north-west London, but the joy is a proper London stay — a base in the heart of the city and a driver out (about 30–45 minutes). Choose any hotel from our London list, or search one you love by name. Hotels are chosen separately and are not part of either package.",
+        // M1116 (23 Nov 2026, Tricia): no hand-picked three here. Unlike Wimbledon, nothing about the
+        // match favours one London hotel over another, so the page shows the whole London list.
+        stay: [],
+        stayCollection: "London",
         beyondTitle: "The day around the match",
         beyond: [
           { name: "The walk up Olympic Way", note: "The wide processional avenue from Wembley Park station to the stadium, flags flying and songs rising, the arch growing ahead. Both packages open three hours before kick-off — time to arrive early and take it in." },
@@ -20384,7 +20383,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
             const collOrdered = inColl ? [collection.find((s) => s.name === selName), ...collection.filter((s) => s.name !== selName)] : collection;
             return (<div>{secHead("Where to stay")}{g.stayStep ? <div style={secTitle}>{g.stayStep}</div> : null}{g.stayNote ? <div style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.6, marginBottom: 12 }}>{g.stayNote}</div> : null}
             {isCustom ? <div style={{ marginBottom: 16 }}>{stayCard({ name: stayPick.name, area: stayPick.area, rate: stayPick.rate, note: stayPick.note, contact: stayPick.contact }, "custom")}</div> : null}
-            {collection.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>{g.stayLead || "Closest to the courts"}</div> : null}
+            {collection.length && featOrdered.length ? <div style={{ fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 10 }}>{g.stayLead || "Closest to the courts"}</div> : null}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {featOrdered.map((s, k) => stayCard(s, k))}
             </div>
