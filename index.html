@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1117";
+const BUILD = "M1120";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -12917,7 +12917,7 @@ function AssistCard({ code, when }) {
       <div style={{ fontSize: 14.5, color: t.ink, fontWeight: 600, marginTop: 2 }}>{a.title || a.name}</div>
       {a.headline ? <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{a.headline}</div> : null}
     </div>
-    <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : `mailto:${a.email}`} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "9px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none", whiteSpace: "nowrap" }}>{a.web ? "Visit the site" : "Email"}</a>
+    <a className="vo-noprint" href={a.web ? brandedLink(a.web, { kind: "assist", name: a.name, city: a.airport }) : voMail(a.email, "VIP assistance at " + a.airport, "", false)} target={a.web ? "_blank" : undefined} rel="noopener noreferrer" style={{ display: "inline-block", padding: "9px 16px", border: `1px solid ${t.pine}`, borderRadius: 999, fontSize: 12.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", color: t.pine, textDecoration: "none", whiteSpace: "nowrap" }}>{a.web ? "Visit the site" : "Email"}</a>
   </div>);
 }
 function vettedDriver(city) {
@@ -16817,12 +16817,12 @@ const ONE_LIST = {
         addOnsTitle: "Race night · Sunday June 6",
         addOnsIntro: "Two parties after the chequered flag. Add one and it arrives in your trip.",
         addOns: [
-          { name: "TAG Heuer Grand Prix Yacht Party", kicker: "Sunday June 6, 2027 \u00b7 aboard Bougainville, Port of Monaco", tour: "TAG Heuer Grand Prix Yacht Party", link: "https://www.cornucopia-events.co.uk/tag-heur-f1-monaco-grand-prix-yacht-party/", linkLabel: "See it at Cornucopia Events",
+          { name: "TAG Heuer Grand Prix Yacht Party", kicker: "Sunday June 6, 2027 \u00b7 aboard Bougainville, Port of Monaco", tour: "TAG Heuer Grand Prix Yacht Party", mail: { to: "mini@cornucopia-events.co.uk", label: "E-mail the request to Mini Vohra", subject: "TAG Heuer Grand Prix Yacht Party, Monaco 2027 \u2014 request via Voyage One", body: "Hello Mini,\n\nI am a client of Voyage One and would like to request places at the TAG Heuer Grand Prix Yacht Party in Monaco on Sunday June 6, 2027.\n\nGuests: [NUMBER]\nName: [YOUR NAME]\n\nPlease let me know availability and the confirmed price.\n\nThank you,\n[YOUR NAME]\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com" }, link: "https://www.cornucopia-events.co.uk/tag-heur-f1-monaco-grand-prix-yacht-party/", linkLabel: "See it at Cornucopia Events",
             body: "Race night aboard Bougainville, the watchmaker's yacht in the Port of Monaco, among guests from sport, fashion and entertainment. A cocktail reception and red carpet from 7:30 pm, and dinner from 8:30. Dress is Riviera chic: summer evening wear.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
-            facts: [["Price", "\u00a34,999 per person plus VAT"], ["Ask for", "Mini Vohra \u00b7 +44 7863 240 513"]] },
-          { name: "Heavensake Grand Prix Party", kicker: "Sunday June 6, 2027 \u00b7 Monaco", tour: "Heavensake Grand Prix Party", link: "https://www.cornucopia-events.co.uk/heavensake-monaco-grand-prix-party/", linkLabel: "See it at Cornucopia Events",
+            facts: [["Price", "\u00a34,999 per person plus VAT"], ["Arranged by", "Mini Vohra \u00b7 Cornucopia Events"]] },
+          { name: "Heavensake Grand Prix Party", kicker: "Sunday June 6, 2027 \u00b7 Monaco", tour: "Heavensake Grand Prix Party", mail: { to: "mini@cornucopia-events.co.uk", label: "E-mail the request to Mini Vohra", subject: "Heavensake Grand Prix Party, Monaco 2027 \u2014 request via Voyage One", body: "Hello Mini,\n\nI am a client of Voyage One and would like to request places at the Heavensake Grand Prix Party in Monaco on Sunday June 6, 2027.\n\nGuests: [NUMBER]\nName: [YOUR NAME]\n\nPlease let me know availability and the confirmed price.\n\nThank you,\n[YOUR NAME]\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com" }, link: "https://www.cornucopia-events.co.uk/heavensake-monaco-grand-prix-party/", linkLabel: "See it at Cornucopia Events",
             body: "The sake house's race-night party in the heart of the principality, with a guest list drawn from sport, fashion and entertainment. Cocktails and a red carpet from 7:30 pm, and dinner from 8:30. Dress is Riviera chic: summer evening wear.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
-            facts: [["Price", "\u00a34,999 per person plus VAT"], ["Ask for", "Mini Vohra \u00b7 +44 7863 240 513"]] },
+            facts: [["Price", "\u00a34,999 per person plus VAT"], ["Arranged by", "Mini Vohra \u00b7 Cornucopia Events"]] },
         ],
         beyond: [
           { name: "Getting in", note: "Nice Côte d'Azur (NCE) is Monaco's airport, for scheduled flights and private aircraft alike. From there the helicopter takes about seven minutes; from an Èze or Beaulieu hotel, the train runs straight into Monaco-Monte-Carlo in seven. Over the race weekend the streets and tunnels close, so a car only reaches the edge of town." },
@@ -16891,9 +16891,9 @@ const ONE_LIST = {
           stayIncluded: "Your accommodation is part of your Masters package, so there is no hotel to choose here.",
           ticketsTitle: "What the words mean",
           tickets: "A BADGE is the daily ticket into Augusta National for a tournament round. It is collected and returned each day and worn at all times inside the grounds, and it opens every patron area, the practice area included.\n\nTHE MAGNOLIA CLUB is the hospitality house a seven-minute walk from the gates, with a shuttle to the main entrance: breakfast, a lunch buffet and carving station, afternoon hors d\u2019oeuvres, full premium bars and a cigar patio. It is where the day starts and ends; it does not itself give entry to the course.",
-          broker: { who: "Voyage One", city: "London", email: null, eventName: "The Masters", title: "Request your package", unit: "a Masters package", seatsLabel: "Guests", pairs: false, seatsDefault: 2, greet: "Hello,",
-            intro: "The packages are arranged by Cornucopia Events of London. Choose yours here; once you build your trip, one tap sends the request with everything filled in.",
-            replyLine: "Your request comes to Voyage One and is placed with Cornucopia Events in London, who confirm availability and the price.",
+          broker: { who: "Mini Vohra", first: "Mini", firm: "Cornucopia Events", city: "London", email: "mini@cornucopia-events.co.uk", eventName: "The Masters", title: "Request your package", unit: "a Masters package", seatsLabel: "Guests", pairs: false, seatsDefault: 2,
+            intro: "The packages are arranged by Mini Vohra at Cornucopia Events in London. Choose yours here; once you build your trip, one tap sends her the request with everything filled in.",
+            replyLine: "Your request goes to Mini Vohra at Cornucopia Events in London, who replies with availability and the confirmed price.",
             closing: "Please let me know availability and the confirmed price." },
           notes: [
             "The tournament rounds are Thursday April 8 to Sunday April 11, 2027. Monday to Wednesday are the practice days.",
@@ -18023,9 +18023,9 @@ const ONE_LIST = {
               mail: { label: "Request Premium+ Discovery", subject: "Art Basel 2027 \u2014 Premium+ Discovery request", body: "Hello,\n\nI would like to request Art Basel's Premium+ Discovery programme for Art Basel in Basel, June 2027.\n\nGuests: [NUMBER]\nNames: [NAMES]\nArriving in Basel: [DATE]\nGalleries I buy from, if any: [OPTIONAL]\n\nPlease let me know whether it can be arranged, and the price.\n\nThank you,\n[YOUR NAME]" },
               body: "The one way into the private week that can be asked for. In 2024 it included entry to the Vernissage on the Wednesday evening, a four-day pass with the Collectors Lounge, a VIP guided tour and private walk-throughs of the fair, visits to artists' studios and to a private collection, and an invitation to an Art Basel evening.\n\nArt Basel publishes no price and takes requests only through its own VIP team. Send your request from here and Voyage One puts it to them; the answer is Art Basel's to give.",
               facts: [["Price", "On request"], ["2027", "To be confirmed by Art Basel"]] },
-            { name: "First Choice pass", kicker: "Offered by Cornucopia Events, London \u00b7 not by Art Basel", tour: "First Choice pass", noAdd: true, link: "https://www.cornucopia-events.co.uk/art-basel-switzerland/", linkLabel: "Cornucopia Events' offer",
-              body: "First Choice is the card Art Basel gives its leading collectors, and it opens the fair two days before the public. Art Basel does not sell it. Cornucopia Events, a London hospitality company, offers one for 2027: as they list it, the preview evening, the VIP lounge and entrance, and the early VIP hours on each day of the fair.\n\nIt is Cornucopia's offer, arranged and paid for with them, and neither Art Basel's nor Voyage One's. Before you pay, ask them whose name the card carries and whether it is honored at the door in yours.",
-              facts: [["Price", "\u00a33,500 per person plus VAT \u00b7 sold in pairs"], ["Ask for", "Mini Vohra \u00b7 +44 7863 240 513"]] },
+            { name: "First Choice pass", kicker: "Offered by Cornucopia Events, London \u00b7 not by Art Basel", tour: "First Choice pass", noAdd: true, mail: { to: "mini@cornucopia-events.co.uk", label: "E-mail the request to Mini Vohra", subject: "Art Basel in Basel 2027 \u2014 First Choice pass \u2014 request via Voyage One", body: "Hello Mini,\n\nI am a client of Voyage One and would like to request an Art Basel First Choice pass for Art Basel in Basel, June 2027.\n\nGuests: [NUMBER]\nName: [YOUR NAME]\n\nPlease let me know availability and the confirmed price.\n\nThank you,\n[YOUR NAME]\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com" }, link: "https://www.cornucopia-events.co.uk/art-basel-switzerland/", linkLabel: "See it at Cornucopia Events",
+              body: "First Choice is the card Art Basel gives its leading collectors, and it opens the fair two days before the public. Art Basel does not sell it. Cornucopia Events, a London hospitality company, offers one for 2027: as they list it, the preview evening, the VIP lounge and entrance, and the early VIP hours on each day of the fair.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
+              facts: [["Price", "\u00a33,500 per person plus VAT \u00b7 sold in pairs"], ["Arranged by", "Mini Vohra \u00b7 Cornucopia Events"]] },
             { name: "Unlimited Night", kicker: "Thursday evening \u00b7 ticketed", tour: "Unlimited Night",
               body: "An evening opening of the fair's most spectacular hall: Unlimited, where the galleries show works too large for a booth, from 7 pm. It is ticketed separately by Art Basel. In 2026 it fell on Thursday, June 18.",
               facts: [["When", "Thursday from 7 pm \u00b7 2026"], ["Tickets", "From Art Basel"]] },
@@ -18064,6 +18064,56 @@ const ONE_LIST = {
             "NO CAR NEEDED. Basel is compact and its trams go everywhere, including the fair and Riehen.",
           ],
           handoff: "Plan this trip opens your base for the fair \u2014 your fair days, your hotel, the tables and the museums you added \u2014 with flights into Zurich. Fair tickets are bought from Art Basel; everything else you book here.",
+        } },
+      // ART BASEL MIAMI BEACH (Tricia, M1119, 24 Nov 2026): back on the site, now that Cornucopia Events
+      // offers a First Choice pass and the week's parties (their page, read 24 Nov 2026). It was replaced
+      // by Basel on 12 Nov because the preview is by invitation and the public days need no help; this
+      // page is built on what can be asked for. Art Basel has not announced 2027's dates: the fair has
+      // run the first Friday to Sunday of December (5–7 in 2025, 4–6 in 2026), so 3–5 December 2027 is
+      // shown as expected. Cornucopia's party list carries 2025's calendar, so it is given as 2025's.
+      { title: "Art Basel Miami Beach", city: "Miami", airport: "MIA", airportName: "Miami International", start: "2027-12-01", end: "2027-12-06", dateLabel: "December 2027 \u00b7 expected December 3\u20135, to be confirmed by Art Basel", nights: 4, photo: "Miami Beach Convention Center", gallery: ["Miami Beach Convention Center", "P\u00e9rez Art Museum Miami", "Rubell Museum Miami"],
+        blurb: "Miami Art Week: the fair at the Convention Center, four more around it, and the parties every night.",
+        guide: {
+          cur: "\u00a3",
+          flow: "steps",
+          addOnsFirst: true,
+          aboutTitle: "The week",
+          about: [
+            "For one week in December the art world moves to Miami Beach. The fair fills the Convention Center with more than 275 galleries; four more fairs run around it; and every night there is a party the city is trying to get into.",
+            "The fair opens to its collectors first. In 2026 the invitation-only preview ran for two days before the public ones. Those cards are given by Art Basel and the galleries, not sold by them. Two things can be asked for from here, both offered by Cornucopia Events of London: a FIRST CHOICE PASS, and a place at the week's parties.",
+          ],
+          addOnsTitle: "What to ask for, and what to see",
+          addOnsStep: "Step 1 \u00b7 choose what you would love to do",
+          addOnsIntro: "Add anything here and it arrives in your trip and on your request.",
+          addOns: [
+            { name: "First Choice pass", kicker: "Offered by Cornucopia Events, London \u00b7 one pass admits two", tour: "First Choice pass", link: "https://www.cornucopia-events.co.uk/art-basel-miami/", linkLabel: "See it at Cornucopia Events",
+              body: "First Choice is the card that opens the fair before the public. As Cornucopia lists it: the VIP cocktail party and preview night the evening before the public opening, the VIP entrance, the VIP lounge with food and drinks all day, the Art Basel Collectors Lounge, admission to Design Miami, and the booklet of the week's events that comes with the card.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
+              facts: [["Price", "\u00a34,999 for two guests, plus VAT"], ["Sold", "As a pass for two; not singly"]] },
+            { name: "A place at the parties", kicker: "Every night of the week \u00b7 by guest list", tour: "A place at the parties", link: "https://www.cornucopia-events.co.uk/art-basel-miami/", linkLabel: "See it at Cornucopia Events",
+              body: "Miami's week is as much the nights as the fair: magazine and fashion-house parties in mansions, hotels, a private-jet hangar. Cornucopia sells places at them. In 2025 its list ran from the Pucci fun fair and Highsnobiety's opening pool party to Ocean Drive's Art of the Party at the Fontainebleau, Lamborghini's night in a hangar, Keinemusik at Island Gardens with backstage access, and a gala at Soho Beach House. The line-up is new each year; add this, and say on your request which nights you want.\n\nOffered by Cornucopia Events of London, and arranged and paid for with them.",
+              facts: [["In 2025", "\u00a32,999 to \u00a36,999 per person, plus VAT"], ["2027 line-up", "Announced nearer the week"]] },
+            { name: "Design Miami", tour: "Design Miami", compact: true, groupTitle: "Also on, all week", line: "The collectible-design fair beside the Convention Center. The First Choice pass includes it." },
+            { name: "Untitled Art", tour: "Untitled Art", compact: true, line: "The fair in a tent on the sand, at Ocean Drive and 12th Street." },
+            { name: "NADA Miami", tour: "NADA Miami", compact: true, line: "The young galleries' fair, at Ice Palace Studios in Wynwood." },
+            { name: "Art Miami", tour: "Art Miami", compact: true, line: "The city's longest-running fair, with its sister fair Context, at One Herald Plaza downtown." },
+            { name: "P\u00e9rez Art Museum Miami", tour: "P\u00e9rez Art Museum Miami", compact: true, line: "Herzog & de Meuron's museum on Biscayne Bay, in Museum Park." },
+            { name: "Rubell Museum", tour: "Rubell Museum", compact: true, line: "One of the great private collections of contemporary art, in Allapattah." },
+          ],
+          stayWord: "hotel",
+          stay: [],
+          stayCollection: "Miami",
+          stayStep: "Step 2 \u00b7 choose your hotel",
+          stayNote: "The fair and most of the week are on Miami Beach. Choose any hotel from our Miami list, or search one you love by name.",
+          planStep: "Step 3 \u00b7 build your trip", moreTitle: "Good to know",
+          broker: { who: "Mini Vohra", first: "Mini", firm: "Cornucopia Events", city: "London", email: "mini@cornucopia-events.co.uk", eventName: "Art Basel Miami Beach", addOns: true, title: "Request what you chose", unit: "places", seatsLabel: "Guests", pairs: false, seatsDefault: 2,
+            intro: "The pass and the parties are arranged by Mini Vohra at Cornucopia Events in London. Add what you want here; once you build your trip, one tap sends her the request with everything filled in.",
+            replyLine: "Your request goes to Mini Vohra at Cornucopia Events in London, who replies with availability and the confirmed price.",
+            closing: "Please let me know availability and the confirmed price." },
+          notes: [
+            "In 2026 the fair's public days were December 4 to 6, from 11 am to 6 pm, with the invitation-only preview on December 2 and 3.",
+            "Art Basel has not yet announced its 2027 dates. The fair has run the first Friday to Sunday of December.",
+          ],
+          handoff: "Next, in the trip builder: your dates, your Miami hotel, your flights, and the request for what you chose, written and ready to send.",
         } },
       { title: "Venice Biennale", city: "Venice", airport: "VCE", airportName: "Venice Marco Polo", start: "2027-05-05", end: "2027-05-10", dateLabel: "Opening week \u00b7 May 6\u20138, 2027", nights: 5, photo: "Venice Biennale Giardini pavilion", gallery: ["Venice Arsenale Biennale", "Venice Giardini Biennale pavilions", "Venice palazzo Grand Canal"],
         blurb: "One city, two extraordinary Biennales \u2014 art or architecture, in alternating years. Go in opening week, when the whole of Venice becomes the exhibition.",
@@ -19840,6 +19890,21 @@ const VO_SUGGEST_EMAIL = "tholbrook@me.com";   // Tricia’s for now; a Voyage O
 // the client sends it. One address, changed here when the Voyage One mailbox exists. Nothing on the
 // page says so (Tricia, 24 Oct): a copy is not a promise to follow up.
 const VO_REQUESTS_EMAIL = VO_SUGGEST_EMAIL;
+// M1118 (24 Nov 2026, Tricia): every e-mail a client sends from the site says it came through Voyage One.
+// One place builds them all: the subject carries "via Voyage One" and the message ends with the Voyage
+// One line, unless the text already names Voyage One. copy = also send a copy to the requests address.
+function voMail(to, subject, body, copy) {
+  let s = String(subject || "").trim() || "Enquiry"; if (!/voyage one/i.test(s)) s += " \u2014 via Voyage One";
+  let b = String(body || "").replace(/\s+$/, ""); if (!/voyage one/i.test(b)) b += "\n\n\u2014 sent from Voyage One \u00b7 voyageoneworld.com";
+  const cc = copy && to && to !== VO_REQUESTS_EMAIL ? "cc=" + encodeURIComponent(VO_REQUESTS_EMAIL) + "&" : "";
+  return ("mailto:" + (to || "") + "?" + cc + "subject=" + encodeURIComponent(s) + "&body=" + encodeURIComponent(b)).replace(/'/g, "%27");   // apostrophes encoded too: some mail apps cut the body at a bare one
+}
+// The same, for a mailto: link written out in the data.
+function voMailUrl(url) {
+  const m = /^mailto:([^?]*)\??(.*)$/i.exec(String(url || "")); if (!m) return url;
+  const q = {}; m[2].split("&").forEach((kv) => { const k = kv.indexOf("="); if (k > 0) { try { q[kv.slice(0, k).toLowerCase()] = decodeURIComponent(kv.slice(k + 1)); } catch (e) { q[kv.slice(0, k).toLowerCase()] = kv.slice(k + 1); } } });
+  return voMail(m[1], q.subject, q.body, false);
+}
 function textUsHref(context) { const body = `Hi, Voyage One. ${context || "I have a question"}…`; return `sms:${VO_TEXT_NUMBER}${/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent || "") ? "&" : "?"}body=${encodeURIComponent(body)}`; }
 // A HINT: a small ⓘ beside a control, one sentence on tap. No hover — iPads have none.
 function Hint({ text }) {
@@ -20072,7 +20137,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
   const sect = (title, body) => (<div><div style={secTitle}>{title}</div><div style={{ fontSize: 15.5, color: t.inkSoft, lineHeight: 1.65 }}>{body}</div></div>);
   const stayList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>{(arr || []).map((s, k) => (<div key={k} style={{ background: t.pine, borderRadius: 14, padding: "16px 18px" }}><div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}><div style={{ fontFamily: font.display, fontSize: 22, color: t.paper }}>{s.name}</div>{s.area ? <div style={{ fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: t.brassLight, fontWeight: 500 }}>{s.area}</div> : null}</div><div style={{ fontSize: 14, color: "#D8D2C6", lineHeight: 1.55, marginTop: 5 }}>{s.note}</div></div>))}</div>);
   const beyondList = (arr) => (<div style={{ display: "flex", flexDirection: "column", gap: 11 }}>{(arr || []).map((b, k) => (<div key={k} style={{ fontSize: 15, color: t.inkSoft, lineHeight: 1.55 }}><strong style={{ color: t.ink }}>{b.name}</strong>{b.tag ? <span style={{ fontSize: 10.5, letterSpacing: ".12em", textTransform: "uppercase", color: t.brass, fontWeight: 700, marginLeft: 8 }}>{b.tag}</span> : null} — {b.note}{b.link ? <> <a href={b.link} target="_blank" rel="noopener noreferrer" style={{ color: t.brass, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>{b.linkLabel || "Visit the site"} →</a></> : null}
-    {b.links && b.links.length ? <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>{b.links.map((l, i2) => l.ics ? <CalendarButton key={i2} label={l.label} event={l.ics} filename={l.filename} /> : (<a key={i2} href={l.mail ? `mailto:${l.mail.to}?cc=${encodeURIComponent(VO_REQUESTS_EMAIL)}&subject=${encodeURIComponent(l.mail.subject)}&body=${encodeURIComponent(l.mail.body)}`.replace(/'/g, "%27") : /^mailto:/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "experience", name: b.name, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div> : null}</div>))}</div>);
+    {b.links && b.links.length ? <div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>{b.links.map((l, i2) => l.ics ? <CalendarButton key={i2} label={l.label} event={l.ics} filename={l.filename} /> : (<a key={i2} href={l.mail ? voMail(l.mail.to, l.mail.subject, l.mail.body, true) : /^mailto:/i.test(l.url) ? voMailUrl(l.url) : brandedLink(l.url, { kind: "experience", name: b.name, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", border: `1px solid ${t.pine}`, color: t.pine, borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>))}</div> : null}</div>))}</div>);
   // daysIntro and the pick notes are WRITTEN IN PARAGRAPHS and were being poured into a single
   // div, so every blank line collapsed and the reader got a wall of text. Split on blank lines,
   // and give "Plan this trip" the house green wherever it falls so the eye finds the way out of
@@ -20188,7 +20253,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
                     <button onClick={() => setAddSel((prev) => { const n = { ...prev }; if (on) delete n[a.name]; else n[a.name] = { name: a.tour || a.name, kind: a.kind || "tour", price: a.price || null }; return n; })} style={{ background: on ? t.brass : "none", color: on ? t.ink : t.pine, border: `1.5px solid ${on ? t.brass : t.pine}`, borderRadius: 999, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{on ? "\u2713 Added" : "Add"}</button>
                   </div>
                 </div>);
-                const mailHref = a.mail ? `mailto:${a.mail.to || VO_REQUESTS_EMAIL}?${a.mail.to ? "cc=" + encodeURIComponent(VO_REQUESTS_EMAIL) + "&" : ""}subject=${encodeURIComponent(a.mail.subject)}&body=${encodeURIComponent(a.mail.body)}`.replace(/'/g, "%27") : null;
+                const mailHref = a.mail ? voMail(a.mail.to || VO_REQUESTS_EMAIL, a.mail.subject, a.mail.body, true) : null;
                 return (
                 <div key={k} style={{ background: dark ? t.pine : t.white, border: `${on ? 2.5 : 1}px solid ${on ? t.brass : t.pine}`, borderRadius: 18, padding: "22px 24px" }}>
                   {a.kicker ? <div style={{ fontSize: 11.5, letterSpacing: ".16em", textTransform: "uppercase", color: accent, fontWeight: 600, marginBottom: 6 }}>{a.kicker}</div> : null}
@@ -20400,7 +20465,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
                     <span style={{ fontFamily: font.display, fontSize: on ? 20 : 18, color: t.brassLight }}>{s.rate ? `≈ ${L.cur}${s.rate.toLocaleString()} / night` : ""}</span>
                     <span style={{ fontSize: on ? 14.5 : 12.5, color: on ? t.brassLight : "#B6C0B6", fontWeight: on ? 700 : 500, textTransform: on ? "uppercase" : "none", letterSpacing: on ? "0.08em" : "normal" }}>{on ? "✓ Your choice" : `Select ${s.name} →`}</span>
                   </div>
-                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={"mailto:" + s.contact.email} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
+                  {s.contact ? <div style={{ fontSize: 11.5, color: "#B6C0B6", lineHeight: 1.5, marginTop: 10, paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.12)" }}>{s.contact.addr ? <div>{s.contact.addr}</div> : null}{s.contact.tel ? <div>Tel <a href={"tel:" + String(s.contact.tel).replace(/[^+0-9]/g, "")} style={{ color: "inherit" }}>{s.contact.tel}</a></div> : null}{s.contact.email ? <div><a href={voMail(s.contact.email, "Enquiry", "", false)} style={{ color: "inherit" }}>{s.contact.email}</a></div> : null}{s.contact.web ? <div><a href={brandedLink("https://" + String(s.contact.web).replace(/^https?:\/\//, ""))} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", fontWeight: 600 }}>{s.contact.web} ↗</a></div> : null}</div> : null}
                   {on ? <div style={{ fontSize: 12, color: "#B6C0B6", fontStyle: "italic", marginTop: 11 }}>We connect you to the hotel and you book directly — tap any hotel below to change.</div> : null}
                 </button>); };
             // ONE HOTEL LIST, EVERYWHERE. An experience names the hotels that suit it and says why — the
@@ -24270,7 +24335,7 @@ function ConciergeAsk({ city, hotel }) {
     "",
     "Thank you very much.",
   ].filter((x, k, a) => !(x === "" && a[k - 1] === "")).join("\n");
-  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const mailto = voMail(email, subject, body, false);
   const lab = { display: "block", fontSize: 11, letterSpacing: ".12em", textTransform: "uppercase", color: t.inkFaint, fontWeight: 600, marginBottom: 4 };
   const inp = { width: "100%", boxSizing: "border-box", font: "inherit", fontSize: 15, padding: "10px 12px", border: `1px solid ${t.line}`, borderRadius: 10, background: t.white, color: t.ink };
   return (<div style={box} onClick={(e) => e.stopPropagation()}>{head}
@@ -24486,7 +24551,7 @@ function VenueRow({ row, city, chosen, onToggle, nights, onDate, label }) {
         {info.phone && !(opts && opts.tel) ? <div>{info.phone}</div> : null}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 7 }}>
           {bookUrl ? <a href={brandedLink(bookUrl, { kind: "venue", name: (row && (row.name || row[0])) || "", city })} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>{(opts && opts.bookLabel) || "Visit site →"}</a> : null}
-          {opts && opts.email ? <a href={`mailto:${opts.email}`} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Email · {opts.email}</a> : null}
+          {opts && opts.email ? <a href={voMail(opts.email, "Enquiry", "", false)} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>Email · {opts.email}</a> : null}
           {opts && opts.tel ? <a href={`tel:${String(opts.tel).replace(/[^\d+]/g, "")}`} onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", padding: "8px 14px", border: `1px solid ${t.pineSoft}`, borderRadius: 999, fontSize: 14, fontWeight: 600, color: t.pine, textDecoration: "none" }}>{opts.telLabel || "Call"} · {opts.tel}</a> : null}
         </div>
       </div>
@@ -25451,7 +25516,7 @@ function BrokerRequest({ ev, g, d, tk, set, p, prof }) {
   // M1089: a broker who arranges the experience's ADD-ONS says so (b.addOns). Those were chosen
   // on the experience page and sit in the trip as days out, dated or not; they go on the request
   // too, each with its day once the client has given it one. Universal: any guide with add-ons.
-  const mine = b.addOns ? (g.addOns || []).map((a) => a.tour || a.name) : [];
+  const mine = b.addOns ? (g.addOns || []).filter((a) => !a.compact).map((a) => a.tour || a.name) : [];   // M1119: the one-line "also on" rows are not the broker's to arrange
   const extras = mine.length ? ((pk.tours || []).filter((x) => x && mine.includes(x.name))) : [];
   // M1092: days that are not yet dated mean nothing to the person arranging them without the
   // dates of the stay, so a request that carries add-ons also carries when the client is in the
@@ -26083,7 +26148,7 @@ function AccessLayer({ items, title, year, compact }) {
             {yes && it.promptYes ? <div style={{ fontSize: 13.5, color: t.ink, lineHeight: 1.6, marginTop: 8 }}>{it.promptYes}</div> : null}
           </div>) : null}
           {it.contact ? <div style={{ fontSize: 13.5, color: t.inkSoft, marginTop: 8 }}>{it.contact.who ? <strong style={{ color: t.ink }}>{it.contact.who} — </strong> : null}{it.contact.email ? <span>{it.contact.email}</span> : null}{it.contact.tel ? <span> · {it.contact.tel}</span> : null}</div> : null}
-          {it.links && it.links.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>{it.links.map((l, k) => l.ics ? <CalendarButton key={k} label={l.label} event={l.ics} filename={l.filename} /> : <a key={k} href={/^mailto:/i.test(l.url) ? l.url : brandedLink(l.url, { kind: "tickets", name: it.title, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: l.primary ? t.pine : "none", color: l.primary ? t.paper : t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}</div>) : null}
+          {it.links && it.links.length ? (<div className="vo-noprint" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>{it.links.map((l, k) => l.ics ? <CalendarButton key={k} label={l.label} event={l.ics} filename={l.filename} /> : <a key={k} href={/^mailto:/i.test(l.url) ? voMailUrl(l.url) : brandedLink(l.url, { kind: "tickets", name: it.title, city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: l.primary ? t.pine : "none", color: l.primary ? t.paper : t.pine, border: `1px solid ${t.pine}`, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{l.label}</a>)}</div>) : null}
         </div>) : null}
       </div>); })}
     </div>
