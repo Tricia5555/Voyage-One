@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1121";
+const BUILD = "M1122";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -23765,7 +23765,7 @@ function useHotelInfo(city, name) {
     let dead = false;
     fetch(`/api/places?kind=hotels&city=${encodeURIComponent(bareCity(city))}&find=${encodeURIComponent(name)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, rating: (m && m.rating) || null, reviews: (m && m.reviews) || null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
+      .then((j) => { const m = j && j.ok && j.matches && j.matches[0]; const rec = { photo: (m && m.photo) || null, site: (m && m.site) || null, rating: (m && m.rating) || null, reviews: (m && m.reviews) || null, lat: m && typeof m.lat === "number" ? m.lat : null, lng: m && typeof m.lng === "number" ? m.lng : null }; HOTEL_PHOTO_CACHE[key] = rec; if (!dead) setInfo(rec); })
       .catch(() => { HOTEL_PHOTO_CACHE[key] = { photo: null, site: null, rating: null, reviews: null }; if (!dead) setInfo({ photo: null, site: null, rating: null, reviews: null }); });
     return () => { dead = true; };
   }, [key]);
@@ -23809,7 +23809,7 @@ function useScrollWhenOpened(ref, open) {
     return () => clearTimeout(id);
   }, [open]);
 }
-function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested, room, onRoom, onFrom, stayDates, pax }) {
+function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, requested, onRequested, room, onRoom, onFrom, stayDates, pax, cmpOn, cmpFull, onCmp }) {
   const cardRef = useRef(null);
   useScrollWhenOpened(cardRef, !!sel);
   // Live hotels arrive with photo/site/rating already; curated ones look them up by name. Either
@@ -23863,6 +23863,7 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
         <div onClick={(e) => e.stopPropagation()}><PlaceMap name={s.name} city={city} area={s.area} /></div>
         <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", marginTop: 10 }}>✓ Your choice</div>
       </>) : <div style={{ fontSize: 11.5, color: t.inkFaint, marginTop: 6 }}>Tap for details →</div>}
+      {onCmp ? <button type="button" disabled={!cmpOn && cmpFull} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCmp(); }} style={{ marginTop: 9, background: cmpOn ? t.pine : "none", color: cmpOn ? t.paper : (cmpFull ? t.inkFaint : t.pine), border: `1px solid ${cmpOn ? t.pine : (cmpFull ? t.line : t.pine)}`, borderRadius: 999, padding: "6px 13px", fontSize: 12, fontWeight: 700, fontFamily: font.ui, letterSpacing: ".04em", cursor: !cmpOn && cmpFull ? "default" : "pointer" }}>{cmpOn ? "\u2713 Comparing" : cmpFull ? "Three already chosen" : "+ Compare"}</button> : null}
     </div>
     {sel ? (<div style={{ flexBasis: "100%", padding: "0 16px 16px", borderTop: `1px solid ${t.line}` }}>
       {/* THE HOTEL'S OWN SITE FOR ROOMS (Tricia, M1047, 3 Nov 2026). Reading every hotel group's site for
@@ -23889,6 +23890,97 @@ function FavHotelCard({ s, city, cur, sel, onClick, tier: tierProp, prefill, req
           </div>)}
     </div>) : null}
   </div>);
+}
+// ══ COMPARE UP TO THREE HOTELS (Tricia, 25 Nov 2026, M1122) ══════════════════════════════════════
+// "Compare up to three hotels side by side with locations shown on a common map." One map with the
+// hotels pinned and numbered, then one box per hotel with the same rows in the same order. Side by
+// side where there is room (iPad), stacked on a phone. Universal: any curated hotel, any city.
+//
+// READY FOR SABRE. The room, the price for the client's dates and what the rate includes are NOT
+// shown yet: reading each hotel's own site for them was retired in M1047, and a comparison with one
+// price out of three is worse than none. When Sabre feeds /api/hotel-rates, set COMPARE_RATES to
+// true: each box then opens on that hotel's lowest-priced room for the dates, with the plan's own
+// stated benefits and cancellation terms. Nothing is fetched while it is false.
+const COMPARE_RATES = false;
+const hotelInfoSettled = (city, name) => HOTEL_PHOTO_CACHE[((city || "") + "|" + (name || "")).toLowerCase()] !== undefined;
+function leadRate(rates) {
+  if (!rates) return null; let best = null;
+  Object.keys(rates).forEach((room) => (rates[room] || []).forEach((pl) => { if (!pl || pl.soldOut || pl.price == null || isNaN(pl.price)) return; if (!best || Number(pl.price) < Number(best.pl.price)) best = { room, pl }; }));
+  return best;
+}
+function CompareBox({ n, s, city, info, tierLabel, chosen, onChoose, stayDates, pax }) {
+  const [bad, setBad] = useState(null);
+  const photo = (s.photo && bad !== s.photo) ? s.photo : info.photo;
+  const site = s.site || info.site || (s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null);
+  const { rates, status: ratesStatus } = useRoomRates(s.name, site, stayDates && stayDates.checkIn, stayDates && stayDates.checkOut, pax, COMPARE_RATES);
+  const lead = COMPARE_RATES ? leadRate(rates) : null;
+  const ve = virtuosoEvidence(s.name);
+  const row = { padding: "10px 0", borderTop: `1px solid ${t.line}` };
+  const cap = { fontSize: 10.5, letterSpacing: ".14em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginBottom: 3 };
+  return (<div style={{ background: "#fff", border: `2px solid ${chosen ? t.brass : t.line}`, borderRadius: 16, overflow: "hidden", display: "flex", flexDirection: "column", minWidth: 0 }}>
+    <div style={{ position: "relative", height: 170, background: "linear-gradient(135deg,#EDE9E0,#F3EEE4)", overflow: "hidden" }}>
+      {photo && bad !== photo ? <><img src={photo} alt="" loading="lazy" onError={() => setBad(photo)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /><PhotoCredit src={photo} /></> : null}
+      <span style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: 999, background: t.pine, color: t.paper, fontFamily: font.ui, fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" }}>{n}</span>
+    </div>
+    <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", flex: 1 }}>
+      <div style={{ fontFamily: font.display, fontSize: 22, color: t.ink, lineHeight: 1.1, minHeight: 48 }}>{s.name}</div>
+      <div style={row}><div style={cap}>Tier</div><div style={{ fontSize: 14, color: t.ink }}>{tierLabel}{ve && ve.member ? <span style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600, marginLeft: 10 }}>Virtuoso</span> : null}</div></div>
+      <div style={row}><div style={cap}>Where</div><div style={{ fontSize: 14, color: t.ink, lineHeight: 1.45 }}>{s.nearbyFrom ? `${s.nearbyFrom}${s.area ? " · " + s.area : ""}` : (s.area || bareCity(city))}{s.contact && s.contact.addr ? <div style={{ fontSize: 12.5, color: t.inkSoft, marginTop: 2 }}>{s.contact.addr}</div> : null}</div></div>
+      <div style={{ ...row, flex: 1 }}><div style={cap}>Our take</div>
+        {isUpcoming(s) ? <div style={{ fontSize: 13, color: t.brass, fontWeight: 600, marginBottom: 3 }}>Opening {s.opening}</div> : null}
+        {s.status ? <div style={{ fontSize: 12.5, color: "#B0563A", fontWeight: 500, marginBottom: 3, lineHeight: 1.4 }}>{s.status}</div> : null}
+        <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: 16, color: t.ink, lineHeight: 1.45 }}>{s.ourTake || "—"}</div>
+        {s.vo ? <div style={{ fontSize: 12.5, color: t.brass, fontWeight: 600, marginTop: 5, lineHeight: 1.45 }}>VO {"♥"} Voyage One favorite{s.voNote ? ` — ${s.voNote}` : ""}</div> : null}
+      </div>
+      {COMPARE_RATES ? (<div style={row}><div style={cap}>For your dates</div>
+        {lead ? (<div style={{ fontSize: 14, color: t.ink, lineHeight: 1.5 }}><div>{lead.room}</div><div><strong>{fmtRate(lead.pl)}</strong>{lead.pl.plan ? ` · ${lead.pl.plan}` : ""}</div>{lead.pl.benefits ? <div style={{ color: t.pine, fontSize: 13 }}>{lead.pl.benefits}</div> : null}{lead.pl.cancel ? <div style={{ color: t.inkFaint, fontSize: 12 }}>{lead.pl.cancel}</div> : null}</div>)
+          : ratesStatus === "loading" ? <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 12.5, color: t.pine, fontWeight: 600 }}><span className="vo-spin sm" aria-hidden="true" />Checking rates</div>
+          : <div style={{ fontSize: 12.5, color: t.inkFaint, fontStyle: "italic" }}>Rate confirmed by the hotel</div>}
+      </div>) : null}
+      <div style={row}>
+        {site && (!isUpcoming(s) || s.taking) ? <a href={brandedLink(site, { kind: "hotel", name: s.name, city })} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13.5, fontWeight: 600, color: t.pine, textDecoration: "underline", textUnderlineOffset: 3 }}>See its rooms and suites {"→"}</a> : <span style={{ fontSize: 13, color: t.inkFaint }}>{" "}</span>}
+      </div>
+      {chosen ? <div style={{ marginTop: 6, fontSize: 12.5, color: t.brass, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".08em", padding: "12px 0" }}>{"✓"} Your choice</div>
+        : <button type="button" onClick={onChoose} style={{ marginTop: 6, background: t.pine, color: t.paper, border: "none", fontFamily: font.ui, fontSize: 14, fontWeight: 700, letterSpacing: ".04em", padding: "13px 18px", borderRadius: 999, cursor: "pointer" }}>Choose this hotel</button>}
+    </div>
+  </div>);
+}
+function HotelCompare({ city, rows, tierLabel, chosenName, onChoose, onClose, stayDates, pax }) {
+  // Three fixed lookups, so the number of hooks never changes with the number of hotels.
+  const i0 = useHotelInfo(city, rows[0] ? rows[0].name : null);
+  const i1 = useHotelInfo(city, rows[1] ? rows[1].name : null);
+  const i2 = useHotelInfo(city, rows[2] ? rows[2].name : null);
+  const infos = [i0, i1, i2];
+  const [mapBad, setMapBad] = useState(false);
+  useEffect(() => { const k = (e) => { if (e.key === "Escape") onClose(); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, []);
+  // The map is asked for once, when every hotel's lookup has answered — never once per hotel.
+  const settled = rows.every((r) => hotelInfoSettled(city, r.name));
+  const pins = rows.map((r, k) => (infos[k] && infos[k].lat != null && infos[k].lng != null ? { n: k + 1, name: r.name, p: `${infos[k].lat.toFixed(5)},${infos[k].lng.toFixed(5)}` } : null));
+  const have = pins.filter(Boolean);
+  const mapSrc = settled && have.length >= 2 && !mapBad ? `/api/staticmap?pins=1&pts=${encodeURIComponent(pins.map((x) => (x ? x.p : "")).filter(Boolean).join("|"))}&lab=${have.map((x) => x.n).join("")}&w=640&h=320` : null;
+  const missing = settled ? rows.filter((r, k) => !pins[k]).map((r) => r.name) : [];
+  const body = (<div className="vo-noprint" role="dialog" aria-label="Compare hotels" style={{ position: "fixed", inset: 0, zIndex: 1400, background: t.paper, overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
+    <div style={{ maxWidth: 1080, margin: "0 auto", padding: "18px 16px calc(40px + env(safe-area-inset-bottom))" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 600 }}>Side by side</div>
+          <div style={{ fontFamily: font.display, fontSize: 30, color: t.ink, lineHeight: 1.1, marginTop: 3 }}>Compare hotels in {bareCity(city)}</div>
+        </div>
+        <button type="button" onClick={onClose} style={{ flex: "none", background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 18px", fontSize: 13.5, color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>Back to the list</button>
+      </div>
+      {mapSrc ? (<div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: `1px solid ${t.line}`, background: "#F3EFE4" }}>
+        <img src={mapSrc} alt={`Map of ${have.map((x) => x.name).join(", ")}`} onError={() => setMapBad(true)} style={{ width: "100%", aspectRatio: "2 / 1", maxHeight: 420, objectFit: "cover", display: "block" }} />
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", padding: "10px 14px", background: "#fff", borderTop: `1px solid ${t.line}` }}>
+          {have.map((x) => <span key={x.n} style={{ fontSize: 13, color: t.ink, display: "inline-flex", alignItems: "center", gap: 7 }}><span style={{ width: 20, height: 20, borderRadius: 999, background: t.pine, color: t.paper, fontSize: 11.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{x.n}</span>{x.name}</span>)}
+        </div>
+      </div>) : !settled ? <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 16, fontSize: 13, color: t.pine, fontWeight: 600 }}><span className="vo-spin sm" aria-hidden="true" />Placing the hotels on the map</div> : null}
+      {mapSrc && missing.length ? <div style={{ fontSize: 12, color: t.inkFaint, marginTop: 6 }}>Not on the map: {missing.join(", ")}.</div> : null}
+      <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", marginTop: 16, alignItems: "stretch" }}>
+        {rows.map((s, k) => <CompareBox key={s.name} n={k + 1} s={s} city={city} info={infos[k]} tierLabel={tierLabel(s)} chosen={!!chosenName && dnrm(s.name) === chosenName} onChoose={() => onChoose(s)} stayDates={stayDates} pax={pax} />)}
+      </div>
+    </div>
+  </div>);
+  return (typeof document !== "undefined" && document.body && document.body.nodeType === 1) ? createPortal(body, document.body) : body;
 }
 function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, eventTitle, stayDates, pax, lead }) {
   // What the reservation sheet opens with: the leg's dates, the party, the lead traveller.
@@ -23966,6 +24058,13 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
   // list straight back, which is how anyone would expect to change their mind.
   const chosen = pick.stay || null;
   const [openList, setOpenList] = useState(false);
+  // COMPARE (M1122): up to three hotels, kept while the client moves between tiers and areas.
+  const [cmp, setCmp] = useState([]);
+  const [cmpOpen, setCmpOpen] = useState(false);
+  useEffect(() => { setCmp([]); setCmpOpen(false); }, [city]);
+  const cmpHas = (s) => cmp.some((x) => dnrm(x.name) === dnrm(s.name));
+  const cmpToggle = (s) => setCmp((cur) => (cur.some((x) => dnrm(x.name) === dnrm(s.name)) ? cur.filter((x) => dnrm(x.name) !== dnrm(s.name)) : cur.length >= 3 ? cur : cur.concat([s])));
+  const stayOf = (s) => ({ level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null });
   // Best is not a fallback bucket, it is a tier for towns whose ceiling is genuinely below
   // five-star — Birmingham, Alabama, where a good four-star is the right answer. Where the
   // city HAS something better, offering Best alongside it is noise. So it is only on the
@@ -24016,6 +24115,12 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       {collapsed && <button onClick={() => setOpenList(true)} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "8px 15px", color: t.ink, fontSize: 13 }}>Change hotel</button>}
       <span style={{ marginLeft: "auto" }}><LiveBadge live={live} /></span>
     </div>
+    {cmp.length ? (<div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", marginBottom: 12, padding: "11px 14px", background: t.mist, border: `1px solid ${t.pineSoft}`, borderRadius: 12 }}>
+      <div style={{ fontSize: 13, color: t.ink, lineHeight: 1.45, flex: "1 1 220px", minWidth: 0 }}><strong>Comparing:</strong> {cmp.map((x) => x.name).join(" \u00b7 ")}{cmp.length < 2 ? <span style={{ color: t.inkSoft }}> {"\u2014"} add one or two more</span> : null}</div>
+      <button type="button" disabled={cmp.length < 2} onClick={() => setCmpOpen(true)} style={{ background: cmp.length < 2 ? t.line : t.pine, color: cmp.length < 2 ? t.inkFaint : t.paper, border: "none", fontFamily: font.ui, fontSize: 13.5, fontWeight: 700, letterSpacing: ".04em", padding: "10px 18px", borderRadius: 999, cursor: cmp.length < 2 ? "default" : "pointer" }}>Compare side by side</button>
+      <button type="button" onClick={() => setCmp([])} style={{ background: "none", border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 14px", fontSize: 12.5, color: t.ink, fontFamily: font.ui, cursor: "pointer" }}>Clear</button>
+    </div>) : null}
+    {cmpOpen && cmp.length >= 2 ? <HotelCompare city={city} rows={cmp} tierLabel={(s) => lbl(tierOf(s.name))} chosenName={chosenName} stayDates={stayDates} pax={pax} onClose={() => setCmpOpen(false)} onChoose={(s) => { upd({ stay: stayOf(s) }); setCmpOpen(false); }} /> : null}
     {!collapsed && areaOpts ? (<div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginBottom: 12, alignItems: "center" }}>
       <span style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginRight: 3 }}>Where in {bareCity(city)}</span>
       <button onClick={() => setArea("")} style={{ background: !area ? t.pine : "none", color: !area ? t.paper : t.ink, border: `1px solid ${!area ? t.pine : t.line}`, borderRadius: 999, padding: "6px 13px", fontSize: 12.5 }}>All areas</button>
@@ -24040,7 +24145,7 @@ function HotelPicker({ city, nights, pick, upd, fromExperience, eventStay, event
       <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 10 }}>{lbl(level)} · our picks in {bareCity(city)}</div>
       <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {favOrdered.map((s, k) => { const sel = chosenName && dnrm(s.name) === chosenName; return (
-          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested} room={sel && pick.stay ? pick.stay.room : null} onRoom={sel ? onRoom : null} onFrom={sel ? onFrom : null} stayDates={stayDates} pax={pax}
+          <div key={k} style={sel ? { gridColumn: "1 / -1" } : undefined}><FavHotelCard s={s} city={city} cur={favCur} sel={!!sel} prefill={prefill} requested={sel && pick.stay && pick.stay.requested} onRequested={onRequested} room={sel && pick.stay ? pick.stay.room : null} onRoom={sel ? onRoom : null} onFrom={sel ? onFrom : null} stayDates={stayDates} pax={pax} cmpOn={cmpHas(s)} cmpFull={cmp.length >= 3} onCmp={() => cmpToggle(s)}
             onClick={() => upd({ stay: sel ? null : { level: tierOf(s.name), name: s.name, nightly: s.rate || null, band: s.area || null, estimated: true, id: null, contact: s.contact || null, site: s.contact && s.contact.web ? "https://" + s.contact.web.replace(/^https?:\/\//, "") : null } })} /></div>); })}
       </div>
       {fromExperience && favChosen.length && favRest.length ? (
