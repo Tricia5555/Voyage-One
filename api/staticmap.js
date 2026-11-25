@@ -27,6 +27,21 @@ const STYLE = [
   "feature:transit|visibility:off",
 ];
 
+// PINS MODE (M1122, 25 Nov 2026) — ?pins=1. The hotel comparison: two or three places in ONE city,
+// numbered, with the streets showing and no line between them. &lab=123 gives the number for each
+// point in order (so a hotel that could not be placed keeps its number off the map).
+const STYLE_CITY = [
+  "feature:poi|visibility:off",
+  "feature:poi.park|element:geometry|visibility:on|color:0xe3e8dc",
+  "feature:transit|visibility:off",
+  "feature:landscape|element:geometry|color:0xf3efe4",
+  "feature:water|element:geometry|color:0xd5dedc",
+  "feature:road|element:geometry|color:0xffffff",
+  "feature:road|element:labels.icon|visibility:off",
+  "feature:road|element:labels.text.fill|color:0x8a8177",
+  "feature:administrative|element:labels.text.fill|color:0x6b6257",
+];
+
 export default async function handler(req, res) {
   const key = process.env.GOOGLE_PLACES_KEY;
   if (!key) return res.status(404).end();
@@ -46,7 +61,9 @@ export default async function handler(req, res) {
 
   // Google allows exactly one character per marker label. Stops 1-9 are numbered; beyond
   // that we continue with letters rather than dropping the label entirely.
-  const labelFor = (i) => (i < 9 ? String(i + 1) : String.fromCharCode(65 + (i - 9)));
+  const pins = String(req.query.pins || "") === "1";
+  const lab = /^[1-9A-Z]{1,24}$/.test(String(req.query.lab || "")) ? String(req.query.lab) : "";
+  const labelFor = (i) => (pins && lab[i] ? lab[i] : i < 9 ? String(i + 1) : String.fromCharCode(65 + (i - 9)));
 
   // A trip that starts and ends in the same city would stack two pins on one spot and you
   // would only ever see the top one. Draw such a point once, labelled with its first number.
@@ -73,8 +90,9 @@ export default async function handler(req, res) {
   let minLa = Math.min(...framePts.map((c) => c[0])), maxLa = Math.max(...framePts.map((c) => c[0]));
   let minLo = Math.min(...framePts.map((c) => c[1])), maxLo = Math.max(...framePts.map((c) => c[1]));
   // Pad the box ~18% so pins aren't jammed against the edge, with a sensible minimum span.
-  const padLa = Math.max((maxLa - minLa) * 0.18, 0.4);
-  const padLo = Math.max((maxLo - minLo) * 0.18, 0.4);
+  // In pins mode the frame is a neighbourhood, not a region: at least ~500 m of margin.
+  const padLa = Math.max((maxLa - minLa) * (pins ? 0.25 : 0.18), pins ? 0.005 : 0.4);
+  const padLo = Math.max((maxLo - minLo) * (pins ? 0.25 : 0.18), pins ? 0.007 : 0.4);
   minLa -= padLa; maxLa += padLa; minLo -= padLo; maxLo += padLo;
   // `visible` tells Google these corners must be in view — it then picks the tightest zoom
   // that shows the region, instead of zooming out to include a distant origin.
@@ -85,9 +103,9 @@ export default async function handler(req, res) {
     "scale=2",
     "maptype=roadmap",
     visible,
-    ...STYLE.map((s) => `style=${encodeURIComponent(s)}`),
-    // The route line, in brass.
-    `path=${encodeURIComponent("color:0xA9884Fcc|weight:3|" + pairs.join("|"))}`,
+    ...(pins ? STYLE_CITY : STYLE).map((s) => `style=${encodeURIComponent(s)}`),
+    // The route line, in brass — a journey only; hotels being compared are not a route.
+    ...(pins ? [] : [`path=${encodeURIComponent("color:0xA9884Fcc|weight:3|" + pairs.join("|"))}`]),
     // Numbered stops in pine, so the order of travel is unmistakable.
     ...Array.from(drawn.entries()).map(([p, lab]) => `markers=${encodeURIComponent(`color:0x20463F|label:${lab}|${p}`)}`),
     `key=${key}`,
