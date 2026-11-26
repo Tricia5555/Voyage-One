@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1122";
+const BUILD = "M1123";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -16869,25 +16869,25 @@ const ONE_LIST = {
       // standard). Her instruction: the five most expensive offerings only. Every inclusion is as
       // Cornucopia's page lists it, read 24 Nov 2026. Their page prints some 2026 calendar dates beside
       // the 2027 packages, so the boxes give days of the week; the tournament is April 8–11, 2027.
-      { title: "The Masters", city: "Augusta, Georgia", airport: "AGS", airportName: "Augusta Regional", start: "2027-04-07", end: "2027-04-12", dateLabel: "April 8\u201311, 2027 \u00b7 practice from the 5th", nights: 4, photo: "Augusta National Golf Club", gallery: ["Augusta National Golf Club", "Champions Retreat Golf Club Evans Georgia", "The Partridge Inn Augusta"],
+      { title: "The Masters", city: "Augusta, Georgia", airport: "AGS", airportName: "Augusta Regional", start: "2027-04-07", end: "2027-04-12", dateLabel: "April 8\u201311, 2027 \u00b7 practice from the 5th", nights: 4, photo: "Magnolia Lane Augusta National Golf Club", gallery: ["Magnolia Lane Augusta National Golf Club", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/The_Masters.jpg/1280px-The_Masters.jpg#vo=%7B%22by%22%3A%22pocketwiley%22%2C%22lic%22%3A%22CC%20BY%202.0%22%2C%22page%22%3A%22https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3AThe_Masters.jpg%22%7D", "The Partridge Inn Augusta"],
         blurb: "The first major of the year, at Augusta National \u2014 and the hardest ticket in golf.",
         guide: {
           cur: "\u00a3",
           daysTitle: "The Masters",
           choiceBoxes: true, flow: "steps",
           choiceWhere: "Augusta National Golf Club, Georgia",
-          daysIntro: "Five ways to be there, each a complete package: your badges, where you stay and how you get to the course. Choose one.",
+          daysIntro: "Four ways to be there, each a complete package: your badges, where you stay and how you get to the course. Choose one.",
+          choiceCols: 2, priceCur: "GBP",
           pickStep: "Step 1 \u00b7 choose your package",
-          choiceNote: "Prices are Cornucopia Events\u2019 2027 prices, in pounds and before VAT, and do not include flights.",
+          choiceNote: "Prices are Cornucopia Events\u2019 2027 prices. They are set in pounds and shown here in US dollars at today\u2019s exchange rate, so the dollar figure moves with the rate. Before VAT; flights are not included.",
           planStep: "Step 2 \u00b7 build your trip", moreTitle: "Good to know",
           recapLabel: "Your package",
           dayPicks: [
             { label: "The Masters", dates: "April 5\u201311, 2027", date: "2027-04-08", tiers: [
-            { tier: "Nine days \u00b7 a private residence for six", name: "Nine days", sub: "A private residence for six", price: "\u00a3270,000", per: " for six guests", points: ["Sunday to the Monday after the final round", "A four-bedroom private residence", "Six badges every day, Monday to Sunday", "The Magnolia Club for six, every day", "Private transport to and from the course each day", "A round for four at Champions Retreat", "One evening with a private chef"] },
-            { tier: "Five days \u00b7 a private residence for four", name: "Five days", sub: "A private residence for four", price: "\u00a399,999", per: " for four guests", points: ["Thursday to Monday", "A three-bedroom private residence", "Four badges a day, Friday to Sunday", "The Magnolia Club for four", "Private transport to and from the course, Friday to Sunday", "A round for four at Champions Retreat", "One evening with a private chef"] },
-            { tier: "The Premium Masters week \u00b7 a catered private house", name: "The Premium Masters week", sub: "A catered private house for four", price: "\u00a319,999", per: " per person", points: ["Monday to Monday", "A private house shared by four", "Breakfast and dinner at the house, with a chef and service", "Golf at selected courses on Tuesday and Wednesday", "Thursday to Sunday: golf, or the tournament", "Transfers from and to Augusta Regional Airport", "Tournament badges are added separately"] },
-            { tier: "Four days \u00b7 a private residence for four", name: "Four days", sub: "A private residence for four", price: "\u00a375,000", per: " for four guests", points: ["Friday to Monday", "A four-bedroom private residence", "Four badges a day, Saturday and Sunday", "The Magnolia Club for four, Saturday and Sunday", "Private transport to and from the course, Saturday and Sunday", "A Friday-evening round for four at Champions Retreat"] },
-            { tier: "Three days \u00b7 the Partridge Inn for two", name: "Three days", sub: "The Partridge Inn, for two", price: "\u00a334,999", per: " for two guests", points: ["Wednesday to Friday", "One room at the Partridge Inn", "Two badges a day, Thursday and Friday", "The Magnolia Club for two, Thursday and Friday", "Private transport to and from the course, Thursday and Friday"] },
+            { tier: "Five days \u00b7 a private residence for four", name: "Five days", sub: "A private residence for four", amount: 99999, price: "\u00a399,999", per: " for four guests", points: ["Thursday to Monday", "A three-bedroom private residence", "Four badges a day, Friday to Sunday", "The Magnolia Club for four", "Private transport to and from the course, Friday to Sunday", "A round for four at Champions Retreat", "One evening with a private chef"] },
+            { tier: "Four days \u00b7 a private residence for four", name: "Four days", sub: "A private residence for four", amount: 75000, price: "\u00a375,000", per: " for four guests", points: ["Friday to Monday", "A four-bedroom private residence", "Four badges a day, Saturday and Sunday", "The Magnolia Club for four, Saturday and Sunday", "Private transport to and from the course, Saturday and Sunday", "A Friday-evening round for four at Champions Retreat"] },
+            { tier: "Three days \u00b7 the Partridge Inn for two", name: "Three days", sub: "The Partridge Inn, for two", amount: 34999, price: "\u00a334,999", per: " for two guests", points: ["Wednesday to Friday", "One room at the Partridge Inn", "Two badges a day, Thursday and Friday", "The Magnolia Club for two, Thursday and Friday", "Private transport to and from the course, Thursday and Friday"] },
+            { tier: "The Premium Masters week \u00b7 a catered private house", name: "The Premium Masters week", sub: "A catered private house for four", amount: 19999, price: "\u00a319,999", per: " per person", points: ["Monday to Monday", "A private house shared by four", "Breakfast and dinner at the house, with a chef and service", "Golf at selected courses on Tuesday and Wednesday", "Thursday to Sunday: golf, or the tournament", "Transfers from and to Augusta Regional Airport", "Tournament badges are added separately"] },
             ] },
           ],
           stayIncluded: "Your accommodation is part of your Masters package, so there is no hotel to choose here.",
@@ -16899,6 +16899,7 @@ const ONE_LIST = {
             closing: "Please let me know availability and the confirmed price." },
           notes: [
             "The tournament rounds are Thursday April 8 to Sunday April 11, 2027. Monday to Wednesday are the practice days.",
+            "Wednesday April 7 is the Par 3 Contest, played on the club\u2019s nine-hole par-three course, with the players\u2019 wives, children and grandchildren caddying for them. Many call it the most fun day of the week.",
             "Champions Retreat is the private club outside Augusta whose three nines were designed by Arnold Palmer, Jack Nicklaus and Gary Player.",
           ],
           handoff: "Next, in the trip builder: your flights into Augusta and the request for your package, written and ready to send.",
@@ -20099,6 +20100,8 @@ function OneList({ onPick, onBack, onHome, initial }) {
   };
   const [aecDays, setAecDays] = useState([]);
   const [ballTier, setBallTier] = useState(null);
+  const [, setFxSeen] = useState(0);
+  useEffect(() => { loadFx().then(() => setFxSeen((x) => x + 1)); }, []);   // M1123: the day's rates, for prices shown in dollars
   // multiPick events (French Open): pick MANY days, each with its own session+restaurant.
   // multiSel maps a date -> { tier, tierLabel, label }; openDay is which day's options are expanded.
   const [multiSel, setMultiSel] = useState({});
@@ -20324,13 +20327,16 @@ function OneList({ onPick, onBack, onHome, initial }) {
               {g.daysIntro ? <div style={{ fontSize: 16, color: t.inkSoft, lineHeight: 1.6, maxWidth: 620, margin: "12px auto 0" }}>{g.daysIntro}</div> : null}
             </div>
             <div style={{ ...secTitle, textAlign: "center" }}>{L.pickStep}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 16 }}>
-              {picks[0].tiers.map((tr, ti) => { const on = !!(aecPick && ballTier && ballTier.tier === tr.tier); const dark = ti % 2 === 1; const ink = dark ? t.paper : t.ink; const soft = dark ? "#D8D2C6" : t.inkSoft; return (
+            {/* M1123 (26 Nov 2026, Tricia): choiceCols 2 lays four choices out two by two, coloured as a
+                chequerboard. priceCur + a tier's amount shows the price in US dollars at the day's rate,
+                with the price as stated beside it; with no rate to hand, the stated price shows alone. */}
+            <div style={g.choiceCols === 2 ? { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))", gap: 16, maxWidth: 860, margin: "0 auto" } : { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 16 }}>
+              {picks[0].tiers.map((tr, ti) => { const on = !!(aecPick && ballTier && ballTier.tier === tr.tier); const dark = g.choiceCols === 2 ? (ti % 4 === 1 || ti % 4 === 2) : ti % 2 === 1; const usd = g.priceCur && tr.amount ? toUSD(tr.amount, g.priceCur) : null; const ink = dark ? t.paper : t.ink; const soft = dark ? "#D8D2C6" : t.inkSoft; return (
                 <div key={ti} style={{ background: dark ? t.pine : t.white, border: `${on ? 3 : 1.5}px solid ${on ? t.brass : dark ? t.pine : t.line}`, borderRadius: 18, padding: "24px 22px", display: "flex", flexDirection: "column", boxShadow: on ? "0 6px 22px rgba(0,0,0,.14)" : "none" }}>
                   {tr.tag ? <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: dark ? t.brassLight : t.brass, fontWeight: 700, marginBottom: 8 }}>{tr.tag}</div> : null}
                   <div style={{ fontFamily: font.display, fontSize: 28, color: ink, lineHeight: 1.15 }}>{tr.name || tr.tier}</div>
                   {tr.sub ? <div style={{ fontSize: 14, color: soft, marginTop: 4 }}>{tr.sub}</div> : null}
-                  {tr.price ? <div style={{ marginTop: 14 }}><span style={{ fontFamily: font.display, fontSize: 30, color: dark ? t.brassLight : t.brass }}>{tr.price}</span><span style={{ fontSize: 13.5, color: soft }}>{tr.per || " per person"}</span></div> : null}
+                  {tr.price ? <div style={{ marginTop: 14 }}><span style={{ fontFamily: font.display, fontSize: 30, color: dark ? t.brassLight : t.brass }}>{usd != null ? "about $" + (Math.round(usd / 100) * 100).toLocaleString("en-US") : tr.price}</span><span style={{ fontSize: 13.5, color: soft }}>{tr.per || " per person"}</span>{usd != null ? <div style={{ fontSize: 12.5, color: soft, marginTop: 2 }}>{tr.price} at today{"\u2019"}s rate</div> : null}</div> : null}
                   <div style={{ display: "flex", flexDirection: "column", gap: 8, margin: "16px 0 20px", flex: 1 }}>
                     {(tr.points || (tr.label ? [tr.label] : [])).map((x, xi) => <div key={xi} style={{ display: "flex", gap: 9, fontSize: 14.5, color: ink, lineHeight: 1.45 }}><span style={{ color: dark ? t.brassLight : t.brass }}>{"\u2713"}</span><span>{x}</span></div>)}
                   </div>
