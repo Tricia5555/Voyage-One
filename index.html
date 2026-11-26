@@ -73,7 +73,7 @@ body { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area
 // 2026 because the label lived in the footer JSX and nobody touched it; the builds in that
 // stretch were labelled M273–M298 in conversation, against a file that already said M319. From
 // here the number in the conversation and the number on the screen are the same thing.
-const BUILD = "M1123";
+const BUILD = "M1124";
 try { window.__VO_BUILD = BUILD; } catch (e) {}   // M1062: the error reporter in <head> reads the build label from here
 
 import { createRoot } from "react-dom/client";
@@ -1824,7 +1824,7 @@ const NEARBY_CITIES = {
   "Lake Geneva": ["Geneva", "Lausanne"],
   // THE UNITED KINGDOM BY COUNTRY (Tricia, 17 Oct 2026): "England", "Scotland" and "Northern Ireland" collect their
   // places; "Wales" and "Belfast" hold their own hotels.
-  "England": ["London", "Cotswolds", "Henley-on-Thames", "Ascot", "Windsor", "Berkshire", "Somerset", "Bath", "Hampshire", "New Forest", "Sussex", "Surrey", "Cornwall", "Devon", "Lake District", "Yorkshire"],
+  "England": ["London", "Cotswolds", "Henley-on-Thames", "Ascot", "Lytham St Annes", "Windsor", "Berkshire", "Somerset", "Bath", "Hampshire", "New Forest", "Sussex", "Surrey", "Cornwall", "Devon", "Lake District", "Yorkshire"],
   "Scotland": ["Edinburgh", "St Andrews", "Gleneagles", "Braemar", "Loch Lomond", "Glasgow", "Scottish Highlands"],
   "Northern Ireland": ["Belfast"],
   // Iceland: four destinations, three regions. "Iceland" is the country search; the peninsulas hold one hotel each.
@@ -11826,6 +11826,7 @@ const GATEWAY = {
   "Scotland": { air: "Edinburgh", note: "EDINBURGH (EDI) for the east and the Highlands, Glasgow (GLA) for the west; both take some North American flights and connect through London." },
   "England": { air: "London", note: "HEATHROW (LHR) for the south and the Cotswolds, Manchester (MAN) for the north." },
   "Ascot": { air: "London", note: "HEATHROW (LHR) is twenty-five minutes by road." },
+  "Lytham St Annes": { air: "Manchester", note: "Lytham St Annes has no airport. Fly to MANCHESTER (MAN), which takes the long-haul flights, and drive about an hour and a quarter to the Lancashire coast." },
   "Cannes": { air: "Nice", note: "NICE (NCE) is forty minutes by road, or seven minutes by helicopter to the Cannes heliport in festival season." },
   "Salzburg": { air: "Munich", note: "SALZBURG (SZG) has European service; from the US, MUNICH (MUC) is ninety minutes by road or train and VipWing meets you there." },
   "Dolomites": { air: "Venice", note: "VENICE (VCE) is the usual gateway and the one with transatlantic service \u2014 about two hours by road to Cortina at the eastern end, nearer three to San Cassiano and the Alta Badia in the centre. For the Alta Badia, INNSBRUCK (INN) is closer at about ninety minutes over the Brenner, but it is a small field with thin long-haul connections, so it suits a client already in Europe more than one arriving from the States. VERONA (VRP) is a third option at two and a half hours, useful if the fares are better. The mountain roads are good but slow: allow the time, and in winter give the driver a car with proper tyres." },
@@ -12951,7 +12952,7 @@ function dayTripsFor(region) { if (!region) return []; const r = bareCity(region
 const ZONE = {
   "palawan": ["Palawan"], "moyo": ["Moyo Island"],
   "continental-europe": ["Azores","Greek Islands","Ionian Islands","Dodecanese","Burgundy","Umbria","Scottish Highlands","Cotswolds","Cyclades","Balearics","Corsica","Canary Islands","Aeolian Islands","French Riviera","Oslo","Stockholm","Helsinki","Bodrum","Marmaris","Cappadocia","Turquoise Coast","Paris","Rome","Florence","Venice","Milan","Naples","Sorrento","Positano","Amalfi","Ravello","Amalfi Coast","Tuscany","Siena","Lucca","San Gimignano","Montalcino","Lake Como","Dolomites","Cinque Terre","Pisa","Madrid","Barcelona","Seville","Granada","San Sebastián","La Rioja","Córdoba, Spain","Lisbon","Porto","Sintra","Cascais","Óbidos","Comporta","Évora","Alentejo","Algarve","Faro","Douro Valley","Portugal","Amsterdam","Brussels","Antwerp","Copenhagen","Trondheim","Berlin","Munich","Vienna","Prague","Warsaw","Kraków","Poland","Zurich","Zermatt","Lake Geneva","Engadine","Bernese Oberland","Ticino","Valais","Andermatt","Lucerne","Lake Lucerne","Lausanne","Verbier","Crans-Montana","Bad Ragaz","Interlaken","Bern","Lugano","Ascona","Engelberg","Vals","Chamonix","Courchevel","Megève","Chantilly","Provence","Marseille","Bordeaux","Nice","Athens","Dubrovnik","Pelješac","Halkidiki","Monemvasia","Peloponnese","Split","Rovinj","Lake Bled","Portorož","Kranjska Gora","Otočec","Slovenia","Julian Alps","Budapest","Istanbul","Geneva","Lyon", "Porto Heli", "Costa Navarino", "Monaco", "St-Tropez", "Antibes", "Champagne", "Versailles", "Bürgenstock", "Basel", "St Moritz", "Gstaad", "Baden-Baden", "Marbella", "Puglia"],
-  "britain": ["London","Edinburgh","St Andrews","Cotswolds","Oxford","Henley-on-Thames","Ascot","Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Scottish Highlands","Wales","Scotland","England","Manchester","Inverness","Aberdeen"],
+  "britain": ["London","Edinburgh","St Andrews","Lytham St Annes","Cotswolds","Oxford","Henley-on-Thames","Ascot","Somerset","Bath","Windsor","Berkshire","New Forest","Hampshire","Sussex","Surrey","Cornwall","Devon","Lake District","Yorkshire","Gleneagles","Braemar","Loch Lomond","Glasgow","Scottish Highlands","Wales","Scotland","England","Manchester","Inverness","Aberdeen"],
   "ireland": ["Dublin","Ireland","Belfast","Northern Ireland"],
   "sicily": ["Palermo","Taormina","Agrigento","Sciacca","Noto","Mount Etna","Syracuse"],
   "malta": ["Malta","Valletta","Mdina","Attard"],
@@ -13207,7 +13208,7 @@ const COORDS = {
   "Canary Islands": [28.29,-16.63], "French West Indies": [16.25,-61.55],
   "The Grenadines": [12.98,-61.25], "Cape Winelands": [-33.93,18.86],
   "Aeolian Islands": [38.48,14.95], "Sonoma County": [38.51,-122.80], "Dublin": [53.35,-6.26], "Edinburgh": [55.95,-3.19],
-  "St Andrews": [56.34,-2.79], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
+  "St Andrews": [56.34,-2.79], "Lytham St Annes": [53.75,-3.02], "Athens": [37.98,23.73], "Santorini": [36.39,25.46], "Mykonos": [37.45,25.33], "Istanbul": [41.01,28.98],
   "Dubrovnik": [42.65,18.09], "Malta": [35.90,14.45], "Valletta": [35.90,14.51], "Mdina": [35.89,14.40], "Attard": [35.89,14.44], "Reykjavik": [64.15,-21.94], "Blue Lagoon": [63.88,-22.45], "Hella": [63.83,-20.40], "Troll Peninsula": [65.98,-19.10], "Iceland": [64.96,-19.02], "Reykjanes Peninsula": [63.88,-22.45], "South Iceland": [63.85,-20.20], "North Iceland": [65.80,-18.60],
   // Aurora zone. Latitude is the whole point here, so these are pinned on the towns themselves.
   "Sardinia": [40.92,9.51],
@@ -16910,71 +16911,60 @@ const ONE_LIST = {
           cur: "\u00a3",
           buildOnly: true,
           daysTitle: "What this week is",
-          daysIntro: "The Open is the oldest championship in golf, and every fifth year it comes home: the OLD COURSE AT ST ANDREWS, where the game was first played, and where the eighteenth green sits in the middle of a town. In 2027 it is the 155th Open, 15\u201318 July, practice days from the 12th \u2014 a hundred years to the week since Bobby Jones won there in 1927. Nothing in golf looks like a Sunday at St Andrews: the Swilcan Bridge, the Road Hole, the grandstands wrapped around the last green and the town\u2019s windows above them.\n\nTHIS IS THE ONE TO BUILD A WEEK AROUND, because St Andrews itself is the rare championship venue with hotels at the standard on the course: the Old Course Hotel over the seventeenth, Rusacks on the eighteenth, the Fairmont on the cliffs. Tickets come two ways \u2014 general admission through The R&A\u2019s ballot, and official hospitality sold by The Open direct \u2014 and the town fills a year ahead. Everything is chosen in Build this trip.",
-          stayWord: "hotel",
-          stayLead: "Where to stay \u2014 on the course",
-          stayNote: "Three hotels at the standard, and all three are on or beside the Old Course \u2014 which at The Open is everything, because the town is closed to cars and you walk to the gates. RUSACKS first: it stands on the eighteenth, with the green below the windows. The OLD COURSE HOTEL wraps the seventeenth, the Road Hole, with its own spa. The FAIRMONT is on the cliffs two miles out with a shuttle. Book the moment dates are fixed; Open week at St Andrews sells a year ahead.",
-          stay: [
-            { name: "Rusacks St Andrews", area: "On the 18th \u00b7 the town", note: "THE ADDRESS FOR THE OPEN. The hotel stands over the eighteenth fairway; the rooftop and the front rooms look straight down the last hole to the R&A clubhouse. Walk out of the door and you are at the gates." },
-            { name: "Old Course Hotel, Golf Resort & Spa", area: "On the 17th \u00b7 the Road Hole", note: "Wrapped around the seventeenth \u2014 the Road Hole \u2014 with the Jigger Inn at its foot and a proper spa for the evenings. The other great Open address, a few minutes\u2019 walk along the course to the town." },
-            { name: "Fairmont St Andrews", area: "The cliffs \u00b7 two miles out", note: "Above the sea on the Kingsbarns side, with two courses of its own and space; a shuttle into town during the championship. For a client who wants the resort rather than the town." },
-          ],
-          ticketsTitle: "Two ways into The Open",
-          tickets: "GENERAL ADMISSION is sold by The R&A through THE OPEN BALLOT: you register with The One Club, the ballot runs in the late summer of the year before, and tickets are allocated by draw \u2014 one of the fairest systems in sport, and one of the least certain. OFFICIAL HOSPITALITY is sold by The Open direct: a championship ticket with a hospitality facility on the course, dining and a bar, grandstand access and priority entry, by the day. It is the certain route and the Voyage One recommendation for the championship days. Practice days, 12\u201314 July, are easier to come by and are a wonderful way to walk the Old Course with the players on it. Nothing here is bought from a reseller while The R&A can provide it.",
-          ticketBands: [
-            { label: "Official hospitality \u2014 championship days, sold by The Open direct \u00b7 the certain route", price: "Official pricing when released" },
-            { label: "General admission \u2014 The Open Ballot, through The One Club", price: "By draw" },
-            { label: "Practice days \u2014 12 to 14 July", price: "Official pricing when released" },
-          ],
-          ticketNote: "Everything is chosen in Build this trip, in order: dates, hotel, flights, transfer, then how you attend, then the days, dinners and the rest of Fife. Nothing is bought on this page. For premium hospitality and boxes, Sophie Walker at Sporting Agenda (sophiewalker@sportingagenda.co.uk) is our partner.",
-          sale: { status: "unknown", year: "2027", by: "The R&A", city: "St Andrews, Scotland", slug: "the-open-2027", remindDate: "2026-10-15", remindWhy: "the ballot and official hospitality for a July Open typically open in the late summer and autumn of the year before", infoUrl: "https://www.theopen.com/tickets", buyUrl: "", remindNote: "The 155th Open, St Andrews, 15\u201318 July 2027 \u2014 check whether The R&A has opened the ballot and official hospitality. Register with The One Club first. A Voyage One reminder." },
+          daysIntro: "The Open is the oldest championship in golf, and every fifth year it comes home: the OLD COURSE AT ST ANDREWS, where the game was first played, and where the eighteenth green sits in the middle of a town. In 2027 it is the 155th Open, 15\u201318 July, practice days from the 12th \u2014 a hundred years to the week since Bobby Jones won there in 1927. Nothing in golf looks like a Sunday at St Andrews: the Swilcan Bridge, the Road Hole, the grandstands wrapped around the last green and the town\u2019s windows above them.",
+          closed: "The hotels on the Old Course are booked for Open week 2027, so this is not a trip we are building. The Open 2028, at Royal Lytham & St Annes, is open to plan now.",
+          closedNext: "The Open Championship \u00b7 Royal Lytham & St Annes", closedNextLabel: "See The Open 2028",
+        } },
+      { title: "The Open Championship \u00b7 Royal Lytham & St Annes", tripName: "The Open 2028", city: "Lytham St Annes, England", airport: "MAN", airportName: "Manchester", start: "2028-08-01", end: "2028-08-07", dateLabel: "August 3\u20136, 2028 \u00b7 Open week from July 30", nights: 6, photo: "Royal Lytham & St Annes Golf Club", gallery: ["Royal Lytham & St Annes Golf Club", "Lytham Windmill Lytham Green"],
+        blurb: "The 156th Open, at Royal Lytham & St Annes \u2014 the Lancashire links where Bobby Jones and Seve Ballesteros won, hosting for the twelfth time.",
+        guide: {
+          cur: "\u00a3",
+          buildOnly: true,
+          daysTitle: "What this week is",
+          daysIntro: "The 156th Open is at ROYAL LYTHAM & ST ANNES, on the Lancashire coast, with Open week running from Sunday 30 July to Sunday 6 August 2028 and the four championship rounds from Thursday 3 August. It is the twelfth Open here and the first since Ernie Els won in 2012. Bobby Jones won the first one in 1926, Tony Jacklin won in 1969, and Seve Ballesteros won twice, in 1979 and 1988.\n\nIt is unlike any other course The Open visits. It is not on the sea: red-brick houses and a railway line run along its edges, the town is at the gates, and it is the only Open course that begins with a par three. It is known above all for its bunkers. The crowd is close to the play all the way round, which is why people who have been say this is the one to walk.",
+          ticketsTitle: "How you get in",
+          tickets: "The R&A has announced the venue and the dates and is taking registrations of interest now. Tickets and official hospitality for 2028 have not been released, and no prices have been published.\n\nThere are two ways in. GENERAL ADMISSION is sold by The R&A, in recent years by ballot through The One Club, which is free to join. OFFICIAL HOSPITALITY is a championship ticket with a place to sit, dine and drink on the course, sold by the day. For hospitality, your request goes to Sophie Walker @ Sporting Agenda in London, who replies with what is available and the price once it is released.",
+          ticketLink: "https://www.theopen.com/latest/royal-lytham-and-st-annes-host-venue-2028", ticketLinkLabel: "The R&A\u2019s announcement and registration",
+          sale: { status: "unknown", year: "2028", by: "The R&A", city: "Lytham St Annes, England", slug: "the-open-2028", remindDate: "2027-07-20", remindWhy: "The R&A has usually opened the ticket ballot in the summer of the year before", infoUrl: "https://www.theopen.com/latest/royal-lytham-and-st-annes-host-venue-2028", buyUrl: "", remindNote: "The 156th Open, Royal Lytham & St Annes, 30 July\u20136 August 2028 \u2014 check whether The R&A has opened the ballot and official hospitality. A Voyage One reminder." },
+          broker: { who: "Sophie Walker", first: "Sophie", firm: "Sporting Agenda", city: "London", email: "sophiewalker@sportingagenda.co.uk", eventName: "The Open", profile: true, title: "Request your place at The Open", unit: "tickets and hospitality", seatsLabel: "Guests", pairs: false, seatsDefault: 2,
+            replyLine: "Your request goes to Sophie Walker @ Sporting Agenda in London, who replies with what is available and the price.",
+            closing: "Please let me know what is available and the price, and whether you can suggest somewhere to stay close to the course." },
           profile: [
-            { key: "route", q: "How would you like to attend?", options: [["hospitality", "Official hospitality \u2014 the certain route"], ["ballot", "General admission through the ballot"], ["both", "Hospitality for the weekend, general admission for practice"]] },
+            { key: "route", q: "How would you like to attend?", options: [["hospitality", "Official hospitality on the championship days"], ["weekend", "Official hospitality for Saturday and Sunday"], ["both", "Hospitality for the weekend, general admission for a practice day"]] },
           ],
           build: [
             { key: "access", title: "Tickets and hospitality", cta: "Add tickets", day: 2, time: "08:00", icon: "trophy",
-              why: (pr) => pr.route === "ballot" ? "Register with The One Club and enter The Open Ballot when it opens; tickets are allocated by draw for each day. Less certain; if you are not drawn, hospitality is the fallback and it sells out. Official channels only." : pr.route === "both" ? "Official hospitality for the championship days you care about most \u2014 the weekend \u2014 and ballot or practice-day tickets for the rest of the week. The best of both, at less than hospitality all week." : "Official hospitality from The Open directly: a championship ticket with a hospitality facility on the course, dining and a bar, grandstand access and priority entry, by the day. When The R&A publishes the 2027 facilities and prices they appear here; nothing is invented before then.",
-              links: [{ label: "The Open \u2014 official tickets", url: "https://www.theopen.com/tickets" }, { label: "The Open \u2014 official hospitality", url: "https://www.theopen.com/hospitality" }] },
+              why: "Nothing for 2028 is on sale yet. Choose how you would like to attend and send the request; Sophie Walker @ Sporting Agenda replies with what is available and the price once The R&A releases it.",
+              links: [{ label: "The Open 2028 \u2014 The R&A", url: "https://www.theopen.com/latest/royal-lytham-and-st-annes-host-venue-2028" }] },
             { key: "days", title: "Which days", cta: "Choose the days", bookable: false, day: 2, icon: "trophy",
-              why: "Thursday and Friday are the whole field and the calmest crowds; Saturday is moving day; SUNDAY IS THE ONE \u2014 the walk up the eighteenth, the town at the windows, the Claret Jug. A practice day, 12\u201314 July, is the Old Course with the players on it and room to breathe. Most clients take two championship days and one practice day." },
-            { key: "walk", title: "Walk the Old Course", cta: "Add to a practice day", bookable: false, optional: true, day: 0, icon: "trophy",
-              why: "On a practice day you can walk the whole course behind the players \u2014 the Road Hole, the Swilcan Bridge, the shared greens \u2014 which on championship days the grandstands and ropes make impossible. Do it once." },
-            { key: "fife", title: "The rest of Fife", cta: "Add a day out", bookable: false, optional: true, day: 5, icon: "trophy",
-              why: "Kingsbarns and Carnoustie if you play; the East Neuk fishing villages \u2014 Crail, Anstruther, Elie \u2014 and the Fife coastal path; Edinburgh an hour away for a night before or after. Not too much; the championship is the week." },
-            { key: "dining", title: "Dinner in St Andrews", cta: "Plan the dinners", bookable: false, day: 1, time: "20:00", icon: "dine",
-              why: "The town is small and Open week fills every table months out. Book the hotel dining rooms first \u2014 Rusacks\u2019 rooftop, the Old Course\u2019s Road Hole restaurant \u2014 then the town. Sunday night after the presentation is the one that matters." },
+              why: "Thursday 3 and Friday 4 August are the whole field. Saturday 5 is the day the leaders emerge. Sunday 6 August is the final round and the Claret Jug. The days before are practice days, with room to walk the course behind the players." },
+            { key: "coast", title: "The rest of the golf coast", cta: "Add a day out", bookable: false, optional: true, day: 5, icon: "trophy",
+              why: "Royal Birkdale at Southport and Royal Liverpool at Hoylake are both on this coast, if you play." },
           ],
           bookOrder: [
-            { what: "The hotel", when: "Now", why: "Open week at St Andrews sells a year ahead; Rusacks and the Old Course go first." },
-            { what: "The One Club registration and the ballot", when: "Now, and when the ballot opens", why: "Free to register; the ballot is the only official route to general admission." },
-            { what: "Official hospitality", when: "When The Open releases it \u2014 the reminder is set", why: "The certain route. Sunday sells first." },
-            { what: "Flights to Edinburgh", when: "When schedules open", why: "Ninety minutes by road; Heathrow\u2019s assistance and a connection, or a direct from the US in season." },
-            { what: "The transfer", when: "Once the flight is chosen", why: "Private car to St Andrews; the town is closed to cars in Open week, so the hotel says where the driver stops." },
-            { what: "Dinners", when: "Months ahead", why: "A small town, full for a week." },
+            { what: "The request to Sophie Walker", when: "Now", why: "So you are first in line when hospitality is released." },
+            { what: "Registration with The R&A", when: "Now", why: "The R&A is taking registrations of interest for 2028." },
+            { what: "Where you stay", when: "Now", why: "Lytham St Annes is a small town and Open week takes every room." },
+            { what: "Flights to Manchester", when: "When schedules open", why: "About an hour and a quarter by road to the course." },
           ],
           stepsTitle: "The week",
           steps: [
-            { h: "Tuesday 13 July \u00b7 Arrive", b: "Land at Edinburgh, the private transfer ninety minutes to St Andrews, and in at Rusacks or the Old Course Hotel. A walk to the eighteenth green before dinner." },
-            { h: "Wednesday 14 July \u00b7 Practice day", b: "Walk the whole Old Course behind the players \u2014 the only day you can. Lunch in the town; the evening in the hotel." },
-            { h: "Thursday 15 and Friday 16 July \u00b7 The championship begins", b: "The full field, the calmest crowds, and \u2014 if you have hospitality \u2014 a base with a view. Dinner in town." },
-            { h: "Saturday 17 July \u00b7 Moving day", b: "The cut is made, the leaders emerge, and the town starts to feel it. A day at the course, or half a day and the East Neuk." },
-            { h: "Sunday 18 July \u00b7 The Claret Jug", b: "The whole day at the course; the walk up the eighteenth; the presentation on the green. Dinner afterwards is the night of the week." },
-            { h: "Monday 19 July \u00b7 Depart", b: "The transfer to Edinburgh \u2014 or a night in Edinburgh first." },
+            { h: "Tuesday 1 August \u00b7 Arrive", b: "Land at Manchester and drive about an hour and a quarter to the Lancashire coast." },
+            { h: "Wednesday 2 August \u00b7 Practice day", b: "Walk the course behind the players, the day you can get closest." },
+            { h: "Thursday 3 and Friday 4 August \u00b7 The championship begins", b: "The whole field, both days." },
+            { h: "Saturday 5 August \u00b7 Moving day", b: "The cut is made and the leaders emerge." },
+            { h: "Sunday 6 August \u00b7 The Claret Jug", b: "The final round and the presentation on the eighteenth green." },
+            { h: "Monday 7 August \u00b7 Depart", b: "Back to Manchester, or north to the Lake District first." },
           ],
           beyondTitle: "Around the championship",
           beyond: [
-            { name: "Kingsbarns and Carnoustie", note: "Two of the great links within an hour, if you play. Kingsbarns is fifteen minutes; Carnoustie across the Tay." },
-            { name: "The East Neuk", note: "Crail, Anstruther and Elie \u2014 the fishing villages down the coast, and the best fish supper in Scotland at Anstruther." },
-            { name: "Edinburgh", note: "An hour south. A night before or after, with our Edinburgh hotels." },
+            { name: "The Lake District", note: "A little over an hour north, with our Lake District hotels. A night or two before or after." },
           ],
           notes: [
-            "BOOK THE HOTEL NOW. Open week at St Andrews is the hardest week of the year to find a room, and only three hotels meet the standard.",
-            "REGISTER WITH THE ONE CLUB. It is free, it is the only door to the ballot, and the reminder tells you when the ballot opens.",
-            "SUNDAY SELLS FIRST. If hospitality is the route, secure Sunday before anything else.",
-            "THE TOWN CLOSES TO CARS. Stay on the course and walk; the hotel tells the driver where to stop.",
-            "IT RAINS AT ST ANDREWS IN JULY. It also shines. Bring both.",
+            "WHERE TO STAY. Lytham St Annes has no hotel on the Voyage One list. Your request to Sophie Walker asks what she can suggest close to the course, and in the trip builder you can add any hotel by name.",
+            "THE DATES ARE LATER THAN USUAL. Open week is 30 July to 6 August 2028; the championship rounds are Thursday 3 to Sunday 6 August.",
           ],
-          handoff: "Plan this trip opens ST ANDREWS for six nights with Rusacks, the Old Course Hotel and the Fairmont, flights into Edinburgh and the transfer. Tickets through The R&A\u2019s ballot and official hospitality when released; the reminder is on the card. Sophie Walker at Sporting Agenda for premium hospitality.",
+          handoff: "Plan this trip opens LYTHAM ST ANNES for six nights, Tuesday to Monday, with flights into Manchester and the request for your tickets and hospitality, written and ready to send to Sophie Walker @ Sporting Agenda.",
         } },
     ],
     "Tennis": [
@@ -20184,7 +20174,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
     // stranded them on the page. picksOptional says so and the button is live on arrival.
     const baseReady = !(g && g.basePicks && g.basePicks.length) || !!basePick;
     const venueTBA = !!(g && g.venueTBA);   // the host city is not yet announced: inspire, price, remind — but no trip yet
-    const ready = !venueTBA && (!needPick || !!(g && g.picksOptional) || selDays.length > 0) && baseReady;
+    const ready = !venueTBA && !(g && g.closed) && (!needPick || !!(g && g.picksOptional) || selDays.length > 0) && baseReady;
     const selDayLabels = selDays.map((d) => d.label);
     const sortedDays = selDays.map((d) => d.date).sort();
     const planDates = sortedDays.length ? { start: sortedDays[0], end: sortedDays[sortedDays.length - 1], dateLabel: selDayLabels.join(" · ") } : {};
@@ -20281,7 +20271,15 @@ function OneList({ onPick, onBack, onHome, initial }) {
             <a className="vo-noprint" href={brandedLink(g.ticketLink, { kind: "tickets", name: L.title || "tickets", city: "" })} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", background: t.pine, color: t.paper, borderRadius: 999, padding: "12px 22px", fontSize: 13.5, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", textDecoration: "none" }}>{g.ticketLinkLabel || "View current options"}</a>
             <div style={{ fontSize: 12.5, color: t.inkFaint, marginTop: 6 }}>{String(g.ticketLink).replace(/^https?:\/\//, "")}</div>
           </div>) : null}{g.broker ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.broker.intro}</div> : g.ticketContact ? <div style={{ fontSize: 13.5, color: t.inkSoft, lineHeight: 1.6, marginTop: 14, padding: "12px 14px", background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 10 }}>{g.ticketContact}</div> : null}{g.ticketNote ? <div style={{ fontSize: 13, color: t.inkFaint, lineHeight: 1.55, marginTop: 10 }}>{g.ticketNote}</div> : null}</div>) : null;
-    const planBlock = (<div style={{ textAlign: "center", marginTop: 8 }}>
+    // M1124 (26 Nov 2026, Tricia): an experience we show but do not build (The Open 2027: the hotels on
+    // the course are booked). g.closed is the sentence; g.closedNext names the experience to offer instead.
+    const closedNextEv = g && g.closedNext ? Object.values(ONE_LIST).flatMap((c) => Object.values(c).flat()).find((x) => x.title === g.closedNext) : null;
+    const closedBox = g && g.closed ? (<div style={{ background: t.card, borderLeft: `3px solid ${t.brass}`, borderRadius: 12, padding: "16px 18px", textAlign: "left" }}>
+      <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: t.brass, fontWeight: 700, marginBottom: 6 }}>Not open to build</div>
+      <div style={{ fontSize: 15.5, color: t.ink, lineHeight: 1.6 }}>{g.closed}</div>
+      {closedNextEv ? <button onClick={() => { setSel(closedNextEv); try { window.scrollTo(0, 0); } catch (e) {} }} style={{ marginTop: 12, background: t.pine, color: t.paper, border: "none", borderRadius: 999, padding: "12px 24px", fontSize: 14.5, fontWeight: 700, fontFamily: font.ui, cursor: "pointer" }}>{g.closedNextLabel || "See " + closedNextEv.title} {"\u2192"}</button> : null}
+    </div>) : null;
+    const planBlock = closedBox ? null : (<div style={{ textAlign: "center", marginTop: 8 }}>
           {(selDayLabels.length || stayPick || costumePick || Object.keys(dineSel).length || Object.keys(addSel).length) ? (<div style={{ background: t.card, border: `1px solid ${t.line}`, borderRadius: 14, padding: "14px 16px", maxWidth: 460, margin: "0 auto 16px", textAlign: "left" }}>
             <div style={{ fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase", color: t.brass, fontWeight: 500, marginBottom: 8 }}>Your package so far</div>
             {selDayLabels.length ? <div style={{ fontSize: 14.5, color: t.ink, marginBottom: 6 }}><span style={{ color: t.inkFaint }}>{L.recapLabel}{selDayLabels.length > 1 ? "s" : ""} · </span><strong>{selDayLabels.join(", ")}</strong></div> : null}
@@ -20309,6 +20307,7 @@ function OneList({ onPick, onBack, onHome, initial }) {
         : (<div style={{ maxWidth: 900, margin: "0 auto 30px" }}><Photo query={gal[0]} h={340} radius={18} raw /></div>)) : null}
       <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", flexDirection: "column", gap: 26 }}>
         <div style={{ fontFamily: font.display, fontStyle: "italic", fontSize: "clamp(19px,3.6vw,23px)", color: t.ink, lineHeight: 1.5, textAlign: "center" }}>{ev.blurb}</div>
+        {closedBox}
         {g ? (<>
           {/* An optional narrative opener: what this event actually IS, before we ask anyone to
               choose anything. Only renders when the event supplies it, so nothing else changes. */}
